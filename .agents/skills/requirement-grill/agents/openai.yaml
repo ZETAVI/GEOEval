@@ -1,0 +1,4 @@
+interface:
+  display_name: "Requirement Grill"
+  short_description: "Clarify scope, tradeoffs, and acceptance criteria"
+  default_prompt: "Use $requirement-grill to resolve ambiguity, scope, tradeoffs, and acceptance boundaries before designing this change."

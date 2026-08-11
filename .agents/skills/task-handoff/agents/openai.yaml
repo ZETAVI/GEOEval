@@ -1,0 +1,7 @@
+interface:
+  display_name: "Task Handoff"
+  short_description: "Create a compact continuation-ready task handoff"
+  default_prompt: "Use $task-handoff to summarize current state, decisions, evidence, risks, and exact next actions for another agent or session."
+
+policy:
+  allow_implicit_invocation: false

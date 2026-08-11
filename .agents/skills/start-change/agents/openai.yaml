@@ -1,0 +1,7 @@
+interface:
+  display_name: "Start Change"
+  short_description: "Create a lightweight spec-driven change record"
+  default_prompt: "Use $start-change to classify this request and create the minimum change artifacts needed before implementation."
+
+policy:
+  allow_implicit_invocation: false

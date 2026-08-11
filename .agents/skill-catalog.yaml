@@ -1,0 +1,64 @@
+version: 1
+
+skills:
+  - name: requirement-grill
+    path: skills/requirement-grill
+    category: business-process
+    invocation: implicit
+    scope: framework
+    risk: read-only
+    maturity: pilot
+    owner: framework-maintainers
+    dependencies: []
+
+  - name: start-change
+    path: skills/start-change
+    category: business-process
+    invocation: explicit
+    scope: framework
+    risk: write
+    maturity: pilot
+    owner: framework-maintainers
+    dependencies:
+      - requirement-grill
+
+  - name: source-research
+    path: skills/source-research
+    category: library-api-reference
+    invocation: implicit
+    scope: framework
+    risk: read-only
+    maturity: pilot
+    owner: framework-maintainers
+    dependencies: []
+
+  - name: architecture-review
+    path: skills/architecture-review
+    category: code-quality
+    invocation: implicit
+    scope: framework
+    risk: read-only
+    maturity: pilot
+    owner: framework-maintainers
+    dependencies: []
+
+  - name: verify-change
+    path: skills/verify-change
+    category: product-verification
+    invocation: implicit
+    scope: framework
+    risk: read-only
+    maturity: pilot
+    owner: framework-maintainers
+    dependencies: []
+
+  - name: task-handoff
+    path: skills/task-handoff
+    category: business-process
+    invocation: explicit
+    scope: framework
+    risk: write
+    maturity: pilot
+    owner: framework-maintainers
+    dependencies: []
+

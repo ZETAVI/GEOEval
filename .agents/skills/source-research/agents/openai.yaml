@@ -1,0 +1,4 @@
+interface:
+  display_name: "Source Research"
+  short_description: "Research external technology from primary sources"
+  default_prompt: "Use $source-research to verify official documentation, versions, interfaces, and constraints before choosing or integrating external technology."

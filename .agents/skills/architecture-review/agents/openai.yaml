@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture Review"
+  short_description: "Review boundaries, coupling, reuse, and change risk"
+  default_prompt: "Use $architecture-review to assess a proposed or implemented change for module boundaries, coupling, reuse, and architectural drift."

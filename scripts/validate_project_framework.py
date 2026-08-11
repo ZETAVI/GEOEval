@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+"""Validate GEOEval's adopted AI-native project framework."""
+
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SKILLS_DIR = ROOT / ".agents" / "skills"
+CATALOG = ROOT / ".agents" / "skill-catalog.yaml"
+FORBIDDEN_SKILL_FILES = {
+    "README.md",
+    "INSTALLATION_GUIDE.md",
+    "QUICK_REFERENCE.md",
+    "CHANGELOG.md",
+}
+
+
+def parse_frontmatter(path: Path) -> dict[str, str]:
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---\n"):
+        return {}
+    try:
+        block = text.split("---\n", 2)[1]
+    except IndexError:
+        return {}
+    fields: dict[str, str] = {}
+    for line in block.splitlines():
+        match = re.match(r"^([a-zA-Z0-9_-]+):\s*(.+?)\s*$", line)
+        if match:
+            fields[match.group(1)] = match.group(2).strip('"\'')
+    return fields
+
+
+def catalog_names() -> list[str]:
+    text = CATALOG.read_text(encoding="utf-8")
+    return re.findall(r"^\s{2}- name:\s*([a-z0-9-]+)\s*$", text, re.MULTILINE)
+
+
+def catalog_invocations() -> dict[str, str]:
+    text = CATALOG.read_text(encoding="utf-8")
+    records: dict[str, str] = {}
+    for block in re.split(r"(?m)^  - name:\s*", text)[1:]:
+        lines = block.splitlines()
+        name = lines[0].strip()
+        invocation = re.search(r"(?m)^    invocation:\s*(\S+)\s*$", block)
+        if invocation:
+            records[name] = invocation.group(1)
+    return records
+
+
+def validate_skills(errors: list[str]) -> None:
+    names = catalog_names()
+    invocations = catalog_invocations()
+    if len(names) != len(set(names)):
+        errors.append("skill-catalog.yaml contains duplicate skill names")
+
+    directories = sorted(path for path in SKILLS_DIR.iterdir() if path.is_dir())
+    directory_names = [path.name for path in directories]
+    if sorted(names) != directory_names:
+        errors.append(
+            "catalog and skill directories differ: "
+            f"catalog={sorted(names)}, directories={directory_names}"
+        )
+
+    for skill_dir in directories:
+        skill_file = skill_dir / "SKILL.md"
+        if not skill_file.is_file():
+            errors.append(f"{skill_dir.relative_to(ROOT)} is missing SKILL.md")
+            continue
+
+        fields = parse_frontmatter(skill_file)
+        if fields.get("name") != skill_dir.name:
+            errors.append(
+                f"{skill_file.relative_to(ROOT)} name does not match its directory"
+            )
+        description = fields.get("description", "")
+        if len(description) < 40:
+            errors.append(f"{skill_file.relative_to(ROOT)} has a weak description")
+        if "TODO" in skill_file.read_text(encoding="utf-8"):
+            errors.append(f"{skill_file.relative_to(ROOT)} contains TODO content")
+        if len(skill_file.read_text(encoding="utf-8").splitlines()) > 500:
+            errors.append(f"{skill_file.relative_to(ROOT)} exceeds 500 lines")
+
+        forbidden = FORBIDDEN_SKILL_FILES.intersection(
+            path.name for path in skill_dir.iterdir() if path.is_file()
+        )
+        if forbidden:
+            errors.append(
+                f"{skill_dir.relative_to(ROOT)} contains forbidden files: {sorted(forbidden)}"
+            )
+
+        ui_file = skill_dir / "agents" / "openai.yaml"
+        if not ui_file.is_file():
+            errors.append(f"{skill_dir.relative_to(ROOT)} is missing agents/openai.yaml")
+        else:
+            ui_text = ui_file.read_text(encoding="utf-8")
+            if f"${skill_dir.name}" not in ui_text:
+                errors.append(
+                    f"{ui_file.relative_to(ROOT)} default prompt must mention ${skill_dir.name}"
+                )
+            short_description = re.search(
+                r'(?m)^\s{2}short_description:\s*["\'](.+)["\']\s*$', ui_text
+            )
+            if not short_description or not 25 <= len(short_description.group(1)) <= 64:
+                errors.append(
+                    f"{ui_file.relative_to(ROOT)} short_description must be 25-64 characters"
+                )
+            if invocations.get(skill_dir.name) == "explicit" and not re.search(
+                r"(?m)^\s{2}allow_implicit_invocation:\s*false\s*$", ui_text
+            ):
+                errors.append(
+                    f"{ui_file.relative_to(ROOT)} must disable implicit invocation"
+                )
+
+
+def validate_local_links(errors: list[str]) -> None:
+    pattern = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
+    for markdown in ROOT.rglob("*.md"):
+        text = markdown.read_text(encoding="utf-8")
+        for target in pattern.findall(text):
+            target = target.strip().split("#", 1)[0]
+            if not target or target.startswith(("http://", "https://", "mailto:")):
+                continue
+            resolved = (markdown.parent / target).resolve()
+            if not resolved.exists():
+                errors.append(
+                    f"{markdown.relative_to(ROOT)} has broken local link: {target}"
+                )
+
+
+def main() -> int:
+    errors: list[str] = []
+    required = [
+        ROOT / "README.md",
+        ROOT / "AGENTS.md",
+        ROOT / "CHANGELOG.md",
+        ROOT / "docs" / "process" / "operating-principles.md",
+        ROOT / "docs" / "product" / "vision.md",
+        ROOT / "docs" / "product" / "glossary.md",
+        ROOT / "docs" / "architecture" / "overview.md",
+        ROOT / "openspec" / "README.md",
+        ROOT
+        / "openspec"
+        / "changes"
+        / "define-product-foundation"
+        / "proposal.md",
+        ROOT
+        / "openspec"
+        / "changes"
+        / "define-product-foundation"
+        / "tasks.md",
+        CATALOG,
+    ]
+    for path in required:
+        if not path.is_file():
+            errors.append(f"missing required file: {path.relative_to(ROOT)}")
+
+    if not errors:
+        validate_skills(errors)
+        validate_local_links(errors)
+
+    if errors:
+        print("Project framework validation failed:")
+        for error in errors:
+            print(f"- {error}")
+        return 1
+
+    print("Project framework validation passed.")
+    print(f"Validated {len(catalog_names())} cataloged skills and local Markdown links.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

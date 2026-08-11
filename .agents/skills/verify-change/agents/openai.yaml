@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Change"
+  short_description: "Verify behavior with task-appropriate evidence"
+  default_prompt: "Use $verify-change to prove that a change works using tests, runtime evidence, contracts, or visual inspection before completion."
