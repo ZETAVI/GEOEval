@@ -12,6 +12,7 @@ Choose evidence that exercises the boundary named in the claim.
 | Migration is safe | Rehearsal on representative data plus rollback evidence | Migration file parses |
 | Deployment is live | Named environment revision, health, and user-path check | Branch merged |
 | Document is usable | Rendered or linked artifact inspected against requirements | Source file generated |
+| Design knowledge is reconciled | Current spec or owner-local contract matches implementation; obsolete active sources removed or superseded | PR says “docs updated” |
 
 ## Verification Depth
 

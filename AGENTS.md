@@ -11,8 +11,9 @@ Do not treat historical prompts as approved requirements. They are research inpu
 1. `docs/product/vision.md`
 2. `openspec/changes/define-product-foundation/`
 3. `docs/process/operating-principles.md`
-4. The nearest relevant product, architecture, spec, or ADR document
-5. `GEO-Eval-Prompts.md` only when historical context is needed
+4. `docs/process/design-knowledge.md` when creating or changing durable design
+5. The nearest relevant product, architecture, spec, contract, or ADR document
+6. `GEO-Eval-Prompts.md` only when historical context is needed
 
 Keep always-loaded guidance short. Load detailed process documents and Skill references only when the task needs them.
 
@@ -27,6 +28,8 @@ Keep always-loaded guidance short. Load detailed process documents and Skill ref
 - Released value: `CHANGELOG.md` and GitHub Releases
 
 One durable fact has one canonical home. Other artifacts link to it rather than maintaining a copy.
+
+Current design evolves in place. Before creating a durable design document, search existing executable sources, specs, ADRs, product language, and owner-local contracts. Do not create version-copy files such as `v2`, `new`, `final`, or `latest`; update, move, merge, or delete the current owner and let Git preserve history. Follow `docs/process/design-knowledge.md`.
 
 ## Change workflow
 
@@ -66,6 +69,8 @@ Add application commands here only after they have been executed successfully in
 - Clarify materially different interpretations before implementation.
 - During product discovery, discuss product meaning before technical solutions.
 - Search existing terms, components, contracts, and capabilities before creating new ones.
+- Keep uncertain design in the active change; create a durable contract only after its owner and boundary are stable.
+- Reconcile accepted design into its canonical or executable owner and remove obsolete active explanations before closing a change.
 - Prefer the smallest coherent design; reuse must be earned by stable semantics.
 - Refactor locally at the seam exposed by a change; avoid unrelated cleanup and large rewrites.
 - Research external technology from current primary sources and record uncertainty.
@@ -81,6 +86,8 @@ The human owner decides product meaning, scope tradeoffs, risk acceptance, conse
 
 - Flag behavior that diverges from the approved change or current spec.
 - Flag duplicated sources of truth, speculative abstractions, and unrelated refactors.
+- Flag new design documents that lack a stable owner or duplicate an executable or canonical source.
+- Flag completed changes whose accepted design remains only in a change folder, PR, or handoff.
 - Flag external interface assumptions without primary-source or controlled runtime evidence.
 - Flag completion claims without discriminating verification.
 - Flag parallel-write plans without fixed interfaces and disjoint ownership.

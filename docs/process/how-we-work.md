@@ -26,6 +26,8 @@ Classify the work:
 
 GitHub Issues track owner and status. They link to the change folder rather than copying it.
 
+Before adding a durable design document, follow the [design-knowledge admission test](design-knowledge.md). Record the documentation impact as `none`, `update`, `add`, `move`, `merge`, `delete`, `generate`, or `supersede`.
+
 ## 3. Research before external design
 
 Use `$source-research` before selecting or integrating external libraries, APIs, models, services, standards, or platforms.
@@ -80,9 +82,10 @@ After approval and verification:
 1. merge accepted behavior into `openspec/specs/`;
 2. add or supersede ADRs for durable tradeoffs;
 3. update the canonical glossary, contract, component, or design-system owner once;
-4. put user-visible release value in `CHANGELOG.md` through the release workflow;
-5. close or archive the change record;
-6. ensure unresolved work has an owner and durable location.
+4. remove, move, merge, regenerate, or supersede obsolete design material;
+5. put user-visible release value in `CHANGELOG.md` through the release workflow;
+6. archive the change record after its delta is reconciled;
+7. ensure unresolved work has an owner and durable location.
 
 Use `$task-handoff` only when work crosses an agent, session, worktree, branch, or owner boundary. The handoff is a compact current snapshot; it is not a permanent session diary.
 

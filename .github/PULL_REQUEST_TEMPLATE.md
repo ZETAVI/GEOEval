@@ -27,7 +27,9 @@ Summarize the design and important boundaries. Link to canonical specs or ADRs i
 ## Documentation and release
 
 - [ ] Current specs reconciled where behavior changed
+- [ ] Canonical design sources updated, moved, merged, deleted, regenerated, or explicitly unaffected
+- [ ] No accepted design remains only in the change record, PR, or handoff
+- [ ] No obsolete or version-copy design document remains active
 - [ ] ADR added or superseded where required
 - [ ] Release-note candidate included, or marked `release:skip`
 - [ ] Handoff unnecessary, or current continuation state linked
-

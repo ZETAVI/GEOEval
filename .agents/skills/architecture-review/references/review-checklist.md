@@ -29,3 +29,11 @@
 - The design is the simplest one that satisfies current requirements.
 - Compatibility and deprecation paths are explicit for public contracts.
 - Tests protect behavior and boundaries without freezing private implementation.
+
+## Design Knowledge
+
+- Every durable design claim has one executable or current-document owner.
+- A new design document has a stable scope, owner, and lifetime that existing sources cannot satisfy.
+- Current documents are updated in place rather than copied into versioned variants.
+- Change-specific design is reconciled into current specs, contracts, code, schemas, tests, or ADRs before close.
+- Obsolete active explanations are moved, merged, deleted, regenerated, or superseded.

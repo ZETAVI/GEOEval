@@ -13,6 +13,8 @@ Make completion claims proportional to evidence. Verification is a reasoning tas
 
 Derive claims from the acceptance criteria, change tasks, risk notes, and actual diff. Include negative claims such as backward compatibility, unchanged behavior, absence of a regression, or safe rollback.
 
+For standard or architectural work, include a design-reconciliation claim: accepted design is represented by its current executable or canonical owner, and obsolete active explanations no longer compete with it.
+
 ### 2. Map Claims to Evidence
 
 Choose the smallest discriminating evidence using [the evidence-selection reference](references/evidence-selection.md):
@@ -24,6 +26,7 @@ Choose the smallest discriminating evidence using [the evidence-selection refere
 - runtime checks for the named environment and configured capability;
 - visual or accessibility inspection for rendered user interfaces and documents;
 - operational evidence for migrations, observability, rollback, and deployment state.
+- documentation evidence for current-spec reconciliation, generated references, canonical links, and removal or supersession of obsolete design material.
 
 Do not use a broad test suite as a substitute for a missing targeted check.
 
@@ -44,6 +47,8 @@ Report:
 | What is asserted | Test, command, inspection, or runtime link | Passed/failed/blocked/not run | Scope and limitations |
 
 Conclude with `verified`, `partially verified`, or `not verified`. State residual risk and any evidence that belongs in the PR or handoff.
+
+Do not mark a standard or architectural change verified when accepted behavior or design remains only in a change record, PR, or handoff.
 
 ## Guardrails
 

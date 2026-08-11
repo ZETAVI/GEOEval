@@ -13,6 +13,8 @@ Review whether a change preserves understandable ownership and evolvable boundar
 
 Identify the authoritative proposal or spec, the exact design or diff, relevant ADRs, module contracts, and stated non-goals. If these disagree, report the inconsistency before reviewing implementation detail.
 
+Identify which executable source or current design contract owns every affected design claim. Treat PRs, handoffs, and change designs as context, not current authority.
+
 ### 2. Map the Change
 
 Describe only the affected slice:
@@ -34,6 +36,8 @@ Use [the review checklist](references/review-checklist.md) and ask:
 - Are public contracts smaller than implementation details?
 - Are failures, consistency, security, migration, and rollback handled at the correct boundary?
 - Does the solution remain the simplest design that meets current requirements?
+- Does any new document duplicate executable facts or an existing current design owner?
+- Will the accepted design be reconciled in place, with obsolete active explanations removed?
 
 ### 4. Produce Actionable Findings
 
@@ -52,9 +56,12 @@ Order findings by consequence. If there are no material findings, say so and nam
 
 State one of: `ready`, `ready with follow-up`, or `not ready`. Identify any ADR, spec, contract, or task that must be updated. Do not implement fixes unless the user requested implementation.
 
+For a completed change, report `not ready` when accepted design remains only in a change folder, PR, or handoff.
+
 ## Guardrails
 
 - Do not require abstraction merely to reduce duplicated lines.
 - Do not turn style preferences into architectural findings.
 - Do not broaden a scoped change into opportunistic cleanup.
 - Do not approve from a diagram alone; verify the proposed dependency and data paths against code or contracts when available.
+- Do not request a new design document when an existing canonical or executable owner can be updated.

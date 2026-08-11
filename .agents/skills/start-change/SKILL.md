@@ -25,7 +25,7 @@ Use [the classification reference](references/change-classification.md):
 
 Choose the lowest level that honestly represents the risk. A large diff is not automatically architectural, and a small schema change may be.
 
-### 3. Run a Reuse and Ownership Check
+### 3. Run a Reuse, Ownership, and Documentation Check
 
 Before proposing a new abstraction, component, API, or document, answer:
 
@@ -33,8 +33,12 @@ Before proposing a new abstraction, component, API, or document, answer:
 2. Is the similarity semantic and stable, or merely visual or incidental?
 3. Which module owns the capability and its public contract?
 4. Will this change create a second source of truth?
+5. Which executable or canonical design sources already own the affected knowledge?
+6. Is the documentation impact `none`, `update`, `add`, `move`, `merge`, `delete`, `generate`, or `supersede`?
 
 Prefer local implementation until repeated, stable use cases justify a shared abstraction.
+
+Create a durable design document only when a stable capability, boundary, or reusable asset needs an owner that existing code, schemas, tests, specs, ADRs, or contracts cannot provide. Keep uncertain design inside this change. Never create a version-copy document in place of updating the current owner.
 
 ### 4. Create the Minimum Artifact Set
 
@@ -52,6 +56,7 @@ Confirm:
 - delta specs express behavior rather than code structure;
 - the design names boundaries, ownership, alternatives, and risks;
 - tasks include validation and documentation promotion;
+- documentation impact names the current owner and how obsolete material will be handled;
 - material human-owned decisions are approved.
 
 Stop for approval when product intent, irreversible architecture, external cost, security, migration, or destructive action remains undecided. Otherwise return the artifact paths and the first implementation step.
@@ -61,4 +66,5 @@ Stop for approval when product intent, irreversible architecture, external cost,
 - Do not open a change folder for research alone; produce a source brief first.
 - Do not duplicate the issue backlog inside `tasks.md`.
 - Do not turn design notes into permanent truth; archive the change after promoting accepted behavior and decisions.
+- Do not create `v2`, `new`, `final`, `latest`, or copied current-design files; Git carries history.
 - Do not modify implementation unless the user has also authorized implementation.

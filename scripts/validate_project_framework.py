@@ -17,6 +17,10 @@ FORBIDDEN_SKILL_FILES = {
     "QUICK_REFERENCE.md",
     "CHANGELOG.md",
 }
+VERSION_COPY_SUFFIX = re.compile(
+    r"(?:[-_](?:v[0-9]+|new|final|latest|copy))$",
+    re.IGNORECASE,
+)
 
 
 def parse_frontmatter(path: Path) -> dict[str, str]:
@@ -132,6 +136,24 @@ def validate_local_links(errors: list[str]) -> None:
                 )
 
 
+def validate_current_document_names(errors: list[str]) -> None:
+    for base in (
+        ROOT / "docs" / "product",
+        ROOT / "docs" / "architecture",
+        ROOT / "docs" / "process",
+    ):
+        if not base.is_dir():
+            continue
+        for markdown in base.rglob("*.md"):
+            if "adr" in markdown.relative_to(base).parts:
+                continue
+            if VERSION_COPY_SUFFIX.search(markdown.stem):
+                errors.append(
+                    f"{markdown.relative_to(ROOT)} looks like a version-copy current document; "
+                    "update, move, merge, or delete the canonical owner instead"
+                )
+
+
 def main() -> int:
     errors: list[str] = []
     required = [
@@ -139,10 +161,13 @@ def main() -> int:
         ROOT / "AGENTS.md",
         ROOT / "CHANGELOG.md",
         ROOT / "docs" / "process" / "operating-principles.md",
+        ROOT / "docs" / "process" / "design-knowledge.md",
+        ROOT / "docs" / "templates" / "design-contract.md",
         ROOT / "docs" / "product" / "vision.md",
         ROOT / "docs" / "product" / "glossary.md",
         ROOT / "docs" / "architecture" / "overview.md",
         ROOT / "openspec" / "README.md",
+        ROOT / "openspec" / "specs" / "project-governance" / "spec.md",
         ROOT
         / "openspec"
         / "changes"
@@ -162,6 +187,7 @@ def main() -> int:
     if not errors:
         validate_skills(errors)
         validate_local_links(errors)
+        validate_current_document_names(errors)
 
     if errors:
         print("Project framework validation failed:")

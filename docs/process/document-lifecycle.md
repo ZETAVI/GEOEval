@@ -7,7 +7,7 @@
 | Product direction | `docs/product/vision.md` | Roadmap prose in handoffs or AGENTS files |
 | Shared business language | `docs/product/glossary.md` and domain code names | Private agent synonyms and repeated glossaries |
 | Current behavior | Code, schemas, tests, `openspec/specs/` | In-flight proposal language |
-| Module boundary | Code structure, public interface, short domain contract | A central encyclopedia of every internal detail |
+| Current design boundary | Code structure, public interface, current spec, short owner-local design contract | A central encyclopedia or version-copy document |
 | Architecture rationale | ADR | PR discussion copied into multiple design documents |
 | Proposed change | `openspec/changes/<id>/` | Issue and PR bodies repeating the full design |
 | Execution status and evidence | Issue, PR, CI, runtime evidence | Long-lived status documents |
@@ -19,6 +19,8 @@
 ### Current truth
 
 Current truth is actively maintained and may be rewritten when the system changes. Keep it concise, capability-oriented, and linked to executable evidence.
+
+For the admission, ownership, update, and retirement rules of current design documents, follow [Design Knowledge](design-knowledge.md).
 
 ### Decision history
 
@@ -45,6 +47,8 @@ When a transient artifact reveals durable knowledge:
 3. link to it from the transient artifact;
 4. remove or expire the duplicate explanation.
 
+Git is the version history for current documents. Do not preserve obsolete active copies by adding `v2`, `new`, `final`, or `latest` filenames.
+
 Examples:
 
 - A recurring API failure becomes a Gotcha in the relevant skill or integration reference.
@@ -62,4 +66,3 @@ Use four audience-facing groups:
 - Fixes
 
 Mark breaking changes, security changes, and required migrations prominently. Omit empty sections. Internal refactors and tests receive no changelog entry unless they change observable behavior or operational risk.
-
