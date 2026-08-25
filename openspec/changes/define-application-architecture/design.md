@@ -566,7 +566,7 @@ AI Execution uses four small contracts rather than one provider-shaped service:
 1. a versioned route policy resolves logical platform, AI purpose, and required
    capabilities to provider, protocol, model or service identity, region, and a
    credential reference. For evaluation sampling it also references the
-   immutable platform-specific instruction profile selected by the owning GEO
+   immutable shared objectivity-instruction profile selected by the owning GEO
    Intelligence policy. Where a provider exposes both platform-managed and
    original-vendor-direct routes, it also records the selected service class
    and an explicit model-ID allowlist or denylist. It owns fallback order but
@@ -590,16 +590,16 @@ provider is added by implementing one adapter and capability descriptor plus
 contract fixtures; GEO evaluation use cases and business records do not gain a
 provider switch statement.
 
-The five evaluation routes do not share one mandatory prompt. Each logical
-platform has an independently versioned instruction profile containing a stable
-ID, semantic version, content hash, route purpose, and either instruction text
-or an explicit `none` value. GEO Intelligence owns the profile's product
-meaning and selection; AI Execution snapshots its identity; the adapter owns
-only the provider-specific mapping to `system`, `instructions`, or another
-verified transport. Shared evaluation invariants remain the frozen brand/query
-inputs, automatic-search posture, evidence semantics, and scoring rules. Every
-sample records both route-policy and instruction-profile identity so a later
-profile change affects only later runs and cannot rewrite historical reports.
+The five evaluation routes share one versioned objectivity-instruction profile
+with a stable ID, semantic version, and content hash. GEO Intelligence owns its
+product meaning and selection; AI Execution snapshots its identity; each
+adapter owns only the provider-specific mapping to `system`, `instructions`, or
+another verified transport. Shared evaluation invariants remain the frozen
+brand/query inputs, automatic-search posture, evidence semantics, and scoring
+rules. Every sample records both route-policy and instruction-profile identity
+so a later policy change affects only later runs and cannot rewrite historical
+reports. Provider-specific semantic variants are not part of the first-release
+design and require a later product decision if evidence creates a real need.
 
 The normalized contract uses explicit availability rather than empty values.
 Search observation is `triggered`, `not_triggered`, or `unknown`. Returned

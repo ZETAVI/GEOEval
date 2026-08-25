@@ -1,10 +1,10 @@
 # Proposed Implementation Plan: Foundation and First Evaluation Slice
 
 - Change: [`define-application-architecture`](proposal.md)
-- Status: P0 and F0 complete; E0 entitlement passed and fourteen of fifteen
-  unique R01-R03 positions have successful evidence; one ERNIE retry and five
-  platform-specific instruction probes remain separately gated; product
-  implementation not authorized
+- Status: P0 and F0 complete; E0 entitlement and all fifteen unique R01-R03
+  positions passed; one shared objectivity-instruction candidate passed five-
+  route transport and narrow semantic calibration; exact wording and the later
+  E0 matrix remain open; product implementation not authorized
 - Product implementation authorized: No
 - Decision owners: Product owner and architecture owner
 - Plan owner: Architecture owner
@@ -27,7 +27,9 @@ entitlement gate on 2026-08-25. The product owner then authorized at most
 fifteen initial R01-R03 calls without a monetary ceiling; eleven executed, with
 three routes passing and two stopping at R01. After the dedicated Qwen endpoint
 update, a six-call repair batch produced five passes and one ERNIE R03 network
-error. Any retry or instruction probe remains a separate confirmation gate.
+error; one separately bounded retry then passed. Two five-call shared-
+instruction calibration batches completed without retry; candidate `0.1.0` was
+rejected and `0.2.0` is the current exact-wording confirmation frontier.
 F0 passed its recorded evidence matrix on the same date with TypeScript revised
 from the incompatible 7.0.2 candidate to the accepted 5.9.3 compiler.
 
@@ -42,7 +44,7 @@ from the incompatible 7.0.2 candidate to the accepted 5.9.3 compiler.
 - [Controlled provider route sheet and fixtures](research/provider-validation-preparation.md)
 - [Provider entitlement evidence](research/provider-entitlement-evidence.md)
 - [Provider search and fidelity evidence](research/provider-search-fidelity-evidence.md)
-- [Provider system-instruction boundary](research/provider-instruction-evidence.md)
+- [Shared evaluation objectivity instruction](research/provider-instruction-evidence.md)
 - [Operational and quality baseline](research/operational-quality-baseline.md)
 
 Exact tables, DTO fields, framework helpers, provider payloads, prompt text,

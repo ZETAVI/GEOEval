@@ -2,8 +2,8 @@
 
 - Change: [`define-application-architecture`](../proposal.md)
 - Preparation gate: P0
-- State: Entitlement passed; DeepSeek, Hy3, Doubao, and Qwen R01-R03 passed;
-  ERNIE R01-R02 passed and R03 remains blocked by one network error
+- State: Entitlement and all fifteen unique R01-R03 positions passed; shared
+  objectivity instruction `0.2.0` was accepted by all five selected routes
 - Owners: GEO evaluation owner, account and integration owner, verification owner
 - Access date for provider facts: 2026-08-25
 
@@ -38,7 +38,7 @@ before any route can replace a deterministic adapter.
 | `evaluation.deepseek`               | Tencent Cloud TokenHub platform route, never official direct supply | `deepseek-v4-flash`                                                                                        | TokenHub Chat Completions                                            | Enable supported web search while letting the model decide; retain answer formatting, requested and returned model, search observation, queries, `message.search_results`, reasoning evidence, usage, timing, and errors | `TOKENHUB_API_KEY`                                                | exact identity and R01-R03 search/fidelity evidence passed                                      |
 | `evaluation.doubao`                 | Volcengine Ark Doubao                                               | logical family `Doubao-Seed-2.0-lite`; current documented snapshot candidate `doubao-seed-2-0-lite-260428` | Ark Responses, intended Beijing account route                        | Enable built-in web search; retain response items, returned search/source evidence, reasoning summary when exposed, output text, usage, timing, and errors                                                               | `ARK_API_KEY`                                                     | exact identity and R01-R03 search/fidelity evidence passed                                      |
 | `evaluation.qwen`                   | Alibaba Cloud Model Studio Qwen                                     | `qwen3.7-flash`                                                                                            | Workspace-scoped OpenAI-compatible Responses, intended Beijing route | Supply `web_search` and let the model decide; retain `web_search_call`, query and sources, reasoning summary, output items, text, usage, timing, and errors                                                              | `DASHSCOPE_API_KEY`                                               | dedicated Beijing route returned exact identity and passed R01-R03; R01 retained one search call and 40 sources after an additive normalizer correction |
-| `evaluation.ernie`                  | Baidu AI Cloud Qianfan ERNIE                                        | logical family ERNIE 4.5 Turbo; provisional stable API ID `ernie-4.5-turbo-128k`                           | Qianfan V2 Chat Completions                                          | Use built-in search with `search_mode: auto`; retain trigger/status, trace, citations, search results, reasoning evidence when returned, answer, usage, timing, and errors                                               | `QIANFAN_API_KEY`                                                 | corrected R01-R02 passed with exact identity and R01 search evidence; R03 ended in one network error without retry |
+| `evaluation.ernie`                  | Baidu AI Cloud Qianfan ERNIE                                        | logical family ERNIE 4.5 Turbo; provisional stable API ID `ernie-4.5-turbo-128k`                           | Qianfan V2 Chat Completions                                          | Use built-in search with `search_mode: auto`; retain trigger/status, trace, citations, search results, reasoning evidence when returned, answer, usage, timing, and errors                                               | `QIANFAN_API_KEY`                                                 | corrected R01-R02 and separately retried R03 passed with exact identity; R01 retained search evidence |
 | `evaluation.hunyuan`                | Tencent Cloud TokenHub Hunyuan                                      | `hy3`                                                                                                      | TokenHub Responses                                                   | Supply `web_search` and let the model decide; retain search-call and citation evidence, reasoning summary when returned, answer, usage, timing, and errors                                                               | `TOKENHUB_API_KEY`                                                | exact identity and R01-R03 search/fidelity evidence passed                                      |
 | `interpretation.sample.primary`     | Tencent Cloud TokenHub Hunyuan                                      | `hy3`                                                                                                      | TokenHub Responses with strict JSON Schema                           | Parse only retained sample evidence; web search is disabled; retain schema result, semantic-validation outcome, complete response, model, usage, timing, and errors                                                      | `TOKENHUB_API_KEY`                                                | confirmed logical primary; runtime quality pending                                             |
 | `interpretation.sample.fallback`    | Alibaba Cloud Model Studio hosted DeepSeek                          | exact alias `deepseek-v4-flash`                                                                            | Model Studio Responses with structured output                        | Receive the same retained sample input only after primary failure; web search is disabled; never become a second platform sample                                                                                         | `DASHSCOPE_API_KEY`                                               | confirmed fallback route; runtime quality pending                                              |
@@ -86,7 +86,7 @@ A route is rejected before or during E0 when any of the following is true:
 | Quota and budget            | The entitlement sub-ceiling completed; R01-R03 was later bounded by at most fifteen calls without a monetary ceiling; native usage was captured but console billing is unreconciled | Every later paid batch still requires explicit call and stop boundaries; a monetary ceiling is optional when the product owner declines it |
 | Terms and data handling     | E0 is restricted to fictional, non-sensitive fixtures; commercial customer-data use and final account terms remain unverified | Do not treat a successful probe as production data-processing approval                                                              |
 | Evidence location           | Raw envelopes use local ignored `.provider-evidence/`, directories mode `0700`, files mode `0600`; only sanitized summaries and hashes may enter Git | Retain or move the restricted evidence according to the later team evidence policy                                                   |
-| Runtime evidence            | Entitlement passed; the initial and repair batches made seventeen calls, with fourteen passes; fourteen of fifteen unique R01-R03 positions have successful evidence | Separately authorize one ERNIE R03 retry if full route evidence is required; later instruction, parser, synthesis, capacity, and observability gates remain |
+| Runtime evidence            | Entitlement and all fifteen unique R01-R03 positions passed after eighteen bounded calls; two five-call shared-instruction calibrations also completed | Confirm or revise exact objectivity `0.2.0` wording; later parser, synthesis, resilience, capacity/cost, and observability gates remain |
 
 ## Deterministic fixture catalog
 
@@ -154,7 +154,8 @@ semantics rather than one prompt wording.
 
 Each retained run records, without embedding credentials:
 
-- run, fixture, purpose, sample, attempt, and route-policy version identities;
+- run, fixture, purpose, sample, attempt, route-policy version, and shared
+  instruction profile ID/version/content-hash identities;
 - provider, service class, account reference, region, protocol, endpoint family,
   requested model, and returned model;
 - request configuration excluding secrets, terminal status, finish reason,
@@ -243,7 +244,9 @@ embedding a brittle unit-price copy in the architecture.
 - [x] The four named entitlement calls were explicitly authorized and executed.
 - [x] At most fifteen initial R01-R03 calls were authorized without a monetary ceiling; eleven executed under route stop conditions.
 - [x] The Qwen and ERNIE repair batch was continued after the dedicated endpoint update; six calls executed, five passed, and ERNIE R03 stopped on one network error without retry.
-- [ ] One ERNIE R03 retry, five independent system-instruction calibration probes, and the remaining E0 matrix are explicitly authorized.
+- [x] One explicitly bounded ERNIE R03 retry passed, completing successful evidence for all fifteen unique route/fixture positions.
+- [x] Two bounded five-call batches verified one shared objectivity instruction on all routes; candidate `0.1.0` was rejected for an unsupported citation marker and `0.2.0` passed the narrow R02 semantic calibration with recorded limitations.
+- [ ] Confirm exact shared instruction wording and complete the remaining parser, synthesis, resilience, capacity/cost, and telemetry matrix.
 
 F0 was separately authorized on 2026-08-25 for project-local dependencies and
 Compose-managed disposable services. Credential rotation and runner

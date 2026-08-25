@@ -229,12 +229,14 @@ selected endpoint families, credentials, TokenHub model-list presence, and the
 exact basic-inference identities returned by Ark, Model Studio, and Qianfan.
 See the sanitized [entitlement evidence](provider-entitlement-evidence.md).
 
-The controlled matrix is therefore **partially run**, not complete. The initial
-and repair batches proved R01-R03 search plus coarse answer fidelity for
-DeepSeek, Hy3, Doubao, and dedicated-route Qwen. Corrected ERNIE passed R01-R02
-but its R03 attempt ended in one network error without retry. Fourteen of
-fifteen unique positions now have successful evidence. See the
-[search and fidelity evidence](provider-search-fidelity-evidence.md).
+The controlled matrix is still **partially run** because parser, synthesis,
+resilience, capacity/cost, and telemetry evidence remain. Its route portion is
+complete: the initial, repair, and one-call retry batches produced successful
+R01-R03 search plus coarse answer-fidelity evidence for all five routes and all
+fifteen unique positions. One shared objectivity-instruction candidate also
+passed five-route transport and a narrow R02 semantic calibration. See the
+[search and fidelity evidence](provider-search-fidelity-evidence.md) and
+[instruction evidence](provider-instruction-evidence.md).
 Provider-console cost reconciliation, account and region ownership, quotas,
 applicable terms, and the later parser, synthesis, resilience, capacity, and
 observability rows remain unverified.

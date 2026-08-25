@@ -4,8 +4,8 @@
 - Execution date: 2026-08-25
 - Branch revision before execution: `159f5b4361cd5a766919603619d0a51cbd1fe274`
 - Run: `e0-20260825-search-fidelity-01`
-- Result: Partially verified; fourteen of fifteen unique R01-R03 positions have
-  successful evidence, with only ERNIE R03 still blocked
+- Result: Verified for the bounded R01-R03 scope; all fifteen unique positions
+  have successful identity, output, search-state, and coarse-fidelity evidence
 - Authorization: at most fifteen named calls, fictional R01-R03 inputs,
   automatic provider search, no service or quota changes; call count bounded
   without a separate monetary ceiling
@@ -68,10 +68,22 @@ tool validates that binding before applying the corrected count; it does not
 rewrite original provider evidence.
 
 Across the initial and repair batches, seventeen calls ran and fourteen
-succeeded. More importantly, fourteen of the fifteen unique route/fixture
-positions now have successful evidence. DeepSeek, Hy3, Doubao, and Qwen have
-complete R01-R03 evidence. ERNIE has R01-R02 evidence but remains incomplete
-until R03 succeeds or the product owner accepts that residual risk.
+succeeded. At that point, fourteen of the fifteen unique route/fixture positions
+had successful evidence and ERNIE R03 remained the only incomplete position.
+
+## Final ERNIE R03 retry
+
+After explicit continuation, run `e0-20260825-ernie-r03-retry-01` made exactly
+one ERNIE R03 call with no automatic retry. It returned HTTP 200 with exact
+`ernie-4.5-turbo-128k` identity in 10,041 ms. Focused checks confirmed the
+level-two heading, numbered list, Markdown table, fictional brand, and required
+ordering were all preserved. The raw response SHA-256 is
+`fda8366e8a38ef034ff091ceb08b742a462da7c2506a3646a83c796ff8e2aed6`.
+
+The three bounded batches therefore made eighteen calls: fifteen successful
+observations and three earlier blocked attempts. All fifteen unique R01-R03
+positions now have successful evidence. Earlier failed attempts remain retained
+and are not rewritten or omitted from the evidence history.
 
 ## Semantic and format checks
 
@@ -97,13 +109,14 @@ are mode `0700` and all request, response, header, manifest, and summary files
 are mode `0600`. Only sanitized observations and hashes enter Git.
 
 This probe does not prove consumer Web/App equivalence, streaming assembly,
-production cost,
-error retries, fallback, parser or synthesis quality, Langfuse export, a full
-twenty-position evaluation, or customer-data processing approval.
+production cost, general retry policy, fallback, parser or synthesis quality,
+Langfuse export, a full twenty-position evaluation, or customer-data processing
+approval.
 
 ## Next gate
 
-Separately authorize one ERNIE R03 retry if complete route evidence is required.
-System-instruction behavior follows its own documented and controlled evidence
-gate: define the five independent platform-profile purposes first, then compare
-each profile only with its own no-instruction baseline.
+The bounded route/search/fidelity gate is complete. Shared objectivity-
+instruction transport and initial semantics are recorded in the
+[instruction evidence](provider-instruction-evidence.md). Parser, synthesis,
+resilience, capacity/cost, telemetry isolation, and one complete fictional
+evaluation remain separate gates.

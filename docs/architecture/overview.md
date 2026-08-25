@@ -21,18 +21,17 @@ four-call provider entitlement gate also passed, without enabling web search;
 its [sanitized evidence](../../openspec/changes/define-application-architecture/research/provider-entitlement-evidence.md)
 does not authorize provider integration or product implementation. Subsequent
 [restricted search/fidelity probes](../../openspec/changes/define-application-architecture/research/provider-search-fidelity-evidence.md)
-produced successful evidence for fourteen of fifteen unique R01-R03 positions;
-ERNIE R03 remains blocked by one network error. Production infrastructure,
+ultimately produced successful evidence for all fifteen unique R01-R03
+positions after one bounded ERNIE R03 retry. Production infrastructure,
 authentication, and customer-facing interaction design remain outside the
 current authorization.
 
-Customer-visible evaluation keeps one independently versioned instruction
-profile per logical platform route, including an explicit `none` profile when
-appropriate. GEO Intelligence owns the profile's product meaning; route policy
-references it, AI Execution snapshots its ID/version/hash, and provider
-adapters only translate it to a verified transport. Frozen evaluation inputs,
-evidence semantics, and scoring remain shared, while historical reports retain
-the exact profile context that produced them.
+Customer-visible evaluation uses one shared, versioned objectivity-instruction
+profile across all five routes. GEO Intelligence owns its product meaning;
+route policy references it, AI Execution snapshots its ID/version/hash, and
+provider adapters only translate the same content to a verified transport.
+Frozen evaluation inputs, evidence semantics, and scoring remain shared, while
+historical reports retain the exact profile context that produced them.
 
 ## Architecture qualities
 
@@ -48,9 +47,8 @@ When architecture work begins, it must preserve:
 
 ## Next architecture gates
 
-1. Decide whether to retry the single blocked ERNIE R03 call, then define and
-   separately approve five platform-specific instruction contract/calibration
-   probes under the existing restricted evidence policy.
+1. Confirm or revise the shared objectivity-instruction `0.2.0` wording, then
+   exercise it against the smallest multi-condition semantic regression set.
 2. Reconcile accepted provider evidence into route policy and adapter contracts.
 3. Obtain explicit S0 authorization before implementing customer identity,
    brand, evaluation, notification, or report behavior.

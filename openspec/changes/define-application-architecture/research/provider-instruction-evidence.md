@@ -1,106 +1,103 @@
-# Source Brief: Provider System Instruction Boundary
+# Source Brief: Shared Evaluation Objectivity Instruction
 
 - Change: [`define-application-architecture`](../proposal.md)
-- Access date: 2026-08-25
-- Decision: Define five independently configurable evaluation-instruction
-  profiles and verify each route's supported transport and behavioral effect
-- Evidence state: documented capability varies by route; no instruction runtime
-  probe has been authorized or executed
+- Access and execution date: 2026-08-25
+- Decision: Use one shared semantic objectivity instruction for all five
+  customer-visible evaluation routes while mapping it through each provider's
+  verified instruction transport
+- Evidence state: all five selected routes accepted candidate `0.2.0`; bounded
+  semantic calibration passed with recorded limitations; exact wording awaits
+  product-owner confirmation before implementation
 
 ## Recommendation
 
-Keep one independently versioned **evaluation instruction profile per logical
-platform route**. The five profiles may use different text, transport, or an
-explicit no-custom-instruction baseline. They are not five copies of one shared
-prompt. Each profile is calibrated against that route's own API baseline and
-the intended ordinary consumer posture.
+Use one short, versioned **evaluation objectivity instruction**, not five
+provider-specific prompts. GEO Intelligence owns its semantic content. Route
+policy references the same profile ID/version/hash for every platform, and each
+provider adapter only maps that content to `system`, `instructions`, or another
+verified transport.
 
-Do not describe any profile as the hidden system prompt of a provider's Web or
-App product. Public API documentation proves that several routes accept
-higher-priority instructions; it does not disclose the consumer product's
-private orchestration, safety policy, search routing, context assembly,
-experiments, or prompt.
+The instruction corrects a known sampling bias—models tend to be agreeable or
+overly positive when a brand is named—without forcing an artificial negative
+opinion. Evaluation consistency still depends on frozen brand/query input,
+automatic-search posture, complete evidence, and shared scoring. No prompt may
+be described as a provider Web/App's hidden system prompt.
 
-Each first profile should remain short and natural for its own platform. Across
-profiles, the product preserves the same evaluation invariants: the frozen
-brand/query input, no fabricated brand claims or hidden promotional preference,
-automatic rather than forced search posture, complete evidence retention, and
-the same downstream scoring rules. Brand profile and generated query remain
-user input, not system instruction. No sampling profile may impose JSON,
-ranking labels, report fields, or GEO-analysis language because those
-constraints would move the answer away from ordinary consumer behavior.
+## Candidate shared instruction `evaluation.objectivity@0.2.0`
+
+The exact candidate ID, version, and text have one executable owner: the
+[objectivity profile](../../../../scripts/provider-validation/evaluation-objectivity.json).
+It requires evidence-based, neutral evaluation; rejects automatic brand praise,
+mechanically balanced criticism, unsupported certainty, and invented citations;
+and keeps GEO internals out of the consumer-style answer.
+
+The content hash observed by all five `0.2.0` probes is
+`a95e870d12d625209e2642a66084828c4b48b659b886ca33611d16cf2d974dda`.
 
 ## Decision constraints
 
-- Each logical platform owns one independently replaceable profile identity,
-  semantic version, content hash, route-specific transport, and calibration
-  record. An explicit `none` profile is valid.
-- Evaluation consistency comes from frozen inputs, shared evidence semantics,
-  and shared scoring—not from forcing identical prompt text across providers.
-- A provider route is not accepted because another OpenAI-compatible service
-  supports the same field; exact product documentation or controlled runtime
-  evidence is required.
-- No prompt may be described as the provider App/Web system prompt without a
-  primary source from that consumer product.
-- Sampling instructions must not contain customer promotion claims, report
-  schema, ranking targets, or hidden brand preference.
+- All five routes use the same semantic text and version. Provider-specific
+  code owns transport mapping, not alternate product wording.
+- Every sample snapshots instruction profile ID, version, and content hash with
+  its route-policy identity. Later changes affect later runs only.
+- The instruction cannot contain customer promotion claims, report schema,
+  ranking targets, hidden brand preference, or GEO-analysis language.
+- “Objective” does not mean manufacturing one positive and one negative point.
+  Unsupported criticism, praise, citation, and certainty are all invalid.
+- Exact API documentation or controlled route evidence is required for every
+  transport; OpenAI compatibility alone is insufficient.
 
 ## Evidence
 
-| Claim | Primary source | Level and date | Design implication |
+| Claim | Primary source or controlled evidence | Level and date | Design implication |
 | --- | --- | --- | --- |
-| TokenHub DeepSeek Chat accepts an optional `system` message before user messages | [Chat fields](https://cloud.tencent.com/document/product/1823/135872) and [DeepSeek guide](https://cloud.tencent.com/document/product/1823/132248) | A/B, 2026-08-25 | Configurable; exact policy adherence and effect on search require runtime evidence |
-| TokenHub Hy3 Responses accepts `instructions` and `system`/`developer` roles with priority over `user` | [Responses fields](https://cloud.tencent.com/document/product/1823/135873) and [Hy3 guide](https://cloud.tencent.com/document/product/1823/132252) | A/B, 2026-08-25 | `instructions` is a documented candidate transport for the Hy3 profile; verify exact behavior at runtime |
-| Accessible Ark documentation proves the Responses and tool family but did not establish the exact product-specific `instructions` contract | [Ark Responses tool calling](https://www.volcengine.com/docs/82379/1958524?lang=zh) | B, 2026-08-25 | Treat Doubao instructions as unverified instead of assuming full OpenAI compatibility |
-| Model Studio Qwen Responses accepts `instructions` and `system`/`developer` roles; linked-response state does not carry prior instructions automatically | [Model Studio Responses API](https://help.aliyun.com/zh/model-studio/qwen-api-via-openai-responses) | A, 2026-08-25 | `instructions` is a documented candidate transport for the Qwen profile; the dedicated-route R01-R03 probe now passes, while instruction priority remains untested |
-| Qianfan V2 Chat examples accept a `system` message | [Qianfan system-message example](https://cloud.baidu.com/doc/qianfan-docs/s/7m8r1wke3) | B, 2026-08-25 | `system` is a protocol-family candidate for the ERNIE profile; exact ERNIE 4.5 Turbo instruction behavior remains untested |
+| TokenHub DeepSeek Chat accepts a `system` message before user messages | [TokenHub Chat fields](https://cloud.tencent.com/document/product/1823/135872) plus `e0-20260825-objectivity-02` | A, 2026-08-25 | Map the shared policy to the first `system` message |
+| TokenHub Hy3 Responses accepts `instructions` | [TokenHub Responses fields](https://cloud.tencent.com/document/product/1823/135873) plus `e0-20260825-objectivity-02` | A, 2026-08-25 | Map the same policy to top-level `instructions` |
+| The selected Ark Doubao Responses route accepted top-level `instructions` | Controlled account run `e0-20260825-objectivity-02`; the accessible exact Ark page did not prove this field | A runtime, 2026-08-25 | Treat support as selected-route evidence, retain a contract test, and do not generalize it to every Ark model |
+| Model Studio Qwen Responses documents `instructions` as a system instruction and accepted the selected dedicated route | [Model Studio Responses API](https://help.aliyun.com/zh/model-studio/qwen-api-via-openai-responses) plus `e0-20260825-objectivity-02` | A, 2026-08-25 | Map the shared policy to top-level `instructions` and resend it for every independent response |
+| Qianfan V2 Chat documents `system` messages and the selected ERNIE route accepted one | [Qianfan quick start](https://cloud.baidu.com/doc/qianfan-docs/s/qm8qxemze) plus `e0-20260825-objectivity-02` | A/B, 2026-08-25 | Map the shared policy to the first `system` message |
 
-## Product boundary
+## Controlled calibration
 
-There are two different objectives:
+Both batches used the same fictional R02 brand-directed input and one call per
+route, with no retry. Complete responses remain under ignored, access-controlled
+`.provider-evidence/`.
 
-1. **Consumer alignment:** use the selected consumer-oriented model, automatic
-   search, natural user query, and a route-specific profile only when it makes
-   that API route a better approximation of the intended platform posture.
-2. **Evaluation comparability:** freeze the brand/query inputs, profile identity,
-   route policy, evidence contract, and scoring rules for every sample. Do not
-   hide profile differences; make them part of the immutable evaluation context.
+| Candidate | Result | Semantic observation |
+| --- | --- | --- |
+| `0.1.0` | All five transports returned HTTP 200 with exact model identity | No route invented a negative claim, but DeepSeek emitted `[1]` while returning no source, citation, annotation, or search-result metadata. The candidate was rejected for encouraging an unsupported citation marker. |
+| `0.2.0` | All five transports returned HTTP 200 with exact model identity | No output invented a material negative claim, emitted an unsupported citation, exposed GEO internals, or became promotional. One Hy3 answer added a mild suitability inference, and DeepSeek compressed the requested two sentences into one; natural-format and inference variance therefore remain regression concerns rather than guarantees. |
 
-They cannot be collapsed into a claim of exact App reproduction. If an
-instruction materially changes mention rate, ordering, search frequency, or
-answer style compared with no instruction, the product owner must choose the
-tradeoff explicitly.
+The `0.2.0` route observations were:
+
+| Route | Transport | Duration | Raw response SHA-256 |
+| --- | --- | ---: | --- |
+| TokenHub DeepSeek | first `system` message | 2,113 ms | `81ae88226105d1531f15639bfa0fe83b1d24e397dea0e6f51d95ed3390970417` |
+| TokenHub Hy3 | top-level `instructions` | 4,888 ms | `d800c186d384d8ceb01f554440a13b41b6201840a2ff1b0f1db4ac8fcc6f84db` |
+| Ark Doubao | top-level `instructions` | 17,452 ms | `4f126ac0dc9bfb4eb9594518661a53f560ce5c5b93501d9d905198467db54df5` |
+| Model Studio Qwen | top-level `instructions` | 7,871 ms | `8645ae79828eb763df017aecae3fe6e4bbade8610eb97d7e0e2905a5a33c07ad` |
+| Qianfan ERNIE | first `system` message | 2,101 ms | `c9adfb948a145ccb7aceae2591a7a24f10d819547cf1095db01500ecf651da17` |
+
+All five R02 calls supplied search capability but exposed no search decision or
+sources, so their search state remains `unknown`, not `not_triggered`. The test
+proves transport acceptance and one narrow semantic condition. It does not
+prove exact consumer Web/App equivalence, stable behavior across all four query
+types, or future model-version behavior.
 
 ## Alternatives
 
 | Option | Fit | Reason |
 | --- | --- | --- |
-| Five independent route profiles | Recommended | Allows provider-specific alignment without hiding differences; each route needs its own baseline and versioned evidence |
-| One unified prompt for all routes | Reject for the current product | Apparent textual consistency can reduce consumer alignment and does not remove provider-level behavioral differences |
-| No custom instruction | Valid per-route baseline | Closest observable API default; it may remain the selected profile when a custom instruction causes more distortion |
-| Emulate an assumed hidden App prompt | Reject | The consumer prompts and orchestration are not public evidence, so this would create false equivalence |
+| One shared semantic policy with verified transport mappings | Recommended | Directly addresses positivity bias while keeping evaluation meaning and versioning consistent |
+| Five separately written prompts | Reject for the first release | Adds avoidable prompt drift and review burden without a confirmed product need |
+| No custom instruction | Retain as regression baseline | Useful for comparison, but does not counter named-brand agreeableness |
+| Assumed provider App prompt | Reject | Consumer prompts and orchestration are not public evidence, so this would create false equivalence |
 
-## Unknowns and validation
+## Next gate
 
-Before freezing any route profile, use fictional data to verify only that
-route:
-
-- the exact route accepts the selected instruction transport and priority;
-- a bounded conflicting user request exposes whether the intended minimum
-  boundary is followed;
-- requested and returned model identity, route-policy version, instruction
-  profile ID/version/hash, search configuration, and complete answer are
-  retained;
-- one no-instruction baseline and one candidate-profile result expose any
-  material shift in search frequency, mention/order, answer style, or fidelity
-  without claiming that either is the hidden App prompt.
-
-The owning evaluation policy selects profile content and version. Route policy
-references that immutable profile, while the provider adapter only maps it to
-the provider's `system`, `instructions`, or supported equivalent. A material
-profile change affects later runs, never rewrites historical reports, and
-requires product-owner confirmation plus route-local calibration evidence.
-
-These follow-ups are five independent contract/calibration probes, not part of
-the customer's twenty-position evaluation. They require a separate bounded
-real-call authorization after the five profile purposes are confirmed.
+The product owner confirms or revises the exact `0.2.0` wording before it becomes
+an implementation input. After confirmation, exercise the shared instruction
+against a small regression set covering positive evidence, supported criticism,
+conflicting evidence, no evidence, current-search evidence, and no-search
+evidence. Do not calibrate five separate prompts or claim that this single R02
+probe proves production quality.
