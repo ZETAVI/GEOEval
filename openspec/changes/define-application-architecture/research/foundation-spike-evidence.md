@@ -72,6 +72,7 @@ or placed behind an explicitly non-production validation boundary before a
 commercial deployment. F0 does not authorize S0 product implementation.
 
 E0 remains separate from the application foundation. Its four-call entitlement
-sub-gate passed with rotated credentials and access-controlled raw evidence;
-R01-R03 and the remaining provider matrix still require named account context,
-their own bounded budget, and explicit real-call authorization.
+sub-gate passed with rotated credentials and access-controlled raw evidence. A
+later R01-R03 batch partially passed; repairs, instruction calibration, and the
+remaining provider matrix still require named account context, bounded call and
+stop conditions, and explicit real-call authorization.

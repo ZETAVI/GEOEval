@@ -2,8 +2,8 @@
 
 - Change: [`define-application-architecture`](../proposal.md)
 - Preparation gate: P0
-- State: Entitlement gate passed; R01-R03 search and fidelity probes require a
-  separate explicit authorization
+- State: Entitlement passed; DeepSeek, Hy3, and Doubao R01-R03 passed while
+  Qwen timed out and ERNIE stopped on an invalid R01 request
 - Owners: GEO evaluation owner, account and integration owner, verification owner
 - Access date for provider facts: 2026-08-25
 
@@ -37,8 +37,8 @@ before any route can replace a deterministic adapter.
 | ----------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `evaluation.deepseek`               | Tencent Cloud TokenHub platform route, never official direct supply | `deepseek-v4-flash`                                                                                        | TokenHub Chat Completions                                            | Enable supported web search while letting the model decide; retain answer formatting, requested and returned model, search observation, queries, `message.search_results`, reasoning evidence, usage, timing, and errors | `TOKENHUB_API_KEY`                                                | account model-list entitlement passed; inference and search pending                             |
 | `evaluation.doubao`                 | Volcengine Ark Doubao                                               | logical family `Doubao-Seed-2.0-lite`; current documented snapshot candidate `doubao-seed-2-0-lite-260428` | Ark Responses, intended Beijing account route                        | Enable built-in web search; retain response items, returned search/source evidence, reasoning summary when exposed, output text, usage, timing, and errors                                                               | `ARK_API_KEY`                                                     | exact requested/returned identity and basic inference passed; search pending                    |
-| `evaluation.qwen`                   | Alibaba Cloud Model Studio Qwen                                     | `qwen3.7-flash`                                                                                            | Workspace-scoped OpenAI-compatible Responses, intended Beijing route | Supply `web_search` and let the model decide; retain `web_search_call`, query and sources, reasoning summary, output items, text, usage, timing, and errors                                                              | `DASHSCOPE_API_KEY`                                               | shared Beijing endpoint basic inference and exact identity passed; search and dedicated host pending |
-| `evaluation.ernie`                  | Baidu AI Cloud Qianfan ERNIE                                        | logical family ERNIE 4.5 Turbo; provisional stable API ID `ernie-4.5-turbo-128k`                           | Qianfan V2 Chat Completions                                          | Use built-in search with `search_mode: auto`; retain trigger/status, trace, citations, search results, reasoning evidence when returned, answer, usage, timing, and errors                                               | `QIANFAN_API_KEY`                                                 | exact requested/returned identity and basic inference passed; search pending                    |
+| `evaluation.qwen`                   | Alibaba Cloud Model Studio Qwen                                     | `qwen3.7-flash`                                                                                            | Workspace-scoped OpenAI-compatible Responses, intended Beijing route | Supply `web_search` and let the model decide; retain `web_search_call`, query and sources, reasoning summary, output items, text, usage, timing, and errors                                                              | `DASHSCOPE_API_KEY`                                               | basic identity passed; R01 search timed out at 120 seconds with no response, so R02-R03 were not run |
+| `evaluation.ernie`                  | Baidu AI Cloud Qianfan ERNIE                                        | logical family ERNIE 4.5 Turbo; provisional stable API ID `ernie-4.5-turbo-128k`                           | Qianfan V2 Chat Completions                                          | Use built-in search with `search_mode: auto`; retain trigger/status, trace, citations, search results, reasoning evidence when returned, answer, usage, timing, and errors                                               | `QIANFAN_API_KEY`                                                 | basic identity passed; R01 rejected the non-streaming `enable_status` combination, so R02-R03 were not run |
 | `evaluation.hunyuan`                | Tencent Cloud TokenHub Hunyuan                                      | `hy3`                                                                                                      | TokenHub Responses                                                   | Supply `web_search` and let the model decide; retain search-call and citation evidence, reasoning summary when returned, answer, usage, timing, and errors                                                               | `TOKENHUB_API_KEY`                                                | account model-list entitlement passed; inference and search pending                             |
 | `interpretation.sample.primary`     | Tencent Cloud TokenHub Hunyuan                                      | `hy3`                                                                                                      | TokenHub Responses with strict JSON Schema                           | Parse only retained sample evidence; web search is disabled; retain schema result, semantic-validation outcome, complete response, model, usage, timing, and errors                                                      | `TOKENHUB_API_KEY`                                                | confirmed logical primary; runtime quality pending                                             |
 | `interpretation.sample.fallback`    | Alibaba Cloud Model Studio hosted DeepSeek                          | exact alias `deepseek-v4-flash`                                                                            | Model Studio Responses with structured output                        | Receive the same retained sample input only after primary failure; web search is disabled; never become a second platform sample                                                                                         | `DASHSCOPE_API_KEY`                                               | confirmed fallback route; runtime quality pending                                              |
@@ -83,10 +83,10 @@ A route is rejected before or during E0 when any of the following is true:
 | Exact candidate set         | TokenHub exposes both selected bare IDs; Ark, Model Studio, and Qianfan returned the exact requested evaluation identities | Search, evidence, consumer equivalence, quality, and commercial acceptance remain separate gates                                     |
 | Account and workspace owner | Rotated credentials are present, but account and workspace ownership is not recorded in Git                                        | Record an opaque account reference plus the observed region, endpoint, and returned route identity                                  |
 | Region and endpoint         | Official candidate families are known; actual enabled account regions are unverified                                       | Record the enabled region, workspace or account endpoint, and returned model identity per route                                     |
-| Quota and budget            | The four-call CNY 5 entitlement sub-ceiling was approved and completed; native usage was captured but console billing is unreconciled | Complete-E0 CNY 100 ceiling and every later paid probe still require separate approval                                                |
+| Quota and budget            | The entitlement sub-ceiling completed; R01-R03 was later bounded by at most fifteen calls without a monetary ceiling; native usage was captured but console billing is unreconciled | Every later paid batch still requires explicit call and stop boundaries; a monetary ceiling is optional when the product owner declines it |
 | Terms and data handling     | E0 is restricted to fictional, non-sensitive fixtures; commercial customer-data use and final account terms remain unverified | Do not treat a successful probe as production data-processing approval                                                              |
 | Evidence location           | Raw envelopes use local ignored `.provider-evidence/`, directories mode `0700`, files mode `0600`; only sanitized summaries and hashes may enter Git | Retain or move the restricted evidence according to the later team evidence policy                                                   |
-| Runtime evidence            | Entitlement run `e0-20260825-entitlement-01` passed for credentials, endpoints, and basic model identity                  | Separately authorize and execute R01-R03 search/fidelity evidence before accepting any evaluation route                              |
+| Runtime evidence            | Entitlement passed; search/fidelity run `e0-20260825-search-fidelity-01` made eleven calls, with nine passed and two blocked | Diagnose and separately authorize Qwen and corrected ERNIE probes; keep all five routes unaccepted until their own evidence passes    |
 
 ## Deterministic fixture catalog
 
@@ -166,7 +166,7 @@ Each retained run records, without embedding credentials:
 - retry or fallback relation, accepted-result identity, reviewer, review time,
   and pass, fail, or blocked result for every controlled-matrix claim.
 
-## Proposed E0 execution ceiling
+## E0 execution boundary
 
 E0 should use progressive stop gates rather than immediately running the full
 twenty-position evaluation:
@@ -182,12 +182,13 @@ twenty-position evaluation:
    execute the four-by-five synthetic run and reconcile latency, usage, search,
    parser, synthesis, and total billed cost.
 
-The recommended initial hard ceiling is **CNY 100 total** across all E0 calls,
-including retries and search charges. This is a conservative safety limit, not
-a cost forecast or production budget. Stop before the ceiling when a provider
-cannot expose usage, its console cost cannot be reconciled, an unexpected paid
-feature is required, or any route would need an account or quota change. A later
-performance or load run requires a new budget and authorization.
+The earlier CNY 100 proposal was not adopted for the R01-R03 batch. The product
+owner instead approved at most fifteen named calls without a monetary ceiling.
+Future batches must still state exact maximum calls, routes, fixtures, retry and
+stop conditions, even when no monetary ceiling is requested. Stop when a
+provider cannot expose required evidence, an unexpected paid feature is
+required, or a route would need an account or quota change. A later performance
+or load run requires its own authorization.
 
 ### Completed entitlement authorization
 
@@ -213,7 +214,11 @@ The four calls completed on 2026-08-25 and are summarized in the
 only below ignored `.provider-evidence/` with directory
 mode `0700` and file mode `0600`; the console receives model, status, duration,
 usage, and hashes, never the secret or answer body. Approval of these four calls
-did not approve R01-R03 web-search probes or the remaining E0 matrix.
+did not itself approve R01-R03 web-search probes or the remaining E0 matrix.
+The product owner subsequently authorized at most fifteen R01-R03 calls without
+a monetary ceiling. Eleven were made before the Qwen and ERNIE route stop
+conditions removed four later calls; see the
+[search and fidelity evidence](provider-search-fidelity-evidence.md).
 
 Public price tables for [Volcengine Ark](https://www.volcengine.com/docs/82379/1544106?lang=zh),
 [Alibaba Cloud Model Studio](https://help.aliyun.com/zh/model-studio/model-pricing),
@@ -236,7 +241,8 @@ embedding a brittle unit-price copy in the architecture.
 - [x] Exposed credentials are rotated and injected through the approved local mechanism, as confirmed by the product owner.
 - [x] The four-call CNY 5 entitlement sub-ceiling, stop conditions, and restricted raw-evidence location were approved and verified.
 - [x] The four named entitlement calls were explicitly authorized and executed.
-- [ ] R01-R03 search/fidelity calls and the complete E0 CNY 100 ceiling are explicitly authorized.
+- [x] At most fifteen R01-R03 calls were authorized without a monetary ceiling; eleven executed under route stop conditions.
+- [ ] Qwen repair, corrected ERNIE search, system-instruction calibration, and the remaining E0 matrix are explicitly authorized.
 
 F0 was separately authorized on 2026-08-25 for project-local dependencies and
 Compose-managed disposable services. Credential rotation and runner

@@ -42,9 +42,10 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
 - [x] Refresh current local runtime and container-image readiness without
       installing dependencies, pulling images, or calling providers.
 - [ ] Run the authorized controlled provider matrix with rotated credentials,
-      the CNY 100 hard ceiling, restricted raw evidence, and retained
-      non-sensitive fixtures. (Four-call entitlement gate passed; R01-R03 and
-      the complete ceiling remain unapproved.)
+      explicit call and stop boundaries, restricted raw evidence, and retained
+      non-sensitive fixtures. (Entitlement passed; eleven bounded R01-R03 calls
+      produced nine passes, one timeout, and one invalid request. Repair,
+      instruction calibration, and the remaining matrix are still open.)
 - [x] Compare and confirm the smallest viable stack and deployment shape against
       the approved constraints.
 - [x] Confirm the internal backend and frontend layering model, bounded

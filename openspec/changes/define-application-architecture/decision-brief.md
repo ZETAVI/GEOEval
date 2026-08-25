@@ -88,7 +88,9 @@ making ordinary development depend on heavy architecture ceremony.
   gate has current evidence.
 - Confirmed: the current-GA compatibility set and bounded F0 matrix passed. The
   rotated credentials and four-call CNY 5 E0 entitlement gate passed with
-  restricted raw evidence; later E0 calls remain separately gated.
+  restricted raw evidence. The bounded R01-R03 batch then partially passed:
+  DeepSeek, Hy3, and Doubao passed; Qwen timed out and ERNIE rejected the first
+  request before generation.
 
 ## Confirmation and Next Gate
 
@@ -104,7 +106,8 @@ making ordinary development depend on heavy architecture ceremony.
   sampling set, separate stronger-purpose pool, and F0 project-local/Compose
   execution were confirmed on 2026-08-25; the four-call entitlement gate was
   explicitly approved and passed on 2026-08-25.
-- Next action: define and request separate approval for the R01-R03
-  search/fidelity probe. The complete E0 CNY 100 ceiling remains unapproved.
+- Next action: diagnose Qwen without repeating a business sample; obtain a
+  separate confirmation for the minimal Qwen retry, corrected ERNIE probe, and
+  system-instruction calibration described by current evidence.
 - Confirmation required before: any additional provider call, service
   activation, quota change, production-data use, or product implementation.

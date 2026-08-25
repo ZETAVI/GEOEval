@@ -67,6 +67,8 @@ boundaries, and parallel implementation seams understandable and verifiable.
 - [First-slice external evidence](research/first-slice-external-evidence.md)
 - [Controlled provider validation preparation](research/provider-validation-preparation.md)
 - [E0 provider entitlement evidence](research/provider-entitlement-evidence.md)
+- [E0 provider search and fidelity evidence](research/provider-search-fidelity-evidence.md)
+- [Provider system-instruction boundary](research/provider-instruction-evidence.md)
 - [Application-stack options](research/application-stack-options.md)
 - [Operational and quality baseline evidence](research/operational-quality-baseline.md)
 - [Foundation compatibility candidate](research/foundation-compatibility.md)

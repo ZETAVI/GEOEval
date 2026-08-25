@@ -23,7 +23,8 @@
     "e0:plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs plan",
     "e0:probe-plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs probe-plan",
     "e0:entitlement": "node --env-file=.env scripts/provider-validation/e0-runner.mjs entitlement",
-    "e0:probe": "node --env-file=.env scripts/provider-validation/e0-runner.mjs probe"
+    "e0:probe": "node --env-file=.env scripts/provider-validation/e0-runner.mjs probe",
+    "e0:report": "node --env-file=.env scripts/provider-validation/e0-runner.mjs report"
   },
   "devDependencies": {
     "prettier": "3.9.6",

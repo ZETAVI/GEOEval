@@ -229,11 +229,13 @@ selected endpoint families, credentials, TokenHub model-list presence, and the
 exact basic-inference identities returned by Ark, Model Studio, and Qianfan.
 See the sanitized [entitlement evidence](provider-entitlement-evidence.md).
 
-The controlled matrix is therefore **partially run**, not complete. R01-R03
-search and answer-fidelity probes, DeepSeek and Hy3 inference, provider-console
-cost reconciliation, account and region ownership, quotas, applicable terms,
-and the later parser, synthesis, resilience, capacity, and observability rows
-remain unverified.
+The controlled matrix is therefore **partially run**, not complete. A later
+bounded R01-R03 batch proved DeepSeek, Hy3, and Doubao search plus coarse answer
+fidelity; Qwen timed out and ERNIE rejected its first request, so those routes
+remain blocked. See the [search and fidelity evidence](provider-search-fidelity-evidence.md).
+Provider-console cost reconciliation, account and region ownership, quotas,
+applicable terms, and the later parser, synthesis, resilience, capacity, and
+observability rows remain unverified.
 
 Before any call, the owning team supplies a non-secret route sheet for each
 platform containing account owner, region, endpoint/protocol family,
@@ -251,8 +253,8 @@ separate explicit authorization.
   platforms are recorded in the [P0 provider validation preparation](provider-validation-preparation.md).
   Basic entitlement evidence does not yet prove their search behavior or
   equivalence to the providers' default free Web or App routes.
-- Ark's exact returned search-trigger and citation/source contract remains
-  unverified from the accessible official API reference.
+- Ark's exact search-trigger and source contract was observed for R01; lack of
+  source evidence in R02-R03 remains `unknown` rather than proven no-search.
 - Provider account activation, regional access, current quotas, safety behavior,
   billing, data handling, retention, and commercial terms remain account- or
   contract-specific.

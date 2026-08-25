@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash, randomUUID } from "node:crypto";
-import { chmod, mkdir, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const DEFAULT_TIMEOUT_MS = 120_000;
@@ -156,7 +156,6 @@ const routeDefinitions = {
             web_search: {
               enable: true,
               enable_trace: true,
-              enable_status: true,
               enable_citation: true,
               search_mode: "auto",
               search_number: 10,
@@ -321,6 +320,50 @@ function classifyFailure(status, aborted) {
 async function writeProtected(file, contents) {
   await writeFile(file, contents, { encoding: "utf8", mode: 0o600 });
   await chmod(file, 0o600);
+}
+
+function publicResult(manifest) {
+  return {
+    route: manifest.route,
+    fixture: manifest.fixture,
+    result: manifest.terminalResult,
+    httpStatus: manifest.httpStatus,
+    failureClass: manifest.failureClass,
+    requestedModel: manifest.requestedModel,
+    returnedModel: manifest.returnedModel,
+    identityObservation: manifest.identityObservation,
+    durationMs: manifest.durationMs,
+    outputCharacters: manifest.outputCharacters,
+    searchObservation: manifest.searchObservation,
+    sourceCount: manifest.sourceCount,
+    reasoningEvidence: manifest.reasoningEvidence,
+    usage: manifest.usage,
+    responseSha256: manifest.responseSha256,
+    outputTextSha256: manifest.outputTextSha256,
+    evidence: manifest.rawEvidenceDirectory,
+  };
+}
+
+async function loadProbeResults(runId) {
+  const results = [];
+  for (const route of PROBE_ROUTES) {
+    for (const fixture of PROBE_FIXTURES) {
+      const file = path.join(
+        evidenceRoot,
+        runId,
+        route,
+        fixture,
+        "manifest.json",
+      );
+      try {
+        const manifest = JSON.parse(await readFile(file, "utf8"));
+        results.push(publicResult(manifest));
+      } catch (error) {
+        if (error?.code !== "ENOENT") throw error;
+      }
+    }
+  }
+  return results;
 }
 
 async function executeRoute(routeName, fixtureName, runId) {
@@ -535,15 +578,18 @@ async function main() {
       throw new Error("probe requires --route and --fixture");
     }
     work = [[route, fixture]];
-  } else {
+  } else if (command !== "report") {
     throw new Error(
-      "Usage: e0-runner.mjs plan | probe-plan | entitlement [--run-id ID] | probe --route ROUTE --fixture R01",
+      "Usage: e0-runner.mjs plan | probe-plan | entitlement [--run-id ID] | probe --route ROUTE --fixture R01 | report --run-id ID",
     );
   }
 
-  const results = [];
-  for (const [route, fixture] of work) {
+  const results = command === "report" ? await loadProbeResults(runId) : [];
+  for (const [route, fixture] of work ?? []) {
     results.push(await executeRoute(route, fixture, runId));
+  }
+  if (results.length === 0) {
+    throw new Error(`No probe manifests found for run: ${runId}`);
   }
   const runSummary = {
     runId,
