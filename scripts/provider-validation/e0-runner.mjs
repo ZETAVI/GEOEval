@@ -260,6 +260,7 @@ function summarizeResponse(response, headers) {
     (item) =>
       (typeof item.url === "string" || typeof item.uri === "string") &&
       (item.type === "url_citation" ||
+        item.type === "url" ||
         item.type === "source" ||
         "title" in item ||
         "index" in item),
