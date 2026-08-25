@@ -75,6 +75,10 @@ making ordinary development depend on heavy architecture ceremony.
   sizing and managed-versus-self-hosted choices remain operational decisions.
 - Open: controlled five-platform accounts, model routes, quotas, latency, cost,
   and response evidence must pass the existing external validation matrix.
+- Open: the provider route map and no-secret configuration references are
+  recorded; the proposed capability-descriptor, one-attempt-adapter, lossless
+  evidence, and fallback-policy boundaries require confirmation before they
+  become implementation contracts.
 - Open: authentication/SMS, production object storage, observability destination,
   and hosting products are selected only when their owning slice or operational
   gate has current evidence.
@@ -92,8 +96,9 @@ making ordinary development depend on heavy architecture ceremony.
   sequence, and bounded retry lifecycle were confirmed on 2026-08-25; the
   minimum operational and quality baseline was confirmed on 2026-08-25; the
   separately authorized parallel F0/E0 sequencing was confirmed on 2026-08-25.
-- Next action: establish compatibility, local and controlled-account readiness,
-  then obtain explicit execution authorization for the foundation spike and
-  separately for cost-visible provider validation.
+- Next action: confirm the provider-adapter and evidence boundary, rotate the
+  exposed credentials, complete the non-secret route sheet, then obtain explicit
+  execution authorization for the foundation spike and separately for cost-
+  visible provider validation.
 - Confirmation required before: dependency installation, foundation-spike
   execution, or product implementation; pass the remaining architecture gate.

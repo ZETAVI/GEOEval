@@ -559,6 +559,49 @@ may consume another bounded attempt or approved fallback but never create a
 second business identity. Provider retries, parser retries, and a customer
 evaluation retry remain distinct concepts with separate correlation.
 
+### Provider adapter extension boundary
+
+AI Execution uses four small contracts rather than one provider-shaped service:
+
+1. a versioned route policy resolves logical platform, AI purpose, and required
+   capabilities to provider, protocol, model or service identity, region, and a
+   credential reference. It owns fallback order but contains no secret value;
+2. a capability descriptor states whether that exact route supports search
+   enablement, observable search evidence, reasoning control, returned reasoning
+   evidence, structured output, streaming, and usage detail;
+3. a provider attempt adapter validates the request against that descriptor,
+   translates provider-specific parameters, executes exactly one attempt, and
+   captures the complete response or error without making business decisions;
+4. an evidence normalizer creates the shared execution envelope and indexes
+   comparable fields while carrying the untouched provider payload or completed
+   stream artifact to the business owner. It does not become another business-
+   evidence store.
+
+Transport code may be reused where two routes really share an HTTP or OpenAI-
+compatible protocol. That reuse stays below the adapter boundary: TokenHub Hy3
+Responses and TokenHub DeepSeek Chat remain different route adapters, and Qwen
+Responses and Alibaba DeepSeek fallback remain different route profiles. A new
+provider is added by implementing one adapter and capability descriptor plus
+contract fixtures; GEO evaluation use cases and business records do not gain a
+provider switch statement.
+
+The normalized contract uses explicit availability rather than empty values.
+Search observation is `triggered`, `not_triggered`, or `unknown`. Returned
+reasoning evidence is `none`, `summary`, or `provider_exposed`, independent from
+the requested reasoning mode and effort. Hidden model reasoning is never a
+required interface. The system retains every reasoning, search, source, tool,
+usage, safety, and cache field the provider actually returns, but it does not
+invent unavailable evidence or describe a provider summary as the model's full
+internal chain of thought.
+
+Fallback is a route-policy decision around complete attempts, not code inside a
+provider adapter. One primary failure and one fallback attempt retain separate
+attempt identities under the same business sample; the first valid accepted
+result wins according to the owning purpose and later responses cannot overwrite
+it. Credentials are injected by reference at the infrastructure edge and may be
+shared by several route profiles without becoming part of their business
+identity.
+
 ### AI failure, cost, and regression boundary
 
 AI Execution uses a small stable technical outcome taxonomy: configuration or

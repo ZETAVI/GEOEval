@@ -1,7 +1,7 @@
 # Source Brief: First Evaluation Slice External Capabilities
 
 - Change: [`define-application-architecture`](../proposal.md)
-- Access date: 2026-08-24
+- Access date: 2026-08-25
 - Evidence state: Official-source audit complete; controlled-account validation pending
 - Research owner: Architecture owner
 
@@ -46,6 +46,58 @@ JSON Schema plus semantic validation on a controlled fixture set. A syntacticall
 valid JSON response is not proof that mention, relative position, evidence, or
 characteristics were interpreted correctly.
 
+## Intended route and credential-reference map
+
+The product owner confirmed the intended provider route on 2026-08-25. The
+table records logical ownership and no-secret configuration references; it does
+not assert that the supplied accounts, models, quotas, or response semantics
+have passed controlled validation.
+
+| Customer-visible route or internal purpose | Intended provider surface | Protocol candidate | Credential reference | Current boundary |
+| --- | --- | --- | --- | --- |
+| DeepSeek evaluation | Tencent Cloud TokenHub DeepSeek V4 | Chat Completions | `TOKENHUB_API_KEY` | Exact Flash/Pro model and public-product alignment remain controlled decisions. |
+| Doubao evaluation | Volcengine Ark Doubao | Responses | `ARK_API_KEY` | Pin one explicit model and prove search/source and reasoning-return behavior. |
+| Qwen evaluation | Alibaba Cloud Model Studio Qwen | Responses preferred; native DashScope remains a fallback when it exposes stronger evidence | `DASHSCOPE_API_KEY` | Do not use compatible Chat when the response cannot prove whether search occurred. |
+| ERNIE evaluation | Baidu AI Cloud Qianfan ERNIE | V2 Chat Completions | `QIANFAN_API_KEY` | Use automatic search and pin a model that supports the required search and reasoning profile. |
+| Hunyuan evaluation | Tencent Cloud TokenHub Hy3 | Responses preferred | `TOKENHUB_API_KEY` | Keep separate from the TokenHub DeepSeek Chat mapping even though the account is shared. |
+| Parser fallback | Alibaba Cloud Model Studio DeepSeek V4 Flash | Responses | `DASHSCOPE_API_KEY` | Validate alias and stable snapshot separately; fallback is not another customer sample. |
+| Trace export | Langfuse Cloud US candidate | OpenTelemetry or current JS/TS SDK | `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_BASE_URL` | Non-blocking follower; masked technical telemetry only by default. |
+
+The originally supplied names are migration aliases, not the application
+contract: `DOUBAO_API_KEY` maps to `ARK_API_KEY`; `QWEN_API_KEY` maps to
+`DASHSCOPE_API_KEY`; `WENXIN_API_KEY` maps to `QIANFAN_API_KEY`; and
+`YUANBAO_API_KEY` maps to `TOKENHUB_API_KEY`. `DEEPSEEK_API_KEY` is retained only
+as an Alibaba DeepSeek backup alias; primary DeepSeek execution uses the shared
+TokenHub reference. No supplied value is retained in source control.
+
+## Evidence collection semantics
+
+Every adapter attempt captures and returns the complete provider payload or
+completed stream artifact plus a normalized index. Normalization adds comparable
+fields; it never replaces provider evidence. GEO Evidence Acquisition persists
+the accepted attempt as the canonical business evidence. AI Execution retains
+only bounded failed-attempt diagnostics under the technical-evidence policy, so
+the report never depends on a second raw-response store or on telemetry.
+
+- Always record requested and returned route identity, protocol, model, response
+  identity, terminal status, finish reason, timing, usage, provider request
+  identity where returned, and the format-preserving final answer.
+- Record search as `triggered`, `not_triggered`, or `unknown`. Preserve generated
+  queries, tool events, source URLs, titles, snippets, citation offsets or
+  markers, search-call counts, and search-specific usage whenever returned.
+- Record the requested reasoning mode and effort separately from the returned
+  reasoning evidence. Classify returned evidence as `none`, `summary`, or
+  `provider_exposed`; retain its text and token counts when the provider returns
+  them.
+- Preserve provider safety annotations, tool events, cache details, rate-limit
+  evidence, and provider-native usage or cost fields when present.
+- Do not make hidden model reasoning a required field. A provider may expose a
+  summary or a protocol-specific reasoning field, but no route is assumed to
+  reveal the model's complete internal chain of thought.
+- Reasoning evidence, search diagnostics, and raw provider payloads are internal
+  evidence. They are not customer-visible report content and are excluded from
+  Langfuse export by default.
+
 ## Evidence classification
 
 | State | Meaning |
@@ -59,11 +111,11 @@ characteristics were interpreted correctly.
 
 | Route | Current official evidence | Evidence state | Architecture implication |
 | --- | --- | --- | --- |
-| Tencent TokenHub: Hunyuan Hy3 | TokenHub documents `hy3` on both Responses and Chat APIs, optional model-decided web search, returned source metadata, and strict JSON Schema output. The documented search service is limited to 5 QPS and Guangzhou. | Documented; activation, quota, quality, and actual model access are account-dependent. | Hy3 remains a viable parser and synthesizer candidate. Use explicit JSON Schema validation and capture the concrete model/service ID. Provider Responses `background` is documented as effectively synchronous, so application workers still own background execution. |
-| Tencent TokenHub: DeepSeek | TokenHub documents `deepseek-v4-flash` and `deepseek-v4-pro` web search through Chat Completions, with source data in `message.search_results`; these routes do not use the same Responses web-search surface as Hy3. Current terms describe the named DeepSeek V4 routes as third-party-provided and outside the TokenHub model SLA. | Documented; intended service, terms, account access, and runtime behavior require confirmation. | The DeepSeek platform adapter must not reuse the Hy3 Responses path blindly. Preserve provider-failure isolation and do not assume a Tencent model SLA for the upstream DeepSeek route. |
+| Tencent TokenHub: Hunyuan Hy3 | TokenHub documents `hy3` on both Responses and Chat APIs, model-decided web search, returned citations and search-call evidence, configurable reasoning effort, optional reasoning summary, and strict JSON Schema output. The documented search service is limited to 5 QPS and Guangzhou. | Documented; activation, quota, quality, and actual model access are account-dependent. | Prefer Responses for the richer event and citation shape. Use explicit JSON Schema validation and capture the concrete model/service ID. Application workers still own background execution. |
+| Tencent TokenHub: DeepSeek | TokenHub documents `deepseek-v4-flash` and `deepseek-v4-pro` web search through Chat Completions, with sources in `message.search_results`, search-call usage, and streamed `reasoning_content`; these routes do not use the same Responses web-search surface as Hy3. Current terms describe the named DeepSeek V4 routes as third-party-provided and outside the TokenHub model SLA. | Documented; intended service, terms, account access, and runtime behavior require confirmation. | The DeepSeek adapter must not reuse the Hy3 Responses path blindly. Preserve provider-failure isolation and do not assume a Tencent model SLA for the upstream DeepSeek route. |
 | Volcengine Ark: Doubao | Ark's official documentation surface lists Responses API and the built-in Doubao Web Search tool, and official tool guidance states that Responses can use built-in tools to search public network material. | Capability documented at product/API-guide level; exact search-trigger and citation/source response schema was not established from the accessible reference. Runtime-required. | Keep a dedicated Ark Responses adapter. Do not approve the evidence-retention contract until a real response proves how search occurrence, source URLs, original formatting, usage, and model version are returned. |
-| Alibaba Cloud Model Studio: Qwen | Model Studio documents Qwen web search through Responses, OpenAI-compatible Chat, and native DashScope. Native DashScope can return `search_info.search_results`, citations, and an observed search signal; the documentation says OpenAI-compatible Chat cannot directly confirm whether search occurred. | Documented; account region, chosen model, and runtime behavior remain account-dependent. | Prefer a protocol that preserves the required evidence, currently native DashScope or a proved Responses route, rather than generic compatible Chat. Search remains automatic for this product; retain the observed trigger and sources when present. |
-| Baidu AI Cloud Qianfan: ERNIE | Qianfan documents built-in ERNIE web search with `search_mode: auto`, optional trace and citation data, and `search_results` in the response. The current model list includes ERNIE 5.1, 5.0, X, and 4.5 families with capability differences; ERNIE does not support forced search. | Documented; exact current model, account access, source completeness, and non-streaming behavior require a controlled call. | Automatic search matches the accepted product meaning. The adapter must select and record one explicit current model and normalize streamed search/result events without losing the original answer. |
+| Alibaba Cloud Model Studio: Qwen | Model Studio documents Qwen web search through Responses, OpenAI-compatible Chat, and native DashScope. Responses can return `web_search_call.action.sources`, search queries, reasoning output items, reasoning-token usage, and final messages; native DashScope can return `search_info.search_results` and an observed search signal. Compatible Chat still cannot directly confirm whether search occurred. | Documented; account region, chosen model, and runtime behavior remain account-dependent. | Prefer Responses, with native DashScope as an evidence-preserving fallback. Search remains automatic for this product; retain the observed trigger and sources when present. |
+| Baidu AI Cloud Qianfan: ERNIE | Qianfan documents built-in ERNIE web search with `search_mode: auto`, optional trigger, trace and citation data, and `search_results`; current deep-thinking models can return `reasoning_content` under model-specific controls. The current model list includes ERNIE 5.1, 5.0, X, and 4.5 families with capability differences; ERNIE does not support forced search. | Documented; exact current model, combined capability, account access, source completeness, and non-streaming behavior require a controlled call. | Automatic search matches the accepted product meaning. Select and record one explicit model and normalize streamed search, reasoning, and result events without losing the original answer. |
 | Alibaba Cloud Model Studio: parser fallback | The current `deepseek-v4-flash` model page identifies Model Studio as the inference provider and marks structured output and web search supported. The dated `deepseek-v4-flash-0731` snapshot on the same page marks structured output unsupported. | Documented but version-sensitive; runtime-required. | Keep the logical fallback but do not finalize the model ID from the family name alone. Test the alias and snapshot separately, record the actual returned model/version, and require local schema and semantic validation. |
 | Langfuse candidate | Current Langfuse documentation describes an OpenTelemetry-based trace model with trace, user, session, tag, and metadata attributes; custom model usage and cost definitions; pre-export masking; managed cloud and self-hosted options. | Documented; deployment, retention, privacy, scale, and operational cost are architecture decisions. | Langfuse is a viable observability candidate, not yet a selected dependency. The application must generate its own business correlation IDs, ingest provider usage/cost explicitly when necessary, mask sensitive values before export, and save business truth even when telemetry is unavailable. |
 
@@ -76,9 +128,12 @@ characteristics were interpreted correctly.
 | Old Tencent LKEAP DeepSeek access is being replaced by TokenHub. | [Tencent Cloud TokenHub migration guide](https://cloud.tencent.com/document/product/1823/131382) | Updated 2026-08-05; accessed 2026-08-24 | Do not build the first slice against the legacy LKEAP endpoint. |
 | Current TokenHub DeepSeek V4 routes may be directly supplied by a third party and excluded from the TokenHub model SLA. | [Tencent Cloud TokenHub service terms](https://cloud.tencent.com/document/product/301/129852) | Accessed 2026-08-24 | Preserve fallback and provider-failure isolation; review applicable terms before production. |
 | Ark exposes Responses API and built-in Web Search as current platform capabilities. | [Volcengine Ark documentation](https://www.volcengine.com/docs/82379/?lang=zh) and [Ark Responses tool calling](https://www.volcengine.com/docs/82379/1958524?lang=zh) | Accessed 2026-08-24 | Candidate route is plausible, but response evidence still requires an account test. |
+| Current Doubao Seed 2.0 services expose model-specific `reasoning_effort` control, while the exact model and returned reasoning form remain route-specific. | [Volcengine model API reference](https://api.volcengine.com/api-docs/view?action=DescribeBaasAIModels&serviceCode=aidap&version=2025-10-01) and [Ark deep-thinking guide](https://www.volcengine.com/docs/82379/1956279?lang=zh) | Accessed 2026-08-25 | Record requested effort and returned evidence independently; prove the selected Doubao route at runtime. |
 | Qwen search-source evidence is available through native DashScope, while compatible Chat cannot directly prove a search occurred. | [Alibaba Cloud Model Studio web search](https://help.aliyun.com/zh/model-studio/web-search/) | Accessed 2026-08-24 | Select the protocol from evidence requirements, not from superficial SDK uniformity. |
 | Model Studio currently lists `deepseek-v4-flash` structured output as supported but the `0731` snapshot as unsupported. | [Alibaba Cloud Model Studio DeepSeek V4 Flash](https://help.aliyun.com/en/model-studio/deepseek-v4-flash) | Accessed 2026-08-24 | Model alias and pinned snapshot are not interchangeable; runtime validation is mandatory. |
 | ERNIE built-in search can return trigger, trace, citation, and search-result information under model-specific limits. | [Baidu Qianfan web search](https://cloud.baidu.com/doc/qianfan-docs/s/Wm8r4sw29) | Updated 2026-05-21; accessed 2026-08-24 | Normalize search events and retain sources without requiring search to fire for every question. |
+| Current Qianfan deep-thinking routes can return `reasoning_content`, but support and controls are model-specific. | [Baidu Qianfan deep thinking](https://cloud.baidu.com/doc/qianfan-docs/s/Wm95lyynv) and [model list](https://cloud.baidu.com/doc/qianfan-docs/s/7m95lyy43) | Updated 2026-05-27 and accessed 2026-08-25 | Treat reasoning as an optional provider capability, not a universal response field. |
+| Model Studio Responses can return reasoning items, reasoning summaries, search calls, queries, sources, and reasoning-token usage for supported Qwen and DeepSeek routes. | [Alibaba Cloud Model Studio Responses API](https://help.aliyun.com/zh/model-studio/qwen-api-via-openai-responses) and [web search](https://help.aliyun.com/zh/model-studio/web-search/) | Accessed 2026-08-25 | Prefer the evidence-rich Responses surface when its exact model and account pass controlled validation. |
 | Langfuse traces use OpenTelemetry and support trace-level identity, custom model cost, pre-export masking, and managed or self-hosted deployment. | [Langfuse data model](https://langfuse.com/docs/observability/data-model), [cost tracking](https://langfuse.com/docs/observability/features/token-and-cost-tracking), [masking](https://langfuse.com/docs/observability/features/masking), and [self-hosting](https://langfuse.com/self-hosting) | Accessed 2026-08-24 | Integrate through a non-blocking telemetry port; evaluate cloud versus self-hosting later against privacy and operations constraints. |
 
 ## Confirmed architecture consequences
@@ -132,12 +187,13 @@ link the resulting record; never paste keys or private account details here.
 
 ### Current controlled-account readiness
 
-The 2026-08-25 local readiness audit found no repository configuration file or
-current process variable name for TokenHub, Volcengine Ark, Alibaba Cloud Model
-Studio, Baidu Qianfan, or Langfuse. No credential value was read. The controlled
-matrix therefore remains **not run**, not failed: the intended commercial
-account, region, service/model identity, quota, billing boundary, applicable
-terms, and secret injection are not yet available to this worktree.
+The 2026-08-25 route names and no-secret configuration references are now
+recorded, and `.env.example` defines only canonical variable names. The
+credential values pasted into the conversation are treated as exposed and are
+not valid evidence inputs. The controlled matrix therefore remains **not run**,
+not failed: rotated credentials, intended commercial account and region,
+service/model identity, quota, billing boundary, applicable terms, and approved
+secret injection are still required.
 
 Before any call, the owning team supplies a non-secret route sheet for each
 platform containing account owner, region, endpoint/protocol family,

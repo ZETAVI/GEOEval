@@ -31,6 +31,12 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
 - [x] Define shared error, notification, logging, and observability ownership.
 - [ ] Run current primary-source and controlled-account research for first-slice
   external dependencies; retain the same gate for each later contract.
+- [x] Refresh official provider evidence and record the intended route and no-
+  secret credential-reference map.
+- [x] Propose the provider route-policy, capability-descriptor, one-attempt
+  adapter, evidence-normalization, and fallback boundaries.
+- [ ] Run the controlled provider matrix only with rotated credentials, an
+  approved budget, and retained non-sensitive fixtures.
 - [x] Compare and confirm the smallest viable stack and deployment shape against
   the approved constraints.
 - [x] Confirm the internal backend and frontend layering model, bounded

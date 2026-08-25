@@ -2,11 +2,10 @@
 
 - Status: Active architecture-entry ledger
 - Decision owners: Product owner and architecture owner
-- Current discussion area: Controlled-account and foundation-spike readiness
-- Current question: Establish the current-GA compatibility set, local execution
-  prerequisites, controlled-provider account readiness, disjoint preparation
-  lanes, and the remaining explicit authorization boundary before running the
-  foundation spike or paid provider tests.
+- Current discussion area: Evaluation-provider adapter and evidence boundary
+- Current question: Confirm the intended route map, provider-neutral execution
+  contract, provider-specific capability adapters, evidence availability
+  semantics, and credential-safety boundary before controlled account calls.
 
 ## Confirmed decisions
 
@@ -46,6 +45,8 @@
 | A13 | Define the minimum operational and quality baseline plus foundation-spike evidence required before implementation authorization. | A sound module design is insufficient if migrations, secrets, recovery, background work, generated contracts, observability isolation, and verification cannot be operated safely. | decided: bounded baseline and eight-part spike gate |
 | A14 | Establish the current-GA compatibility set, local prerequisites, controlled-account readiness, and disjoint preparation plan before executing the foundation spike or provider validation. | Dependency installation and external calls must be reproducible, cost-visible, credential-safe, and scoped to evidence that can actually authorize implementation. | decided: compatibility candidate, readiness audit, and work packages complete; execution approval pending |
 | A15 | Decide whether the bounded foundation spike and controlled-provider matrix execute sequentially or as separately authorized parallel lanes. | The lanes have independent inputs and outputs, but execution order affects lead time, cost visibility, and the point at which product implementation can start. | decided: execute as disjoint parallel lanes after separate F0 and E0 approvals; both remain required before real provider integration |
+| A16 | Define the extension boundary between logical platform routes, shared AI execution, provider/protocol adapters, evidence normalization, and fallback policy. | Provider APIs differ in parameters and returned evidence; a smallest-common-denominator client would lose facts, while provider branches in business use cases would make every later route change expensive. | proposed: versioned route policy plus capability descriptors, one-attempt provider adapters, lossless evidence normalization, and policy-owned fallback |
+| A17 | Define how search and reasoning evidence are represented when providers expose different or incomplete information. | Empty fields cannot distinguish no search from an unobservable search, and a provider summary must not be mislabeled as complete internal reasoning. | proposed: tri-state search observation, explicit reasoning evidence kind, preserve every returned field, never require hidden chain of thought |
 
 ## Parallel fact-finding
 
