@@ -14,6 +14,20 @@ const PROBE_ROUTES = [
   "ernie",
 ];
 const PROBE_FIXTURES = ["R01", "R02", "R03"];
+const OBJECTIVITY_INSTRUCTION_PROFILE = JSON.parse(
+  await readFile(
+    new URL("./evaluation-objectivity.json", import.meta.url),
+    "utf8",
+  ),
+);
+if (
+  typeof OBJECTIVITY_INSTRUCTION_PROFILE.id !== "string" ||
+  typeof OBJECTIVITY_INSTRUCTION_PROFILE.version !== "string" ||
+  typeof OBJECTIVITY_INSTRUCTION_PROFILE.content !== "string" ||
+  !OBJECTIVITY_INSTRUCTION_PROFILE.content.trim()
+) {
+  throw new Error("Invalid evaluation objectivity instruction profile");
+}
 const evidenceRoot = path.resolve(
   process.env.E0_EVIDENCE_DIR ?? ".provider-evidence",
 );
@@ -54,9 +68,12 @@ const routeDefinitions = {
     method: "POST",
     url: () =>
       `${baseUrl("TOKENHUB_BASE_URL", "https://tokenhub.tencentmaas.com/v1")}/chat/completions`,
-    body: (input, fixture) => ({
+    body: (input, fixture, instruction) => ({
       model: "deepseek-v4-flash",
-      messages: [{ role: "user", content: input }],
+      messages: [
+        ...(instruction ? [{ role: "system", content: instruction }] : []),
+        { role: "user", content: input },
+      ],
       stream: false,
       ...(fixture === "R00"
         ? {}
@@ -83,9 +100,10 @@ const routeDefinitions = {
     method: "POST",
     url: () =>
       `${baseUrl("TOKENHUB_BASE_URL", "https://tokenhub.tencentmaas.com/v1")}/responses`,
-    body: (input, fixture) => ({
+    body: (input, fixture, instruction) => ({
       model: "hy3",
       input,
+      ...(instruction ? { instructions: instruction } : {}),
       stream: false,
       ...(fixture === "R00"
         ? {}
@@ -115,9 +133,10 @@ const routeDefinitions = {
     method: "POST",
     url: () =>
       `${baseUrl("ARK_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3")}/responses`,
-    body: (input, fixture) => ({
+    body: (input, fixture, instruction) => ({
       model: "doubao-seed-2-0-lite-260428",
       input,
+      ...(instruction ? { instructions: instruction } : {}),
       store: false,
       ...(fixture === "R00" ? { thinking: { type: "disabled" } } : {}),
       ...(fixture === "R00" ? {} : { tools: [{ type: "web_search" }] }),
@@ -132,9 +151,10 @@ const routeDefinitions = {
     timeoutMs: 300_000,
     url: () =>
       `${baseUrl("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")}/responses`,
-    body: (input, fixture) => ({
+    body: (input, fixture, instruction) => ({
       model: "qwen3.7-flash",
       input,
+      ...(instruction ? { instructions: instruction } : {}),
       ...(fixture === "R00" ? { enable_thinking: false } : {}),
       ...(fixture === "R00" ? {} : { tools: [{ type: "web_search" }] }),
     }),
@@ -147,9 +167,12 @@ const routeDefinitions = {
     method: "POST",
     url: () =>
       `${baseUrl("QIANFAN_BASE_URL", "https://qianfan.baidubce.com/v2")}/chat/completions`,
-    body: (input, fixture) => ({
+    body: (input, fixture, instruction) => ({
       model: "ernie-4.5-turbo-128k",
-      messages: [{ role: "user", content: input }],
+      messages: [
+        ...(instruction ? [{ role: "system", content: instruction }] : []),
+        { role: "user", content: input },
+      ],
       stream: false,
       ...(fixture === "R00"
         ? {}
@@ -332,6 +355,7 @@ function publicResult(manifest) {
     httpStatus: manifest.httpStatus,
     failureClass: manifest.failureClass,
     requestedModel: manifest.requestedModel,
+    instructionProfile: manifest.instructionProfile,
     returnedModel: manifest.returnedModel,
     identityObservation: manifest.identityObservation,
     durationMs: manifest.durationMs,
@@ -401,7 +425,7 @@ async function loadProbeResults(runId) {
   return results;
 }
 
-async function executeRoute(routeName, fixtureName, runId) {
+async function executeRoute(routeName, fixtureName, runId, instructionProfile) {
   const route = routeDefinitions[routeName];
   if (!route) throw new Error(`Unknown route: ${routeName}`);
   const credential = process.env[route.credential];
@@ -426,7 +450,18 @@ async function executeRoute(routeName, fixtureName, runId) {
   await chmod(path.join(evidenceRoot, runId, routeName), 0o700);
   await chmod(attemptDir, 0o700);
 
-  const requestBody = route.body?.(input, fixtureName);
+  const instructionProfileRecord = instructionProfile
+    ? {
+        id: instructionProfile.id,
+        version: instructionProfile.version,
+        contentSha256: sha256(instructionProfile.content),
+      }
+    : undefined;
+  const requestBody = route.body?.(
+    input,
+    fixtureName,
+    instructionProfile?.content,
+  );
   const requestRecord = {
     attemptId,
     route: routeName,
@@ -438,6 +473,7 @@ async function executeRoute(routeName, fixtureName, runId) {
     url: route.url(),
     requestedModel: route.model,
     timeoutMs: route.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+    instructionProfile: instructionProfileRecord,
     body: requestBody,
   };
   await writeProtected(
@@ -505,6 +541,7 @@ async function executeRoute(routeName, fixtureName, runId) {
     serviceClass: route.serviceClass,
     credentialReference: route.credential,
     requestedModel: route.model,
+    instructionProfile: instructionProfileRecord,
     returnedModel: summary.returnedModel,
     identityObservation,
     availableModelCount: summary.availableModelIds.length,
@@ -539,6 +576,7 @@ async function executeRoute(routeName, fixtureName, runId) {
     httpStatus: manifest.httpStatus,
     failureClass: manifest.failureClass,
     requestedModel: manifest.requestedModel,
+    instructionProfile: manifest.instructionProfile,
     returnedModel: manifest.returnedModel,
     identityObservation: manifest.identityObservation,
     availableModelCount: manifest.availableModelCount,
@@ -604,6 +642,32 @@ async function main() {
     );
     process.stdout.write(`${JSON.stringify({ calls: plan }, null, 2)}\n`);
     return;
+  } else if (command === "instruction-plan") {
+    const plan = PROBE_ROUTES.map((routeName) => {
+      const route = routeDefinitions[routeName];
+      return {
+        route: routeName,
+        provider: route.provider,
+        method: route.method,
+        url: route.url(),
+        credentialReference: route.credential,
+        requestedModel: route.model,
+        timeoutMs: route.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+        fixture: "R02",
+        instructionProfile: {
+          id: OBJECTIVITY_INSTRUCTION_PROFILE.id,
+          version: OBJECTIVITY_INSTRUCTION_PROFILE.version,
+          contentSha256: sha256(OBJECTIVITY_INSTRUCTION_PROFILE.content),
+        },
+        requestBody: route.body(
+          fixtures.R02,
+          "R02",
+          OBJECTIVITY_INSTRUCTION_PROFILE.content,
+        ),
+      };
+    });
+    process.stdout.write(`${JSON.stringify({ calls: plan }, null, 2)}\n`);
+    return;
   } else if (command === "entitlement") {
     work = [
       ["tokenhub-models", "R00"],
@@ -618,15 +682,27 @@ async function main() {
       throw new Error("probe requires --route and --fixture");
     }
     work = [[route, fixture]];
+  } else if (command === "instruction-probe") {
+    const route = String(options.route ?? "");
+    if (!PROBE_ROUTES.includes(route)) {
+      throw new Error("instruction-probe requires one supported --route");
+    }
+    work = [[route, "R02", OBJECTIVITY_INSTRUCTION_PROFILE]];
+  } else if (command === "instruction-batch") {
+    work = PROBE_ROUTES.map((route) => [
+      route,
+      "R02",
+      OBJECTIVITY_INSTRUCTION_PROFILE,
+    ]);
   } else if (command !== "report") {
     throw new Error(
-      "Usage: e0-runner.mjs plan | probe-plan | entitlement [--run-id ID] | probe --route ROUTE --fixture R01 | report --run-id ID",
+      "Usage: e0-runner.mjs plan | probe-plan | instruction-plan | entitlement [--run-id ID] | probe --route ROUTE --fixture R01 | instruction-probe --route ROUTE | instruction-batch | report --run-id ID",
     );
   }
 
   const results = command === "report" ? await loadProbeResults(runId) : [];
-  for (const [route, fixture] of work ?? []) {
-    results.push(await executeRoute(route, fixture, runId));
+  for (const [route, fixture, instructionProfile] of work ?? []) {
+    results.push(await executeRoute(route, fixture, runId, instructionProfile));
   }
   if (results.length === 0) {
     throw new Error(`No probe manifests found for run: ${runId}`);

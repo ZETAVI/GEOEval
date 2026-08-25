@@ -10,8 +10,8 @@
   "scripts": {
     "build": "pnpm db:generate && pnpm openapi:generate && pnpm --filter @geoeval/backend build && pnpm --filter @geoeval/api-client typecheck && pnpm --filter @geoeval/web build",
     "check": "pnpm format:check && pnpm typecheck && pnpm test",
-    "format": "prettier --write package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/{foundation,provider-validation}/*.mjs'",
-    "format:check": "prettier --check package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/{foundation,provider-validation}/*.mjs'",
+    "format": "prettier --write package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/{foundation,provider-validation}/*.{json,mjs}'",
+    "format:check": "prettier --check package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/{foundation,provider-validation}/*.{json,mjs}'",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm --filter @geoeval/backend test",
     "infra:pull": "docker compose pull",
@@ -22,8 +22,10 @@
     "openapi:generate": "pnpm --filter @geoeval/backend openapi:generate && pnpm --filter @geoeval/api-client generate",
     "e0:plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs plan",
     "e0:probe-plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs probe-plan",
+    "e0:instruction-plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs instruction-plan",
     "e0:entitlement": "node --env-file=.env scripts/provider-validation/e0-runner.mjs entitlement",
     "e0:probe": "node --env-file=.env scripts/provider-validation/e0-runner.mjs probe",
+    "e0:instruction-batch": "node --env-file=.env scripts/provider-validation/e0-runner.mjs instruction-batch",
     "e0:report": "node --env-file=.env scripts/provider-validation/e0-runner.mjs report"
   },
   "devDependencies": {
