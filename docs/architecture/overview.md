@@ -37,9 +37,9 @@ When architecture work begins, it must preserve:
 
 ## Next architecture gates
 
-1. Diagnose the Qwen search timeout and separately approve the smallest Qwen,
-   corrected ERNIE, and system-instruction probes under the existing restricted
-   evidence policy.
+1. Supply the Model Studio workspace-dedicated Beijing route and separately
+   approve the smallest longer Qwen diagnostic, corrected ERNIE, and
+   system-instruction probes under the existing restricted evidence policy.
 2. Reconcile accepted provider evidence into route policy and adapter contracts.
 3. Obtain explicit S0 authorization before implementing customer identity,
    brand, evaluation, notification, or report behavior.

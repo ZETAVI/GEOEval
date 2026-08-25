@@ -106,8 +106,8 @@ making ordinary development depend on heavy architecture ceremony.
   sampling set, separate stronger-purpose pool, and F0 project-local/Compose
   execution were confirmed on 2026-08-25; the four-call entitlement gate was
   explicitly approved and passed on 2026-08-25.
-- Next action: diagnose Qwen without repeating a business sample; obtain a
-  separate confirmation for the minimal Qwen retry, corrected ERNIE probe, and
-  system-instruction calibration described by current evidence.
+- Next action: supply the intended Model Studio workspace-dedicated Beijing
+  base URL; then obtain separate confirmation for one longer Qwen diagnostic,
+  the corrected ERNIE probe, and system-instruction calibration.
 - Confirmation required before: any additional provider call, service
   activation, quota change, production-data use, or product implementation.

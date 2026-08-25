@@ -26,13 +26,22 @@ made.
 | Ark Doubao R01 | HTTP 200; exact model; search triggered; 3 sources; reasoning-token usage but no reasoning text; 34,549 ms | Passed | `e59faf34c4b9ec29beda48b8de8087791bcea6f90ab1042285a2209c1499bbfd` |
 | Ark Doubao R02 | HTTP 200; exact model; complete answer; no source evidence; search state not exposed | Passed with `unknown` search state | `6e4ef2bb5bcb074891e74d50ecbdc64b89ac4cdabe08c1798a8115ace93319a5` |
 | Ark Doubao R03 | HTTP 200; exact model; requested Markdown structures and order preserved | Passed | `d8a79b16bcfd7b5590f14fb376d875674056ba2b24a9e459ca5c9c5dd9e25b6a` |
-| Model Studio Qwen R01 | No HTTP response before the 120,012 ms client timeout; no identity, answer, source, or usage evidence | Blocked: timeout | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| Model Studio Qwen R01 | Shared DashScope fallback produced no HTTP response before the 120,012 ms client timeout; no identity, answer, source, or usage evidence | Blocked at the controlled client boundary, not proven unsupported | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 | Qianfan ERNIE R01 | HTTP 400 before generation; sanitized error inspection identified an invalid non-streaming `enable_status` combination | Blocked: invalid request | `3a0c82a9d7cb4d5b1a8c004f43b461309bd31324e4b8ccde90a83f95f430c223` |
 
 Qwen R02-R03 and ERNIE R02-R03 were not run. The runner did not retry either
 blocked R01. The ERNIE request definition was corrected after the run by
 omitting `enable_status` from non-streaming probes; that correction is not
 runtime evidence.
+
+The local configuration has no Model Studio base-URL override, so Qwen used the
+shared `dashscope.aliyuncs.com` compatibility endpoint. Alibaba documents that
+this legacy endpoint remains supported with a 600-second request timeout, while
+the workspace-dedicated Beijing endpoint is recommended for higher isolation,
+throughput, and lower latency. The 120-second probe therefore establishes a
+product-relevant latency failure, not an API-capability failure. See
+[Beijing access information](https://help.aliyun.com/zh/model-studio/beijing-access-information)
+and [web-search examples](https://help.aliyun.com/zh/model-studio/web-search/).
 
 ## Semantic and format checks
 
@@ -64,7 +73,8 @@ twenty-position evaluation, or customer-data processing approval.
 
 ## Next gate
 
-Diagnose Qwen without repeating a business sample, then separately authorize a
-minimal Qwen search retry and corrected ERNIE R01. R02-R03 may proceed only
-after each repaired R01 passes. System-instruction behavior follows its own
-documented and controlled evidence gate.
+Obtain the intended workspace-dedicated Beijing base URL, then separately
+authorize one Qwen R01 diagnostic with an explicitly longer validation timeout
+and one corrected ERNIE R01. R02-R03 may proceed only after each repaired R01
+passes. System-instruction behavior follows its own documented and controlled
+evidence gate.

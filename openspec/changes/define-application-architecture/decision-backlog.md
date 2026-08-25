@@ -3,9 +3,10 @@
 - Status: Active architecture-entry ledger
 - Decision owners: Product owner and architecture owner
 - Current discussion area: E0 repair and instruction-policy evidence frontier
-- Current question: Diagnose the Qwen timeout, confirm the corrected ERNIE
-  request, and validate the smallest neutral system-instruction boundary before
-  accepting five evaluation routes; do not begin product implementation meanwhile.
+- Current question: Supply the Qwen workspace-dedicated route, confirm the
+  longer Qwen and corrected ERNIE probes, and validate the smallest neutral
+  system-instruction boundary before accepting five evaluation routes; do not
+  begin product implementation meanwhile.
 
 ## Confirmed decisions
 
