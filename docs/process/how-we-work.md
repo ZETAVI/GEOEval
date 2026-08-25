@@ -12,7 +12,12 @@ Use this mode when the product question or problem is still open.
 - Record decisions, non-goals, assumptions, and open owners—not the transcript.
 - Do not create implementation code or choose architecture during product discovery.
 
-For the current project phase, work from [`define-product-foundation`](../../openspec/changes/define-product-foundation/proposal.md).
+The product foundation is approved. For the current phase, begin from the
+[product vision](../product/vision.md), [shared language](../product/glossary.md),
+and [accepted product specification](../../openspec/specs/product-definition/spec.md),
+then work through the
+[active architecture-entry change](../../openspec/changes/define-application-architecture/proposal.md)
+for consequential module, ownership, integration, or technology decisions.
 
 ## 2. Start a durable change
 
@@ -49,12 +54,24 @@ Agents may continue without another ceremony when execution remains inside an ap
 
 ## 5. Implement in a small vertical slice
 
+- Before implementation begins, stabilize cross-project ownership, dependency,
+  consistency, sensitive-data, external, stack, and first-slice boundaries. Do
+  not attempt to finish the whole product's table, API, or event design upfront.
+- Before each material slice, record its outcome and non-goals, participating
+  modules and write owners, lifecycle and snapshots or ledgers, collaboration
+  level, important failures, permissions, and observable acceptance.
 - Trace changed lines to the approved outcome.
 - Search existing capabilities before creating reusable abstractions.
 - Refactor locally when the change exposes a weak seam.
 - Keep unrelated cleanup out of the change.
 - Add tests and contracts with the behavior, not afterward.
 - Use a separate Git worktree for each concurrent implementation package.
+
+Promote a decision to architecture review or an ADR only when it changes a data
+owner, public cross-module contract, money or paid-promise invariant, sensitive
+data boundary, external dependency, deployment boundary, migration strategy, or
+rollback risk. Reversible owner-local implementation choices stay with code,
+tests, and normal review.
 
 Use multi-agent work first for independent research, code mapping, testing, and review. Parallel writes require fixed interfaces, disjoint files, and one lead agent responsible for reconciliation.
 

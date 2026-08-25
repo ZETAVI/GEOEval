@@ -2,18 +2,23 @@
 
 ## Mission and current phase
 
-Build the GEO optimization product from an agreed product definition toward small, verifiable releases. The current phase is **product discovery**: clarify users, problems, outcomes, product boundaries, and evaluation semantics before choosing implementation architecture or technology.
+Build the GEO optimization product from its approved product foundation toward
+small, verifiable releases. The current phase is **product and architecture
+entry**: preserve the confirmed product meaning while defining capability and
+data ownership, product interaction standards, external-validation evidence,
+and the smallest viable application architecture before implementation.
 
 Do not treat historical prompts as approved requirements. They are research input.
 
 ## Read order
 
 1. `docs/product/vision.md`
-2. `openspec/changes/define-product-foundation/`
-3. `docs/process/operating-principles.md`
-4. `docs/process/design-knowledge.md` when creating or changing durable design
-5. The nearest relevant product, architecture, spec, contract, or ADR document
-6. `GEO-Eval-Prompts.md` only when historical context is needed
+2. `docs/product/glossary.md`
+3. `openspec/specs/product-definition/spec.md`
+4. `docs/process/operating-principles.md`
+5. `docs/process/design-knowledge.md` when creating or changing durable design
+6. The nearest relevant active change, architecture, spec, contract, or ADR
+7. `GEO-Eval-Prompts.md` only when historical context is needed
 
 Keep always-loaded guidance short. Load detailed process documents and Skill references only when the task needs them.
 
@@ -67,7 +72,8 @@ Add application commands here only after they have been executed successfully in
 ## Working agreement
 
 - Clarify materially different interpretations before implementation.
-- During product discovery, discuss product meaning before technical solutions.
+- During product and architecture entry, do not let interaction or technical
+  solutions silently redefine the approved product meaning.
 - Search existing terms, components, contracts, and capabilities before creating new ones.
 - Keep uncertain design in the active change; create a durable contract only after its owner and boundary are stable.
 - Reconcile accepted design into its canonical or executable owner and remove obsolete active explanations before closing a change.

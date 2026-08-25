@@ -26,11 +26,19 @@ Build the smallest coherent solution for the known problem. Search for existing 
 
 **Decision test:** Is the abstraction supported by multiple stable use cases, or only by imagined flexibility?
 
-## 5. Make surgical changes and refactor continuously at the seam
+## 5. Stabilize hard boundaries; evolve details at the seam
 
-Every changed line should trace to the requested outcome or to cleanup caused by that change. Improve a local seam when the next feature exposes friction; do not mix unrelated cleanup into delivery or postpone all design repair to a future rewrite.
+Before implementation, stabilize decisions that are expensive to reverse or
+spread across modules: ownership, public dependency direction, money and paid
+promises, immutable history, sensitive data, external boundaries, and rollback
+risk. Refine reversible tables, internal contracts, abstractions, and local
+patterns one small vertical slice at a time from implementation and verification
+evidence. Every changed line should trace to the requested outcome or to cleanup
+caused by that change; improve a local seam when the next feature exposes
+friction without mixing unrelated cleanup into delivery.
 
-**Decision test:** Is this edit necessary for the requested outcome, its verified maintainability, or a safe incremental migration?
+**Decision test:** Is this a durable boundary that must be stable before work
+starts, or a reversible detail that can be decided safely in the owning slice?
 
 ## 6. Prefer evidence over assumption
 

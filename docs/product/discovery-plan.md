@@ -1,5 +1,10 @@
 # Product Discovery Plan
 
+- Status: Completed on 2026-08-24
+- Approved result: [Product vision](vision.md), [shared language](glossary.md),
+  and [current product specification](../../openspec/specs/product-definition/spec.md)
+- Next phase: [Application architecture entry](../../openspec/changes/define-application-architecture/proposal.md)
+
 ## Purpose
 
 Define a product foundation strong enough to guide an MVP without prematurely designing the application. Each stage should produce decisions, non-goals, and observable boundaries—not a transcript.
@@ -61,7 +66,18 @@ Only after the preceding decisions are stable enough:
 - define capability ownership and data boundaries;
 - compare the smallest viable architecture options;
 - record durable tradeoffs in ADRs;
-- create an implementation plan with task-appropriate verification.
+- start a payment-readiness workstream covering merchant application, current
+  official-interface research, commercial and account prerequisites, test
+  facilities, and delivery lead time;
+- validate every proposed evaluation-provider route with current official
+  documentation and controlled account calls, including explicit model versions,
+  web-search behavior, citations, limits, cost, error semantics, and usage data;
+- select an observability approach only after defining product-record ownership,
+  per-call trace fields, sensitive-payload handling, access, and retention;
+- create a dependency-aware implementation plan that fixes module boundaries and
+  interfaces before assigning parallel work, separates independently owned
+  workstreams, and gives each task an owner, prerequisite, acceptance boundary,
+  integration point, and task-appropriate verification.
 
 ## Discussion rule
 
@@ -70,4 +86,6 @@ Use `$requirement-grill` in short rounds. Ask one to three root questions, recor
 ## Source inputs
 
 - [Historical prompts and framework discussion](../../GEO-Eval-Prompts.md)
+- [Product-definition meeting transcripts](research/meeting-transcripts/README.md)
+- [Archived cross-meeting synthesis](../../openspec/changes/archive/2026-08-24-define-product-foundation/meeting-synthesis.md)
 - Future meeting notes or research should be linked here as inputs, then promoted selectively into canonical product documents.

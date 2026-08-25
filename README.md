@@ -1,22 +1,25 @@
 # GEOEval
 
-GEOEval is a GEO optimization product currently in product discovery. The repository is intentionally starting with product definition and an AI-native delivery operating model before application architecture or implementation is selected.
+GEOEval is a GEO optimization product with an approved product foundation. The
+repository is entering product and architecture design before selecting the
+application stack or beginning implementation.
 
 ## Current status
 
-- Phase: product discovery
-- Active change: [`define-product-foundation`](openspec/changes/define-product-foundation/proposal.md)
+- Phase: product and architecture entry
+- Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
+- Active next-stage change: [`define-application-architecture`](openspec/changes/define-application-architecture/proposal.md)
 - Application stack: not selected
 - Runtime code: not started
 
 ## Start here
 
 1. Read the [product vision](docs/product/vision.md).
-2. Follow the [product discovery plan](docs/product/discovery-plan.md).
+2. Read the [product glossary](docs/product/glossary.md) and [accepted product specification](openspec/specs/product-definition/spec.md).
 3. Review the [operating principles](docs/process/operating-principles.md).
 4. Use [How We Work](docs/process/how-we-work.md) for the practical workflow and Skill prompts.
-5. Use the [active product-definition change](openspec/changes/define-product-foundation/proposal.md) for the next discussion.
-6. Read [GEO-Eval-Prompts.md](GEO-Eval-Prompts.md) only as historical input, not as accepted requirements.
+5. Use the [active architecture-entry change](openspec/changes/define-application-architecture/proposal.md) for the current module and ownership discussion.
+6. Read the [archived product-foundation change](openspec/changes/archive/2026-08-24-define-product-foundation/proposal.md) or [GEO-Eval-Prompts.md](GEO-Eval-Prompts.md) only when decision history is needed.
 
 ## Delivery model
 
