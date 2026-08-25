@@ -2,10 +2,10 @@
 
 - Status: Active architecture-entry ledger
 - Decision owners: Product owner and architecture owner
-- Current discussion area: Evaluation-provider adapter and evidence boundary
-- Current question: Confirm the intended route map, provider-neutral execution
-  contract, provider-specific capability adapters, evidence availability
-  semantics, and credential-safety boundary before controlled account calls.
+- Current discussion area: P0 completion and F0/E0 activation frontier
+- Current question: Confirm the quality-first controlled model candidates and
+  then authorize the foundation spike and cost-visible provider validation as
+  separate execution lanes.
 
 ## Confirmed decisions
 
@@ -48,6 +48,8 @@
 | A16 | Define the extension boundary between logical platform routes, shared AI execution, provider/protocol adapters, evidence normalization, and fallback policy. | Provider APIs differ in parameters and returned evidence; a smallest-common-denominator client would lose facts, while provider branches in business use cases would make every later route change expensive. | decided: versioned route policy plus capability descriptors, one-attempt provider adapters, lossless evidence normalization, and policy-owned fallback |
 | A17 | Define how search and reasoning evidence are represented when providers expose different or incomplete information. | Empty fields cannot distinguish no search from an unobservable search, and a provider summary must not be mislabeled as complete internal reasoning. | decided: tri-state search observation, explicit reasoning evidence kind, preserve every returned field, never require hidden chain of thought |
 | A18 | Select the service class for DeepSeek routes without confusing cloud-platform service aliases with official DeepSeek direct supply. | TokenHub catalogs both service classes under similar names, while Model Studio aliases and snapshots expose different capabilities; an accidental ID change could silently alter commercial terms, evidence shape, or parser behavior. | decided: TokenHub uses bare platform IDs only; Alibaba parser fallback uses exact Model Studio alias `deepseek-v4-flash`; direct-vendor and unapproved snapshot routes are rejected by route policy |
+| A19 | Confirm the first controlled-validation model set: TokenHub `deepseek-v4-pro`, Ark `doubao-seed-2-1-pro-260628`, Model Studio `qwen3.8-max`, Qianfan `ernie-5.1`, and TokenHub `hy3`. | Real-call cost, answer quality, latency, public-product alignment, and the resulting production route sheet depend on the exact models rather than provider names alone. | proposed: validate the quality-first current models; compare TokenHub `deepseek-v4-flash` only as the explicit lower-cost DeepSeek alternative |
+| A20 | Authorize F0 dependency/image execution and E0 cost-visible provider execution as separate bounded actions. | P0 facts and fixtures are reversible, but downloads change the worktree and provider calls use exposed credentials and incur external cost. | pending separate human approvals after candidate, credential, account, budget, and evidence-location readiness |
 
 ## Parallel fact-finding
 
@@ -65,5 +67,7 @@ The proposed engineering gate and its current official evidence are recorded in
 the [operational and quality baseline brief](research/operational-quality-baseline.md).
 The current package/runtime candidate and local audit are recorded in the
 [foundation compatibility brief](research/foundation-compatibility.md). The
+controlled route sheet and deterministic fixtures are recorded in the
+[provider validation preparation](research/provider-validation-preparation.md). The
 dependency and parallelization proposal is recorded in the
 [implementation plan](implementation-plan.md).

@@ -1,7 +1,7 @@
 # Proposed Implementation Plan: Foundation and First Evaluation Slice
 
 - Change: [`define-application-architecture`](proposal.md)
-- Status: Proposed; preparation only
+- Status: P0 prepared; F0, E0, and product implementation not authorized
 - Product implementation authorized: No
 - Decision owners: Product owner and architecture owner
 - Plan owner: Architecture owner
@@ -26,6 +26,7 @@ production resources, or business-feature implementation.
 - [Architecture decision brief](decision-brief.md)
 - [Foundation compatibility candidate](research/foundation-compatibility.md)
 - [First-slice external evidence and controlled matrix](research/first-slice-external-evidence.md)
+- [Controlled provider route sheet and fixtures](research/provider-validation-preparation.md)
 - [Operational and quality baseline](research/operational-quality-baseline.md)
 
 Exact tables, DTO fields, framework helpers, provider payloads, prompt text,

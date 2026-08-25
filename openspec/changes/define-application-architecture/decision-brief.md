@@ -84,10 +84,12 @@ making ordinary development depend on heavy architecture ceremony.
 - Open: authentication/SMS, production object storage, observability destination,
   and hosting products are selected only when their owning slice or operational
   gate has current evidence.
-- Open: the current-GA compatibility candidate, local readiness audit, and
-  foundation work packages are prepared; their execution approval,
-  controlled-provider route sheets, injected credentials, and external-call
-  budget remain required before their respective runs.
+- Open: the current-GA compatibility candidate, refreshed local readiness,
+  foundation work packages, no-secret provider route sheet, deterministic
+  fixtures, and evidence manifest are prepared. The quality-first model set,
+  execution approvals, rotated credentials, account details, external-call
+  budget, and secure raw-evidence location remain required before their
+  respective runs.
 
 ## Confirmation and Next Gate
 
@@ -100,8 +102,9 @@ making ordinary development depend on heavy architecture ceremony.
   separately authorized parallel F0/E0 sequencing was confirmed on 2026-08-25;
   the provider-adapter, evidence-normalization, fallback, and DeepSeek cloud-
   platform route boundaries were confirmed on 2026-08-25.
-- Next action: rotate the exposed credentials, complete the non-secret route
-  sheet, then obtain explicit execution authorization for the foundation spike
-  and separately for cost-visible provider validation.
+- Next action: confirm the proposed quality-first model set and obtain explicit
+  F0 authorization for project-local dependency and candidate-image downloads.
+  Credential rotation, account readiness, budget, evidence location, and a
+  separate E0 authorization remain required before any provider call.
 - Confirmation required before: dependency installation, foundation-spike
   execution, or product implementation; pass the remaining architecture gate.

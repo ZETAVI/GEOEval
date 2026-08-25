@@ -37,6 +37,10 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
   adapter, evidence-normalization, and fallback boundaries.
 - [x] Confirm the provider adapter and evidence boundary plus the TokenHub and
   Model Studio DeepSeek service-class constraints.
+- [x] Complete the non-secret P0 route sheet, rejection rules, deterministic
+  fixtures, and controlled-run evidence manifest.
+- [x] Refresh current local runtime and container-image readiness without
+  installing dependencies, pulling images, or calling providers.
 - [ ] Run the controlled provider matrix only with rotated credentials, an
   approved budget, and retained non-sensitive fixtures.
 - [x] Compare and confirm the smallest viable stack and deployment shape against
@@ -51,8 +55,9 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
 
 ## Approve and close
 
-- [x] Run `$architecture-review` on the complete proposal; no blocking boundary
-  finding remains, and controlled external evidence stays an explicit gate.
+- [x] Run `$architecture-review` on the complete proposal and P0 provider
+  preparation; no blocking boundary finding remains, and controlled external
+  evidence stays an explicit gate.
 - [x] Produce and confirm a bounded architecture decision brief.
 - [ ] Reconcile accepted architecture into `docs/architecture/overview.md`, current specs, owner-local contracts, and ADRs where durable.
 - [x] Produce a dependency-aware implementation plan with explicit prerequisites, owners, integration gates, and verification evidence.

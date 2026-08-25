@@ -42,14 +42,16 @@ lockfile and evidence output, not guessed in this brief.
 
 | Check | Observed state | Consequence |
 | --- | --- | --- |
-| Checkout | `codex/define-product-foundation` at `9110382fc876e63833920ea2b0671fea6e1f1dc0`, with the existing uncommitted product and architecture work preserved | Do not switch, reset, or overwrite; foundation changes remain in this worktree until an approved integration step. |
-| Application manifests | No `package.json`, pnpm workspace, lockfile, compose file, or project `.env` file exists | The spike must create the first application skeleton deliberately; there is no legacy dependency contract to preserve. |
+| Checkout | `codex/design-evaluation-provider-adapters` at `5899a035cbc2d1be14f3c57667729587a230e31d`, clean at the start of the 2026-08-25 P0 refresh | Continue preparation in this worktree; do not switch, reset, merge, or overwrite outside an approved integration step. |
+| Application manifests | No `package.json`, pnpm workspace, lockfile, or compose file exists; `.env.example` and a local ignored `.env` now exist | The spike must create the first application skeleton deliberately; there is no legacy dependency contract to preserve. Never treat the local credential file as implementation authorization. |
 | Node and package manager | Node 24.12.0, Corepack 0.34.5, pnpm 11.9.0; fnm also retains Node 24.11.1 | Suitable major line, but not the proposed exact patch set; do not claim reproducibility yet. |
-| Container runtime | Docker CLI 29.4.0 can reach the OrbStack daemon outside the restricted tool sandbox; an unrelated MySQL container is running | Use project-named disposable PostgreSQL and Redis services without touching unrelated containers. |
-| Local images | Redis 7 and 7.4 images exist; no PostgreSQL or candidate Redis 8.2 image was found | The spike requires authorized image downloads or an equivalent disposable service. |
-| Provider configuration | No project file or current process variable name was found for TokenHub, Ark/Doubao, DashScope/Qwen, Baidu Qianfan, Langfuse, or project object storage | Controlled provider validation is not executable until the owning team supplies account, region, route, quota, and secret injection. |
+| Container runtime | Docker CLI 29.4.0 can reach the OrbStack daemon outside the restricted tool sandbox | Use project-named disposable PostgreSQL and Redis services without touching unrelated containers. |
+| Local images | Redis 7 and 7.4 images exist; no PostgreSQL or candidate Redis 8.2 image was found | The spike still requires separately authorized image downloads. |
+| Candidate image manifests | Docker Hub exposed `postgres:18.6-bookworm` at manifest digest `sha256:1c59e2c3c818eaa0f0628f695b36e7c9e362d6b219b36a54a32df645cbd7e1af` and `redis:8.2.8` at `sha256:2f7462b9e93e0a7ae2edf3a0a0babc8a4d29f8bfc50849b906b7caaef925edc1` on 2026-08-25 | Recheck and explicitly pin the accepted digest at F0 start because tags and manifests can change; this read-only audit did not download image layers. |
+| Provider configuration | The local ignored `.env` has the eight canonical Ark, Model Studio, Qianfan, TokenHub, and Langfuse references, is mode `0600`, and is not tracked; no value was printed during readiness checks | Values exposed in conversation must still be rotated before E0. Account, region, route, quota, budget, and secure evidence location remain required. |
 
-No credential value was read or recorded during this audit.
+No credential value was printed or recorded in this source brief during the
+refresh.
 
 ## Primary Evidence
 
@@ -63,6 +65,7 @@ No credential value was read or recorded during this audit.
 | Redis 8.2 is an Extended GA line with a longer support window. | [Redis Open Source version management](https://redis.io/docs/latest/operate/oss_and_stack/install/version-mgmt/) | Prefer the current 8.2 patch for the candidate and validate BullMQ 6 against it. |
 | BullMQ uses Redis connections, supports current Redis client adapters, and may process delivery more than once under failure. | [BullMQ connections](https://docs.bullmq.io/guide/connections) and [idempotent jobs](https://docs.bullmq.io/patterns/idempotent-jobs) | Exercise the Redis backend, duplicate delivery, connection loss, and durable owner idempotency in the spike. |
 | Current package versions and engine/peer ranges were observed through read-only `npm view` calls. | npm registry reads on 2026-08-25 | Registry presence establishes a candidate package identity, not combined compatibility or runtime correctness. |
+| Candidate PostgreSQL and Redis image tags and multi-platform manifest digests exist in the official Docker Hub repositories. | [PostgreSQL official image](https://hub.docker.com/_/postgres) and [Redis official image](https://hub.docker.com/_/redis); read-only registry audit on 2026-08-25 | Record the observed candidates now, but recheck and pin accepted digests only when F0 is authorized. |
 
 ## Rejected or Deferred Choices
 
@@ -78,8 +81,8 @@ No credential value was read or recorded during this audit.
 
 - Obtain explicit approval before creating application manifests, downloading
   dependencies or container images, or running the foundation spike.
-- Resolve exact official container tags and pin image digests in the evidence
-  record rather than relying on floating tags.
+- Recheck the observed official container tags and pin their accepted image
+  digests in the F0 evidence record rather than relying on floating tags.
 - Prove the TypeScript 7 candidate. If it fails a real compatibility check, stop
   and record the narrow incompatibility before selecting a different supported
   compiler line.

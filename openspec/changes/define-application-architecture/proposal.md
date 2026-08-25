@@ -1,6 +1,6 @@
 # Change: Define the GEOEval Application Architecture
 
-- Status: Exploring
+- Status: Awaiting execution-gate confirmation
 - Class: Architectural
 - Decision owners: Product owner and architecture owner
 - Implementation authorized: No
@@ -65,6 +65,7 @@ boundaries, and parallel implementation seams understandable and verifiable.
 - [Architecture exploration](design.md)
 - [Decision backlog](decision-backlog.md)
 - [First-slice external evidence](research/first-slice-external-evidence.md)
+- [Controlled provider validation preparation](research/provider-validation-preparation.md)
 - [Application-stack options](research/application-stack-options.md)
 - [Operational and quality baseline evidence](research/operational-quality-baseline.md)
 - [Foundation compatibility candidate](research/foundation-compatibility.md)
