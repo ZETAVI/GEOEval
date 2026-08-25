@@ -4,7 +4,8 @@
 - Execution date: 2026-08-25
 - Branch revision before execution: `159f5b4361cd5a766919603619d0a51cbd1fe274`
 - Run: `e0-20260825-search-fidelity-01`
-- Result: Partially verified; three routes passed R01-R03 and two routes stopped at R01
+- Result: Partially verified; fourteen of fifteen unique R01-R03 positions have
+  successful evidence, with only ERNIE R03 still blocked
 - Authorization: at most fifteen named calls, fictional R01-R03 inputs,
   automatic provider search, no service or quota changes; call count bounded
   without a separate monetary ceiling
@@ -43,6 +44,35 @@ product-relevant latency failure, not an API-capability failure. See
 [Beijing access information](https://help.aliyun.com/zh/model-studio/beijing-access-information)
 and [web-search examples](https://help.aliyun.com/zh/model-studio/web-search/).
 
+## Repair batch
+
+After the product owner supplied the workspace-dedicated Beijing route and
+confirmed continuation, the bounded repair run `e0-20260825-repair-01` executed
+six calls. Five passed and one stopped without retry.
+
+| Route and fixture | Controlled observation | Result | Raw response SHA-256 |
+| --- | --- | --- | --- |
+| Model Studio Qwen R01 | HTTP 200; exact model; automatic search triggered once; 40 returned URL sources retained after the additive normalization correction; 61,924 ms within the route's 300,000 ms diagnostic boundary | Passed | `ffbd43499283ceaf71431e80887a7bf44454779e8215a6d13d29a55eb6332902` |
+| Model Studio Qwen R02 | HTTP 200; exact model; complete answer; no explicit search observation; 9,775 ms | Passed with `unknown` search state | `fd262f155badaac7f79ff49ca049c2e63bea286b7120bedd19bedf4a3ba3b8d9` |
+| Model Studio Qwen R03 | HTTP 200; exact model; heading, paragraph, numbered list, table, Unicode, brand text, and required order preserved; 9,973 ms | Passed | `4a5b5287cc1843c7a728aad03c35bf4cd3bffd5805c5191eeba065707f3c9640` |
+| Qianfan ERNIE R01 | HTTP 200; exact model; automatic search triggered; 10 sources; search-token usage retained; 30,349 ms | Passed | `b3bb1f0c53c08a0950b2036a7e795956e01ef346670025f6ea55f258d3374df0` |
+| Qianfan ERNIE R02 | HTTP 200; exact model; complete answer; no explicit search observation; 2,250 ms | Passed with `unknown` search state | `ab20172a0c6e68efad890dba5d8b780bc5ac4bb6fdd24e9db59e288b78eebdbc` |
+| Qianfan ERNIE R03 | No HTTP response; classified as `network_error` after 28,115 ms; no retry was attempted | Blocked; route capability not disproved | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+
+The Qwen R01 manifest was intentionally left immutable. Its first normalizer
+counted zero sources because Model Studio represents each entry in
+`web_search_call.action.sources` as `type: "url"`. A restricted additive
+correction record binds the original manifest hash and response hash, records
+the corrected count of 40, and names the normalizer fix revision. The reporting
+tool validates that binding before applying the corrected count; it does not
+rewrite original provider evidence.
+
+Across the initial and repair batches, seventeen calls ran and fourteen
+succeeded. More importantly, fourteen of the fifteen unique route/fixture
+positions now have successful evidence. DeepSeek, Hy3, Doubao, and Qwen have
+complete R01-R03 evidence. ERNIE has R01-R02 evidence but remains incomplete
+until R03 succeeds or the product owner accepts that residual risk.
+
 ## Semantic and format checks
 
 Without printing answer bodies, focused local checks confirmed that all nine
@@ -67,14 +97,13 @@ are mode `0700` and all request, response, header, manifest, and summary files
 are mode `0600`. Only sanitized observations and hashes enter Git.
 
 This probe does not prove consumer Web/App equivalence, streaming assembly,
-Qwen or ERNIE search support in the selected account route, production cost,
+production cost,
 error retries, fallback, parser or synthesis quality, Langfuse export, a full
 twenty-position evaluation, or customer-data processing approval.
 
 ## Next gate
 
-Obtain the intended workspace-dedicated Beijing base URL, then separately
-authorize one Qwen R01 diagnostic with an explicitly longer validation timeout
-and one corrected ERNIE R01. R02-R03 may proceed only after each repaired R01
-passes. System-instruction behavior follows its own documented and controlled
-evidence gate.
+Separately authorize one ERNIE R03 retry if complete route evidence is required.
+System-instruction behavior follows its own documented and controlled evidence
+gate: define the five independent platform-profile purposes first, then compare
+each profile only with its own no-instruction baseline.

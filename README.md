@@ -5,8 +5,9 @@ validated application foundation. Product-slice implementation has not started.
 
 ## Current status
 
-- Phase: validated application foundation and provider entitlement; provider
-  search/fidelity evidence partially passed, with repair and first-slice
+- Phase: validated application foundation and provider entitlement; fourteen of
+  fifteen unique provider search/fidelity positions passed, with one ERNIE R03
+  retry, platform-specific instruction calibration, and first-slice
   authorization pending
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
 - Active next-stage change: [`define-application-architecture`](openspec/changes/define-application-architecture/proposal.md)

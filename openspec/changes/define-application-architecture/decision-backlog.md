@@ -2,11 +2,12 @@
 
 - Status: Active architecture-entry ledger
 - Decision owners: Product owner and architecture owner
-- Current discussion area: E0 repair and instruction-policy evidence frontier
-- Current question: Supply the Qwen workspace-dedicated route, confirm the
-  longer Qwen and corrected ERNIE probes, and validate the smallest neutral
-  system-instruction boundary before accepting five evaluation routes; do not
-  begin product implementation meanwhile.
+- Current discussion area: E0 final repair and platform-specific instruction
+  profile frontier
+- Current question: Decide whether to retry the single blocked ERNIE R03 call,
+  then define and confirm the purpose of each platform-specific instruction
+  profile before any instruction calibration; do not begin product
+  implementation meanwhile.
 
 ## Confirmed decisions
 
@@ -52,6 +53,7 @@
 | A19 | Confirm the first controlled-validation model set: TokenHub `deepseek-v4-flash`, Ark Doubao Seed 2.0 Lite, Model Studio `qwen3.7-flash`, Qianfan ERNIE 4.5 Turbo, and TokenHub `hy3`.      | Evaluation should reproduce the ordinary free/default consumer posture rather than compare flagship quality; exact API and consumer-product equivalence still require runtime evidence.                                                | decided: use the consumer-aligned logical set; Ark current snapshot candidate is `doubao-seed-2-0-lite-260428`, and Qianfan provisional stable API ID is `ernie-4.5-turbo-128k`                     |
 | A20 | Authorize F0 dependency/image execution and E0 cost-visible provider execution as separate bounded actions.                                                                                | P0 facts and fixtures are reversible, but downloads change the worktree and provider calls use credentials and incur external cost.                                                                                                    | F0 and entitlement passed; the product owner authorized at most fifteen R01-R03 calls without a monetary ceiling on 2026-08-25; eleven ran, three routes passed, and Qwen plus ERNIE stopped at R01 |
 | A21 | Separate customer-visible sampling routes from higher-capability interpretation, synthesis, optimization, and writing candidates.                                                          | A model that is appropriate for reproducing consumer exposure is not automatically the best or most cost-effective model for internal structured work.                                                                                 | decided: retain `hy3`, `qwen3.7-plus`, and `doubao-seed-2-1-turbo-260628` as purpose-specific candidates only; no production route is selected by this decision                                     |
+| A22 | Decide whether the five customer-visible evaluation routes share one system prompt or use independently configurable platform profiles.                                                       | Provider APIs and consumer products differ in instruction transport and ordinary behavior; forcing identical prompt text can reduce alignment while hiding the cause of later report drift.                                              | decided: each platform uses an independently versioned profile or explicit `none`; shared inputs, evidence semantics, and scoring remain fixed; every sample records the profile ID/version/hash, and material profile changes require product-owner confirmation     |
 
 ## Parallel fact-finding
 

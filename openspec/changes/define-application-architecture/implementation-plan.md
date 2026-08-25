@@ -1,9 +1,10 @@
 # Proposed Implementation Plan: Foundation and First Evaluation Slice
 
 - Change: [`define-application-architecture`](proposal.md)
-- Status: P0 and F0 complete; E0 entitlement passed and search/fidelity evidence
-  partially passed; repair and instruction probes pending separate authorization;
-  product implementation not authorized
+- Status: P0 and F0 complete; E0 entitlement passed and fourteen of fifteen
+  unique R01-R03 positions have successful evidence; one ERNIE retry and five
+  platform-specific instruction probes remain separately gated; product
+  implementation not authorized
 - Product implementation authorized: No
 - Decision owners: Product owner and architecture owner
 - Plan owner: Architecture owner
@@ -23,9 +24,10 @@ and OrbStack Docker Compose execution on 2026-08-25. It does not authorize
 production resources or business-feature implementation. The product owner
 confirmed credential rotation and separately approved the four-call CNY 5
 entitlement gate on 2026-08-25. The product owner then authorized at most
-fifteen R01-R03 calls without a monetary ceiling; eleven executed, with three
-routes passing and two stopping at R01. Every repair or instruction probe
-remains a separate confirmation gate.
+fifteen initial R01-R03 calls without a monetary ceiling; eleven executed, with
+three routes passing and two stopping at R01. After the dedicated Qwen endpoint
+update, a six-call repair batch produced five passes and one ERNIE R03 network
+error. Any retry or instruction probe remains a separate confirmation gate.
 F0 passed its recorded evidence matrix on the same date with TypeScript revised
 from the incompatible 7.0.2 candidate to the accepted 5.9.3 compiler.
 

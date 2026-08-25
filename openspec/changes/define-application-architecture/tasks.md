@@ -43,9 +43,11 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
       installing dependencies, pulling images, or calling providers.
 - [ ] Run the authorized controlled provider matrix with rotated credentials,
       explicit call and stop boundaries, restricted raw evidence, and retained
-      non-sensitive fixtures. (Entitlement passed; eleven bounded R01-R03 calls
-      produced nine passes, one timeout, and one invalid request. Repair,
-      instruction calibration, and the remaining matrix are still open.)
+      non-sensitive fixtures. (Entitlement passed; seventeen calls across the
+      initial and repair batches produced fourteen successful observations.
+      Fourteen of fifteen unique R01-R03 positions pass; ERNIE R03, five
+      platform-specific instruction calibrations, and the remaining matrix are
+      still open.)
 - [x] Compare and confirm the smallest viable stack and deployment shape against
       the approved constraints.
 - [x] Confirm the internal backend and frontend layering model, bounded

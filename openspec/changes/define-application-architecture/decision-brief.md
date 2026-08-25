@@ -28,6 +28,7 @@ making ordinary development depend on heavy architecture ceremony.
 | Background and browser delivery  | Outbox-backed Redis/BullMQ delivery with business idempotency; SSE as a recoverable hint over durable API state                                                                                                                                                                                                                 | Makes long work resumable without treating queues or connections as business truth                                                                                       | Architecture owner                   |
 | AI execution envelope            | Every consequential AI purpose carries immutable owner input, purpose and version identity, bounded attempts, complete provider evidence, schema plus owner semantic validation, usage and cost evidence, and a purpose-specific regression set; only the business owner accepts the result                                     | Reuses traceable technical mechanics without turning an Agent or observability tool into the owner of samples, reports, content, or commercial state                     | Product owner and architecture owner |
 | Provider adapter boundary        | Versioned route policy and capability descriptors select one-attempt provider/protocol adapters; lossless normalization adds comparable indexes while retaining complete provider evidence; fallback stays outside adapters                                                                                                     | Preserves provider-specific evidence without leaking provider branches into business use cases                                                                           | Product owner and architecture owner |
+| Evaluation instruction profiles  | Each logical platform route uses an independently versioned instruction profile or explicit `none`; GEO Intelligence owns semantic content, route policy references it, AI Execution snapshots its ID/version/hash, and adapters only map it to a verified provider transport                                                     | Preserves platform-specific consumer alignment without hiding prompt drift or forcing provider differences into business use cases                                      | Product owner and architecture owner |
 | DeepSeek service routes          | TokenHub service policy recognizes only bare platform IDs, while customer-visible evaluation is fixed to `deepseek-v4-flash`; Alibaba parser fallback uses Model Studio alias `deepseek-v4-flash`; official-direct, vendor-endpoint, and unapproved snapshot routes are excluded                                                | Enforces the confirmed cloud-platform service route and consumer-aligned sampling choice without letting a similar model name silently change provenance or behavior     | Product owner and architecture owner |
 | Evaluation model posture         | Customer-visible sampling uses the consumer-aligned set `deepseek-v4-flash`, Doubao Seed 2.0 Lite, `qwen3.7-flash`, ERNIE 4.5 Turbo, and `hy3`; stronger models remain purpose-specific candidates                                                                                                                              | Reproduces the ordinary default/free product posture instead of optimizing the benchmark with flagship models                                                            | Product owner and architecture owner |
 | Web contract                     | REST/OpenAPI is authoritative at the transport boundary; the web consumes a generated client and never backend entities, repositories, or Prisma types                                                                                                                                                                          | Eliminates handwritten duplicate contracts and prevents Next.js from becoming a second backend                                                                           | Architecture owner                   |
@@ -76,9 +77,10 @@ making ordinary development depend on heavy architecture ceremony.
 - Assumption: the initial operating environment can run separate web, API, and
   worker processes plus PostgreSQL, Redis, and compatible object storage; exact
   sizing and managed-versus-self-hosted choices remain operational decisions.
-- Open: basic entitlement and three exact inference identities passed, while
-  five-platform generation, search evidence, quotas, full latency, reconciled
-  cost, and response fidelity must still pass the external validation matrix.
+- Open: basic entitlement and all five exact inference identities passed.
+  Fourteen of fifteen unique R01-R03 fixture positions now have successful
+  evidence; only ERNIE R03 remains blocked by one network error. Quotas,
+  reconciled cost, consumer App equivalence, and the later matrix remain open.
 - Open: the provider route map, no-secret configuration references, adapter
   boundary, evidence semantics, and DeepSeek service-class constraints are
   confirmed; exact customer-visible model selection, account entitlement,
@@ -88,9 +90,9 @@ making ordinary development depend on heavy architecture ceremony.
   gate has current evidence.
 - Confirmed: the current-GA compatibility set and bounded F0 matrix passed. The
   rotated credentials and four-call CNY 5 E0 entitlement gate passed with
-  restricted raw evidence. The bounded R01-R03 batch then partially passed:
-  DeepSeek, Hy3, and Doubao passed; Qwen timed out and ERNIE rejected the first
-  request before generation.
+  restricted raw evidence. DeepSeek, Hy3, Doubao, and repaired Qwen now pass
+  R01-R03. Corrected ERNIE passes R01-R02; its R03 repair attempt ended in a
+  network error without retry.
 
 ## Confirmation and Next Gate
 
@@ -105,9 +107,11 @@ making ordinary development depend on heavy architecture ceremony.
   platform route boundaries were confirmed on 2026-08-25; the consumer-aligned
   sampling set, separate stronger-purpose pool, and F0 project-local/Compose
   execution were confirmed on 2026-08-25; the four-call entitlement gate was
-  explicitly approved and passed on 2026-08-25.
-- Next action: supply the intended Model Studio workspace-dedicated Beijing
-  base URL; then obtain separate confirmation for one longer Qwen diagnostic,
-  the corrected ERNIE probe, and system-instruction calibration.
+  explicitly approved and passed on 2026-08-25; independently configurable
+  system-instruction profiles for the five platforms were confirmed on
+  2026-08-25.
+- Next action: obtain confirmation for one ERNIE R03 retry; separately define
+  and confirm the five profile purposes before authorizing one bounded
+  instruction contract/calibration comparison per route.
 - Confirmation required before: any additional provider call, service
   activation, quota change, production-data use, or product implementation.
