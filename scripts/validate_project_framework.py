@@ -21,6 +21,7 @@ VERSION_COPY_SUFFIX = re.compile(
     r"(?:[-_](?:v[0-9]+|new|final|latest|copy))$",
     re.IGNORECASE,
 )
+ALLOWED_INVOCATIONS = {"implicit", "explicit"}
 
 
 def parse_frontmatter(path: Path) -> dict[str, str]:
@@ -44,15 +45,16 @@ def catalog_names() -> list[str]:
     return re.findall(r"^\s{2}- name:\s*([a-z0-9-]+)\s*$", text, re.MULTILINE)
 
 
-def catalog_invocations() -> dict[str, str]:
+def catalog_invocations() -> dict[str, list[str]]:
     text = CATALOG.read_text(encoding="utf-8")
-    records: dict[str, str] = {}
+    records: dict[str, list[str]] = {}
     for block in re.split(r"(?m)^  - name:\s*", text)[1:]:
         lines = block.splitlines()
         name = lines[0].strip()
-        invocation = re.search(r"(?m)^    invocation:\s*(\S+)\s*$", block)
-        if invocation:
-            records[name] = invocation.group(1)
+        records[name] = re.findall(
+            r"(?m)^    invocation:\s*(\S+)\s*$",
+            block,
+        )
     return records
 
 
@@ -61,6 +63,19 @@ def validate_skills(errors: list[str]) -> None:
     invocations = catalog_invocations()
     if len(names) != len(set(names)):
         errors.append("skill-catalog.yaml contains duplicate skill names")
+
+    for name in names:
+        values = invocations.get(name, [])
+        if len(values) != 1:
+            errors.append(
+                "skill-catalog.yaml skill "
+                f"{name} must declare exactly one invocation; found {len(values)}"
+            )
+        elif values[0] not in ALLOWED_INVOCATIONS:
+            errors.append(
+                "skill-catalog.yaml skill "
+                f"{name} invocation must be implicit or explicit; got {values[0]!r}"
+            )
 
     directories = sorted(path for path in SKILLS_DIR.iterdir() if path.is_dir())
     directory_names = [path.name for path in directories]
@@ -113,12 +128,37 @@ def validate_skills(errors: list[str]) -> None:
                 errors.append(
                     f"{ui_file.relative_to(ROOT)} short_description must be 25-64 characters"
                 )
-            if invocations.get(skill_dir.name) == "explicit" and not re.search(
-                r"(?m)^\s{2}allow_implicit_invocation:\s*false\s*$", ui_text
-            ):
+
+            policy_values = re.findall(
+                r"(?m)^\s{2}allow_implicit_invocation:\s*(\S+)\s*$",
+                ui_text,
+            )
+            if len(policy_values) != 1:
                 errors.append(
-                    f"{ui_file.relative_to(ROOT)} must disable implicit invocation"
+                    f"{ui_file.relative_to(ROOT)} must declare exactly one "
+                    "policy.allow_implicit_invocation boolean"
                 )
+            elif policy_values[0] not in {"true", "false"}:
+                errors.append(
+                    f"{ui_file.relative_to(ROOT)} policy.allow_implicit_invocation "
+                    "must be the unquoted boolean true or false; "
+                    f"got {policy_values[0]!r}"
+                )
+            else:
+                invocation_values = invocations.get(skill_dir.name, [])
+                if (
+                    len(invocation_values) == 1
+                    and invocation_values[0] in ALLOWED_INVOCATIONS
+                ):
+                    invocation = invocation_values[0]
+                    expected_policy = invocation == "implicit"
+                    actual_policy = policy_values[0] == "true"
+                    if actual_policy != expected_policy:
+                        errors.append(
+                            f"{ui_file.relative_to(ROOT)} catalog invocation="
+                            f"{invocation} requires policy.allow_implicit_invocation="
+                            f"{str(expected_policy).lower()}"
+                        )
 
 
 def validate_local_links(errors: list[str]) -> None:
@@ -170,14 +210,9 @@ def main() -> int:
         ROOT / "openspec" / "specs" / "project-governance" / "spec.md",
         ROOT
         / "openspec"
-        / "changes"
-        / "define-product-foundation"
-        / "proposal.md",
-        ROOT
-        / "openspec"
-        / "changes"
-        / "define-product-foundation"
-        / "tasks.md",
+        / "specs"
+        / "product-definition"
+        / "spec.md",
         CATALOG,
     ]
     for path in required:

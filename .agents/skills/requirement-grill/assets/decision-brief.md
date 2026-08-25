@@ -24,3 +24,9 @@
 
 - Assumption: <bounded assumption and reversal point>
 - Open: <question, owner, and when it must be resolved>
+
+## Confirmation and Next Gate
+
+- Confirmation: <Proposed | Confirmed | Explicitly skipped>
+- Next action: <smallest safe next step>
+- Confirmation required before: <design, implementation, release, or none>

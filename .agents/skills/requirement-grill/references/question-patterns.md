@@ -31,3 +31,15 @@ Use these patterns selectively. Ask about the decision, not every field.
 - Which system owns the source data and which system may mutate it?
 - What happens when the dependency is slow, unavailable, duplicated, or partially succeeds?
 - Are account scope, consent, retention, audit, or regional constraints material?
+
+## Decision Dependencies
+
+- Which prerequisite decision or fact must be stable before this can be answered?
+- Which ready decision would invalidate the most downstream work if answered differently?
+- Which dependent question should wait rather than force a premature assumption?
+
+## Recommendation Discipline
+
+- Which facts can the agent verify before asking the user?
+- What evidence supports the recommendation, and what is its main tradeoff?
+- If the evidence is insufficient, what must be learned before recommending responsibly?

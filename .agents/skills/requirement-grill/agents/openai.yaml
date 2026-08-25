@@ -1,4 +1,7 @@
 interface:
   display_name: "Requirement Grill"
   short_description: "Clarify scope, tradeoffs, and acceptance criteria"
-  default_prompt: "Use $requirement-grill to resolve ambiguity, scope, tradeoffs, and acceptance boundaries before designing this change."
+  default_prompt: "Use $requirement-grill to run a bounded dependency-aware decision round, verify discoverable facts, separate human-owned tradeoffs, and obtain confirmation before consequential design or implementation."
+
+policy:
+  allow_implicit_invocation: true

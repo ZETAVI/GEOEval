@@ -26,31 +26,49 @@ Inspect the named issue, product spec, glossary, current behavior, module contra
 
 ### 2. Build a Decision Map
 
-Separate what is known from what must be decided:
+Map dependencies and separate:
 
-- desired outcome and affected users;
-- current problem and evidence;
-- in-scope and explicitly out-of-scope behavior;
-- constraints, dependencies, and irreversible choices;
-- observable acceptance and failure boundaries;
-- owner of product or risk decisions.
+- verified facts already supported by project evidence;
+- facts the agent still needs to verify;
+- product meaning, risk, cost, and tradeoff decisions owned by a human;
+- bounded assumptions parked until their dependency becomes relevant;
+- prerequisites between decisions, including which downstream choices would be
+  invalidated by an upstream answer.
 
 Use [question patterns](references/question-patterns.md) when the ambiguity is difficult to isolate.
 
-### 3. Ask the Smallest Useful Round
+### 3. Select the Bounded Decision Frontier
 
-Ask one to three root questions at a time. Lead with decisions that could invalidate later work. For each question:
+The frontier contains only decisions whose prerequisites are stable enough to
+answer now. From it, select one to three root questions with the highest impact
+or greatest risk of downstream rework. Wait on dependent questions whose inputs
+are not mature; do not ask the user to speculate through the whole decision
+tree.
 
-- explain why it matters;
-- present concrete alternatives when known;
-- state the default you would choose and its tradeoff;
-- avoid leading the user toward a preferred implementation.
+Verify discoverable facts through project sources, current official sources, or
+available tools. Research only enough to support the current frontier. Do not
+delegate a searchable fact to the user, and do not use factual research to make
+a human-owned value choice. Tools or research may help; no particular subagent
+or dispatch pattern is required.
+
+### 4. Ask the Smallest Useful Round
+
+Ask one to three root questions at a time. Use this compact format for each:
+
+1. **Number and short title**
+2. **Choice or explicit question**
+3. **Why it matters and what it blocks**
+4. **Recommended answer and main tradeoff**
+
+If evidence is insufficient for a responsible recommendation, say so and name
+the missing evidence instead of manufacturing a default. Avoid leading the user
+toward a preferred implementation.
 
 Push back respectfully when the stated solution conflicts with the outcome, duplicates an existing capability, or transfers hidden risk.
 
-### 4. Converge
+### 5. Converge to the Next Safe Gate
 
-Stop when the following are stable enough for the next action:
+Stop when the next stage can proceed safely with stable:
 
 - outcome and primary user;
 - scope and non-goals;
@@ -58,11 +76,20 @@ Stop when the following are stable enough for the next action:
 - acceptance boundaries;
 - unresolved decisions and their owners.
 
-Do not keep grilling low-impact preferences. Preserve unresolved but non-blocking items as explicit assumptions.
+Do not require every project preference to be settled at once. Preserve
+unresolved but non-blocking items as explicit assumptions or later frontier
+items.
 
-### 5. Return a Decision Brief
+### 6. Confirm Material Decisions
 
-Use [the decision brief asset](assets/decision-brief.md). Keep it short enough to review in one sitting. Link to the authoritative issue or change record; do not create a competing requirements document.
+Before standard or architectural design or implementation, use [the decision
+brief asset](assets/decision-brief.md) to restate material decisions and obtain
+explicit confirmation. Keep it short enough to review in one sitting and link to
+the authoritative issue or change record rather than creating a competing
+requirements document.
+
+For trivial, reversible work with an obvious boundary, state bounded assumptions
+and proceed without a formal confirmation round.
 
 ## Guardrails
 
@@ -70,4 +97,6 @@ Use [the decision brief asset](assets/decision-brief.md). Keep it short enough t
 - Do not hide an agent decision inside an assumption when a human owns the tradeoff.
 - Do not preserve transcripts or private reasoning; record decisions and rationale only.
 - Do not treat every preference as a requirement.
+- Do not let an agent substitute its own values for human-owned product meaning,
+  risk tolerance, cost, or tradeoffs.
 - If the user requests immediate execution, identify any material risk, state bounded assumptions, and continue only when the action remains reversible and in scope.
