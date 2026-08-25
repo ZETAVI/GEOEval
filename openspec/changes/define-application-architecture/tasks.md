@@ -35,6 +35,8 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
   secret credential-reference map.
 - [x] Propose the provider route-policy, capability-descriptor, one-attempt
   adapter, evidence-normalization, and fallback boundaries.
+- [x] Confirm the provider adapter and evidence boundary plus the TokenHub and
+  Model Studio DeepSeek service-class constraints.
 - [ ] Run the controlled provider matrix only with rotated credentials, an
   approved budget, and retained non-sensitive fixtures.
 - [x] Compare and confirm the smallest viable stack and deployment shape against
@@ -49,8 +51,9 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
 
 ## Approve and close
 
-- [ ] Run `$architecture-review` on the complete proposal.
-- [ ] Produce and confirm a bounded architecture decision brief.
+- [x] Run `$architecture-review` on the complete proposal; no blocking boundary
+  finding remains, and controlled external evidence stays an explicit gate.
+- [x] Produce and confirm a bounded architecture decision brief.
 - [ ] Reconcile accepted architecture into `docs/architecture/overview.md`, current specs, owner-local contracts, and ADRs where durable.
 - [x] Produce a dependency-aware implementation plan with explicit prerequisites, owners, integration gates, and verification evidence.
 - [ ] Run `$verify-change` and archive the completed change.

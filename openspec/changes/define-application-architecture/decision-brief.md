@@ -27,6 +27,8 @@ making ordinary development depend on heavy architecture ceremony.
 | Business and data authority | Capability-owned NestJS modules over one PostgreSQL datastore; owner-private repositories; Prisma current GA for ordinary access with explicit SQL for material database behavior | Supports local transactions, snapshots, ledgers, and maintainable ownership without distributed consistency | Product owner and architecture owner |
 | Background and browser delivery | Outbox-backed Redis/BullMQ delivery with business idempotency; SSE as a recoverable hint over durable API state | Makes long work resumable without treating queues or connections as business truth | Architecture owner |
 | AI execution envelope | Every consequential AI purpose carries immutable owner input, purpose and version identity, bounded attempts, complete provider evidence, schema plus owner semantic validation, usage and cost evidence, and a purpose-specific regression set; only the business owner accepts the result | Reuses traceable technical mechanics without turning an Agent or observability tool into the owner of samples, reports, content, or commercial state | Product owner and architecture owner |
+| Provider adapter boundary | Versioned route policy and capability descriptors select one-attempt provider/protocol adapters; lossless normalization adds comparable indexes while retaining complete provider evidence; fallback stays outside adapters | Preserves provider-specific evidence without leaking provider branches into business use cases | Product owner and architecture owner |
+| DeepSeek service routes | TokenHub evaluation accepts only bare platform IDs `deepseek-v4-pro` or `deepseek-v4-flash`; Alibaba parser fallback uses Model Studio alias `deepseek-v4-flash`; official-direct, vendor-endpoint, and unapproved snapshot routes are excluded | Enforces the confirmed cloud-platform service route and prevents a similar model name from silently changing provenance or behavior | Product owner and architecture owner |
 | Web contract | REST/OpenAPI is authoritative at the transport boundary; the web consumes a generated client and never backend entities, repositories, or Prisma types | Eliminates handwritten duplicate contracts and prevents Next.js from becoming a second backend | Architecture owner |
 | Frontend layering | Route shell and page composition depend on feature use cases, presentation/API mapping, and an internal design system; features do not import one another's internals | Keeps role experiences coherent and prevents page components or a global store from becoming the frontend business layer | Architecture owner |
 | Read composition | Use purpose-specific query services or projections for complex reports, role homes, and operational pools; keep all writes with owner application/domain rules | Avoids loading write aggregates for every view without introducing full CQRS | Architecture owner |
@@ -75,10 +77,10 @@ making ordinary development depend on heavy architecture ceremony.
   sizing and managed-versus-self-hosted choices remain operational decisions.
 - Open: controlled five-platform accounts, model routes, quotas, latency, cost,
   and response evidence must pass the existing external validation matrix.
-- Open: the provider route map and no-secret configuration references are
-  recorded; the proposed capability-descriptor, one-attempt-adapter, lossless
-  evidence, and fallback-policy boundaries require confirmation before they
-  become implementation contracts.
+- Open: the provider route map, no-secret configuration references, adapter
+  boundary, evidence semantics, and DeepSeek service-class constraints are
+  confirmed; exact customer-visible model selection, account entitlement,
+  behavior, cost, and quality still require controlled validation.
 - Open: authentication/SMS, production object storage, observability destination,
   and hosting products are selected only when their owning slice or operational
   gate has current evidence.
@@ -95,10 +97,11 @@ making ordinary development depend on heavy architecture ceremony.
   2026-08-25; the first evaluation-slice owner contracts, collaboration
   sequence, and bounded retry lifecycle were confirmed on 2026-08-25; the
   minimum operational and quality baseline was confirmed on 2026-08-25; the
-  separately authorized parallel F0/E0 sequencing was confirmed on 2026-08-25.
-- Next action: confirm the provider-adapter and evidence boundary, rotate the
-  exposed credentials, complete the non-secret route sheet, then obtain explicit
-  execution authorization for the foundation spike and separately for cost-
-  visible provider validation.
+  separately authorized parallel F0/E0 sequencing was confirmed on 2026-08-25;
+  the provider-adapter, evidence-normalization, fallback, and DeepSeek cloud-
+  platform route boundaries were confirmed on 2026-08-25.
+- Next action: rotate the exposed credentials, complete the non-secret route
+  sheet, then obtain explicit execution authorization for the foundation spike
+  and separately for cost-visible provider validation.
 - Confirmation required before: dependency installation, foundation-spike
   execution, or product implementation; pass the remaining architecture gate.

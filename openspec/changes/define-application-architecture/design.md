@@ -565,7 +565,10 @@ AI Execution uses four small contracts rather than one provider-shaped service:
 
 1. a versioned route policy resolves logical platform, AI purpose, and required
    capabilities to provider, protocol, model or service identity, region, and a
-   credential reference. It owns fallback order but contains no secret value;
+   credential reference. Where a provider exposes both platform-managed and
+   original-vendor-direct routes, it also records the selected service class
+   and an explicit model-ID allowlist or denylist. It owns fallback order but
+   contains no secret value;
 2. a capability descriptor states whether that exact route supports search
    enablement, observable search evidence, reasoning control, returned reasoning
    evidence, structured output, streaming, and usage detail;
@@ -601,6 +604,17 @@ result wins according to the owning purpose and later responses cannot overwrite
 it. Credentials are injected by reference at the infrastructure edge and may be
 shared by several route profiles without becoming part of their business
 identity.
+
+For DeepSeek, configuration validation rejects any model outside the selected
+cloud-platform route before an attempt is created. TokenHub evaluation uses
+only the bare platform route IDs `deepseek-v4-pro` or
+`deepseek-v4-flash`; TokenHub's separately catalogued official-direct IDs and
+namespaced `deepseek/deepseek-*` IDs are excluded. Alibaba parser fallback uses
+the exact Model Studio alias `deepseek-v4-flash`; it does not use a DeepSeek
+vendor endpoint, a separate official DeepSeek credential, or an unapproved
+snapshot alias. This is a service-route constraint, not a claim that either
+cloud provider changes the underlying model weights. Requested and returned
+model identity remain part of every immutable attempt.
 
 ### AI failure, cost, and regression boundary
 
