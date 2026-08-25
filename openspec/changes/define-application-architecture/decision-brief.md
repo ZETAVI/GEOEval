@@ -76,8 +76,9 @@ making ordinary development depend on heavy architecture ceremony.
 - Assumption: the initial operating environment can run separate web, API, and
   worker processes plus PostgreSQL, Redis, and compatible object storage; exact
   sizing and managed-versus-self-hosted choices remain operational decisions.
-- Open: controlled five-platform accounts, model routes, quotas, latency, cost,
-  and response evidence must pass the existing external validation matrix.
+- Open: basic entitlement and three exact inference identities passed, while
+  five-platform generation, search evidence, quotas, full latency, reconciled
+  cost, and response fidelity must still pass the external validation matrix.
 - Open: the provider route map, no-secret configuration references, adapter
   boundary, evidence semantics, and DeepSeek service-class constraints are
   confirmed; exact customer-visible model selection, account entitlement,
@@ -85,10 +86,9 @@ making ordinary development depend on heavy architecture ceremony.
 - Open: authentication/SMS, production object storage, observability destination,
   and hosting products are selected only when their owning slice or operational
   gate has current evidence.
-- Confirmed: the current-GA compatibility set and bounded F0 matrix passed and
-  were reconciled into the application foundation. Rotated credentials, account
-  details, external-call budget, secure raw-evidence location, and E0
-  authorization remain required before real calls.
+- Confirmed: the current-GA compatibility set and bounded F0 matrix passed. The
+  rotated credentials and four-call CNY 5 E0 entitlement gate passed with
+  restricted raw evidence; later E0 calls remain separately gated.
 
 ## Confirmation and Next Gate
 
@@ -102,10 +102,9 @@ making ordinary development depend on heavy architecture ceremony.
   the provider-adapter, evidence-normalization, fallback, and DeepSeek cloud-
   platform route boundaries were confirmed on 2026-08-25; the consumer-aligned
   sampling set, separate stronger-purpose pool, and F0 project-local/Compose
-  execution were confirmed on 2026-08-25.
-- Next action: obtain explicit approval for the named E0 endpoints, minimal
-  entitlement payloads, restricted evidence location, stop conditions, and
-  CNY 5 entitlement sub-ceiling; then execute progressively. The complete E0
-  CNY 100 ceiling remains unapproved.
-- Confirmation required before: any real provider call, service activation,
-  quota change, production-data use, or product implementation.
+  execution were confirmed on 2026-08-25; the four-call entitlement gate was
+  explicitly approved and passed on 2026-08-25.
+- Next action: define and request separate approval for the R01-R03
+  search/fidelity probe. The complete E0 CNY 100 ceiling remains unapproved.
+- Confirmation required before: any additional provider call, service
+  activation, quota change, production-data use, or product implementation.

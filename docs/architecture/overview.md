@@ -16,9 +16,12 @@ recoverable hint over normal durable reads.
 This shape passed the bounded
 [F0 foundation evidence](../../openspec/changes/define-application-architecture/research/foundation-spike-evidence.md)
 and is recorded by [ADR 0001](adr/0001-application-foundation.md). The checked
-F0 routes and records are non-product probes. Product implementation, real
-provider calls, production infrastructure, authentication, and customer-facing
-interaction design remain outside the current authorization.
+F0 routes and records are non-product probes. A separately authorized
+four-call provider entitlement gate also passed, without enabling web search;
+its [sanitized evidence](../../openspec/changes/define-application-architecture/research/provider-entitlement-evidence.md)
+does not authorize provider integration or product implementation. Production
+infrastructure, authentication, and customer-facing interaction design remain
+outside the current authorization.
 
 ## Architecture qualities
 
@@ -34,8 +37,9 @@ When architecture work begins, it must preserve:
 
 ## Next architecture gates
 
-1. Rotate exposed credentials and establish named provider accounts, routes,
-   budget, and secure evidence retention before any E0 real model call.
+1. Obtain separate approval for the bounded R01-R03 search-and-fidelity probes,
+   including exact calls, account context, cost ceiling, stop conditions, and
+   restricted evidence retention.
 2. Reconcile accepted provider evidence into route policy and adapter contracts.
 3. Obtain explicit S0 authorization before implementing customer identity,
    brand, evaluation, notification, or report behavior.

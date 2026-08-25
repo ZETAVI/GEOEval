@@ -66,6 +66,7 @@ boundaries, and parallel implementation seams understandable and verifiable.
 - [Decision backlog](decision-backlog.md)
 - [First-slice external evidence](research/first-slice-external-evidence.md)
 - [Controlled provider validation preparation](research/provider-validation-preparation.md)
+- [E0 provider entitlement evidence](research/provider-entitlement-evidence.md)
 - [Application-stack options](research/application-stack-options.md)
 - [Operational and quality baseline evidence](research/operational-quality-baseline.md)
 - [Foundation compatibility candidate](research/foundation-compatibility.md)

@@ -2,11 +2,10 @@
 
 - Status: Active architecture-entry ledger
 - Decision owners: Product owner and architecture owner
-- Current discussion area: E0 controlled execution authorization frontier
-- Current question: Explicitly approve or decline the four named entitlement
-  calls, restricted local evidence, stop conditions, and CNY 5 sub-ceiling
-  before any real provider request; do not begin product implementation
-  meanwhile.
+- Current discussion area: E0 search and fidelity evidence frontier
+- Current question: Design and explicitly approve the smallest R01-R03 probe
+  across the five evaluation routes after entitlement passed; do not begin
+  product implementation meanwhile.
 
 ## Confirmed decisions
 
@@ -50,7 +49,7 @@
 | A17 | Define how search and reasoning evidence are represented when providers expose different or incomplete information.                                                                        | Empty fields cannot distinguish no search from an unobservable search, and a provider summary must not be mislabeled as complete internal reasoning.                                                                                   | decided: tri-state search observation, explicit reasoning evidence kind, preserve every returned field, never require hidden chain of thought                                                       |
 | A18 | Select the service class for DeepSeek routes without confusing cloud-platform service aliases with official DeepSeek direct supply.                                                        | TokenHub catalogs both service classes under similar names, while Model Studio aliases and snapshots expose different capabilities; an accidental ID change could silently alter commercial terms, evidence shape, or parser behavior. | decided: TokenHub uses bare platform IDs only; Alibaba parser fallback uses exact Model Studio alias `deepseek-v4-flash`; direct-vendor and unapproved snapshot routes are rejected by route policy |
 | A19 | Confirm the first controlled-validation model set: TokenHub `deepseek-v4-flash`, Ark Doubao Seed 2.0 Lite, Model Studio `qwen3.7-flash`, Qianfan ERNIE 4.5 Turbo, and TokenHub `hy3`.      | Evaluation should reproduce the ordinary free/default consumer posture rather than compare flagship quality; exact API and consumer-product equivalence still require runtime evidence.                                                | decided: use the consumer-aligned logical set; Ark current snapshot candidate is `doubao-seed-2-0-lite-260428`, and Qianfan provisional stable API ID is `ernie-4.5-turbo-128k`                     |
-| A20 | Authorize F0 dependency/image execution and E0 cost-visible provider execution as separate bounded actions.                                                                                | P0 facts and fixtures are reversible, but downloads change the worktree and provider calls use credentials and incur external cost.                                                                                                    | F0 passed; credentials were rotated on 2026-08-25 and the E0 runner is prepared, but the concrete provider calls and CNY 100 ceiling still require explicit approval                                 |
+| A20 | Authorize F0 dependency/image execution and E0 cost-visible provider execution as separate bounded actions.                                                                                | P0 facts and fixtures are reversible, but downloads change the worktree and provider calls use credentials and incur external cost.                                                                                                    | F0 passed; the separately approved four-call CNY 5 E0 entitlement gate passed on 2026-08-25; R01-R03 and the complete CNY 100 ceiling remain unapproved                                              |
 | A21 | Separate customer-visible sampling routes from higher-capability interpretation, synthesis, optimization, and writing candidates.                                                          | A model that is appropriate for reproducing consumer exposure is not automatically the best or most cost-effective model for internal structured work.                                                                                 | decided: retain `hy3`, `qwen3.7-plus`, and `doubao-seed-2-1-turbo-260628` as purpose-specific candidates only; no production route is selected by this decision                                     |
 
 ## Parallel fact-finding

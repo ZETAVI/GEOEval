@@ -2,8 +2,8 @@
 
 - Change: [`define-application-architecture`](../proposal.md)
 - Preparation gate: P0
-- State: Credentials rotated and controlled runner prepared; explicit approval
-  of the concrete E0 calls and cost ceiling pending
+- State: Entitlement gate passed; R01-R03 search and fidelity probes require a
+  separate explicit authorization
 - Owners: GEO evaluation owner, account and integration owner, verification owner
 - Access date for provider facts: 2026-08-25
 
@@ -19,7 +19,9 @@ This preparation does not authorize service activation, quota changes, real
 model calls, production traffic, or paid usage. F0 separately authorizes only
 project-local dependencies, Compose-managed disposable images, and non-product
 foundation evidence. This artifact contains no secret value. Raw provider
-responses and account details must not be committed to Git.
+responses and account details must not be committed to Git. The sanitized
+[entitlement evidence](provider-entitlement-evidence.md) records the completed
+first gate.
 
 ## Confirmed consumer-aligned evaluation route sheet
 
@@ -33,11 +35,11 @@ before any route can replace a deterministic adapter.
 
 | Logical route                       | Provider and service class                                          | Proposed model                                                                                             | Protocol family                                                      | Required behavior and retained evidence                                                                                                                                                                                  | Credential reference                                              | Decision state                                                                                 |
 | ----------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `evaluation.deepseek`               | Tencent Cloud TokenHub platform route, never official direct supply | `deepseek-v4-flash`                                                                                        | TokenHub Chat Completions                                            | Enable supported web search while letting the model decide; retain answer formatting, requested and returned model, search observation, queries, `message.search_results`, reasoning evidence, usage, timing, and errors | `TOKENHUB_API_KEY`                                                | confirmed evaluation model; entitlement and runtime evidence pending                           |
-| `evaluation.doubao`                 | Volcengine Ark Doubao                                               | logical family `Doubao-Seed-2.0-lite`; current documented snapshot candidate `doubao-seed-2-0-lite-260428` | Ark Responses, intended Beijing account route                        | Enable built-in web search; retain response items, returned search/source evidence, reasoning summary when exposed, output text, usage, timing, and errors                                                               | `ARK_API_KEY`                                                     | confirmed evaluation family; exact enabled snapshot and runtime evidence pending               |
-| `evaluation.qwen`                   | Alibaba Cloud Model Studio Qwen                                     | `qwen3.7-flash`                                                                                            | Workspace-scoped OpenAI-compatible Responses, intended Beijing route | Supply `web_search` and let the model decide; retain `web_search_call`, query and sources, reasoning summary, output items, text, usage, timing, and errors                                                              | `DASHSCOPE_API_KEY`                                               | confirmed evaluation model; workspace and runtime evidence pending                             |
-| `evaluation.ernie`                  | Baidu AI Cloud Qianfan ERNIE                                        | logical family ERNIE 4.5 Turbo; provisional stable API ID `ernie-4.5-turbo-128k`                           | Qianfan V2 Chat Completions                                          | Use built-in search with `search_mode: auto`; retain trigger/status, trace, citations, search results, reasoning evidence when returned, answer, usage, timing, and errors                                               | `QIANFAN_API_KEY`                                                 | confirmed evaluation family; exact consumer-alignment and combined capability require E0 proof |
-| `evaluation.hunyuan`                | Tencent Cloud TokenHub Hunyuan                                      | `hy3`                                                                                                      | TokenHub Responses                                                   | Supply `web_search` and let the model decide; retain search-call and citation evidence, reasoning summary when returned, answer, usage, timing, and errors                                                               | `TOKENHUB_API_KEY`                                                | documented candidate; entitlement and runtime evidence pending                                 |
+| `evaluation.deepseek`               | Tencent Cloud TokenHub platform route, never official direct supply | `deepseek-v4-flash`                                                                                        | TokenHub Chat Completions                                            | Enable supported web search while letting the model decide; retain answer formatting, requested and returned model, search observation, queries, `message.search_results`, reasoning evidence, usage, timing, and errors | `TOKENHUB_API_KEY`                                                | account model-list entitlement passed; inference and search pending                             |
+| `evaluation.doubao`                 | Volcengine Ark Doubao                                               | logical family `Doubao-Seed-2.0-lite`; current documented snapshot candidate `doubao-seed-2-0-lite-260428` | Ark Responses, intended Beijing account route                        | Enable built-in web search; retain response items, returned search/source evidence, reasoning summary when exposed, output text, usage, timing, and errors                                                               | `ARK_API_KEY`                                                     | exact requested/returned identity and basic inference passed; search pending                    |
+| `evaluation.qwen`                   | Alibaba Cloud Model Studio Qwen                                     | `qwen3.7-flash`                                                                                            | Workspace-scoped OpenAI-compatible Responses, intended Beijing route | Supply `web_search` and let the model decide; retain `web_search_call`, query and sources, reasoning summary, output items, text, usage, timing, and errors                                                              | `DASHSCOPE_API_KEY`                                               | shared Beijing endpoint basic inference and exact identity passed; search and dedicated host pending |
+| `evaluation.ernie`                  | Baidu AI Cloud Qianfan ERNIE                                        | logical family ERNIE 4.5 Turbo; provisional stable API ID `ernie-4.5-turbo-128k`                           | Qianfan V2 Chat Completions                                          | Use built-in search with `search_mode: auto`; retain trigger/status, trace, citations, search results, reasoning evidence when returned, answer, usage, timing, and errors                                               | `QIANFAN_API_KEY`                                                 | exact requested/returned identity and basic inference passed; search pending                    |
+| `evaluation.hunyuan`                | Tencent Cloud TokenHub Hunyuan                                      | `hy3`                                                                                                      | TokenHub Responses                                                   | Supply `web_search` and let the model decide; retain search-call and citation evidence, reasoning summary when returned, answer, usage, timing, and errors                                                               | `TOKENHUB_API_KEY`                                                | account model-list entitlement passed; inference and search pending                             |
 | `interpretation.sample.primary`     | Tencent Cloud TokenHub Hunyuan                                      | `hy3`                                                                                                      | TokenHub Responses with strict JSON Schema                           | Parse only retained sample evidence; web search is disabled; retain schema result, semantic-validation outcome, complete response, model, usage, timing, and errors                                                      | `TOKENHUB_API_KEY`                                                | confirmed logical primary; runtime quality pending                                             |
 | `interpretation.sample.fallback`    | Alibaba Cloud Model Studio hosted DeepSeek                          | exact alias `deepseek-v4-flash`                                                                            | Model Studio Responses with structured output                        | Receive the same retained sample input only after primary failure; web search is disabled; never become a second platform sample                                                                                         | `DASHSCOPE_API_KEY`                                               | confirmed fallback route; runtime quality pending                                              |
 | `interpretation.synthesis.primary`  | Tencent Cloud TokenHub Hunyuan                                      | `hy3`                                                                                                      | TokenHub Responses with strict JSON Schema                           | Synthesize only accepted brand and sample evidence; web search is disabled; cannot recalculate score or overwrite sample facts                                                                                           | `TOKENHUB_API_KEY`                                                | confirmed logical primary; runtime quality pending                                             |
@@ -77,14 +79,14 @@ A route is rejected before or during E0 when any of the following is true:
 | Prerequisite                | Current state                                                                                                              | Required to close                                                                                                                   |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Canonical secret references | `.env.example` and the local ignored `.env` use only the approved references                                               | Keep values out of Git and command output                                                                                           |
-| Credential safety           | Product owner confirmed on 2026-08-25 that all provider and Langfuse credentials were rotated and re-injected; `.env` remains mode `0600` and ignored by Git | Runtime authentication must still prove that each rotated credential belongs to the intended route                                  |
-| Exact candidate set         | Consumer-aligned logical models are confirmed; Ark and ERNIE exact account-visible service identities remain runtime facts | Record enabled IDs and returned identity before paid validation                                                                     |
+| Credential safety           | Rotated TokenHub, Ark, Model Studio, and Qianfan credentials authenticated successfully; `.env` remains mode `0600` and ignored by Git | Langfuse remains uncalled; keep every value out of Git and command output                                                            |
+| Exact candidate set         | TokenHub exposes both selected bare IDs; Ark, Model Studio, and Qianfan returned the exact requested evaluation identities | Search, evidence, consumer equivalence, quality, and commercial acceptance remain separate gates                                     |
 | Account and workspace owner | Rotated credentials are present, but account and workspace ownership is not recorded in Git                                        | Record an opaque account reference plus the observed region, endpoint, and returned route identity                                  |
 | Region and endpoint         | Official candidate families are known; actual enabled account regions are unverified                                       | Record the enabled region, workspace or account endpoint, and returned model identity per route                                     |
-| Quota and budget            | CNY 100 total remains the proposed complete-E0 ceiling; the current entitlement gate requests a separate CNY 5 sub-ceiling | Obtain explicit approval; stop on unknown usage, unexpected paid activation, quota change, or any need to exceed the active ceiling |
+| Quota and budget            | The four-call CNY 5 entitlement sub-ceiling was approved and completed; native usage was captured but console billing is unreconciled | Complete-E0 CNY 100 ceiling and every later paid probe still require separate approval                                                |
 | Terms and data handling     | E0 is restricted to fictional, non-sensitive fixtures; commercial customer-data use and final account terms remain unverified | Do not treat a successful probe as production data-processing approval                                                              |
 | Evidence location           | Raw envelopes use local ignored `.provider-evidence/`, directories mode `0700`, files mode `0600`; only sanitized summaries and hashes may enter Git | Retain or move the restricted evidence according to the later team evidence policy                                                   |
-| Runtime evidence            | Not run                                                                                                                    | Execute only after E0 authorization and retain the evidence manifest below                                                          |
+| Runtime evidence            | Entitlement run `e0-20260825-entitlement-01` passed for credentials, endpoints, and basic model identity                  | Separately authorize and execute R01-R03 search/fidelity evidence before accepting any evaluation route                              |
 
 ## Deterministic fixture catalog
 
@@ -187,9 +189,9 @@ cannot expose usage, its console cost cannot be reconciled, an unexpected paid
 feature is required, or any route would need an account or quota change. A later
 performance or load run requires a new budget and authorization.
 
-### Current entitlement authorization request
+### Completed entitlement authorization
 
-The next gate is narrower than the complete E0 ceiling: **CNY 5 maximum** for
+The product owner approved **CNY 5 maximum** for
 exactly four calls, expected to cost materially less. No request enables web
 search, no service or quota change is allowed, and every generation prompt is
 the fictional text `这是一次接口资格检查。请只回复：OK`.
@@ -206,10 +208,12 @@ the fictional text `这是一次接口资格检查。请只回复：OK`.
 4. `POST https://qianfan.baidubce.com/v2/chat/completions` using
    `QIANFAN_API_KEY`, model `ernie-4.5-turbo-128k`, non-streaming.
 
-Responses are written only below ignored `.provider-evidence/` with directory
+The four calls completed on 2026-08-25 and are summarized in the
+[entitlement evidence](provider-entitlement-evidence.md). Responses are written
+only below ignored `.provider-evidence/` with directory
 mode `0700` and file mode `0600`; the console receives model, status, duration,
 usage, and hashes, never the secret or answer body. Approval of these four calls
-does not approve R01-R03 web-search probes or the remaining E0 matrix.
+did not approve R01-R03 web-search probes or the remaining E0 matrix.
 
 Public price tables for [Volcengine Ark](https://www.volcengine.com/docs/82379/1544106?lang=zh),
 [Alibaba Cloud Model Studio](https://help.aliyun.com/zh/model-studio/model-pricing),
@@ -230,8 +234,9 @@ embedding a brittle unit-price copy in the architecture.
 - [x] Product owner confirms the consumer-aligned evaluation model set.
 - [ ] Account owner, enabled region, quota, terms, and data boundary are recorded.
 - [x] Exposed credentials are rotated and injected through the approved local mechanism, as confirmed by the product owner.
-- [ ] E0 budget ceiling, stop condition, and secure raw-evidence location are explicitly approved for the concrete calls.
-- [ ] E0 controlled calls to the named provider endpoints are explicitly authorized.
+- [x] The four-call CNY 5 entitlement sub-ceiling, stop conditions, and restricted raw-evidence location were approved and verified.
+- [x] The four named entitlement calls were explicitly authorized and executed.
+- [ ] R01-R03 search/fidelity calls and the complete E0 CNY 100 ceiling are explicitly authorized.
 
 F0 was separately authorized on 2026-08-25 for project-local dependencies and
 Compose-managed disposable services. Credential rotation and runner

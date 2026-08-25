@@ -222,13 +222,18 @@ link the resulting record; never paste keys or private account details here.
 ### Current controlled-account readiness
 
 The 2026-08-25 route names, DeepSeek service classes, and no-secret
-configuration references are now recorded, and `.env.example` defines only
-canonical variable names. The user-authorized local `.env` is ignored by Git,
-but the credential values pasted into the conversation are still treated as
-exposed and are not valid evidence inputs. The controlled matrix therefore
-remains **not run**, not failed: rotated credentials, intended commercial
-account and region, service/model identity, quota, billing boundary, applicable
-terms, and approved secret injection are still required.
+configuration references are recorded, and `.env.example` defines only
+canonical variable names. The product owner confirmed credential rotation and
+approved a four-call, CNY 5 entitlement sub-gate. That gate passed for the
+selected endpoint families, credentials, TokenHub model-list presence, and the
+exact basic-inference identities returned by Ark, Model Studio, and Qianfan.
+See the sanitized [entitlement evidence](provider-entitlement-evidence.md).
+
+The controlled matrix is therefore **partially run**, not complete. R01-R03
+search and answer-fidelity probes, DeepSeek and Hy3 inference, provider-console
+cost reconciliation, account and region ownership, quotas, applicable terms,
+and the later parser, synthesis, resilience, capacity, and observability rows
+remain unverified.
 
 Before any call, the owning team supplies a non-secret route sheet for each
 platform containing account owner, region, endpoint/protocol family,
@@ -238,12 +243,14 @@ local or CI secret mechanism and are never written into this brief, source
 control, command output, or evidence fixture.
 
 Fixture, schema, semantic expectation, evidence-directory, and cost-ledger
-preparation may proceed without credentials. Network calls, service activation,
-quota changes, and paid usage remain a separate explicit authorization.
+preparation may proceed without another provider call. Every later network
+batch, service activation, quota change, or paid-usage ceiling remains a
+separate explicit authorization.
 
-- Quality-first current candidates for all five customer-visible platforms are
-  recorded in the [P0 provider validation preparation](provider-validation-preparation.md),
-  but still require product-owner confirmation and controlled account evidence.
+- The consumer-aligned evaluation candidates for all five customer-visible
+  platforms are recorded in the [P0 provider validation preparation](provider-validation-preparation.md).
+  Basic entitlement evidence does not yet prove their search behavior or
+  equivalence to the providers' default free Web or App routes.
 - Ark's exact returned search-trigger and citation/source contract remains
   unverified from the accessible official API reference.
 - Provider account activation, regional access, current quotas, safety behavior,

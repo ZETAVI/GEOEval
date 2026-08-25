@@ -5,8 +5,8 @@ validated application foundation. Product-slice implementation has not started.
 
 ## Current status
 
-- Phase: validated application foundation; provider evidence and first-slice
-  authorization pending
+- Phase: validated application foundation and provider entitlement; remaining
+  provider evidence and first-slice authorization pending
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
 - Active next-stage change: [`define-application-architecture`](openspec/changes/define-application-architecture/proposal.md)
 - Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,

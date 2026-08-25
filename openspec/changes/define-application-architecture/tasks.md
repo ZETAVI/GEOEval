@@ -43,8 +43,8 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
       installing dependencies, pulling images, or calling providers.
 - [ ] Run the authorized controlled provider matrix with rotated credentials,
       the CNY 100 hard ceiling, restricted raw evidence, and retained
-      non-sensitive fixtures. (Runner prepared; concrete calls awaiting
-      explicit approval.)
+      non-sensitive fixtures. (Four-call entitlement gate passed; R01-R03 and
+      the complete ceiling remain unapproved.)
 - [x] Compare and confirm the smallest viable stack and deployment shape against
       the approved constraints.
 - [x] Confirm the internal backend and frontend layering model, bounded

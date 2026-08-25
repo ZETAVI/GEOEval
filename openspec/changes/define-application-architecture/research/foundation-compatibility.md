@@ -3,7 +3,8 @@
 - Change: [`define-application-architecture`](../proposal.md)
 - Access date: 2026-08-25
 - Evidence state: F0 installation, build, runtime, migration, recovery, and
-  lockfile evidence passed; E0 and product implementation remain separate
+  lockfile evidence passed; E0 entitlement passed while later provider probes
+  and product implementation remain separate
 - Research owner: Architecture owner
 
 ## Recommendation
@@ -48,7 +49,7 @@ lockfile and evidence output, not guessed in this brief.
 | Container runtime         | Docker CLI 29.4.0 can reach the OrbStack daemon outside the restricted tool sandbox                                                                                                                                                                   | Use project-named disposable PostgreSQL and Redis services without touching unrelated containers.                                                                                             |
 | Local images              | Compose pulled PostgreSQL 18.6 and Redis 8.2.8 through OrbStack using the pinned manifests                                                                                                                           | Project services are reproducible without installing another Docker runtime or relying on unrelated local images.                                                                           |
 | Candidate image manifests | `compose.yaml` pins `postgres:18.6-bookworm` at `sha256:1c59e2c3c818eaa0f0628f695b36e7c9e362d6b219b36a54a32df645cbd7e1af` and `redis:8.2.8` at `sha256:2f7462b9e93e0a7ae2edf3a0a0babc8a4d29f8bfc50849b906b7caaef925edc1` | Accepted for F0; future updates must recheck manifests and rerun the affected evidence.                                                                                                      |
-| Provider configuration    | The local ignored `.env` has the eight canonical Ark, Model Studio, Qianfan, TokenHub, and Langfuse references, is mode `0600`, and is not tracked; no value was printed during readiness checks                                                      | Values exposed in conversation must still be rotated before E0. Account, region, route, quota, budget, and secure evidence location remain required.                                          |
+| Provider configuration    | The local ignored `.env` has the eight canonical Ark, Model Studio, Qianfan, TokenHub, and Langfuse references, is mode `0600`, and is not tracked; the product owner confirmed rotation, and the four approved endpoint families authenticated successfully | Entitlement passed without exposing values; account ownership, search behavior, quota, later budget, terms, and production data handling remain required.                                     |
 
 No credential value was printed or recorded in this source brief during the
 refresh.
@@ -84,5 +85,6 @@ refresh.
 - Select production runtime products, sizing, retention, and RPO/RTO only at
   their owning operational gate.
 - Keep controlled provider validation separate from the application foundation.
-  It requires rotated credentials, cost-visible commercial accounts, secure
-  raw evidence, and explicit E0 authorization.
+  Its entitlement sub-gate passed with restricted raw evidence; later search,
+  fidelity, resilience, quality, capacity, and cost probes still require
+  cost-visible accounts and explicit authorization.

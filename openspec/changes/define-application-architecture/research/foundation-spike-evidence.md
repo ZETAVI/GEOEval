@@ -71,6 +71,7 @@ probes, not customer behavior or a public product contract. They must be removed
 or placed behind an explicitly non-production validation boundary before a
 commercial deployment. F0 does not authorize S0 product implementation.
 
-E0 remains separate and blocked on credential rotation, named commercial
-accounts, enabled routes, a bounded budget, an access-controlled raw-evidence
-location, and explicit real-call authorization.
+E0 remains separate from the application foundation. Its four-call entitlement
+sub-gate passed with rotated credentials and access-controlled raw evidence;
+R01-R03 and the remaining provider matrix still require named account context,
+their own bounded budget, and explicit real-call authorization.
