@@ -6,6 +6,14 @@ import path from "node:path";
 
 const DEFAULT_TIMEOUT_MS = 120_000;
 const DEFAULT_RUN_ID = `e0-${new Date().toISOString().replaceAll(/[-:.]/g, "")}`;
+const PROBE_ROUTES = [
+  "tokenhub-deepseek",
+  "tokenhub-hy3",
+  "doubao",
+  "qwen",
+  "ernie",
+];
+const PROBE_FIXTURES = ["R01", "R02", "R03"];
 const evidenceRoot = path.resolve(
   process.env.E0_EVIDENCE_DIR ?? ".provider-evidence",
 );
@@ -57,6 +65,7 @@ const routeDefinitions = {
               enable: true,
               search_source: "lite",
               user_location: {
+                type: "approximate",
                 country: "CN",
                 region: "Guangdong",
                 city: "Guangzhou",
@@ -494,6 +503,24 @@ async function main() {
     });
     process.stdout.write(`${JSON.stringify({ calls: plan }, null, 2)}\n`);
     return;
+  } else if (command === "probe-plan") {
+    const plan = PROBE_ROUTES.flatMap((routeName) =>
+      PROBE_FIXTURES.map((fixture) => {
+        const route = routeDefinitions[routeName];
+        return {
+          route: routeName,
+          provider: route.provider,
+          method: route.method,
+          url: route.url(),
+          credentialReference: route.credential,
+          requestedModel: route.model,
+          fixture,
+          requestBody: route.body(fixtures[fixture], fixture),
+        };
+      }),
+    );
+    process.stdout.write(`${JSON.stringify({ calls: plan }, null, 2)}\n`);
+    return;
   } else if (command === "entitlement") {
     work = [
       ["tokenhub-models", "R00"],
@@ -510,7 +537,7 @@ async function main() {
     work = [[route, fixture]];
   } else {
     throw new Error(
-      "Usage: e0-runner.mjs plan | entitlement [--run-id ID] | probe --route ROUTE --fixture R01",
+      "Usage: e0-runner.mjs plan | probe-plan | entitlement [--run-id ID] | probe --route ROUTE --fixture R01",
     );
   }
 

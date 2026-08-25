@@ -21,6 +21,7 @@
     "db:migrate": "pnpm --filter @geoeval/backend db:migrate",
     "openapi:generate": "pnpm --filter @geoeval/backend openapi:generate && pnpm --filter @geoeval/api-client generate",
     "e0:plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs plan",
+    "e0:probe-plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs probe-plan",
     "e0:entitlement": "node --env-file=.env scripts/provider-validation/e0-runner.mjs entitlement",
     "e0:probe": "node --env-file=.env scripts/provider-validation/e0-runner.mjs probe"
   },
