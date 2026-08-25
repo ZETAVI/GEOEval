@@ -129,6 +129,7 @@ const routeDefinitions = {
     credential: "DASHSCOPE_API_KEY",
     model: "qwen3.7-flash",
     method: "POST",
+    timeoutMs: 300_000,
     url: () =>
       `${baseUrl("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")}/responses`,
     body: (input, fixture) => ({
@@ -333,6 +334,7 @@ function publicResult(manifest) {
     returnedModel: manifest.returnedModel,
     identityObservation: manifest.identityObservation,
     durationMs: manifest.durationMs,
+    timeoutMs: manifest.timeoutMs,
     outputCharacters: manifest.outputCharacters,
     searchObservation: manifest.searchObservation,
     sourceCount: manifest.sourceCount,
@@ -402,6 +404,7 @@ async function executeRoute(routeName, fixtureName, runId) {
     method: route.method,
     url: route.url(),
     requestedModel: route.model,
+    timeoutMs: route.timeoutMs ?? DEFAULT_TIMEOUT_MS,
     body: requestBody,
   };
   await writeProtected(
@@ -425,7 +428,7 @@ async function executeRoute(routeName, fixtureName, runId) {
           : {}),
       },
       body: requestBody ? JSON.stringify(requestBody) : undefined,
-      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
+      signal: AbortSignal.timeout(route.timeoutMs ?? DEFAULT_TIMEOUT_MS),
     });
     rawBody = await response.text();
   } catch (error) {
@@ -476,6 +479,7 @@ async function executeRoute(routeName, fixtureName, runId) {
     startedAt: startedAt.toISOString(),
     finishedAt: finishedAt.toISOString(),
     durationMs,
+    timeoutMs: route.timeoutMs ?? DEFAULT_TIMEOUT_MS,
     httpStatus: response?.status,
     providerRequestId: summary.providerRequestId,
     terminalResult: response?.ok && !networkError ? "observed" : "blocked",
@@ -507,6 +511,7 @@ async function executeRoute(routeName, fixtureName, runId) {
     availableModelCount: manifest.availableModelCount,
     missingExpectedModels: manifest.missingExpectedModels,
     durationMs: manifest.durationMs,
+    timeoutMs: manifest.timeoutMs,
     outputCharacters: manifest.outputCharacters,
     searchObservation: manifest.searchObservation,
     sourceCount: manifest.sourceCount,
@@ -540,6 +545,7 @@ async function main() {
         url: route.url(),
         credentialReference: route.credential,
         requestedModel: route.model,
+        timeoutMs: route.timeoutMs ?? DEFAULT_TIMEOUT_MS,
         fixture,
         requestBody: route.body?.(fixtures[fixture], fixture),
       };
@@ -557,6 +563,7 @@ async function main() {
           url: route.url(),
           credentialReference: route.credential,
           requestedModel: route.model,
+          timeoutMs: route.timeoutMs ?? DEFAULT_TIMEOUT_MS,
           fixture,
           requestBody: route.body(fixtures[fixture], fixture),
         };
