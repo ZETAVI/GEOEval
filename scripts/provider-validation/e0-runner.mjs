@@ -351,16 +351,48 @@ async function loadProbeResults(runId) {
   const results = [];
   for (const route of PROBE_ROUTES) {
     for (const fixture of PROBE_FIXTURES) {
-      const file = path.join(
-        evidenceRoot,
-        runId,
-        route,
-        fixture,
-        "manifest.json",
-      );
+      const attemptDir = path.join(evidenceRoot, runId, route, fixture);
+      const file = path.join(attemptDir, "manifest.json");
       try {
-        const manifest = JSON.parse(await readFile(file, "utf8"));
-        results.push(publicResult(manifest));
+        const manifestText = await readFile(file, "utf8");
+        const manifest = JSON.parse(manifestText);
+        let result = publicResult(manifest);
+        const correctionFile = path.join(
+          attemptDir,
+          "normalization-correction.json",
+        );
+        try {
+          const correction = JSON.parse(await readFile(correctionFile, "utf8"));
+          const validCorrection =
+            correction.version === 1 &&
+            correction.type === "normalization_correction" &&
+            correction.targetManifestSha256 === sha256(manifestText) &&
+            correction.responseSha256 === manifest.responseSha256 &&
+            correction.field === "sourceCount" &&
+            correction.originalValue === manifest.sourceCount &&
+            Number.isInteger(correction.correctedValue) &&
+            correction.correctedValue >= 0;
+          if (!validCorrection) {
+            throw new Error(
+              `Invalid normalization correction: ${path.relative(process.cwd(), correctionFile)}`,
+            );
+          }
+          result = {
+            ...result,
+            sourceCount: correction.correctedValue,
+            evidenceCorrections: [
+              {
+                field: correction.field,
+                originalValue: correction.originalValue,
+                correctedValue: correction.correctedValue,
+                record: path.relative(process.cwd(), correctionFile),
+              },
+            ],
+          };
+        } catch (error) {
+          if (error?.code !== "ENOENT") throw error;
+        }
+        results.push(result);
       } catch (error) {
         if (error?.code !== "ENOENT") throw error;
       }
