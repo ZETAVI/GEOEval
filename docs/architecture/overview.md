@@ -1,11 +1,15 @@
 # Architecture Overview
 
-- Status: Not selected
+- Status: Exploration
 - Entry condition: Approved product foundation and bounded first product slice
+- Active change: [`define-application-architecture`](../../openspec/changes/define-application-architecture/proposal.md)
 
 ## Current state
 
-No application architecture, module structure, data model, external integration, or deployment platform has been approved. This is intentional: architecture should answer an agreed product problem rather than define it accidentally.
+No application architecture, module structure, data model, external integration,
+or deployment platform has been approved. The product foundation is now approved,
+and the active architecture change is beginning with capability and data ownership
+before comparing technology options.
 
 ## Architecture qualities
 
