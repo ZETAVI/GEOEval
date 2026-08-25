@@ -2,8 +2,8 @@
 
 - Change: [`define-application-architecture`](../proposal.md)
 - Access date: 2026-08-24
-- Evidence state: Primary-source comparison and architecture confirmation
-  complete; foundation spike pending
+- Evidence state: Primary-source comparison, architecture confirmation, and F0
+  foundation validation complete
 - Research owner: Architecture owner
 
 ## Recommendation

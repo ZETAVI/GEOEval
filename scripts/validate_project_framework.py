@@ -22,6 +22,16 @@ VERSION_COPY_SUFFIX = re.compile(
     re.IGNORECASE,
 )
 ALLOWED_INVOCATIONS = {"implicit", "explicit"}
+LOCAL_LINK_EXCLUDED_PARTS = {
+    ".foundation-evidence",
+    ".git",
+    ".next",
+    ".pnpm-store",
+    "build",
+    "coverage",
+    "dist",
+    "node_modules",
+}
 
 
 def parse_frontmatter(path: Path) -> dict[str, str]:
@@ -164,6 +174,8 @@ def validate_skills(errors: list[str]) -> None:
 def validate_local_links(errors: list[str]) -> None:
     pattern = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
     for markdown in ROOT.rglob("*.md"):
+        if LOCAL_LINK_EXCLUDED_PARTS.intersection(markdown.relative_to(ROOT).parts):
+            continue
         text = markdown.read_text(encoding="utf-8")
         for target in pattern.findall(text):
             target = target.strip().split("#", 1)[0]

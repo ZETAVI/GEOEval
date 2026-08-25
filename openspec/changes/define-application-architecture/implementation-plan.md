@@ -1,7 +1,8 @@
 # Proposed Implementation Plan: Foundation and First Evaluation Slice
 
 - Change: [`define-application-architecture`](proposal.md)
-- Status: P0 prepared; F0, E0, and product implementation not authorized
+- Status: P0 prepared; F0 passed and reconciled; E0 and product implementation
+  not authorized
 - Product implementation authorized: No
 - Decision owners: Product owner and architecture owner
 - Plan owner: Architecture owner
@@ -16,8 +17,11 @@ delivery programs:
    small integrated increments.
 
 This plan names prerequisites, ownership, parallel seams, integration gates, and
-evidence. It does not authorize dependency installation, external paid calls,
-production resources, or business-feature implementation.
+evidence. The product owner authorized F0 project-local dependency installation
+and OrbStack Docker Compose execution on 2026-08-25. It does not authorize
+external paid calls, production resources, or business-feature implementation.
+F0 passed its recorded evidence matrix on the same date with TypeScript revised
+from the incompatible 7.0.2 candidate to the accepted 5.9.3 compiler.
 
 ## Stable Inputs
 
@@ -25,6 +29,7 @@ production resources, or business-feature implementation.
 - [Confirmed architecture design](design.md)
 - [Architecture decision brief](decision-brief.md)
 - [Foundation compatibility candidate](research/foundation-compatibility.md)
+- [F0 foundation spike evidence](research/foundation-spike-evidence.md)
 - [First-slice external evidence and controlled matrix](research/first-slice-external-evidence.md)
 - [Controlled provider route sheet and fixtures](research/provider-validation-preparation.md)
 - [Operational and quality baseline](research/operational-quality-baseline.md)
@@ -36,13 +41,13 @@ inputs above.
 
 ## Activation Gates
 
-| Gate | Required before it opens | Allows | Does not allow |
-| --- | --- | --- | --- |
-| P0: preparation | confirmed architecture baseline | version and image audit, route-sheet and fixture preparation, issue/work-package refinement, no-secret config templates | dependency installation, image pulls, provider calls, product code |
-| F0: foundation execution | explicit approval of the compatibility set, intended file scope, dependency/image downloads, and evidence matrix | project-local manifests, lockfile, disposable services, non-product spike code and tests | real provider calls, production resources, product feature claims |
-| E0: controlled external execution | route sheet, intended commercial accounts, injected secrets, approved budget, non-sensitive fixtures, evidence-retention location | bounded provider, parser, synthesis, and telemetry-isolation calls | production traffic, open-ended load testing, unbounded cost, credentials in source |
-| S0: first-slice implementation | foundation spike passed; first-slice public contracts reconciled; provider-neutral core approved; provider-specific consumption follows the controlled-evidence gate | identity, brand, evaluation, notification, report, and deterministic adapter increments | later optimization, commerce, fulfilment, settlement, or commercial-release claims |
-| R0: first-slice acceptance | integrated deterministic flow plus every required controlled provider route and browser/recovery evidence | call the slice complete and begin the next approved slice | call the whole commercial release complete |
+| Gate                              | Required before it opens                                                                                                                                             | Allows                                                                                                                  | Does not allow                                                                     |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| P0: preparation                   | confirmed architecture baseline                                                                                                                                      | version and image audit, route-sheet and fixture preparation, issue/work-package refinement, no-secret config templates | dependency installation, image pulls, provider calls, product code                 |
+| F0: foundation execution          | explicit approval of the compatibility set, intended file scope, dependency/image downloads, and evidence matrix                                                     | project-local manifests, lockfile, disposable services, non-product spike code and tests                                | real provider calls, production resources, product feature claims                  |
+| E0: controlled external execution | route sheet, intended commercial accounts, injected secrets, approved budget, non-sensitive fixtures, evidence-retention location                                    | bounded provider, parser, synthesis, and telemetry-isolation calls                                                      | production traffic, open-ended load testing, unbounded cost, credentials in source |
+| S0: first-slice implementation    | foundation spike passed; first-slice public contracts reconciled; provider-neutral core approved; provider-specific consumption follows the controlled-evidence gate | identity, brand, evaluation, notification, report, and deterministic adapter increments                                 | later optimization, commerce, fulfilment, settlement, or commercial-release claims |
+| R0: first-slice acceptance        | integrated deterministic flow plus every required controlled provider route and browser/recovery evidence                                                            | call the slice complete and begin the next approved slice                                                               | call the whole commercial release complete                                         |
 
 ### Confirmed sequencing
 
@@ -204,14 +209,14 @@ authorization.
 Program S begins only after the applicable activation gates. It uses the same
 capability layers and owner operations confirmed in the design.
 
-| Increment | Customer-visible or integration outcome | Primary owners | Prerequisites | Gate evidence |
-| --- | --- | --- | --- | --- |
-| S1. Entry and brand | terminal customer can enter, intentionally have no brand, create/select one brand, and save evaluation-relevant facts | Identity and Access; Brand Knowledge; web entry features | foundation public/auth/config seams | owner/resource authorization, normalized fingerprint, responsive browser flow |
-| S2. Definition and start | customer sees one non-editable four-question definition and starts one run with twenty sample identities | GEO Intelligence; Brand Knowledge purpose view; background outbox | S1 purpose contract; query-generation deterministic adapter | snapshot immutability, one active run, one completed opportunity, duplicate-start contract tests |
-| S3. Resumable evidence | deterministic provider attempts, canonical answers, failed positions, parsing, and synthesis progress survive worker restart | GEO Intelligence; AI Execution; Background Work | S2 run identity; Program F reliability | retained raw evidence, duplicate-safe acceptance, retry cycle, semantic validation, recovery tests |
-| S4. Report and guidance | an eligible 17-20 sample run produces the complete reproducible report and concise/full guidance boundary | GEO Intelligence; report read composition; web report features | S3 accepted interpretations | formula reproduction, missing-card behavior, highlights preserve original, responsive/accessibility browser evidence |
-| S5. Notification and recovery | customer can leave, receive completion or retry notification, reconnect, and retry only failed work | Notification Center; Background Work; web notification/report features | S3 terminal facts; S4 purpose view | durable notification, SSE recovery, same-run retry, changed-revision new-run behavior |
-| S6. Real five-platform integration | the complete slice runs through every accepted commercial route with recorded model, search, evidence, latency, and cost | provider adapters; GEO Intelligence; AI Execution; verification owner | Program E accepted routes; S1-S5 deterministic acceptance | controlled-provider plus real browser journey and failure evidence |
+| Increment                          | Customer-visible or integration outcome                                                                                      | Primary owners                                                         | Prerequisites                                               | Gate evidence                                                                                                        |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| S1. Entry and brand                | terminal customer can enter, intentionally have no brand, create/select one brand, and save evaluation-relevant facts        | Identity and Access; Brand Knowledge; web entry features               | foundation public/auth/config seams                         | owner/resource authorization, normalized fingerprint, responsive browser flow                                        |
+| S2. Definition and start           | customer sees one non-editable four-question definition and starts one run with twenty sample identities                     | GEO Intelligence; Brand Knowledge purpose view; background outbox      | S1 purpose contract; query-generation deterministic adapter | snapshot immutability, one active run, one completed opportunity, duplicate-start contract tests                     |
+| S3. Resumable evidence             | deterministic provider attempts, canonical answers, failed positions, parsing, and synthesis progress survive worker restart | GEO Intelligence; AI Execution; Background Work                        | S2 run identity; Program F reliability                      | retained raw evidence, duplicate-safe acceptance, retry cycle, semantic validation, recovery tests                   |
+| S4. Report and guidance            | an eligible 17-20 sample run produces the complete reproducible report and concise/full guidance boundary                    | GEO Intelligence; report read composition; web report features         | S3 accepted interpretations                                 | formula reproduction, missing-card behavior, highlights preserve original, responsive/accessibility browser evidence |
+| S5. Notification and recovery      | customer can leave, receive completion or retry notification, reconnect, and retry only failed work                          | Notification Center; Background Work; web notification/report features | S3 terminal facts; S4 purpose view                          | durable notification, SSE recovery, same-run retry, changed-revision new-run behavior                                |
+| S6. Real five-platform integration | the complete slice runs through every accepted commercial route with recorded model, search, evidence, latency, and cost     | provider adapters; GEO Intelligence; AI Execution; verification owner  | Program E accepted routes; S1-S5 deterministic acceptance   | controlled-provider plus real browser journey and failure evidence                                                   |
 
 S1 can begin independently of provider accounts after S0. S2-S5 use
 deterministic adapters so business contracts and UI do not depend on paid calls.

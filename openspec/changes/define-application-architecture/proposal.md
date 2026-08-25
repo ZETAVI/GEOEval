@@ -1,6 +1,6 @@
 # Change: Define the GEOEval Application Architecture
 
-- Status: Awaiting execution-gate confirmation
+- Status: Foundation validated; controlled external evidence pending
 - Class: Architectural
 - Decision owners: Product owner and architecture owner
 - Implementation authorized: No
@@ -69,6 +69,7 @@ boundaries, and parallel implementation seams understandable and verifiable.
 - [Application-stack options](research/application-stack-options.md)
 - [Operational and quality baseline evidence](research/operational-quality-baseline.md)
 - [Foundation compatibility candidate](research/foundation-compatibility.md)
+- [F0 foundation spike evidence](research/foundation-spike-evidence.md)
 - [Architecture decision brief](decision-brief.md)
 - [Proposed implementation plan](implementation-plan.md)
 - [Tasks](tasks.md)

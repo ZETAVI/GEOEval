@@ -1,0 +1,208 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health/live": {
+      "get": {
+        "operationId": "HealthController_live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "status": "live"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "status": "ready"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/foundation/records": {
+      "post": {
+        "operationId": "FoundationController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoundationRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "foundation"
+        ]
+      }
+    },
+    "/foundation/outbox/backlog": {
+      "get": {
+        "operationId": "FoundationController_backlog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoundationBacklogResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "foundation"
+        ]
+      }
+    },
+    "/foundation/records/{id}": {
+      "get": {
+        "operationId": "FoundationController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoundationRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "foundation"
+        ]
+      }
+    },
+    "/foundation/records/{id}/events": {
+      "get": {
+        "operationId": "FoundationController_events",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "foundation"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "GEOEval Foundation API",
+    "description": "",
+    "version": "0.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "FoundationEffectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "businessKey": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "businessKey",
+          "result"
+        ]
+      },
+      "FoundationRecordResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACCEPTED",
+              "PROCESSED"
+            ]
+          },
+          "correlationId": {
+            "type": "string"
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FoundationEffectResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "correlationId",
+          "effects"
+        ]
+      },
+      "FoundationBacklogResponse": {
+        "type": "object",
+        "properties": {
+          "pending": {
+            "type": "number"
+          },
+          "dispatched": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "pending",
+          "dispatched"
+        ]
+      }
+    }
+  }
+}

@@ -1,16 +1,17 @@
 # GEOEval
 
-GEOEval is a GEO optimization product with an approved product foundation. The
-repository is entering product and architecture design before selecting the
-application stack or beginning implementation.
+GEOEval is a GEO optimization product with an approved product definition and a
+validated application foundation. Product-slice implementation has not started.
 
 ## Current status
 
-- Phase: product and architecture entry
+- Phase: validated application foundation; provider evidence and first-slice
+  authorization pending
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
 - Active next-stage change: [`define-application-architecture`](openspec/changes/define-application-architecture/proposal.md)
-- Application stack: not selected
-- Runtime code: not started
+- Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,
+  Redis/BullMQ, Prisma, and generated OpenAPI client
+- Runtime code: non-product F0 validation foundation only
 
 ## Start here
 
@@ -20,6 +21,9 @@ application stack or beginning implementation.
 4. Use [How We Work](docs/process/how-we-work.md) for the practical workflow and Skill prompts.
 5. Use the [active architecture-entry change](openspec/changes/define-application-architecture/proposal.md) for the current module and ownership discussion.
 6. Read the [archived product-foundation change](openspec/changes/archive/2026-08-24-define-product-foundation/proposal.md) or [GEO-Eval-Prompts.md](GEO-Eval-Prompts.md) only when decision history is needed.
+7. Review [ADR 0001](docs/architecture/adr/0001-application-foundation.md)
+   and the [F0 evidence](openspec/changes/define-application-architecture/research/foundation-spike-evidence.md)
+   before changing application foundations.
 
 ## Delivery model
 

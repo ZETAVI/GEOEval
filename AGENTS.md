@@ -4,9 +4,9 @@
 
 Build the GEO optimization product from its approved product foundation toward
 small, verifiable releases. The current phase is **product and architecture
-entry**: preserve the confirmed product meaning while defining capability and
-data ownership, product interaction standards, external-validation evidence,
-and the smallest viable application architecture before implementation.
+entry**: preserve the confirmed product meaning while completing external
+validation and preparing the first product slice on the accepted application
+foundation. F0 runtime code remains non-product validation code.
 
 Do not treat historical prompts as approved requirements. They are research input.
 
@@ -59,15 +59,24 @@ Skills are project-scoped under `.agents/skills/` and governed by `.agents/skill
 
 ## Project commands
 
-The application stack has not been selected. Do not invent setup, test, lint, typecheck, or build commands.
-
-The only verified repository command is:
+Verified repository commands are:
 
 ```bash
+pnpm install --frozen-lockfile
+pnpm infra:up
+pnpm db:migrate
+pnpm openapi:generate
+pnpm typecheck
+pnpm test
+pnpm build
+./scripts/foundation/rehearse-backup.sh
+pnpm infra:down
 python3 scripts/validate_project_framework.py
 ```
 
-Add application commands here only after they have been executed successfully in this repository.
+`pnpm test`, migrations, and the recovery rehearsal require the project-named
+PostgreSQL services. `pnpm infra:down` retains volumes; never add `--volumes` to
+a normal stop. No command above authorizes E0 provider calls or product work.
 
 ## Working agreement
 

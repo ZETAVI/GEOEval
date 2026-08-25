@@ -1,0 +1,28 @@
+{
+  "name": "geoeval",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=24.12.0 <25",
+    "pnpm": ">=11.9.0 <12"
+  },
+  "scripts": {
+    "build": "pnpm db:generate && pnpm openapi:generate && pnpm --filter @geoeval/backend build && pnpm --filter @geoeval/api-client typecheck && pnpm --filter @geoeval/web build",
+    "check": "pnpm format:check && pnpm typecheck && pnpm test",
+    "format": "prettier --write package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/foundation/*.mjs'",
+    "format:check": "prettier --check package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/foundation/*.mjs'",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm --filter @geoeval/backend test",
+    "infra:pull": "docker compose pull",
+    "infra:up": "docker compose up -d --wait",
+    "infra:down": "docker compose down",
+    "db:generate": "pnpm --filter @geoeval/backend db:generate",
+    "db:migrate": "pnpm --filter @geoeval/backend db:migrate",
+    "openapi:generate": "pnpm --filter @geoeval/backend openapi:generate && pnpm --filter @geoeval/api-client generate"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6",
+    "typescript": "5.9.3"
+  }
+}

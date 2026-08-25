@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FoundationRecordStatus {
+  ACCEPTED
+  PROCESSED
+}
+
+enum OutboxStatus {
+  PENDING
+  DISPATCHED
+  COMPLETED
+}
+
+model FoundationRecord {
+  id            String                 @id @default(uuid()) @db.Uuid
+  name          String
+  status        FoundationRecordStatus @default(ACCEPTED)
+  correlationId String                 @map("correlation_id") @db.Uuid
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+  outboxEvents  OutboxEvent[]
+  effects       WorkEffect[]
+
+  @@map("foundation_records")
+}
+
+model OutboxEvent {
+  id            String           @id @default(uuid()) @db.Uuid
+  recordId      String           @map("record_id") @db.Uuid
+  eventType     String           @map("event_type")
+  payload       Json
+  status        OutboxStatus     @default(PENDING)
+  correlationId String           @map("correlation_id") @db.Uuid
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  completedAt   DateTime?        @map("completed_at")
+  record        FoundationRecord @relation(fields: [recordId], references: [id], onDelete: Restrict)
+  effect        WorkEffect?
+
+  @@index([status, updatedAt])
+  @@map("outbox_events")
+}
+
+model WorkEffect {
+  id            String           @id @default(uuid()) @db.Uuid
+  businessKey   String           @unique @map("business_key")
+  outboxEventId String           @unique @map("outbox_event_id") @db.Uuid
+  recordId      String           @map("record_id") @db.Uuid
+  result        String
+  correlationId String           @map("correlation_id") @db.Uuid
+  createdAt     DateTime         @default(now()) @map("created_at")
+  outboxEvent   OutboxEvent      @relation(fields: [outboxEventId], references: [id], onDelete: Restrict)
+  record        FoundationRecord @relation(fields: [recordId], references: [id], onDelete: Restrict)
+
+  @@map("work_effects")
+}

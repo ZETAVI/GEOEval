@@ -6,6 +6,12 @@
 __pycache__/
 .pytest_cache/
 node_modules/
+.pnpm-store/
 dist/
 build/
+.next/
+coverage/
+*.tsbuildinfo
+.foundation-evidence/
+apps/backend/src/generated/prisma/
 .codex-log/
