@@ -13,5 +13,6 @@ build/
 coverage/
 *.tsbuildinfo
 .foundation-evidence/
+.provider-evidence/
 apps/backend/src/generated/prisma/
 .codex-log/

@@ -66,6 +66,7 @@ pnpm install --frozen-lockfile
 pnpm infra:up
 pnpm db:migrate
 pnpm openapi:generate
+pnpm e0:plan
 pnpm typecheck
 pnpm test
 pnpm build

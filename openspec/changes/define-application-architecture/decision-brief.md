@@ -103,8 +103,9 @@ making ordinary development depend on heavy architecture ceremony.
   platform route boundaries were confirmed on 2026-08-25; the consumer-aligned
   sampling set, separate stronger-purpose pool, and F0 project-local/Compose
   execution were confirmed on 2026-08-25.
-- Next action: prepare credential rotation, account readiness, budget, and the
-  raw-evidence location for a separate E0 authorization decision. No provider
-  call or S0 product implementation is implied by F0 completion.
-- Confirmation required before: E0 real provider execution or product
-  implementation.
+- Next action: obtain explicit approval for the named E0 endpoints, minimal
+  entitlement payloads, restricted evidence location, stop conditions, and
+  CNY 5 entitlement sub-ceiling; then execute progressively. The complete E0
+  CNY 100 ceiling remains unapproved.
+- Confirmation required before: any real provider call, service activation,
+  quota change, production-data use, or product implementation.

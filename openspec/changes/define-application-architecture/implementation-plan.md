@@ -1,8 +1,9 @@
 # Proposed Implementation Plan: Foundation and First Evaluation Slice
 
 - Change: [`define-application-architecture`](proposal.md)
-- Status: P0 prepared; F0 passed and reconciled; E0 and product implementation
-  not authorized
+- Status: P0 prepared; F0 passed and reconciled; E0 credentials and runner
+  prepared but concrete calls not authorized; product implementation not
+  authorized
 - Product implementation authorized: No
 - Decision owners: Product owner and architecture owner
 - Plan owner: Architecture owner
@@ -19,7 +20,9 @@ delivery programs:
 This plan names prerequisites, ownership, parallel seams, integration gates, and
 evidence. The product owner authorized F0 project-local dependency installation
 and OrbStack Docker Compose execution on 2026-08-25. It does not authorize
-external paid calls, production resources, or business-feature implementation.
+production resources or business-feature implementation. The product owner
+confirmed credential rotation on 2026-08-25; the named external calls and
+CNY 100 ceiling remain a separate confirmation gate.
 F0 passed its recorded evidence matrix on the same date with TypeScript revised
 from the incompatible 7.0.2 candidate to the accepted 5.9.3 compiler.
 

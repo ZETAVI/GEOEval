@@ -2,7 +2,8 @@
 
 - Change: [`define-application-architecture`](../proposal.md)
 - Preparation gate: P0
-- State: Non-secret preparation complete; F0 passed; E0 remains unauthorized
+- State: Credentials rotated and controlled runner prepared; explicit approval
+  of the concrete E0 calls and cost ceiling pending
 - Owners: GEO evaluation owner, account and integration owner, verification owner
 - Access date for provider facts: 2026-08-25
 
@@ -76,13 +77,13 @@ A route is rejected before or during E0 when any of the following is true:
 | Prerequisite                | Current state                                                                                                              | Required to close                                                                                                                   |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Canonical secret references | `.env.example` and the local ignored `.env` use only the approved references                                               | Keep values out of Git and command output                                                                                           |
-| Credential safety           | Current local values were exposed in conversation                                                                          | Rotate every provider and Langfuse credential before E0; re-inject locally without recording values                                 |
+| Credential safety           | Product owner confirmed on 2026-08-25 that all provider and Langfuse credentials were rotated and re-injected; `.env` remains mode `0600` and ignored by Git | Runtime authentication must still prove that each rotated credential belongs to the intended route                                  |
 | Exact candidate set         | Consumer-aligned logical models are confirmed; Ark and ERNIE exact account-visible service identities remain runtime facts | Record enabled IDs and returned identity before paid validation                                                                     |
-| Account and workspace owner | Not recorded                                                                                                               | Name the responsible commercial account or workspace for Ark, Model Studio, Qianfan, TokenHub, and Langfuse                         |
+| Account and workspace owner | Rotated credentials are present, but account and workspace ownership is not recorded in Git                                        | Record an opaque account reference plus the observed region, endpoint, and returned route identity                                  |
 | Region and endpoint         | Official candidate families are known; actual enabled account regions are unverified                                       | Record the enabled region, workspace or account endpoint, and returned model identity per route                                     |
-| Quota and budget            | Not recorded                                                                                                               | Record documented quota plus one bounded E0 monetary ceiling and stop condition                                                     |
-| Terms and data handling     | Product documentation is known; account and contract settings are unverified                                               | Confirm intended commercial use, retention, and any cross-border or sensitive-data constraint                                       |
-| Evidence location           | Not selected                                                                                                               | Select an access-controlled location outside Git for raw request and response envelopes; commit only sanitized summaries and hashes |
+| Quota and budget            | CNY 100 total remains the proposed complete-E0 ceiling; the current entitlement gate requests a separate CNY 5 sub-ceiling | Obtain explicit approval; stop on unknown usage, unexpected paid activation, quota change, or any need to exceed the active ceiling |
+| Terms and data handling     | E0 is restricted to fictional, non-sensitive fixtures; commercial customer-data use and final account terms remain unverified | Do not treat a successful probe as production data-processing approval                                                              |
+| Evidence location           | Raw envelopes use local ignored `.provider-evidence/`, directories mode `0700`, files mode `0600`; only sanitized summaries and hashes may enter Git | Retain or move the restricted evidence according to the later team evidence policy                                                   |
 | Runtime evidence            | Not run                                                                                                                    | Execute only after E0 authorization and retain the evidence manifest below                                                          |
 
 ## Deterministic fixture catalog
@@ -186,6 +187,30 @@ cannot expose usage, its console cost cannot be reconciled, an unexpected paid
 feature is required, or any route would need an account or quota change. A later
 performance or load run requires a new budget and authorization.
 
+### Current entitlement authorization request
+
+The next gate is narrower than the complete E0 ceiling: **CNY 5 maximum** for
+exactly four calls, expected to cost materially less. No request enables web
+search, no service or quota change is allowed, and every generation prompt is
+the fictional text `这是一次接口资格检查。请只回复：OK`.
+
+1. `GET https://tokenhub.tencentmaas.com/v1/models` using
+   `TOKENHUB_API_KEY`; no generation.
+2. `POST https://ark.cn-beijing.volces.com/api/v3/responses` using
+   `ARK_API_KEY`, model `doubao-seed-2-0-lite-260428`, with storage and
+   thinking disabled.
+3. `POST https://dashscope.aliyuncs.com/compatible-mode/v1/responses` using
+   `DASHSCOPE_API_KEY`, model `qwen3.7-flash`, with thinking disabled. The
+   official shared Beijing pay-as-you-go host supports cross-workspace keys;
+   a workspace-dedicated production host remains preferred and unselected.
+4. `POST https://qianfan.baidubce.com/v2/chat/completions` using
+   `QIANFAN_API_KEY`, model `ernie-4.5-turbo-128k`, non-streaming.
+
+Responses are written only below ignored `.provider-evidence/` with directory
+mode `0700` and file mode `0600`; the console receives model, status, duration,
+usage, and hashes, never the secret or answer body. Approval of these four calls
+does not approve R01-R03 web-search probes or the remaining E0 matrix.
+
 Public price tables for [Volcengine Ark](https://www.volcengine.com/docs/82379/1544106?lang=zh),
 [Alibaba Cloud Model Studio](https://help.aliyun.com/zh/model-studio/model-pricing),
 and [Baidu Qianfan](https://cloud.baidu.com/doc/qianfan-docs/s/Jm8r1826a) are
@@ -204,10 +229,10 @@ embedding a brittle unit-price copy in the architecture.
 - [x] Evidence manifest and route rejection conditions are defined.
 - [x] Product owner confirms the consumer-aligned evaluation model set.
 - [ ] Account owner, enabled region, quota, terms, and data boundary are recorded.
-- [ ] Exposed credentials are rotated and injected through the approved local mechanism.
-- [ ] E0 budget ceiling, stop condition, and secure raw-evidence location are approved.
-- [ ] E0 controlled calls are explicitly authorized.
+- [x] Exposed credentials are rotated and injected through the approved local mechanism, as confirmed by the product owner.
+- [ ] E0 budget ceiling, stop condition, and secure raw-evidence location are explicitly approved for the concrete calls.
+- [ ] E0 controlled calls to the named provider endpoints are explicitly authorized.
 
 F0 was separately authorized on 2026-08-25 for project-local dependencies and
-Compose-managed disposable services. Approving this route sheet or F0 does not
-authorize E0 provider calls or product implementation.
+Compose-managed disposable services. Credential rotation and runner
+preparation do not authorize E0 calls or product implementation.

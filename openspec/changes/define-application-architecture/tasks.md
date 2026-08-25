@@ -41,8 +41,10 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
       fixtures, and controlled-run evidence manifest.
 - [x] Refresh current local runtime and container-image readiness without
       installing dependencies, pulling images, or calling providers.
-- [ ] Run the controlled provider matrix only with rotated credentials, an
-      approved budget, and retained non-sensitive fixtures.
+- [ ] Run the authorized controlled provider matrix with rotated credentials,
+      the CNY 100 hard ceiling, restricted raw evidence, and retained
+      non-sensitive fixtures. (Runner prepared; concrete calls awaiting
+      explicit approval.)
 - [x] Compare and confirm the smallest viable stack and deployment shape against
       the approved constraints.
 - [x] Confirm the internal backend and frontend layering model, bounded
