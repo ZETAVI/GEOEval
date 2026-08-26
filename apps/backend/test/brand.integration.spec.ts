@@ -4,6 +4,7 @@ import { BrandService } from "../src/brand/application/brand.service.js";
 import { PostgresBrandRepository } from "../src/brand/infrastructure/postgres-brand.repository.js";
 import { loadApiConfig } from "../src/config/runtime-config.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
+import { clearCustomerData } from "./customer-data.js";
 
 const config = loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1", NODE_ENV: "test" });
 
@@ -16,11 +17,7 @@ describe("account-scoped brand context", () => {
   beforeAll(async () => prisma.$connect());
   afterAll(async () => prisma.$disconnect());
   beforeEach(async () => {
-    await prisma.brandContext.deleteMany();
-    await prisma.brandProfile.deleteMany();
-    await prisma.accountSession.deleteMany();
-    await prisma.account.deleteMany();
-    await prisma.mobileChallenge.deleteMany();
+    await clearCustomerData(prisma);
     const [first, second] = await Promise.all([
       prisma.account.create({ data: { mobile: "+8613800138101" } }),
       prisma.account.create({ data: { mobile: "+8613800138102" } }),

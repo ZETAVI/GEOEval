@@ -442,7 +442,7 @@ retaining the evidence behind that account.
 - **AND** only mention rate and appearance position contribute to that index
 - **AND** being mentioned has priority over appearing higher after a mention
 - **AND** for valid open-question samples the raw index equals `5 × mention rate
-  × (0.70 + 0.30 × average normalized position score)`
+× (0.70 + 0.30 × average normalized position score)`
 - **AND** normalized position scores are `1.0` for first, `0.8` for second, `0.6`
   for third, `0.4` for fourth or fifth, and `0.2` for sixth or later
 - **AND** the customer sees the index rounded to one decimal and a five-star
@@ -518,7 +518,7 @@ retaining the evidence behind that account.
 - **GIVEN** one of the five customer-visible platform routes prepares a sample
 - **WHEN** the provider request is constructed
 - **THEN** it uses the current shared, versioned
-  [evaluation-objectivity profile](../../../scripts/provider-validation/evaluation-objectivity.json)
+  [evaluation-objectivity profile](../../../apps/backend/geo-intelligence/evaluation-objectivity.json)
 - **AND** provider adapters may map that same semantic content only to the
   route's verified instruction transport
 - **AND** the sample snapshots the profile ID, version, and content hash with its

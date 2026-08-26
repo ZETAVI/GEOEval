@@ -36,17 +36,11 @@ export class BrandResponse extends BrandMutationRequest {
   @ApiProperty({ type: String })
   id!: string;
 
-  @ApiProperty({ type: String })
-  accountId!: string;
-
   @ApiProperty({ type: String, enum: ["ACTIVE", "ARCHIVED"] })
   status!: string;
 
   @ApiProperty({ type: String })
   companyName!: string;
-
-  @ApiProperty({ type: String })
-  evaluationFingerprint!: string;
 
   @ApiProperty({ type: Boolean })
   readyForEvaluation!: boolean;

@@ -20,6 +20,7 @@ import type {
   BrandProfileView,
   BrandView,
   EditableBrandFields,
+  EvaluationPurposeBrandView,
 } from "../domain/brand.types.js";
 
 @Injectable()
@@ -94,6 +95,33 @@ export class BrandService {
     const selected = await this.repository.selectCurrent(accountId, brandId);
     if (!selected) throw new NotFoundException("未找到该品牌");
     return presentBrand(selected, true);
+  }
+
+  async evaluationPurposeView(
+    accountId: string,
+    brandId: string,
+  ): Promise<EvaluationPurposeBrandView> {
+    const brand = await this.repository.find(accountId, brandId);
+    if (!brand) throw new NotFoundException("未找到该品牌");
+    const readiness = brandReadiness(brand);
+    if (!readiness.readyForEvaluation) {
+      throw new BadRequestException(
+        `请先补全诊断资料：${readiness.missingFields.join("、")}`,
+      );
+    }
+    return {
+      accountId,
+      brandId,
+      inputFingerprint: brand.evaluationFingerprint,
+      companyName: brand.companyName,
+      primaryIndustry: brand.primaryIndustry!,
+      secondaryIndustry: brand.secondaryIndustry!,
+      characteristicOne: brand.characteristicOne!,
+      characteristicTwo: brand.characteristicTwo!,
+      province: brand.province!,
+      city: brand.city!,
+      district: brand.district!,
+    };
   }
 }
 

@@ -68,3 +68,55 @@ types and never imports backend or Prisma types.
 - The deterministic challenge adapter must be replaced or disabled before any
   production release; this trigger is owned by the future authentication
   integration change.
+
+## S2 Boundary
+
+GEO Intelligence owns evaluation definitions, frozen input revisions, question
+sets, runs, and the twenty business sample identities. Brand Knowledge exposes
+one evaluation-purpose view; it remains the only owner of editable brand facts
+and the normalized fingerprint. S2 does not call a model provider or interpret
+an answer.
+
+### Definition preparation
+
+- Preparing a definition requires one active, account-owned, evaluation-ready
+  brand. GEO Intelligence receives only the evaluation-purpose fields and their
+  Brand Knowledge fingerprint.
+- Preparation is idempotent by brand and fingerprint. The first preparation
+  stores one immutable brand-fact snapshot, one generated four-question set,
+  the fixed five-platform policy, question-generator identity, and shared
+  objectivity-profile identity. Reopening the same revision returns that record;
+  there is no refresh operation.
+- The deterministic generator is an S2 adapter for contract development. It
+  produces one brand-directed question, one industry-recommendation question,
+  and two characteristic questions. Replacing it with approved AI execution is
+  a later integration seam and cannot change definition ownership.
+
+### Official start
+
+- Start is one GEO-owned PostgreSQL transaction. It rechecks account ownership,
+  active brand state, fingerprint currency, definition identity, one active run
+  per brand, and the unchanged revision's opportunity.
+- The transaction creates one run, four-by-five sample identities, and one
+  product outbox fact. It performs no provider or queue call. A duplicate start
+  of the same definition returns the existing active run; a different revision
+  cannot start while that brand has an active run.
+- One definition has at most one run. Later retry work opens an internal cycle on
+  that run rather than creating another official evaluation. Completion and
+  please-retry transitions remain S3-S5 work, but the S2 model protects their
+  identity and history rules now.
+
+### Customer interaction
+
+- `/diagnosis` uses the current-brand context. No brand or incomplete basic
+  information leads to a concise correction route; a ready brand shows the four
+  read-only questions and one explicit start action.
+- Starting changes the page to the evaluating state and exposes the fixed
+  twenty-position scope without fabricating progress. Switching the global
+  current brand does not mutate the started run.
+
+### Objectivity policy ownership
+
+S2 moves the confirmed objectivity profile from the provider-validation harness
+into GEO Intelligence's production-owned source. The harness and current
+product documents link to that same file; no second policy copy remains.

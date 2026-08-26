@@ -1,6 +1,6 @@
 # Change: Deliver the First Evaluation Slice
 
-- Status: Approved; S1 accepted by the product owner and checkpointed, S2 active
+- Status: Approved; S1 accepted and checkpointed, S2 locally verified and ready for checkpoint, S3 next
 - Class: Architectural implementation
 - Decision owners: Product owner and architecture owner
 - Implementation authorization: Deterministic S1-S5 only, confirmed 2026-08-25
@@ -25,17 +25,19 @@ current brand as the source for the later evaluation journey.
 
 ## Impact
 
-S1 introduces Identity and Access plus Brand Knowledge owner modules, additive
-PostgreSQL records and migration, authenticated REST/OpenAPI contracts, a
-generated Web client, and the first product Web routes. The existing F0 probes
-remain isolated evidence and do not become product APIs.
+S1 introduces Identity and Access plus Brand Knowledge. S2 introduces GEO
+Intelligence definition and run ownership, immutable brand/question snapshots,
+twenty sample identities, and a reliable product outbox fact. Both use additive
+PostgreSQL migrations, authenticated REST/OpenAPI contracts, and generated Web
+client types. The existing F0 probes remain isolated evidence and do not become
+product APIs.
 
 ## Control State
 
-- Documentation: add an owner-local customer-entry delta spec; update the
-  current architecture overview when S0 becomes active; promote accepted
-  behavior to an owner-local current spec before close. The product-definition
-  spec remains the product-meaning authority and is not copied wholesale.
+- Documentation: keep increment deltas in this active change; promote each
+  verified increment to its owner-local current spec and update the architecture
+  overview. The product-definition spec remains the product-meaning authority
+  and is not copied wholesale.
 - Workspace: branch `codex/first-evaluation-slice`, based on `7ec4cea` from
   `codex/provider-validation`; current agent is the single writer; intended
   merge destination is `main` with its existing ancestry; exit only after the

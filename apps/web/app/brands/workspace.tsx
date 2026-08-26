@@ -4,7 +4,6 @@ import {
   createBrand,
   getCurrentAccount,
   listBrands,
-  logout,
   selectCurrentBrand,
   updateBrand,
   type Account,
@@ -12,19 +11,11 @@ import {
   type BrandMutation,
 } from "@geoeval/api-client";
 import { useEffect, useState } from "react";
+import { CustomerSidebar } from "../customer-sidebar.js";
 import { BrandEditor } from "./brand-editor.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
-const navigation = [
-  ["我的品牌", "品牌资料与概览", true],
-  ["AI 搜索诊断", "五平台免费评测", false],
-  ["AI 搜索优化", "生成优化文章", false],
-  ["媒体资源", "浏览发布资源", false],
-  ["发布管理", "查看履约进度", false],
-  ["账户中心", "积分与发票", false],
-] as const;
-
 export function BrandWorkspace() {
   const [account, setAccount] = useState<Account>();
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -90,45 +81,7 @@ export function BrandWorkspace() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <a className="brand-mark inverse" href="/">
-          <span aria-hidden="true">G</span>
-          <strong>GEO 优化</strong>
-        </a>
-        <nav aria-label="平台功能">
-          {navigation.map(([name, description, active], index) => (
-            <button
-              key={name}
-              className={active ? "side-link active" : "side-link unavailable"}
-              type="button"
-              aria-current={active ? "page" : undefined}
-              aria-disabled={!active}
-            >
-              <i>{index + 1}</i>
-              <span>
-                <b>{name}</b>
-                <small>{description}</small>
-              </span>
-              {!active && <em>即将接入</em>}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-account">
-          <span>{account?.mobile.slice(-4) ?? "用户"}</span>
-          <div>
-            <b>终端客户</b>
-            <small>{account?.mobile}</small>
-          </div>
-          <button
-            type="button"
-            onClick={() =>
-              void logout(apiBaseUrl).then(() => window.location.assign("/"))
-            }
-          >
-            退出
-          </button>
-        </div>
-      </aside>
+      <CustomerSidebar account={account} activePath="/brands" />
       <main className="workspace">
         <header className="workspace-header">
           <div>
@@ -202,9 +155,15 @@ export function BrandWorkspace() {
                   />
                 </div>
                 <div className="panel-actions">
-                  <button className="primary-button" type="button" disabled>
-                    诊断功能即将接入
-                  </button>
+                  {current?.readyForEvaluation ? (
+                    <a className="primary-button" href="/diagnosis">
+                      进入免费诊断
+                    </a>
+                  ) : (
+                    <button className="primary-button" type="button" disabled>
+                      请先补全资料
+                    </button>
+                  )}
                   {!current?.readyForEvaluation && (
                     <button
                       className="secondary-button"
@@ -230,7 +189,11 @@ export function BrandWorkspace() {
                 <article className="journey-stat">
                   <span>当前进度</span>
                   <b>{current?.readyForEvaluation ? "准备诊断" : "完善资料"}</b>
-                  <small>诊断功能即将开放</small>
+                  <small>
+                    {current?.readyForEvaluation
+                      ? "可进入免费评测"
+                      : "先补全诊断资料"}
+                  </small>
                 </article>
               </div>
             </section>

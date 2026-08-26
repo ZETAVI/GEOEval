@@ -1,6 +1,7 @@
 # Architecture Overview
 
-- Status: deterministic S1 accepted and checkpointed; S2 evaluation case active
+- Status: deterministic S1 accepted; S2 definition and start locally verified
+  and ready for checkpoint; S3 next
 - Entry condition: Approved product foundation and bounded first product slice
 - Decision history: [`define-application-architecture`](../../openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md)
 - Active change: [`deliver-first-evaluation-slice`](../../openspec/changes/deliver-first-evaluation-slice/proposal.md)
@@ -31,7 +32,7 @@ typographic polish remain a later frontend-design responsibility; that work may
 refine presentation but must preserve the accepted journey and behavior.
 
 Customer-visible evaluation uses one shared, versioned
-[objectivity-instruction profile](../../scripts/provider-validation/evaluation-objectivity.json)
+[objectivity-instruction profile](../../apps/backend/geo-intelligence/evaluation-objectivity.json)
 across all five routes. GEO Intelligence owns its product meaning;
 route policy references it, AI Execution snapshots its ID/version/hash, and
 provider adapters only translate the same content to a verified transport.
@@ -41,10 +42,9 @@ confirmed implementation profile is `evaluation.objectivity@0.3.0`; search
 availability and automatic trigger posture remain provider-route configuration,
 not prompt-level product meaning.
 
-The validation harness remains the executable owner until the first evaluation
-implementation in S2. That change must move—not copy—the profile into its
-owner-local production source, update canonical links, and leave the harness
-consuming that same owner.
+GEO Intelligence is the executable owner of that profile from S2 onward. The
+provider-validation harness consumes the same production-owned source rather
+than maintaining a calibration copy.
 
 ## Architecture qualities
 
@@ -60,9 +60,10 @@ When architecture work begins, it must preserve:
 
 ## Next architecture gates
 
-1. Implement the deterministic S2 evaluation case and frozen brand/query
-   context, then continue through S3-S5 in dependency order. Destination-branch
-   integration remains an explicit branch-exit action.
+1. Preserve the verified S2 definition-and-start checkpoint, then implement
+   resumable deterministic evidence acquisition and interpretation in S3.
+   Continue through S4-S5 in dependency order; destination-branch integration
+   remains an explicit branch-exit action.
 2. Complete the smallest parser, synthesis, resilience, capacity/cost, and
    telemetry evidence before real-provider S6 integration; no additional
    prompt-only five-platform batch is required.

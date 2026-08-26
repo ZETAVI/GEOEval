@@ -4,6 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createApiApp } from "../src/api-app.js";
 import { loadApiConfig } from "../src/config/runtime-config.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
+import { clearCustomerData } from "./customer-data.js";
 
 const config = loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1", NODE_ENV: "test" });
 
@@ -23,11 +24,7 @@ describe("customer-entry HTTP contract", () => {
     await prisma.$disconnect();
   });
   beforeEach(async () => {
-    await prisma.brandContext.deleteMany();
-    await prisma.brandProfile.deleteMany();
-    await prisma.accountSession.deleteMany();
-    await prisma.account.deleteMany();
-    await prisma.mobileChallenge.deleteMany();
+    await clearCustomerData(prisma);
   });
 
   it("serves login, cookie authentication, and an account-owned first brand", async () => {
@@ -76,6 +73,68 @@ describe("customer-entry HTTP contract", () => {
     });
   });
 
+  it("serves the fixed definition and idempotent official-start contract", async () => {
+    const cookie = await login(baseUrl, "13900000004");
+    const brandResponse = await fetch(`${baseUrl}/brands`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({
+        companyName: "HTTP 评测测试品牌",
+        primaryIndustry: "餐饮",
+        secondaryIndustry: "咖啡店",
+        characteristicOne: "安静办公",
+        characteristicTwo: "精品手冲",
+        province: "广东省",
+        city: "广州市",
+        district: "天河区",
+        contactName: "林先生",
+        contactMobile: "13900000004",
+      }),
+    });
+    const brand = (await brandResponse.json()) as { id: string };
+
+    const definitionResponse = await fetch(
+      `${baseUrl}/brands/${brand.id}/evaluation-definition`,
+      { method: "PUT", headers: { cookie } },
+    );
+    expect(definitionResponse.status).toBe(200);
+    const definition = (await definitionResponse.json()) as {
+      id: string;
+      questions: unknown[];
+      platforms: Array<Record<string, unknown>>;
+      objectivityProfile?: unknown;
+    };
+    expect(definition.questions).toHaveLength(4);
+    expect(definition.platforms).toHaveLength(5);
+    expect(definition.platforms[0]).toEqual({
+      key: "deepseek",
+      label: "DeepSeek",
+    });
+    expect(definition.objectivityProfile).toBeUndefined();
+    expect(definition).not.toHaveProperty("inputFingerprint");
+
+    const firstStart = await fetch(
+      `${baseUrl}/evaluation-definitions/${definition.id}/runs`,
+      { method: "POST", headers: { cookie } },
+    );
+    const firstRun = (await firstStart.json()) as {
+      id: string;
+      expectedSampleCount: number;
+      correlationId?: string;
+    };
+    expect(firstStart.status).toBe(201);
+    expect(firstRun.expectedSampleCount).toBe(20);
+    expect(firstRun.correlationId).toBeUndefined();
+
+    const duplicateStart = await fetch(
+      `${baseUrl}/evaluation-definitions/${definition.id}/runs`,
+      { method: "POST", headers: { cookie } },
+    );
+    expect((await duplicateStart.json()).id).toBe(firstRun.id);
+    expect(await prisma.evaluationRun.count()).toBe(1);
+    expect(await prisma.evaluationSample.count()).toBe(20);
+  });
+
   it("advertises credentialed CORS only to configured origins", async () => {
     const response = await fetch(`${baseUrl}/identity/challenges`, {
       method: "OPTIONS",
@@ -92,3 +151,25 @@ describe("customer-entry HTTP contract", () => {
     );
   });
 });
+
+async function login(baseUrl: string, mobile: string): Promise<string> {
+  const challengeResponse = await fetch(`${baseUrl}/identity/challenges`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ mobile }),
+  });
+  const challenge = (await challengeResponse.json()) as {
+    challengeId: string;
+    developmentCode: string;
+  };
+  const sessionResponse = await fetch(`${baseUrl}/identity/sessions`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      challengeId: challenge.challengeId,
+      mobile,
+      code: challenge.developmentCode,
+    }),
+  });
+  return sessionResponse.headers.get("set-cookie")!;
+}

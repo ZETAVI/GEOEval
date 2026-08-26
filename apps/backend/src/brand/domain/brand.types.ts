@@ -31,3 +31,17 @@ export type BrandView = BrandProfileView &
 export type EditableBrandFields = Partial<
   Omit<BrandProfileFields, "companyName">
 > & { companyName?: string | null };
+
+export type EvaluationPurposeBrandView = {
+  accountId: string;
+  brandId: string;
+  inputFingerprint: string;
+  companyName: string;
+  primaryIndustry: string;
+  secondaryIndustry: string;
+  characteristicOne: string;
+  characteristicTwo: string;
+  province: string;
+  city: string;
+  district: string;
+};

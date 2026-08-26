@@ -351,6 +351,48 @@
           "brands"
         ]
       }
+    },
+    "/brands/{brandId}/evaluation-definition": {
+      "put": {
+        "operationId": "EvaluationController_prepareDefinition",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationDefinitionResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/evaluation-definitions/{definitionId}/runs": {
+      "post": {
+        "operationId": "EvaluationController_startRun",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationRunResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      }
     }
   },
   "info": {
@@ -554,18 +596,12 @@
           "id": {
             "type": "string"
           },
-          "accountId": {
-            "type": "string"
-          },
           "status": {
             "type": "string",
             "enum": [
               "ACTIVE",
               "ARCHIVED"
             ]
-          },
-          "evaluationFingerprint": {
-            "type": "string"
           },
           "readyForEvaluation": {
             "type": "boolean"
@@ -590,9 +626,7 @@
         },
         "required": [
           "id",
-          "accountId",
           "status",
-          "evaluationFingerprint",
           "readyForEvaluation",
           "missingFields",
           "isCurrent",
@@ -644,6 +678,178 @@
             "nullable": true
           }
         }
+      },
+      "EvaluationBrandSnapshotResponse": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string"
+          },
+          "primaryIndustry": {
+            "type": "string"
+          },
+          "secondaryIndustry": {
+            "type": "string"
+          },
+          "characteristicOne": {
+            "type": "string"
+          },
+          "characteristicTwo": {
+            "type": "string"
+          },
+          "province": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "companyName",
+          "primaryIndustry",
+          "secondaryIndustry",
+          "characteristicOne",
+          "characteristicTwo",
+          "province",
+          "city",
+          "district"
+        ]
+      },
+      "EvaluationQuestionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "BRAND_DIRECTED",
+              "INDUSTRY_RECOMMENDATION",
+              "CHARACTERISTIC_ONE",
+              "CHARACTERISTIC_TWO"
+            ]
+          },
+          "ordinal": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "ordinal",
+          "content"
+        ]
+      },
+      "EvaluationPlatformResponse": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ]
+      },
+      "EvaluationRunResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "definitionId": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "EVALUATING",
+              "COMPLETED",
+              "PLEASE_RETRY"
+            ]
+          },
+          "expectedSampleCount": {
+            "type": "number"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "definitionId",
+          "brandId",
+          "status",
+          "expectedSampleCount",
+          "startedAt",
+          "updatedAt"
+        ]
+      },
+      "EvaluationDefinitionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string"
+          },
+          "brandSnapshot": {
+            "$ref": "#/components/schemas/EvaluationBrandSnapshotResponse"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationQuestionResponse"
+            }
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationPlatformResponse"
+            }
+          },
+          "run": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationRunResponse"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "brandId",
+          "brandSnapshot",
+          "questions",
+          "platforms",
+          "createdAt"
+        ]
       }
     }
   }

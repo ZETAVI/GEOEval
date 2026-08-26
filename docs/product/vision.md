@@ -308,15 +308,15 @@ not retain earlier profile versions or provide profile rollback.
 
 The required basic brand profile contains:
 
-| Field | Product rule |
-| --- | --- |
-| Primary industry | Selected from an internally maintained classification currently expected to reference Dianping merchant categories |
-| Secondary industry | Options depend on the selected primary industry |
-| Brand characteristics | Two free-text fields for the brand's main differentiating points |
-| Company or store name | The business, brand, company, or storefront being evaluated |
-| Region | Province, city, and district or town |
-| Contact person | Customer contact name |
-| Mobile number | Initially copied from the registration mobile number and editable |
+| Field                 | Product rule                                                                                                       |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Primary industry      | Selected from an internally maintained classification currently expected to reference Dianping merchant categories |
+| Secondary industry    | Options depend on the selected primary industry                                                                    |
+| Brand characteristics | Two free-text fields for the brand's main differentiating points                                                   |
+| Company or store name | The business, brand, company, or storefront being evaluated                                                        |
+| Region                | Province, city, and district or town                                                                               |
+| Contact person        | Customer contact name                                                                                              |
+| Mobile number         | Initially copied from the registration mobile number and editable                                                  |
 
 The exact industry catalog remains an internal-team input rather than an
 approved list in this definition.
@@ -342,16 +342,16 @@ brand state of My brands. Later ordinary sign-ins open My brands.
 The optimization experience contains a more complete article-information form
 (working name) based on the current brand profile:
 
-| Field | Product rule |
-| --- | --- |
-| Company or store name | Synchronized from the current brand |
-| Company introduction | Customer-provided text supported by high-quality examples |
-| Brand introduction | Customer-provided text supported by high-quality examples |
-| Region | Synchronized from the current brand |
-| Business districts | Multi-select with a customer-entered fallback; the choices must be relevant to the selected region |
-| Industry position | Multi-select starting with industry leader, regional leader, emerging brand, community reputation, time-honored brand, chain brand, and other |
-| Core strengths | Multi-select starting with technical patents, experienced team, price advantage, service quality, customer reputation, supply-chain advantage, brand awareness, and other |
-| Flagship product or service category | One coherent part of the brand profile containing the promoted name, main characteristic description, price or price range, and suitable audiences; it is not a separate product catalog or a profile shared across brands |
+| Field                                     | Product rule                                                                                                                                                                                                                                                                    |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Company or store name                     | Synchronized from the current brand                                                                                                                                                                                                                                             |
+| Company introduction                      | Customer-provided text supported by high-quality examples                                                                                                                                                                                                                       |
+| Brand introduction                        | Customer-provided text supported by high-quality examples                                                                                                                                                                                                                       |
+| Region                                    | Synchronized from the current brand                                                                                                                                                                                                                                             |
+| Business districts                        | Multi-select with a customer-entered fallback; the choices must be relevant to the selected region                                                                                                                                                                              |
+| Industry position                         | Multi-select starting with industry leader, regional leader, emerging brand, community reputation, time-honored brand, chain brand, and other                                                                                                                                   |
+| Core strengths                            | Multi-select starting with technical patents, experienced team, price advantage, service quality, customer reputation, supply-chain advantage, brand awareness, and other                                                                                                       |
+| Flagship product or service category      | One coherent part of the brand profile containing the promoted name, main characteristic description, price or price range, and suitable audiences; it is not a separate product catalog or a profile shared across brands                                                      |
 | Existing promotional materials and images | Optional PDFs, supported images, and text materials that are prepared automatically into writing context; customers see processing success or failure and can delete or replace the original files, while exact file formats and size limits remain later product-design inputs |
 
 Business-district examples discussed for Guangzhou are illustrative. The source
@@ -658,7 +658,7 @@ and does not request the five platforms or repeat successful sample parsing
 again.
 
 Customer-visible sampling uses one shared, versioned
-[evaluation-objectivity profile](../../scripts/provider-validation/evaluation-objectivity.json).
+[evaluation-objectivity profile](../../apps/backend/geo-intelligence/evaluation-objectivity.json).
 Its executable text is the single source of truth; provider adapters only map
 that same semantic content to each verified instruction transport, and every
 sample retains the profile identity with its evidence. Search availability and

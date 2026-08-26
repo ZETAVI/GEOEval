@@ -30,6 +30,23 @@ enum BrandStatus {
   ARCHIVED
 }
 
+enum EvaluationQuestionKind {
+  BRAND_DIRECTED
+  INDUSTRY_RECOMMENDATION
+  CHARACTERISTIC_ONE
+  CHARACTERISTIC_TWO
+}
+
+enum EvaluationRunStatus {
+  EVALUATING
+  COMPLETED
+  PLEASE_RETRY
+}
+
+enum EvaluationSampleStatus {
+  PENDING
+}
+
 model Account {
   id           String           @id @default(uuid()) @db.Uuid
   mobile       String           @unique @db.VarChar(20)
@@ -70,27 +87,28 @@ model AccountSession {
 }
 
 model BrandProfile {
-  id                       String         @id @default(uuid()) @db.Uuid
-  accountId                String         @map("account_id") @db.Uuid
-  status                   BrandStatus    @default(ACTIVE)
-  companyName              String         @map("company_name")
-  primaryIndustry          String?        @map("primary_industry")
-  secondaryIndustry        String?        @map("secondary_industry")
-  characteristicOne        String?        @map("characteristic_one")
-  characteristicTwo        String?        @map("characteristic_two")
-  province                 String?
-  city                     String?
-  district                 String?
-  contactName              String?        @map("contact_name")
-  contactMobile            String?        @map("contact_mobile") @db.VarChar(20)
-  evaluationFingerprint    String         @map("evaluation_fingerprint") @db.Char(64)
-  createdAt                DateTime       @default(now()) @map("created_at")
-  updatedAt                DateTime       @updatedAt @map("updated_at")
-  account                  Account        @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  selectedByBrandContext   BrandContext?   @relation("CurrentBrand")
+  id                     String                 @id @default(uuid()) @db.Uuid
+  accountId              String                 @map("account_id") @db.Uuid
+  status                 BrandStatus            @default(ACTIVE)
+  companyName            String                 @map("company_name")
+  primaryIndustry        String?                @map("primary_industry")
+  secondaryIndustry      String?                @map("secondary_industry")
+  characteristicOne      String?                @map("characteristic_one")
+  characteristicTwo      String?                @map("characteristic_two")
+  province               String?
+  city                   String?
+  district               String?
+  contactName            String?                @map("contact_name")
+  contactMobile          String?                @map("contact_mobile") @db.VarChar(20)
+  evaluationFingerprint  String                 @map("evaluation_fingerprint") @db.Char(64)
+  createdAt              DateTime               @default(now()) @map("created_at")
+  updatedAt              DateTime               @updatedAt @map("updated_at")
+  account                Account                @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  selectedByBrandContext BrandContext?          @relation("CurrentBrand")
+  evaluationDefinitions  EvaluationDefinition[] @relation("BrandEvaluationDefinitions")
 
-  @@index([accountId, status, updatedAt])
   @@unique([id, accountId])
+  @@index([accountId, status, updatedAt])
   @@map("brand_profiles")
 }
 
@@ -103,6 +121,98 @@ model BrandContext {
 
   @@unique([currentBrandId, accountId])
   @@map("brand_contexts")
+}
+
+model EvaluationDefinition {
+  id                        String               @id @default(uuid()) @db.Uuid
+  accountId                 String               @map("account_id") @db.Uuid
+  brandId                   String               @map("brand_id") @db.Uuid
+  inputFingerprint          String               @map("input_fingerprint") @db.Char(64)
+  brandSnapshot             Json                 @map("brand_snapshot")
+  questionGeneratorId       String               @map("question_generator_id")
+  questionGeneratorVersion  String               @map("question_generator_version")
+  questionGeneratorHash     String               @map("question_generator_hash") @db.Char(64)
+  platformPolicy            Json                 @map("platform_policy")
+  objectivityProfileId      String               @map("objectivity_profile_id")
+  objectivityProfileVersion String               @map("objectivity_profile_version")
+  objectivityProfileHash    String               @map("objectivity_profile_hash") @db.Char(64)
+  createdAt                 DateTime             @default(now()) @map("created_at")
+  brand                     BrandProfile         @relation("BrandEvaluationDefinitions", fields: [brandId, accountId], references: [id, accountId], onDelete: Restrict)
+  questions                 EvaluationQuestion[]
+  run                       EvaluationRun?
+
+  @@unique([brandId, inputFingerprint])
+  @@unique([id, accountId, brandId])
+  @@index([accountId, brandId, createdAt])
+  @@map("evaluation_definitions")
+}
+
+model EvaluationQuestion {
+  id           String                 @id @default(uuid()) @db.Uuid
+  definitionId String                 @map("definition_id") @db.Uuid
+  kind         EvaluationQuestionKind
+  ordinal      Int
+  content      String
+  createdAt    DateTime               @default(now()) @map("created_at")
+  definition   EvaluationDefinition   @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+  samples      EvaluationSample[]
+
+  @@unique([definitionId, kind])
+  @@unique([definitionId, ordinal])
+  @@unique([id, definitionId])
+  @@map("evaluation_questions")
+}
+
+model EvaluationRun {
+  id               String               @id @default(uuid()) @db.Uuid
+  accountId        String               @map("account_id") @db.Uuid
+  brandId          String               @map("brand_id") @db.Uuid
+  definitionId     String               @unique @map("definition_id") @db.Uuid
+  inputFingerprint String               @map("input_fingerprint") @db.Char(64)
+  status           EvaluationRunStatus  @default(EVALUATING)
+  correlationId    String               @map("correlation_id") @db.Uuid
+  startedAt        DateTime             @default(now()) @map("started_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+  definition       EvaluationDefinition @relation(fields: [definitionId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict)
+  samples          EvaluationSample[]
+
+  @@unique([id, definitionId])
+  @@unique([definitionId, accountId, brandId])
+  @@index([accountId, brandId, startedAt])
+  @@map("evaluation_runs")
+}
+
+model EvaluationSample {
+  id            String                 @id @default(uuid()) @db.Uuid
+  runId         String                 @map("run_id") @db.Uuid
+  definitionId  String                 @map("definition_id") @db.Uuid
+  questionId    String                 @map("question_id") @db.Uuid
+  platformKey   String                 @map("platform_key") @db.VarChar(40)
+  platformLabel String                 @map("platform_label") @db.VarChar(80)
+  status        EvaluationSampleStatus @default(PENDING)
+  createdAt     DateTime               @default(now()) @map("created_at")
+  run           EvaluationRun          @relation(fields: [runId, definitionId], references: [id, definitionId], onDelete: Restrict)
+  question      EvaluationQuestion     @relation(fields: [questionId, definitionId], references: [id, definitionId], onDelete: Restrict)
+
+  @@unique([runId, questionId, platformKey])
+  @@index([runId, status])
+  @@map("evaluation_samples")
+}
+
+model ProductOutboxEvent {
+  id            String       @id @default(uuid()) @db.Uuid
+  businessKey   String       @unique @map("business_key")
+  aggregateType String       @map("aggregate_type")
+  aggregateId   String       @map("aggregate_id") @db.Uuid
+  eventType     String       @map("event_type")
+  payload       Json
+  status        OutboxStatus @default(PENDING)
+  correlationId String       @map("correlation_id") @db.Uuid
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@map("product_outbox_events")
 }
 
 model FoundationRecord {

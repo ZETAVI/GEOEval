@@ -16,7 +16,10 @@ const PROBE_ROUTES = [
 const PROBE_FIXTURES = ["R01", "R02", "R03"];
 const OBJECTIVITY_INSTRUCTION_PROFILE = JSON.parse(
   await readFile(
-    new URL("./evaluation-objectivity.json", import.meta.url),
+    new URL(
+      "../../apps/backend/geo-intelligence/evaluation-objectivity.json",
+      import.meta.url,
+    ),
     "utf8",
   ),
 );

@@ -4,6 +4,7 @@ import { loadApiConfig } from "../src/config/runtime-config.js";
 import { IdentityService } from "../src/identity/application/identity.service.js";
 import { PostgresIdentityRepository } from "../src/identity/infrastructure/postgres-identity.repository.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
+import { clearCustomerData } from "./customer-data.js";
 
 const config = loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1", NODE_ENV: "test" });
 
@@ -17,11 +18,7 @@ describe("terminal-customer passwordless entry", () => {
   beforeAll(async () => prisma.$connect());
   afterAll(async () => prisma.$disconnect());
   beforeEach(async () => {
-    await prisma.brandContext.deleteMany();
-    await prisma.brandProfile.deleteMany();
-    await prisma.accountSession.deleteMany();
-    await prisma.account.deleteMany();
-    await prisma.mobileChallenge.deleteMany();
+    await clearCustomerData(prisma);
   });
 
   it("creates a terminal customer and authenticates an opaque session", async () => {

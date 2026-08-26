@@ -12,5 +12,6 @@ import { BrandController } from "./presentation/brand.controller.js";
     { provide: BRAND_REPOSITORY, useExisting: PostgresBrandRepository },
     BrandService,
   ],
+  exports: [BrandService],
 })
 export class BrandModule {}

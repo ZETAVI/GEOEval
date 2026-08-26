@@ -34,8 +34,10 @@ export class BrandController {
 
   @Get()
   @ApiOkResponse({ type: [BrandResponse] })
-  list(@Req() request: AuthenticatedRequest): Promise<BrandView[]> {
-    return this.brands.list(request.geoevalAccount!.id);
+  async list(@Req() request: AuthenticatedRequest): Promise<BrandResponse[]> {
+    return (await this.brands.list(request.geoevalAccount!.id)).map(
+      presentBrand,
+    );
   }
 
   @Get("current")
@@ -45,8 +47,11 @@ export class BrandController {
       allOf: [{ $ref: getSchemaPath(BrandResponse) }],
     },
   })
-  current(@Req() request: AuthenticatedRequest): Promise<BrandView | null> {
-    return this.brands.current(request.geoevalAccount!.id);
+  async current(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<BrandResponse | null> {
+    const brand = await this.brands.current(request.geoevalAccount!.id);
+    return brand ? presentBrand(brand) : null;
   }
 
   @Post()
@@ -55,12 +60,10 @@ export class BrandController {
   create(
     @Req() request: AuthenticatedRequest,
     @Body() input: BrandMutationRequest,
-  ): Promise<BrandView> {
-    return this.brands.create(
-      request.geoevalAccount!.id,
-      input,
-      request.geoevalAccount!.mobile,
-    );
+  ): Promise<BrandResponse> {
+    return this.brands
+      .create(request.geoevalAccount!.id, input, request.geoevalAccount!.mobile)
+      .then(presentBrand);
   }
 
   @Patch(":id")
@@ -70,8 +73,10 @@ export class BrandController {
     @Req() request: AuthenticatedRequest,
     @Param("id") id: string,
     @Body() input: BrandMutationRequest,
-  ): Promise<BrandView> {
-    return this.brands.update(request.geoevalAccount!.id, id, input);
+  ): Promise<BrandResponse> {
+    return this.brands
+      .update(request.geoevalAccount!.id, id, input)
+      .then(presentBrand);
   }
 
   @Put(":id/current")
@@ -79,7 +84,31 @@ export class BrandController {
   selectCurrent(
     @Req() request: AuthenticatedRequest,
     @Param("id") id: string,
-  ): Promise<BrandView> {
-    return this.brands.selectCurrent(request.geoevalAccount!.id, id);
+  ): Promise<BrandResponse> {
+    return this.brands
+      .selectCurrent(request.geoevalAccount!.id, id)
+      .then(presentBrand);
   }
+}
+
+function presentBrand(brand: BrandView): BrandResponse {
+  return {
+    id: brand.id,
+    status: brand.status,
+    companyName: brand.companyName,
+    primaryIndustry: brand.primaryIndustry,
+    secondaryIndustry: brand.secondaryIndustry,
+    characteristicOne: brand.characteristicOne,
+    characteristicTwo: brand.characteristicTwo,
+    province: brand.province,
+    city: brand.city,
+    district: brand.district,
+    contactName: brand.contactName,
+    contactMobile: brand.contactMobile,
+    readyForEvaluation: brand.readyForEvaluation,
+    missingFields: brand.missingFields,
+    isCurrent: brand.isCurrent,
+    createdAt: brand.createdAt,
+    updatedAt: brand.updatedAt,
+  };
 }

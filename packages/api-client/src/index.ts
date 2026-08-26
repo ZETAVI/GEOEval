@@ -5,6 +5,9 @@ export type FoundationRecord =
 export type Challenge = components["schemas"]["ChallengeResponse"];
 export type Account = components["schemas"]["AccountResponse"];
 export type Brand = components["schemas"]["BrandResponse"];
+export type EvaluationDefinition =
+  components["schemas"]["EvaluationDefinitionResponse"];
+export type EvaluationRun = components["schemas"]["EvaluationRunResponse"];
 
 export type BrandMutation = {
   companyName?: string | null;
@@ -104,6 +107,26 @@ export function selectCurrentBrand(
   return apiRequest(apiBaseUrl, `/brands/${brandId}/current`, {
     method: "PUT",
   });
+}
+
+export function prepareEvaluationDefinition(
+  apiBaseUrl: string,
+  brandId: string,
+): Promise<EvaluationDefinition> {
+  return apiRequest(apiBaseUrl, `/brands/${brandId}/evaluation-definition`, {
+    method: "PUT",
+  });
+}
+
+export function startEvaluationRun(
+  apiBaseUrl: string,
+  definitionId: string,
+): Promise<EvaluationRun> {
+  return apiRequest(
+    apiBaseUrl,
+    `/evaluation-definitions/${definitionId}/runs`,
+    { method: "POST" },
+  );
 }
 
 export async function createFoundationRecord(

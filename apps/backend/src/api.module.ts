@@ -4,6 +4,7 @@ import type { ApiConfig } from "./config/runtime-config.js";
 import { BrandModule } from "./brand/brand.module.js";
 import { FoundationController } from "./foundation/foundation.controller.js";
 import { FoundationModule } from "./foundation/foundation.module.js";
+import { GeoIntelligenceModule } from "./geo-intelligence/geo-intelligence.module.js";
 import { HealthController } from "./health.controller.js";
 import { IdentityModule } from "./identity/identity.module.js";
 import { PersistenceModule } from "./infrastructure/persistence.module.js";
@@ -20,6 +21,7 @@ export class ApiModule {
         TelemetryModule.register(config.telemetryShouldFail),
         IdentityModule.register(config),
         BrandModule,
+        GeoIntelligenceModule,
         FoundationModule,
       ],
       controllers: [HealthController, FoundationController],
