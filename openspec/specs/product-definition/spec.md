@@ -1,5 +1,16 @@
 # Product Definition Specification
 
+## Evolution marker
+
+- State: `split-on-activation`
+- Trigger: the first approved implementation change for a named product
+  capability establishes its module and owner-local behavioral boundary.
+- Target: move that capability's accepted scenarios to
+  `openspec/specs/<capability>/spec.md` and leave an index-level scope and link
+  here; never maintain both copies.
+- Reconciler: the lead agent for each activating standard or architectural
+  change must execute or explicitly retain this marker at close.
+
 ## Requirements
 
 ### Requirement: Explicit product identity
@@ -501,6 +512,22 @@ retaining the evidence behind that account.
   as internal evidence
 - **AND** the customer sees the complete answer but not the source list, citation
   metadata, search-trigger detail, or provider diagnostics
+
+#### Scenario: Customer-visible samples share one objectivity policy
+
+- **GIVEN** one of the five customer-visible platform routes prepares a sample
+- **WHEN** the provider request is constructed
+- **THEN** it uses the current shared, versioned
+  [evaluation-objectivity profile](../../../scripts/provider-validation/evaluation-objectivity.json)
+- **AND** provider adapters may map that same semantic content only to the
+  route's verified instruction transport
+- **AND** the sample snapshots the profile ID, version, and content hash with its
+  execution evidence
+- **AND** the policy requires evidence-based, neutral treatment rather than
+  automatic praise for the named brand, unsupported certainty, invented facts,
+  or invented sources
+- **AND** web-search availability and automatic trigger posture remain route
+  configuration rather than separate platform-specific product meaning
 
 #### Scenario: The product interprets a sampled answer
 

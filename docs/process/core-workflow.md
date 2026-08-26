@@ -9,10 +9,14 @@ Use the smallest workflow that can preserve alignment, safety, and continuity. P
 | Class | Use when | Minimum persistent artifacts |
 | --- | --- | --- |
 | Trivial | Local, obvious, reversible, no public behavior or contract change | Issue or PR note only; verification evidence |
-| Standard | User-visible behavior, non-trivial bug, integration, module change, or work likely to cross a session | Change proposal, behavior delta, tasks when useful, PR evidence |
+| Standard | User-visible behavior, non-trivial bug, integration, or bounded module change that needs a durable delta | Change proposal, behavior delta, tasks when useful, PR evidence |
 | Architectural | Cross-module ownership, public contract, data model, security boundary, migration, infrastructure, or difficult rollback | Standard artifacts plus design, ADR when durable, rollout and rollback plan, explicit approval |
 
 When uncertain between two classes, start with the lighter path and add the missing artifact before the risky decision—not after implementation.
+
+Crossing a session or involving another agent does not raise the class by itself.
+Persist a handoff only when the existing Issue, change, diff, and evidence cannot
+make continuation unambiguous.
 
 ## Workflow
 
@@ -68,13 +72,21 @@ Map each material claim to evidence.
 - Visual evidence: rendered documents, screenshots, or visual diffs.
 - Operational evidence: smoke test, health check, rollout observation, rollback readiness.
 
-Do not use a passing command unrelated to the changed behavior as proof.
+Before adding a check, name the live uncertainty, reachable failure, and action
+that would change. Reuse relevant passing evidence when the affected code,
+configuration, dependency, data, and environment are unchanged. Do not use a
+passing command unrelated to the changed behavior as proof, and stop when the
+approved outcome has the smallest discriminating evidence it needs.
 
 ### 7. Reconcile
 
 - Merge accepted behavior into current specs.
 - Add or supersede ADRs when a durable decision changed.
 - Update generated or canonical references at their owner.
+- Review every touched current owner for an `Evolution marker`; execute, update,
+  or explicitly retain its progressive split trigger.
+- Archive a stable change when remaining work has a different decision or
+  activation boundary.
 - Add a release-note candidate only for user-visible or operator-visible change.
 - Promote durable knowledge from the handoff; discard transient narration.
 
@@ -84,6 +96,8 @@ Do not use a passing command unrelated to the changed behavior as proof.
 - Ensure unresolved work has an owner and a durable tracking location.
 - Use the PR summary as the completed handoff.
 - Update `CHANGELOG.md` through the release workflow, not through every agent session.
+- Record whether the branch or worktree is retained, ready for integration,
+  blocked with a handoff, or safe to remove after merge.
 
 ## Completion contract
 
@@ -95,4 +109,4 @@ A change is complete only when:
 4. important risks and limitations are explicit;
 5. continuation state is unnecessary or clear;
 6. the result is located in the expected branch, PR, or release artifact.
-
+7. the workspace has an explicit exit state.

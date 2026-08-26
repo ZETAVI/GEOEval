@@ -45,6 +45,10 @@ or greatest risk of downstream rework. Wait on dependent questions whose inputs
 are not mature; do not ask the user to speculate through the whole decision
 tree.
 
+For each candidate question, state which design, scope, acceptance, or next
+action would differ across plausible answers. Drop the question when every
+answer leads to the same safe action.
+
 Verify discoverable facts through project sources, current official sources, or
 available tools. Research only enough to support the current frontier. Do not
 delegate a searchable fact to the user, and do not use factual research to make
@@ -66,6 +70,10 @@ toward a preferred implementation.
 
 Push back respectfully when the stated solution conflicts with the outcome, duplicates an existing capability, or transfers hidden risk.
 
+Do not add a clarification round solely to increase confidence. If the current
+facts and a reversible bounded assumption support the same next action, state
+the assumption and proceed.
+
 ### 5. Converge to the Next Safe Gate
 
 Stop when the next stage can proceed safely with stable:
@@ -79,6 +87,9 @@ Stop when the next stage can proceed safely with stable:
 Do not require every project preference to be settled at once. Preserve
 unresolved but non-blocking items as explicit assumptions or later frontier
 items.
+
+Stop the grill as soon as another answer would no longer change the next safe
+gate.
 
 ### 6. Confirm Material Decisions
 

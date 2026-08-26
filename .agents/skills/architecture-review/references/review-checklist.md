@@ -37,3 +37,12 @@
 - Current documents are updated in place rather than copied into versioned variants.
 - Change-specific design is reconciled into current specs, contracts, code, schemas, tests, or ADRs before close.
 - Obsolete active explanations are moved, merged, deleted, regenerated, or superseded.
+- A touched `Evolution marker` is executed, updated, or explicitly retained with
+  its trigger and reconciler.
+
+## Proportionality
+
+- Every finding names a reachable consequence and changed action.
+- Equivalent review evidence is reused when the scoped revision and boundary are
+  unchanged.
+- Optional hardening remains separate from merge-blocking findings.

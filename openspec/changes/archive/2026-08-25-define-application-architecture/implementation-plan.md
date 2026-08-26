@@ -37,7 +37,7 @@ from the incompatible 7.0.2 candidate to the accepted 5.9.3 compiler.
 
 ## Stable Inputs
 
-- [Approved product definition](../../specs/product-definition/spec.md)
+- [Approved product definition](../../../specs/product-definition/spec.md)
 - [Confirmed architecture design](design.md)
 - [Architecture decision brief](decision-brief.md)
 - [Foundation compatibility candidate](research/foundation-compatibility.md)

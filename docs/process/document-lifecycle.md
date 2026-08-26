@@ -30,6 +30,11 @@ ADRs are immutable records. Supersede an old ADR with a new ADR; do not rewrite 
 
 A change folder is temporary working truth. It may evolve during discovery and implementation. On completion, reconcile it into current specs and archive or close it.
 
+When one stage is stable but later work has a different decision boundary, close
+the completed change. Do not keep appending future implementation, integration,
+or release work to it as a general backlog. Follow the progressive decomposition
+and evolution-marker rules in [Design Knowledge](design-knowledge.md).
+
 ### Execution evidence
 
 Issues, PRs, CI output, logs, screenshots, and test results prove what happened. They are not the canonical explanation of the system.

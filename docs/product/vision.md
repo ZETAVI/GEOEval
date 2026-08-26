@@ -657,7 +657,15 @@ Retrying resumes only the failed overall synthesis from the retained evidence
 and does not request the five platforms or repeat successful sample parsing
 again.
 
-The exact question wording, objectivity controls, system instructions, retry
+Customer-visible sampling uses one shared, versioned
+[evaluation-objectivity profile](../../scripts/provider-validation/evaluation-objectivity.json).
+Its executable text is the single source of truth; provider adapters only map
+that same semantic content to each verified instruction transport, and every
+sample retains the profile identity with its evidence. Search availability and
+automatic trigger posture remain route configuration rather than prompt-level
+product meaning.
+
+The exact question wording, additional task-specific system instructions, retry
 limits, detailed visual language and motion rules, and implementation remain
 open for later evaluation-design and technical discussion.
 
@@ -1345,7 +1353,7 @@ These are working constraints for discovery, not yet product-positioning claims:
 ## Next-stage gates
 
 See the completed [product discovery plan](discovery-plan.md), the
-[active architecture-entry change](../../openspec/changes/define-application-architecture/proposal.md),
+[archived architecture-entry change](../../openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md),
 and the [archived product-foundation decision backlog](../../openspec/changes/archive/2026-08-24-define-product-foundation/decision-backlog.md).
 The target customer, all four role boundaries, free-evaluation-to-paid-
 publication journey, evaluation questions and index, report and optimization

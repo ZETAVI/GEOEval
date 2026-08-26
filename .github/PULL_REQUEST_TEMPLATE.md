@@ -24,12 +24,13 @@ Summarize the design and important boundaries. Link to canonical specs or ADRs i
 - Migration or compatibility impact:
 - Rollback or recovery:
 
-## Documentation and release
+## Lifecycle impact
 
-- [ ] Current specs reconciled where behavior changed
-- [ ] Canonical design sources updated, moved, merged, deleted, regenerated, or explicitly unaffected
-- [ ] No accepted design remains only in the change record, PR, or handoff
-- [ ] No obsolete or version-copy design document remains active
-- [ ] ADR added or superseded where required
-- [ ] Release-note candidate included, or marked `release:skip`
-- [ ] Handoff unnecessary, or current continuation state linked
+- Documentation impact: `none | update | add | move | split | merge | delete | generate | supersede`
+- Canonical owner or evolution marker: <path and reconciliation, or `none`>
+- Release impact: `release:skip | release:candidate` <note or link when applicable>
+- Handoff: `none | <link>`
+- Workspace exit: <state from the [branch and worktree lifecycle](../docs/process/human-agent-collaboration.md#branch-and-worktree-lifecycle)>
+
+Explain only the applicable impact. A label is not proof: the diff and evidence
+must show reconciliation when current truth changed.

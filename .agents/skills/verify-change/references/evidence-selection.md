@@ -21,3 +21,14 @@ Choose evidence that exercises the boundary named in the claim.
 - **Architectural:** standard evidence plus migration, compatibility, operational, and rollback checks.
 
 Increase depth for security, data loss, external cost, or difficult rollback. Reduce scope only by explicitly recording what remains unverified.
+
+## Evidence reuse and stopping
+
+Reuse passing evidence when its exact behavior boundary, code or generated
+artifact, relevant configuration and dependencies, representative data, and
+named environment have not changed. Recheck only the dimensions invalidated by
+drift.
+
+Add a check only when its possible result changes implementation, integration,
+release, rollback, escalation, or accepted risk. Stop after every material claim
+has discriminating evidence; list optional assurance separately.

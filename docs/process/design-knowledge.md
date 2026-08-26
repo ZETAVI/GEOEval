@@ -65,11 +65,51 @@ At verification and close:
 
 A completed design must not live only in `design.md`, a PR, or a handoff.
 
+## Progressive decomposition
+
+Split by stable ownership and change cadence, not by file length alone. A broad
+current document may remain intact while its capability boundaries are still
+product hypotheses. Split it when one of these conditions becomes true:
+
+- an implementation change activates a capability with a clear owner-local
+  spec or contract;
+- sections have different owners or routinely change independently;
+- completing one stage would otherwise leave accepted truth mixed with an
+  unrelated open frontier;
+- contributors must repeatedly load or edit unrelated sections to change one
+  bounded capability.
+
+When a split is useful but its destination is not yet stable, place this compact
+marker near the top of the current owner:
+
+```markdown
+## Evolution marker
+
+- State: `split-on-activation`
+- Trigger: <observable event that makes the new owner stable>
+- Target: <owner-local spec, contract, or index pattern>
+- Reconciler: <change or role that must resolve the marker>
+```
+
+The marker is control state, not a permanent registry. Every standard or
+architectural change that touches the document must either execute the split,
+update the trigger, or explicitly retain it. After extraction, move the accepted
+knowledge once, replace the old detail with an index-level scope and link, repair
+inbound links, and remove the marker when no deferred split remains.
+
+At every stable stage, review the active change and each touched current owner.
+Archive a completed change once its accepted truth is reconciled; future work
+with a different decision or activation boundary belongs in a later change, not
+as an ever-growing tail of the completed one.
+
 ## Proportionality
 
 - Do not require a design document for a trivial or self-explanatory local change.
 - Use the active change's `design.md` when choices are still specific to that change.
 - Create a durable design contract only for a stable boundary that future contributors must reuse or preserve.
 - Add stronger indexes, metadata, or automation only after repeated discovery failures demonstrate the need.
+- Do not split a broad specification into speculative owner documents merely to
+  reduce its line count; use an evolution marker until implementation establishes
+  those owners.
 
 Use [the design contract template](../templates/design-contract.md) when a durable current-design document passes the admission test.

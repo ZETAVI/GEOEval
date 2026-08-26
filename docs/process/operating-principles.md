@@ -40,11 +40,19 @@ friction without mixing unrelated cleanup into delivery.
 **Decision test:** Is this a durable boundary that must be stable before work
 starts, or a reversible detail that can be decided safely in the owning slice?
 
-## 6. Prefer evidence over assumption
+## 6. Prefer discriminating evidence; stop when it is enough
 
-Translate work into observable claims and select evidence appropriate to each claim. For external technology, use current primary sources and controlled runtime observations before designing an interface. Confidence, search summaries, configuration presence, and HTTP status alone are not proof.
+Translate work into observable claims and select the smallest evidence that can
+disprove them. Before adding a check, artifact, abstraction, guard, or review
+round, name the live uncertainty, a reachable failure, and what action would
+change. Reuse still-relevant passing evidence when the affected code,
+configuration, dependency, data, and environment have not changed. For external
+technology, use current primary sources and controlled runtime observations
+before designing an interface. Confidence, search summaries, configuration
+presence, and HTTP status alone are not proof.
 
-**Decision test:** What evidence would convince a skeptical reviewer that both the design premise and the resulting behavior are correct?
+**Decision test:** What is the smallest evidence that could change the next
+action, and has that boundary already been proven?
 
 ## 7. Establish boundaries before parallelism
 

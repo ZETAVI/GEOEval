@@ -23,3 +23,8 @@
 ## Unknowns and Validation
 
 - <uncertainty, owner, and smallest validation>
+
+## Reuse and Refresh Boundary
+
+- Reusable while: <version, account, route, configuration, and decision scope>
+- Refresh when: <observable drift or changed decision that invalidates evidence>

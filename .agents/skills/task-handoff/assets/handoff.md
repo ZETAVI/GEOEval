@@ -4,6 +4,14 @@
 
 <Planned / implemented / locally verified / merged / deployed, with exact boundary.>
 
+## Workspace
+
+- Checkout: <absolute path>
+- Branch and revision: <name and commit>
+- Dirty or untracked state: <exact status>
+- Merge destination: <branch or PR>
+- Exit: <named branch/worktree lifecycle state>
+
 ## Goal and Scope
 
 - Goal: <observable outcome>

@@ -13,6 +13,10 @@ Make completion claims proportional to evidence. Verification is a reasoning tas
 
 Derive claims from the acceptance criteria, change tasks, risk notes, and actual diff. Include negative claims such as backward compatibility, unchanged behavior, absence of a regression, or safe rollback.
 
+Identify the exact code, configuration, dependency, data, environment, and
+documentation boundaries that changed. Do not reopen unaffected claims merely
+because another verification session began.
+
 For standard or architectural work, include a design-reconciliation claim: accepted design is represented by its current executable or canonical owner, and obsolete active explanations no longer compete with it.
 
 ### 2. Map Claims to Evidence
@@ -30,9 +34,18 @@ Choose the smallest discriminating evidence using [the evidence-selection refere
 
 Do not use a broad test suite as a substitute for a missing targeted check.
 
+For every proposed check, name the live uncertainty, reachable failure, and the
+implementation, release, rollback, escalation, or risk-acceptance action that
+would change. Reuse equivalent passing evidence when the exercised boundary and
+its relevant inputs are unchanged.
+
 ### 3. Execute in Feedback Order
 
 Run cheap, high-signal checks first, then boundary and runtime checks. Confirm the exact checkout, revision, environment, configuration, and target before interpreting results. Preserve commands or links needed to reproduce evidence.
+
+Stop when each material claim has the smallest discriminating evidence required
+by its risk. Keep optional confidence-building, exploratory load, and speculative
+hardening outside the completion gate.
 
 ### 4. Resolve Failures Honestly
 
@@ -56,3 +69,5 @@ Do not mark a standard or architectural change verified when accepted behavior o
 - Do not claim runtime support from configuration presence alone.
 - Do not hide failing output or omit skipped checks.
 - Do not run destructive tests, migrations, external writes, or deployments without the required authority.
+- Do not rerun relevant passing evidence solely because ownership, agent, or
+  session changed.

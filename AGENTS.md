@@ -46,6 +46,18 @@ Classify each change as trivial, standard, or architectural.
 
 Follow `Explore → Align → Propose → Approve → Implement → Verify → Reconcile → Close`.
 
+## Proportionality and stopping
+
+- These rules constrain proposed work; never suppress a reachable defect.
+- Before adding a check, artifact, abstraction, guard, or review round, name the
+  live uncertainty, reachable failure, and changed action.
+- Reuse equivalent passing evidence when relevant code, configuration,
+  dependency, data, and environment are unchanged.
+- Stop when the approved outcome and smallest discriminating evidence are met;
+  keep optional confidence-building or speculative hardening outside the task.
+- Security, privacy, money, migration, external-cost, destructive, and
+  production boundaries remain mandatory.
+
 ## Skill routing
 
 - Use `$requirement-grill` when consequential product or engineering ambiguity remains.
@@ -87,12 +99,16 @@ a normal stop. No command above authorizes E0 provider calls or product work.
 - Search existing terms, components, contracts, and capabilities before creating new ones.
 - Keep uncertain design in the active change; create a durable contract only after its owner and boundary are stable.
 - Reconcile accepted design into its canonical or executable owner and remove obsolete active explanations before closing a change.
+- Resolve, update, or explicitly retain any touched document's `Evolution
+  marker`; split by stable ownership or activation, not line count alone.
 - Prefer the smallest coherent design; reuse must be earned by stable semantics.
 - Refactor locally at the seam exposed by a change; avoid unrelated cleanup and large rewrites.
 - Research external technology from current primary sources and record uncertainty.
 - Match each completion claim to task-appropriate evidence and disclose skipped checks.
 - Keep one writer for shared specs, public contracts, design primitives, ADRs, and release records.
-- Use separate worktrees for concurrent implementation after interfaces and ownership are fixed.
+- Reuse the current branch for the same outcome. Create separate worktrees only
+  for independently mergeable concurrent writes after interfaces and ownership
+  are fixed; record the workspace exit state at handoff or close.
 
 ## Human decision boundaries
 
@@ -104,6 +120,10 @@ The human owner decides product meaning, scope tradeoffs, risk acceptance, conse
 - Flag duplicated sources of truth, speculative abstractions, and unrelated refactors.
 - Flag new design documents that lack a stable owner or duplicate an executable or canonical source.
 - Flag completed changes whose accepted design remains only in a change folder, PR, or handoff.
+- Flag stable changes kept active as general backlogs, or touched `Evolution
+  marker`s with no explicit disposition.
 - Flag external interface assumptions without primary-source or controlled runtime evidence.
 - Flag completion claims without discriminating verification.
-- Flag parallel-write plans without fixed interfaces and disjoint ownership.
+- Flag branch or worktree creation without an independently mergeable outcome
+  and exit state, and parallel-write plans without fixed interfaces and disjoint
+  ownership.

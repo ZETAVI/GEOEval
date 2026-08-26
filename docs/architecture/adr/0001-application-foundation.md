@@ -70,4 +70,4 @@ verified dependency change without reopening the logical architecture.
   foundation cannot represent without crossing module ownership.
 
 Execution evidence is recorded in the
-[F0 foundation spike evidence](../../../openspec/changes/define-application-architecture/research/foundation-spike-evidence.md).
+[F0 foundation spike evidence](../../../openspec/changes/archive/2026-08-25-define-application-architecture/research/foundation-spike-evidence.md).

@@ -12,12 +12,13 @@ Use this mode when the product question or problem is still open.
 - Record decisions, non-goals, assumptions, and open owners—not the transcript.
 - Do not create implementation code or choose architecture during product discovery.
 
-The product foundation is approved. For the current phase, begin from the
-[product vision](../product/vision.md), [shared language](../product/glossary.md),
-and [accepted product specification](../../openspec/specs/product-definition/spec.md),
-then work through the
-[active architecture-entry change](../../openspec/changes/define-application-architecture/proposal.md)
-for consequential module, ownership, integration, or technology decisions.
+The product foundation and application foundation are approved. For the current
+phase, begin from the [product vision](../product/vision.md),
+[shared language](../product/glossary.md),
+[accepted product specification](../../openspec/specs/product-definition/spec.md),
+and [architecture overview](../architecture/overview.md). Start a new bounded
+change only when its next outcome is ready to propose; archived changes are
+evidence and decision history, not a continuing backlog.
 
 ## 2. Start a durable change
 
@@ -65,7 +66,8 @@ Agents may continue without another ceremony when execution remains inside an ap
 - Refactor locally when the change exposes a weak seam.
 - Keep unrelated cleanup out of the change.
 - Add tests and contracts with the behavior, not afterward.
-- Use a separate Git worktree for each concurrent implementation package.
+- Use a separate Git worktree only for an independently mergeable concurrent
+  write package; do not create one per agent or session.
 
 Promote a decision to architecture review or an ADR only when it changes a data
 owner, public cross-module contract, money or paid-promise invariant, sensitive
@@ -90,7 +92,11 @@ Review findings should distinguish:
 
 Use `$verify-change` to map every material claim to evidence. Evidence may include focused tests, contracts, builds, runtime state, logs, browser or visual inspection, migration rehearsal, and rollback checks.
 
-A check is `passed`, `failed`, `blocked`, or `not run`. Only the first is a pass. Local verification, merge, and production delivery are different states.
+A check is `passed`, `failed`, `blocked`, or `not run`. Only the first is a pass.
+Before adding another check, name the uncertainty, reachable failure, and changed
+action. Reuse applicable passing evidence when its boundary has not changed, and
+stop when the approved outcome has discriminating evidence. Local verification,
+merge, and production delivery are different states.
 
 ## 8. Reconcile and close
 
@@ -99,10 +105,15 @@ After approval and verification:
 1. merge accepted behavior into `openspec/specs/`;
 2. add or supersede ADRs for durable tradeoffs;
 3. update the canonical glossary, contract, component, or design-system owner once;
-4. remove, move, merge, regenerate, or supersede obsolete design material;
-5. put user-visible release value in `CHANGELOG.md` through the release workflow;
-6. archive the change record after its delta is reconciled;
-7. ensure unresolved work has an owner and durable location.
+4. resolve, update, or explicitly retain each touched document's progressive
+   decomposition marker;
+5. remove, move, merge, regenerate, or supersede obsolete design material;
+6. put user-visible release value in `CHANGELOG.md` through the release workflow;
+7. archive the change record after its delta is reconciled, even when a later
+   stage remains behind a different decision or activation gate;
+8. ensure unresolved work has an owner and durable location;
+9. record the branch or worktree exit state and clean it only after integration
+   and recovery checks make removal safe.
 
 Use `$task-handoff` only when work crosses an agent, session, worktree, branch, or owner boundary. The handoff is a compact current snapshot; it is not a permanent session diary.
 

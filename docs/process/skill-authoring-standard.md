@@ -11,6 +11,9 @@ Create a skill only when a workflow is repeatable and at least one is true:
 - a reusable template materially improves output consistency.
 
 Do not create a skill for generic knowledge the model already has, a one-time task, or a policy that belongs in `AGENTS.md`.
+The skill must change an agent action or output for at least two concrete trigger
+cases. A reusable prompt block that only adds caution belongs in concise project
+guidance, not in another overlapping Skill.
 
 ## Required design
 
@@ -24,6 +27,8 @@ Do not create a skill for generic knowledge the model already has, a one-time ta
 8. Add Gotchas only from credible failure modes; grow them through real use.
 9. Keep external documentation as links or targeted notes; do not mirror a vendor manual.
 10. Do not add README, installation, quick-reference, or changelog files inside a skill.
+11. State the stopping condition and when existing evidence or artifacts may be
+    reused instead of rerunning the workflow.
 
 ## Freedom level
 
@@ -60,4 +65,3 @@ candidate → sandbox → pilot → stable → deprecated → removed
 Promotion requires a clear owner, valid structure, trigger tests, a real use case, reviewed license, and no duplicate canonical workflow.
 
 Deprecation requires a replacement or migration note in the catalog. Do not maintain a changelog inside each skill; Git history and framework release notes carry that history.
-

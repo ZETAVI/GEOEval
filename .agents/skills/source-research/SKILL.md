@@ -13,6 +13,11 @@ Produce decision-grade evidence for an external dependency without turning the r
 
 Write the exact question the research must answer, the affected change, and what would make a candidate unacceptable. Search is a means of discovery, not the deliverable.
 
+Search existing source briefs, ADRs, lockfiles, generated contracts, and
+controlled evidence first. Reuse them when their version, account, route,
+configuration, and decision boundary remain applicable. Record the drift trigger
+instead of refreshing evidence by habit.
+
 ### 2. Use a Source Ladder
 
 Prefer sources in this order:
@@ -44,6 +49,11 @@ For a library, also check compatibility, release activity, transitive risk, migr
 
 When documentation cannot prove account-specific or runtime behavior, define the smallest controlled validation. Distinguish documented capability, configured access, and observed behavior. Never present a successful HTTP status or search summary as protocol proof.
 
+Before adding a source or probe, name the unresolved fact, the reachable design
+or runtime failure, and the choice that its result would change. Stop when the
+decision's disqualifiers and required interface boundary are established; leave
+optional comparison or confidence-building outside the main brief.
+
 ### 5. Return a Source Brief
 
 Use [the source brief asset](assets/source-brief.md). Include:
@@ -54,6 +64,7 @@ Use [the source brief asset](assets/source-brief.md). Include:
 - constraints that affect design;
 - rejected options and why;
 - follow-up validation, if any.
+- evidence-reuse boundary and the event that requires refresh.
 
 Promote stable architectural consequences to the change design or ADR. Do not preserve copied manuals or long quotations.
 
@@ -63,3 +74,5 @@ Promote stable architectural consequences to the change design or ADR. Do not pr
 - Do not let provider rankings substitute for source quality.
 - Do not include secrets, tokens, or private account data in research artifacts.
 - Do not install, enable, or purchase a candidate unless the user authorized that action.
+- Do not repeat a controlled call or source audit when the relevant version,
+  account, route, configuration, and decision have not changed.

@@ -1,12 +1,12 @@
 # Application Architecture Decision Backlog
 
-- Status: Active architecture-entry ledger
+- Status: Closed architecture-entry ledger
 - Decision owners: Product owner and architecture owner
-- Current discussion area: deterministic first-slice activation and remaining
-  E0 purpose evidence
-- Current question: Decide whether to authorize deterministic S1-S5 product
-  implementation while keeping real-provider S6 integration behind the
-  remaining parser, synthesis, resilience, capacity/cost, and telemetry gates.
+- Next decision boundary: a future change may ask whether to authorize
+  deterministic S1-S5 product implementation while keeping real-provider S6
+  integration behind the remaining parser, synthesis, resilience,
+  capacity/cost, and telemetry gates. This completed ledger is not the active
+  home for that decision.
 
 ## Confirmed decisions
 

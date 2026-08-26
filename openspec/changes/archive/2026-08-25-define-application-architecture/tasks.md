@@ -29,8 +29,10 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
       paid-order boundary; retain later journeys for their owning slices.
 - [x] Define role permission and sensitive-data boundaries.
 - [x] Define shared error, notification, logging, and observability ownership.
-- [ ] Run current primary-source and controlled-account research for first-slice
-      external dependencies; retain the same gate for each later contract.
+- [x] Complete the current decision-relevant primary-source and controlled-
+      account research for the first-slice architecture; retain parser,
+      synthesis, resilience, capacity/cost, telemetry, and production-data
+      evidence as integration-stage gates in their future owning change.
 - [x] Refresh official provider evidence and record the intended route and no-
       secret credential-reference map.
 - [x] Propose the provider route-policy, capability-descriptor, one-attempt
@@ -41,14 +43,16 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
       fixtures, and controlled-run evidence manifest.
 - [x] Refresh current local runtime and container-image readiness without
       installing dependencies, pulling images, or calling providers.
-- [ ] Run the authorized controlled provider matrix with rotated credentials,
+- [x] Complete the architecture-stage portion of the authorized controlled
+      provider matrix with rotated credentials,
       explicit call and stop boundaries, restricted raw evidence, and retained
       non-sensitive fixtures. (Entitlement and all fifteen unique R01-R03
       positions passed after bounded repair/retry. Shared objectivity `0.2.0`
       was accepted by all five transports and passed one narrow semantic
       calibration; the shorter `0.3.0` wording is confirmed without another
       prompt-only batch. Parser, synthesis, resilience, capacity/cost, and
-      telemetry evidence remain open.)
+      telemetry evidence remain gated to future real-provider integration and
+      are not unfinished architecture-entry work.)
 - [x] Confirm the exact shared objectivity wording as
       `evaluation.objectivity@0.3.0`, retaining one semantic policy with
       provider-specific transport mapping.
@@ -73,4 +77,6 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
       `docs/architecture/overview.md`, executable owner boundaries, and ADR
       `0001`; product contracts remain gated to S0.
 - [x] Produce a dependency-aware implementation plan with explicit prerequisites, owners, integration gates, and verification evidence.
-- [ ] Run `$verify-change` and archive the completed change.
+- [x] Run `$verify-change`, reconcile accepted current truth, and archive the
+      completed architecture-entry change. Product implementation and later
+      real-provider evidence require a new bounded change and authorization.

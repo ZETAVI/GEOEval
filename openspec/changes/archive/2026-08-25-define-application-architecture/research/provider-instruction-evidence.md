@@ -27,7 +27,7 @@ be described as a provider Web/App's hidden system prompt.
 ## Confirmed shared instruction `evaluation.objectivity@0.3.0`
 
 The exact candidate ID, version, and text have one executable owner: the
-[objectivity profile](../../../../scripts/provider-validation/evaluation-objectivity.json).
+[objectivity profile](../../../../../scripts/provider-validation/evaluation-objectivity.json).
 It requires evidence-based, neutral evaluation; rejects automatic brand praise,
 mechanically balanced criticism, unsupported certainty, and invented facts or
 sources; and preserves a natural consumer-style answer. Search availability and

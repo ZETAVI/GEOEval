@@ -15,6 +15,10 @@ Identify the authoritative proposal or spec, the exact design or diff, relevant 
 
 Identify which executable source or current design contract owns every affected design claim. Treat PRs, handoffs, and change designs as context, not current authority.
 
+If a prior review covers the same revision and boundary, reuse it. Rerun only the
+dimensions affected by changed code, contracts, data, dependencies, environment,
+or risk acceptance.
+
 ### 2. Map the Change
 
 Describe only the affected slice:
@@ -50,11 +54,20 @@ For each finding include:
 - narrow remediation;
 - whether it is introduced by this change or pre-existing debt.
 
+A finding must name a reachable consequence and the decision or implementation
+action that changes. Do not manufacture a finding to make the review appear
+thorough; unchanged preferences and optional confidence-building are not
+blocking findings.
+
 Order findings by consequence. If there are no material findings, say so and name any residual risk or unverified assumption.
 
 ### 5. Close the Review
 
 State one of: `ready`, `ready with follow-up`, or `not ready`. Identify any ADR, spec, contract, or task that must be updated. Do not implement fixes unless the user requested implementation.
+
+Stop when every scoped boundary is either supported by the smallest relevant
+evidence or reported as a concrete residual risk. Do not broaden the review or
+repeat unaffected dimensions after the result is already actionable.
 
 For a completed change, report `not ready` when accepted design remains only in a change folder, PR, or handoff.
 
@@ -65,3 +78,5 @@ For a completed change, report `not ready` when accepted design remains only in 
 - Do not broaden a scoped change into opportunistic cleanup.
 - Do not approve from a diagram alone; verify the proposed dependency and data paths against code or contracts when available.
 - Do not request a new design document when an existing canonical or executable owner can be updated.
+- Do not turn a hypothetical failure with no reachable path or changed action
+  into required work.

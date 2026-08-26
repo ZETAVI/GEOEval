@@ -1,6 +1,6 @@
 # Change: Define the GEOEval Application Architecture
 
-- Status: Foundation validated; controlled external evidence pending
+- Status: Completed and reconciled; later integration evidence deferred
 - Class: Architectural
 - Decision owners: Product owner and architecture owner
 - Implementation authorized: No
@@ -19,6 +19,12 @@ Approve the smallest coherent application foundation that can deliver the first
 commercial journey while keeping capability ownership, data authority,
 lifecycles, permissions, dependency direction, external integrations, failure
 boundaries, and parallel implementation seams understandable and verifiable.
+
+This architecture outcome is complete. The application foundation, ownership
+model, first-slice boundary, and provider-extension constraints are accepted and
+reconciled. Product implementation and real-provider integration remain
+separate future authorization boundaries rather than unfinished architecture
+work.
 
 ## Scope
 
@@ -54,11 +60,11 @@ boundaries, and parallel implementation seams understandable and verifiable.
 
 ## Current sources
 
-- [Approved product vision](../../../docs/product/vision.md)
-- [Accepted product glossary](../../../docs/product/glossary.md)
-- [Current product specification](../../specs/product-definition/spec.md)
-- [Current architecture overview](../../../docs/architecture/overview.md)
-- [Archived product-foundation confirmation](../archive/2026-08-24-define-product-foundation/decision-brief.md)
+- [Approved product vision](../../../../docs/product/vision.md)
+- [Accepted product glossary](../../../../docs/product/glossary.md)
+- [Current product specification](../../../specs/product-definition/spec.md)
+- [Current architecture overview](../../../../docs/architecture/overview.md)
+- [Archived product-foundation confirmation](../2026-08-24-define-product-foundation/decision-brief.md)
 
 ## Working artifacts
 

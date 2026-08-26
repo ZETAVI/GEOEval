@@ -6,8 +6,8 @@
 
 ## Review contract
 
-This design must implement the accepted [product specification](../../specs/product-definition/spec.md)
-without redefining it. The current [architecture overview](../../../docs/architecture/overview.md)
+This design must implement the accepted [product specification](../../../specs/product-definition/spec.md)
+without redefining it. The current [architecture overview](../../../../docs/architecture/overview.md)
 owns accepted architecture after reconciliation; this file owns only the design
 being considered by this change.
 
@@ -1249,6 +1249,7 @@ only as far as needed to authorize its implementation safely:
 
 This exploration changes documentation only and has no runtime data, migration,
 deployment, or external-write impact. Until the architecture is explicitly
-approved, any proposed boundary can be revised by updating this active change.
+approved, a later bounded change can revise a proposed boundary without
+rewriting this completed decision record.
 After approval, durable decisions move to the architecture overview, current
 specifications or owner-local contracts, and ADRs before this change is closed.

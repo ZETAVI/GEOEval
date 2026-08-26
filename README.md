@@ -5,12 +5,12 @@ validated application foundation. Product-slice implementation has not started.
 
 ## Current status
 
-- Phase: validated application foundation and provider entitlement; all fifteen
-  unique provider search/fidelity positions passed, and one shared objectivity-
-  instruction candidate passed five-route transport plus narrow semantic
-  calibration; exact wording and first-slice authorization remain pending
+- Phase: validated application foundation and architecture-stage provider
+  evidence; all fifteen unique provider search/fidelity positions passed, and
+  shared objectivity profile `evaluation.objectivity@0.3.0` is confirmed
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
-- Active next-stage change: [`define-application-architecture`](openspec/changes/define-application-architecture/proposal.md)
+- Active product change: none; first-slice implementation requires a new bounded
+  change and explicit authorization
 - Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,
   Redis/BullMQ, Prisma, and generated OpenAPI client
 - Runtime code: non-product F0 validation foundation only
@@ -21,10 +21,11 @@ validated application foundation. Product-slice implementation has not started.
 2. Read the [product glossary](docs/product/glossary.md) and [accepted product specification](openspec/specs/product-definition/spec.md).
 3. Review the [operating principles](docs/process/operating-principles.md).
 4. Use [How We Work](docs/process/how-we-work.md) for the practical workflow and Skill prompts.
-5. Use the [active architecture-entry change](openspec/changes/define-application-architecture/proposal.md) for the current module and ownership discussion.
-6. Read the [archived product-foundation change](openspec/changes/archive/2026-08-24-define-product-foundation/proposal.md) or [GEO-Eval-Prompts.md](GEO-Eval-Prompts.md) only when decision history is needed.
+5. Use the [architecture overview](docs/architecture/overview.md) for current
+   foundation and next-gate boundaries.
+6. Read the [archived architecture change](openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md), [archived product-foundation change](openspec/changes/archive/2026-08-24-define-product-foundation/proposal.md), or [GEO-Eval-Prompts.md](GEO-Eval-Prompts.md) only when decision history is needed.
 7. Review [ADR 0001](docs/architecture/adr/0001-application-foundation.md)
-   and the [F0 evidence](openspec/changes/define-application-architecture/research/foundation-spike-evidence.md)
+   and the [F0 evidence](openspec/changes/archive/2026-08-25-define-application-architecture/research/foundation-spike-evidence.md)
    before changing application foundations.
 
 ## Delivery model

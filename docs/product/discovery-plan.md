@@ -3,7 +3,7 @@
 - Status: Completed on 2026-08-24
 - Approved result: [Product vision](vision.md), [shared language](glossary.md),
   and [current product specification](../../openspec/specs/product-definition/spec.md)
-- Next phase: [Application architecture entry](../../openspec/changes/define-application-architecture/proposal.md)
+- Next phase completed: [Application architecture entry](../../openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md)
 
 ## Purpose
 
