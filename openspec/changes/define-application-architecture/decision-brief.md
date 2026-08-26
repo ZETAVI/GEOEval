@@ -77,11 +77,11 @@ making ordinary development depend on heavy architecture ceremony.
 - Assumption: the initial operating environment can run separate web, API, and
   worker processes plus PostgreSQL, Redis, and compatible object storage; exact
   sizing and managed-versus-self-hosted choices remain operational decisions.
-- Open: basic entitlement, all five exact inference identities, and all fifteen
-  unique R01-R03 fixture positions passed. The shared objectivity instruction
-  `0.2.0` was accepted by all five transports and passed one narrow R02 semantic
-  calibration; exact wording, quotas, reconciled cost, consumer App
-  equivalence, and the later matrix remain open.
+- Confirmed: basic entitlement, all five exact inference identities, and all
+  fifteen unique R01-R03 fixture positions passed. Shared objectivity `0.2.0`
+  passed one narrow five-route semantic calibration, and the product owner
+  confirmed the shorter `0.3.0` implementation wording. Exact consumer App
+  equivalence is not claimed and no third prompt-only batch is required.
 - Open: the provider route map, no-secret configuration references, adapter
   boundary, evidence semantics, and DeepSeek service-class constraints are
   confirmed; exact customer-visible model selection, account entitlement,
@@ -94,7 +94,9 @@ making ordinary development depend on heavy architecture ceremony.
   restricted raw evidence. DeepSeek, Hy3, Doubao, repaired Qwen, and bounded-
   retry ERNIE now pass R01-R03. Two five-call shared-instruction calibrations
   also completed; `0.1.0` exposed an unsupported DeepSeek citation marker, and
-  `0.2.0` removed it while retaining the documented semantic limitations.
+  `0.2.0` removed it while retaining the documented semantic limitations. The
+  accepted `0.3.0` wording removes prompt-level search and citation-presentation
+  directions while preserving the same objectivity boundary.
 
 ## Confirmation and Next Gate
 
@@ -111,9 +113,11 @@ making ordinary development depend on heavy architecture ceremony.
   execution were confirmed on 2026-08-25; the four-call entitlement gate was
   explicitly approved and passed on 2026-08-25; one shared semantic objectivity
   policy with provider-specific transport mapping was confirmed and calibrated
-  on 2026-08-25.
-- Next action: confirm or revise exact candidate `0.2.0` wording, then define the
-  smallest multi-condition instruction regression plus parser, synthesis,
-  resilience, and telemetry evidence needed before S0.
+  on 2026-08-25; exact `evaluation.objectivity@0.3.0` wording was confirmed on
+  2026-08-25 without another prompt-only provider batch.
+- Next action: decide whether to authorize deterministic S1-S5 first-slice
+  implementation, while defining and executing only the smallest remaining
+  parser, synthesis, resilience, capacity/cost, and telemetry evidence before
+  real-provider S6 integration.
 - Confirmation required before: any additional provider call, service
   activation, quota change, production-data use, or product implementation.

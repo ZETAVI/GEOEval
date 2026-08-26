@@ -233,8 +233,10 @@ The controlled matrix is still **partially run** because parser, synthesis,
 resilience, capacity/cost, and telemetry evidence remain. Its route portion is
 complete: the initial, repair, and one-call retry batches produced successful
 R01-R03 search plus coarse answer-fidelity evidence for all five routes and all
-fifteen unique positions. One shared objectivity-instruction candidate also
-passed five-route transport and a narrow R02 semantic calibration. See the
+fifteen unique positions. Shared objectivity `0.2.0` also passed five-route
+transport and a narrow R02 semantic calibration; the product owner then
+confirmed the shorter `0.3.0` implementation wording without another prompt-
+only batch. See the
 [search and fidelity evidence](provider-search-fidelity-evidence.md) and
 [instruction evidence](provider-instruction-evidence.md).
 Provider-console cost reconciliation, account and region ownership, quotas,
@@ -273,6 +275,7 @@ separate explicit authorization.
   values remain outside this provider-capability audit and follow their owning
   operational gate.
 
-The smallest viable stack comparison is now complete. Final provider-adapter
-approval and first-slice implementation authorization still require the
-controlled-account matrix above.
+The smallest viable stack comparison is now complete. Deterministic S1-S5
+implementation may be authorized separately because it does not claim real
+provider behavior. Final provider-adapter approval and S6 real-provider
+integration still require the applicable controlled-account matrix above.

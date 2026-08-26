@@ -44,10 +44,14 @@ Decision tracking: [Application Architecture Decision Backlog](decision-backlog.
 - [ ] Run the authorized controlled provider matrix with rotated credentials,
       explicit call and stop boundaries, restricted raw evidence, and retained
       non-sensitive fixtures. (Entitlement and all fifteen unique R01-R03
-      positions passed after bounded repair/retry. Shared objectivity candidate
-      `0.2.0` was accepted by all five transports and passed one narrow semantic
-      calibration; exact wording and the parser, synthesis, resilience,
-      capacity/cost, and telemetry matrix remain open.)
+      positions passed after bounded repair/retry. Shared objectivity `0.2.0`
+      was accepted by all five transports and passed one narrow semantic
+      calibration; the shorter `0.3.0` wording is confirmed without another
+      prompt-only batch. Parser, synthesis, resilience, capacity/cost, and
+      telemetry evidence remain open.)
+- [x] Confirm the exact shared objectivity wording as
+      `evaluation.objectivity@0.3.0`, retaining one semantic policy with
+      provider-specific transport mapping.
 - [x] Compare and confirm the smallest viable stack and deployment shape against
       the approved constraints.
 - [x] Confirm the internal backend and frontend layering model, bounded

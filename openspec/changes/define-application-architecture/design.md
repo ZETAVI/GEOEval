@@ -1208,8 +1208,8 @@ decisions and cannot redefine these boundaries.
 
 ## Current evidence frontier
 
-Before provider-adapter approval and first-slice implementation authorization,
-current evidence must establish whether the approved routes can supply the
+Before provider-adapter approval and S6 real-provider integration, current
+evidence must establish whether the approved routes can supply the
 required five-platform sampling, web-grounded responses where specified,
 retained raw answers and source metadata, structured parsing and synthesis,
 bounded fallback, and per-execution trace identity. Documentation cannot prove
@@ -1224,24 +1224,23 @@ comparison. It also fixes three constraints: provider-specific adapters must
 preserve raw evidence, application workers own long-running execution, and
 observability is a non-blocking follower rather than business storage.
 Controlled-account tests remain mandatory before provider-adapter approval or
-implementation authorization.
+S6 real-provider integration. They do not block separately authorized S1-S5
+implementation against deterministic adapters.
 
 ## Dependency-aware mainline
 
 After the first slice and macro route are confirmed, architecture work proceeds
 only as far as needed to authorize its implementation safely:
 
-1. finish no-secret route sheets, fixtures, compatibility candidates, and the
-   evidence boundaries for the two execution lanes;
-2. after separate explicit authorizations, execute the bounded foundation spike
-   and the controlled-account matrix as disjoint parallel lanes. The foundation
-   lane uses deterministic adapters; the provider lane validates the five
-   evaluation routes, parser and synthesis execution, and trace isolation;
-3. reconcile both evidence sets, complete architecture review and a short
-   decision brief, then reconcile the
-   accepted foundation into current architecture owners;
-4. authorize and implement the first slice through the dependency-aware plan,
-   disjoint ownership, integration gates, and verification evidence;
+1. keep the completed foundation and provider-route evidence reconciled in
+   their current owners, with the confirmed shared objectivity profile;
+2. obtain explicit S0 authorization, then implement deterministic S1-S5 through
+   the dependency-aware plan without claiming real-provider behavior;
+3. use the resulting owner schemas and semantic validators to run the smallest
+   separately authorized parser, synthesis, resilience, cost, and telemetry
+   probes, rather than designing those contracts from provider payloads;
+4. integrate real providers only in S6 after the applicable E0 evidence passes,
+   then complete browser, recovery, evidence, and cost acceptance;
 5. refine later optimization, commerce, fulfilment, and settlement contracts
    only before their respective vertical slices, while preserving the already
    confirmed paid-order and point-debit invariant.

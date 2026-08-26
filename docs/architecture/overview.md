@@ -31,7 +31,10 @@ profile across all five routes. GEO Intelligence owns its product meaning;
 route policy references it, AI Execution snapshots its ID/version/hash, and
 provider adapters only translate the same content to a verified transport.
 Frozen evaluation inputs, evidence semantics, and scoring remain shared, while
-historical reports retain the exact profile context that produced them.
+historical reports retain the exact profile context that produced them. The
+confirmed implementation profile is `evaluation.objectivity@0.3.0`; search
+availability and automatic trigger posture remain provider-route configuration,
+not prompt-level product meaning.
 
 ## Architecture qualities
 
@@ -47,12 +50,12 @@ When architecture work begins, it must preserve:
 
 ## Next architecture gates
 
-1. Confirm or revise the shared objectivity-instruction `0.2.0` wording, then
-   exercise it against the smallest multi-condition semantic regression set.
-2. Reconcile accepted provider evidence into route policy and adapter contracts.
-3. Obtain explicit S0 authorization before implementing customer identity,
-   brand, evaluation, notification, or report behavior.
-4. Remove or isolate F0-only HTTP, schema, and page probes before a commercial
+1. Obtain explicit S0 authorization before implementing deterministic S1-S5
+   customer identity, brand, evaluation, notification, or report behavior.
+2. Complete the smallest parser, synthesis, resilience, capacity/cost, and
+   telemetry evidence before real-provider S6 integration; no additional
+   prompt-only five-platform batch is required.
+3. Remove or isolate F0-only HTTP, schema, and page probes before a commercial
    deployment.
 
 Do not use this document as a list of imagined future services.

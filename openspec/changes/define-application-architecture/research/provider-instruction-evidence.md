@@ -6,8 +6,9 @@
   customer-visible evaluation routes while mapping it through each provider's
   verified instruction transport
 - Evidence state: all five selected routes accepted candidate `0.2.0`; bounded
-  semantic calibration passed with recorded limitations; exact wording awaits
-  product-owner confirmation before implementation
+  semantic calibration passed with recorded limitations; the product owner
+  confirmed the shorter `0.3.0` wording on 2026-08-25 without requesting a
+  third prompt-only provider batch
 
 ## Recommendation
 
@@ -23,15 +24,19 @@ opinion. Evaluation consistency still depends on frozen brand/query input,
 automatic-search posture, complete evidence, and shared scoring. No prompt may
 be described as a provider Web/App's hidden system prompt.
 
-## Candidate shared instruction `evaluation.objectivity@0.2.0`
+## Confirmed shared instruction `evaluation.objectivity@0.3.0`
 
 The exact candidate ID, version, and text have one executable owner: the
 [objectivity profile](../../../../scripts/provider-validation/evaluation-objectivity.json).
 It requires evidence-based, neutral evaluation; rejects automatic brand praise,
-mechanically balanced criticism, unsupported certainty, and invented citations;
-and keeps GEO internals out of the consumer-style answer.
+mechanically balanced criticism, unsupported certainty, and invented facts or
+sources; and preserves a natural consumer-style answer. Search availability and
+automatic trigger posture remain route configuration rather than semantic
+prompt instructions.
 
-The content hash observed by all five `0.2.0` probes is
+The confirmed `0.3.0` content hash is
+`902bd62d8a1d6f08003d587dd56ce463e9b5758e97ee5434eb04fc48b3d4249a`.
+The earlier `0.2.0` content hash observed by all five calibration probes remains
 `a95e870d12d625209e2642a66084828c4b48b659b886ca33611d16cf2d974dda`.
 
 ## Decision constraints
@@ -84,6 +89,15 @@ proves transport acceptance and one narrow semantic condition. It does not
 prove exact consumer Web/App equivalence, stable behavior across all four query
 types, or future model-version behavior.
 
+The product owner subsequently confirmed `0.3.0` as the implementation wording.
+It removes the prompt-level search and citation-presentation directions and
+merges repeated caution language so that the shared policy corrects positivity
+bias with less interference in each model's ordinary answer style. This is an
+owner-approved semantic simplification, not a new claim of provider behavior.
+No third standalone five-route calibration is required; the next authorized
+integration run snapshots and observes `0.3.0` through the already verified
+transport mappings.
+
 ## Alternatives
 
 | Option | Fit | Reason |
@@ -95,9 +109,10 @@ types, or future model-version behavior.
 
 ## Next gate
 
-The product owner confirms or revises the exact `0.2.0` wording before it becomes
-an implementation input. After confirmation, exercise the shared instruction
-against a small regression set covering positive evidence, supported criticism,
-conflicting evidence, no evidence, current-search evidence, and no-search
-evidence. Do not calibrate five separate prompts or claim that this single R02
-probe proves production quality.
+Use `0.3.0` as the versioned implementation input. Do not calibrate five
+separate prompts or run another prompt-only provider batch. Observe the profile
+inside the next authorized integration evidence, while the immediate planning
+frontier moves to parser, synthesis, resilience, capacity/cost, telemetry, and
+deterministic first-slice authorization. Neither the earlier R02 probe nor the
+wording confirmation proves exact consumer Web/App equivalence or production
+quality.

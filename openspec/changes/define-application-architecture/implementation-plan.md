@@ -2,9 +2,9 @@
 
 - Change: [`define-application-architecture`](proposal.md)
 - Status: P0 and F0 complete; E0 entitlement and all fifteen unique R01-R03
-  positions passed; one shared objectivity-instruction candidate passed five-
-  route transport and narrow semantic calibration; exact wording and the later
-  E0 matrix remain open; product implementation not authorized
+  positions passed; shared objectivity instruction `0.3.0` confirmed after the
+  earlier five-route `0.2.0` calibration; later E0 purpose evidence remains
+  open; product implementation not authorized
 - Product implementation authorized: No
 - Decision owners: Product owner and architecture owner
 - Plan owner: Architecture owner
@@ -29,7 +29,9 @@ three routes passing and two stopping at R01. After the dedicated Qwen endpoint
 update, a six-call repair batch produced five passes and one ERNIE R03 network
 error; one separately bounded retry then passed. Two five-call shared-
 instruction calibration batches completed without retry; candidate `0.1.0` was
-rejected and `0.2.0` is the current exact-wording confirmation frontier.
+rejected, `0.2.0` passed the bounded calibration, and the product owner then
+confirmed the shorter `0.3.0` implementation wording without another prompt-
+only provider batch.
 F0 passed its recorded evidence matrix on the same date with TypeScript revised
 from the incompatible 7.0.2 candidate to the accepted 5.9.3 compiler.
 

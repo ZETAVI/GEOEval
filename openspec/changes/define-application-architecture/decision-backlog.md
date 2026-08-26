@@ -2,12 +2,11 @@
 
 - Status: Active architecture-entry ledger
 - Decision owners: Product owner and architecture owner
-- Current discussion area: shared objectivity-instruction confirmation and
-  remaining E0 semantic matrix
-- Current question: Confirm or revise shared candidate
-  `evaluation.objectivity@0.2.0`, then define the smallest parser, synthesis,
-  resilience, and telemetry evidence needed before S0; do not begin product
-  implementation meanwhile.
+- Current discussion area: deterministic first-slice activation and remaining
+  E0 purpose evidence
+- Current question: Decide whether to authorize deterministic S1-S5 product
+  implementation while keeping real-provider S6 integration behind the
+  remaining parser, synthesis, resilience, capacity/cost, and telemetry gates.
 
 ## Confirmed decisions
 
@@ -53,7 +52,7 @@
 | A19 | Confirm the first controlled-validation model set: TokenHub `deepseek-v4-flash`, Ark Doubao Seed 2.0 Lite, Model Studio `qwen3.7-flash`, Qianfan ERNIE 4.5 Turbo, and TokenHub `hy3`.      | Evaluation should reproduce the ordinary free/default consumer posture rather than compare flagship quality; exact API and consumer-product equivalence still require runtime evidence.                                                | decided: use the consumer-aligned logical set; Ark current snapshot candidate is `doubao-seed-2-0-lite-260428`, and Qianfan provisional stable API ID is `ernie-4.5-turbo-128k`                     |
 | A20 | Authorize F0 dependency/image execution and E0 cost-visible provider execution as separate bounded actions.                                                                                | P0 facts and fixtures are reversible, but downloads change the worktree and provider calls use credentials and incur external cost.                                                                                                    | F0 and entitlement passed; all fifteen unique R01-R03 positions passed after bounded repair/retry batches, and two separately bounded five-call instruction calibrations completed on 2026-08-25    |
 | A21 | Separate customer-visible sampling routes from higher-capability interpretation, synthesis, optimization, and writing candidates.                                                          | A model that is appropriate for reproducing consumer exposure is not automatically the best or most cost-effective model for internal structured work.                                                                                 | decided: retain `hy3`, `qwen3.7-plus`, and `doubao-seed-2-1-turbo-260628` as purpose-specific candidates only; no production route is selected by this decision                                     |
-| A22 | Decide whether the five customer-visible evaluation routes share one objectivity instruction or use separately written platform prompts.                                                        | Named-brand questions can encourage agreeable, overly positive answers, while five semantic variants would add drift and review burden. Provider transport differences do not require different product meaning.                          | decided: use one shared semantic objectivity policy with provider-specific transport mapping; snapshot its ID/version/hash on every sample. Candidate `0.2.0` passed bounded transport/semantic calibration and awaits exact-wording confirmation                    |
+| A22 | Decide whether the five customer-visible evaluation routes share one objectivity instruction or use separately written platform prompts.                                                        | Named-brand questions can encourage agreeable, overly positive answers, while five semantic variants would add drift and review burden. Provider transport differences do not require different product meaning.                          | decided: use one shared semantic objectivity policy with provider-specific transport mapping; snapshot its ID/version/hash on every sample. `0.2.0` passed bounded transport/semantic calibration; the product owner confirmed the shorter `0.3.0` implementation wording and no third prompt-only five-route batch is required         |
 
 ## Parallel fact-finding
 

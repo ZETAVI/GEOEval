@@ -3,7 +3,8 @@
 - Change: [`define-application-architecture`](../proposal.md)
 - Preparation gate: P0
 - State: Entitlement and all fifteen unique R01-R03 positions passed; shared
-  objectivity instruction `0.2.0` was accepted by all five selected routes
+  objectivity `0.2.0` passed five-route calibration and the product owner
+  confirmed the shorter `0.3.0` implementation wording
 - Owners: GEO evaluation owner, account and integration owner, verification owner
 - Access date for provider facts: 2026-08-25
 
@@ -86,7 +87,7 @@ A route is rejected before or during E0 when any of the following is true:
 | Quota and budget            | The entitlement sub-ceiling completed; R01-R03 was later bounded by at most fifteen calls without a monetary ceiling; native usage was captured but console billing is unreconciled | Every later paid batch still requires explicit call and stop boundaries; a monetary ceiling is optional when the product owner declines it |
 | Terms and data handling     | E0 is restricted to fictional, non-sensitive fixtures; commercial customer-data use and final account terms remain unverified | Do not treat a successful probe as production data-processing approval                                                              |
 | Evidence location           | Raw envelopes use local ignored `.provider-evidence/`, directories mode `0700`, files mode `0600`; only sanitized summaries and hashes may enter Git | Retain or move the restricted evidence according to the later team evidence policy                                                   |
-| Runtime evidence            | Entitlement and all fifteen unique R01-R03 positions passed after eighteen bounded calls; two five-call shared-instruction calibrations also completed | Confirm or revise exact objectivity `0.2.0` wording; later parser, synthesis, resilience, capacity/cost, and observability gates remain |
+| Runtime evidence            | Entitlement and all fifteen unique R01-R03 positions passed after eighteen bounded calls; two five-call shared-instruction calibrations also completed; exact `0.3.0` wording is owner-confirmed | Complete only the later parser, synthesis, resilience, capacity/cost, and observability gates needed before real-provider integration |
 
 ## Deterministic fixture catalog
 
@@ -177,11 +178,18 @@ twenty-position evaluation:
 2. **One-route evidence probe:** for each customer-visible platform, run R01,
    R02, and R03 one route at a time; stop that route when identity, answer
    fidelity, or required evidence cannot be retained.
-3. **Interpretation probe:** run the bounded P01-P09 and Y01-Y04 fixtures against
-   primary and fallback policies without web search.
-4. **One complete fictional evaluation:** only after the earlier gates pass,
-   execute the four-by-five synthetic run and reconcile latency, usage, search,
-   parser, synthesis, and total billed cost.
+3. **Interpretation probe:** keep P01-P09 and Y01-Y04 as the complete local
+   deterministic regression catalog. After the owner schemas and semantic
+   validators exist, limit the first paid quality probe to representative
+   boundary cases: primary parser P01, P03, P05, and P07; fallback parser P03
+   and P07; primary synthesis Y02 and Y03; fallback synthesis Y02. Web search
+   stays disabled, there is no automatic retry, and the batch stops on wrong
+   route identity, invalid structure, or a material semantic failure.
+4. **One complete fictional evaluation:** defer the four-by-five integrated run
+   to S6, after deterministic S1-S5 acceptance and the interpretation probe.
+   Reconcile latency, usage, search, parser, synthesis, and total billed cost
+   there rather than blocking provider-neutral implementation on a premature
+   load-shaped call batch.
 
 The earlier CNY 100 proposal was not adopted for the R01-R03 batch. The product
 owner instead approved at most fifteen named calls without a monetary ceiling.
@@ -190,6 +198,11 @@ stop conditions, even when no monetary ceiling is requested. Stop when a
 provider cannot expose required evidence, an unexpected paid feature is
 required, or a route would need an account or quota change. A later performance
 or load run requires its own authorization.
+
+The representative interpretation probe above is a proposed maximum of nine
+calls with no automatic retry. This document does not authorize those calls;
+their exact schemas, retained fictional inputs, and evidence manifest must be
+ready before a separate execution approval is requested.
 
 ### Completed entitlement authorization
 
@@ -246,7 +259,8 @@ embedding a brittle unit-price copy in the architecture.
 - [x] The Qwen and ERNIE repair batch was continued after the dedicated endpoint update; six calls executed, five passed, and ERNIE R03 stopped on one network error without retry.
 - [x] One explicitly bounded ERNIE R03 retry passed, completing successful evidence for all fifteen unique route/fixture positions.
 - [x] Two bounded five-call batches verified one shared objectivity instruction on all routes; candidate `0.1.0` was rejected for an unsupported citation marker and `0.2.0` passed the narrow R02 semantic calibration with recorded limitations.
-- [ ] Confirm exact shared instruction wording and complete the remaining parser, synthesis, resilience, capacity/cost, and telemetry matrix.
+- [x] Confirm exact shared instruction wording as `evaluation.objectivity@0.3.0`; no third prompt-only five-route batch is required.
+- [ ] Complete the remaining parser, synthesis, resilience, capacity/cost, and telemetry matrix before real-provider integration.
 
 F0 was separately authorized on 2026-08-25 for project-local dependencies and
 Compose-managed disposable services. Credential rotation and runner
