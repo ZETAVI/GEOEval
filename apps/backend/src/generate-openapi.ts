@@ -11,14 +11,11 @@ process.env.GEOEVAL_SKIP_DATABASE_CONNECT = "1";
 const { createApiApp } = await import("./api-app.js");
 const { loadApiConfig } = await import("./config/runtime-config.js");
 
-const app = await createApiApp(loadApiConfig(), false);
+const app = await createApiApp(loadApiConfig(), ["error"]);
 await app.init();
 const document = SwaggerModule.createDocument(
   app,
-  new DocumentBuilder()
-    .setTitle("GEOEval Foundation API")
-    .setVersion("0.0.0")
-    .build(),
+  new DocumentBuilder().setTitle("GEOEval API").setVersion("0.1.0").build(),
 );
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const target = resolve(currentDirectory, "../openapi.json");

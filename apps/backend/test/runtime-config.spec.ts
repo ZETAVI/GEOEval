@@ -7,7 +7,11 @@ import {
 
 describe("process-scoped configuration", () => {
   it("lets the API start without worker-only Redis configuration", () => {
-    const api = loadApiConfig({ DATABASE_URL: "postgresql://example/api" });
+    const api = loadApiConfig({
+      DATABASE_URL: "postgresql://example/api",
+      AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+      AUTH_DETERMINISTIC_CODE: "246810",
+    });
     expect(api.databaseUrl).toBe("postgresql://example/api");
   });
 
@@ -21,5 +25,16 @@ describe("process-scoped configuration", () => {
     expect(loadWorkerConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" }).redisUrl).toBe(
       "redis://127.0.0.1:56379",
     );
+  });
+
+  it("rejects deterministic challenge delivery in production", () => {
+    expect(() =>
+      loadApiConfig({
+        NODE_ENV: "production",
+        DATABASE_URL: "postgresql://example/api",
+        AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+        AUTH_DETERMINISTIC_CODE: "246810",
+      }),
+    ).toThrow("forbidden in production");
   });
 });

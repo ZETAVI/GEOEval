@@ -18,6 +18,93 @@ enum OutboxStatus {
   COMPLETED
 }
 
+enum AccountRole {
+  TERMINAL_CUSTOMER
+  OPERATIONS
+  ADMINISTRATOR
+  AGENT
+}
+
+enum BrandStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model Account {
+  id           String           @id @default(uuid()) @db.Uuid
+  mobile       String           @unique @db.VarChar(20)
+  role         AccountRole      @default(TERMINAL_CUSTOMER)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+  sessions     AccountSession[]
+  brands       BrandProfile[]
+  brandContext BrandContext?
+
+  @@map("accounts")
+}
+
+model MobileChallenge {
+  id             String    @id @db.Uuid
+  mobile         String    @db.VarChar(20)
+  codeDigest     String    @map("code_digest") @db.Char(64)
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  expiresAt      DateTime  @map("expires_at")
+  consumedAt     DateTime? @map("consumed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  @@index([mobile, createdAt])
+  @@map("mobile_challenges")
+}
+
+model AccountSession {
+  id          String    @id @default(uuid()) @db.Uuid
+  accountId   String    @map("account_id") @db.Uuid
+  tokenDigest String    @unique @map("token_digest") @db.Char(64)
+  expiresAt   DateTime  @map("expires_at")
+  revokedAt   DateTime? @map("revoked_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  account     Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, expiresAt])
+  @@map("account_sessions")
+}
+
+model BrandProfile {
+  id                       String         @id @default(uuid()) @db.Uuid
+  accountId                String         @map("account_id") @db.Uuid
+  status                   BrandStatus    @default(ACTIVE)
+  companyName              String         @map("company_name")
+  primaryIndustry          String?        @map("primary_industry")
+  secondaryIndustry        String?        @map("secondary_industry")
+  characteristicOne        String?        @map("characteristic_one")
+  characteristicTwo        String?        @map("characteristic_two")
+  province                 String?
+  city                     String?
+  district                 String?
+  contactName              String?        @map("contact_name")
+  contactMobile            String?        @map("contact_mobile") @db.VarChar(20)
+  evaluationFingerprint    String         @map("evaluation_fingerprint") @db.Char(64)
+  createdAt                DateTime       @default(now()) @map("created_at")
+  updatedAt                DateTime       @updatedAt @map("updated_at")
+  account                  Account        @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  selectedByBrandContext   BrandContext?   @relation("CurrentBrand")
+
+  @@index([accountId, status, updatedAt])
+  @@unique([id, accountId])
+  @@map("brand_profiles")
+}
+
+model BrandContext {
+  accountId      String        @id @map("account_id") @db.Uuid
+  currentBrandId String?       @map("current_brand_id") @db.Uuid
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  account        Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  currentBrand   BrandProfile? @relation("CurrentBrand", fields: [currentBrandId, accountId], references: [id, accountId], onDelete: Restrict)
+
+  @@unique([currentBrandId, accountId])
+  @@map("brand_contexts")
+}
+
 model FoundationRecord {
   id            String                 @id @default(uuid()) @db.Uuid
   name          String

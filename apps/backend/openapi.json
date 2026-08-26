@@ -123,12 +123,240 @@
           "foundation"
         ]
       }
+    },
+    "/identity/challenges": {
+      "post": {
+        "operationId": "IdentityController_requestChallenge",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestChallengeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChallengeResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/identity/sessions": {
+      "post": {
+        "operationId": "IdentityController_createSession",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/identity/me": {
+      "get": {
+        "operationId": "IdentityController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/identity/session": {
+      "delete": {
+        "operationId": "IdentityController_deleteSession",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/brands": {
+      "get": {
+        "operationId": "BrandController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BrandResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      },
+      "post": {
+        "operationId": "BrandController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrandMutationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      }
+    },
+    "/brands/current": {
+      "get": {
+        "operationId": "BrandController_current",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "nullable": true,
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BrandResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      }
+    },
+    "/brands/{id}": {
+      "patch": {
+        "operationId": "BrandController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrandMutationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      }
+    },
+    "/brands/{id}/current": {
+      "put": {
+        "operationId": "BrandController_selectCurrent",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      }
     }
   },
   "info": {
-    "title": "GEOEval Foundation API",
+    "title": "GEOEval API",
     "description": "",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "contact": {}
   },
   "tags": [],
@@ -202,6 +430,220 @@
           "pending",
           "dispatched"
         ]
+      },
+      "RequestChallengeRequest": {
+        "type": "object",
+        "properties": {
+          "mobile": {
+            "type": "string",
+            "example": "13800138000"
+          }
+        },
+        "required": [
+          "mobile"
+        ]
+      },
+      "ChallengeResponse": {
+        "type": "object",
+        "properties": {
+          "challengeId": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "developmentCode": {
+            "type": "string",
+            "description": "Only returned by the local/test adapter"
+          }
+        },
+        "required": [
+          "challengeId",
+          "expiresAt"
+        ]
+      },
+      "CompleteSessionRequest": {
+        "type": "object",
+        "properties": {
+          "mobile": {
+            "type": "string",
+            "example": "13800138000"
+          },
+          "challengeId": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "example": "246810"
+          }
+        },
+        "required": [
+          "mobile",
+          "challengeId",
+          "code"
+        ]
+      },
+      "AccountResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "TERMINAL_CUSTOMER",
+              "OPERATIONS",
+              "ADMINISTRATOR",
+              "AGENT"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "mobile",
+          "role"
+        ]
+      },
+      "BrandResponse": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryIndustry": {
+            "type": "string",
+            "nullable": true
+          },
+          "secondaryIndustry": {
+            "type": "string",
+            "nullable": true
+          },
+          "characteristicOne": {
+            "type": "string",
+            "nullable": true
+          },
+          "characteristicTwo": {
+            "type": "string",
+            "nullable": true
+          },
+          "province": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "district": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactMobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "ARCHIVED"
+            ]
+          },
+          "evaluationFingerprint": {
+            "type": "string"
+          },
+          "readyForEvaluation": {
+            "type": "boolean"
+          },
+          "missingFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isCurrent": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "accountId",
+          "status",
+          "evaluationFingerprint",
+          "readyForEvaluation",
+          "missingFields",
+          "isCurrent",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "BrandMutationRequest": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryIndustry": {
+            "type": "string",
+            "nullable": true
+          },
+          "secondaryIndustry": {
+            "type": "string",
+            "nullable": true
+          },
+          "characteristicOne": {
+            "type": "string",
+            "nullable": true
+          },
+          "characteristicTwo": {
+            "type": "string",
+            "nullable": true
+          },
+          "province": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "district": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactMobile": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       }
     }
   }

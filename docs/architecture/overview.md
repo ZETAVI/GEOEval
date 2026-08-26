@@ -1,8 +1,9 @@
 # Architecture Overview
 
-- Status: Application foundation accepted; product implementation not authorized
+- Status: deterministic S1 accepted and checkpointed; S2 evaluation case active
 - Entry condition: Approved product foundation and bounded first product slice
 - Decision history: [`define-application-architecture`](../../openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md)
+- Active change: [`deliver-first-evaluation-slice`](../../openspec/changes/deliver-first-evaluation-slice/proposal.md)
 
 ## Current state
 
@@ -22,9 +23,12 @@ its [sanitized evidence](../../openspec/changes/archive/2026-08-25-define-applic
 does not authorize provider integration or product implementation. Subsequent
 [restricted search/fidelity probes](../../openspec/changes/archive/2026-08-25-define-application-architecture/research/provider-search-fidelity-evidence.md)
 ultimately produced successful evidence for all fifteen unique R01-R03
-positions after one bounded ERNIE R03 retry. Production infrastructure,
-authentication, and customer-facing interaction design remain outside the
-current authorization.
+positions after one bounded ERNIE R03 retry. Production infrastructure and real
+external authentication remain outside the current authorization. The
+deterministic S1 customer entry and responsive My brands interaction are
+implemented and accepted under the active change. Final visual language and
+typographic polish remain a later frontend-design responsibility; that work may
+refine presentation but must preserve the accepted journey and behavior.
 
 Customer-visible evaluation uses one shared, versioned
 [objectivity-instruction profile](../../scripts/provider-validation/evaluation-objectivity.json)
@@ -37,10 +41,10 @@ confirmed implementation profile is `evaluation.objectivity@0.3.0`; search
 availability and automatic trigger posture remain provider-route configuration,
 not prompt-level product meaning.
 
-The validation harness is the current executable owner only until S0. The first
-activating product change must move—not copy—the profile into its owner-local
-production source, update canonical links, and leave the harness consuming that
-same owner.
+The validation harness remains the executable owner until the first evaluation
+implementation in S2. That change must move—not copy—the profile into its
+owner-local production source, update canonical links, and leave the harness
+consuming that same owner.
 
 ## Architecture qualities
 
@@ -56,9 +60,9 @@ When architecture work begins, it must preserve:
 
 ## Next architecture gates
 
-1. Start a new bounded change and obtain explicit S0 authorization before
-   implementing deterministic S1-S5 customer identity, brand, evaluation,
-   notification, or report behavior.
+1. Implement the deterministic S2 evaluation case and frozen brand/query
+   context, then continue through S3-S5 in dependency order. Destination-branch
+   integration remains an explicit branch-exit action.
 2. Complete the smallest parser, synthesis, resilience, capacity/cost, and
    telemetry evidence before real-provider S6 integration; no additional
    prompt-only five-platform batch is required.
