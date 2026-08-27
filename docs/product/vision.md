@@ -308,18 +308,25 @@ not retain earlier profile versions or provide profile rollback.
 
 The required basic brand profile contains:
 
-| Field                 | Product rule                                                                                                       |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Primary industry      | Selected from an internally maintained classification currently expected to reference Dianping merchant categories |
-| Secondary industry    | Options depend on the selected primary industry                                                                    |
-| Brand characteristics | Two free-text fields for the brand's main differentiating points                                                   |
-| Company or store name | The business, brand, company, or storefront being evaluated                                                        |
-| Region                | Province, city, and district or town                                                                               |
-| Contact person        | Customer contact name                                                                                              |
-| Mobile number         | Initially copied from the registration mobile number and editable                                                  |
+| Field | Product rule |
+| --- | --- |
+| Primary industry | Selected from the approved GEOEval-owned [industry catalog](industry-catalog.md) according to the product or service for which the brand most wants to be found and recommended |
+| Secondary industry | One dependent option under the selected primary industry that fixes the current recommendation context |
+| Other industry description | Required only when the selected secondary industry is `Other`; it names the concrete product or service and participates in question generation |
+| Brand characteristics | Two free-text fields for the brand's main differentiating points |
+| Company or store name | The business, brand, company, or storefront being evaluated |
+| Region | Province, city, and district or town |
+| Contact person | Customer contact name |
+| Mobile number | Initially copied from the registration mobile number and editable |
 
-The exact industry catalog remains an internal-team input rather than an
-approved list in this definition.
+The approved [industry catalog](industry-catalog.md) contains 13 primary
+categories, dependent secondary categories, stable identifiers, one `Other`
+under every primary, and the maintained recommendation subjects used to form
+natural industry questions. A mixed business selects the one consumer,
+procurement, or recommendation context that matters for the current evaluation;
+it does not enumerate its complete licensed scope. Selecting a regulated
+category supplies recommendation context only and never verifies compliance,
+credentials, or permission to operate.
 
 Registration, brand management, diagnosis, and optimization use the same brand
 without duplicating its ownership. Registration establishes the terminal account
