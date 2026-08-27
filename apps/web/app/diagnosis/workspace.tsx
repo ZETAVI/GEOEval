@@ -52,6 +52,16 @@ export function DiagnosisWorkspace() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (!current || definition?.run?.status !== "EVALUATING") return;
+    const timer = window.setInterval(() => {
+      void prepareEvaluationDefinition(apiBaseUrl, current.id)
+        .then(setDefinition)
+        .catch(() => undefined);
+    }, 3_000);
+    return () => window.clearInterval(timer);
+  }, [current, definition?.run?.status]);
+
   async function start() {
     if (!definition) return;
     setBusy(true);
@@ -104,15 +114,36 @@ export function DiagnosisWorkspace() {
             detail={`还需补充：${current.missingFields.join("、")}`}
           />
         ) : definition ? (
-          definition.run ? (
+          definition.run?.status === "PLEASE_RETRY" ? (
+            <section className="evaluation-running">
+              <p className="step-label">请重试</p>
+              <h2>本次有效采样不足</h2>
+              <p>
+                已处理 {definition.run.processedSampleCount} 个采样位置，其中
+                有效 {definition.run.validSampleCount} 个、暂不可用
+                {definition.run.unavailableSampleCount}{" "}
+                个。后续可按提示重新评测。
+              </p>
+              <a className="secondary-button" href="/brands">
+                返回我的品牌
+              </a>
+            </section>
+          ) : definition.run ? (
             <section className="evaluation-running">
               <span className="loading-orbit" aria-hidden="true" />
               <p className="step-label">评测中</p>
-              <h2>正在准备五平台评测</h2>
+              <h2>
+                {definition.run.processedSampleCount ===
+                definition.run.expectedSampleCount
+                  ? "采样完成，正在整理结果"
+                  : "正在进行五平台评测"}
+              </h2>
               <p>
-                本次评测已经固定 {definition.questions.length} 个问题，共有{" "}
-                {definition.run.expectedSampleCount}{" "}
-                个采样位置。你可以离开页面，后续状态不会受影响。
+                已处理 {definition.run.processedSampleCount} /{" "}
+                {definition.run.expectedSampleCount} 个采样位置，其中有效{" "}
+                {definition.run.validSampleCount} 个、暂不可用{" "}
+                {definition.run.unavailableSampleCount}
+                个。你可以离开页面，后续状态不会受影响。
               </p>
               <a className="secondary-button" href="/brands">
                 返回我的品牌

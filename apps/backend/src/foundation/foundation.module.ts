@@ -15,6 +15,6 @@ import { WorkProcessor } from "./work-processor.js";
     FoundationService,
     WorkProcessor,
   ],
-  exports: [FoundationService, WorkProcessor],
+  exports: [FOUNDATION_REPOSITORY, FoundationService, WorkProcessor],
 })
 export class FoundationModule {}

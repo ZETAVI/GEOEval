@@ -89,6 +89,9 @@ function presentRun(run: EvaluationRunView): EvaluationRunResponse {
     brandId: run.brandId,
     status: run.status,
     expectedSampleCount: run.expectedSampleCount,
+    processedSampleCount: run.processedSampleCount,
+    validSampleCount: run.validSampleCount,
+    unavailableSampleCount: run.unavailableSampleCount,
     startedAt: run.startedAt,
     updatedAt: run.updatedAt,
   };

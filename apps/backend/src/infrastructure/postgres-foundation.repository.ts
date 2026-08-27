@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
 import type {
   DeliverableOutboxEvent,
@@ -13,7 +13,7 @@ import { PrismaService } from "./prisma.service.js";
 
 @Injectable()
 export class PostgresFoundationRepository implements FoundationRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async createRecordWithOutbox(input: {
     name: string;

@@ -17,7 +17,7 @@ import type {
 
 const definitionInclude = {
   questions: { orderBy: { ordinal: "asc" as const } },
-  run: { include: { _count: { select: { samples: true } } } },
+  run: { include: { samples: { select: { status: true } } } },
 } as const;
 
 @Injectable()
@@ -80,7 +80,7 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
           where: { id: input.definitionId, accountId: input.accountId },
           include: {
             questions: { orderBy: { ordinal: "asc" } },
-            run: { include: { _count: { select: { samples: true } } } },
+            run: { include: { samples: { select: { status: true } } } },
             brand: {
               select: { evaluationFingerprint: true, status: true },
             },
@@ -127,8 +127,16 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
             correlationId,
           },
         });
+        const cycleId = randomUUID();
+        await transaction.evaluationExecutionCycle.create({
+          data: { id: cycleId, runId: run.id, sequence: 1 },
+        });
         await transaction.evaluationSample.createMany({
-          data: sampleInputs.map((sample) => ({ ...sample, runId: run.id })),
+          data: sampleInputs.map((sample) => ({
+            ...sample,
+            runId: run.id,
+            cycleId,
+          })),
         });
         await transaction.productOutboxEvent.create({
           data: {
@@ -138,6 +146,7 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
             eventType: "evaluation.run.started",
             payload: {
               runId: run.id,
+              cycleId,
               definitionId: definition.id,
               brandId: definition.brandId,
             },
@@ -146,7 +155,7 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
         });
         const started = await transaction.evaluationRun.findUniqueOrThrow({
           where: { id: run.id },
-          include: { _count: { select: { samples: true } } },
+          include: { samples: { select: { status: true } } },
         });
         return { kind: "STARTED", run: mapRun(started) };
       });
@@ -154,7 +163,7 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
       if (!isUniqueViolation(error)) throw error;
       const existing = await this.prisma.evaluationRun.findUnique({
         where: { definitionId: input.definitionId },
-        include: { _count: { select: { samples: true } } },
+        include: { samples: { select: { status: true } } },
       });
       if (existing?.accountId === input.accountId) {
         return existing.status === "EVALUATING"
@@ -231,7 +240,14 @@ function mapDefinition(definition: {
     correlationId: string;
     startedAt: Date;
     updatedAt: Date;
-    _count: { samples: number };
+    samples: Array<{
+      status:
+        | "PENDING"
+        | "EVIDENCE_ACCEPTED"
+        | "INTERPRETATION_ACCEPTED"
+        | "ACQUISITION_EXHAUSTED"
+        | "INTERPRETATION_EXHAUSTED";
+    }>;
   } | null;
 }): EvaluationDefinitionView {
   return {
@@ -265,14 +281,32 @@ function mapRun(run: {
   correlationId: string;
   startedAt: Date;
   updatedAt: Date;
-  _count: { samples: number };
+  samples: Array<{
+    status:
+      | "PENDING"
+      | "EVIDENCE_ACCEPTED"
+      | "INTERPRETATION_ACCEPTED"
+      | "ACQUISITION_EXHAUSTED"
+      | "INTERPRETATION_EXHAUSTED";
+  }>;
 }): EvaluationRunView {
+  const validSampleCount = run.samples.filter(
+    (sample) => sample.status === "INTERPRETATION_ACCEPTED",
+  ).length;
+  const unavailableSampleCount = run.samples.filter((sample) =>
+    ["ACQUISITION_EXHAUSTED", "INTERPRETATION_EXHAUSTED"].includes(
+      sample.status,
+    ),
+  ).length;
   return {
     id: run.id,
     definitionId: run.definitionId,
     brandId: run.brandId,
     status: run.status,
-    expectedSampleCount: run._count.samples,
+    expectedSampleCount: run.samples.length,
+    processedSampleCount: validSampleCount + unavailableSampleCount,
+    validSampleCount,
+    unavailableSampleCount,
     correlationId: run.correlationId,
     startedAt: run.startedAt,
     updatedAt: run.updatedAt,

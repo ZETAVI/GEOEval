@@ -1,7 +1,7 @@
 # Architecture Overview
 
 - Status: deterministic S1 accepted; S2 definition and start locally verified
-  and ready for checkpoint; S3 next
+  and checkpointed; S3 resumable evidence verified and checkpointed
 - Entry condition: Approved product foundation and bounded first product slice
 - Decision history: [`define-application-architecture`](../../openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md)
 - Active change: [`deliver-first-evaluation-slice`](../../openspec/changes/deliver-first-evaluation-slice/proposal.md)
@@ -46,6 +46,16 @@ GEO Intelligence is the executable owner of that profile from S2 onward. The
 provider-validation harness consumes the same production-owned source rather
 than maintaining a calibration copy.
 
+S3 extends that owner with a PostgreSQL execution cycle, canonical per-sample
+answer, accepted interpretation, exhausted-stage record, and the
+seventeen-of-twenty readiness decision. AI Execution owns only append-oriented
+attempt evidence. Background Work owns product-Outbox relay, small BullMQ jobs,
+and a scheduled reconciliation scan; neither Redis nor telemetry is a source of
+business truth. The API and Worker load separate module graphs so background
+processing does not depend on HTTP controllers or session guards. The current
+behavior is specified by
+[`evaluation-evidence`](../../openspec/specs/evaluation-evidence/spec.md).
+
 ## Architecture qualities
 
 When architecture work begins, it must preserve:
@@ -60,10 +70,9 @@ When architecture work begins, it must preserve:
 
 ## Next architecture gates
 
-1. Preserve the verified S2 definition-and-start checkpoint, then implement
-   resumable deterministic evidence acquisition and interpretation in S3.
-   Continue through S4-S5 in dependency order; destination-branch integration
-   remains an explicit branch-exit action.
+1. Preserve the verified S3 evidence boundary, then implement overall synthesis
+   and the customer report in S4. Continue through S5 in dependency order;
+   destination-branch integration remains an explicit branch-exit action.
 2. Complete the smallest parser, synthesis, resilience, capacity/cost, and
    telemetry evidence before real-provider S6 integration; no additional
    prompt-only five-platform batch is required.

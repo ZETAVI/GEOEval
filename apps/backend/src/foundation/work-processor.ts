@@ -14,6 +14,7 @@ export class WorkProcessor {
   constructor(
     @Inject(FOUNDATION_REPOSITORY)
     private readonly repository: FoundationRepository,
+    @Inject(SafeTelemetry)
     private readonly telemetry: SafeTelemetry,
   ) {}
 

@@ -25,6 +25,9 @@ const apiSchema = commonSchema.extend({
 });
 
 const workerSchema = commonSchema.extend({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
   REDIS_URL: z.string().min(1),
 });
 
@@ -89,6 +92,11 @@ export function loadWorkerConfig(
   environment: NodeJS.ProcessEnv = process.env,
 ): WorkerConfig {
   const parsed = workerSchema.parse(withLocalDefaults(environment));
+  if (parsed.NODE_ENV === "production") {
+    throw new Error(
+      "Deterministic AI execution is forbidden in production until S6 replaces the adapter",
+    );
+  }
   return {
     databaseUrl: parsed.DATABASE_URL,
     redisUrl: parsed.REDIS_URL,

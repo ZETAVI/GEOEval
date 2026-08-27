@@ -4,8 +4,9 @@
 
 Define the accepted S2 behavior that turns one evaluation-ready brand revision
 into a frozen four-question definition and atomically starts one official run
-with twenty business sample identities. Sampling, parsing, reports, and real
-provider execution are not owned by this specification.
+with twenty business sample identities. Evidence processing is owned by the
+separate evaluation-evidence specification; reports and real-provider execution
+remain later increments.
 
 ## Requirements
 
@@ -56,8 +57,8 @@ start fact in one local database transaction without an external call.
   samples or events
 - **AND** a brand can have at most one evaluating run and a definition can have
   at most one official run
-- **AND** provider invocation, sample attempts, parsing, report completion, and
-  retry execution remain later increments
+- **AND** provider invocation and report completion are not part of the start
+  transaction
 
 ### Requirement: Honest diagnosis entry
 
@@ -73,8 +74,8 @@ later evaluation progress or results.
 - **THEN** the page shows four read-only questions, the five platform labels,
   and one explicit start action
 - **BUT WHEN** the run has started
-- **THEN** the page shows evaluating, four fixed questions, and twenty expected
-  positions without a fabricated score, sample result, or completion progress
+- **THEN** the page shows the durable run through the evaluation-evidence public
+  progress contract without a fabricated score, sample result, or report
 
 ## Current environment boundary
 

@@ -37,4 +37,14 @@ describe("process-scoped configuration", () => {
       }),
     ).toThrow("forbidden in production");
   });
+
+  it("rejects deterministic AI execution in a production worker", () => {
+    expect(() =>
+      loadWorkerConfig({
+        NODE_ENV: "production",
+        DATABASE_URL: "postgresql://example/worker",
+        REDIS_URL: "redis://example:6379",
+      }),
+    ).toThrow("forbidden in production");
+  });
 });

@@ -96,3 +96,59 @@
   fingerprints and execution identities from customer contracts and added a
   database constraint tying every sample to one run and question from the same
   definition.
+
+## S3 Resumable Evidence Boundary
+
+- [x] Obtain product-owner confirmation of the proposed S3 boundary and its
+      explicit S4-S6 non-goals.
+- [x] Confirm the PostgreSQL, transaction-Outbox, BullMQ small-work planner, and
+      scheduled-reconciliation framework recorded in the S3 decision brief.
+- [x] Add an additive persistence model for the initial execution cycle,
+      append-only AI attempts, one accepted canonical answer per sample, one
+      accepted per-sample interpretation, exhausted stage failures, and the
+      internal ready-for-synthesis stage.
+- [x] Implement AI Execution's deterministic attempt boundary without allowing
+      it to mutate GEO Intelligence state.
+- [x] Implement product-outbox relay plus the evaluation-specific process
+      planner, small intent handlers, and scheduled reconciliation so duplicate
+      delivery and restart resume from durable owner state rather than rerunning
+      accepted stages.
+- [x] Implement GEO-owned evidence and interpretation acceptance with local
+      schema and semantic validation and the seventeen-of-twenty decision.
+- [x] Expose only concise durable progress through the authenticated diagnosis
+      purpose view; retain the existing evaluating presentation until S4.
+
+## S3 Verification and Reconciliation
+
+- [x] Verify deterministic 20/20, 17/20, and 16/20 outcomes, valid no-mention
+      acceptance, acquisition exhaustion, interpretation exhaustion, and
+      accepted-attempt linkage.
+- [x] Verify duplicate outbox and queue delivery, concurrent processing,
+      worker interruption and restart, and telemetry-failure isolation without
+      duplicate canonical evidence.
+- [x] Verify migration replay, generated contracts, backend and Web builds, and
+      the customer-visible progress/status boundary without internal leakage.
+- [x] Run architecture review and reconcile accepted S3 behavior into one
+      owner-local current specification before the S3 checkpoint.
+- [x] Create the verified S3 branch checkpoint before continuing to S4;
+      destination-branch integration remains a separate explicit action.
+
+## S3 Local Verification Evidence
+
+- Deterministic integration coverage verifies 20/20, 17/20, and 16/20
+  outcomes, valid no-mention acceptance, acquisition and interpretation
+  exhaustion, retry separation, accepted-attempt integrity, duplicate delivery,
+  concurrent processing, telemetry isolation, Worker restart recovery, and the
+  complete Worker module graph.
+- A clean temporary database replayed all seven migrations and confirmed the
+  five composite foreign-key constraints that keep accepted evidence tied to
+  the correct sample, cycle, and successful attempt; the temporary database
+  was then removed.
+- Generated contracts, repository checks, builds, and the framework validator
+  passed. The authenticated browser journey advanced from zero to twenty
+  processed samples without refresh or console errors and exposed no internal
+  retry, queue, prompt, route, source, or trace data.
+- Architecture review removed the Worker's dependency on API-only identity and
+  presentation modules, removed GEO's query into AI Execution's private
+  attempt store, and left no unresolved must-fix item. Real providers, overall
+  synthesis, report behavior, and production activation remain later gates.

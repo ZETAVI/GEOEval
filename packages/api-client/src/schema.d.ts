@@ -366,6 +366,9 @@ export interface components {
             /** @enum {string} */
             status: "EVALUATING" | "COMPLETED" | "PLEASE_RETRY";
             expectedSampleCount: number;
+            processedSampleCount: number;
+            validSampleCount: number;
+            unavailableSampleCount: number;
             /** Format: date-time */
             startedAt: string;
             /** Format: date-time */

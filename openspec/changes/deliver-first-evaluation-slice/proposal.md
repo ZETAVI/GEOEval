@@ -1,6 +1,8 @@
 # Change: Deliver the First Evaluation Slice
 
-- Status: Approved; S1 accepted and checkpointed, S2 locally verified and ready for checkpoint, S3 next
+- Status: Approved through deterministic S1-S5; S1 accepted and checkpointed,
+  S2 locally verified and checkpointed, S3 resumable evidence verified and
+  checkpointed
 - Class: Architectural implementation
 - Decision owners: Product owner and architecture owner
 - Implementation authorization: Deterministic S1-S5 only, confirmed 2026-08-25
@@ -29,8 +31,10 @@ S1 introduces Identity and Access plus Brand Knowledge. S2 introduces GEO
 Intelligence definition and run ownership, immutable brand/question snapshots,
 twenty sample identities, and a reliable product outbox fact. Both use additive
 PostgreSQL migrations, authenticated REST/OpenAPI contracts, and generated Web
-client types. The existing F0 probes remain isolated evidence and do not become
-product APIs.
+client types. S3 adds GEO-owned execution cycles, canonical evidence,
+interpretation and readiness state; AI-attempt evidence; and an isolated
+Outbox/BullMQ Worker path with scheduled reconciliation. The existing F0 probes
+remain isolated evidence and do not become product APIs.
 
 ## Control State
 

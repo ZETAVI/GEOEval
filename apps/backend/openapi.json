@@ -785,6 +785,15 @@
           "expectedSampleCount": {
             "type": "number"
           },
+          "processedSampleCount": {
+            "type": "number"
+          },
+          "validSampleCount": {
+            "type": "number"
+          },
+          "unavailableSampleCount": {
+            "type": "number"
+          },
           "startedAt": {
             "type": "string",
             "format": "date-time"
@@ -800,6 +809,9 @@
           "brandId",
           "status",
           "expectedSampleCount",
+          "processedSampleCount",
+          "validSampleCount",
+          "unavailableSampleCount",
           "startedAt",
           "updatedAt"
         ]

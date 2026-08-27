@@ -2,10 +2,11 @@ import {
   Inject,
   Injectable,
   type OnApplicationBootstrap,
-  type OnApplicationShutdown,
+  type OnModuleDestroy,
 } from "@nestjs/common";
-import { Queue, Worker, type ConnectionOptions, type Job } from "bullmq";
+import { Queue, Worker, type Job } from "bullmq";
 
+import { bullmqConnectionOptions } from "./background-work/bullmq-connection.js";
 import {
   FOUNDATION_REPOSITORY,
   type FoundationRepository,
@@ -18,35 +19,25 @@ import {
 export const REDIS_URL = Symbol("REDIS_URL");
 const queueName = "geoeval-foundation";
 
-function connectionOptions(redisUrl: string): ConnectionOptions {
-  const parsed = new URL(redisUrl);
-  return {
-    host: parsed.hostname,
-    port: Number(parsed.port || 6379),
-    ...(parsed.password ? { password: parsed.password } : {}),
-    ...(parsed.pathname.length > 1
-      ? { db: Number(parsed.pathname.slice(1)) }
-      : {}),
-  };
-}
-
 @Injectable()
 export class FoundationWorkerRuntime
-  implements OnApplicationBootstrap, OnApplicationShutdown
+  implements OnApplicationBootstrap, OnModuleDestroy
 {
   private queue?: Queue<FoundationJobData>;
   private worker?: Worker<FoundationJobData>;
   private relayTimer?: NodeJS.Timeout;
+  private relayInFlight: Promise<number> | undefined;
 
   constructor(
     @Inject(FOUNDATION_REPOSITORY)
     private readonly repository: FoundationRepository,
+    @Inject(WorkProcessor)
     private readonly processor: WorkProcessor,
     @Inject(REDIS_URL) private readonly redisUrl: string,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    const connection = connectionOptions(this.redisUrl);
+    const connection = bullmqConnectionOptions(this.redisUrl);
     this.queue = new Queue<FoundationJobData>(queueName, { connection });
     this.worker = new Worker<FoundationJobData>(
       queueName,
@@ -66,7 +57,7 @@ export class FoundationWorkerRuntime
 
     await this.relayOnce();
     this.relayTimer = setInterval(() => {
-      void this.relayOnce().catch((error: unknown) => {
+      void this.runRelay().catch((error: unknown) => {
         process.stderr.write(
           `${JSON.stringify({
             level: "error",
@@ -111,11 +102,21 @@ export class FoundationWorkerRuntime
     return events.length;
   }
 
-  async onApplicationShutdown(): Promise<void> {
+  async onModuleDestroy(): Promise<void> {
     if (this.relayTimer) {
       clearInterval(this.relayTimer);
     }
+    await this.relayInFlight?.catch(() => undefined);
     await this.worker?.close();
     await this.queue?.close();
+  }
+
+  private runRelay(): Promise<number> {
+    if (this.relayInFlight) return this.relayInFlight;
+    const operation = this.relayOnce().finally(() => {
+      if (this.relayInFlight === operation) this.relayInFlight = undefined;
+    });
+    this.relayInFlight = operation;
+    return operation;
   }
 }

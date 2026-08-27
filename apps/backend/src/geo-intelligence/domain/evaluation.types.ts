@@ -36,6 +36,9 @@ export type EvaluationRunView = {
   brandId: string;
   status: "EVALUATING" | "COMPLETED" | "PLEASE_RETRY";
   expectedSampleCount: number;
+  processedSampleCount: number;
+  validSampleCount: number;
+  unavailableSampleCount: number;
   correlationId: string;
   startedAt: Date;
   updatedAt: Date;

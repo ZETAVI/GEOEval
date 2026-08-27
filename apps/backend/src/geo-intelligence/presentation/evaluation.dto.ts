@@ -59,6 +59,12 @@ export class EvaluationRunResponse {
   status!: string;
   @ApiProperty({ type: Number })
   expectedSampleCount!: number;
+  @ApiProperty({ type: Number })
+  processedSampleCount!: number;
+  @ApiProperty({ type: Number })
+  validSampleCount!: number;
+  @ApiProperty({ type: Number })
+  unavailableSampleCount!: number;
   @ApiProperty({ type: String, format: "date-time" })
   startedAt!: Date;
   @ApiProperty({ type: String, format: "date-time" })
