@@ -18,6 +18,50 @@ Crossing a session or involving another agent does not raise the class by itself
 Persist a handoff only when the existing Issue, change, diff, and evidence cannot
 make continuation unambiguous.
 
+## Module architecture readiness
+
+The **engineering architecture steward** is a delivery responsibility, not a
+product account role or a permanent approval committee. Before a module with a
+material lifecycle, datastore, asynchronous process, AI boundary, external
+effect, sensitive data, shared contract, or difficult rollback enters
+implementation, the steward challenges the design from business ownership,
+software architecture, database integrity, mature-tool reuse, operational
+failure, and verification perspectives.
+
+Scale the checkpoint to the reachable risk:
+
+| Level | Typical change | Required readiness evidence |
+| --- | --- | --- |
+| Light | owner-local, reversible logic with no new durable or external boundary | state the owner, bounded assumption, and focused check in the task or PR |
+| Standard | persistent lifecycle, bounded integration, public contract, or reusable module seam | add a short architecture card to the active design; verify existing semantics and affected external documentation |
+| Critical | money, identity, AI execution, background orchestration, immutable history, sensitive data, migration, or difficult rollback | architecture card, source brief for consequential tools, failure/recovery matrix, data and migration constraints, explicit approval, and recovery evidence |
+
+Use [`docs/templates/module-architecture-card.md`](../templates/module-architecture-card.md)
+inside the active change's `design.md`; do not create a standalone card for
+every module. Promote only stable, cross-change decisions to a current design
+contract or ADR.
+
+The checkpoint must answer:
+
+1. What business capability and lifecycle does the module own, and what is out?
+2. Which records, invariants, state transitions, and transactions does it own?
+3. Which public commands, queries, and facts may other modules use?
+4. Where do asynchronous delivery, timeout, retry, idempotency, backpressure,
+   reconciliation, and manual recovery belong?
+5. Which existing libraries or frameworks fit, what do they not guarantee, and
+   what version, license, operating cost, and exit path matter?
+6. Which pattern is earned by a real change point: state machine, strategy,
+   adapter, factory/registry, outbox, saga/process coordinator, or projection?
+7. What security, observability, capacity, migration, and rollback boundaries
+   can fail in the first release?
+8. Which smallest tests or runtime drills can disprove the completion claims?
+
+Patterns and tools are consequences, not a checklist score. Do not require
+factories, lazy loading, hot replacement, events, or a workflow framework when
+the module has no corresponding variability or failure boundary. Conversely,
+do not accept a happy-path-only implementation when retries, partial effects,
+history, money, or external calls are reachable.
+
 ## Workflow
 
 ### 1. Explore

@@ -16,9 +16,10 @@ Do not treat historical prompts as approved requirements. They are research inpu
 2. `docs/product/glossary.md`
 3. `openspec/specs/product-definition/spec.md`
 4. `docs/process/operating-principles.md`
-5. `docs/process/design-knowledge.md` when creating or changing durable design
-6. The nearest relevant active change, architecture, spec, contract, or ADR
-7. `GEO-Eval-Prompts.md` only when historical context is needed
+5. `docs/process/core-workflow.md` before standard or architectural module work
+6. `docs/process/design-knowledge.md` when creating or changing durable design
+7. The nearest relevant active change, architecture, spec, contract, or ADR
+8. `GEO-Eval-Prompts.md` only when historical context is needed
 
 Keep always-loaded guidance short. Load detailed process documents and Skill references only when the task needs them.
 
@@ -63,7 +64,9 @@ Follow `Explore → Align → Propose → Approve → Implement → Verify → R
 - Use `$requirement-grill` when consequential product or engineering ambiguity remains.
 - Invoke `$start-change` explicitly after intent is clear and a durable change record is warranted.
 - Use `$source-research` before relying on an external API, library, platform, license, version, or operational constraint.
-- Use `$architecture-review` for cross-module work, public contracts, shared components, data ownership, or significant refactors.
+- Use `$architecture-review` as the engineering architecture steward before
+  implementing a module with material lifecycle, persistence, asynchronous work,
+  AI, external effects, shared contracts, or significant refactoring.
 - Use `$verify-change` before any completion claim.
 - Invoke `$task-handoff` when work crosses an agent, session, branch, worktree, or owner boundary.
 
