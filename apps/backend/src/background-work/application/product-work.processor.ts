@@ -1,6 +1,10 @@
 import { Inject, Injectable } from "@nestjs/common";
 
 import { EvaluationProcessCoordinator } from "../../geo-intelligence/application/evaluation-process.coordinator.js";
+import {
+  EVALUATION_PROCESS_COMPLETED,
+  type EvaluationProcessResult,
+} from "../../geo-intelligence/domain/evaluation-process.result.js";
 import { SafeTelemetry } from "../../infrastructure/telemetry.js";
 import { NotificationEventHandler } from "../../notification/application/notification-event.handler.js";
 import {
@@ -21,23 +25,26 @@ export class ProductWorkProcessor {
     private readonly telemetry: SafeTelemetry,
   ) {}
 
-  async apply(outboxEventId: string): Promise<void> {
+  async apply(outboxEventId: string): Promise<EvaluationProcessResult> {
     const event = await this.outbox.findEvent(outboxEventId);
-    if (!event) return;
+    if (!event) return EVALUATION_PROCESS_COMPLETED;
+    let result: EvaluationProcessResult = EVALUATION_PROCESS_COMPLETED;
     if (
       event.eventType === "evaluation.report.accepted" ||
       event.eventType === "evaluation.retry.required"
     ) {
       await this.notifications.handle(event);
     } else {
-      await this.coordinator.process(event);
+      result = await this.coordinator.process(event);
     }
+    if (result.kind === "DEFERRED") return result;
     await this.outbox.markCompleted(event.id);
     await this.telemetry.export({
       name: "product.work.applied",
       correlationId: event.correlationId,
       attributes: { outboxEventId: event.id, eventType: event.eventType },
     });
+    return EVALUATION_PROCESS_COMPLETED;
   }
 
   async reconcile(): Promise<number> {

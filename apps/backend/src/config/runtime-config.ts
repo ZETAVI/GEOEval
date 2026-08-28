@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { AiExecutionConfig } from "../ai-execution/infrastructure/ai-execution.config.js";
+
 const localDatabaseUrl =
   "postgresql://geoeval:geoeval_local_only@127.0.0.1:55432/geoeval";
 const localRedisUrl = "redis://127.0.0.1:56379";
@@ -29,6 +31,41 @@ const workerSchema = commonSchema.extend({
     .enum(["development", "test", "production"])
     .default("development"),
   REDIS_URL: z.string().min(1),
+  AI_EXECUTION_MODE: z.enum(["deterministic", "real"]).default("deterministic"),
+  AI_PROVIDER_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(600_000)
+    .default(180_000),
+  AI_ATTEMPT_AMBIGUITY_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(2_000)
+    .max(900_000)
+    .default(210_000),
+  TOKENHUB_BASE_URL: z
+    .string()
+    .url()
+    .default("https://tokenhub.tencentmaas.com/v1"),
+  ARK_BASE_URL: z
+    .string()
+    .url()
+    .default("https://ark.cn-beijing.volces.com/api/v3"),
+  DASHSCOPE_BASE_URL: z
+    .string()
+    .url()
+    .default("https://dashscope.aliyuncs.com/compatible-mode/v1"),
+  QIANFAN_BASE_URL: z.string().url().default("https://qianfan.baidubce.com/v2"),
+  TOKENHUB_API_KEY: z.string().default(""),
+  ARK_API_KEY: z.string().default(""),
+  DASHSCOPE_API_KEY: z.string().default(""),
+  QIANFAN_API_KEY: z.string().default(""),
+  AI_TELEMETRY_MODE: z.enum(["disabled", "langfuse"]).default("disabled"),
+  LANGFUSE_SECRET_KEY: z.string().default(""),
+  LANGFUSE_PUBLIC_KEY: z.string().default(""),
+  LANGFUSE_BASE_URL: z.string().url().default("https://us.cloud.langfuse.com"),
+  LANGFUSE_TRACING_ENVIRONMENT: z.string().min(1).default("development"),
 });
 
 export type ApiConfig = {
@@ -47,6 +84,8 @@ export type WorkerConfig = {
   databaseUrl: string;
   redisUrl: string;
   telemetryShouldFail: boolean;
+  runtimeEnvironment: "development" | "test" | "production";
+  aiExecution: AiExecutionConfig;
 };
 
 function withLocalDefaults(environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
@@ -92,14 +131,95 @@ export function loadWorkerConfig(
   environment: NodeJS.ProcessEnv = process.env,
 ): WorkerConfig {
   const parsed = workerSchema.parse(withLocalDefaults(environment));
-  if (parsed.NODE_ENV === "production") {
+  if (
+    parsed.NODE_ENV === "production" &&
+    parsed.AI_EXECUTION_MODE === "deterministic"
+  ) {
     throw new Error(
       "Deterministic AI execution is forbidden in production until S6 replaces the adapter",
+    );
+  }
+  if (parsed.AI_ATTEMPT_AMBIGUITY_TIMEOUT_MS <= parsed.AI_PROVIDER_TIMEOUT_MS) {
+    throw new Error(
+      "AI_ATTEMPT_AMBIGUITY_TIMEOUT_MS must be greater than AI_PROVIDER_TIMEOUT_MS",
+    );
+  }
+  const aiExecution: AiExecutionConfig =
+    parsed.AI_EXECUTION_MODE === "deterministic"
+      ? {
+          mode: "deterministic",
+          requestTimeoutMs: parsed.AI_PROVIDER_TIMEOUT_MS,
+          ambiguityTimeoutMs: parsed.AI_ATTEMPT_AMBIGUITY_TIMEOUT_MS,
+          telemetry: aiTelemetryConfig(parsed),
+        }
+      : {
+          mode: "real",
+          requestTimeoutMs: parsed.AI_PROVIDER_TIMEOUT_MS,
+          ambiguityTimeoutMs: parsed.AI_ATTEMPT_AMBIGUITY_TIMEOUT_MS,
+          telemetry: aiTelemetryConfig(parsed),
+          tokenHub: providerConnection(parsed, "TOKENHUB"),
+          ark: providerConnection(parsed, "ARK"),
+          modelStudio: providerConnection(parsed, "DASHSCOPE"),
+          qianfan: providerConnection(parsed, "QIANFAN"),
+        };
+  if (
+    aiExecution.mode === "real" &&
+    parsed.NODE_ENV !== "test" &&
+    new URL(aiExecution.modelStudio.baseUrl).hostname ===
+      "dashscope.aliyuncs.com"
+  ) {
+    throw new Error(
+      "Real AI execution requires the approved workspace-dedicated DASHSCOPE_BASE_URL",
     );
   }
   return {
     databaseUrl: parsed.DATABASE_URL,
     redisUrl: parsed.REDIS_URL,
     telemetryShouldFail: parsed.GEOEVAL_TELEMETRY_FAIL === "1",
+    runtimeEnvironment: parsed.NODE_ENV,
+    aiExecution,
   };
+}
+
+function aiTelemetryConfig(
+  parsed: z.infer<typeof workerSchema>,
+): AiExecutionConfig["telemetry"] {
+  if (parsed.AI_TELEMETRY_MODE === "disabled") return { mode: "disabled" };
+  if (!parsed.LANGFUSE_PUBLIC_KEY.trim()) {
+    throw new Error(
+      "LANGFUSE_PUBLIC_KEY is required when AI_TELEMETRY_MODE=langfuse",
+    );
+  }
+  if (!parsed.LANGFUSE_SECRET_KEY.trim()) {
+    throw new Error(
+      "LANGFUSE_SECRET_KEY is required when AI_TELEMETRY_MODE=langfuse",
+    );
+  }
+  const baseUrl = new URL(parsed.LANGFUSE_BASE_URL);
+  if (parsed.NODE_ENV !== "test" && baseUrl.protocol !== "https:") {
+    throw new Error("LANGFUSE_BASE_URL must use HTTPS");
+  }
+  return {
+    mode: "langfuse",
+    publicKey: parsed.LANGFUSE_PUBLIC_KEY,
+    secretKey: parsed.LANGFUSE_SECRET_KEY,
+    baseUrl: parsed.LANGFUSE_BASE_URL.replace(/\/$/, ""),
+    environment: parsed.LANGFUSE_TRACING_ENVIRONMENT,
+  };
+}
+
+function providerConnection(
+  parsed: z.infer<typeof workerSchema>,
+  prefix: "TOKENHUB" | "ARK" | "DASHSCOPE" | "QIANFAN",
+): { baseUrl: string; apiKey: string } {
+  const baseUrl = parsed[`${prefix}_BASE_URL`];
+  const apiKey = parsed[`${prefix}_API_KEY`];
+  if (!apiKey.trim()) {
+    throw new Error(`${prefix}_API_KEY is required for real AI execution`);
+  }
+  const normalized = new URL(baseUrl);
+  if (parsed.NODE_ENV !== "test" && normalized.protocol !== "https:") {
+    throw new Error(`${prefix}_BASE_URL must use HTTPS for real AI execution`);
+  }
+  return { baseUrl: baseUrl.replace(/\/$/, ""), apiKey };
 }

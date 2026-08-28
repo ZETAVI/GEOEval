@@ -6,10 +6,14 @@ import {
   EVALUATION_PROCESS_REPOSITORY,
   type EvaluationProcessRepository,
 } from "../domain/evaluation-process.repository.js";
-import type {
-  AcceptedEvidence,
-  AcceptedInterpretation,
+import {
+  parseAcceptedEvidence,
+  type AcceptedInterpretation,
 } from "../domain/evaluation-process.types.js";
+import {
+  EVALUATION_PROCESS_COMPLETED,
+  type EvaluationProcessResult,
+} from "../domain/evaluation-process.result.js";
 import {
   SAMPLE_PARSER_CONTRACT_VERSION,
   parseSampleParserOutput,
@@ -17,32 +21,45 @@ import {
 import { buildSampleParserTask } from "../sample-parser.policy.js";
 import { EvaluationSynthesisCoordinator } from "./evaluation-synthesis.coordinator.js";
 
-const MAX_PURPOSE_ATTEMPTS = 2;
+const MAX_ACQUISITION_ATTEMPTS = 2;
+
+const INTERPRETATION_ROUTES = [
+  {
+    routePolicyId: "evaluation.interpretation.hy3-primary@1",
+    requestedModel: "hy3",
+  },
+  {
+    routePolicyId: "evaluation.interpretation.hy3-primary@1",
+    requestedModel: "hy3",
+  },
+  {
+    routePolicyId: "evaluation.interpretation.deepseek-fallback@1",
+    requestedModel: "deepseek-v4-flash",
+  },
+] as const;
 
 const runStartedSchema = z.object({
   runId: z.string().uuid(),
   cycleId: z.string().uuid(),
 });
 
-const sampleWorkSchema = z.object({
+const acquisitionWorkSchema = z.object({
   runId: z.string().uuid(),
   cycleId: z.string().uuid(),
   sampleId: z.string().uuid(),
-  attemptNumber: z.number().int().min(1).max(MAX_PURPOSE_ATTEMPTS),
+  attemptNumber: z.number().int().min(1).max(MAX_ACQUISITION_ATTEMPTS),
+});
+
+const interpretationWorkSchema = z.object({
+  runId: z.string().uuid(),
+  cycleId: z.string().uuid(),
+  sampleId: z.string().uuid(),
+  attemptNumber: z.number().int().min(1).max(INTERPRETATION_ROUTES.length),
 });
 
 const readinessSchema = z.object({
   runId: z.string().uuid(),
   cycleId: z.string().uuid(),
-});
-
-const acquisitionOutputSchema = z.object({
-  kind: z.literal("ACQUISITION"),
-  answerContent: z.string().min(1),
-  answerFormat: z.literal("MARKDOWN"),
-  sourceMetadata: z.array(z.record(z.string(), z.unknown())),
-  searchUsed: z.boolean(),
-  returnedModel: z.string().min(1),
 });
 
 @Injectable()
@@ -59,29 +76,26 @@ export class EvaluationProcessCoordinator {
   async process(event: {
     eventType: string;
     payload: Record<string, unknown>;
-  }): Promise<void> {
+  }): Promise<EvaluationProcessResult> {
     switch (event.eventType) {
       case "evaluation.run.started": {
         const payload = runStartedSchema.parse(event.payload);
         await this.repository.initializeRun(payload.runId, payload.cycleId);
-        return;
+        return EVALUATION_PROCESS_COMPLETED;
       }
       case "evaluation.sample.acquire.requested": {
-        await this.acquire(sampleWorkSchema.parse(event.payload));
-        return;
+        return this.acquire(acquisitionWorkSchema.parse(event.payload));
       }
       case "evaluation.sample.interpret.requested": {
-        await this.interpret(sampleWorkSchema.parse(event.payload));
-        return;
+        return this.interpret(interpretationWorkSchema.parse(event.payload));
       }
       case "evaluation.run.readiness.requested": {
         const payload = readinessSchema.parse(event.payload);
         await this.repository.evaluateReadiness(payload.runId, payload.cycleId);
-        return;
+        return EVALUATION_PROCESS_COMPLETED;
       }
       case "evaluation.run.synthesize.requested": {
-        await this.synthesis.process(event.payload);
-        return;
+        return this.synthesis.process(event.payload);
       }
       default:
         throw new Error(`Unsupported evaluation event ${event.eventType}`);
@@ -94,13 +108,15 @@ export class EvaluationProcessCoordinator {
     return sampleRecovered + synthesisRecovered;
   }
 
-  private async acquire(payload: z.infer<typeof sampleWorkSchema>) {
+  private async acquire(payload: z.infer<typeof acquisitionWorkSchema>) {
     const context = await this.repository.getSampleContext(
       payload.sampleId,
       payload.runId,
       payload.cycleId,
     );
-    if (!context || context.status !== "PENDING") return;
+    if (!context || context.status !== "PENDING") {
+      return EVALUATION_PROCESS_COMPLETED;
+    }
     const outcome = await this.aiExecution.execute({
       runId: context.runId,
       cycleId: context.cycleId,
@@ -108,17 +124,20 @@ export class EvaluationProcessCoordinator {
       purpose: "EVALUATION_ACQUISITION",
       attemptNumber: payload.attemptNumber,
       routePolicyId: context.routePolicyId,
-      providerKey: context.platformKey,
       requestedModel: context.requestedModel,
       correlationId: context.correlationId,
       input: {
         taskKind: "EVALUATION_ACQUISITION",
+        systemInstruction: context.objectivityInstruction,
         companyName: context.companyName,
         query: context.query,
         questionOrdinal: context.questionOrdinal,
         platformLabel: context.platformLabel,
+        province: context.brandSnapshot.province,
+        city: context.brandSnapshot.city,
       },
     });
+    if (outcome.kind === "DEFERRED") return outcome;
     if (outcome.kind === "FAILED") {
       await this.handleFailure({
         context,
@@ -128,18 +147,18 @@ export class EvaluationProcessCoordinator {
         failureClass: outcome.failureClass,
         retryable: outcome.retryable,
       });
-      return;
+      return EVALUATION_PROCESS_COMPLETED;
     }
-    const output = acquisitionOutputSchema.parse(outcome.output);
-    const evidence: AcceptedEvidence = output;
+    const evidence = parseAcceptedEvidence(outcome.output);
     await this.repository.acceptEvidence({
       context,
       attemptId: outcome.attemptId,
       evidence,
     });
+    return EVALUATION_PROCESS_COMPLETED;
   }
 
-  private async interpret(payload: z.infer<typeof sampleWorkSchema>) {
+  private async interpret(payload: z.infer<typeof interpretationWorkSchema>) {
     const context = await this.repository.getSampleContext(
       payload.sampleId,
       payload.runId,
@@ -150,7 +169,7 @@ export class EvaluationProcessCoordinator {
       context.status !== "EVIDENCE_ACCEPTED" ||
       !context.evidence
     ) {
-      return;
+      return EVALUATION_PROCESS_COMPLETED;
     }
     const parserTask = buildSampleParserTask({
       companyName: context.brandSnapshot.companyName,
@@ -169,18 +188,19 @@ export class EvaluationProcessCoordinator {
       question: context.query,
       originalAnswer: context.evidence.answerContent,
     });
+    const route = INTERPRETATION_ROUTES[payload.attemptNumber - 1]!;
     const outcome = await this.aiExecution.execute({
       runId: context.runId,
       cycleId: context.cycleId,
       sampleId: context.sampleId,
       purpose: "EVALUATION_INTERPRETATION",
       attemptNumber: payload.attemptNumber,
-      routePolicyId: "evaluation.interpretation.deterministic@1",
-      providerKey: "deterministic-parser",
-      requestedModel: "deterministic-parser-v1",
+      routePolicyId: route.routePolicyId,
+      requestedModel: route.requestedModel,
       correlationId: context.correlationId,
       input: parserTask,
     });
+    if (outcome.kind === "DEFERRED") return outcome;
     if (outcome.kind === "FAILED") {
       await this.handleFailure({
         context,
@@ -190,7 +210,7 @@ export class EvaluationProcessCoordinator {
         failureClass: outcome.failureClass,
         retryable: outcome.retryable,
       });
-      return;
+      return EVALUATION_PROCESS_COMPLETED;
     }
     let output;
     try {
@@ -209,7 +229,7 @@ export class EvaluationProcessCoordinator {
         retryable: true,
         reason: "Parser output failed the accepted semantic contract",
       });
-      return;
+      return EVALUATION_PROCESS_COMPLETED;
     }
     const interpretation: AcceptedInterpretation = {
       mentioned: output.mentioned,
@@ -222,6 +242,7 @@ export class EvaluationProcessCoordinator {
       attemptId: outcome.attemptId,
       interpretation,
     });
+    return EVALUATION_PROCESS_COMPLETED;
   }
 
   private async handleFailure(input: {
@@ -246,7 +267,11 @@ export class EvaluationProcessCoordinator {
       reason: input.reason ?? "Deterministic purpose policy exhausted",
       correlationId: input.context.correlationId,
     };
-    if (input.retryable && input.attemptNumber < MAX_PURPOSE_ATTEMPTS) {
+    const maximumAttempts =
+      input.purpose === "EVALUATION_ACQUISITION"
+        ? MAX_ACQUISITION_ATTEMPTS
+        : INTERPRETATION_ROUTES.length;
+    if (input.retryable && input.attemptNumber < maximumAttempts) {
       await this.repository.scheduleRetry(failure);
       return;
     }

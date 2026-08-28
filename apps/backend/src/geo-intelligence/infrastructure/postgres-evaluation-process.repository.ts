@@ -101,7 +101,11 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
             id: true,
             correlationId: true,
             definition: {
-              select: { brandSnapshot: true, platformPolicy: true },
+              select: {
+                brandSnapshot: true,
+                platformPolicy: true,
+                objectivityProfileContent: true,
+              },
             },
           },
         },
@@ -132,6 +136,7 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
       platformLabel: sample.platformLabel,
       routePolicyId: platform.routePolicyId,
       requestedModel: platform.model,
+      objectivityInstruction: sample.run.definition.objectivityProfileContent,
       correlationId: sample.run.correlationId,
       evidence: sample.evidence,
     };
@@ -157,7 +162,7 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
             answerFormat: input.evidence.answerFormat,
             sourceMetadata: input.evidence
               .sourceMetadata as Prisma.InputJsonValue,
-            searchUsed: input.evidence.searchUsed,
+            searchObservation: input.evidence.searchObservation,
             returnedModel: input.evidence.returnedModel,
           },
         });
@@ -449,6 +454,7 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
           (attempt) =>
             attempt.cycleId === cycle.id && attempt.purpose === purpose,
         ),
+        purpose,
       );
       const result = await this.prisma.productOutboxEvent.createMany({
         data: [
@@ -536,13 +542,15 @@ function recoveryAttemptNumber(
     status: "STARTED" | "SUCCEEDED" | "FAILED";
     retryable: boolean | null;
   }>,
+  purpose: "EVALUATION_ACQUISITION" | "EVALUATION_INTERPRETATION",
 ): number {
   const latest = [...attempts].sort(
     (left, right) => right.attemptNumber - left.attemptNumber,
   )[0];
   if (!latest) return 1;
+  const maximumAttempts = purpose === "EVALUATION_ACQUISITION" ? 2 : 3;
   return latest.status === "FAILED" && latest.retryable === true
-    ? Math.min(latest.attemptNumber + 1, 2)
+    ? Math.min(latest.attemptNumber + 1, maximumAttempts)
     : latest.attemptNumber;
 }
 

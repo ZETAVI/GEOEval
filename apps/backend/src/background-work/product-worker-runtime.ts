@@ -4,7 +4,7 @@ import {
   type OnApplicationBootstrap,
   type OnModuleDestroy,
 } from "@nestjs/common";
-import { Queue, Worker, type Job } from "bullmq";
+import { DelayedError, Queue, Worker, type Job } from "bullmq";
 
 import {
   PRODUCT_OUTBOX_REPOSITORY,
@@ -42,7 +42,7 @@ export class ProductWorkerRuntime
     this.queue = new Queue<ProductJobData>(PRODUCT_QUEUE_NAME, { connection });
     this.worker = new Worker<ProductJobData>(
       PRODUCT_QUEUE_NAME,
-      (job: Job<ProductJobData>) => this.process(job.data),
+      (job: Job<ProductJobData>, token?: string) => this.process(job, token),
       {
         connection,
         concurrency: 5,
@@ -114,10 +114,18 @@ export class ProductWorkerRuntime
     return operation;
   }
 
-  private process(data: ProductJobData): Promise<void | number> {
-    return data.kind === "OUTBOX"
-      ? this.processor.apply(data.outboxEventId)
-      : this.processor.reconcile();
+  private async process(
+    job: Job<ProductJobData>,
+    token?: string,
+  ): Promise<void | number> {
+    if (job.data.kind === "RECONCILE") {
+      return this.processor.reconcile();
+    }
+    const result = await this.processor.apply(job.data.outboxEventId);
+    if (result.kind !== "DEFERRED") return;
+    if (!token) throw new Error("BullMQ did not provide a job lock token");
+    await job.moveToDelayed(result.resumeAt.getTime(), token);
+    throw new DelayedError();
   }
 
   private writeError(kind: string, error: unknown, jobId?: string): void {

@@ -6,17 +6,19 @@ type AiAttemptRequestBase = {
   cycleId: string;
   attemptNumber: number;
   routePolicyId: string;
-  providerKey: string;
   requestedModel: string;
   correlationId: string;
 };
 
 export type AcquisitionAttemptInput = {
   taskKind: "EVALUATION_ACQUISITION";
+  systemInstruction: string;
   companyName: string;
   query: string;
   questionOrdinal: number;
   platformLabel: string;
+  province: string;
+  city: string;
 };
 
 export type StructuredOutputAttemptInput = {
@@ -55,6 +57,25 @@ export type SynthesisAiAttemptRequest = Extract<
   { purpose: "OVERALL_SYNTHESIS" }
 >;
 
+export type ResolvedAiRoute = {
+  providerKey: string;
+  serviceClass: string;
+  protocol: string;
+  requestedModel: string;
+};
+
+export type ResolvedAiAttemptRequest = AiAttemptRequest & ResolvedAiRoute;
+
+export type ResolvedSampleAiAttemptRequest = Extract<
+  ResolvedAiAttemptRequest,
+  { sampleId: string }
+>;
+
+export type ResolvedSynthesisAiAttemptRequest = Extract<
+  ResolvedAiAttemptRequest,
+  { purpose: "OVERALL_SYNTHESIS" }
+>;
+
 export type AiAttemptFailure = {
   kind: "FAILED";
   attemptId: string;
@@ -68,7 +89,13 @@ export type AiAttemptSuccess = {
   output: Record<string, unknown>;
 };
 
-export type AiAttemptOutcome = AiAttemptFailure | AiAttemptSuccess;
+export type AiAttemptDeferred = {
+  kind: "DEFERRED";
+  resumeAt: Date;
+};
+
+export type AiAttemptOutcome =
+  AiAttemptFailure | AiAttemptSuccess | AiAttemptDeferred;
 
 export type StoredAiAttempt = {
   id: string;
@@ -76,6 +103,27 @@ export type StoredAiAttempt = {
   responseEnvelope: Record<string, unknown> | null;
   failureClass: string | null;
   retryable: boolean | null;
+  startedAt: Date;
+};
+
+export type BegunAiAttempt =
+  | { kind: "ACQUIRED"; attempt: StoredAiAttempt }
+  | { kind: "TERMINAL"; attempt: StoredAiAttempt }
+  | { kind: "DEFERRED"; attempt: StoredAiAttempt; resumeAt: Date };
+
+export type AiProviderEvidence = {
+  providerKey: string;
+  serviceClass: string;
+  protocol: string;
+  returnedModel?: string;
+  requestId?: string;
+  finishReason?: string;
+  searchObservation?: "TRIGGERED" | "NOT_TRIGGERED" | "UNKNOWN";
+  reasoningEvidenceKind?: "TEXT" | "SUMMARY" | "TOKEN_COUNT" | "NONE";
+  sanitizedRequest?: Record<string, unknown>;
+  responseHeaders?: Record<string, string>;
+  rawResponse?: unknown;
+  failure?: Record<string, unknown>;
 };
 
 export type AiAdapterResult =
@@ -83,5 +131,12 @@ export type AiAdapterResult =
       kind: "SUCCEEDED";
       output: Record<string, unknown>;
       usage?: Record<string, unknown>;
+      evidence?: AiProviderEvidence;
     }
-  | { kind: "FAILED"; failureClass: string; retryable: boolean };
+  | {
+      kind: "FAILED";
+      failureClass: string;
+      retryable: boolean;
+      usage?: Record<string, unknown>;
+      evidence?: AiProviderEvidence;
+    };

@@ -17,54 +17,58 @@
 
 ## S6a Real Sampling Boundary
 
-- [ ] Add validated deterministic/real Worker configuration and fail-fast route
+- [x] Add validated deterministic/real Worker configuration and fail-fast route
       readiness without exposing credentials.
-- [ ] Separate the deterministic fixture from the production route catalog,
+- [x] Separate the deterministic fixture from the production route catalog,
       provider router, HTTP transport, failure taxonomy, and five sampling
       adapters while retaining the existing inward-facing execution port.
-- [ ] Version the persisted attempt envelope so normalized output and protected
+- [x] Version the persisted attempt envelope so normalized output and protected
       provider evidence survive duplicate delivery and terminal replay without a
       second attempt store.
-- [ ] Make one started attempt own at most one outbound request; handle concurrent
+- [x] Make one started attempt own at most one outbound request; handle concurrent
       redelivery, stale ambiguity, and late results without duplicate business
       evidence.
-- [ ] Propagate an in-progress attempt as a deferred work result; use BullMQ's
+- [x] Propagate an in-progress attempt as a deferred work result; use BullMQ's
       delayed-job mechanism without completing the Outbox event or consuming a
       purpose or queue-failure retry.
-- [ ] Replace the internal boolean search flag with the truthful three-state
+- [x] Replace the internal boolean search flag with the truthful three-state
       observation and rehearse the local migration.
-- [ ] Reconcile the E0 runner so controlled validation exercises production
+- [x] Reconcile the E0 runner so controlled validation exercises production
       route definitions or otherwise cannot become a competing executable
       mapping.
-- [ ] Verify all five adapters offline with recorded provider fixtures covering
+- [x] Verify all five adapters offline with recorded provider fixtures covering
       complete answers, returned identities, sources, reasoning evidence, usage,
       no-search ambiguity, malformed responses, timeouts, rate limits, and
       provider errors.
 
 ## S6b Real Interpretation and Overall Analysis
 
-- [ ] Configure the per-sample route sequence as Hy3 primary, one Hy3 retry, and
+- [x] Configure the per-sample route sequence as Hy3 primary, one Hy3 retry, and
       Alibaba Model Studio DeepSeek V4 Flash fallback; keep search disabled.
-- [ ] Make reconciliation derive the next attempt from the purpose-owned route
+- [x] Make reconciliation derive the next attempt from the purpose-owned route
       sequence rather than the existing shared two-attempt cap.
-- [ ] Configure the same primary-retry-fallback sequence for overall analysis;
+- [x] Configure the same primary-retry-fallback sequence for overall analysis;
       keep deterministic metrics and report acceptance unchanged.
-- [ ] Send the existing versioned system instructions and JSON Schemas through
+- [x] Send the existing versioned system instructions and JSON Schemas through
       the provider-specific structured-output mappings with strict local schema
       and semantic validation after every response.
-- [ ] Verify representative parser and synthesis fixtures through primary
+- [x] Verify representative parser and synthesis fixtures through primary
       success, primary semantic rejection, fallback success, and terminal
       exhaustion before any complete evaluation.
 
 ## S6c Observability and Controlled Acceptance
 
-- [ ] Add the reviewed project-local Langfuse/OpenTelemetry dependencies and a
+- [x] Add the reviewed project-local Langfuse/OpenTelemetry dependencies and a
       best-effort masked telemetry adapter; retain a no-op adapter when disabled.
-- [ ] Verify telemetry correlation, usage bucket normalization, exporter failure
+- [x] Verify telemetry correlation, usage bucket normalization, exporter failure
       isolation, and graceful Worker shutdown without exporting protected
       customer content.
 - [ ] Record and obtain confirmation for the exact paid-call manifests, maximum
       calls, retry ceilings, fictional fixtures, and stop conditions.
+      Executable plans are recorded as `sampling-smoke` (five calls,
+      confirmation `2964e3f7...18fae69d`) and `semantic-probe` (nine calls,
+      confirmation `749a3e1c...77f0dbbc`); post-plan execution confirmation is
+      still required.
 - [ ] Execute the smallest production-adapter smoke and interpretation evidence,
       then one complete fictional 4-by-5 evaluation through the real Worker.
 - [ ] Reconcile provider-console or billed cost, native usage, latency,
@@ -73,11 +77,18 @@
 
 ## Verification, Reconciliation, and Exit
 
-- [ ] Pass deterministic regression, focused provider contracts, migration
+- [x] Pass deterministic regression, focused provider contracts, migration
       replay, generated contracts, type checks, tests, builds, framework checks,
       and `git diff --check`.
-- [ ] Run final architecture review over ownership, dependency direction,
+- [x] Run final architecture review over ownership, dependency direction,
       sensitive data, cost, recovery, and removal of duplicate route truth.
+- [ ] Restore deterministic local review data after fixing the integration-test
+      configuration inheritance defect, then re-check the authenticated browser
+      report; integration cleanup must never use the default development
+      database.
+      The brand and a 20/20 deterministic report are restored and verified
+      through the authenticated API; browser verification awaits a user-owned
+      local login rather than entering contact data without action-time consent.
 - [ ] Promote accepted behavior into current evaluation-evidence and
       evaluation-report specs plus the architecture overview; retain later
       release gates explicitly.

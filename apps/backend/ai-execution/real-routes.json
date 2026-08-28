@@ -1,0 +1,77 @@
+{
+  "version": "evaluation-real-routes@1",
+  "routes": [
+    {
+      "routePolicyId": "evaluation.deepseek",
+      "purpose": "EVALUATION_ACQUISITION",
+      "providerKey": "tencent-tokenhub",
+      "serviceClass": "platform",
+      "protocol": "chat-completions",
+      "requestedModel": "deepseek-v4-flash"
+    },
+    {
+      "routePolicyId": "evaluation.hunyuan",
+      "purpose": "EVALUATION_ACQUISITION",
+      "providerKey": "tencent-tokenhub",
+      "serviceClass": "platform",
+      "protocol": "responses",
+      "requestedModel": "hy3"
+    },
+    {
+      "routePolicyId": "evaluation.doubao",
+      "purpose": "EVALUATION_ACQUISITION",
+      "providerKey": "volcengine-ark",
+      "serviceClass": "ark-runtime",
+      "protocol": "responses",
+      "requestedModel": "doubao-seed-2-0-lite-260428"
+    },
+    {
+      "routePolicyId": "evaluation.qwen",
+      "purpose": "EVALUATION_ACQUISITION",
+      "providerKey": "alibaba-model-studio",
+      "serviceClass": "workspace-pay-as-you-go",
+      "protocol": "responses",
+      "requestedModel": "qwen3.7-flash"
+    },
+    {
+      "routePolicyId": "evaluation.ernie",
+      "purpose": "EVALUATION_ACQUISITION",
+      "providerKey": "baidu-qianfan",
+      "serviceClass": "v2-chat",
+      "protocol": "chat-completions",
+      "requestedModel": "ernie-4.5-turbo-128k"
+    },
+    {
+      "routePolicyId": "evaluation.interpretation.hy3-primary@1",
+      "purpose": "EVALUATION_INTERPRETATION",
+      "providerKey": "tencent-tokenhub",
+      "serviceClass": "platform",
+      "protocol": "responses",
+      "requestedModel": "hy3"
+    },
+    {
+      "routePolicyId": "evaluation.interpretation.deepseek-fallback@1",
+      "purpose": "EVALUATION_INTERPRETATION",
+      "providerKey": "alibaba-model-studio",
+      "serviceClass": "workspace-pay-as-you-go",
+      "protocol": "responses",
+      "requestedModel": "deepseek-v4-flash"
+    },
+    {
+      "routePolicyId": "evaluation.overall-synthesis.hy3-primary@1",
+      "purpose": "OVERALL_SYNTHESIS",
+      "providerKey": "tencent-tokenhub",
+      "serviceClass": "platform",
+      "protocol": "responses",
+      "requestedModel": "hy3"
+    },
+    {
+      "routePolicyId": "evaluation.overall-synthesis.deepseek-fallback@1",
+      "purpose": "OVERALL_SYNTHESIS",
+      "providerKey": "alibaba-model-studio",
+      "serviceClass": "workspace-pay-as-you-go",
+      "protocol": "responses",
+      "requestedModel": "deepseek-v4-flash"
+    }
+  ]
+}

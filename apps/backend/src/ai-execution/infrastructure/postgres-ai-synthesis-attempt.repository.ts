@@ -3,17 +3,22 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import type { AiSynthesisAttemptRepository } from "../domain/ai-synthesis-attempt.repository.js";
+import { buildAttemptEnvelope } from "../domain/ai-attempt.envelope.js";
 import type {
   AiAdapterResult,
+  BegunAiAttempt,
+  ResolvedSynthesisAiAttemptRequest,
   StoredAiAttempt,
-  SynthesisAiAttemptRequest,
 } from "../domain/ai-attempt.types.js";
 
 @Injectable()
 export class PostgresAiSynthesisAttemptRepository implements AiSynthesisAttemptRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async begin(request: SynthesisAiAttemptRequest): Promise<StoredAiAttempt> {
+  async begin(
+    request: ResolvedSynthesisAiAttemptRequest,
+    ambiguityTimeoutMs: number,
+  ): Promise<BegunAiAttempt> {
     try {
       const attempt = await this.prisma.aiSynthesisAttempt.create({
         data: {
@@ -27,7 +32,7 @@ export class PostgresAiSynthesisAttemptRepository implements AiSynthesisAttemptR
           correlationId: request.correlationId,
         },
       });
-      return mapAttempt(attempt);
+      return { kind: "ACQUIRED", attempt: mapAttempt(attempt) };
     } catch (error) {
       if (!isUniqueViolation(error)) throw error;
       const attempt = await this.prisma.aiSynthesisAttempt.findUniqueOrThrow({
@@ -38,7 +43,11 @@ export class PostgresAiSynthesisAttemptRepository implements AiSynthesisAttemptR
           },
         },
       });
-      return mapAttempt(attempt);
+      return this.resolveExisting(
+        mapAttempt(attempt),
+        request,
+        ambiguityTimeoutMs,
+      );
     }
   }
 
@@ -53,7 +62,9 @@ export class PostgresAiSynthesisAttemptRepository implements AiSynthesisAttemptR
         result.kind === "SUCCEEDED"
           ? {
               status: "SUCCEEDED",
-              responseEnvelope: result.output as Prisma.InputJsonValue,
+              responseEnvelope: buildAttemptEnvelope(
+                result,
+              ) as Prisma.InputJsonValue,
               ...(result.usage
                 ? { usage: result.usage as Prisma.InputJsonValue }
                 : {}),
@@ -64,8 +75,14 @@ export class PostgresAiSynthesisAttemptRepository implements AiSynthesisAttemptR
             }
           : {
               status: "FAILED",
+              responseEnvelope: buildAttemptEnvelope(
+                result,
+              ) as Prisma.InputJsonValue,
               failureClass: result.failureClass,
               retryable: result.retryable,
+              ...(result.usage
+                ? { usage: result.usage as Prisma.InputJsonValue }
+                : {}),
               latencyMs,
               finishedAt: new Date(),
             },
@@ -76,6 +93,59 @@ export class PostgresAiSynthesisAttemptRepository implements AiSynthesisAttemptR
       }),
     );
   }
+
+  private async resolveExisting(
+    attempt: StoredAiAttempt,
+    request: ResolvedSynthesisAiAttemptRequest,
+    ambiguityTimeoutMs: number,
+  ): Promise<BegunAiAttempt> {
+    if (attempt.status !== "STARTED") {
+      return { kind: "TERMINAL", attempt };
+    }
+    const now = new Date();
+    const resumeAt = new Date(attempt.startedAt.getTime() + ambiguityTimeoutMs);
+    if (resumeAt.getTime() > now.getTime()) {
+      return { kind: "DEFERRED", attempt, resumeAt };
+    }
+    await this.prisma.aiSynthesisAttempt.updateMany({
+      where: {
+        id: attempt.id,
+        status: "STARTED",
+        startedAt: { lte: new Date(now.getTime() - ambiguityTimeoutMs) },
+      },
+      data: {
+        status: "FAILED",
+        failureClass: "AMBIGUOUS_INTERRUPTION",
+        retryable: true,
+        finishedAt: now,
+        latencyMs: Math.max(0, now.getTime() - attempt.startedAt.getTime()),
+        responseEnvelope: buildAttemptEnvelope({
+          kind: "FAILED",
+          failureClass: "AMBIGUOUS_INTERRUPTION",
+          retryable: true,
+          evidence: {
+            providerKey: request.providerKey,
+            serviceClass: request.serviceClass,
+            protocol: request.protocol,
+            failure: { kind: "AMBIGUOUS_INTERRUPTION" },
+          },
+        }) as Prisma.InputJsonValue,
+      },
+    });
+    const resolved = mapAttempt(
+      await this.prisma.aiSynthesisAttempt.findUniqueOrThrow({
+        where: { id: attempt.id },
+      }),
+    );
+    if (resolved.status === "STARTED") {
+      return {
+        kind: "DEFERRED",
+        attempt: resolved,
+        resumeAt: new Date(resolved.startedAt.getTime() + ambiguityTimeoutMs),
+      };
+    }
+    return { kind: "TERMINAL", attempt: resolved };
+  }
 }
 
 function mapAttempt(attempt: {
@@ -84,6 +154,7 @@ function mapAttempt(attempt: {
   responseEnvelope: Prisma.JsonValue | null;
   failureClass: string | null;
   retryable: boolean | null;
+  startedAt: Date;
 }): StoredAiAttempt {
   return {
     id: attempt.id,
@@ -93,6 +164,7 @@ function mapAttempt(attempt: {
       : null,
     failureClass: attempt.failureClass,
     retryable: attempt.retryable,
+    startedAt: attempt.startedAt,
   };
 }
 

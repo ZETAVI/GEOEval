@@ -28,6 +28,7 @@ import {
   OVERALL_SYNTHESIS_CONTRACT_VERSION,
   parseOverallSynthesisOutput,
   splitOverallSynthesis,
+  type OverallSynthesisOutput,
 } from "../domain/overall-synthesis.contract.js";
 
 const brandSnapshotSchema = z.object({
@@ -67,6 +68,7 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
     runId: string;
     cycleId: string;
     attemptId: string;
+    synthesis: OverallSynthesisOutput;
   }): Promise<void> {
     try {
       await this.prisma.$transaction(async (transaction) => {
@@ -85,17 +87,8 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
           where: { id: input.runId },
           select: { accountId: true, brandId: true, correlationId: true },
         });
-        const attempt = await transaction.aiSynthesisAttempt.findFirstOrThrow({
-          where: {
-            id: input.attemptId,
-            runId: input.runId,
-            cycleId: input.cycleId,
-            status: "SUCCEEDED",
-          },
-          select: { responseEnvelope: true },
-        });
         const accepted = parseOverallSynthesisOutput(
-          attempt.responseEnvelope,
+          input.synthesis,
           context.samples,
         );
         const { semantic, guidance } = splitOverallSynthesis(accepted);

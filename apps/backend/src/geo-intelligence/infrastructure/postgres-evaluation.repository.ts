@@ -56,6 +56,7 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
           objectivityProfileId: input.objectivityProfile.id,
           objectivityProfileVersion: input.objectivityProfile.version,
           objectivityProfileHash: input.objectivityProfile.contentHash,
+          objectivityProfileContent: input.objectivityProfile.content,
           questions: { create: input.questions },
         },
         include: definitionInclude,
@@ -382,6 +383,7 @@ function mapDefinition(definition: {
   objectivityProfileId: string;
   objectivityProfileVersion: string;
   objectivityProfileHash: string;
+  objectivityProfileContent: string;
   createdAt: Date;
   questions: Array<{
     id: string;
@@ -426,6 +428,7 @@ function mapDefinition(definition: {
       id: definition.objectivityProfileId,
       version: definition.objectivityProfileVersion,
       contentHash: definition.objectivityProfileHash,
+      content: definition.objectivityProfileContent,
     },
     platforms: parsePlatforms(definition.platformPolicy),
     questions: definition.questions,

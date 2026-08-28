@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import type {
   EvaluationBrandSnapshot,
   EvaluationQuestionKind,
@@ -23,17 +25,32 @@ export type EvaluationSampleWorkContext = {
   platformLabel: string;
   routePolicyId: string;
   requestedModel: string;
+  objectivityInstruction: string;
   correlationId: string;
   evidence: { answerContent: string } | null;
 };
 
-export type AcceptedEvidence = {
-  answerContent: string;
-  answerFormat: "MARKDOWN";
-  sourceMetadata: Array<Record<string, unknown>>;
-  searchUsed: boolean;
-  returnedModel: string;
-};
+const acquisitionAttemptOutputSchema = z
+  .object({
+    kind: z.literal("ACQUISITION"),
+    answerContent: z.string().min(1),
+    answerFormat: z.literal("MARKDOWN"),
+    sourceMetadata: z.array(z.record(z.string(), z.unknown())),
+    searchObservation: z.enum(["TRIGGERED", "NOT_TRIGGERED", "UNKNOWN"]),
+    returnedModel: z.string().min(1),
+  })
+  .strict();
+
+export type AcceptedEvidence = Omit<
+  z.infer<typeof acquisitionAttemptOutputSchema>,
+  "kind"
+>;
+
+export function parseAcceptedEvidence(input: unknown): AcceptedEvidence {
+  const { kind: _kind, ...evidence } =
+    acquisitionAttemptOutputSchema.parse(input);
+  return evidence;
+}
 
 export type AcceptedInterpretation = {
   mentioned: boolean;

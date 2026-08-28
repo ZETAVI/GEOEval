@@ -1,0 +1,63 @@
+import type {
+  ResolvedAiAttemptRequest,
+  StructuredOutputAttemptInput,
+} from "../../domain/ai-attempt.types.js";
+import type { RealProviderConnection } from "../ai-execution.config.js";
+import type { ProviderHttpTransport } from "./provider-http.transport.js";
+import {
+  executeProviderJsonRequest,
+  type ProviderRouteAdapter,
+  type ProviderRouteDefinition,
+} from "./provider-route.js";
+
+export class ModelStudioProviderAdapter implements ProviderRouteAdapter {
+  readonly providerKey = "alibaba-model-studio";
+
+  constructor(
+    private readonly connection: RealProviderConnection,
+    private readonly transport: ProviderHttpTransport,
+  ) {}
+
+  execute(
+    request: ResolvedAiAttemptRequest,
+    definition: ProviderRouteDefinition,
+  ) {
+    const body =
+      request.purpose === "EVALUATION_ACQUISITION"
+        ? {
+            model: definition.requestedModel,
+            input: request.input.query,
+            instructions: request.input.systemInstruction,
+            tools: [{ type: "web_search" }],
+          }
+        : structuredBody(definition, request.input);
+    return executeProviderJsonRequest({
+      request,
+      definition,
+      connection: this.connection,
+      transport: this.transport,
+      path: "/responses",
+      body,
+    });
+  }
+}
+
+function structuredBody(
+  definition: ProviderRouteDefinition,
+  input: StructuredOutputAttemptInput,
+) {
+  return {
+    model: definition.requestedModel,
+    input: JSON.stringify(input.userContext),
+    instructions: input.systemInstruction,
+    text: {
+      format: {
+        type: "json_schema",
+        name: input.outputContract.version
+          .replaceAll(/[^a-zA-Z0-9_-]/g, "_")
+          .slice(0, 64),
+        schema: input.outputContract.jsonSchema,
+      },
+    },
+  };
+}

@@ -1,13 +1,17 @@
 import type {
   AiAdapterResult,
-  SampleAiAttemptRequest,
+  BegunAiAttempt,
+  ResolvedSampleAiAttemptRequest,
   StoredAiAttempt,
 } from "./ai-attempt.types.js";
 
 export const AI_ATTEMPT_REPOSITORY = Symbol("AI_ATTEMPT_REPOSITORY");
 
 export interface AiAttemptRepository {
-  begin(request: SampleAiAttemptRequest): Promise<StoredAiAttempt>;
+  begin(
+    request: ResolvedSampleAiAttemptRequest,
+    ambiguityTimeoutMs: number,
+  ): Promise<BegunAiAttempt>;
   finish(
     attemptId: string,
     result: AiAdapterResult,

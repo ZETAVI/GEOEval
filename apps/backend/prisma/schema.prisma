@@ -77,6 +77,12 @@ enum AiExecutionAttemptStatus {
   FAILED
 }
 
+enum EvaluationSearchObservation {
+  TRIGGERED
+  NOT_TRIGGERED
+  UNKNOWN
+}
+
 enum NotificationKind {
   EVALUATION_COMPLETED
   EVALUATION_RETRY_REQUIRED
@@ -172,6 +178,7 @@ model EvaluationDefinition {
   objectivityProfileId      String               @map("objectivity_profile_id")
   objectivityProfileVersion String               @map("objectivity_profile_version")
   objectivityProfileHash    String               @map("objectivity_profile_hash") @db.Char(64)
+  objectivityProfileContent String               @map("objectivity_profile_content")
   createdAt                 DateTime             @default(now()) @map("created_at")
   brand                     BrandProfile         @relation("BrandEvaluationDefinitions", fields: [brandId, accountId], references: [id, accountId], onDelete: Restrict)
   questions                 EvaluationQuestion[]
@@ -305,7 +312,7 @@ model EvaluationSampleEvidence {
   answerContent     String             @map("answer_content")
   answerFormat      String             @map("answer_format") @db.VarChar(40)
   sourceMetadata    Json               @map("source_metadata")
-  searchUsed        Boolean            @map("search_used")
+  searchObservation EvaluationSearchObservation @map("search_observation")
   returnedModel     String             @map("returned_model") @db.VarChar(120)
   acceptedAt        DateTime           @default(now()) @map("accepted_at")
   sample            EvaluationSample   @relation(fields: [sampleId], references: [id], onDelete: Restrict)

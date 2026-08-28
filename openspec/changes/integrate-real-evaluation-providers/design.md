@@ -366,8 +366,9 @@ Completion requires:
 
 ## Preflight architecture review
 
-- Status: `ready` for S6a offline implementation; controlled paid calls remain a
-  later explicit gate.
+- Status: S6a/S6b offline implementation and S6c telemetry are complete and
+  `ready` for the exact controlled sampling and semantic call gates. The full
+  fictional evaluation remains a later explicit gate.
 - Resolved must-fix: a live duplicate cannot simply return and let its Outbox
   event complete. The design now propagates a durable deferral time and lets
   Background Work use BullMQ delayed delivery without consuming a model or
@@ -390,3 +391,47 @@ Completion requires:
   Migration SQL, exact adapter envelopes, BullMQ delayed behavior, provider
   contract fixtures, and telemetry shutdown remain implementation evidence, not
   claims established by this design review.
+
+## Evidence at the controlled-call gate
+
+The executable `s6:plan` command reads the same production route catalog and
+builds only sanitized plans. `s6:execute` uses the production
+`RealAiAttemptAdapter`, requires the current plan confirmation, executes each
+listed call once with no transport retry, stops on the first failure, and writes
+prompts, answers, raw responses, and validation details only under the ignored
+`.provider-evidence/s6-controlled` directory with `0700` directories and `0600`
+files.
+
+| Batch | Exact calls | Maximum | Current confirmation |
+| --- | --- | ---: | --- |
+| `sampling-smoke` | One fictional Guangzhou coffee-brand sampling request through DeepSeek, Doubao, Qwen, ERNIE, and Hy3 production routes | 5 | `2964e3f7b17b23dd5be2ef772d9224759610db7143f37cfbb6ea051d18fae69d` |
+| `semantic-probe` | Hy3 parser P01/P03/P05/P07; Model Studio DeepSeek parser P03/P07; Hy3 synthesis Y02/Y03; Model Studio DeepSeek synthesis Y02 | 9 | `749a3e1cdabbe8a7a52b39ec6b8c266f251e4f1a34df6fe39e18f9a577f0dbbc` |
+
+Both batches stop on the first request failure, route or model drift, invalid
+structured response, or failed business semantic contract. Generating these
+plans does not authorize or perform an external call.
+
+Offline evidence on 2026-08-28:
+
+- a clean twelve-migration replay and a representative S4-to-S6 upgrade both
+  passed while preserving attempt, evidence, interpretation, and report links;
+- actual retained response bodies from all five providers passed the production
+  normalizer without a new call;
+- the isolated backend suite passed 18 files and 94 tests, including duplicate
+  delivery, stale ambiguity, parser fallback, provider failures, manifest
+  secrecy and permissions, and telemetry isolation;
+- the production build passed Prisma generation, OpenAPI generation, backend
+  compilation, API-client type checking, and the Next.js build;
+- integration tests now inherit explicit database and Redis environment values,
+  closing the defect that previously allowed a test cleanup to reach local demo
+  data. The authenticated browser recheck remains open.
+
+The final code-level architecture review found no remaining must-fix boundary
+issue before the controlled calls. Production routes have one executable owner;
+GEO Intelligence retains product semantics and acceptance; Background Work owns
+delivery only; raw content stays in business storage or protected ignored
+evidence and is not exported to Langfuse. The known `pg@9` nested-query
+deprecation warning is a later dependency-maintenance item because it does not
+change S6 behavior. The deterministic local brand and 20/20 report have been
+restored through the authenticated API; a browser session still requires the
+user-owned local login.
