@@ -1,8 +1,9 @@
 # Architecture Overview
 
 - Status: deterministic S1-S5 behavior is integrated on `main`; this unmerged
-  Draft PR #20 candidate adds controlled S6 real-sampling and representative
-  semantic-route evidence without making it accepted current behavior
+  Draft PR #20 candidate has completed one fictional real 4-by-5 Worker
+  evaluation and authenticated customer-report inspection without making S6
+  accepted current behavior
 - Entry condition: Approved product foundation and bounded first product slice
 - Decision history: [`define-application-architecture`](../../openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md)
 - Completed change: [`deliver-first-evaluation-slice`](../../openspec/changes/archive/2026-08-31-deliver-first-evaluation-slice/proposal.md)
@@ -98,6 +99,15 @@ acceptance. Default parser and synthesis calls do not use web search. A future
 brand-entity resolver may search only when ambiguity justifies its separate
 latency and evidence boundary.
 
+The first complete real run accepted all twenty acquisition samples on their
+first platform attempt. Ten interpretations passed the first Qwen3.8 attempt,
+eight passed its same-route retry, and two used the Hy3 fallback. Overall
+synthesis required the same fallback after one semantic rejection and one
+timeout. This proves the recovery path, not production capacity. It also fixes
+the next semantic-quality frontier: improve evidence extraction, other-brand
+classification, and synthesis-reference discipline from retained real evidence
+before adding retries or weakening the canonical contracts.
+
 ## Architecture qualities
 
 When architecture work begins, it must preserve:
@@ -113,12 +123,19 @@ When architecture work begins, it must preserve:
 ## Next architecture gates
 
 1. Keep destination-branch integration as a separate explicit branch-exit
-   action; the accepted S1-S5 checkpoint does not imply a merge or deployment.
-2. Complete one fictional real 4-by-5 evaluation through the Worker and inspect
-   the authenticated report, retry/fallback evidence, native usage, latency,
-   and cost. The completed route smoke and semantic probes do not by themselves
-   establish production capacity.
-3. Validate SSE proxy buffering and reconnect behavior in the named release
+   action; the verified S6 branch checkpoint does not imply a merge or
+   deployment.
+2. Reconcile provider-console billed cost and commercial data terms before any
+   production-capacity, pricing, or real-customer claim. One successful
+   fictional run is not a load or quota test.
+3. After the S6 branch is reviewed and integrated, introduce the AI question
+   generator as a separate GEO Intelligence change behind the existing
+   `EvaluationQuestionGenerator` port. Versioned prompt, model-output contract,
+   and fixtures belong to `apps/backend/geo-intelligence/query-generator/`;
+   external execution still goes through AI Execution, while GEO retains the
+   four-question shape, immutable snapshot, validation, and fallback authority.
+   Keep the deterministic generator as the local baseline and rollback path.
+4. Validate SSE proxy buffering and reconnect behavior in the named release
    environment, and remove or isolate F0-only HTTP, schema, and page probes,
    before a commercial deployment.
 

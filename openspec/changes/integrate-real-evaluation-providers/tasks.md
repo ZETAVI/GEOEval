@@ -74,11 +74,14 @@
 - [x] Execute the five-route production-adapter smoke plus representative
       Qwen3.8-primary and Hy3-fallback parser/synthesis evidence with protected,
       resumable local evidence.
-- [ ] Execute one complete fictional 4-by-5 evaluation through the real Worker
+- [x] Execute one complete fictional 4-by-5 evaluation through the real Worker
       and inspect the authenticated customer report.
-- [ ] Reconcile provider-console or billed cost, native usage, latency,
-      search/source retention, retry/fallback evidence, and the customer-visible
+- [x] Reconcile retained native usage, latency, search/source retention,
+      retry/fallback evidence, Outbox completion, and the customer-visible
       browser report without claiming production capacity from one run.
+- [ ] Reconcile provider-console billed cost before commercial pricing or
+      production-capacity claims. The product owner placed no local validation
+      budget cap, but native usage is not the provider's final invoice.
 
 ## Verification, Reconciliation, and Exit
 
@@ -87,14 +90,11 @@
       and `git diff --check`.
 - [x] Run final architecture review over ownership, dependency direction,
       sensitive data, cost, recovery, and removal of duplicate route truth.
-- [ ] Restore deterministic local review data after fixing the integration-test
-      configuration inheritance defect, then re-check the authenticated browser
-      report; integration cleanup must never use the default development
-      database.
-      The brand and a 20/20 deterministic report are restored and verified
-      through the authenticated API; browser verification awaits a user-owned
-      local login rather than entering contact data without action-time consent.
-- [ ] Promote accepted behavior into current evaluation-evidence and
+- [x] Restore deterministic local review data after fixing the integration-test
+      configuration inheritance defect, and verify an authenticated 20/20
+      customer report through a separate fictional real-run database; integration
+      cleanup never uses the default development database.
+- [x] Promote accepted behavior into current evaluation-evidence and
       evaluation-report specs plus the architecture overview; retain later
       release gates explicitly.
 - [ ] Execute the provider-related part of the product-definition evolution

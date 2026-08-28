@@ -404,11 +404,12 @@ Completion requires:
 - current specs and architecture are reconciled and duplicate E0 route truth is
   removed or made generated/consuming.
 
-## Preflight architecture review
+## Architecture review state
 
 - Status: S6a/S6b implementation, controlled sampling and semantic evidence,
-  and S6c telemetry are complete. The full fictional evaluation remains a
-  separate gate.
+  S6c telemetry, and one authenticated fictional 4-by-5 evaluation are
+  complete. Provider-console billed cost and branch integration remain separate
+  gates.
 - Resolved must-fix: a live duplicate cannot simply return and let its Outbox
   event complete. The design now propagates a durable deferral time and lets
   Background Work use BullMQ delayed delivery without consuming a model or
@@ -457,14 +458,15 @@ Offline evidence on 2026-08-28:
   passed while preserving attempt, evidence, interpretation, and report links;
 - actual retained response bodies from all five providers passed the production
   normalizer without a new call;
-- the isolated backend suite passed 18 files and 98 tests, including duplicate
+- the isolated backend suite passed 18 files and 99 tests, including duplicate
   delivery, stale ambiguity, parser fallback, provider failures, manifest
   secrecy and permissions, and telemetry isolation;
 - the production build passed Prisma generation, OpenAPI generation, backend
   compilation, API-client type checking, and the Next.js build;
 - integration tests now inherit explicit database and Redis environment values,
   closing the defect that previously allowed a test cleanup to reach local demo
-  data. The authenticated browser recheck remains open.
+  data. The authenticated fictional browser report was rechecked against the
+  isolated real-run database.
 
 Controlled external evidence on 2026-08-28:
 
@@ -478,12 +480,53 @@ Controlled external evidence on 2026-08-28:
 - one Qwen3.8 strict-JSON plus web-search experiment timed out at 180 seconds and
   is retained as negative evidence for keeping default synthesis search off.
 
+Complete fictional evaluation evidence on 2026-08-28:
+
+- an isolated PostgreSQL database and Redis database ran the production API and
+  real Worker without touching the default development data; the authenticated
+  Web read the resulting report through the normal account-scoped contract;
+- the frozen definition contained four questions and five platforms. All twenty
+  acquisition attempts succeeded on their first platform call, and the final
+  run completed as `COMPLETED/REPORT_ACCEPTED` in about thirteen minutes and
+  fifty-two seconds;
+- ten interpretations passed the first Qwen3.8 attempt, eight passed its
+  same-route retry, and two passed the Hy3 fallback. The primary rejections were
+  reproducibly traced to non-verbatim evidence, inconsistent mention or
+  position fields, current-brand duplication, and over-broad other-brand
+  extraction rather than transport failure;
+- overall synthesis attempt one returned successfully after 146,190 ms but was
+  rejected for duplicate brand-group members and one nonexistent sample
+  reference; attempt two timed out at 180,006 ms; Hy3 accepted attempt three in
+  81,544 ms;
+- sixteen platform answers explicitly reported search as `TRIGGERED`, four were
+  `UNKNOWN`, and one hundred source records were retained internally. The
+  customer report exposed none of those sources or provider diagnostics;
+- retained native usage across successful and timed-out attempts contains
+  provider-specific input, output, reasoning, tool, and cache buckets. Known
+  normalized totals were 313,608 input tokens, 148,231 output tokens, and 86,138
+  reasoning tokens, but those overlapping provider-native buckets are not a
+  bill and are not used for a price claim;
+- all seventy-seven product-Outbox events reached `COMPLETED`; the authenticated
+  report showed 20/20 coverage, all five platform sections, four question groups,
+  original Markdown, recommendation index, impressions, other-brand context,
+  and optimization directions. Browser review also exposed that synthesizer
+  implementation notes could appear in the report footer, so the public report
+  projection and Web now omit that internal limitation field, including for
+  older immutable local documents.
+
+The real run does not justify weakening exact-evidence or brand-identity checks.
+It establishes a bounded next improvement: distinguish errors that change
+business meaning from incomplete optional metadata that can be safely discarded
+by deterministic projection, then validate that refinement with retained
+answers and a new confirmed semantic probe. More retries are not the default
+response to these findings.
+
 The final code-level architecture review found no remaining must-fix boundary
 issue before the controlled calls. Production routes have one executable owner;
 GEO Intelligence retains product semantics and acceptance; Background Work owns
 delivery only; raw content stays in business storage or protected ignored
 evidence and is not exported to Langfuse. The known `pg@9` nested-query
 deprecation warning is a later dependency-maintenance item because it does not
-change S6 behavior. The deterministic local brand and 20/20 report have been
-restored through the authenticated API; a browser session still requires the
-user-owned local login.
+change S6 behavior. The deterministic local brand remains restored, and the
+separate fictional real-run database has passed both authenticated API and
+browser inspection with a 20/20 report.

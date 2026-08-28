@@ -61,17 +61,16 @@ experience proven by deterministic S1-S5.
   adapters rather than repeating the earlier prompt-only batches.
 - Open: account terms and data-processing approval for real customer content
   remain a commercial-release gate; all S6 calls use fictional data.
-- Open: the complete fictional evaluation retains the executable 103-call
-  maximum under worst-case retries; its actual manifest must be confirmed before
-  execution.
+- Open: provider-console billed cost remains a commercial-release reconciliation
+  item. Retained native usage is evidence of consumption, not a final invoice.
 
 ## Confirmation and Next Gate
 
 - Confirmation: Confirmed for outcome, scope, staged delivery, local
-  implementation, sampling smoke, and representative semantic calls on
-  2026-08-28.
-- Next action: complete one fictional real 4-by-5 Worker evaluation, inspect its
-  authenticated report and retained usage/latency/fallback evidence, then
-  reconcile the active change.
+  implementation, sampling smoke, representative semantic calls, and one
+  complete fictional 4-by-5 Worker evaluation on 2026-08-28.
+- Next action: finish current-spec reconciliation and branch review. After S6 is
+  integrated, open a separate bounded change for the AI question generator
+  behind GEO Intelligence's existing question-generation port.
 - Confirmation required before: each controlled paid-call batch, branch
   integration, customer-data use, production activation, or deployment.

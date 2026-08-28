@@ -7,7 +7,8 @@ identities of one official evaluation into durable, format-preserving answers
 and accepted per-sample interpretations. This specification stops at internal
 readiness for overall synthesis or the public `PLEASE_RETRY` outcome; it does
 not own report synthesis, scoring, optimization advice, synthesis-only retry,
-notifications, or real-provider integration.
+or notifications. S6 extends this owner with the accepted real execution and
+protected provider-evidence boundary.
 
 ## Requirements
 
@@ -59,6 +60,62 @@ Background Work SHALL own only reliable delivery of stable identifiers.
 - **AND** the Outbox relay and scheduled reconciliation scan resume only work
   implied by durable GEO state
 - **AND** telemetry failure cannot reject accepted business evidence
+
+#### Scenario: A real attempt is duplicated or interrupted
+
+- **WHEN** concurrent delivery encounters a live started attempt
+- **THEN** it defers the same durable work and sends no second provider request
+- **AND** when the attempt exceeds the reviewed ambiguity deadline it is
+  atomically recorded as a retryable ambiguous failure before a later numbered
+  attempt may run
+- **AND** a late result cannot overwrite that failure or accepted evidence
+
+### Requirement: Explicit real execution boundary
+
+The Worker SHALL select deterministic or real AI execution through validated
+startup configuration, and AI Execution SHALL preserve provider evidence behind
+one provider-neutral inward-facing result.
+
+#### Scenario: Real execution is enabled
+
+- **WHEN** the Worker starts in real execution mode
+- **THEN** every accepted route has an explicit logical policy, provider service
+  class, base URL, requested model, credential reference, timeout, and supported
+  purpose
+- **AND** an incomplete route set, missing credential, unsupported model,
+  official-direct DeepSeek route, or purpose/protocol mismatch fails readiness
+  before evaluation work is consumed
+- **AND** secrets never enter snapshots, logs, traces, errors, or Git
+
+#### Scenario: A sampling route succeeds
+
+- **WHEN** a real platform returns a complete answer
+- **THEN** GEO receives one normalized answer, format, exact returned model,
+  source metadata, and `TRIGGERED`, `NOT_TRIGGERED`, or `UNKNOWN` search
+  observation based on explicit provider evidence
+- **AND** the protected attempt envelope retains the complete provider response,
+  request identity where returned, finish reason, native usage, search evidence,
+  and reasoning evidence when actually exposed
+- **AND** provider sources, search details, raw envelopes, and technical usage do
+  not enter the customer report
+
+### Requirement: Provider failures respect purpose policy
+
+Transport, provider, and semantic failures SHALL remain explicit attempts whose
+next action is owned by GEO Intelligence rather than an SDK, queue counter, or
+telemetry exporter.
+
+#### Scenario: A real purpose attempt fails
+
+- **WHEN** a route times out, cannot connect, rate-limits, rejects a request,
+  returns malformed data, or returns semantically invalid structured output
+- **THEN** AI Execution retains stable technical failure evidence without a
+  hidden transport retry
+- **AND** acquisition retries the same platform route
+- **AND** interpretation uses Model Studio Qwen3.8 Flash for attempts one and
+  two and TokenHub Hy3 for attempt three
+- **AND** a structured response affects accepted interpretation only after GEO's
+  deterministic projection and canonical semantic validation succeed
 
 ### Requirement: Readiness boundary
 
@@ -115,9 +172,10 @@ the customer understand the current outcome.
 
 ## Current environment boundary
 
-The S3 business contract remains reproducible with deterministic adapters.
-S6 also provides explicit real-mode adapters for the five sampling routes and
-the Qwen3.8-primary/Hy3-fallback interpretation sequence, with protected
-controlled evidence. One complete real 4-by-5 Worker run, production pacing and
-cost controls, commercial data approval, and production Redis high availability
-remain later gates.
+The business contract remains reproducible with deterministic adapters. One
+complete fictional real 4-by-5 Worker run accepted all twenty platform answers
+on their first acquisition attempts and completed through the reviewed
+Qwen3.8-primary/Hy3-fallback interpretation policy. This proves route and
+recovery compatibility only. Provider-console cost reconciliation, production
+pacing and quota evidence, commercial data approval, and production Redis high
+availability remain later gates.

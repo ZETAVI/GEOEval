@@ -279,7 +279,9 @@ export function buildEvaluationReportDocument(input: {
       intendedImprovement: direction.intendedImprovement,
       evidence: evidenceSummary(direction.evidenceRefs, samplePlatforms),
     })),
-    limitations: input.synthesis.limitations,
+    // Synthesis limitations remain internal analysis context. The first
+    // customer report has no free-form implementation-note surface.
+    limitations: [],
   });
 }
 
@@ -290,7 +292,10 @@ export function parseStoredEvaluationReportDocument(
   if (contractVersion !== EVALUATION_REPORT_DOCUMENT_VERSION) {
     throw new Error(`Unsupported report document contract ${contractVersion}`);
   }
-  return evaluationReportDocumentSchema.parse(payload);
+  const document = evaluationReportDocumentSchema.parse(payload);
+  // Keep older immutable documents readable without re-exposing notes that
+  // were accepted before the customer projection boundary was tightened.
+  return { ...document, limitations: [] };
 }
 
 function evidenceSummary(
