@@ -21,6 +21,7 @@ import type {
   BrandView,
   EditableBrandFields,
   EvaluationPurposeBrandView,
+  EvaluationReportPurposeBrandView,
 } from "../domain/brand.types.js";
 
 @Injectable()
@@ -121,6 +122,20 @@ export class BrandService {
       province: brand.province!,
       city: brand.city!,
       district: brand.district!,
+    };
+  }
+
+  async evaluationReportPurposeView(
+    accountId: string,
+    brandId: string,
+  ): Promise<EvaluationReportPurposeBrandView> {
+    const brand = await this.repository.find(accountId, brandId);
+    if (!brand) throw new NotFoundException("未找到该品牌");
+    return {
+      accountId,
+      brandId,
+      companyName: brand.companyName,
+      inputFingerprint: brand.evaluationFingerprint,
     };
   }
 }

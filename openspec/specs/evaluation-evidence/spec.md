@@ -6,8 +6,8 @@ Define the accepted S3 behavior that turns the twenty immutable sample
 identities of one official evaluation into durable, format-preserving answers
 and accepted per-sample interpretations. This specification stops at internal
 readiness for overall synthesis or the public `PLEASE_RETRY` outcome; it does
-not own report synthesis, scoring, optimization advice, customer retry
-execution, or real-provider integration.
+not own report synthesis, scoring, optimization advice, synthesis-only retry,
+notifications, or real-provider integration.
 
 ## Requirements
 
@@ -79,6 +79,24 @@ positions have either an accepted interpretation or an exhausted stage.
   are terminal
 - **THEN** the execution cycle is exhausted and the public run status becomes
   `PLEASE_RETRY`
+
+### Requirement: Evidence-stage retry preserves accepted work
+
+An account-authorized retry SHALL open one new bounded execution cycle over the
+same official run and its same twenty logical sample positions.
+
+#### Scenario: The customer retries insufficient evidence
+
+- **WHEN** the run is `PLEASE_RETRY` because sample acquisition or
+  interpretation was exhausted
+- **THEN** one next positive-sequence cycle returns the run to `EVALUATING`
+- **AND** only positions without an accepted answer restart acquisition
+- **AND** positions with an accepted answer but no interpretation restart only
+  interpretation
+- **AND** accepted answers, accepted interpretations, earlier attempts, and
+  earlier exhaustion records remain unchanged
+- **AND** concurrent or repeated retry commands return the same active retry
+  without creating another cycle, run, or logical sample
 
 ### Requirement: Concise customer progress
 

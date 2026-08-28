@@ -12,6 +12,9 @@ const EVALUATION_EVENT_TYPES = [
   "evaluation.sample.acquire.requested",
   "evaluation.sample.interpret.requested",
   "evaluation.run.readiness.requested",
+  "evaluation.run.synthesize.requested",
+  "evaluation.report.accepted",
+  "evaluation.retry.required",
 ] as const;
 
 @Injectable()
@@ -39,6 +42,7 @@ export class PostgresProductOutboxRepository implements ProductOutboxRepository 
         eventType: true,
         payload: true,
         correlationId: true,
+        createdAt: true,
         status: true,
       },
     });
@@ -54,6 +58,7 @@ export class PostgresProductOutboxRepository implements ProductOutboxRepository 
       eventType: event.eventType,
       payload: event.payload,
       correlationId: event.correlationId,
+      createdAt: event.createdAt,
     };
   }
 

@@ -2,6 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 
 import { EvaluationProcessCoordinator } from "../../geo-intelligence/application/evaluation-process.coordinator.js";
 import { SafeTelemetry } from "../../infrastructure/telemetry.js";
+import { NotificationEventHandler } from "../../notification/application/notification-event.handler.js";
 import {
   PRODUCT_OUTBOX_REPOSITORY,
   type ProductOutboxRepository,
@@ -14,6 +15,8 @@ export class ProductWorkProcessor {
     private readonly outbox: ProductOutboxRepository,
     @Inject(EvaluationProcessCoordinator)
     private readonly coordinator: EvaluationProcessCoordinator,
+    @Inject(NotificationEventHandler)
+    private readonly notifications: NotificationEventHandler,
     @Inject(SafeTelemetry)
     private readonly telemetry: SafeTelemetry,
   ) {}
@@ -21,7 +24,14 @@ export class ProductWorkProcessor {
   async apply(outboxEventId: string): Promise<void> {
     const event = await this.outbox.findEvent(outboxEventId);
     if (!event) return;
-    await this.coordinator.process(event);
+    if (
+      event.eventType === "evaluation.report.accepted" ||
+      event.eventType === "evaluation.retry.required"
+    ) {
+      await this.notifications.handle(event);
+    } else {
+      await this.coordinator.process(event);
+    }
     await this.outbox.markCompleted(event.id);
     await this.telemetry.export({
       name: "product.work.applied",

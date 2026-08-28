@@ -1,6 +1,7 @@
 import type {
   EvaluationDefinitionInput,
   EvaluationDefinitionView,
+  RetryEvaluationOutcome,
   StartEvaluationOutcome,
 } from "./evaluation.types.js";
 
@@ -19,4 +20,8 @@ export interface EvaluationRepository {
     accountId: string;
     definitionId: string;
   }): Promise<StartEvaluationOutcome>;
+  retryRun(input: {
+    accountId: string;
+    runId: string;
+  }): Promise<RetryEvaluationOutcome>;
 }

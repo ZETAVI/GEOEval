@@ -10,6 +10,12 @@ import type {
   AcceptedEvidence,
   AcceptedInterpretation,
 } from "../domain/evaluation-process.types.js";
+import {
+  SAMPLE_PARSER_CONTRACT_VERSION,
+  parseSampleParserOutput,
+} from "../domain/sample-parser.contract.js";
+import { buildSampleParserTask } from "../sample-parser.policy.js";
+import { EvaluationSynthesisCoordinator } from "./evaluation-synthesis.coordinator.js";
 
 const MAX_PURPOSE_ATTEMPTS = 2;
 
@@ -19,6 +25,7 @@ const runStartedSchema = z.object({
 });
 
 const sampleWorkSchema = z.object({
+  runId: z.string().uuid(),
   cycleId: z.string().uuid(),
   sampleId: z.string().uuid(),
   attemptNumber: z.number().int().min(1).max(MAX_PURPOSE_ATTEMPTS),
@@ -38,31 +45,6 @@ const acquisitionOutputSchema = z.object({
   returnedModel: z.string().min(1),
 });
 
-const interpretationOutputSchema = z
-  .object({
-    kind: z.literal("INTERPRETATION"),
-    mentioned: z.boolean(),
-    position: z.number().int().positive().nullable(),
-    relevantDescription: z.string().min(1).nullable(),
-    characteristics: z.array(z.record(z.string(), z.unknown())).max(10),
-    objectiveSummary: z.string().min(1),
-    structuredEvidence: z.record(z.string(), z.unknown()),
-  })
-  .superRefine((value, context) => {
-    if (value.mentioned && value.position === null) {
-      context.addIssue({
-        code: "custom",
-        message: "A mentioned brand requires a relative position",
-      });
-    }
-    if (!value.mentioned && value.position !== null) {
-      context.addIssue({
-        code: "custom",
-        message: "A non-mentioned brand cannot have a position",
-      });
-    }
-  });
-
 @Injectable()
 export class EvaluationProcessCoordinator {
   constructor(
@@ -70,6 +52,8 @@ export class EvaluationProcessCoordinator {
     private readonly repository: EvaluationProcessRepository,
     @Inject(AiExecutionService)
     private readonly aiExecution: AiExecutionService,
+    @Inject(EvaluationSynthesisCoordinator)
+    private readonly synthesis: EvaluationSynthesisCoordinator,
   ) {}
 
   async process(event: {
@@ -95,22 +79,30 @@ export class EvaluationProcessCoordinator {
         await this.repository.evaluateReadiness(payload.runId, payload.cycleId);
         return;
       }
+      case "evaluation.run.synthesize.requested": {
+        await this.synthesis.process(event.payload);
+        return;
+      }
       default:
         throw new Error(`Unsupported evaluation event ${event.eventType}`);
     }
   }
 
-  reconcile(limit = 100): Promise<number> {
-    return this.repository.reconcile(limit);
+  async reconcile(limit = 100): Promise<number> {
+    const sampleRecovered = await this.repository.reconcile(limit);
+    const synthesisRecovered = await this.synthesis.reconcile(limit);
+    return sampleRecovered + synthesisRecovered;
   }
 
   private async acquire(payload: z.infer<typeof sampleWorkSchema>) {
     const context = await this.repository.getSampleContext(
       payload.sampleId,
+      payload.runId,
       payload.cycleId,
     );
     if (!context || context.status !== "PENDING") return;
     const outcome = await this.aiExecution.execute({
+      runId: context.runId,
       cycleId: context.cycleId,
       sampleId: context.sampleId,
       purpose: "EVALUATION_ACQUISITION",
@@ -120,6 +112,7 @@ export class EvaluationProcessCoordinator {
       requestedModel: context.requestedModel,
       correlationId: context.correlationId,
       input: {
+        taskKind: "EVALUATION_ACQUISITION",
         companyName: context.companyName,
         query: context.query,
         questionOrdinal: context.questionOrdinal,
@@ -149,6 +142,7 @@ export class EvaluationProcessCoordinator {
   private async interpret(payload: z.infer<typeof sampleWorkSchema>) {
     const context = await this.repository.getSampleContext(
       payload.sampleId,
+      payload.runId,
       payload.cycleId,
     );
     if (
@@ -158,7 +152,25 @@ export class EvaluationProcessCoordinator {
     ) {
       return;
     }
+    const parserTask = buildSampleParserTask({
+      companyName: context.brandSnapshot.companyName,
+      primaryIndustry: context.brandSnapshot.primaryIndustry,
+      secondaryIndustry: context.brandSnapshot.secondaryIndustry,
+      region: [
+        context.brandSnapshot.province,
+        context.brandSnapshot.city,
+        context.brandSnapshot.district,
+      ]
+        .filter(Boolean)
+        .join(""),
+      characteristicOne: context.brandSnapshot.characteristicOne,
+      characteristicTwo: context.brandSnapshot.characteristicTwo,
+      questionKind: context.questionKind,
+      question: context.query,
+      originalAnswer: context.evidence.answerContent,
+    });
     const outcome = await this.aiExecution.execute({
+      runId: context.runId,
       cycleId: context.cycleId,
       sampleId: context.sampleId,
       purpose: "EVALUATION_INTERPRETATION",
@@ -167,12 +179,7 @@ export class EvaluationProcessCoordinator {
       providerKey: "deterministic-parser",
       requestedModel: "deterministic-parser-v1",
       correlationId: context.correlationId,
-      input: {
-        companyName: context.companyName,
-        answerContent: context.evidence.answerContent,
-        questionOrdinal: context.questionOrdinal,
-        platformLabel: context.platformLabel,
-      },
+      input: parserTask,
     });
     if (outcome.kind === "FAILED") {
       await this.handleFailure({
@@ -185,8 +192,31 @@ export class EvaluationProcessCoordinator {
       });
       return;
     }
-    const output = interpretationOutputSchema.parse(outcome.output);
-    const interpretation: AcceptedInterpretation = output;
+    let output;
+    try {
+      output = parseSampleParserOutput(outcome.output, {
+        questionKind: context.questionKind,
+        companyName: context.companyName,
+        originalAnswer: context.evidence.answerContent,
+      });
+    } catch {
+      await this.handleFailure({
+        context,
+        purpose: "EVALUATION_INTERPRETATION",
+        attemptId: outcome.attemptId,
+        attemptNumber: payload.attemptNumber,
+        failureClass: "SEMANTIC_CONTRACT_REJECTED",
+        retryable: true,
+        reason: "Parser output failed the accepted semantic contract",
+      });
+      return;
+    }
+    const interpretation: AcceptedInterpretation = {
+      mentioned: output.mentioned,
+      position: output.position,
+      semanticContractVersion: SAMPLE_PARSER_CONTRACT_VERSION,
+      semanticPayload: output.semantic,
+    };
     await this.repository.acceptInterpretation({
       context,
       attemptId: outcome.attemptId,
@@ -203,15 +233,17 @@ export class EvaluationProcessCoordinator {
     attemptNumber: number;
     failureClass: string;
     retryable: boolean;
+    reason?: string;
   }): Promise<void> {
     const failure = {
+      runId: input.context.runId,
       cycleId: input.context.cycleId,
       sampleId: input.context.sampleId,
       purpose: input.purpose,
       attemptId: input.attemptId,
       attemptNumber: input.attemptNumber,
       failureClass: input.failureClass,
-      reason: "Deterministic purpose policy exhausted",
+      reason: input.reason ?? "Deterministic purpose policy exhausted",
       correlationId: input.context.correlationId,
     };
     if (input.retryable && input.attemptNumber < MAX_PURPOSE_ATTEMPTS) {

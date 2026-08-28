@@ -2,15 +2,21 @@
 
 import {
   getCurrentAccount,
+  getCurrentEvaluationReport,
+  listEvaluationReportHistory,
   listBrands,
   prepareEvaluationDefinition,
   startEvaluationRun,
+  retryEvaluationRun,
   type Account,
   type Brand,
   type EvaluationDefinition,
+  type EvaluationReport,
+  type EvaluationReportSummary,
 } from "@geoeval/api-client";
 import { useEffect, useState } from "react";
 import { CustomerSidebar } from "../customer-sidebar.js";
+import { EvaluationReportView } from "./report-view.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -26,6 +32,9 @@ export function DiagnosisWorkspace() {
   const [account, setAccount] = useState<Account>();
   const [current, setCurrent] = useState<Brand>();
   const [definition, setDefinition] = useState<EvaluationDefinition>();
+  const [report, setReport] = useState<EvaluationReport | null>(null);
+  const [history, setHistory] = useState<EvaluationReportSummary[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -36,10 +45,18 @@ export function DiagnosisWorkspace() {
         setAccount(nextAccount);
         const selected = brands.find((brand) => brand.isCurrent);
         setCurrent(selected);
-        if (selected?.readyForEvaluation) {
-          setDefinition(
-            await prepareEvaluationDefinition(apiBaseUrl, selected.id),
-          );
+        if (selected) {
+          const [currentReport, nextDefinition, reportHistory] =
+            await Promise.all([
+              getCurrentEvaluationReport(apiBaseUrl, selected.id),
+              selected.readyForEvaluation
+                ? prepareEvaluationDefinition(apiBaseUrl, selected.id)
+                : Promise.resolve(undefined),
+              listEvaluationReportHistory(apiBaseUrl, selected.id),
+            ]);
+          setReport(currentReport);
+          setDefinition(nextDefinition);
+          setHistory(reportHistory.items);
         }
       })
       .catch((error) => {
@@ -56,7 +73,18 @@ export function DiagnosisWorkspace() {
     if (!current || definition?.run?.status !== "EVALUATING") return;
     const timer = window.setInterval(() => {
       void prepareEvaluationDefinition(apiBaseUrl, current.id)
-        .then(setDefinition)
+        .then(async (nextDefinition) => {
+          setDefinition(nextDefinition);
+          if (nextDefinition.run?.status === "COMPLETED") {
+            const [nextReport, reportHistory] = await Promise.all([
+              getCurrentEvaluationReport(apiBaseUrl, current.id),
+              listEvaluationReportHistory(apiBaseUrl, current.id),
+            ]);
+            setReport(nextReport);
+            setHistory(reportHistory.items);
+            setMessage("");
+          }
+        })
         .catch(() => undefined);
     }, 3_000);
     return () => window.clearInterval(timer);
@@ -68,10 +96,31 @@ export function DiagnosisWorkspace() {
     setMessage("");
     try {
       const run = await startEvaluationRun(apiBaseUrl, definition.id);
+      setReport(null);
       setDefinition({ ...definition, run });
+      if (current) {
+        setHistory(
+          (await listEvaluationReportHistory(apiBaseUrl, current.id)).items,
+        );
+      }
       setMessage("评测已开始，你可以离开此页面");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "评测启动失败");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function retry() {
+    if (!definition?.run) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const run = await retryEvaluationRun(apiBaseUrl, definition.run.id);
+      setDefinition({ ...definition, run });
+      setMessage("已重新开始处理未完成的评测内容");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "重试失败");
     } finally {
       setBusy(false);
     }
@@ -93,20 +142,52 @@ export function DiagnosisWorkspace() {
         <header className="workspace-header">
           <div>
             <p className="eyebrow">AI 搜索诊断</p>
-            <h1>{current ? `评测「${current.companyName}」` : "免费评测"}</h1>
+            <h1>
+              {report && current
+                ? `「${current.companyName}」评测报告`
+                : current
+                  ? `评测「${current.companyName}」`
+                  : "免费评测"}
+            </h1>
             <p>用四个问题观察品牌在五个主流 AI 平台中的真实表现。</p>
           </div>
-          {current && <span className="current-badge">当前品牌</span>}
+          <div className="workspace-header-actions">
+            {history.length > 0 && (
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => setHistoryOpen((value) => !value)}
+              >
+                {historyOpen ? "收起历史报告" : "历史报告"}
+              </button>
+            )}
+            {current && <span className="current-badge">当前品牌</span>}
+          </div>
         </header>
         {message && (
           <p className="toast-message" role="status">
             {message}
           </p>
         )}
+        {historyOpen && current && (
+          <ReportHistory brandId={current.id} items={history} />
+        )}
         {!current ? (
           <DiagnosisPrerequisite
             title="还没有当前品牌"
             detail="先创建一份品牌资料，再开始免费评测。"
+          />
+        ) : report ? (
+          <EvaluationReportView
+            report={report}
+            {...(report.brandInformationChanged && !definition?.run
+              ? {
+                  onStartNewEvaluation: () => {
+                    setReport(null);
+                    setMessage("");
+                  },
+                }
+              : {})}
           />
         ) : !current.readyForEvaluation ? (
           <DiagnosisPrerequisite
@@ -124,9 +205,26 @@ export function DiagnosisWorkspace() {
                 {definition.run.unavailableSampleCount}{" "}
                 个。后续可按提示重新评测。
               </p>
-              <a className="secondary-button" href="/brands">
-                返回我的品牌
-              </a>
+              <div className="evaluation-actions">
+                <button
+                  className="primary-button"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void retry()}
+                >
+                  {busy ? "正在重试…" : "重新评测"}
+                </button>
+                <a className="secondary-button" href="/brands">
+                  返回我的品牌
+                </a>
+              </div>
+            </section>
+          ) : definition.run?.status === "COMPLETED" ? (
+            <section className="evaluation-running">
+              <span className="loading-orbit" aria-hidden="true" />
+              <p className="step-label">整理报告</p>
+              <h2>评测完成，正在加载结果</h2>
+              <p>报告即将呈现，请稍候片刻。</p>
             </section>
           ) : definition.run ? (
             <section className="evaluation-running">
@@ -205,6 +303,62 @@ export function DiagnosisWorkspace() {
       </main>
     </div>
   );
+}
+
+function ReportHistory({
+  brandId,
+  items,
+}: {
+  brandId: string;
+  items: EvaluationReportSummary[];
+}) {
+  return (
+    <section className="report-history">
+      <div className="section-heading">
+        <div>
+          <h2>历史报告</h2>
+          <p>查看此前完成的评测，报告内容不会随品牌资料修改。</p>
+        </div>
+      </div>
+      <div className="report-history-list">
+        {items.map((item) => (
+          <a
+            key={item.id}
+            href={`/diagnosis/reports/${item.id}?brandId=${brandId}`}
+          >
+            <span>
+              <strong>{formatReportDate(item.acceptedAt)}</strong>
+              {item.brandInformationChanged && <small>使用此前资料</small>}
+            </span>
+            <span>
+              <b>{item.recommendationIndex.toFixed(1)}</b>
+              <small>推荐指数</small>
+            </span>
+            <span>
+              <b>{Math.round(item.mentionRate * 100)}%</b>
+              <small>提及率</small>
+            </span>
+            <span>
+              <b>
+                {item.validSampleCount}/{item.totalSampleCount}
+              </b>
+              <small>有效采样</small>
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function formatReportDate(value: string): string {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
 }
 
 function DiagnosisPrerequisite({

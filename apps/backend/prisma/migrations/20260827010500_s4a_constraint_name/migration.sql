@@ -1,0 +1,3 @@
+ALTER TABLE "evaluation_sample_interpretations"
+  RENAME CONSTRAINT "evaluation_sample_interpretations_nonmention_position_null_chec"
+  TO "evaluation_interpretations_nonmention_position_check";

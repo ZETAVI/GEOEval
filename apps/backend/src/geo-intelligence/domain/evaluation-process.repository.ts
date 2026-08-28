@@ -13,6 +13,7 @@ export interface EvaluationProcessRepository {
   initializeRun(runId: string, cycleId: string): Promise<void>;
   getSampleContext(
     sampleId: string,
+    runId: string,
     cycleId: string,
   ): Promise<EvaluationSampleWorkContext | undefined>;
   acceptEvidence(input: {

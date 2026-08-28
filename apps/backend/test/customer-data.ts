@@ -1,7 +1,13 @@
 import type { PrismaService } from "../src/infrastructure/prisma.service.js";
 
 export async function clearCustomerData(prisma: PrismaService): Promise<void> {
+  await prisma.notification.deleteMany();
   await prisma.productOutboxEvent.deleteMany();
+  await prisma.evaluationReport.deleteMany();
+  await prisma.evaluationOptimizationGuidance.deleteMany();
+  await prisma.evaluationSynthesis.deleteMany();
+  await prisma.evaluationSynthesisExhaustion.deleteMany();
+  await prisma.aiSynthesisAttempt.deleteMany();
   await prisma.evaluationStageExhaustion.deleteMany();
   await prisma.evaluationSampleInterpretation.deleteMany();
   await prisma.evaluationSampleEvidence.deleteMany();

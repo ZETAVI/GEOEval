@@ -1,0 +1,5 @@
+{
+  "id": "evaluation.sample-parser.brand-directed",
+  "version": "1.0.0",
+  "content": "这是直接询问当前品牌的问题。重点提取回答如何介绍品牌身份、定位、产品或服务、适合人群、正负面特点和不确定信息。该类问题不参与开放推荐位次统计，顶层 position 必须为 null；若回答确实在有序比较中呈现品牌，可仅在 contextualTargetPosition 中记录相对位置并绑定证据。"
+}

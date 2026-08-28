@@ -8,6 +8,15 @@ export type Brand = components["schemas"]["BrandResponse"];
 export type EvaluationDefinition =
   components["schemas"]["EvaluationDefinitionResponse"];
 export type EvaluationRun = components["schemas"]["EvaluationRunResponse"];
+export type EvaluationReport =
+  components["schemas"]["EvaluationReportResponse"];
+export type EvaluationReportSummary =
+  components["schemas"]["EvaluationReportSummaryResponse"];
+export type EvaluationReportHistory =
+  components["schemas"]["EvaluationReportHistoryResponse"];
+export type Notification = components["schemas"]["NotificationResponse"];
+export type NotificationList =
+  components["schemas"]["NotificationListResponse"];
 
 export type BrandMutation = {
   companyName?: string | null;
@@ -127,6 +136,84 @@ export function startEvaluationRun(
     `/evaluation-definitions/${definitionId}/runs`,
     { method: "POST" },
   );
+}
+
+export function retryEvaluationRun(
+  apiBaseUrl: string,
+  runId: string,
+): Promise<EvaluationRun> {
+  return apiRequest(apiBaseUrl, `/evaluation-runs/${runId}/retries`, {
+    method: "POST",
+  });
+}
+
+export async function getCurrentEvaluationReport(
+  apiBaseUrl: string,
+  brandId: string,
+): Promise<EvaluationReport | null> {
+  const result = await apiRequest<
+    components["schemas"]["CurrentEvaluationReportResponse"]
+  >(apiBaseUrl, `/brands/${brandId}/evaluation-report`, {
+    cache: "no-store",
+  });
+  return result.report;
+}
+
+export function listEvaluationReportHistory(
+  apiBaseUrl: string,
+  brandId: string,
+  options: { limit?: number; cursor?: string } = {},
+): Promise<EvaluationReportHistory> {
+  const query = queryString(options);
+  return apiRequest(
+    apiBaseUrl,
+    `/brands/${brandId}/evaluation-reports${query}`,
+    { cache: "no-store" },
+  );
+}
+
+export function getEvaluationReport(
+  apiBaseUrl: string,
+  brandId: string,
+  reportId: string,
+): Promise<EvaluationReport> {
+  return apiRequest(
+    apiBaseUrl,
+    `/brands/${brandId}/evaluation-reports/${reportId}`,
+    { cache: "no-store" },
+  );
+}
+
+export function listNotifications(
+  apiBaseUrl: string,
+  options: { limit?: number; cursor?: string } = {},
+): Promise<NotificationList> {
+  return apiRequest(apiBaseUrl, `/notifications${queryString(options)}`, {
+    cache: "no-store",
+  });
+}
+
+export function markNotificationRead(
+  apiBaseUrl: string,
+  notificationId: string,
+): Promise<Notification> {
+  return apiRequest(apiBaseUrl, `/notifications/${notificationId}/read`, {
+    method: "PUT",
+  });
+}
+
+export function markAllNotificationsRead(
+  apiBaseUrl: string,
+): Promise<{ unreadCount: number }> {
+  return apiRequest(apiBaseUrl, "/notifications/read-all", { method: "PUT" });
+}
+
+function queryString(options: { limit?: number; cursor?: string }): string {
+  const query = new URLSearchParams();
+  if (options.limit !== undefined) query.set("limit", String(options.limit));
+  if (options.cursor) query.set("cursor", options.cursor);
+  const value = query.toString();
+  return value ? `?${value}` : "";
 }
 
 export async function createFoundationRecord(

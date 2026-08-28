@@ -47,12 +47,15 @@ enum EvaluationRunStage {
   QUEUED
   PROCESSING_EVIDENCE
   READY_FOR_SYNTHESIS
+  REPORT_ACCEPTED
+  SYNTHESIS_EXHAUSTED
 }
 
 enum EvaluationExecutionCycleStatus {
   ACTIVE
   READY_FOR_SYNTHESIS
   EXHAUSTED
+  COMPLETED
 }
 
 enum EvaluationSampleStatus {
@@ -74,6 +77,11 @@ enum AiExecutionAttemptStatus {
   FAILED
 }
 
+enum NotificationKind {
+  EVALUATION_COMPLETED
+  EVALUATION_RETRY_REQUIRED
+}
+
 model Account {
   id           String           @id @default(uuid()) @db.Uuid
   mobile       String           @unique @db.VarChar(20)
@@ -83,6 +91,7 @@ model Account {
   sessions     AccountSession[]
   brands       BrandProfile[]
   brandContext BrandContext?
+  notifications Notification[]
 
   @@map("accounts")
 }
@@ -191,19 +200,22 @@ model EvaluationQuestion {
 }
 
 model EvaluationRun {
-  id               String                     @id @default(uuid()) @db.Uuid
-  accountId        String                     @map("account_id") @db.Uuid
-  brandId          String                     @map("brand_id") @db.Uuid
-  definitionId     String                     @unique @map("definition_id") @db.Uuid
-  inputFingerprint String                     @map("input_fingerprint") @db.Char(64)
-  status           EvaluationRunStatus        @default(EVALUATING)
-  stage            EvaluationRunStage         @default(QUEUED)
-  correlationId    String                     @map("correlation_id") @db.Uuid
-  startedAt        DateTime                   @default(now()) @map("started_at")
-  updatedAt        DateTime                   @updatedAt @map("updated_at")
-  definition       EvaluationDefinition       @relation(fields: [definitionId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict)
-  samples          EvaluationSample[]
-  executionCycles  EvaluationExecutionCycle[]
+  id                   String                          @id @default(uuid()) @db.Uuid
+  accountId            String                          @map("account_id") @db.Uuid
+  brandId              String                          @map("brand_id") @db.Uuid
+  definitionId         String                          @unique @map("definition_id") @db.Uuid
+  inputFingerprint     String                          @map("input_fingerprint") @db.Char(64)
+  status               EvaluationRunStatus             @default(EVALUATING)
+  stage                EvaluationRunStage              @default(QUEUED)
+  correlationId        String                          @map("correlation_id") @db.Uuid
+  startedAt            DateTime                        @default(now()) @map("started_at")
+  updatedAt            DateTime                        @updatedAt @map("updated_at")
+  definition           EvaluationDefinition            @relation(fields: [definitionId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict)
+  samples              EvaluationSample[]
+  executionCycles      EvaluationExecutionCycle[]
+  synthesis            EvaluationSynthesis?
+  report               EvaluationReport?
+  optimizationGuidance EvaluationOptimizationGuidance?
 
   @@unique([id, definitionId])
   @@unique([definitionId, accountId, brandId])
@@ -212,18 +224,20 @@ model EvaluationRun {
 }
 
 model EvaluationExecutionCycle {
-  id        String                         @id @default(uuid()) @db.Uuid
-  runId     String                         @map("run_id") @db.Uuid
-  sequence  Int
-  status    EvaluationExecutionCycleStatus @default(ACTIVE)
-  createdAt DateTime                       @default(now()) @map("created_at")
-  updatedAt DateTime                       @updatedAt @map("updated_at")
-  run       EvaluationRun                  @relation(fields: [runId], references: [id], onDelete: Restrict)
-  samples   EvaluationSample[]
-  attempts  AiExecutionAttempt[]
-  failures  EvaluationStageExhaustion[]
+  id                  String                         @id @default(uuid()) @db.Uuid
+  runId               String                         @map("run_id") @db.Uuid
+  sequence            Int
+  status              EvaluationExecutionCycleStatus @default(ACTIVE)
+  createdAt           DateTime                       @default(now()) @map("created_at")
+  updatedAt           DateTime                       @updatedAt @map("updated_at")
+  run                 EvaluationRun                  @relation(fields: [runId], references: [id], onDelete: Restrict)
+  attempts            AiExecutionAttempt[]
+  failures            EvaluationStageExhaustion[]
+  synthesisAttempts   AiSynthesisAttempt[]
+  synthesisExhaustion EvaluationSynthesisExhaustion?
 
   @@unique([runId, sequence])
+  @@unique([id, runId])
   @@index([status, updatedAt])
   @@map("evaluation_execution_cycles")
 }
@@ -231,7 +245,6 @@ model EvaluationExecutionCycle {
 model EvaluationSample {
   id             String                          @id @default(uuid()) @db.Uuid
   runId          String                          @map("run_id") @db.Uuid
-  cycleId        String                          @map("cycle_id") @db.Uuid
   definitionId   String                          @map("definition_id") @db.Uuid
   questionId     String                          @map("question_id") @db.Uuid
   platformKey    String                          @map("platform_key") @db.VarChar(40)
@@ -240,7 +253,6 @@ model EvaluationSample {
   createdAt      DateTime                        @default(now()) @map("created_at")
   updatedAt      DateTime                        @updatedAt @map("updated_at")
   run            EvaluationRun                   @relation(fields: [runId, definitionId], references: [id, definitionId], onDelete: Restrict)
-  cycle          EvaluationExecutionCycle        @relation(fields: [cycleId], references: [id], onDelete: Restrict)
   question       EvaluationQuestion              @relation(fields: [questionId, definitionId], references: [id, definitionId], onDelete: Restrict)
   attempts       AiExecutionAttempt[]
   evidence       EvaluationSampleEvidence?
@@ -248,13 +260,14 @@ model EvaluationSample {
   failures       EvaluationStageExhaustion[]
 
   @@unique([runId, questionId, platformKey])
-  @@unique([id, cycleId])
+  @@unique([id, runId], map: "evaluation_samples_id_run_key")
   @@index([runId, status])
   @@map("evaluation_samples")
 }
 
 model AiExecutionAttempt {
   id                     String                          @id @default(uuid()) @db.Uuid
+  runId                  String                          @map("run_id") @db.Uuid
   cycleId                String                          @map("cycle_id") @db.Uuid
   sampleId               String                          @map("sample_id") @db.Uuid
   purpose                AiExecutionPurpose
@@ -272,14 +285,15 @@ model AiExecutionAttempt {
   correlationId          String                          @map("correlation_id") @db.Uuid
   startedAt              DateTime                        @default(now()) @map("started_at")
   finishedAt             DateTime?                       @map("finished_at")
-  cycle                  EvaluationExecutionCycle        @relation(fields: [cycleId], references: [id], onDelete: Restrict)
-  sample                 EvaluationSample                @relation(fields: [sampleId, cycleId], references: [id, cycleId], onDelete: Restrict)
+  cycle                  EvaluationExecutionCycle        @relation(fields: [cycleId, runId], references: [id, runId], onDelete: Restrict, map: "ai_exec_attempt_cycle_run_fkey")
+  sample                 EvaluationSample                @relation(fields: [sampleId, runId], references: [id, runId], onDelete: Restrict, map: "ai_exec_attempt_sample_run_fkey")
   acceptedEvidence       EvaluationSampleEvidence?       @relation("AcceptedEvidenceAttempt")
   acceptedInterpretation EvaluationSampleInterpretation? @relation("AcceptedInterpretationAttempt")
   exhaustedStage         EvaluationStageExhaustion?      @relation("ExhaustedStageAttempt")
 
-  @@unique([sampleId, purpose, attemptNumber])
+  @@unique([cycleId, sampleId, purpose, attemptNumber], map: "ai_exec_attempt_cycle_sample_purpose_number_key")
   @@unique([id, sampleId])
+  @@unique([id, cycleId, sampleId, runId], map: "ai_exec_attempt_exhaustion_identity_key")
   @@index([cycleId, purpose, status])
   @@map("ai_execution_attempts")
 }
@@ -302,18 +316,20 @@ model EvaluationSampleEvidence {
 }
 
 model EvaluationSampleInterpretation {
-  id                  String             @id @default(uuid()) @db.Uuid
-  sampleId            String             @unique @map("sample_id") @db.Uuid
-  acceptedAttemptId   String             @unique @map("accepted_attempt_id") @db.Uuid
-  mentioned           Boolean
-  position            Int?
-  relevantDescription String?            @map("relevant_description")
-  characteristics     Json
-  objectiveSummary    String             @map("objective_summary")
-  structuredEvidence  Json               @map("structured_evidence")
-  acceptedAt          DateTime           @default(now()) @map("accepted_at")
-  sample              EvaluationSample   @relation(fields: [sampleId], references: [id], onDelete: Restrict)
-  acceptedAttempt     AiExecutionAttempt @relation("AcceptedInterpretationAttempt", fields: [acceptedAttemptId, sampleId], references: [id, sampleId], onDelete: Restrict)
+  id                      String             @id @default(uuid()) @db.Uuid
+  sampleId                String             @unique @map("sample_id") @db.Uuid
+  acceptedAttemptId       String             @unique @map("accepted_attempt_id") @db.Uuid
+  mentioned               Boolean
+  position                Int?
+  semanticContractVersion String             @map("semantic_contract_version") @db.VarChar(40)
+  semanticPayload         Json               @map("semantic_payload")
+  relevantDescription     String?            @map("relevant_description")
+  characteristics         Json?
+  objectiveSummary        String?            @map("objective_summary")
+  structuredEvidence      Json?              @map("structured_evidence")
+  acceptedAt              DateTime           @default(now()) @map("accepted_at")
+  sample                  EvaluationSample   @relation(fields: [sampleId], references: [id], onDelete: Restrict)
+  acceptedAttempt         AiExecutionAttempt @relation("AcceptedInterpretationAttempt", fields: [acceptedAttemptId, sampleId], references: [id, sampleId], onDelete: Restrict)
 
   @@unique([acceptedAttemptId, sampleId])
   @@map("evaluation_sample_interpretations")
@@ -321,21 +337,112 @@ model EvaluationSampleInterpretation {
 
 model EvaluationStageExhaustion {
   id            String                   @id @default(uuid()) @db.Uuid
+  runId         String                   @map("run_id") @db.Uuid
   cycleId       String                   @map("cycle_id") @db.Uuid
   sampleId      String                   @map("sample_id") @db.Uuid
   purpose       AiExecutionPurpose
+  lastAttemptId String                   @map("last_attempt_id") @db.Uuid
+  failureClass  String                   @map("failure_class") @db.VarChar(120)
+  reason        String
+  createdAt     DateTime                 @default(now()) @map("created_at")
+  cycle         EvaluationExecutionCycle @relation(fields: [cycleId, runId], references: [id, runId], onDelete: Restrict, map: "eval_stage_exhaust_cycle_run_fkey")
+  sample        EvaluationSample         @relation(fields: [sampleId, runId], references: [id, runId], onDelete: Restrict, map: "eval_stage_exhaust_sample_run_fkey")
+  lastAttempt   AiExecutionAttempt       @relation("ExhaustedStageAttempt", fields: [lastAttemptId, cycleId, sampleId, runId], references: [id, cycleId, sampleId, runId], onDelete: Restrict, map: "eval_stage_exhaust_attempt_identity_fkey")
+
+  @@unique([cycleId, sampleId, purpose], map: "eval_stage_exhaust_cycle_sample_purpose_key")
+  @@unique([lastAttemptId, cycleId, sampleId, runId], map: "eval_stage_exhaust_attempt_identity_key")
+  @@index([cycleId, purpose])
+  @@map("evaluation_stage_exhaustions")
+}
+
+model AiSynthesisAttempt {
+  id                 String                         @id @default(uuid()) @db.Uuid
+  runId              String                         @map("run_id") @db.Uuid
+  cycleId            String                         @map("cycle_id") @db.Uuid
+  attemptNumber      Int                            @map("attempt_number")
+  status             AiExecutionAttemptStatus       @default(STARTED)
+  routePolicyId      String                         @map("route_policy_id")
+  providerKey        String                         @map("provider_key") @db.VarChar(80)
+  requestedModel     String                         @map("requested_model") @db.VarChar(120)
+  requestPayload     Json                           @map("request_payload")
+  responseEnvelope   Json?                          @map("response_envelope")
+  failureClass       String?                        @map("failure_class") @db.VarChar(120)
+  retryable          Boolean?
+  latencyMs          Int?                           @map("latency_ms")
+  usage              Json?
+  correlationId      String                         @map("correlation_id") @db.Uuid
+  startedAt          DateTime                       @default(now()) @map("started_at")
+  finishedAt         DateTime?                      @map("finished_at")
+  cycle              EvaluationExecutionCycle       @relation(fields: [cycleId, runId], references: [id, runId], onDelete: Restrict, map: "ai_synth_attempt_cycle_run_fkey")
+  acceptedSynthesis  EvaluationSynthesis?           @relation("AcceptedOverallSynthesisAttempt")
+  exhaustedSynthesis EvaluationSynthesisExhaustion? @relation("ExhaustedOverallSynthesisAttempt")
+
+  @@unique([cycleId, attemptNumber], map: "ai_synth_attempt_cycle_number_key")
+  @@unique([id, runId], map: "ai_synth_attempt_id_run_key")
+  @@index([runId, status])
+  @@map("ai_synthesis_attempts")
+}
+
+model EvaluationSynthesis {
+  id                      String                          @id @default(uuid()) @db.Uuid
+  runId                   String                          @unique @map("run_id") @db.Uuid
+  acceptedAttemptId       String                          @unique @map("accepted_attempt_id") @db.Uuid
+  semanticContractVersion String                          @map("semantic_contract_version") @db.VarChar(60)
+  semanticPayload         Json                            @map("semantic_payload")
+  acceptedAt              DateTime                        @default(now()) @map("accepted_at")
+  run                     EvaluationRun                   @relation(fields: [runId], references: [id], onDelete: Restrict)
+  acceptedAttempt         AiSynthesisAttempt              @relation("AcceptedOverallSynthesisAttempt", fields: [acceptedAttemptId, runId], references: [id, runId], onDelete: Restrict, map: "eval_synthesis_attempt_run_fkey")
+  report                  EvaluationReport?
+  optimizationGuidance    EvaluationOptimizationGuidance?
+
+  @@unique([id, runId], map: "eval_synthesis_id_run_key")
+  @@unique([acceptedAttemptId, runId], map: "eval_synthesis_attempt_run_key")
+  @@map("evaluation_syntheses")
+}
+
+model EvaluationReport {
+  id                      String              @id @default(uuid()) @db.Uuid
+  runId                   String              @unique @map("run_id") @db.Uuid
+  synthesisId             String              @unique @map("synthesis_id") @db.Uuid
+  metricPolicyVersion     String              @map("metric_policy_version") @db.VarChar(60)
+  documentContractVersion String              @map("document_contract_version") @db.VarChar(60)
+  publicDocument          Json                @map("public_document")
+  acceptedAt              DateTime            @default(now()) @map("accepted_at")
+  run                     EvaluationRun       @relation(fields: [runId], references: [id], onDelete: Restrict)
+  synthesis               EvaluationSynthesis @relation(fields: [synthesisId, runId], references: [id, runId], onDelete: Restrict, map: "eval_report_synthesis_run_fkey")
+
+  @@unique([synthesisId, runId], map: "eval_report_synthesis_run_key")
+  @@map("evaluation_reports")
+}
+
+model EvaluationOptimizationGuidance {
+  id              String              @id @default(uuid()) @db.Uuid
+  runId           String              @unique @map("run_id") @db.Uuid
+  synthesisId     String              @unique @map("synthesis_id") @db.Uuid
+  guidancePayload Json                @map("guidance_payload")
+  acceptedAt      DateTime            @default(now()) @map("accepted_at")
+  run             EvaluationRun       @relation(fields: [runId], references: [id], onDelete: Restrict)
+  synthesis       EvaluationSynthesis @relation(fields: [synthesisId, runId], references: [id, runId], onDelete: Restrict, map: "eval_guidance_synthesis_run_fkey")
+
+  @@unique([synthesisId, runId], map: "eval_guidance_synthesis_run_key")
+  @@map("evaluation_optimization_guidance")
+}
+
+model EvaluationSynthesisExhaustion {
+  id            String                   @id @default(uuid()) @db.Uuid
+  runId         String                   @map("run_id") @db.Uuid
+  cycleId       String                   @unique @map("cycle_id") @db.Uuid
   lastAttemptId String                   @unique @map("last_attempt_id") @db.Uuid
   failureClass  String                   @map("failure_class") @db.VarChar(120)
   reason        String
   createdAt     DateTime                 @default(now()) @map("created_at")
-  cycle         EvaluationExecutionCycle @relation(fields: [cycleId], references: [id], onDelete: Restrict)
-  sample        EvaluationSample         @relation(fields: [sampleId, cycleId], references: [id, cycleId], onDelete: Restrict)
-  lastAttempt   AiExecutionAttempt       @relation("ExhaustedStageAttempt", fields: [lastAttemptId, sampleId], references: [id, sampleId], onDelete: Restrict)
+  cycle         EvaluationExecutionCycle @relation(fields: [cycleId, runId], references: [id, runId], onDelete: Restrict, map: "eval_synth_exhaust_cycle_run_fkey")
+  lastAttempt   AiSynthesisAttempt       @relation("ExhaustedOverallSynthesisAttempt", fields: [lastAttemptId, runId], references: [id, runId], onDelete: Restrict, map: "eval_synth_exhaust_attempt_run_fkey")
 
-  @@unique([sampleId, purpose])
-  @@unique([lastAttemptId, sampleId])
-  @@index([cycleId, purpose])
-  @@map("evaluation_stage_exhaustions")
+  @@unique([lastAttemptId, runId], map: "eval_synth_exhaust_attempt_run_key")
+  @@unique([cycleId, runId], map: "eval_synth_exhaust_cycle_run_key")
+  @@index([runId])
+  @@map("evaluation_synthesis_exhaustions")
 }
 
 model ProductOutboxEvent {
@@ -354,6 +461,24 @@ model ProductOutboxEvent {
 
   @@index([status, createdAt])
   @@map("product_outbox_events")
+}
+
+model Notification {
+  id                 String           @id @default(uuid()) @db.Uuid
+  recipientAccountId String           @map("recipient_account_id") @db.Uuid
+  sourceEventId      String           @unique @map("source_event_id") @db.Uuid
+  kind               NotificationKind
+  title              String           @db.VarChar(120)
+  summary            String           @db.VarChar(320)
+  target             Json
+  occurredAt         DateTime         @map("occurred_at")
+  readAt             DateTime?        @map("read_at")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  recipient          Account          @relation(fields: [recipientAccountId], references: [id], onDelete: Cascade)
+
+  @@index([recipientAccountId, createdAt, id])
+  @@index([recipientAccountId, readAt])
+  @@map("notifications")
 }
 
 model FoundationRecord {

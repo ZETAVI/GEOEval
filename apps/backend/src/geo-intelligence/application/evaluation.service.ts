@@ -100,6 +100,17 @@ export class EvaluationService {
       "当前资料已经发起过正式评测，请查看该评测或按提示重试",
     );
   }
+
+  async retryRun(accountId: string, runId: string): Promise<EvaluationRunView> {
+    const outcome = await this.repository.retryRun({ accountId, runId });
+    if (outcome.kind === "STARTED" || outcome.kind === "DUPLICATE") {
+      return outcome.run;
+    }
+    if (outcome.kind === "NOT_FOUND") {
+      throw new NotFoundException("未找到该评测");
+    }
+    throw new ConflictException("当前评测不需要重试，请查看最新状态");
+  }
 }
 
 function assertCompleteQuestionSet(

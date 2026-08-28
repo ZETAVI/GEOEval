@@ -458,10 +458,14 @@ retaining the evidence behind that account.
   adding a separate five-star index for each platform
 - **AND** it makes the complete output of every valid question-platform sample
   available without adding another summary to each output
+- **AND** the customer-facing report presents the actual questions and observed
+  results without exposing **brand-directed**, **open question**, or other
+  internal question-family terminology
 - **AND** it does not show provider search sources, citation metadata, search-
   trigger detail, model identifiers, or other provider diagnostics in the main
   customer report
-- **AND** it ends with one concise optimization-direction section
+- **AND** after the sampled-answer evidence it ends with one concise
+  optimization-direction section
 
 #### Scenario: The evaluation forms its sampling set
 
@@ -537,10 +541,27 @@ retaining the evidence behind that account.
   other semantic recommendation forms rather than relying on ordinal-word,
   character-position, or paragraph-splitting rules alone
 - **AND** it returns structured brand mention, recommendation position, positive
-  and negative associated characteristics and counts, and evidence supporting
-  its interpretation
+  and negative associated characteristics, and evidence supporting its
+  interpretation
+- **AND** it identifies the distinct brands explicitly present in the answer,
+  their displayed names, reasonable relative positions when the answer implies
+  an order, and the exact answer evidence supporting those interpretations
+- **AND** it distinguishes the current brand from other mentioned brands so
+  deterministic report logic can later calculate customer mention, position,
+  and competitor occurrence without asking the parser to perform cross-sample
+  statistics
+- **AND** the limited customer-provided brand snapshot is used to identify and
+  contextualize the current brand, not as a complete factual baseline for
+  grading the sampled answer as accurate, inaccurate, or contradictory
+- **AND** the parser may preserve uncertainty or limitations expressed by the
+  answer itself but does not create a separate first-release fact-checking or
+  conflict-assessment result
 - **AND** when the current brand is mentioned, it assigns a reasonable relative
   position from the complete recommendation structure, including implicit order
+- **AND** a brand-directed answer has no recommendation position merely because
+  the named brand appears; when that answer genuinely contains an ordered
+  multi-brand comparison, the parser may retain a separate contextual order
+  that never contributes to open-question statistics
 - **AND** it can provide a concise, objective interpretation for the sample card
   without replacing, rewriting, or summarizing away the original answer
 - **AND** a same-name occurrence within the specific open query is treated as the
@@ -558,10 +579,53 @@ retaining the evidence behind that account.
   customer mention or position and important positive or negative evidence in
   significant headings or longer text blocks without modifying the stored
   original
+- **AND** semantic parsing supplies evidence anchors and highlight intent while
+  deterministic presentation logic sanitizes, formats, and annotates a separate
+  display projection; generated markup never replaces the retained original
 - **AND** it preserves an unannotated complex format rather than applying a
   misleading highlight when reliable evidence mapping is unavailable
 - **AND** only the approved mention and normalized-position fields affect the AI
   recommendation index
+
+#### Scenario: The product derives cross-sample statistics
+
+- **GIVEN** accepted semantic interpretations exist for enough sample positions
+- **WHEN** the report calculates mention, position, theme, platform, or
+  competitor statistics
+- **THEN** deterministic application logic derives every count, rate, score,
+  platform set, and rank from accepted structured records
+- **AND** no parsing or synthesis Agent supplies a trusted final statistic
+- **AND** each independent sample contributes at most once to the same derived
+  theme or brand-occurrence count
+
+#### Scenario: The report presents frequently recommended other brands
+
+- **GIVEN** valid open-question interpretations identify brands other than the
+  current customer
+- **WHEN** the report presents the competitive recommendation context
+- **THEN** it shows no more than five evidence-sized other brands, with the
+  actual number determined by the accepted samples
+- **AND** each entry may show occurrence count, involved platforms, and typical
+  relative position derived by deterministic application logic
+- **AND** brand-directed-question occurrences do not contribute to this
+  competitive summary
+- **AND** the overall synthesizer may use all retained mention context and,
+  when needed, public web search to map names that ordinary customers would
+  reasonably understand as the same consumer brand into one reporting group
+- **AND** that grouping may include aliases, translations, abbreviations,
+  store formats, or an obvious subordinate brand line such as **Starbucks
+  Reserve** under **Starbucks**, while a distinctly and independently
+  positioned sub-brand remains a separate reporting group
+- **AND** each accepted mapping identifies the original mention records and
+  retains whether it was supported by answer context or public-search evidence,
+  including source references when search was used, without exposing that
+  metadata in the customer report
+- **AND** uncertain identities remain separate, and unavailable or inconclusive
+  alias resolution does not prevent the rest of an otherwise valid report from
+  completing
+- **AND** the report does not assign competitors a five-star index, claim a
+  complete market ranking, or expand the first evaluation into professional
+  competitor intelligence
 
 #### Scenario: The product synthesizes overall performance
 
@@ -570,6 +634,12 @@ retaining the evidence behind that account.
 - **WHEN** the product forms the overall assessment
 - **THEN** one overall evaluation synthesizer receives the current brand context,
   all successful structured sample results, and their relevant brand descriptions
+- **AND** it may propose evidence-linked reporting groups for other-brand
+  mentions that represent the same consumer brand or an obvious subordinate
+  brand line, while preserving the original displayed names and keeping a
+  distinctly independent sub-brand separate
+- **AND** it does not calculate grouped occurrence counts, platform counts, or
+  ranks
 - **AND** it produces the report-opening overall assessment, the combined broad
   positive-versus-negative characteristic section, and the final optimization
   direction
@@ -628,11 +698,26 @@ retaining the evidence behind that account.
 - **THEN** the opening view emphasizes a concise overall assessment, the overall
   five-star index with one decimal, total mention rate, typical mentioned
   position, and a secondary valid-coverage indicator
+- **AND** typical mentioned position is the median raw relative position among
+  valid open-question samples that mention the brand
+- **AND** one middle rank is shown as an approximate position, two different
+  middle ranks are shown as a range, and no position is shown when none of the
+  valid open-question samples mentions the brand
+- **AND** this median display does not replace the average normalized position
+  score used by the AI recommendation index
 - **AND** detailed five-platform comparison follows the opening view
 - **AND** charts, bars, stars, and other simple visual forms lead the comparison
 - **AND** concise text labels and explanations retain the exact business meaning
+- **AND** section titles use clear, formal language rather than conversational or
+  overly accommodating phrasing
+- **AND** the report omits implementation notes, grouping rules, display limits,
+  and other explanatory copy that the customer does not need to interpret the
+  result
 - **AND** mention rates use clear comparative bars while positions use separate
   rank labels or markers rather than sharing a percentage axis
+- **AND** accepted positive or negative brand-impression themes use a concise
+  comparative visual, while insufficient evidence produces one explicit short
+  empty state rather than an apparently blank section
 - **AND** valid coverage uses a quiet progress treatment rather than an alarming
   failure warning when the report meets its completion threshold
 - **AND** meaningful motion and flexible interaction support hierarchy,

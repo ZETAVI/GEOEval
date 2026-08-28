@@ -45,3 +45,10 @@ export type EvaluationPurposeBrandView = {
   city: string;
   district: string;
 };
+
+export type EvaluationReportPurposeBrandView = {
+  accountId: string;
+  brandId: string;
+  companyName: string;
+  inputFingerprint: string;
+};

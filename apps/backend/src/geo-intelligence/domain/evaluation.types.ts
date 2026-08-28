@@ -68,3 +68,7 @@ export type EvaluationDefinitionInput = Omit<
 export type StartEvaluationOutcome =
   | { kind: "STARTED" | "DUPLICATE"; run: EvaluationRunView }
   | { kind: "NOT_FOUND" | "STALE" | "ACTIVE_OTHER" | "ALREADY_USED" };
+
+export type RetryEvaluationOutcome =
+  | { kind: "STARTED" | "DUPLICATE"; run: EvaluationRunView }
+  | { kind: "NOT_FOUND" | "NOT_RETRYABLE" };

@@ -1,17 +1,59 @@
 export type AiExecutionPurpose =
   "EVALUATION_ACQUISITION" | "EVALUATION_INTERPRETATION";
 
-export type AiAttemptRequest = {
+type AiAttemptRequestBase = {
+  runId: string;
   cycleId: string;
-  sampleId: string;
-  purpose: AiExecutionPurpose;
   attemptNumber: number;
   routePolicyId: string;
   providerKey: string;
   requestedModel: string;
   correlationId: string;
-  input: Record<string, unknown>;
 };
+
+export type AcquisitionAttemptInput = {
+  taskKind: "EVALUATION_ACQUISITION";
+  companyName: string;
+  query: string;
+  questionOrdinal: number;
+  platformLabel: string;
+};
+
+export type StructuredOutputAttemptInput = {
+  taskKind: "STRUCTURED_OUTPUT";
+  systemInstruction: string;
+  userContext: Record<string, unknown>;
+  outputContract: {
+    version: string;
+    jsonSchema: Record<string, unknown>;
+  };
+};
+
+export type AiAttemptRequest =
+  | (AiAttemptRequestBase & {
+      sampleId: string;
+      purpose: "EVALUATION_ACQUISITION";
+      input: AcquisitionAttemptInput;
+    })
+  | (AiAttemptRequestBase & {
+      sampleId: string;
+      purpose: "EVALUATION_INTERPRETATION";
+      input: StructuredOutputAttemptInput;
+    })
+  | (AiAttemptRequestBase & {
+      purpose: "OVERALL_SYNTHESIS";
+      input: StructuredOutputAttemptInput;
+    });
+
+export type SampleAiAttemptRequest = Extract<
+  AiAttemptRequest,
+  { sampleId: string }
+>;
+
+export type SynthesisAiAttemptRequest = Extract<
+  AiAttemptRequest,
+  { purpose: "OVERALL_SYNTHESIS" }
+>;
 
 export type AiAttemptFailure = {
   kind: "FAILED";

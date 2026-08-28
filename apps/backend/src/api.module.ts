@@ -9,7 +9,8 @@ import { HealthController } from "./health.controller.js";
 import { IdentityModule } from "./identity/identity.module.js";
 import { PersistenceModule } from "./infrastructure/persistence.module.js";
 import { TelemetryModule } from "./infrastructure/telemetry.js";
-import { ReadinessState } from "./readiness.js";
+import { NotificationApiModule } from "./notification/notification-api.module.js";
+import { ReadinessModule } from "./readiness.module.js";
 
 @Module({})
 export class ApiModule {
@@ -22,10 +23,11 @@ export class ApiModule {
         IdentityModule.register(config),
         BrandModule,
         GeoIntelligenceModule,
+        NotificationApiModule,
+        ReadinessModule,
         FoundationModule,
       ],
       controllers: [HealthController, FoundationController],
-      providers: [ReadinessState],
     };
   }
 }

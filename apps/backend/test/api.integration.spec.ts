@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import type { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
@@ -25,6 +27,12 @@ describe("customer-entry HTTP contract", () => {
   });
   beforeEach(async () => {
     await clearCustomerData(prisma);
+  });
+
+  it("reports the running API as ready", async () => {
+    const response = await fetch(`${baseUrl}/health/ready`);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "ready" });
   });
 
   it("serves login, cookie authentication, and an account-owned first brand", async () => {
@@ -135,6 +143,34 @@ describe("customer-entry HTTP contract", () => {
     expect(await prisma.evaluationSample.count()).toBe(20);
   });
 
+  it("keeps the current-report route account-scoped", async () => {
+    const unauthenticated = await fetch(
+      `${baseUrl}/brands/not-owned/evaluation-report`,
+    );
+    expect(unauthenticated.status).toBe(401);
+
+    const ownerCookie = await login(baseUrl, "13900000005");
+    const brandResponse = await fetch(`${baseUrl}/brands`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: ownerCookie },
+      body: JSON.stringify({ companyName: "报告权限测试品牌" }),
+    });
+    const brand = (await brandResponse.json()) as { id: string };
+    const ownerRead = await fetch(
+      `${baseUrl}/brands/${brand.id}/evaluation-report`,
+      { headers: { cookie: ownerCookie } },
+    );
+    expect(ownerRead.status).toBe(200);
+    expect(await ownerRead.json()).toEqual({ report: null });
+
+    const foreignCookie = await login(baseUrl, "13900000006");
+    const foreignRead = await fetch(
+      `${baseUrl}/brands/${brand.id}/evaluation-report`,
+      { headers: { cookie: foreignCookie } },
+    );
+    expect(foreignRead.status).toBe(404);
+  });
+
   it("advertises credentialed CORS only to configured origins", async () => {
     const response = await fetch(`${baseUrl}/identity/challenges`, {
       method: "OPTIONS",
@@ -150,7 +186,113 @@ describe("customer-entry HTTP contract", () => {
       "true",
     );
   });
+
+  it("keeps notification reads durable, account-scoped, and separate from SSE hints", async () => {
+    const ownerCookie = await login(baseUrl, "13900000007");
+    const ownerResponse = await fetch(`${baseUrl}/identity/me`, {
+      headers: { cookie: ownerCookie },
+    });
+    const owner = (await ownerResponse.json()) as { id: string };
+    const brandId = randomUUID();
+    const runId = randomUUID();
+    const first = await prisma.notification.create({
+      data: {
+        recipientAccountId: owner.id,
+        sourceEventId: randomUUID(),
+        kind: "EVALUATION_RETRY_REQUIRED",
+        title: "评测需要重试",
+        summary: "可继续重试。",
+        target: { kind: "EVALUATION_RETRY", brandId, runId },
+        occurredAt: new Date("2026-08-27T12:00:00.000Z"),
+      },
+    });
+    await prisma.notification.create({
+      data: {
+        recipientAccountId: owner.id,
+        sourceEventId: randomUUID(),
+        kind: "EVALUATION_COMPLETED",
+        title: "评测已完成",
+        summary: "报告已经生成。",
+        target: {
+          kind: "EVALUATION_REPORT",
+          brandId,
+          runId,
+          reportId: randomUUID(),
+        },
+        occurredAt: new Date("2026-08-27T12:01:00.000Z"),
+      },
+    });
+
+    const listResponse = await fetch(`${baseUrl}/notifications?limit=1`, {
+      headers: { cookie: ownerCookie },
+    });
+    expect(listResponse.status).toBe(200);
+    const list = (await listResponse.json()) as {
+      items: Array<Record<string, unknown>>;
+      unreadCount: number;
+      nextCursor: string;
+    };
+    expect(list.items).toHaveLength(1);
+    expect(list.unreadCount).toBe(2);
+    expect(list.nextCursor).toEqual(expect.any(String));
+    expect(JSON.stringify(list)).not.toContain("sourceEventId");
+
+    const invalidCursor = await fetch(
+      `${baseUrl}/notifications?cursor=not-a-cursor`,
+      { headers: { cookie: ownerCookie } },
+    );
+    expect(invalidCursor.status).toBe(400);
+
+    const foreignCookie = await login(baseUrl, "13900000008");
+    const foreignRead = await fetch(
+      `${baseUrl}/notifications/${first.id}/read`,
+      { method: "PUT", headers: { cookie: foreignCookie } },
+    );
+    expect(foreignRead.status).toBe(404);
+    const ownerRead = await fetch(`${baseUrl}/notifications/${first.id}/read`, {
+      method: "PUT",
+      headers: { cookie: ownerCookie },
+    });
+    expect(ownerRead.status).toBe(200);
+    expect((await ownerRead.json()) as { readAt: string | null }).toMatchObject(
+      {
+        readAt: expect.any(String),
+      },
+    );
+    const allRead = await fetch(`${baseUrl}/notifications/read-all`, {
+      method: "PUT",
+      headers: { cookie: ownerCookie },
+    });
+    expect(await allRead.json()).toEqual({ unreadCount: 0 });
+
+    const unauthenticatedSse = await fetch(`${baseUrl}/notifications/events`);
+    expect(unauthenticatedSse.status).toBe(401);
+    const controller = new AbortController();
+    const sse = await fetch(`${baseUrl}/notifications/events`, {
+      headers: { cookie: ownerCookie },
+      signal: controller.signal,
+    });
+    expect(sse.status).toBe(200);
+    const hint = await readSseEvent(sse);
+    controller.abort();
+    expect(hint).toContain("event: refresh");
+    expect(hint).toContain("unreadCount");
+    expect(hint).not.toContain("评测已完成");
+  });
 });
+
+async function readSseEvent(response: Response): Promise<string> {
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let received = "";
+  for (let index = 0; index < 10; index += 1) {
+    const chunk = await reader.read();
+    if (chunk.done) break;
+    received += decoder.decode(chunk.value, { stream: true });
+    if (received.includes("event: refresh")) return received;
+  }
+  return received;
+}
 
 async function login(baseUrl: string, mobile: string): Promise<string> {
   const challengeResponse = await fetch(`${baseUrl}/identity/challenges`, {

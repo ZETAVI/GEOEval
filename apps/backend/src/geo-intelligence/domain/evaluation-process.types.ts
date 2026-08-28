@@ -1,3 +1,9 @@
+import type {
+  EvaluationBrandSnapshot,
+  EvaluationQuestionKind,
+} from "./evaluation.types.js";
+import type { SampleParserSemantic } from "./sample-parser.contract.js";
+
 export type EvaluationSampleWorkContext = {
   runId: string;
   cycleId: string;
@@ -9,7 +15,9 @@ export type EvaluationSampleWorkContext = {
     | "ACQUISITION_EXHAUSTED"
     | "INTERPRETATION_EXHAUSTED";
   companyName: string;
+  brandSnapshot: EvaluationBrandSnapshot;
   query: string;
+  questionKind: EvaluationQuestionKind;
   questionOrdinal: number;
   platformKey: string;
   platformLabel: string;
@@ -30,13 +38,12 @@ export type AcceptedEvidence = {
 export type AcceptedInterpretation = {
   mentioned: boolean;
   position: number | null;
-  relevantDescription: string | null;
-  characteristics: Array<Record<string, unknown>>;
-  objectiveSummary: string;
-  structuredEvidence: Record<string, unknown>;
+  semanticContractVersion: string;
+  semanticPayload: SampleParserSemantic;
 };
 
 export type StageFailureInput = {
+  runId: string;
   cycleId: string;
   sampleId: string;
   purpose: "EVALUATION_ACQUISITION" | "EVALUATION_INTERPRETATION";

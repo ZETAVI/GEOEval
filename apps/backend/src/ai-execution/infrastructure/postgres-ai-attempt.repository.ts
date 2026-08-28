@@ -5,7 +5,7 @@ import { PrismaService } from "../../infrastructure/prisma.service.js";
 import type { AiAttemptRepository } from "../domain/ai-attempt.repository.js";
 import type {
   AiAdapterResult,
-  AiAttemptRequest,
+  SampleAiAttemptRequest,
   StoredAiAttempt,
 } from "../domain/ai-attempt.types.js";
 
@@ -13,10 +13,11 @@ import type {
 export class PostgresAiAttemptRepository implements AiAttemptRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async begin(request: AiAttemptRequest): Promise<StoredAiAttempt> {
+  async begin(request: SampleAiAttemptRequest): Promise<StoredAiAttempt> {
     try {
       const attempt = await this.prisma.aiExecutionAttempt.create({
         data: {
+          runId: request.runId,
           cycleId: request.cycleId,
           sampleId: request.sampleId,
           purpose: request.purpose,
@@ -33,7 +34,8 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
       if (!isUniqueViolation(error)) throw error;
       const attempt = await this.prisma.aiExecutionAttempt.findUniqueOrThrow({
         where: {
-          sampleId_purpose_attemptNumber: {
+          cycleId_sampleId_purpose_attemptNumber: {
+            cycleId: request.cycleId,
             sampleId: request.sampleId,
             purpose: request.purpose,
             attemptNumber: request.attemptNumber,

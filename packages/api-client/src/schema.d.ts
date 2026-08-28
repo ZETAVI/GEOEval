@@ -228,6 +228,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/brands/{brandId}/evaluation-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EvaluationController_currentReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brands/{brandId}/evaluation-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EvaluationController_reportHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brands/{brandId}/evaluation-reports/{reportId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EvaluationController_reportDetail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/brands/{brandId}/evaluation-definition": {
         parameters: {
             query?: never;
@@ -254,6 +302,86 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["EvaluationController_startRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/evaluation-runs/{runId}/retries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["EvaluationController_retryRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["NotificationController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["NotificationController_markAllRead"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/{notificationId}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["NotificationController_markRead"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["NotificationController_events"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -383,6 +511,175 @@ export interface components {
             run?: components["schemas"]["EvaluationRunResponse"] | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        EvaluationRecommendationIndexResponse: {
+            score: number;
+            stars: number;
+            mentionRate: number;
+            mentionCount: number;
+            validOpenSampleCount: number;
+        };
+        EvaluationTypicalPositionResponse: {
+            /** @enum {string} */
+            kind: "NONE" | "SINGLE" | "RANGE";
+            position?: number | null;
+            first?: number | null;
+            second?: number | null;
+        };
+        EvaluationCoverageResponse: {
+            validSampleCount: number;
+            totalSampleCount: number;
+            missingSampleCount: number;
+        };
+        EvaluationReportOverviewResponse: {
+            recommendationAssessment: string;
+            brandPerception: string;
+            recommendationIndex: components["schemas"]["EvaluationRecommendationIndexResponse"];
+            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+            coverage: components["schemas"]["EvaluationCoverageResponse"];
+        };
+        EvaluationPlatformReportResponse: {
+            platformKey: string;
+            platformLabel: string;
+            validSampleCount: number;
+            totalSampleCount: number;
+            validOpenSampleCount: number;
+            mentionCount: number;
+            mentionRate: number;
+            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+        };
+        EvaluationEvidenceSummaryResponse: {
+            sampleCount: number;
+            platforms: string[];
+        };
+        EvaluationThemeResponse: {
+            themeId: string;
+            label: string;
+            summary: string;
+            evidence: components["schemas"]["EvaluationEvidenceSummaryResponse"];
+        };
+        EvaluationThemesResponse: {
+            positive: components["schemas"]["EvaluationThemeResponse"][];
+            negative: components["schemas"]["EvaluationThemeResponse"][];
+        };
+        EvaluationCompetitorResponse: {
+            groupId: string;
+            displayName: string;
+            occurrenceCount: number;
+            platforms: string[];
+            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+        };
+        EvaluationDirectionResponse: {
+            directionId: string;
+            currentProblem: string;
+            recommendedDirection: string;
+            intendedImprovement: string;
+            evidence: components["schemas"]["EvaluationEvidenceSummaryResponse"];
+        };
+        EvaluationReportDocumentResponse: {
+            overview: components["schemas"]["EvaluationReportOverviewResponse"];
+            platforms: components["schemas"]["EvaluationPlatformReportResponse"][];
+            themes: components["schemas"]["EvaluationThemesResponse"];
+            competitors: components["schemas"]["EvaluationCompetitorResponse"][];
+            directions: components["schemas"]["EvaluationDirectionResponse"][];
+            limitations: string[];
+        };
+        EvaluationHighlightRangeResponse: {
+            start: number;
+            end: number;
+            exactText: string;
+            /** @enum {string} */
+            kind: "TARGET" | "POSITIVE" | "NEGATIVE" | "MIXED";
+        };
+        EvaluationReportSampleResponse: {
+            id: string;
+            platformKey: string;
+            platformLabel: string;
+            /** @enum {string} */
+            availability: "INCLUDED" | "NOT_INCLUDED";
+            mentioned: boolean | null;
+            position: number | null;
+            cardInterpretation: string | null;
+            originalAnswer: string | null;
+            highlightUnavailable: boolean;
+            highlights: components["schemas"]["EvaluationHighlightRangeResponse"][];
+        };
+        EvaluationReportQuestionResponse: {
+            id: string;
+            /** @enum {string} */
+            kind: "BRAND_DIRECTED" | "INDUSTRY_RECOMMENDATION" | "CHARACTERISTIC_ONE" | "CHARACTERISTIC_TWO";
+            ordinal: number;
+            content: string;
+            samples: components["schemas"]["EvaluationReportSampleResponse"][];
+        };
+        EvaluationReportResponse: {
+            id: string;
+            runId: string;
+            definitionId: string;
+            brandId: string;
+            brandSnapshot: components["schemas"]["EvaluationBrandSnapshotResponse"];
+            brandInformationChanged: boolean;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            acceptedAt: string;
+            document: components["schemas"]["EvaluationReportDocumentResponse"];
+            questions: components["schemas"]["EvaluationReportQuestionResponse"][];
+        };
+        CurrentEvaluationReportResponse: {
+            report: components["schemas"]["EvaluationReportResponse"] | null;
+        };
+        EvaluationReportSummaryResponse: {
+            id: string;
+            runId: string;
+            brandId: string;
+            brandName: string;
+            brandInformationChanged: boolean;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            acceptedAt: string;
+            recommendationIndex: number;
+            mentionRate: number;
+            validSampleCount: number;
+            totalSampleCount: number;
+        };
+        EvaluationReportHistoryResponse: {
+            items: components["schemas"]["EvaluationReportSummaryResponse"][];
+            nextCursor: string | null;
+        };
+        EvaluationReportNotificationTargetResponse: {
+            /** @enum {string} */
+            kind: "EVALUATION_REPORT";
+            brandId: string;
+            runId: string;
+            reportId: string;
+        };
+        EvaluationRetryNotificationTargetResponse: {
+            /** @enum {string} */
+            kind: "EVALUATION_RETRY";
+            brandId: string;
+            runId: string;
+        };
+        NotificationResponse: {
+            id: string;
+            /** @enum {string} */
+            kind: "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED";
+            title: string;
+            summary: string;
+            target: components["schemas"]["EvaluationReportNotificationTargetResponse"] | components["schemas"]["EvaluationRetryNotificationTargetResponse"];
+            /** Format: date-time */
+            occurredAt: string;
+            /** Format: date-time */
+            readAt: string | null;
+        };
+        NotificationListResponse: {
+            items: components["schemas"]["NotificationResponse"][];
+            unreadCount: number;
+            nextCursor: string | null;
+        };
+        NotificationReadAllResponse: {
+            unreadCount: number;
         };
     };
     responses: never;
@@ -690,6 +987,73 @@ export interface operations {
             };
         };
     };
+    EvaluationController_currentReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentEvaluationReportResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_reportHistory: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                brandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationReportHistoryResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_reportDetail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reportId: string;
+                brandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationReportResponse"];
+                };
+            };
+        };
+    };
     EvaluationController_prepareDefinition: {
         parameters: {
             query?: never;
@@ -725,6 +1089,106 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["EvaluationRunResponse"];
                 };
+            };
+        };
+    };
+    EvaluationController_retryRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationRunResponse"];
+                };
+            };
+        };
+    };
+    NotificationController_list: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationListResponse"];
+                };
+            };
+        };
+    };
+    NotificationController_markAllRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationReadAllResponse"];
+                };
+            };
+        };
+    };
+    NotificationController_markRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+        };
+    };
+    NotificationController_events: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

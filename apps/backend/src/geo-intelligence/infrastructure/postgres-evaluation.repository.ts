@@ -6,12 +6,15 @@ import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import type { EvaluationRepository } from "../domain/evaluation.repository.js";
+import { sampleWorkRequestedEvent } from "../domain/evaluation-process.events.js";
+import { synthesisRequestedEvent } from "../domain/evaluation-synthesis.events.js";
 import type {
   EvaluationBrandSnapshot,
   EvaluationDefinitionInput,
   EvaluationDefinitionView,
   EvaluationPlatformPolicy,
   EvaluationRunView,
+  RetryEvaluationOutcome,
   StartEvaluationOutcome,
 } from "../domain/evaluation.types.js";
 
@@ -135,7 +138,6 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
           data: sampleInputs.map((sample) => ({
             ...sample,
             runId: run.id,
-            cycleId,
           })),
         });
         await transaction.productOutboxEvent.create({
@@ -175,6 +177,165 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
       });
       if (!definition) return { kind: "NOT_FOUND" };
       return { kind: "ACTIVE_OTHER" };
+    }
+  }
+
+  async retryRun(input: {
+    accountId: string;
+    runId: string;
+  }): Promise<RetryEvaluationOutcome> {
+    try {
+      return await this.prisma.$transaction(async (transaction) => {
+        const run = await transaction.evaluationRun.findFirst({
+          where: { id: input.runId, accountId: input.accountId },
+          include: {
+            samples: {
+              include: { evidence: { select: { id: true } } },
+            },
+            executionCycles: { orderBy: { sequence: "desc" } },
+          },
+        });
+        if (!run) return { kind: "NOT_FOUND" };
+        if (isActiveRetry(run)) {
+          return { kind: "DUPLICATE", run: mapRun(run) };
+        }
+        if (
+          run.status !== "PLEASE_RETRY" ||
+          !["PROCESSING_EVIDENCE", "SYNTHESIS_EXHAUSTED"].includes(run.stage)
+        ) {
+          return { kind: "NOT_RETRYABLE" };
+        }
+        const previousCycle = run.executionCycles[0];
+        if (!previousCycle || previousCycle.status !== "EXHAUSTED") {
+          throw new Error("Retryable run has no exhausted execution cycle");
+        }
+
+        const nextStage =
+          run.stage === "SYNTHESIS_EXHAUSTED"
+            ? "READY_FOR_SYNTHESIS"
+            : "PROCESSING_EVIDENCE";
+        const transitioned = await transaction.evaluationRun.updateMany({
+          where: {
+            id: run.id,
+            accountId: input.accountId,
+            status: "PLEASE_RETRY",
+            stage: run.stage,
+          },
+          data: { status: "EVALUATING", stage: nextStage },
+        });
+        if (transitioned.count === 0) {
+          const concurrent = await transaction.evaluationRun.findFirst({
+            where: { id: input.runId, accountId: input.accountId },
+            include: {
+              samples: { select: { status: true } },
+              executionCycles: { orderBy: { sequence: "desc" } },
+            },
+          });
+          return concurrent && isActiveRetry(concurrent)
+            ? { kind: "DUPLICATE", run: mapRun(concurrent) }
+            : { kind: "NOT_RETRYABLE" };
+        }
+
+        const cycleId = randomUUID();
+        const sequence = previousCycle.sequence + 1;
+        const synthesisOnly = run.stage === "SYNTHESIS_EXHAUSTED";
+        await transaction.evaluationExecutionCycle.create({
+          data: {
+            id: cycleId,
+            runId: run.id,
+            sequence,
+            status: synthesisOnly ? "READY_FOR_SYNTHESIS" : "ACTIVE",
+          },
+        });
+
+        if (synthesisOnly) {
+          await transaction.productOutboxEvent.create({
+            data: synthesisRequestedEvent({
+              runId: run.id,
+              cycleId,
+              attemptNumber: 1,
+              correlationId: run.correlationId,
+            }),
+          });
+        } else {
+          const acquisitionSamples = run.samples.filter(
+            (sample) => sample.status === "ACQUISITION_EXHAUSTED",
+          );
+          const interpretationSamples = run.samples.filter(
+            (sample) => sample.status === "INTERPRETATION_EXHAUSTED",
+          );
+          if (
+            interpretationSamples.some((sample) => sample.evidence === null)
+          ) {
+            throw new Error(
+              "Interpretation retry requires retained canonical evidence",
+            );
+          }
+          if (
+            acquisitionSamples.length === 0 &&
+            interpretationSamples.length === 0
+          ) {
+            throw new Error("Evidence retry has no exhausted sample stage");
+          }
+          if (acquisitionSamples.length > 0) {
+            await transaction.evaluationSample.updateMany({
+              where: { id: { in: acquisitionSamples.map(({ id }) => id) } },
+              data: { status: "PENDING" },
+            });
+          }
+          if (interpretationSamples.length > 0) {
+            await transaction.evaluationSample.updateMany({
+              where: {
+                id: { in: interpretationSamples.map(({ id }) => id) },
+              },
+              data: { status: "EVIDENCE_ACCEPTED" },
+            });
+          }
+          await transaction.productOutboxEvent.createMany({
+            data: [
+              ...acquisitionSamples.map((sample) =>
+                sampleWorkRequestedEvent({
+                  runId: run.id,
+                  cycleId,
+                  sampleId: sample.id,
+                  purpose: "EVALUATION_ACQUISITION",
+                  attemptNumber: 1,
+                  correlationId: run.correlationId,
+                }),
+              ),
+              ...interpretationSamples.map((sample) =>
+                sampleWorkRequestedEvent({
+                  runId: run.id,
+                  cycleId,
+                  sampleId: sample.id,
+                  purpose: "EVALUATION_INTERPRETATION",
+                  attemptNumber: 1,
+                  correlationId: run.correlationId,
+                }),
+              ),
+            ],
+          });
+        }
+
+        const retried = await transaction.evaluationRun.findUniqueOrThrow({
+          where: { id: run.id },
+          include: { samples: { select: { status: true } } },
+        });
+        return { kind: "STARTED", run: mapRun(retried) };
+      });
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error;
+      const concurrent = await this.prisma.evaluationRun.findFirst({
+        where: { id: input.runId, accountId: input.accountId },
+        include: {
+          samples: { select: { status: true } },
+          executionCycles: { orderBy: { sequence: "desc" } },
+        },
+      });
+      if (concurrent && isActiveRetry(concurrent)) {
+        return { kind: "DUPLICATE", run: mapRun(concurrent) };
+      }
+      throw error;
     }
   }
 }
@@ -311,6 +472,22 @@ function mapRun(run: {
     startedAt: run.startedAt,
     updatedAt: run.updatedAt,
   };
+}
+
+function isActiveRetry(run: {
+  status: "EVALUATING" | "COMPLETED" | "PLEASE_RETRY";
+  executionCycles: Array<{
+    sequence: number;
+    status: "ACTIVE" | "READY_FOR_SYNTHESIS" | "EXHAUSTED" | "COMPLETED";
+  }>;
+}): boolean {
+  return (
+    run.status === "EVALUATING" &&
+    run.executionCycles.some((cycle) => cycle.status === "EXHAUSTED") &&
+    run.executionCycles.some((cycle) =>
+      ["ACTIVE", "READY_FOR_SYNTHESIS"].includes(cycle.status),
+    )
+  );
 }
 
 function isUniqueViolation(error: unknown): boolean {

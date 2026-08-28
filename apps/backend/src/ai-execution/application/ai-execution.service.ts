@@ -8,10 +8,10 @@ import {
   AI_ATTEMPT_REPOSITORY,
   type AiAttemptRepository,
 } from "../domain/ai-attempt.repository.js";
+import { toTerminalAiOutcome } from "../domain/ai-attempt.outcome.js";
 import type {
   AiAttemptOutcome,
-  AiAttemptRequest,
-  StoredAiAttempt,
+  SampleAiAttemptRequest,
 } from "../domain/ai-attempt.types.js";
 
 @Injectable()
@@ -23,9 +23,9 @@ export class AiExecutionService {
     private readonly adapter: AiAttemptAdapter,
   ) {}
 
-  async execute(request: AiAttemptRequest): Promise<AiAttemptOutcome> {
+  async execute(request: SampleAiAttemptRequest): Promise<AiAttemptOutcome> {
     const attempt = await this.repository.begin(request);
-    const completed = completedOutcome(attempt);
+    const completed = toTerminalAiOutcome(attempt);
     if (completed) return completed;
 
     const startedAt = performance.now();
@@ -35,29 +35,8 @@ export class AiExecutionService {
       result,
       Math.max(0, Math.round(performance.now() - startedAt)),
     );
-    const outcome = completedOutcome(stored);
+    const outcome = toTerminalAiOutcome(stored);
     if (!outcome) throw new Error("AI attempt did not reach a terminal state");
     return outcome;
   }
-}
-
-function completedOutcome(
-  attempt: StoredAiAttempt,
-): AiAttemptOutcome | undefined {
-  if (attempt.status === "SUCCEEDED" && attempt.responseEnvelope) {
-    return {
-      kind: "SUCCEEDED",
-      attemptId: attempt.id,
-      output: attempt.responseEnvelope,
-    };
-  }
-  if (attempt.status === "FAILED" && attempt.failureClass) {
-    return {
-      kind: "FAILED",
-      attemptId: attempt.id,
-      failureClass: attempt.failureClass,
-      retryable: attempt.retryable === true,
-    };
-  }
-  return undefined;
 }

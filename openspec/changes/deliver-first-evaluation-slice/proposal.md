@@ -2,7 +2,9 @@
 
 - Status: Approved through deterministic S1-S5; S1 accepted and checkpointed,
   S2 locally verified and checkpointed, S3 resumable evidence verified and
-  checkpointed
+  checkpointed, S4 locally verified and product-reviewed, and S5 locally
+  verified, product-reviewed, and checkpointed; branch exit remains pending and
+  the bounded frontend presentation follow-up remains separate
 - Class: Architectural implementation
 - Decision owners: Product owner and architecture owner
 - Implementation authorization: Deterministic S1-S5 only, confirmed 2026-08-25
@@ -35,6 +37,11 @@ client types. S3 adds GEO-owned execution cycles, canonical evidence,
 interpretation and readiness state; AI-attempt evidence; and an isolated
 Outbox/BullMQ Worker path with scheduled reconciliation. The existing F0 probes
 remain isolated evidence and do not become product APIs.
+
+S4 adds typed semantic interpretation, deterministic report calculation,
+immutable reports, protected guidance, and a safe customer report projection.
+S5 adds run-owned retry cycles, immutable report history, and a durable
+Notification inbox whose SSE stream is only a recoverable refresh hint.
 
 ## Control State
 

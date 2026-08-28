@@ -1,6 +1,7 @@
 "use client";
 
 import { logout, type Account } from "@geoeval/api-client";
+import { CustomerNotificationCenter } from "./customer-notification-center.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -55,6 +56,7 @@ export function CustomerSidebar({
           );
         })}
       </nav>
+      <CustomerNotificationCenter accountId={account?.id} />
       <div className="sidebar-account">
         <span>{account?.mobile.slice(-4) ?? "用户"}</span>
         <div>

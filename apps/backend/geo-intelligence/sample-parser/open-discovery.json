@@ -1,0 +1,5 @@
+{
+  "id": "evaluation.sample-parser.open-discovery",
+  "version": "1.0.0",
+  "content": "这是开放发现问题。判断当前品牌是否真正进入回答的候选、比较或推荐语境，并提取其相对位置、角色、推荐理由、适用条件和问题匹配度。仅出现陌生别名不视为当前品牌；不要因为问题上下文含有品牌资料而虚构提及。若判定未提及，position 必须为 null，targetRole 必须为 NOT_MENTIONED，且不得生成当前品牌的展示名称或提及证据。"
+}
