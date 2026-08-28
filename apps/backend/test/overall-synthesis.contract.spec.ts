@@ -8,6 +8,7 @@ import {
   type OverallSynthesisOutput,
   type OverallSynthesisSampleContext,
 } from "../src/geo-intelligence/domain/overall-synthesis.contract.js";
+import { parseAndProjectOverallSynthesisModelOutput } from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
 
 describe("overall synthesis contract", () => {
   it("accepts complete evidence-linked grouping", () => {
@@ -51,6 +52,81 @@ describe("overall synthesis contract", () => {
     expect(() => parseOverallSynthesisOutput(output, context)).toThrow(
       OverallSynthesisSemanticError,
     );
+  });
+
+  it("projects model proposals into stable identities and singleton brand groups", () => {
+    const context = synthesisContext();
+    const domainOutput = validOutput(context);
+    const output = parseAndProjectOverallSynthesisModelOutput(
+      {
+        brandEntityGroups: [],
+        recommendationAssessment: domainOutput.recommendationAssessment,
+        brandPerception: domainOutput.brandPerception,
+        themes: {
+          positive: domainOutput.themes.positive.map(
+            ({ themeId: _themeId, ...theme }) => ({
+              ...theme,
+              evidenceRefs: [
+                ...theme.evidenceRefs,
+                {
+                  sampleId: context[0]!.sampleId,
+                  observationId: "starbucks-reserve",
+                },
+              ],
+            }),
+          ),
+          negative: [],
+        },
+        customerDirections: domainOutput.customerDirections.map(
+          ({ directionId: _directionId, ...direction }) => direction,
+        ),
+        internalGuidance: {
+          summary: domainOutput.internalGuidance.summary,
+          priorities: domainOutput.internalGuidance.priorities.map(
+            ({ guidanceId: _guidanceId, ...guidance }) => guidance,
+          ),
+          writingAngles: domainOutput.internalGuidance.writingAngles.map(
+            ({ guidanceId: _guidanceId, ...guidance }) => guidance,
+          ),
+          cautions: domainOutput.internalGuidance.cautions,
+        },
+        limitations: domainOutput.limitations,
+      },
+      context,
+    );
+
+    expect(output.brandEntityGroups).toEqual([
+      {
+        groupId: "brand-group-1",
+        displayName: "Starbucks Reserve",
+        members: [
+          {
+            sampleId: context[0]!.sampleId,
+            brandMentionId: "starbucks-reserve",
+            relationship: "SAME_NAME",
+          },
+        ],
+        resolutionBasis: [
+          {
+            kind: "ANSWER_CONTEXT",
+            explanation: "该名称作为独立品牌保留，未与其他名称合并。",
+            sourceUrl: null,
+          },
+        ],
+      },
+    ]);
+    expect(output.themes.positive[0]?.themeId).toBe("theme-1");
+    expect(output.themes.positive[0]?.evidenceRefs).toEqual([
+      {
+        sampleId: context[0]!.sampleId,
+        observationId: "service-positive",
+      },
+    ]);
+    expect(output.customerDirections[0]?.directionId).toBe("direction-1");
+    expect([
+      output.internalGuidance.priorities[0]?.guidanceId,
+      output.internalGuidance.writingAngles[0]?.guidanceId,
+    ]).toEqual(["guidance-1", "guidance-2"]);
   });
 });
 

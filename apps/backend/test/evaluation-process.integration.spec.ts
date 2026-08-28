@@ -26,8 +26,10 @@ import { EvaluationProcessCoordinator } from "../src/geo-intelligence/applicatio
 import { EvaluationReportService } from "../src/geo-intelligence/application/evaluation-report.service.js";
 import { EvaluationSynthesisCoordinator } from "../src/geo-intelligence/application/evaluation-synthesis.coordinator.js";
 import { EvaluationService } from "../src/geo-intelligence/application/evaluation.service.js";
+import { OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
 import { DeterministicEvaluationQuestionGenerator } from "../src/geo-intelligence/domain/question-generator.js";
 import { parseStoredSampleSemantic } from "../src/geo-intelligence/domain/sample-parser.contract.js";
+import { SAMPLE_PARSER_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/sample-parser-model.contract.js";
 import { PostgresEvaluationProcessRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation-process.repository.js";
 import { PostgresEvaluationReportRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation-report.repository.js";
 import { PostgresEvaluationSynthesisRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation-synthesis.repository.js";
@@ -160,7 +162,7 @@ describe("resumable evaluation evidence", () => {
       taskKind: "STRUCTURED_OUTPUT",
       systemInstruction: expect.any(String),
       outputContract: {
-        version: "1.0.0",
+        version: SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
         jsonSchema: expect.any(Object),
       },
     });
@@ -245,7 +247,7 @@ describe("resumable evaluation evidence", () => {
     });
     expect(synthesisAttempt.requestPayload).toMatchObject({
       taskKind: "STRUCTURED_OUTPUT",
-      outputContract: { version: "evaluation.overall-synthesis@1" },
+      outputContract: { version: OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION },
     });
     expect(synthesisAttempt.requestPayload).not.toHaveProperty(
       "synthesisInputHash",
@@ -621,7 +623,7 @@ describe("resumable evaluation evidence", () => {
     ).toMatchObject({ stage: "REPORT_ACCEPTED" });
   });
 
-  it("uses Hy3 primary retry and Model Studio DeepSeek fallback only for parsing", async () => {
+  it("uses Model Studio Qwen primary retry and TokenHub Hy3 fallback only for parsing", async () => {
     let controlledSampleId: string | undefined;
     const failPrimaryParser: DeterministicAttemptScenario = (request) => {
       if (
@@ -665,21 +667,21 @@ describe("resumable evaluation evidence", () => {
       ),
     ).toEqual([
       {
-        routePolicyId: "evaluation.interpretation.hy3-primary@1",
+        routePolicyId: "evaluation.interpretation.qwen-primary@1",
         providerKey: "deterministic-parser",
-        requestedModel: "hy3",
+        requestedModel: "qwen3.8-flash",
         attemptNumber: 1,
       },
       {
-        routePolicyId: "evaluation.interpretation.hy3-primary@1",
+        routePolicyId: "evaluation.interpretation.qwen-primary@1",
         providerKey: "deterministic-parser",
-        requestedModel: "hy3",
+        requestedModel: "qwen3.8-flash",
         attemptNumber: 2,
       },
       {
-        routePolicyId: "evaluation.interpretation.deepseek-fallback@1",
+        routePolicyId: "evaluation.interpretation.hy3-fallback@1",
         providerKey: "deterministic-parser-fallback",
-        requestedModel: "deepseek-v4-flash",
+        requestedModel: "hy3",
         attemptNumber: 3,
       },
     ]);
@@ -839,9 +841,9 @@ describe("resumable evaluation evidence", () => {
       "deterministic-synthesis-fallback",
     ]);
     expect(attempts.map((attempt) => attempt.routePolicyId)).toEqual([
-      "evaluation.overall-synthesis.hy3-primary@1",
-      "evaluation.overall-synthesis.hy3-primary@1",
-      "evaluation.overall-synthesis.deepseek-fallback@1",
+      "evaluation.overall-synthesis.qwen-primary@1",
+      "evaluation.overall-synthesis.qwen-primary@1",
+      "evaluation.overall-synthesis.hy3-fallback@1",
     ]);
     expect(
       await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),

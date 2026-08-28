@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import type {
+  AiProviderEvidence,
   AiAttemptRequest,
   AiExecutionPurpose,
 } from "../domain/ai-attempt.types.js";
@@ -8,16 +9,18 @@ import { REAL_AI_ROUTES } from "../infrastructure/providers/real-route.catalog.j
 import type { ProviderRouteDefinition } from "../infrastructure/providers/provider-route.js";
 import { calculateEvaluationReportMetrics } from "../../geo-intelligence/domain/evaluation-report.policy.js";
 import { parseAcceptedEvidence } from "../../geo-intelligence/domain/evaluation-process.types.js";
-import {
-  OVERALL_SYNTHESIS_CONTRACT_VERSION,
-  parseOverallSynthesisOutput,
-  type OverallSynthesisSampleContext,
+import type {
+  OverallSynthesisOutput,
+  OverallSynthesisSampleContext,
 } from "../../geo-intelligence/domain/overall-synthesis.contract.js";
+import { parseAndProjectOverallSynthesisModelOutput } from "../../geo-intelligence/domain/overall-synthesis-model.contract.js";
 import {
   SAMPLE_PARSER_CONTRACT_VERSION,
-  parseSampleParserOutput,
+  collectSampleSemanticObservations,
+  type SampleParserOutput,
   type SampleParserSemantic,
 } from "../../geo-intelligence/domain/sample-parser.contract.js";
+import { parseAndProjectSampleParserModelOutput } from "../../geo-intelligence/domain/sample-parser-model.contract.js";
 import type {
   EvaluationBrandSnapshot,
   EvaluationQuestionKind,
@@ -28,9 +31,13 @@ import {
 } from "../../geo-intelligence/evaluation-policy.js";
 import {
   buildOverallSynthesisTask,
+  overallSynthesisInstructionProfile,
   type OverallSynthesisTaskContext,
 } from "../../geo-intelligence/overall-synthesis.policy.js";
-import { buildSampleParserTask } from "../../geo-intelligence/sample-parser.policy.js";
+import {
+  buildSampleParserTask,
+  sampleParserInstructionProfile,
+} from "../../geo-intelligence/sample-parser.policy.js";
 
 export const S6_CONTROLLED_MANIFEST_VERSION = "s6-controlled-call-manifest@1";
 
@@ -41,7 +48,10 @@ export type S6ControlledCase = {
   fixtureProfile: string;
   instructionProfile: string;
   request: AiAttemptRequest;
-  validateOutput(output: Record<string, unknown>): void;
+  validateOutput(
+    output: Record<string, unknown>,
+    providerEvidence?: AiProviderEvidence,
+  ): void;
 };
 
 export type S6ControlledBatch = {
@@ -71,6 +81,7 @@ export type S6PublicControlledManifest = {
     serviceClass: string;
     protocol: string;
     requestedModel: string;
+    structuredReasoningEffort: "low" | "medium" | "xhigh" | null;
     maxExternalRequests: 1;
   }>;
 };
@@ -142,6 +153,7 @@ export function publicS6ControlledManifest(
         serviceClass: route.serviceClass,
         protocol: route.protocol,
         requestedModel: route.requestedModel,
+        structuredReasoningEffort: route.structuredReasoningEffort ?? null,
         maxExternalRequests: 1,
       };
     }),
@@ -216,15 +228,15 @@ function samplingSmokeBatch(): S6ControlledBatch {
 
 function semanticProbeBatch(): S6ControlledBatch {
   const cases = [
-    parserCase("P01", "evaluation.interpretation.hy3-primary@1", 1),
-    parserCase("P03", "evaluation.interpretation.hy3-primary@1", 1),
-    parserCase("P05", "evaluation.interpretation.hy3-primary@1", 1),
-    parserCase("P07", "evaluation.interpretation.hy3-primary@1", 1),
-    parserCase("P03", "evaluation.interpretation.deepseek-fallback@1", 3),
-    parserCase("P07", "evaluation.interpretation.deepseek-fallback@1", 3),
-    synthesisCase("Y02", "evaluation.overall-synthesis.hy3-primary@1", 1),
-    synthesisCase("Y03", "evaluation.overall-synthesis.hy3-primary@1", 1),
-    synthesisCase("Y02", "evaluation.overall-synthesis.deepseek-fallback@1", 3),
+    parserCase("P01", "evaluation.interpretation.qwen-primary@1", 1),
+    parserCase("P03", "evaluation.interpretation.qwen-primary@1", 1),
+    parserCase("P05", "evaluation.interpretation.qwen-primary@1", 1),
+    parserCase("P07", "evaluation.interpretation.qwen-primary@1", 1),
+    parserCase("P03", "evaluation.interpretation.hy3-fallback@1", 3),
+    parserCase("P07", "evaluation.interpretation.hy3-fallback@1", 3),
+    synthesisCase("Y02", "evaluation.overall-synthesis.qwen-primary@1", 1),
+    synthesisCase("Y03", "evaluation.overall-synthesis.qwen-primary@1", 1),
+    synthesisCase("Y02", "evaluation.overall-synthesis.hy3-fallback@1", 3),
   ];
   return {
     id: "semantic-probe",
@@ -273,16 +285,82 @@ function parserCase(
   return {
     fixtureId,
     fixtureProfile: fixture.profile,
-    instructionProfile: `evaluation.sample-parser@${SAMPLE_PARSER_CONTRACT_VERSION}`,
+    instructionProfile: sampleParserInstructionProfile(fixture.questionKind),
     request,
     validateOutput(output: Record<string, unknown>) {
-      parseSampleParserOutput(output, {
+      const parsed = parseAndProjectSampleParserModelOutput(output, {
         questionKind: fixture.questionKind,
         companyName: FICTIONAL_BRAND.companyName,
         originalAnswer: fixture.originalAnswer,
       });
+      validateParserFixtureOutcome(fixtureId, parsed);
     },
   };
+}
+
+function validateParserFixtureOutcome(
+  fixtureId: ParserFixtureId,
+  output: SampleParserOutput,
+): void {
+  const fail = (message: string): never => {
+    throw new Error(`Parser fixture ${fixtureId} failed: ${message}`);
+  };
+  if (fixtureId === "P07") {
+    if (output.family !== "BRAND_DIRECTED" || !output.mentioned) {
+      fail("direct brand mention was not retained");
+    }
+    const polarities = new Set(
+      collectSampleSemanticObservations(output.semantic).map(
+        (observation) => observation.polarity,
+      ),
+    );
+    if (!polarities.has("POSITIVE") || !polarities.has("NEGATIVE")) {
+      fail("positive and negative observations were not both retained");
+    }
+    return;
+  }
+  const openOutput =
+    output.family === "OPEN_DISCOVERY"
+      ? output
+      : fail("open-discovery family was not retained");
+  const otherBrandNames = new Set(
+    openOutput.semantic.otherBrands.map((brand) => brand.displayName),
+  );
+  if (fixtureId === "P05") {
+    if (
+      openOutput.mentioned ||
+      openOutput.position !== null ||
+      openOutput.semantic.targetRole !== "NOT_MENTIONED"
+    ) {
+      fail("unfamiliar alias was incorrectly assigned to the target");
+    }
+    if (
+      !otherBrandNames.has("星咖实验室") ||
+      !otherBrandNames.has("云栖咖啡")
+    ) {
+      fail("explicit other brands were not retained");
+    }
+    return;
+  }
+  if (!openOutput.mentioned || openOutput.position !== 2) {
+    fail("target was not retained at position two");
+  }
+  if (
+    !openOutput.semantic.targetDisplayedForms.includes(
+      FICTIONAL_BRAND.companyName,
+    )
+  ) {
+    fail("exact target display name was not retained");
+  }
+  if (!otherBrandNames.has("云栖咖啡") || !otherBrandNames.has("林间咖啡")) {
+    fail("explicit other brands were not retained");
+  }
+  if (
+    fixtureId === "P03" &&
+    openOutput.semantic.answerStructure !== "PARAGRAPHS"
+  ) {
+    fail("parallel paragraphs were not recognized");
+  }
 }
 
 function synthesisCase(
@@ -305,12 +383,68 @@ function synthesisCase(
   return {
     fixtureId,
     fixtureProfile: context.fixtureProfile,
-    instructionProfile: OVERALL_SYNTHESIS_CONTRACT_VERSION,
+    instructionProfile: overallSynthesisInstructionProfile(),
     request,
-    validateOutput(output: Record<string, unknown>) {
-      parseOverallSynthesisOutput(output, context.samples);
+    validateOutput(output: Record<string, unknown>, providerEvidence) {
+      const parsed = parseAndProjectOverallSynthesisModelOutput(
+        output,
+        context.samples,
+        providerEvidence,
+      );
+      validateSynthesisFixtureOutcome(fixtureId, parsed);
     },
   };
+}
+
+function validateSynthesisFixtureOutcome(
+  fixtureId: SynthesisFixtureId,
+  output: OverallSynthesisOutput,
+): void {
+  const fail = (message: string): never => {
+    throw new Error(`Synthesis fixture ${fixtureId} failed: ${message}`);
+  };
+  if (fixtureId === "Y02") {
+    const mergedCompetitor = output.brandEntityGroups.find((group) => {
+      const memberIds = new Set(
+        group.members.map((member) => member.brandMentionId),
+      );
+      return (
+        memberIds.has("starbucks-reserve-cn") &&
+        memberIds.has("starbucks-reserve-en")
+      );
+    });
+    if (!mergedCompetitor)
+      fail("Chinese and English competitor names diverged");
+    const positiveEvidence = new Set(
+      output.themes.positive.flatMap((theme) =>
+        theme.evidenceRefs.map((reference) => reference.observationId),
+      ),
+    );
+    const negativeEvidence = new Set(
+      output.themes.negative.flatMap((theme) =>
+        theme.evidenceRefs.map((reference) => reference.observationId),
+      ),
+    );
+    if (!positiveEvidence.has("service-positive")) {
+      fail("positive service evidence was not retained");
+    }
+    if (!negativeEvidence.has("price-negative")) {
+      fail("negative price evidence was not retained");
+    }
+    return;
+  }
+  if (output.brandEntityGroups.length > 0) {
+    fail("sparse fixture invented competitor groups");
+  }
+  if (output.themes.negative.length > 0) {
+    fail("sparse fixture invented negative themes");
+  }
+  const positiveEvidence = output.themes.positive.flatMap((theme) =>
+    theme.evidenceRefs.map((reference) => reference.observationId),
+  );
+  if (!positiveEvidence.includes("quiet-space")) {
+    fail("the only positive observation was not retained");
+  }
 }
 
 type ParserFixtureId = "P01" | "P03" | "P05" | "P07";

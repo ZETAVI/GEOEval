@@ -80,24 +80,24 @@ describe("real AI attempt adapters", () => {
     }
   });
 
-  it("uses strict structured output for Hy3 primary and Model Studio fallback", async () => {
+  it("uses strict structured output for Model Studio primary and Hy3 fallback", async () => {
     const routes = [
       {
-        routePolicyId: "evaluation.interpretation.hy3-primary@1",
+        routePolicyId: "evaluation.interpretation.qwen-primary@1",
+        model: "qwen3.8-flash",
+      },
+      {
+        routePolicyId: "evaluation.interpretation.hy3-fallback@1",
         model: "hy3",
       },
       {
-        routePolicyId: "evaluation.interpretation.deepseek-fallback@1",
-        model: "deepseek-v4-flash",
-      },
-      {
-        routePolicyId: "evaluation.overall-synthesis.hy3-primary@1",
-        model: "hy3",
+        routePolicyId: "evaluation.overall-synthesis.qwen-primary@1",
+        model: "qwen3.8-flash",
         purpose: "OVERALL_SYNTHESIS" as const,
       },
       {
-        routePolicyId: "evaluation.overall-synthesis.deepseek-fallback@1",
-        model: "deepseek-v4-flash",
+        routePolicyId: "evaluation.overall-synthesis.hy3-fallback@1",
+        model: "hy3",
         purpose: "OVERALL_SYNTHESIS" as const,
       },
     ];
@@ -113,11 +113,30 @@ describe("real AI attempt adapters", () => {
       });
     }
     const structured = fixture.requests.slice(-4);
-    for (const request of structured) {
+    for (const request of structured.filter((observed) =>
+      observed.path.startsWith("/tokenhub"),
+    )) {
       expect(request.body).toMatchObject({
         text: {
           format: {
             type: "json_schema",
+            schema: { type: "object", additionalProperties: false },
+          },
+        },
+      });
+      expect(JSON.stringify(request.body)).not.toContain("web_search");
+    }
+    for (const request of structured.filter((observed) =>
+      observed.path.startsWith("/model-studio"),
+    )) {
+      expect(request.path).toBe("/model-studio/chat/completions");
+      expect(request.body).toMatchObject({
+        enable_thinking: true,
+        reasoning_effort: "medium",
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            strict: true,
             schema: { type: "object", additionalProperties: false },
           },
         },
@@ -242,8 +261,8 @@ describe("real AI attempt adapters", () => {
   it("rejects structurally invalid successful output for a later purpose retry", async () => {
     fixture.invalidStructuredOutput = true;
     const request = structuredRequest({
-      routePolicyId: "evaluation.interpretation.hy3-primary@1",
-      model: "hy3",
+      routePolicyId: "evaluation.interpretation.qwen-primary@1",
+      model: "qwen3.8-flash",
     });
     const result = await adapter.execute({
       ...request,
@@ -508,13 +527,19 @@ class ProviderFixtureServer {
 }
 
 function isStructured(body: Record<string, unknown>): boolean {
-  return "text" in body;
+  return "text" in body || "response_format" in body;
 }
 
 function routeForRequest(path: string, body: Record<string, unknown>): string {
   const model = String(body.model);
   if (isStructured(body)) {
-    const context = JSON.parse(String(body.input)) as { route: string };
+    const input =
+      "input" in body
+        ? body.input
+        : (body.messages as Array<{ role: string; content: string }>).find(
+            (message) => message.role === "user",
+          )?.content;
+    const context = JSON.parse(String(input)) as { route: string };
     return context.route;
   }
   if (model === "deepseek-v4-flash" && path.startsWith("/tokenhub")) {

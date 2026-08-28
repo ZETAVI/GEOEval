@@ -34,6 +34,8 @@ export type S6ControlledExecutionSummary = {
   batchId: string;
   startedAt: string;
   finishedAt: string;
+  plannedBatchExternalRequests: number;
+  startAtOrdinal: number;
   maxExternalRequests: number;
   executedExternalRequests: number;
   stoppedEarly: boolean;
@@ -46,10 +48,20 @@ export async function executeS6ControlledBatch(input: {
   adapter: AiAttemptAdapter;
   confirmation: string | undefined;
   evidenceRoot: string;
+  startAtOrdinal?: number;
   now?: () => Date;
 }): Promise<S6ControlledExecutionSummary> {
   const manifest = publicS6ControlledManifest(input.batch);
   assertS6ControlledManifestConfirmation(manifest, input.confirmation);
+  const startAtOrdinal = input.startAtOrdinal ?? 1;
+  if (
+    !Number.isInteger(startAtOrdinal) ||
+    startAtOrdinal < 1 ||
+    startAtOrdinal > input.batch.cases.length
+  ) {
+    throw new Error("S6 controlled start ordinal is outside the batch");
+  }
+  const selectedCases = input.batch.cases.slice(startAtOrdinal - 1);
   const now = input.now ?? (() => new Date());
   const startedAt = now();
   const evidenceDirectory = await prepareEvidenceDirectory(
@@ -63,8 +75,8 @@ export async function executeS6ControlledBatch(input: {
   let executedExternalRequests = 0;
   let stoppedEarly = false;
 
-  for (const [index, controlledCase] of input.batch.cases.entries()) {
-    const ordinal = index + 1;
+  for (const [index, controlledCase] of selectedCases.entries()) {
+    const ordinal = startAtOrdinal + index;
     let result: AiAdapterResult | undefined;
     let privateError: { name: string; message: string } | undefined;
     let validation:
@@ -88,7 +100,7 @@ export async function executeS6ControlledBatch(input: {
       durationMs = Date.now() - callStartedAt;
       if (result.kind === "SUCCEEDED") {
         try {
-          controlledCase.validateOutput(result.output);
+          controlledCase.validateOutput(result.output, result.evidence);
           validation = { status: "ACCEPTED" };
         } catch (error) {
           validation = {
@@ -129,7 +141,7 @@ export async function executeS6ControlledBatch(input: {
     });
     calls.push(summary);
     if (summary.status !== "ACCEPTED") {
-      stoppedEarly = index + 1 < input.batch.cases.length;
+      stoppedEarly = index + 1 < selectedCases.length;
       break;
     }
   }
@@ -138,7 +150,9 @@ export async function executeS6ControlledBatch(input: {
     batchId: input.batch.id,
     startedAt: startedAt.toISOString(),
     finishedAt: now().toISOString(),
-    maxExternalRequests: manifest.maxExternalRequests,
+    plannedBatchExternalRequests: manifest.maxExternalRequests,
+    startAtOrdinal,
+    maxExternalRequests: selectedCases.length,
     executedExternalRequests,
     stoppedEarly,
     evidenceDirectory,
@@ -183,9 +197,10 @@ function publicCallSummary(input: {
   }
   const evidence = input.result.evidence;
   const sourceMetadata =
-    input.controlledCase.request.purpose === "EVALUATION_ACQUISITION"
+    input.result.evidence?.sourceMetadata ??
+    (input.controlledCase.request.purpose === "EVALUATION_ACQUISITION"
       ? input.result.output.sourceMetadata
-      : undefined;
+      : undefined);
   return {
     ...base,
     status:

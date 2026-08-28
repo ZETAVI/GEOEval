@@ -43,15 +43,17 @@
 
 ## S6b Real Interpretation and Overall Analysis
 
-- [x] Configure the per-sample route sequence as Hy3 primary, one Hy3 retry, and
-      Alibaba Model Studio DeepSeek V4 Flash fallback; keep search disabled.
+- [x] Configure the per-sample route sequence as Alibaba Model Studio Qwen3.8
+      Flash primary, one same-route retry, and TokenHub Hy3 fallback; use
+      `medium` reasoning effort and keep search disabled.
 - [x] Make reconciliation derive the next attempt from the purpose-owned route
       sequence rather than the existing shared two-attempt cap.
-- [x] Configure the same primary-retry-fallback sequence for overall analysis;
-      keep deterministic metrics and report acceptance unchanged.
-- [x] Send the existing versioned system instructions and JSON Schemas through
-      the provider-specific structured-output mappings with strict local schema
-      and semantic validation after every response.
+- [x] Configure the same Qwen3.8-primary and Hy3-fallback sequence for overall
+      analysis; keep deterministic metrics and report acceptance unchanged.
+- [x] Send compact versioned model-output contracts through provider-specific
+      strict structured-output mappings, project them deterministically into the
+      canonical domain contracts, and run strict semantic validation after every
+      response.
 - [x] Verify representative parser and synthesis fixtures through primary
       success, primary semantic rejection, fallback success, and terminal
       exhaustion before any complete evaluation.
@@ -63,14 +65,17 @@
 - [x] Verify telemetry correlation, usage bucket normalization, exporter failure
       isolation, and graceful Worker shutdown without exporting protected
       customer content.
-- [ ] Record and obtain confirmation for the exact paid-call manifests, maximum
+- [x] Record and obtain confirmation for the exact paid-call manifests, maximum
       calls, retry ceilings, fictional fixtures, and stop conditions.
       Executable plans are recorded as `sampling-smoke` (five calls,
       confirmation `2964e3f7...18fae69d`) and `semantic-probe` (nine calls,
-      confirmation `749a3e1c...77f0dbbc`); post-plan execution confirmation is
-      still required.
-- [ ] Execute the smallest production-adapter smoke and interpretation evidence,
-      then one complete fictional 4-by-5 evaluation through the real Worker.
+      current confirmation `cb1e141c...ec9a8387`). The product owner authorized
+      real calls and both bounded plans were exercised without transport retry.
+- [x] Execute the five-route production-adapter smoke plus representative
+      Qwen3.8-primary and Hy3-fallback parser/synthesis evidence with protected,
+      resumable local evidence.
+- [ ] Execute one complete fictional 4-by-5 evaluation through the real Worker
+      and inspect the authenticated customer report.
 - [ ] Reconcile provider-console or billed cost, native usage, latency,
       search/source retention, retry/fallback evidence, and the customer-visible
       browser report without claiming production capacity from one run.

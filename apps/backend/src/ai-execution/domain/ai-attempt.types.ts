@@ -87,6 +87,7 @@ export type AiAttemptSuccess = {
   kind: "SUCCEEDED";
   attemptId: string;
   output: Record<string, unknown>;
+  providerEvidence?: AiProviderEvidence;
 };
 
 export type AiAttemptDeferred = {
@@ -120,6 +121,7 @@ export type AiProviderEvidence = {
   finishReason?: string;
   searchObservation?: "TRIGGERED" | "NOT_TRIGGERED" | "UNKNOWN";
   reasoningEvidenceKind?: "TEXT" | "SUMMARY" | "TOKEN_COUNT" | "NONE";
+  sourceMetadata?: Array<Record<string, unknown>>;
   sanitizedRequest?: Record<string, unknown>;
   responseHeaders?: Record<string, string>;
   rawResponse?: unknown;

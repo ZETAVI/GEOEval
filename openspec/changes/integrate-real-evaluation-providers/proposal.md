@@ -19,21 +19,24 @@ business state or silently weaken the verified contracts.
 
 - In: a production-selectable real AI execution mode; five real evaluation
   sampling adapters; real per-sample interpretation and overall-analysis
-  primary-retry-fallback routes; provider response, search, source, usage,
-  latency, error, and model-identity normalization; durable ambiguous-attempt
-  recovery; non-blocking Langfuse export; and one complete fictional 4-by-5
-  browser evaluation.
+  primary-retry-fallback routes; compact provider-facing semantic contracts and
+  deterministic projection into the canonical domain contracts; provider
+  response, search, source, usage, latency, error, and model-identity
+  normalization; durable ambiguous-attempt recovery; non-blocking Langfuse
+  export; and one complete fictional 4-by-5 browser evaluation.
 - Out: query-generation Agent work, promotional writing, optimization workflow,
   media publication, commercial customer data, production deployment,
-  open-ended load testing, model-ranking experiments, prompt redesign, final
-  report visual polish, and changes to deterministic score ownership.
+  open-ended load testing, model-ranking experiments, broad prompt
+  experimentation, default web-backed entity resolution, final report visual
+  polish, and changes to deterministic score ownership.
 
 ## Impact
 
 AI Execution gains the real external boundary, route validation, provider
 adapters, technical failure classification, and attempt telemetry. GEO
 Intelligence keeps evaluation meaning, accepted evidence, parser and synthesis
-contracts, retry/fallback policy, deterministic metrics, and report ownership.
+domain contracts, model-output projection, retry/fallback policy,
+deterministic metrics, and report ownership.
 Background Work remains a delivery mechanism over durable owner state. The
 Worker gains explicit deterministic versus real configuration; the Web and its
 authenticated public contracts do not change in the first implementation

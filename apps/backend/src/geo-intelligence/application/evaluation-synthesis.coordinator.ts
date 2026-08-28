@@ -11,24 +11,22 @@ import {
   EVALUATION_PROCESS_COMPLETED,
   type EvaluationProcessResult,
 } from "../domain/evaluation-process.result.js";
-import {
-  OverallSynthesisSemanticError,
-  parseOverallSynthesisOutput,
-} from "../domain/overall-synthesis.contract.js";
+import { OverallSynthesisSemanticError } from "../domain/overall-synthesis.contract.js";
+import { parseAndProjectOverallSynthesisModelOutput } from "../domain/overall-synthesis-model.contract.js";
 import { buildOverallSynthesisTask } from "../overall-synthesis.policy.js";
 
 const SYNTHESIS_ROUTES = [
   {
-    routePolicyId: "evaluation.overall-synthesis.hy3-primary@1",
-    requestedModel: "hy3",
+    routePolicyId: "evaluation.overall-synthesis.qwen-primary@1",
+    requestedModel: "qwen3.8-flash",
   },
   {
-    routePolicyId: "evaluation.overall-synthesis.hy3-primary@1",
-    requestedModel: "hy3",
+    routePolicyId: "evaluation.overall-synthesis.qwen-primary@1",
+    requestedModel: "qwen3.8-flash",
   },
   {
-    routePolicyId: "evaluation.overall-synthesis.deepseek-fallback@1",
-    requestedModel: "deepseek-v4-flash",
+    routePolicyId: "evaluation.overall-synthesis.hy3-fallback@1",
+    requestedModel: "hy3",
   },
 ] as const;
 
@@ -78,7 +76,11 @@ export class EvaluationSynthesisCoordinator {
     }
     let synthesis;
     try {
-      synthesis = parseOverallSynthesisOutput(outcome.output, context.samples);
+      synthesis = parseAndProjectOverallSynthesisModelOutput(
+        outcome.output,
+        context.samples,
+        outcome.providerEvidence,
+      );
     } catch (error) {
       if (
         !(error instanceof z.ZodError) &&

@@ -42,7 +42,7 @@ Background Work SHALL own only reliable delivery of stable identifiers.
 
 #### Scenario: Purpose execution fails
 
-- **WHEN** one deterministic acquisition or interpretation attempt fails
+- **WHEN** one acquisition or interpretation attempt fails
 - **THEN** the persisted purpose policy, not BullMQ's delivery-attempt counter,
   decides whether to append another purpose attempt
 - **AND** a terminal purpose failure creates one GEO-owned stage-exhaustion
@@ -115,7 +115,9 @@ the customer understand the current outcome.
 
 ## Current environment boundary
 
-S3 uses deterministic acquisition and interpretation adapters and rejects the
-Worker in production while those adapters are selected. Real five-platform
-routes, parser-model fallback, production pacing and cost controls, and
-production Redis high availability remain later approved gates.
+The S3 business contract remains reproducible with deterministic adapters.
+S6 also provides explicit real-mode adapters for the five sampling routes and
+the Qwen3.8-primary/Hy3-fallback interpretation sequence, with protected
+controlled evidence. One complete real 4-by-5 Worker run, production pacing and
+cost controls, commercial data approval, and production Redis high availability
+remain later gates.

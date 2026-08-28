@@ -1,6 +1,5 @@
 import type {
   ResolvedAiAttemptRequest,
-  ResolvedAiRoute,
   StructuredOutputAttemptInput,
 } from "../../domain/ai-attempt.types.js";
 import type { RealProviderConnection } from "../ai-execution.config.js";
@@ -77,7 +76,7 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
 }
 
 function structuredBody(
-  definition: ResolvedAiRoute,
+  definition: ProviderRouteDefinition,
   input: StructuredOutputAttemptInput,
 ) {
   return {

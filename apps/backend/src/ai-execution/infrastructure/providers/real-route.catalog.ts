@@ -20,6 +20,7 @@ const routeSchema = z.object({
   serviceClass: z.string().min(1),
   protocol: z.enum(["chat-completions", "responses"]),
   requestedModel: z.string().min(1),
+  structuredReasoningEffort: z.enum(["low", "medium", "xhigh"]).optional(),
 });
 
 const catalogSchema = z.object({

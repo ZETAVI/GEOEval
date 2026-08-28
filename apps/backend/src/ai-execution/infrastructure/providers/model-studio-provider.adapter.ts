@@ -22,40 +22,58 @@ export class ModelStudioProviderAdapter implements ProviderRouteAdapter {
     request: ResolvedAiAttemptRequest,
     definition: ProviderRouteDefinition,
   ) {
-    const body =
-      request.purpose === "EVALUATION_ACQUISITION"
-        ? {
-            model: definition.requestedModel,
-            input: request.input.query,
-            instructions: request.input.systemInstruction,
-            tools: [{ type: "web_search" }],
-          }
-        : structuredBody(definition, request.input);
+    if (request.purpose === "EVALUATION_ACQUISITION") {
+      return executeProviderJsonRequest({
+        request,
+        definition,
+        connection: this.connection,
+        transport: this.transport,
+        path: "/responses",
+        body: {
+          model: definition.requestedModel,
+          input: request.input.query,
+          instructions: request.input.systemInstruction,
+          tools: [{ type: "web_search" }],
+        },
+      });
+    }
+    if (definition.protocol !== "chat-completions") {
+      throw new Error(
+        "Model Studio structured route requires Chat Completions",
+      );
+    }
     return executeProviderJsonRequest({
       request,
       definition,
       connection: this.connection,
       transport: this.transport,
-      path: "/responses",
-      body,
+      path: "/chat/completions",
+      body: structuredChatBody(definition, request.input),
     });
   }
 }
 
-function structuredBody(
+function structuredChatBody(
   definition: ProviderRouteDefinition,
   input: StructuredOutputAttemptInput,
 ) {
   return {
     model: definition.requestedModel,
-    input: JSON.stringify(input.userContext),
-    instructions: input.systemInstruction,
-    text: {
-      format: {
-        type: "json_schema",
+    messages: [
+      { role: "system", content: input.systemInstruction },
+      { role: "user", content: JSON.stringify(input.userContext) },
+    ],
+    enable_thinking: true,
+    ...(definition.structuredReasoningEffort
+      ? { reasoning_effort: definition.structuredReasoningEffort }
+      : {}),
+    response_format: {
+      type: "json_schema",
+      json_schema: {
         name: input.outputContract.version
           .replaceAll(/[^a-zA-Z0-9_-]/g, "_")
           .slice(0, 64),
+        strict: true,
         schema: input.outputContract.jsonSchema,
       },
     },

@@ -543,6 +543,10 @@ retaining the evidence behind that account.
 - **AND** it returns structured brand mention, recommendation position, positive
   and negative associated characteristics, and evidence supporting its
   interpretation
+- **AND** provider-facing structured output contains semantic facts rather than
+  internal identifiers or report statistics; deterministic application logic
+  projects it into the canonical parser contract and validates that result
+  before acceptance
 - **AND** it identifies the distinct brands explicitly present in the answer,
   their displayed names, reasonable relative positions when the answer implies
   an order, and the exact answer evidence supporting those interpretations
@@ -678,10 +682,10 @@ retaining the evidence behind that account.
 
 #### Scenario: The overall synthesis needs provider fallback
 
-- **WHEN** the primary Hy3 overall-synthesis call fails or returns a structurally
-  invalid result
-- **THEN** the system applies its bounded retry policy and then attempts the
-  separately configured Alibaba Cloud Model Studio DeepSeek V4 Flash fallback
+- **WHEN** the primary Alibaba Cloud Model Studio Qwen3.8 Flash
+  overall-synthesis call fails or returns an invalid result
+- **THEN** the system applies one bounded same-route retry and then attempts the
+  separately configured TokenHub Hy3 fallback
 - **BUT WHEN** the primary and fallback routes both fail
 - **THEN** all completed platform samples and valid sample parses remain retained
 - **AND** the product does not issue an incomplete official report
@@ -767,13 +771,12 @@ retaining the evidence behind that account.
 
 #### Scenario: The sample parser needs provider fallback
 
-- **WHEN** the primary Hy3 parser call fails or returns a structurally invalid
-  result
+- **WHEN** the primary Alibaba Cloud Model Studio Qwen3.8 Flash parser call
+  fails or returns an invalid result
 - **THEN** the system retries that route within a bounded retry policy
 - **AND** the retry is a parser attempt rather than another platform sample
 - **BUT WHEN** the primary route remains unavailable or invalid after retries
-- **THEN** the system attempts the separately configured Alibaba Cloud Model
-  Studio DeepSeek V4 Flash fallback
+- **THEN** the system attempts the separately configured TokenHub Hy3 fallback
 - **AND** once one valid structured result is obtained, that single result is
   used for the report
 - **BUT WHEN** the primary and fallback routes both fail

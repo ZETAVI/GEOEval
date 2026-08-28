@@ -108,6 +108,9 @@ export function providerEvidence(input: {
       : {}),
     searchObservation: input.normalized.searchObservation,
     reasoningEvidenceKind: input.normalized.reasoningEvidenceKind,
+    ...(input.normalized.sourceMetadata.length > 0
+      ? { sourceMetadata: input.normalized.sourceMetadata }
+      : {}),
     sanitizedRequest: input.sanitizedRequest,
     responseHeaders: input.responseHeaders,
     rawResponse: input.rawResponse,

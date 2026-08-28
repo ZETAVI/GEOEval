@@ -62,7 +62,16 @@ describe("S6 controlled provider validation", () => {
       "Y02",
     ]);
     expect(semantic.calls.filter((call) => call.ordinal > 6)).toHaveLength(3);
-
+    expect(
+      semantic.calls
+        .filter((call) => call.providerKey === "alibaba-model-studio")
+        .every((call) => call.structuredReasoningEffort === "medium"),
+    ).toBe(true);
+    expect(
+      semantic.calls
+        .filter((call) => call.providerKey === "tencent-tokenhub")
+        .every((call) => call.structuredReasoningEffort === null),
+    ).toBe(true);
     const publicText = JSON.stringify([sampling, semantic]);
     for (const protectedValue of [
       "systemInstruction",
@@ -105,6 +114,8 @@ describe("S6 controlled provider validation", () => {
 
     expect(adapter.executions).toBe(5);
     expect(summary).toMatchObject({
+      plannedBatchExternalRequests: 5,
+      startAtOrdinal: 1,
       maxExternalRequests: 5,
       executedExternalRequests: 5,
       stoppedEarly: false,
@@ -128,6 +139,33 @@ describe("S6 controlled provider validation", () => {
     );
     expect(firstPrivateEvidence).toContain("fixture answer");
     expect(firstPrivateEvidence).toContain("systemInstruction");
+  });
+
+  it("resumes at a later ordinal without repeating accepted calls", async () => {
+    const root = await mkdtemp(join(tmpdir(), "geoeval-s6-controlled-"));
+    temporaryDirectories.push(root);
+    const batch = buildS6ControlledBatch("sampling-smoke");
+    const manifest = publicS6ControlledManifest(batch);
+    const adapter = new RecordingAdapter();
+
+    const summary = await executeS6ControlledBatch({
+      batch,
+      adapter,
+      confirmation: s6ControlledManifestConfirmation(manifest),
+      evidenceRoot: root,
+      startAtOrdinal: 3,
+      now: () => new Date("2026-08-28T12:00:00.000Z"),
+    });
+
+    expect(adapter.executions).toBe(3);
+    expect(summary).toMatchObject({
+      plannedBatchExternalRequests: 5,
+      startAtOrdinal: 3,
+      maxExternalRequests: 3,
+      executedExternalRequests: 3,
+      stoppedEarly: false,
+    });
+    expect(summary.calls.map((call) => call.ordinal)).toEqual([3, 4, 5]);
   });
 });
 

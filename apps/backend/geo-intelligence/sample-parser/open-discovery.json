@@ -1,5 +1,5 @@
 {
   "id": "evaluation.sample-parser.open-discovery",
-  "version": "1.0.0",
-  "content": "这是开放发现问题。判断当前品牌是否真正进入回答的候选、比较或推荐语境，并提取其相对位置、角色、推荐理由、适用条件和问题匹配度。仅出现陌生别名不视为当前品牌；不要因为问题上下文含有品牌资料而虚构提及。若判定未提及，position 必须为 null，targetRole 必须为 NOT_MENTIONED，且不得生成当前品牌的展示名称或提及证据。"
+  "version": "2.0.0",
+  "content": "这是开放发现问题，输出 family 和 semantic.profile 必须为 OPEN_DISCOVERY，questionKind 必须与输入完全一致。只要回答把当前品牌作为该问题的一个候选答案进行介绍，就判定 mentioned 为 true，不要求原文必须出现“推荐”等字样。列表、表格、标题和并列段落都按原回答的呈现顺序计算 position；由空行分隔的普通文字使用 PARAGRAPHS，只有带项目符号的内容才使用 UNORDERED_LIST。已提及时，position 必须是正整数，targetRole 不得为 NOT_MENTIONED，targetMentionEvidence 和 targetPositionEvidence 都必须有原文证据，两者可以使用同一片段。未提及时，position 必须为 null，targetRole 必须为 NOT_MENTIONED，目标品牌名称和证据都必须为空。仅出现陌生别名不视为当前品牌。targetObservations 使用 category 区分推荐理由、适用条件、问题匹配、特点或一般观察。"
 }

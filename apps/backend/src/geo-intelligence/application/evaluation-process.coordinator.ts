@@ -14,10 +14,8 @@ import {
   EVALUATION_PROCESS_COMPLETED,
   type EvaluationProcessResult,
 } from "../domain/evaluation-process.result.js";
-import {
-  SAMPLE_PARSER_CONTRACT_VERSION,
-  parseSampleParserOutput,
-} from "../domain/sample-parser.contract.js";
+import { SAMPLE_PARSER_CONTRACT_VERSION } from "../domain/sample-parser.contract.js";
+import { parseAndProjectSampleParserModelOutput } from "../domain/sample-parser-model.contract.js";
 import { buildSampleParserTask } from "../sample-parser.policy.js";
 import { EvaluationSynthesisCoordinator } from "./evaluation-synthesis.coordinator.js";
 
@@ -25,16 +23,16 @@ const MAX_ACQUISITION_ATTEMPTS = 2;
 
 const INTERPRETATION_ROUTES = [
   {
-    routePolicyId: "evaluation.interpretation.hy3-primary@1",
-    requestedModel: "hy3",
+    routePolicyId: "evaluation.interpretation.qwen-primary@1",
+    requestedModel: "qwen3.8-flash",
   },
   {
-    routePolicyId: "evaluation.interpretation.hy3-primary@1",
-    requestedModel: "hy3",
+    routePolicyId: "evaluation.interpretation.qwen-primary@1",
+    requestedModel: "qwen3.8-flash",
   },
   {
-    routePolicyId: "evaluation.interpretation.deepseek-fallback@1",
-    requestedModel: "deepseek-v4-flash",
+    routePolicyId: "evaluation.interpretation.hy3-fallback@1",
+    requestedModel: "hy3",
   },
 ] as const;
 
@@ -214,7 +212,7 @@ export class EvaluationProcessCoordinator {
     }
     let output;
     try {
-      output = parseSampleParserOutput(outcome.output, {
+      output = parseAndProjectSampleParserModelOutput(outcome.output, {
         questionKind: context.questionKind,
         companyName: context.companyName,
         originalAnswer: context.evidence.answerContent,

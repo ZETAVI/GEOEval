@@ -4,11 +4,11 @@ import { z } from "zod";
 
 import type { EvaluationReportMetrics } from "./domain/evaluation-report.policy.js";
 import type { EvaluationBrandSnapshot } from "./domain/evaluation.types.js";
+import { type OverallSynthesisSampleContext } from "./domain/overall-synthesis.contract.js";
 import {
-  OVERALL_SYNTHESIS_CONTRACT_VERSION,
-  overallSynthesisJsonSchema,
-  type OverallSynthesisSampleContext,
-} from "./domain/overall-synthesis.contract.js";
+  OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION,
+  overallSynthesisModelJsonSchema,
+} from "./domain/overall-synthesis-model.contract.js";
 
 const assetSchema = z
   .object({
@@ -44,16 +44,21 @@ export function buildOverallSynthesisTask(
     taskKind: "STRUCTURED_OUTPUT" as const,
     systemInstruction: common.content,
     userContext: {
+      capabilities: { publicSearch: false },
       brand: context.brand,
       questions: context.questions,
       samples: context.samples,
       metrics: context.metrics,
     },
     outputContract: {
-      version: OVERALL_SYNTHESIS_CONTRACT_VERSION,
-      jsonSchema: overallSynthesisJsonSchema as Record<string, unknown>,
+      version: OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION,
+      jsonSchema: overallSynthesisModelJsonSchema as Record<string, unknown>,
     },
   };
+}
+
+export function overallSynthesisInstructionProfile(): string {
+  return `${common.id}@${common.version}`;
 }
 
 function loadAsset(fileName: string) {

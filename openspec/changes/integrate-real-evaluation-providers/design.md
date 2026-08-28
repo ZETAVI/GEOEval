@@ -129,21 +129,57 @@ history; the other is the external security and provenance allowlist.
 | `evaluation.qwen` / `qwen3.7-flash` | Model Studio Responses on the dedicated Beijing host | same route for attempts 1-2 |
 | `evaluation.ernie` / `ernie-4.5-turbo-128k` | Qianfan V2 Chat Completions | same route for attempts 1-2 |
 | `evaluation.hunyuan` / `hy3` | TokenHub Responses | same route for attempts 1-2 |
-| `evaluation.interpretation.hy3-primary@1` / `hy3` | TokenHub Responses with strict JSON Schema | attempts 1-2 |
-| `evaluation.interpretation.deepseek-fallback@1` / `deepseek-v4-flash` | Model Studio Responses with structured output | attempt 3 |
-| `evaluation.overall-synthesis.hy3-primary@1` / `hy3` | TokenHub Responses with strict JSON Schema | attempts 1-2 |
-| `evaluation.overall-synthesis.deepseek-fallback@1` / `deepseek-v4-flash` | Model Studio Responses with structured output | attempt 3 |
+| `evaluation.interpretation.qwen-primary@1` / `qwen3.8-flash` | Model Studio Chat Completions with strict JSON Schema and `medium` reasoning effort | attempts 1-2 |
+| `evaluation.interpretation.hy3-fallback@1` / `hy3` | TokenHub Responses with strict JSON Schema | attempt 3 |
+| `evaluation.overall-synthesis.qwen-primary@1` / `qwen3.8-flash` | Model Studio Chat Completions with strict JSON Schema and `medium` reasoning effort | attempts 1-2 |
+| `evaluation.overall-synthesis.hy3-fallback@1` / `hy3` | TokenHub Responses with strict JSON Schema | attempt 3 |
 
 The objectivity profile remains one GEO-owned semantic input mapped as a Chat
 `system` message or Responses `instructions`. Parser and synthesis adapters use
 their existing versioned task instructions and JSON Schemas. Sampling enables
 automatic search; interpretation and overall analysis do not.
 
+Qwen3.8 Flash is the semantic primary because the selected account returned its
+exact requested identity and passed the representative parser and synthesis
+contracts. Its default `xhigh` reasoning posture was rejected for this route:
+controlled parser calls consumed roughly 8,700-10,900 reasoning tokens and
+121-159 seconds. Explicit `medium` reasoning reduced accepted parser calls to
+roughly 347-574 reasoning tokens and 15-20 seconds without weakening the
+representative semantic assertions. Hy3 remains a separately hosted and
+protocol-distinct fallback rather than a hidden retry of the primary service.
+
 S6 uses non-streaming requests. The selected routes already returned complete
 format-preserving evidence in controlled calls, and streaming would add
 assembly, partial-response, and restart states without a first-release customer
 need. Reasoning text, summaries, or token counts are retained only when the
 provider actually returns them; one form is never mislabeled as another.
+
+## Model-facing and canonical semantic contracts
+
+Provider structured output and durable GEO semantics have different jobs. The
+model-facing parser and synthesis contracts ask only for semantic facts that a
+model can responsibly infer from the supplied evidence. They do not ask the
+model to manufacture internal identifiers, foreign keys, aggregate counts, or
+report metrics. A deterministic projector then:
+
+- assigns stable owner-local identifiers;
+- resolves evidence spans and references against the supplied sample context;
+- preserves every ungrouped other-brand mention as an independent singleton;
+- rejects or filters unsupported references under the canonical domain rules;
+- passes the projected result through the existing strict parser or synthesis
+  acceptance contract before any business record is accepted.
+
+The model-output contracts are versioned independently from the canonical
+domain contracts. This is an intentional anti-coupling seam, not a second
+business model: provider convenience may evolve without weakening the durable
+meaning used by calculations, reports, and history.
+
+Overall synthesis receives no web-search tool in the default route. A controlled
+Qwen3.8 strict-JSON plus web-search call exhausted the reviewed 180-second
+deadline. The system therefore does not raise the global timeout or make every
+report wait for search. If real ambiguity later proves common, entity
+disambiguation becomes a separate, only-when-ambiguous step with its own
+timeout, evidence, and source validation.
 
 ## One-call attempt lifecycle
 
@@ -214,6 +250,7 @@ The existing attempt tables remain the only technical attempt store.
     "finishReason": "...",
     "searchObservation": "TRIGGERED | NOT_TRIGGERED | UNKNOWN",
     "reasoningEvidenceKind": "TEXT | SUMMARY | TOKEN_COUNT | NONE",
+    "sourceMetadata": [],
     "sanitizedRequest": {},
     "rawResponse": {}
   }
@@ -258,7 +295,8 @@ one normalized success or stable failure:
 - TokenHub DeepSeek Chat;
 - TokenHub Hy3 Responses and strict structured output;
 - Ark Doubao Responses;
-- Model Studio Qwen and hosted-DeepSeek Responses;
+- Model Studio Qwen Responses for sampling and Qwen Chat strict structured
+  output for semantic routes;
 - Qianfan ERNIE Chat.
 
 Zod checks the minimum provider envelope needed before normalization. The
@@ -276,7 +314,7 @@ acceptance.
 | HTTP 401 or 403 | permanent credential/account boundary | operator fixes account; no automatic refresh or retry | route and missing/denied identity without secret |
 | Provider safety/content rejection | permanent for this input unless explicitly classified otherwise | sample may become unavailable | provider code and sanitized category |
 | HTTP success with malformed provider envelope | adapter contract failure, initially retryable once | GEO purpose policy | raw protected response and failed envelope schema |
-| Structured JSON invalid or semantically incomplete | semantic contract rejection | GEO primary retry then fallback | exact attempt, output schema version, local validation error category |
+| Structured JSON invalid or semantically incomplete | model-contract or projected domain-contract rejection | GEO primary retry then fallback | exact attempt, model-output and domain-contract versions, local validation error category |
 | Duplicate queue event while call is live | delivery duplicate | delay the same delivery until the ambiguity deadline | unique attempt key, incomplete Outbox event, BullMQ delayed job, and no second transport invocation |
 | Worker death during call | ambiguous interruption | stale attempt closure then next numbered attempt | started time, ambiguity deadline, conditional transition |
 | Langfuse unavailable or slow | telemetry-only | drop or flush best effort; never repeat model call | local exporter error metric/log without content |
@@ -331,11 +369,13 @@ evidence.
 
 ### S6b: structured semantic routes
 
-Implement the Hy3 primary/retry and Model Studio DeepSeek fallback mappings.
-Reuse the deterministic P01-P09 and Y01-Y04 catalog locally. The first proposed
-paid semantic batch remains the previously bounded nine calls: primary parser
-P01/P03/P05/P07, fallback parser P03/P07, primary synthesis Y02/Y03, and fallback
-synthesis Y02, with no automatic transport retry.
+Implement Qwen3.8 Flash primary/retry through Model Studio Chat Completions and
+Hy3 fallback through TokenHub Responses. Keep compact model-facing contracts
+separate from canonical domain acceptance and project deterministically between
+them. Reuse the deterministic P01-P09 and Y01-Y04 catalog locally. The bounded
+nine-call semantic plan covers primary parser P01/P03/P05/P07, fallback parser
+P03/P07, primary synthesis Y02/Y03, and fallback synthesis Y02, with no
+automatic transport retry.
 
 ### S6c: complete fictional evaluation and telemetry
 
@@ -366,9 +406,9 @@ Completion requires:
 
 ## Preflight architecture review
 
-- Status: S6a/S6b offline implementation and S6c telemetry are complete and
-  `ready` for the exact controlled sampling and semantic call gates. The full
-  fictional evaluation remains a later explicit gate.
+- Status: S6a/S6b implementation, controlled sampling and semantic evidence,
+  and S6c telemetry are complete. The full fictional evaluation remains a
+  separate gate.
 - Resolved must-fix: a live duplicate cannot simply return and let its Outbox
   event complete. The design now propagates a durable deferral time and lets
   Background Work use BullMQ delayed delivery without consuming a model or
@@ -405,7 +445,7 @@ files.
 | Batch | Exact calls | Maximum | Current confirmation |
 | --- | --- | ---: | --- |
 | `sampling-smoke` | One fictional Guangzhou coffee-brand sampling request through DeepSeek, Doubao, Qwen, ERNIE, and Hy3 production routes | 5 | `2964e3f7b17b23dd5be2ef772d9224759610db7143f37cfbb6ea051d18fae69d` |
-| `semantic-probe` | Hy3 parser P01/P03/P05/P07; Model Studio DeepSeek parser P03/P07; Hy3 synthesis Y02/Y03; Model Studio DeepSeek synthesis Y02 | 9 | `749a3e1cdabbe8a7a52b39ec6b8c266f251e4f1a34df6fe39e18f9a577f0dbbc` |
+| `semantic-probe` | Qwen3.8 parser P01/P03/P05/P07; Hy3 fallback parser P03/P07; Qwen3.8 synthesis Y02/Y03; Hy3 fallback synthesis Y02 | 9 | `cb1e141c45fad40f824b25a2acd316b18f2e934e63c4f6e2173c703eec9a8387` |
 
 Both batches stop on the first request failure, route or model drift, invalid
 structured response, or failed business semantic contract. Generating these
@@ -417,7 +457,7 @@ Offline evidence on 2026-08-28:
   passed while preserving attempt, evidence, interpretation, and report links;
 - actual retained response bodies from all five providers passed the production
   normalizer without a new call;
-- the isolated backend suite passed 18 files and 94 tests, including duplicate
+- the isolated backend suite passed 18 files and 98 tests, including duplicate
   delivery, stale ambiguity, parser fallback, provider failures, manifest
   secrecy and permissions, and telemetry isolation;
 - the production build passed Prisma generation, OpenAPI generation, backend
@@ -425,6 +465,18 @@ Offline evidence on 2026-08-28:
 - integration tests now inherit explicit database and Redis environment values,
   closing the defect that previously allowed a test cleanup to reach local demo
   data. The authenticated browser recheck remains open.
+
+Controlled external evidence on 2026-08-28:
+
+- all five one-call sampling smoke routes returned the requested model identity
+  and passed production normalization;
+- Qwen3.8 Flash accepted parser P01/P03/P05 and P07 plus synthesis Y02/Y03 under
+  the compact model contracts and deterministic domain projection;
+- Hy3 accepted fallback parser P03/P07 and fallback synthesis Y02;
+- the accepted semantic calls are distributed across resumable evidence
+  segments because the harness stops safely and resumes at an explicit ordinal;
+- one Qwen3.8 strict-JSON plus web-search experiment timed out at 180 seconds and
+  is retained as negative evidence for keeping default synthesis search off.
 
 The final code-level architecture review found no remaining must-fix boundary
 issue before the controlled calls. Production routes have one executable owner;

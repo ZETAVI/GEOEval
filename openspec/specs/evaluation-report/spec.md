@@ -140,8 +140,10 @@ internal analysis terminology or replacing evidence with decorative output.
 
 ## Current environment boundary
 
-S4 uses deterministic parser and synthesis adapters and proves local contracts,
-calculation, persistence, authorization, safe Markdown, and report interaction.
-It does not prove real-provider quality, production capacity, external cost, or
-commercial deployment readiness. Final visual-language refinement remains a
-separate frontend-design workstream over these accepted semantics.
+S4 remains reproducible with deterministic parser and synthesis adapters. S6
+also provides controlled Qwen3.8-primary/Hy3-fallback semantic routes, compact
+model-output contracts, deterministic projection, and representative real-call
+evidence. It does not yet prove one complete real 4-by-5 Worker journey,
+production capacity, reconciled external cost, or commercial deployment
+readiness. Final visual-language refinement remains a separate frontend-design
+workstream over these accepted semantics.

@@ -19,6 +19,7 @@ export type RealRoutePurpose = AiExecutionPurpose | "OVERALL_SYNTHESIS";
 export type ProviderRouteDefinition = ResolvedAiRoute & {
   routePolicyId: string;
   purpose: RealRoutePurpose;
+  structuredReasoningEffort?: "low" | "medium" | "xhigh" | undefined;
 };
 
 export interface ProviderRouteAdapter {

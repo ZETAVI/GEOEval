@@ -62,8 +62,25 @@ decides the next purpose attempt.
 - **AND** no SDK, HTTP client, queue delivery counter, or telemetry exporter
   performs a hidden model retry
 - **AND** acquisition retries the same platform while interpretation and overall
-  analysis follow the approved Hy3-primary then Model-Studio-DeepSeek fallback
-  sequence
+  analysis use Model Studio Qwen3.8 Flash for attempts one and two and TokenHub
+  Hy3 for attempt three
+
+### Requirement: Model output does not become the domain contract
+
+GEO Intelligence SHALL accept semantic model output only after deterministic
+projection into its canonical parser or synthesis contract.
+
+#### Scenario: A real parser or synthesizer returns strict structured output
+
+- **WHEN** a provider response passes its compact versioned model-output schema
+- **THEN** program logic assigns internal identifiers, resolves evidence
+  references, preserves unmatched brand mentions, and constructs the canonical
+  owner record
+- **AND** the projected record must still pass the existing strict domain schema
+  and semantic checks before it can affect accepted evidence, calculations, or
+  a report
+- **AND** the model never owns internal identifiers, foreign keys, aggregate
+  counts, scores, or final report metrics
 
 ### Requirement: Telemetry is an optional follower
 

@@ -42,7 +42,16 @@
       "requestedModel": "ernie-4.5-turbo-128k"
     },
     {
-      "routePolicyId": "evaluation.interpretation.hy3-primary@1",
+      "routePolicyId": "evaluation.interpretation.qwen-primary@1",
+      "purpose": "EVALUATION_INTERPRETATION",
+      "providerKey": "alibaba-model-studio",
+      "serviceClass": "workspace-pay-as-you-go",
+      "protocol": "chat-completions",
+      "requestedModel": "qwen3.8-flash",
+      "structuredReasoningEffort": "medium"
+    },
+    {
+      "routePolicyId": "evaluation.interpretation.hy3-fallback@1",
       "purpose": "EVALUATION_INTERPRETATION",
       "providerKey": "tencent-tokenhub",
       "serviceClass": "platform",
@@ -50,28 +59,21 @@
       "requestedModel": "hy3"
     },
     {
-      "routePolicyId": "evaluation.interpretation.deepseek-fallback@1",
-      "purpose": "EVALUATION_INTERPRETATION",
+      "routePolicyId": "evaluation.overall-synthesis.qwen-primary@1",
+      "purpose": "OVERALL_SYNTHESIS",
       "providerKey": "alibaba-model-studio",
       "serviceClass": "workspace-pay-as-you-go",
-      "protocol": "responses",
-      "requestedModel": "deepseek-v4-flash"
+      "protocol": "chat-completions",
+      "requestedModel": "qwen3.8-flash",
+      "structuredReasoningEffort": "medium"
     },
     {
-      "routePolicyId": "evaluation.overall-synthesis.hy3-primary@1",
+      "routePolicyId": "evaluation.overall-synthesis.hy3-fallback@1",
       "purpose": "OVERALL_SYNTHESIS",
       "providerKey": "tencent-tokenhub",
       "serviceClass": "platform",
       "protocol": "responses",
       "requestedModel": "hy3"
-    },
-    {
-      "routePolicyId": "evaluation.overall-synthesis.deepseek-fallback@1",
-      "purpose": "OVERALL_SYNTHESIS",
-      "providerKey": "alibaba-model-studio",
-      "serviceClass": "workspace-pay-as-you-go",
-      "protocol": "responses",
-      "requestedModel": "deepseek-v4-flash"
     }
   ]
 }
