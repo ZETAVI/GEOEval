@@ -25,5 +25,7 @@
 - [x] Remove the S6 recovery branch after proving PR #20 supersedes it.
 - [x] Retain #10 and #11 recovery branches with their open Issues and explicit exit triggers.
 - [x] Record S6 Evidence retention state without deleting material needed by #4/#9.
-- [ ] Run framework, YAML, link, Diff, and complete project CI checks.
+- [x] Run framework, YAML, link, Diff, and complete project CI checks.
+- [x] Review the fixed Diff across intent, engineering, Evidence, and continuity;
+      resolve the Review Gate and Delta Spec consistency findings.
 - [ ] Reconcile Project/Issues, archive this Change, merge the PR, and remove the Worktree.
