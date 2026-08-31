@@ -19,8 +19,10 @@
 - [x] Diagnose the local multi-worktree integration-test isolation defect and
   track its repair separately in GitHub Bug #15; do not reset the shared
   database or mix the repair into initialization.
-- [ ] Run repository-local framework and project verification.
-- [ ] Push this Issue branch, open its pull request, verify both GitHub checks,
+- [x] Run framework, YAML, formatting, type, Web, build, and drift verification
+  locally; pass the full deterministic project suite on a clean GitHub runner
+  while retaining local isolation Bug #15.
+- [x] Push this Issue branch, open its pull request, verify both GitHub checks,
   and require the `project` check on `main`.
 - [ ] Reconcile and archive this change after Issue #1 acceptance; keep S6 and
   the post-merge release-feedback contract in their own Issues.
