@@ -210,3 +210,72 @@ linked checkpoint before its branch or worktree is removed.
 - **BUT WHEN** the worktree is clean with no unique commit
 - **THEN** the Issue MAY preserve the discussion boundary without a recovery
   branch
+
+### Requirement: Planning state has one lightweight authority
+
+The project SHALL use the repository-linked `GEOEval Delivery` GitHub Project
+as the sole planning projection for Status, Priority, ordering, and real target
+dates without copying Issue, PR, OpenSpec, or current-design content.
+
+#### Scenario: An Issue has no approved next action
+
+- **WHEN** an Issue records a valuable later outcome
+- **THEN** its Project Status SHALL be `Backlog`
+- **AND** it SHALL NOT receive a Branch or Worktree
+- **AND** `blocked` SHALL be used only with a named dependency or decision
+
+### Requirement: Live coordination state is reconciled explicitly
+
+Every open Issue SHALL have an Assignee, Project Status, and Priority, and every
+standard or architectural close SHALL reconcile them with the PR, Change,
+residual dependencies, Evidence disposition, and workspace exit.
+
+#### Scenario: Verified implementation awaits a decision
+
+- **WHEN** implementation and checks are ready but review, acceptance, or
+  integration is still pending
+- **THEN** the Project Status SHALL be `Review / Decision`
+- **AND** the Issue and PR SHALL name the remaining decision
+- **AND** the work SHALL NOT be described as complete
+
+### Requirement: Parent and dependency relationships keep distinct meanings
+
+Parent/Sub-Issue SHALL represent one parent outcome with independently
+verifiable slices or Review Gates. Native Dependencies SHALL represent ordering
+or blocking, and independently prioritizable outcomes SHALL be Follow-up Issues.
+
+#### Scenario: A later outcome can be prioritized independently
+
+- **WHEN** omitting the later outcome does not invalidate the original
+  acceptance boundary
+- **THEN** it SHALL NOT remain a required Sub-Issue of the original parent
+- **AND** it SHALL use its own Project item and any genuine Dependency links
+
+### Requirement: Sensitive execution Evidence remains bounded
+
+Sensitive, ignored, paid-call, or large runtime Evidence SHALL use a short
+Manifest and explicit retention boundary rather than a permanent registry or
+copied raw responses in Git.
+
+#### Scenario: Raw Evidence cannot be committed
+
+- **WHEN** a completion claim depends on local protected Evidence
+- **THEN** the active Change or Issue SHALL record purpose/date, bounded scope,
+  sanitized result, locator, hash, owner, permissions, retention reason, and
+  exit trigger
+- **AND** raw directories/files SHALL use `0700`/`0600`
+- **AND** reconciliation SHALL delete or explicitly retain the Evidence
+
+### Requirement: Recovery branches are transitional
+
+A recovery branch SHALL be retained only while an open Issue needs its unique
+state and SHALL receive a `retain`, `superseded`, `archive-tag`, or
+`delete-after-merge` disposition.
+
+#### Scenario: Formal work supersedes a recovery branch
+
+- **WHEN** a current Issue-owned branch or merged owner contains all required
+  state
+- **THEN** the recovery branch SHALL be deleted after verification
+- **AND** immutable historical input MAY use a clearly named archive tag
+- **AND** recovery branches SHALL NOT become the permanent history system

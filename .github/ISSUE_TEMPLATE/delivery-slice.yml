@@ -4,6 +4,11 @@ title: "[Sub-Issue]: "
 labels:
   - change
 body:
+  - type: markdown
+    attributes:
+      value: >-
+        创建后将 Issue 加入 `GEOEval Delivery`，设置 Assignee、Status 与 Priority；
+        用 Parent 表达共同 Outcome，用 Dependency 表达顺序或阻塞。
   - type: input
     id: parent
     attributes:

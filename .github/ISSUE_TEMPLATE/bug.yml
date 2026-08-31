@@ -4,6 +4,11 @@ title: "[Bug]: "
 labels:
   - bug
 body:
+  - type: markdown
+    attributes:
+      value: >-
+        创建后将 Issue 加入 `GEOEval Delivery`，设置 Assignee、Status 与 Priority；
+        只有经过验证的紧急 Bug 才抢占当前 WIP。
   - type: textarea
     id: problem
     attributes:

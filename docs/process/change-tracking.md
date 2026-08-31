@@ -9,8 +9,9 @@ without making any one artifact carry all four responsibilities.
 
 | Artifact | Owns | Does not own |
 | --- | --- | --- |
+| GitHub Project | Status, priority, ordering, and real target dates | Requirements, design, implementation, acceptance evidence, or a second Issue body |
 | Issue | Problem, actual behavior, desired outcome, scope, accepted decisions, acceptance, owner, and status | Current system design or implementation detail already owned elsewhere |
-| Sub-issue | One independently verifiable delivery slice that contributes to a parent outcome | A horizontal layer such as all backend work or all tests |
+| Sub-issue | One independently verifiable delivery slice or required Review Gate that contributes to a parent outcome | An independently prioritizable Follow-up or a horizontal layer such as all backend work or all tests |
 | Pull request | The concrete change transaction, implementation explanation, evidence, reconciliation, risks, and follow-ups | Current product or architecture definition after merge |
 | Commit | One coherent code or documentation checkpoint bound to an Issue and revision | Backlog, mutable project status, or session recovery state |
 | Current spec or design owner | Accepted behavior and stable boundaries after merge | Proposal history and running task status |
@@ -55,6 +56,25 @@ not push directly to bypass the lifecycle, reconstruct completed history merely
 to create activity, or keep a branch for a Backlog Issue with no approved next
 action.
 
+## Planning projection and status
+
+[`GEOEval Delivery`](https://github.com/users/ZETAVI/projects/1) is the only
+planning projection. Add every Issue when it is created, use the native
+Assignee as Owner, and maintain:
+
+- `Backlog`: recorded with no approved next action;
+- `Ready`: outcome and acceptance are clear and work may enter WIP;
+- `In Progress`: one active bounded write or execution package;
+- `Review / Decision`: implementation or analysis is ready and a review,
+  decision, or integration gate remains;
+- `Done`: acceptance, reconciliation, and workspace exit are complete.
+
+Priority is `P0` for current safety/delivery-critical work, `P1` for the next
+valuable outcome, and `P2` for later work. Labels express type or orthogonal
+risk. Use `blocked` only with a named dependency or decision; never use it as a
+synonym for Backlog. Add target dates only for real commitments, so Roadmap
+views do not manufacture schedules during open-ended development.
+
 For the small current team, allow one primary product-delivery parent Issue and
 one non-conflicting research or maintenance Issue in progress. A verified urgent
 Bug may preempt them. Sub-issues and PRs under the active parent do not each
@@ -63,8 +83,11 @@ consume another parent-level WIP slot.
 ## Sub-issues and scope pressure
 
 Create a sub-issue when the work is required for the same parent outcome but can
-be delivered and verified independently. Create a separate Issue when the new
-outcome can be deferred, released, prioritized, or accepted independently.
+be delivered and verified independently. A sub-issue may be a Review Gate over
+one integrated PR; it does not imply a separate Branch or PR. Create a separate
+Follow-up Issue when the new outcome can be deferred, released, prioritized, or
+accepted independently. Use native Dependency links for ordering or blocking,
+not Parent/Sub-Issue merely to draw a sequence.
 
 Pause and request a split decision when any of these becomes true:
 
@@ -148,5 +171,9 @@ An Issue closes only when:
 3. affected tests and current owners are reconciled;
 4. residual work has a new owner and durable location;
 5. the branch or worktree exit state is explicit.
+
+The final reconciliation also moves the Project item to `Done`, removes stale
+blocked relationships, and records the next independent Issue without copying
+its backlog into the closed Issue.
 
 Do not keep a completed Issue or OpenSpec change active as a general roadmap.

@@ -21,6 +21,11 @@ VERSION_COPY_SUFFIX = re.compile(
     r"(?:[-_](?:v[0-9]+|new|final|latest|copy))$",
     re.IGNORECASE,
 )
+ISSUE_BRANCH_NAME = re.compile(r"^codex/issue-[0-9]+-[a-z0-9][a-z0-9-]*$")
+QUOTED_BRANCH = re.compile(r"`(codex/[^`]+)`")
+COMPLETED_ACTIVE_STATUS = re.compile(
+    r"(?mi)^- Status:.*\b(?:completed|archived)\b"
+)
 ALLOWED_INVOCATIONS = {"implicit", "explicit"}
 ALLOWED_WORKFLOW_GROUPS = {"route", "shape", "deliver", "maintain", "learn"}
 CATALOG_VERSION = 2
@@ -265,6 +270,7 @@ def validate_tracking_templates(errors: list[str]) -> None:
     issue_templates = ROOT / ".github" / "ISSUE_TEMPLATE"
     required_issue_templates = {
         "change.yml": [
+            "GEOEval Delivery",
             "id: problem",
             "id: actual",
             "id: outcome",
@@ -274,6 +280,7 @@ def validate_tracking_templates(errors: list[str]) -> None:
             "type: checkboxes",
         ],
         "delivery-slice.yml": [
+            "GEOEval Delivery",
             "id: parent",
             "id: outcome",
             "id: acceptance",
@@ -281,6 +288,7 @@ def validate_tracking_templates(errors: list[str]) -> None:
             "type: checkboxes",
         ],
         "bug.yml": [
+            "GEOEval Delivery",
             "id: problem",
             "id: actual",
             "id: expected",
@@ -342,6 +350,59 @@ def validate_tracking_templates(errors: list[str]) -> None:
                 )
 
 
+def validate_change_lifecycle(errors: list[str]) -> None:
+    changes = ROOT / "openspec" / "changes"
+    for change_dir in sorted(path for path in changes.iterdir() if path.is_dir()):
+        if change_dir.name == "archive":
+            continue
+
+        proposal = change_dir / "proposal.md"
+        tasks = change_dir / "tasks.md"
+        if not proposal.is_file():
+            errors.append(
+                f"active change {change_dir.relative_to(ROOT)} is missing proposal.md"
+            )
+            continue
+        if not tasks.is_file():
+            errors.append(
+                f"active change {change_dir.relative_to(ROOT)} is missing tasks.md"
+            )
+
+        body = proposal.read_text(encoding="utf-8")
+        if COMPLETED_ACTIVE_STATUS.search(body):
+            errors.append(
+                f"active change {change_dir.relative_to(ROOT)} declares a completed "
+                "or archived status; reconcile and move it under archive/"
+            )
+        if "/private/tmp/" in body or re.search(r"/Users/[^\s`]+", body):
+            errors.append(
+                f"active change {change_dir.relative_to(ROOT)} contains a machine-local "
+                "workspace path; use the Issue branch and live workspace state"
+            )
+        for branch in QUOTED_BRANCH.findall(body):
+            if not ISSUE_BRANCH_NAME.fullmatch(branch):
+                errors.append(
+                    f"active change {change_dir.relative_to(ROOT)} references non-Issue "
+                    f"branch {branch!r}"
+                )
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for branch in QUOTED_BRANCH.findall(readme):
+        if not ISSUE_BRANCH_NAME.fullmatch(branch):
+            errors.append(f"README.md references non-Issue branch {branch!r}")
+
+    planning_markers = {
+        ROOT / "AGENTS.md": "GEOEval Delivery",
+        ROOT / "docs" / "process" / "change-tracking.md": "GEOEval Delivery",
+        ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md": "Project Status",
+    }
+    for path, marker in planning_markers.items():
+        if marker not in path.read_text(encoding="utf-8"):
+            errors.append(
+                f"{path.relative_to(ROOT)} is missing planning marker {marker!r}"
+            )
+
+
 def main() -> int:
     errors: list[str] = []
     required = [
@@ -373,6 +434,7 @@ def main() -> int:
         validate_local_links(errors)
         validate_current_document_names(errors)
         validate_tracking_templates(errors)
+        validate_change_lifecycle(errors)
 
     if errors:
         print("Project framework validation failed:")

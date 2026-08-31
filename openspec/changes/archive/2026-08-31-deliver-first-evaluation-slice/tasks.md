@@ -298,29 +298,9 @@
 
 ## S4c Product-owner Review Follow-up
 
-The product-owner review on 2026-08-27 accepted the functional report and left
-the following bounded presentation work for the separate frontend-design
-workstream. It does not reopen the S4 backend ownership or block S5 architecture
-alignment, but it must be completed before the report is treated as customer-
-ready visual delivery.
-
-- [ ] Remove customer-visible brand-directed/open-question terminology while
-      preserving the internal parser profiles and metric rules.
-- [ ] Rewrite report titles and supporting copy in clear, formal, restrained
-      language; remove meta explanations such as grouping and maximum-item
-      rules when they do not help the customer interpret the result.
-- [ ] Move optimization direction after all sampled-answer evidence so it is the
-      final report section and next-service action.
-- [ ] Ensure accepted brand-impression themes render visibly and add
-      representative positive and negative themes to the deterministic review
-      fixture; retain one concise empty state for genuinely insufficient
-      evidence.
-- [ ] Review where charts, comparison graphics, motion, and interaction improve
-      comprehension, using visual forms instead of prose where they preserve the
-      exact report meaning; do not move calculations into the Web.
-- [ ] Re-run desktop and narrow-mobile visual review after the dedicated
-      frontend pass, including hierarchy, information density, empty states,
-      expansion, and accessibility.
+The product-owner review accepted the functional report. Its independently
+valuable customer-presentation follow-up moved to GitHub Issue #13; those tasks
+are no longer part of this archived S1-S5 Change.
 
 ## S5 Evaluation Continuity Alignment
 
@@ -412,3 +392,12 @@ ready visual delivery.
       evidence on 2026-08-28.
 - [x] Create the verified S4-S5 branch checkpoint without merging, pushing,
       activating production transport, or enabling real providers.
+
+## Final Reconciliation
+
+- [x] Integrate accepted deterministic S1-S5 behavior into `main@aa48e96`.
+- [x] Reconcile accepted behavior into owner-local current specs and the
+      architecture overview.
+- [x] Move report presentation follow-up to Issue #13.
+- [x] Retire the historical Branch/Worktree through Issue #3.
+- [x] Archive this Change without absorbing S6, Release, or later product work.

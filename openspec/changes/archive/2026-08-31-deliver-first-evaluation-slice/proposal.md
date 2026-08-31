@@ -1,10 +1,8 @@
 # Change: Deliver the First Evaluation Slice
 
-- Status: Approved through deterministic S1-S5; S1 accepted and checkpointed,
-  S2 locally verified and checkpointed, S3 resumable evidence verified and
-  checkpointed, S4 locally verified and product-reviewed, and S5 locally
-  verified, product-reviewed, and checkpointed; branch exit remains pending and
-  the bounded frontend presentation follow-up remains separate
+- Status: Completed, reconciled on `main`, and archived on 2026-08-31;
+  deterministic S1-S5 are accepted current behavior and the bounded frontend
+  presentation outcome is tracked separately by Issue #13
 - Class: Architectural implementation
 - Decision owners: Product owner and architecture owner
 - Implementation authorization: Deterministic S1-S5 only, confirmed 2026-08-25
@@ -45,14 +43,12 @@ Notification inbox whose SSE stream is only a recoverable refresh hint.
 
 ## Control State
 
-- Documentation: keep increment deltas in this active change; promote each
-  verified increment to its owner-local current spec and update the architecture
-  overview. The product-definition spec remains the product-meaning authority
-  and is not copied wholesale.
-- Workspace: branch `codex/first-evaluation-slice`, based on `7ec4cea` from
-  `codex/provider-validation`; current agent is the single writer; intended
-  merge destination is `main` with its existing ancestry; exit only after the
-  implemented increment is verified and current truth is reconciled.
+- Documentation: accepted behavior is owned by the customer-entry,
+  evaluation-definition, evaluation-evidence, evaluation-report, and
+  notification current specs plus the architecture overview.
+- Workspace: integrated through `main@aa48e96`; the historical Branch and
+  Worktree were retired under Issue #3. This archive is decision and execution
+  history, not a continuing backlog.
 
 ## Approval Boundary
 
@@ -60,3 +56,13 @@ The current authorization permits local dependencies already in the lockfile,
 additive local migrations, deterministic identity and AI adapters, and product
 code for S1-S5. It does not permit external provider calls, service activation,
 production data, production resources, or deployment.
+
+## Final Disposition
+
+- Accepted S1-S5 behavior is executable on `main` and reconciled into current
+  owner-local specs.
+- Report presentation refinement moved to Issue #13 and does not keep this
+  Change active.
+- Real Provider execution remains the independent Issue #4 / Draft PR #20
+  outcome.
+- Production and Release remain outside this completed development Change.

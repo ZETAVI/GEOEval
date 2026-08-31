@@ -54,7 +54,13 @@ upstream framework update or automatic external Skill discovery.
 - Adoption mode: project-owned adaptation of routing, writing-for-agents,
   domain-modeling, codebase-design, wayfinding, diagnosis, review,
   reconciliation, architecture maintenance, conflict resolution, and onboarding
-  principles
+  principles.
+
+The governance migration close adds one repository-linked `GEOEval Delivery`
+Project as a planning projection. Status, Priority, ordering, Assignee, and
+native Dependencies remain GitHub execution state; they do not replace the
+artifact authorities above. Recovery refs and protected local Evidence receive
+explicit, lightweight exit rules rather than new permanent registries.
 
 No upstream Skill file is vendored unchanged and no external package is
 installed. GEOEval's catalog, trigger boundaries, authority rules, and

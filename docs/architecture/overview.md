@@ -1,12 +1,13 @@
 # Architecture Overview
 
-- Status: deterministic S1 accepted; S2 definition and start locally verified
-  and checkpointed; S3 resumable evidence verified and checkpointed; S4 report
-  acceptance and customer read path locally verified and product-reviewed; S5
-  evaluation continuity locally verified, product-reviewed, and checkpointed
+- Status: deterministic S1-S5 behavior is integrated on `main`, current specs
+  own the accepted boundaries, and real-provider S6 remains an unmerged Draft
+  PR #20 candidate
 - Entry condition: Approved product foundation and bounded first product slice
 - Decision history: [`define-application-architecture`](../../openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md)
-- Active change: [`deliver-first-evaluation-slice`](../../openspec/changes/deliver-first-evaluation-slice/proposal.md)
+- Completed change: [`deliver-first-evaluation-slice`](../../openspec/changes/archive/2026-08-31-deliver-first-evaluation-slice/proposal.md)
+- Active product coordination: [Issue #4](https://github.com/ZETAVI/GEOEval/issues/4)
+  and [Draft PR #20](https://github.com/ZETAVI/GEOEval/pull/20)
 
 ## Current state
 
@@ -28,10 +29,9 @@ does not authorize provider integration or product implementation. Subsequent
 ultimately produced successful evidence for all fifteen unique R01-R03
 positions after one bounded ERNIE R03 retry. Production infrastructure and real
 external authentication remain outside the current authorization. The
-deterministic S1 customer entry and responsive My brands interaction are
-implemented and accepted under the active change. Final visual language and
-typographic polish remain a later frontend-design responsibility; that work may
-refine presentation but must preserve the accepted journey and behavior.
+deterministic S1-S5 journey is implemented and accepted on `main`. Final report
+presentation remains the independent Issue #13 outcome; it may refine
+presentation but must preserve the accepted journey and behavior.
 
 Customer-visible evaluation uses one shared, versioned
 [objectivity-instruction profile](../../apps/backend/geo-intelligence/evaluation-objectivity.json)
