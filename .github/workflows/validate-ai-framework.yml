@@ -1,4 +1,4 @@
-name: 校验 AI Native 项目框架
+name: AI Native 项目框架 CI
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   validate:
-    name: AI Native 框架校验
+    name: AI Native 项目框架 CI
     runs-on: ubuntu-latest
     steps:
       - name: 检出代码

@@ -1,6 +1,6 @@
-name: 产品或工程变更
+name: 产品或工程 Change
 description: 提议并跟踪一项需要形成完整上下文与验收闭环的行为变化
-title: "[变更]: "
+title: "[Change]: "
 labels:
   - change
 body:
@@ -14,28 +14,28 @@ body:
   - type: textarea
     id: actual
     attributes:
-      label: 当前实际行为与问题证据
+      label: 当前实际行为与 Evidence
       description: 说明系统当前实际发生什么，并链接能够证明它的代码、日志、截图、报告或当前态规范。
     validations:
       required: true
   - type: textarea
     id: outcome
     attributes:
-      label: 期望目标
+      label: Expected Outcome（期望目标）
       description: 说明可观察的用户、业务、开发或运维结果。除非实现边界已经确认，否则不要提前指定实现方案。
     validations:
       required: true
   - type: textarea
     id: scope
     attributes:
-      label: 范围与非目标
+      label: Scope 与 Non-goals
       description: 明确本次包含什么、不包含什么，避免在推进过程中持续扩张。
     validations:
       required: true
   - type: dropdown
     id: class
     attributes:
-      label: 初始变更等级
+      label: Change 级别
       description: 按不确定性、影响范围和不可逆成本选择，而不是按代码行数选择。
       options:
         - 轻量（Trivial）
@@ -51,24 +51,24 @@ body:
   - type: textarea
     id: decisions
     attributes:
-      label: 已确认决定与有边界的假设
+      label: 已确认 Decisions 与边界假设
       description: 只记录本次已经确认的决定；候选决定在确认前保留于讨论中。
   - type: textarea
     id: acceptance
     attributes:
-      label: 可观察的验收边界
+      label: Acceptance Criteria（验收边界）
       description: 使用可独立验证的行为或证据，不要把实现步骤当作验收标准。
     validations:
       required: true
   - type: textarea
     id: context
     attributes:
-      label: 当前态上下文与证据入口
+      label: Context 与 Evidence 入口
       description: 链接当前规范、设计权威、ADR、来源简报或既有证据，不复制其全文。
   - type: textarea
     id: slices
     attributes:
-      label: 交付切片与依赖
+      label: Delivery Slices 与依赖
       description: 只有父目标确实需要可独立验收的垂直切片时，才链接 Sub-Issue。
   - type: checkboxes
     id: readiness

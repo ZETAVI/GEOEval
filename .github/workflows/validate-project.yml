@@ -1,4 +1,4 @@
-name: 校验完整项目
+name: 完整项目 CI
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   project:
-    name: 完整项目校验
+    name: 完整项目 CI
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

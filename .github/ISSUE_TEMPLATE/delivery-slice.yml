@@ -1,6 +1,6 @@
-name: 可独立验收的交付切片
+name: Delivery Slice（交付切片）
 description: 跟踪一个能够独立验证并服务于父目标的垂直切片
-title: "[子任务]: "
+title: "[Sub-Issue]: "
 labels:
   - change
 body:
@@ -14,31 +14,31 @@ body:
   - type: textarea
     id: outcome
     attributes:
-      label: 端到端交付结果
+      label: End-to-end Delivery Outcome
       description: 本切片完成后，能够演示或验证什么完整行为？
     validations:
       required: true
   - type: textarea
     id: scope
     attributes:
-      label: 范围与非目标
+      label: Scope 与 Non-goals
     validations:
       required: true
   - type: textarea
     id: blockers
     attributes:
-      label: 阻塞依赖
+      label: Blocked by
       description: 只链接真正阻止本切片开始或完成的依赖。
   - type: textarea
     id: acceptance
     attributes:
-      label: 验收标准
+      label: Acceptance Criteria
     validations:
       required: true
   - type: textarea
     id: impact
     attributes:
-      label: 当前态与证据影响
+      label: Current Truth 与 Evidence 影响
       description: 列出受影响的规范、Schema、测试、运行路径或文档权威。
   - type: checkboxes
     id: readiness

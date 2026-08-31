@@ -130,6 +130,11 @@ Use a concise subject that states intent and links the Issue:
 <type>(<scope>): <intent> (#<issue>)
 ```
 
+Keep familiar Conventional Commit types in English: prefer `feat`, `fix`,
+`docs`, `refactor`, `test`, and `chore`; use `build`, `ci`, `perf`, or `revert`
+when those names are more exact. The intent after the colon may be concise
+Chinese, for example `feat(governance): 优化 GitHub 协作语言 (#1)`.
+
 Use the body only for a non-obvious constraint, rationale, or verification note.
 Keep commits coherent and reviewable. A commit anchors code and evidence; it does
 not replace the Issue, PR, current spec, or handoff.
