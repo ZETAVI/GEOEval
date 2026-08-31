@@ -10,6 +10,11 @@
   here; never maintain both copies.
 - Reconciler: the lead agent for each activating standard or architectural
   change must execute or explicitly retain this marker at close.
+- Completed extraction: S6 provider execution, protected provider evidence,
+  semantic route recovery, and public report projection are owned by the
+  [evaluation-evidence](../evaluation-evidence/spec.md) and
+  [evaluation-report](../evaluation-report/spec.md) specifications. This marker
+  remains for product capabilities that have not yet gained an activated owner.
 
 ## Requirements
 
@@ -429,6 +434,12 @@ The first evaluation SHALL give a non-expert small-business customer a concise,
 visual account of the customer's current observed AI-platform performance while
 retaining the evidence behind that account.
 
+Real provider execution, attempt evidence, semantic route recovery, and the
+public-versus-protected report projection are activated owner-local capabilities
+defined by the [evaluation-evidence](../evaluation-evidence/spec.md) and
+[evaluation-report](../evaluation-report/spec.md) specifications. This product
+definition retains only their customer meaning and product constraints.
+
 #### Scenario: A customer reviews the first evaluation
 
 - **WHEN** the first evaluation is complete
@@ -517,22 +528,6 @@ retaining the evidence behind that account.
 - **AND** the customer sees the complete answer but not the source list, citation
   metadata, search-trigger detail, or provider diagnostics
 
-#### Scenario: Customer-visible samples share one objectivity policy
-
-- **GIVEN** one of the five customer-visible platform routes prepares a sample
-- **WHEN** the provider request is constructed
-- **THEN** it uses the current shared, versioned
-  [evaluation-objectivity profile](../../../apps/backend/geo-intelligence/evaluation-objectivity.json)
-- **AND** provider adapters may map that same semantic content only to the
-  route's verified instruction transport
-- **AND** the sample snapshots the profile ID, version, and content hash with its
-  execution evidence
-- **AND** the policy requires evidence-based, neutral treatment rather than
-  automatic praise for the named brand, unsupported certainty, invented facts,
-  or invented sources
-- **AND** web-search availability and automatic trigger posture remain route
-  configuration rather than separate platform-specific product meaning
-
 #### Scenario: The product interprets a sampled answer
 
 - **WHEN** an answer from the brand-directed or any open question needs analysis
@@ -543,10 +538,6 @@ retaining the evidence behind that account.
 - **AND** it returns structured brand mention, recommendation position, positive
   and negative associated characteristics, and evidence supporting its
   interpretation
-- **AND** provider-facing structured output contains semantic facts rather than
-  internal identifiers or report statistics; deterministic application logic
-  projects it into the canonical parser contract and validates that result
-  before acceptance
 - **AND** it identifies the distinct brands explicitly present in the answer,
   their displayed names, reasonable relative positions when the answer implies
   an order, and the exact answer evidence supporting those interpretations
@@ -680,21 +671,6 @@ retaining the evidence behind that account.
 - **AND** neither representation invents facts, changes sample evidence, or
   implies a guaranteed AI-platform outcome
 
-#### Scenario: The overall synthesis needs provider fallback
-
-- **WHEN** the primary Alibaba Cloud Model Studio Qwen3.8 Flash
-  overall-synthesis call fails or returns an invalid result
-- **THEN** the system applies one bounded same-route retry and then attempts the
-  separately configured TokenHub Hy3 fallback
-- **BUT WHEN** the primary and fallback routes both fail
-- **THEN** all completed platform samples and valid sample parses remain retained
-- **AND** the product does not issue an incomplete official report
-- **AND** the evaluation becomes **Please retry** without increasing the current
-  evaluation-input revision's completed count
-- **AND** retry resumes only the overall synthesis from retained evidence and
-  does not request the five evaluation platforms or repeat successful sample
-  parsing
-
 #### Scenario: A customer scans the evaluation report
 
 - **WHEN** the product presents mention rate, recommendation index, platform
@@ -768,44 +744,6 @@ retaining the evidence behind that account.
   authoritative for facts and cannot be overwritten by older guidance
 - **AND** successfully completing a newer evaluation replaces the guidance used
   by later article generation
-
-#### Scenario: The sample parser needs provider fallback
-
-- **WHEN** the primary Alibaba Cloud Model Studio Qwen3.8 Flash parser call
-  fails or returns an invalid result
-- **THEN** the system retries that route within a bounded retry policy
-- **AND** the retry is a parser attempt rather than another platform sample
-- **BUT WHEN** the primary route remains unavailable or invalid after retries
-- **THEN** the system attempts the separately configured TokenHub Hy3 fallback
-- **AND** once one valid structured result is obtained, that single result is
-  used for the report
-- **BUT WHEN** the primary and fallback routes both fail
-- **THEN** the raw platform answer remains stored and visible with a concise
-  not-included message
-- **AND** that position contributes no mention, position, characteristic, or
-  index data
-- **AND** the report is produced only if at least seventeen positions have both a
-  valid platform answer and a valid sample parse; otherwise the evaluation
-  becomes **Please retry**
-- **AND** the initial product does not require routine human review, manual
-  correction, or automatic historical reprocessing with a newer parser
-
-#### Scenario: An internal owner inspects an AI execution
-
-- **WHEN** an evaluation, article-generation, or other approved agent purpose
-  calls a model provider
-- **THEN** the call can be traced to the relevant account, brand, business run,
-  and agent purpose
-- **AND** the trace identifies provider, platform, exact model identifier or
-  version, prompt or configuration version, search setting and observed search
-  use, time, latency, available token and cost usage, result or error, and retry
-  relationship
-- **AND** the product's business record remains the authority for customer data,
-  complete sample outputs, and reports rather than an observability vendor
-- **AND** observability unavailability cannot prevent the product from saving the
-  business record
-- **AND** sensitive prompt or output duplication and retention require later
-  architecture and security approval
 
 #### Scenario: The evaluation communicates urgency
 

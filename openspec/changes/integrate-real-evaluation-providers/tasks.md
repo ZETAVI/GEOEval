@@ -97,8 +97,23 @@
 - [x] Promote accepted behavior into current evaluation-evidence and
       evaluation-report specs plus the architecture overview; retain later
       release gates explicitly.
-- [ ] Execute the provider-related part of the product-definition evolution
+- [x] Add one product-owner review entry that separates the customer-visible S6
+      outcome, architecture-owner evidence, deferred visual work, and commercial
+      release gates; do not require review of raw provider or persistence
+      internals.
+- [x] Execute the provider-related part of the product-definition evolution
       marker by moving activated behavior to owner-local specs and leaving only
       index-level product meaning and links; do not split unrelated capabilities.
-- [ ] Record product-owner review, create a verified branch checkpoint, and keep
-      merge, push, production activation, and deployment as separate actions.
+- [ ] Record final product-owner acceptance of the observed S6 result, create a
+      verified branch checkpoint, and keep merge, push, production activation,
+      and deployment as separate actions.
+
+## Ordered continuation
+
+1. Product owner reviews only the bounded items in
+   [`decision-brief.md`](decision-brief.md#product-owner-review-entry).
+2. Record the product-owner decision and create the verified branch checkpoint.
+3. Request a separate integration decision; integration does not authorize
+   customer data, production activation, push, or deployment.
+4. After integration, start the AI question generator as a separate change;
+   deterministic generation remains its baseline and rollback path.

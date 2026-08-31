@@ -99,6 +99,24 @@ one provider-neutral inward-facing result.
 - **AND** provider sources, search details, raw envelopes, and technical usage do
   not enter the customer report
 
+### Requirement: Versioned neutral sampling instruction
+
+Every customer-visible sampling route SHALL receive the same versioned
+objectivity meaning, while AI Execution may translate it only through the
+route's verified instruction transport.
+
+#### Scenario: A customer-visible sample is requested
+
+- **WHEN** one of the five platform routes prepares a sampling request
+- **THEN** it uses the current shared
+  [evaluation-objectivity profile](../../../apps/backend/geo-intelligence/evaluation-objectivity.json)
+- **AND** the durable attempt evidence snapshots the profile identity, version,
+  and content hash used for that request
+- **AND** the profile requires evidence-based, neutral treatment rather than
+  automatic praise, unsupported certainty, invented facts, or invented sources
+- **AND** search support and automatic triggering remain route configuration,
+  not separate product meaning or provider-authored policy
+
 ### Requirement: Provider failures respect purpose policy
 
 Transport, provider, and semantic failures SHALL remain explicit attempts whose
@@ -116,6 +134,27 @@ telemetry exporter.
   two and TokenHub Hy3 for attempt three
 - **AND** a structured response affects accepted interpretation only after GEO's
   deterministic projection and canonical semantic validation succeed
+
+### Requirement: Protected and non-blocking execution observability
+
+AI Execution SHALL retain enough protected evidence to inspect each approved AI
+purpose without transferring customer business truth to telemetry.
+
+#### Scenario: An internal owner inspects an AI execution
+
+- **WHEN** an evaluation or another approved AI purpose calls a model provider
+- **THEN** the attempt can be correlated to the relevant account, brand,
+  business run, and purpose
+- **AND** protected evidence identifies the provider, platform, requested and
+  returned model identity, prompt or configuration version, search setting and
+  observation, time, latency, available native usage or cost, outcome, and retry
+  relationship
+- **AND** product business records remain authoritative for customer data,
+  complete answers, interpretations, and reports
+- **AND** telemetry unavailability cannot reject or lose accepted business
+  evidence
+- **AND** exporting sensitive prompts or outputs requires a separate approved
+  data and retention boundary
 
 ### Requirement: Readiness boundary
 
