@@ -965,9 +965,7 @@ describe("resumable evaluation evidence", () => {
 
   it("boots and closes the complete Worker module graph", async () => {
     const application = await NestFactory.createApplicationContext(
-      WorkerModule.register(
-        workerConfig,
-      ),
+      WorkerModule.register(workerConfig),
       { logger: false },
     );
 

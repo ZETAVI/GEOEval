@@ -59,12 +59,14 @@ provider-evidence envelope without adding a second attempt store.
   not copied here.
 - Workspace: Issue #4 owns branch
   `codex/issue-4-s6-real-provider-integration`, rebuilt on protected
-  `main@b8c2063`; the current agent is the single writer and the merge
-  destination is `main`. Exit requires deterministic regression evidence,
+  `main@7df111f`; Project Status is `Review / Decision`, Priority is `P1`, and
+  the governance-migration Dependency #21 plus the Worktree test-isolation
+  Dependency #15 are complete. The current agent is the single writer and the
+  merge destination is `main`. Exit requires deterministic regression evidence,
   controlled provider evidence, one complete fictional browser journey,
-  current-spec reconciliation, final product-owner acceptance, and explicit
-  PR review. Publishing a Draft PR does not authorize merge, production
-  activation, customer-data use, or deployment.
+  current-spec reconciliation, final product-owner acceptance, and explicit PR
+  review. Publishing a Draft PR does not authorize merge, production activation,
+  customer-data use, or deployment.
 
 ## Approval Boundary
 

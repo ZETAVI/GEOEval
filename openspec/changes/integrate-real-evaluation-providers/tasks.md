@@ -106,6 +106,15 @@
       index-level product meaning and links; do not split unrelated capabilities.
 - [x] Rebuild the S6 commits on the protected GitHub `main` baseline and publish
       a Draft PR linked to Issues #4 and #6-#9 for bounded review.
+- [x] Rebase the Draft branch onto governance-complete `main@2a42279`, resolve
+      current-state documentation semantically, and keep Product Acceptance and
+      Merge unadvanced.
+- [x] Rebase the Draft branch onto test-isolation-complete `main@7df111f`, adopt
+      the central integration resource helper for all S6 integration tests, and
+      preserve the eight logical S6 commits. Confirm the expected overlap with
+      `git range-diff`, then pass isolated Backend tests, Web tests, type checks,
+      formatting, framework validation, `git diff --check`, and the full build
+      without invoking a real Provider.
 - [ ] Record final product-owner acceptance of the observed S6 result, create a
       verified integration checkpoint, and keep merge, production activation,
       customer-data use, and deployment as separate actions.
