@@ -12,18 +12,18 @@
 
 ## Repository reconciliation
 
-- [ ] Archive the stable S1-S5 and AI Native workflow Changes.
-- [ ] Correct README, active workspace references, and Project navigation.
-- [ ] Add Project/Issue lifecycle rules without creating a second tracker.
-- [ ] Add lightweight Evidence and recovery-ref lifecycle rules.
-- [ ] Extend static validation only for high-value repository-owned drift.
-- [ ] Update Router, Reconciliation, and PR lifecycle prompts for live Project state.
+- [x] Archive the stable S1-S5 and AI Native workflow Changes.
+- [x] Correct README, active workspace references, and Project navigation.
+- [x] Add Project/Issue lifecycle rules without creating a second tracker.
+- [x] Add lightweight Evidence and recovery-ref lifecycle rules.
+- [x] Extend static validation only for high-value repository-owned drift.
+- [x] Update Router, Reconciliation, and PR lifecycle prompts for live Project state.
 
 ## Recovery and exit
 
-- [ ] Preserve Issue #3 historical input as a non-active archive ref and remove its recovery branch.
-- [ ] Remove the S6 recovery branch after proving PR #20 supersedes it.
-- [ ] Retain #10 and #11 recovery branches with their open Issues and explicit exit triggers.
-- [ ] Record S6 Evidence retention state without deleting material needed by #4/#9.
+- [x] Preserve Issue #3 historical input as a non-active archive ref and remove its recovery branch.
+- [x] Remove the S6 recovery branch after proving PR #20 supersedes it.
+- [x] Retain #10 and #11 recovery branches with their open Issues and explicit exit triggers.
+- [x] Record S6 Evidence retention state without deleting material needed by #4/#9.
 - [ ] Run framework, YAML, link, Diff, and complete project CI checks.
 - [ ] Reconcile Project/Issues, archive this Change, merge the PR, and remove the Worktree.
