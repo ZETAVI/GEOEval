@@ -13,8 +13,8 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
   history, and notification behavior are implemented and locally accepted on
   `main`; the S6 real-provider candidate remains an unmerged change
 - Project control: GitHub Issues and pull requests are live; `main` requires a
-  pull request, the `validate` status check, linear history, and resolved review
-  conversations. Project initialization is tracked by
+  pull request, the `validate` and `project` status checks, linear history, and
+  resolved review conversations. Project initialization is tracked by
   [Issue #1](https://github.com/ZETAVI/GEOEval/issues/1).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
 - Active product changes: the completed deterministic slice awaits change
