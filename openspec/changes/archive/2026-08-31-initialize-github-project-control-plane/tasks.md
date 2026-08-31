@@ -24,5 +24,5 @@
   while retaining local isolation Bug #15.
 - [x] Push this Issue branch, open its pull request, verify both GitHub checks,
   and require the `project` check on `main`.
-- [ ] Reconcile and archive this change after Issue #1 acceptance; keep S6 and
-  the post-merge release-feedback contract in their own Issues.
+- [x] Reconcile current governance through PR #16 and archive this Change; keep
+  S6, release-feedback design, and test isolation in Issues #4, #5, and #15.
