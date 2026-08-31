@@ -1,4 +1,4 @@
-name: Bug 缺陷报告
+name: Bug Report（缺陷报告）
 description: 验证、诊断并跟踪缺陷，避免将诊断与未经确认的修复混在一起
 title: "[Bug]: "
 labels:
@@ -7,37 +7,37 @@ body:
   - type: textarea
     id: problem
     attributes:
-      label: 问题概述
+      label: Problem Overview（问题概述）
       description: 谁受到影响，哪项能力发生了故障？
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: 当前实际行为
+      label: Actual Behavior（当前实际行为）
       description: 包含准确症状、发生频率、运行环境和已有证据。
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: 期望行为
+      label: Expected Behavior（期望行为）
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
-      label: 复现方式或反馈闭环
+      label: Reproduction / Feedback Loop
       description: 提供当前已知的最小触发条件，或明确还缺少什么证据。
   - type: textarea
     id: impact
     attributes:
-      label: 影响与边界
+      label: Impact 与 Boundaries
       description: 说明受影响的用户、数据，以及生产、安全、成本或破坏性操作边界。
   - type: textarea
     id: acceptance
     attributes:
-      label: 修复验收与回归证据
+      label: Fix Acceptance 与 Regression Evidence
       description: 在诊断明确修复边界后填写；完成诊断本身不等于已经授权实施修复。
   - type: checkboxes
     id: readiness

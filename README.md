@@ -13,7 +13,7 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
   history, and notification behavior are implemented and locally accepted on
   `main`; the S6 real-provider candidate remains an unmerged change
 - Project control: GitHub Issues and pull requests are live; `main` requires a
-  pull request, the `AI Native 框架校验` and `完整项目校验` status checks,
+  pull request, the `AI Native 项目框架 CI` and `完整项目 CI` status checks,
   linear history, and resolved review conversations. Project initialization is tracked by
   [Issue #1](https://github.com/ZETAVI/GEOEval/issues/1).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)

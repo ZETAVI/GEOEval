@@ -313,11 +313,11 @@ def validate_tracking_templates(errors: list[str]) -> None:
     else:
         body = pr_template.read_text(encoding="utf-8")
         for heading in (
-            "## 实现说明",
-            "## 验收与证据",
-            "## 测试与当前态影响",
-            "## 生命周期影响",
-            "## 合并 Checklist",
+            "## Implementation（实现说明）",
+            "## Evidence（验收与证据）",
+            "## Tests & Specs（测试与当前态影响）",
+            "## Lifecycle（生命周期）",
+            "## Merge Checklist",
         ):
             if heading not in body:
                 errors.append(
@@ -325,8 +325,8 @@ def validate_tracking_templates(errors: list[str]) -> None:
                 )
 
     workflows = {
-        "validate-ai-framework.yml": ("name: 校验 AI Native 项目框架", "name: AI Native 框架校验", "python3 scripts/validate_project_framework.py"),
-        "validate-project.yml": ("name: 校验完整项目", "name: 完整项目校验", "pnpm db:generate", "pnpm --filter @geoeval/backend test", "pnpm --filter @geoeval/web test", "pnpm build"),
+        "validate-ai-framework.yml": ("name: AI Native 项目框架 CI", "python3 scripts/validate_project_framework.py"),
+        "validate-project.yml": ("name: 完整项目 CI", "pnpm db:generate", "pnpm --filter @geoeval/backend test", "pnpm --filter @geoeval/web test", "pnpm build"),
     }
     workflow_dir = ROOT / ".github" / "workflows"
     for name, markers in workflows.items():
