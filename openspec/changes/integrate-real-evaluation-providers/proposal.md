@@ -57,11 +57,14 @@ provider-evidence envelope without adding a second attempt store.
   definition evolution marker without mass-splitting unrelated requirements,
   and archive this change. Product meaning remains in `docs/product/` and is
   not copied here.
-- Workspace: branch `codex/integrate-real-evaluation-providers`, based on local
-  `main@aa48e96`; current agent is the single writer; merge destination is
-  `main`; exit requires deterministic regression evidence, controlled provider
-  evidence, one complete fictional browser journey, current-spec
-  reconciliation, and explicit branch review. No push or deployment is implied.
+- Workspace: Issue #4 owns branch
+  `codex/issue-4-s6-real-provider-integration`, rebuilt on protected
+  `main@b8c2063`; the current agent is the single writer and the merge
+  destination is `main`. Exit requires deterministic regression evidence,
+  controlled provider evidence, one complete fictional browser journey,
+  current-spec reconciliation, final product-owner acceptance, and explicit
+  PR review. Publishing a Draft PR does not authorize merge, production
+  activation, customer-data use, or deployment.
 
 ## Approval Boundary
 
