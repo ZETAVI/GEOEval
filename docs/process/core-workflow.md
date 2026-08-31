@@ -4,6 +4,9 @@
 
 Use the smallest workflow that can preserve alignment, safety, and continuity. Process scales with ambiguity, blast radius, and reversibility—not with task size alone.
 
+Use the [change-tracking contract](change-tracking.md) for the distinct roles of
+Issues, sub-issues, pull requests, commits, reopening, and follow-up work.
+
 ## Change classes
 
 | Class | Use when | Minimum persistent artifacts |
@@ -142,6 +145,9 @@ approved outcome has the smallest discriminating evidence it needs.
 - Update `CHANGELOG.md` through the release workflow, not through every agent session.
 - Record whether the branch or worktree is retained, ready for integration,
   blocked with a handoff, or safe to remove after merge.
+- Close the Issue only under the change-tracking closure contract. Reopen it for
+  a failed original acceptance boundary; create a linked follow-up Issue for a
+  later requirement or independently valuable adjustment.
 
 ## Completion contract
 

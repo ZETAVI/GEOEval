@@ -1,0 +1,7 @@
+interface:
+  display_name: "Project Onboarding"
+  short_description: "Onboard a contributor to one GEOEval mission"
+  default_prompt: "Use $project-onboarding to build a bounded context path for this GEOEval Issue or capability and verify the contributor understands the next safe action."
+
+policy:
+  allow_implicit_invocation: false

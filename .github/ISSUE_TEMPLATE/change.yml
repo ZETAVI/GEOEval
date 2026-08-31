@@ -7,8 +7,22 @@ body:
   - type: textarea
     id: problem
     attributes:
-      label: Problem and desired outcome
-      description: Describe the problem and observable outcome, not the implementation.
+      label: Problem overview
+      description: Who is affected, what problem matters, and why this change is worth doing now.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Current actual behavior and evidence
+      description: Describe what happens now. Link code, logs, screenshots, reports, or current specs that prove it.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected outcome
+      description: Describe the observable user, business, developer, or operational result. Do not prescribe implementation unless it is already an accepted boundary.
     validations:
       required: true
   - type: textarea
@@ -33,9 +47,24 @@ body:
       label: Change record
       description: Link to openspec/changes/<change-id>/ when required.
   - type: textarea
+    id: decisions
+    attributes:
+      label: Confirmed decisions and bounded assumptions
+      description: Record only decisions already accepted for this change. Candidate decisions remain in discussion until confirmed.
+  - type: textarea
     id: acceptance
     attributes:
       label: Observable acceptance boundaries
+      description: Use independently verifiable behavior or evidence. Avoid implementation checklists.
     validations:
       required: true
-
+  - type: textarea
+    id: context
+    attributes:
+      label: Current-context and evidence pointers
+      description: Link the current spec, design owner, ADR, source brief, or prior evidence. Do not copy their contents.
+  - type: textarea
+    id: slices
+    attributes:
+      label: Delivery slices and dependencies
+      description: Link sub-issues only when the parent outcome needs independently verifiable vertical slices.

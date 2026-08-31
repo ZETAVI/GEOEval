@@ -30,7 +30,7 @@ Classify the work:
 - **Standard:** proposal, behavior delta, and tasks.
 - **Architectural:** standard artifacts plus design, impact, rollback or migration, ADR when durable, and explicit approval.
 
-GitHub Issues track owner and status. They link to the change folder rather than copying it.
+GitHub Issues track owner and status. They link to the change folder rather than copying it. Follow the [change-tracking contract](change-tracking.md) for Issue, sub-issue, pull request, commit, reopening, and follow-up rules.
 
 Before adding a durable design document, follow the [design-knowledge admission test](design-knowledge.md). Record the documentation impact as `none`, `update`, `add`, `move`, `merge`, `delete`, `generate`, or `supersede`.
 
@@ -114,6 +114,9 @@ After approval and verification:
 8. ensure unresolved work has an owner and durable location;
 9. record the branch or worktree exit state and clean it only after integration
    and recovery checks make removal safe.
+10. close the Issue only when its original acceptance boundary is met; reopen it
+    for premature closure or regression, and create a linked follow-up Issue for
+    a later requirement or independently valuable adjustment.
 
 Use `$task-handoff` only when work crosses an agent, session, worktree, branch, or owner boundary. The handoff is a compact current snapshot; it is not a permanent session diary.
 

@@ -2,11 +2,13 @@
 
 ## Mission and current phase
 
-Build the GEO optimization product from its approved product foundation toward
-small, verifiable releases. The current phase is **product and architecture
-entry**: preserve the confirmed product meaning while completing external
-validation and preparing the first product slice on the accepted application
-foundation. F0 runtime code remains non-product validation code.
+Build the GEO optimization product from its approved foundation through small,
+verifiable releases. The current `main` baseline contains the accepted
+deterministic S1-S5 evaluation journey. Real-provider S6 work remains an
+unmerged integration candidate until its own acceptance and integration gate.
+Preserve confirmed product meaning while retiring completed changes and opening
+later outcomes at their own decision boundary. F0 runtime code remains
+non-product validation code.
 
 Do not treat historical prompts as approved requirements. They are research input.
 
@@ -17,9 +19,11 @@ Do not treat historical prompts as approved requirements. They are research inpu
 3. `openspec/specs/product-definition/spec.md`
 4. `docs/process/operating-principles.md`
 5. `docs/process/core-workflow.md` before standard or architectural module work
-6. `docs/process/design-knowledge.md` when creating or changing durable design
-7. The nearest relevant active change, architecture, spec, contract, or ADR
-8. `GEO-Eval-Prompts.md` only when historical context is needed
+6. `docs/process/change-tracking.md` when creating or changing Issues, pull
+   requests, commits, or branch exit state
+7. `docs/process/design-knowledge.md` when creating or changing durable design
+8. The nearest relevant active change, architecture, spec, contract, or ADR
+9. `GEO-Eval-Prompts.md` only when historical context is needed
 
 Keep always-loaded guidance short. Load detailed process documents and Skill references only when the task needs them.
 
@@ -30,7 +34,8 @@ Keep always-loaded guidance short. Load detailed process documents and Skill ref
 - Proposed behavior: `openspec/changes/<change-id>/`
 - Architecture rationale: `docs/architecture/adr/`
 - Execution status and evidence: GitHub Issues, pull requests, CI, and runtime evidence
-- Continuation state: `docs/handoffs/current.md` only while a real handoff is needed
+- Continuation state: one task handoff created lazily only while a real handoff
+  is needed; the Issue, PR, branch, and current owners replace it at close
 - Released value: `CHANGELOG.md` and GitHub Releases
 
 One durable fact has one canonical home. Other artifacts link to it rather than maintaining a copy.
@@ -61,14 +66,37 @@ Follow `Explore → Align → Propose → Approve → Implement → Verify → R
 
 ## Skill routing
 
+- Use `$project-router` when the task lane, change class, current phase, or
+  relevant installed Skills are not already obvious. It filters only the
+  project catalog; it does not search or install external Skills.
 - Use `$requirement-grill` when consequential product or engineering ambiguity remains.
 - Invoke `$start-change` explicitly after intent is clear and a durable change record is warranted.
 - Use `$source-research` before relying on an external API, library, platform, license, version, or operational constraint.
+- Use `$domain-modeling` when business language, capability ownership, or a
+  durable boundary is changing.
+- Use `$codebase-design` when a module interface, seam, dependency direction,
+  or deepening decision needs focused design.
+- Invoke `$wayfinder` explicitly only for a multi-session outcome whose route
+  remains materially unclear after bounded alignment.
+- Use `$diagnosing-bugs` for a plausible defect before proposing a fix when the
+  root cause is not already established.
 - Use `$architecture-review` as the engineering architecture steward before
   implementing a module with material lifecycle, persistence, asynchronous work,
   AI, external effects, shared contracts, or significant refactoring.
+- Use `$code-review` for a fixed diff against both its approved intent and the
+  repository's engineering standards.
 - Use `$verify-change` before any completion claim.
+- Invoke `$reconcile-change` explicitly before closing a standard or
+  architectural change or declaring a PR complete.
 - Invoke `$task-handoff` when work crosses an agent, session, branch, worktree, or owner boundary.
+- Invoke `$improve-codebase-architecture` for evidence-backed maintenance
+  candidates, not as a mandatory calendar review.
+- Invoke `$resolving-merge-conflicts` only when a merge or rebase conflict
+  actually exists and its intent is known.
+- Invoke `$project-onboarding` when a new contributor needs a bounded context
+  path for an Issue or capability.
+- Use `$writing-for-agents` when writing or pruning AGENTS, Skills, prompts,
+  Issue/PR templates, or other agent-consumed instructions.
 
 Skills are project-scoped under `.agents/skills/` and governed by `.agents/skill-catalog.yaml`. Do not add or broaden a Skill without updating the catalog and validating its trigger boundaries.
 
@@ -97,11 +125,13 @@ a normal stop. No command above authorizes E0 provider calls or product work.
 ## Working agreement
 
 - Clarify materially different interpretations before implementation.
-- During product and architecture entry, do not let interaction or technical
-  solutions silently redefine the approved product meaning.
+- During product evolution, do not let interaction or technical solutions
+  silently redefine approved product meaning or accepted current behavior.
 - Search existing terms, components, contracts, and capabilities before creating new ones.
 - Keep uncertain design in the active change; create a durable contract only after its owner and boundary are stable.
 - Reconcile accepted design into its canonical or executable owner and remove obsolete active explanations before closing a change.
+- Follow `docs/process/change-tracking.md`; do not keep appending later outcomes
+  to a completed Issue or active change.
 - Resolve, update, or explicitly retain any touched document's `Evolution
   marker`; split by stable ownership or activation, not line count alone.
 - Prefer the smallest coherent design; reuse must be earned by stable semantics.

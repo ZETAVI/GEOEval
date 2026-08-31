@@ -1,0 +1,7 @@
+interface:
+  display_name: "Improve Codebase Architecture"
+  short_description: "Find evidence-backed architecture maintenance"
+  default_prompt: "Use $improve-codebase-architecture to survey this GEOEval area for high-value maintenance candidates without changing code."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Project Router"
+  short_description: "Route GEOEval work to installed project Skills"
+  default_prompt: "Use $project-router to classify this GEOEval task and select the smallest relevant set of already installed project Skills."
+
+policy:
+  allow_implicit_invocation: true

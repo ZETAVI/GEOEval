@@ -1,0 +1,7 @@
+interface:
+  display_name: "Resolving Merge Conflicts"
+  short_description: "Resolve Git conflicts from the owning intent"
+  default_prompt: "Use $resolving-merge-conflicts to trace both sides of this real Git conflict, resolve compatible intent, and stop on incompatible decisions."
+
+policy:
+  allow_implicit_invocation: false

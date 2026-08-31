@@ -22,6 +22,8 @@ VERSION_COPY_SUFFIX = re.compile(
     re.IGNORECASE,
 )
 ALLOWED_INVOCATIONS = {"implicit", "explicit"}
+ALLOWED_WORKFLOW_GROUPS = {"route", "shape", "deliver", "maintain", "learn"}
+CATALOG_VERSION = 2
 LOCAL_LINK_EXCLUDED_PARTS = {
     ".foundation-evidence",
     ".git",
@@ -55,14 +57,20 @@ def catalog_names() -> list[str]:
     return re.findall(r"^\s{2}- name:\s*([a-z0-9-]+)\s*$", text, re.MULTILINE)
 
 
-def catalog_invocations() -> dict[str, list[str]]:
+def catalog_version() -> int | None:
+    text = CATALOG.read_text(encoding="utf-8")
+    match = re.search(r"(?m)^version:\s*(\d+)\s*$", text)
+    return int(match.group(1)) if match else None
+
+
+def catalog_field_values(field: str) -> dict[str, list[str]]:
     text = CATALOG.read_text(encoding="utf-8")
     records: dict[str, list[str]] = {}
     for block in re.split(r"(?m)^  - name:\s*", text)[1:]:
         lines = block.splitlines()
         name = lines[0].strip()
         records[name] = re.findall(
-            r"(?m)^    invocation:\s*(\S+)\s*$",
+            rf"(?m)^    {re.escape(field)}:\s*(\S+)\s*$",
             block,
         )
     return records
@@ -70,7 +78,14 @@ def catalog_invocations() -> dict[str, list[str]]:
 
 def validate_skills(errors: list[str]) -> None:
     names = catalog_names()
-    invocations = catalog_invocations()
+    invocations = catalog_field_values("invocation")
+    workflow_groups = catalog_field_values("workflow_group")
+    catalog_paths = catalog_field_values("path")
+    if catalog_version() != CATALOG_VERSION:
+        errors.append(
+            "skill-catalog.yaml version must be "
+            f"{CATALOG_VERSION}; got {catalog_version()!r}"
+        )
     if len(names) != len(set(names)):
         errors.append("skill-catalog.yaml contains duplicate skill names")
 
@@ -87,6 +102,26 @@ def validate_skills(errors: list[str]) -> None:
                 f"{name} invocation must be implicit or explicit; got {values[0]!r}"
             )
 
+        groups = workflow_groups.get(name, [])
+        if len(groups) != 1:
+            errors.append(
+                "skill-catalog.yaml skill "
+                f"{name} must declare exactly one workflow_group; found {len(groups)}"
+            )
+        elif groups[0] not in ALLOWED_WORKFLOW_GROUPS:
+            errors.append(
+                "skill-catalog.yaml skill "
+                f"{name} has unsupported workflow_group {groups[0]!r}"
+            )
+
+        paths = catalog_paths.get(name, [])
+        expected_path = f"skills/{name}"
+        if paths != [expected_path]:
+            errors.append(
+                "skill-catalog.yaml skill "
+                f"{name} path must be {expected_path!r}; got {paths}"
+            )
+
     directories = sorted(path for path in SKILLS_DIR.iterdir() if path.is_dir())
     directory_names = [path.name for path in directories]
     if sorted(names) != directory_names:
@@ -94,6 +129,26 @@ def validate_skills(errors: list[str]) -> None:
             "catalog and skill directories differ: "
             f"catalog={sorted(names)}, directories={directory_names}"
         )
+
+    catalog_text = CATALOG.read_text(encoding="utf-8")
+    known_names = set(names)
+    for block in re.split(r"(?m)^  - name:\s*", catalog_text)[1:]:
+        lines = block.splitlines()
+        name = lines[0].strip()
+        dependency_block = re.search(
+            r"(?ms)^    dependencies:\s*(.*?)(?=^  - name:|\Z)",
+            "    dependencies:" + block.split("    dependencies:", 1)[1]
+            if "    dependencies:" in block
+            else "",
+        )
+        if not dependency_block:
+            continue
+        dependencies = re.findall(r"(?m)^      -\s*([a-z0-9-]+)\s*$", dependency_block.group(1))
+        for dependency in dependencies:
+            if dependency not in known_names:
+                errors.append(
+                    f"skill-catalog.yaml skill {name} has unknown dependency {dependency}"
+                )
 
     for skill_dir in directories:
         skill_file = skill_dir / "SKILL.md"
@@ -206,6 +261,57 @@ def validate_current_document_names(errors: list[str]) -> None:
                 )
 
 
+def validate_tracking_templates(errors: list[str]) -> None:
+    issue_templates = ROOT / ".github" / "ISSUE_TEMPLATE"
+    required_issue_templates = {
+        "change.yml": [
+            "id: problem",
+            "id: actual",
+            "id: outcome",
+            "id: scope",
+            "id: acceptance",
+        ],
+        "delivery-slice.yml": [
+            "id: parent",
+            "id: outcome",
+            "id: acceptance",
+        ],
+        "bug.yml": [
+            "id: problem",
+            "id: actual",
+            "id: expected",
+            "id: reproduction",
+        ],
+    }
+    for name, markers in required_issue_templates.items():
+        path = issue_templates / name
+        if not path.is_file():
+            errors.append(f"missing required Issue template: {path.relative_to(ROOT)}")
+            continue
+        body = path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in body:
+                errors.append(
+                    f"{path.relative_to(ROOT)} is missing tracking marker {marker!r}"
+                )
+
+    pr_template = ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md"
+    if not pr_template.is_file():
+        errors.append("missing .github/PULL_REQUEST_TEMPLATE.md")
+    else:
+        body = pr_template.read_text(encoding="utf-8")
+        for heading in (
+            "## Implementation",
+            "## Evidence",
+            "## Test and specification impact",
+            "## Lifecycle impact",
+        ):
+            if heading not in body:
+                errors.append(
+                    f".github/PULL_REQUEST_TEMPLATE.md is missing {heading!r}"
+                )
+
+
 def main() -> int:
     errors: list[str] = []
     required = [
@@ -214,6 +320,7 @@ def main() -> int:
         ROOT / "CHANGELOG.md",
         ROOT / "docs" / "process" / "operating-principles.md",
         ROOT / "docs" / "process" / "design-knowledge.md",
+        ROOT / "docs" / "process" / "change-tracking.md",
         ROOT / "docs" / "templates" / "design-contract.md",
         ROOT / "docs" / "product" / "vision.md",
         ROOT / "docs" / "product" / "glossary.md",
@@ -235,6 +342,7 @@ def main() -> int:
         validate_skills(errors)
         validate_local_links(errors)
         validate_current_document_names(errors)
+        validate_tracking_templates(errors)
 
     if errors:
         print("Project framework validation failed:")

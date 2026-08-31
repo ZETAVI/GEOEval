@@ -1,0 +1,7 @@
+interface:
+  display_name: "Code Review"
+  short_description: "Review a diff for intent quality and evidence"
+  default_prompt: "Use $code-review to review this fixed GEOEval diff against approved intent, engineering standards, and evidence continuity."
+
+policy:
+  allow_implicit_invocation: true

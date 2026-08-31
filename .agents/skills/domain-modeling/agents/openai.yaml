@@ -1,0 +1,7 @@
+interface:
+  display_name: "Domain Modeling"
+  short_description: "Sharpen GEOEval language and capability ownership"
+  default_prompt: "Use $domain-modeling to clarify GEOEval terminology, lifecycle, ownership, and durable boundaries before this change proceeds."
+
+policy:
+  allow_implicit_invocation: true

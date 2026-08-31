@@ -1,0 +1,41 @@
+name: Bug Report
+description: Verify, diagnose, and track a defect without mixing diagnosis with unauthorized repair
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem overview
+      description: Who is affected and what capability is failing?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Current actual behavior
+      description: Include exact symptoms, frequency, environment, and available evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction or feedback loop
+      description: Provide the smallest known trigger, or state what evidence is still needed.
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact and boundaries
+      description: State affected users/data and any production, security, cost, or destructive boundary.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Fix acceptance and regression evidence
+      description: Complete after diagnosis establishes the repair boundary. Diagnosis alone does not authorize implementation.

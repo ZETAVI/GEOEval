@@ -1,0 +1,7 @@
+interface:
+  display_name: "Writing for Agents"
+  short_description: "Make agent-facing instructions precise and efficient"
+  default_prompt: "Use $writing-for-agents to review this agent-facing document for routing, progressive disclosure, completion criteria, duplication, and no-op text."
+
+policy:
+  allow_implicit_invocation: true

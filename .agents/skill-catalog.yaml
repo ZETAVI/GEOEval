@@ -1,9 +1,10 @@
-version: 1
+version: 2
 
 skills:
   - name: requirement-grill
     path: skills/requirement-grill
     category: business-process
+    workflow_group: shape
     invocation: implicit
     scope: framework
     risk: read-only
@@ -14,6 +15,7 @@ skills:
   - name: start-change
     path: skills/start-change
     category: business-process
+    workflow_group: deliver
     invocation: explicit
     scope: framework
     risk: write
@@ -25,6 +27,7 @@ skills:
   - name: source-research
     path: skills/source-research
     category: library-api-reference
+    workflow_group: shape
     invocation: implicit
     scope: framework
     risk: read-only
@@ -35,16 +38,19 @@ skills:
   - name: architecture-review
     path: skills/architecture-review
     category: code-quality
+    workflow_group: deliver
     invocation: implicit
     scope: framework
     risk: read-only
     maturity: pilot
     owner: framework-maintainers
-    dependencies: []
+    dependencies:
+      - codebase-design
 
   - name: verify-change
     path: skills/verify-change
     category: product-verification
+    workflow_group: deliver
     invocation: implicit
     scope: framework
     risk: read-only
@@ -55,6 +61,7 @@ skills:
   - name: task-handoff
     path: skills/task-handoff
     category: business-process
+    workflow_group: learn
     invocation: explicit
     scope: framework
     risk: write
@@ -62,3 +69,130 @@ skills:
     owner: framework-maintainers
     dependencies: []
 
+  - name: project-router
+    path: skills/project-router
+    category: business-process
+    workflow_group: route
+    invocation: implicit
+    scope: project
+    risk: read-only
+    maturity: sandbox
+    owner: project-maintainers
+    dependencies: []
+
+  - name: writing-for-agents
+    path: skills/writing-for-agents
+    category: business-process
+    workflow_group: learn
+    invocation: implicit
+    scope: framework
+    risk: read-only
+    maturity: sandbox
+    owner: framework-maintainers
+    dependencies: []
+
+  - name: domain-modeling
+    path: skills/domain-modeling
+    category: business-process
+    workflow_group: shape
+    invocation: implicit
+    scope: project
+    risk: read-only
+    maturity: sandbox
+    owner: product-and-architecture-owners
+    dependencies: []
+
+  - name: codebase-design
+    path: skills/codebase-design
+    category: code-quality
+    workflow_group: shape
+    invocation: implicit
+    scope: framework
+    risk: read-only
+    maturity: sandbox
+    owner: architecture-owner
+    dependencies: []
+
+  - name: wayfinder
+    path: skills/wayfinder
+    category: business-process
+    workflow_group: shape
+    invocation: explicit
+    scope: framework
+    risk: write
+    maturity: sandbox
+    owner: project-maintainers
+    dependencies:
+      - requirement-grill
+      - source-research
+
+  - name: diagnosing-bugs
+    path: skills/diagnosing-bugs
+    category: runbook
+    workflow_group: maintain
+    invocation: implicit
+    scope: framework
+    risk: read-only
+    maturity: sandbox
+    owner: engineering-owner
+    dependencies:
+      - verify-change
+
+  - name: code-review
+    path: skills/code-review
+    category: code-quality
+    workflow_group: deliver
+    invocation: implicit
+    scope: framework
+    risk: read-only
+    maturity: sandbox
+    owner: engineering-owner
+    dependencies: []
+
+  - name: reconcile-change
+    path: skills/reconcile-change
+    category: business-process
+    workflow_group: deliver
+    invocation: explicit
+    scope: project
+    risk: write
+    maturity: sandbox
+    owner: project-maintainers
+    dependencies:
+      - verify-change
+
+  - name: improve-codebase-architecture
+    path: skills/improve-codebase-architecture
+    category: code-quality
+    workflow_group: maintain
+    invocation: explicit
+    scope: framework
+    risk: read-only
+    maturity: sandbox
+    owner: architecture-owner
+    dependencies:
+      - codebase-design
+
+  - name: resolving-merge-conflicts
+    path: skills/resolving-merge-conflicts
+    category: delivery
+    workflow_group: deliver
+    invocation: explicit
+    scope: framework
+    risk: write
+    maturity: sandbox
+    owner: engineering-owner
+    dependencies:
+      - verify-change
+
+  - name: project-onboarding
+    path: skills/project-onboarding
+    category: business-process
+    workflow_group: learn
+    invocation: explicit
+    scope: project
+    risk: read-only
+    maturity: sandbox
+    owner: project-maintainers
+    dependencies:
+      - project-router

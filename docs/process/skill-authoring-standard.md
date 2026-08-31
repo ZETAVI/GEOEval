@@ -19,15 +19,16 @@ guidance, not in another overlapping Skill.
 
 1. Start from two or three concrete use cases.
 2. Assign one primary taxonomy category.
-3. Write a description that includes what the skill does, when it triggers, and important exclusions.
-4. Keep the main workflow in `SKILL.md` under 500 lines.
-5. Put detailed knowledge in one-level `references/` files.
-6. Put deterministic or repeatedly generated code in `scripts/`.
-7. Put output templates and boilerplate in `assets/`.
-8. Add Gotchas only from credible failure modes; grow them through real use.
-9. Keep external documentation as links or targeted notes; do not mirror a vendor manual.
-10. Do not add README, installation, quick-reference, or changelog files inside a skill.
-11. State the stopping condition and when existing evidence or artifacts may be
+3. Assign one primary workflow group: `route`, `shape`, `deliver`, `maintain`, or `learn`.
+4. Write a description that includes what the skill does, when it triggers, and important exclusions.
+5. Keep the main workflow in `SKILL.md` under 500 lines.
+6. Put detailed knowledge in one-level `references/` files.
+7. Put deterministic or repeatedly generated code in `scripts/`.
+8. Put output templates and boilerplate in `assets/`.
+9. Add Gotchas only from credible failure modes; grow them through real use.
+10. Keep external documentation as links or targeted notes; do not mirror a vendor manual.
+11. Do not add README, installation, quick-reference, or changelog files inside a skill.
+12. State the stopping condition and when existing evidence or artifacts may be
     reused instead of rerunning the workflow.
 
 ## Freedom level
@@ -49,6 +50,10 @@ Before promotion, test:
 - neighboring prompts that should not trigger;
 - one realistic end-to-end task;
 - missing setup or failure behavior.
+
+The project Router uses the catalog and descriptions to pre-filter installed
+Skills. A broad description that overlaps several neighbors is a routing defect;
+do not compensate by adding an external search or loading every Skill body.
 
 ## Composition
 

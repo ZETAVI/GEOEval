@@ -7,6 +7,9 @@ description: Reviews a proposed design or code change for cohesion, coupling, mo
 
 Review whether a change preserves understandable ownership and evolvable boundaries. Focus on risks introduced or exposed by the scoped change, not on redesigning the whole system.
 
+Use `$codebase-design` as the shared vocabulary for module, interface, seam,
+adapter, depth, and locality when those concepts are material to the review.
+
 ## Workflow
 
 ### 1. Establish the Review Contract

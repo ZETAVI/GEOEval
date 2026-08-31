@@ -124,3 +124,47 @@ state.
 - **AND** read-only research or review SHALL NOT require another branch
 - **AND** on exit the owner SHALL record one lifecycle state defined by the
   [branch and worktree lifecycle](../../../docs/process/human-agent-collaboration.md#branch-and-worktree-lifecycle)
+
+### Requirement: Tracking artifacts have distinct contracts
+
+Issues, sub-issues, pull requests, commits, current specifications, decision
+records, and handoffs SHALL keep the responsibilities defined by the
+[change-tracking contract](../../../docs/process/change-tracking.md).
+
+#### Scenario: A consequential change is proposed
+
+- **WHEN** an Issue coordinates a standard or architectural change
+- **THEN** it SHALL distinguish the problem overview, current actual behavior
+  and evidence, expected outcome, scope and non-goals, confirmed decisions,
+  observable acceptance, and current-context pointers
+- **AND** a sub-issue SHALL represent one independently verifiable vertical
+  slice rather than a horizontal implementation layer
+- **AND** a pull request SHALL explain the concrete implementation, evidence,
+  reconciliation, risk, and follow-up boundary without copying the full diff or
+  current specification
+
+### Requirement: Completed work does not absorb later requirements
+
+A closed Issue or stable change SHALL preserve its original acceptance history.
+
+#### Scenario: Work is discovered after closure
+
+- **WHEN** the original acceptance was not met, regressed, or was closed
+  prematurely
+- **THEN** the original Issue MAY be reopened with the failed criterion named
+- **BUT WHEN** the delivered outcome was correct and a later requirement,
+  product decision, or independently valuable adjustment appears
+- **THEN** a linked follow-up Issue SHALL be created instead
+
+### Requirement: Installed Skills are routed before invocation
+
+The project SHALL pre-filter only installed, cataloged Skills by task lane,
+change class, phase, workflow group, trigger description, and exclusions.
+
+#### Scenario: The next Skill is not obvious
+
+- **WHEN** an agent cannot identify the smallest relevant workflow directly
+- **THEN** it SHALL use the project Router to return a bounded candidate set
+- **AND** the Router SHALL NOT search for, install, or automatically execute
+  external Skills
+- **AND** state-changing orchestrators SHALL retain their explicit human gates

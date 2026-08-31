@@ -1,0 +1,7 @@
+interface:
+  display_name: "Diagnosing Bugs"
+  short_description: "Diagnose defects through a tight feedback loop"
+  default_prompt: "Use $diagnosing-bugs to reproduce, minimize, hypothesize, instrument, and identify this defect without implementing an unauthorized fix."
+
+policy:
+  allow_implicit_invocation: true

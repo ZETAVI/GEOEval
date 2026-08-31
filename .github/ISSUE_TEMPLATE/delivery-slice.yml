@@ -1,0 +1,42 @@
+name: Delivery Slice
+description: Track one independently verifiable vertical slice of a parent outcome
+title: "[Slice]: "
+labels:
+  - change
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent Issue
+      description: Link the parent outcome this slice contributes to.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: End-to-end delivery result
+      description: What behavior can be demonstrated or verified when this slice lands?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Blocked by
+      description: Link only dependencies that genuinely prevent this slice from starting or completing.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Current truth and evidence impact
+      description: Name affected specs, schemas, tests, runtime paths, or documentation owners.

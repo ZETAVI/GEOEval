@@ -6,6 +6,25 @@ Classification helps discover gaps, prevent broad skills from absorbing unrelate
 
 Each skill has one primary functional category.
 
+Functional category answers what discipline a Skill provides. Workflow group
+answers where it normally participates in delivery. Keep both in the catalog so
+the project Router can pre-filter installed Skills without searching outside the
+repository or loading every Skill body.
+
+## Workflow groups
+
+| Group | Purpose | Typical Skills |
+| --- | --- | --- |
+| `route` | Classify the task, phase, and installed candidate Skills | project router |
+| `shape` | Resolve intent, evidence, domain language, and design boundaries | grill, research, domain and codebase design, wayfinding |
+| `deliver` | Start, implement, review, verify, reconcile, and integrate a change | start-change, review, verification, reconciliation, merge conflict resolution |
+| `maintain` | Diagnose defects and identify evidence-backed codebase maintenance | bug diagnosis and architecture improvement |
+| `learn` | Preserve recoverable context and onboard a contributor | handoff, onboarding, writing for agents |
+
+One Skill has one primary workflow group even when it can support adjacent
+phases. The Router returns a small candidate set; it does not invoke every Skill
+in the group.
+
 ## Functional categories
 
 | ID | Category | Purpose |
@@ -51,4 +70,3 @@ The agent may select a focused skill when the task matches its trigger descripti
 - `deprecated`: still discoverable for migration but no longer recommended.
 
 Classification lives in `skill-catalog.yaml`; do not encode it as deeply nested skill directories.
-

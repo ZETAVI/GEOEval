@@ -1,0 +1,7 @@
+interface:
+  display_name: "Wayfinder"
+  short_description: "Map large unclear outcomes into decision work"
+  default_prompt: "Use $wayfinder to define the destination, decision frontier, dependencies, fog, and handoff into a normal GEOEval change."
+
+policy:
+  allow_implicit_invocation: false

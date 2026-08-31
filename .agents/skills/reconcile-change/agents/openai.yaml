@@ -1,0 +1,7 @@
+interface:
+  display_name: "Reconcile Change"
+  short_description: "Promote accepted change into current project truth"
+  default_prompt: "Use $reconcile-change to align acceptance, implementation, tests, current specs, follow-up Issues, and workspace exit before closure."
+
+policy:
+  allow_implicit_invocation: false
