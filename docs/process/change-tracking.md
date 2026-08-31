@@ -11,7 +11,7 @@ without making any one artifact carry all four responsibilities.
 | --- | --- | --- |
 | GitHub Project | Status, priority, ordering, and real target dates | Requirements, design, implementation, acceptance evidence, or a second Issue body |
 | Issue | Problem, actual behavior, desired outcome, scope, accepted decisions, acceptance, owner, and status | Current system design or implementation detail already owned elsewhere |
-| Sub-issue | One independently verifiable delivery slice that contributes to a parent outcome | A horizontal layer such as all backend work or all tests |
+| Sub-issue | One independently verifiable delivery slice or required Review Gate that contributes to a parent outcome | An independently prioritizable Follow-up or a horizontal layer such as all backend work or all tests |
 | Pull request | The concrete change transaction, implementation explanation, evidence, reconciliation, risks, and follow-ups | Current product or architecture definition after merge |
 | Commit | One coherent code or documentation checkpoint bound to an Issue and revision | Backlog, mutable project status, or session recovery state |
 | Current spec or design owner | Accepted behavior and stable boundaries after merge | Proposal history and running task status |

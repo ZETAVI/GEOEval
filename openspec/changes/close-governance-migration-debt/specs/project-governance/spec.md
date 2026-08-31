@@ -30,6 +30,19 @@ Change, residual dependencies, and workspace exit.
 - **AND** the Issue and PR SHALL name the remaining decision
 - **AND** the work SHALL NOT be described as complete
 
+### Requirement: Parent and dependency relationships keep distinct meanings
+
+Parent/Sub-Issue SHALL represent one parent outcome with independently
+verifiable slices or Review Gates. Native Dependencies SHALL represent ordering
+or blocking, and independently prioritizable outcomes SHALL be Follow-up Issues.
+
+#### Scenario: A later outcome can be prioritized independently
+
+- **WHEN** omitting the later outcome does not invalidate the original
+  acceptance boundary
+- **THEN** it SHALL NOT remain a required Sub-Issue of the original parent
+- **AND** it SHALL use its own Project item and any genuine Dependency links
+
 ### Requirement: Sensitive execution evidence remains bounded
 
 Sensitive, ignored, paid-call, or large runtime evidence SHALL use a short
