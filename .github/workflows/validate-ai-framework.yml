@@ -1,4 +1,4 @@
-name: Validate Project Framework
+name: 校验 AI Native 项目框架
 
 on:
   pull_request:
@@ -8,10 +8,14 @@ on:
 
 jobs:
   validate:
+    name: AI Native 框架校验
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v5
+      - name: 检出代码
+        uses: actions/checkout@v6
+      - name: 配置 Python
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - run: python3 scripts/validate_project_framework.py
+      - name: 校验项目方法论与治理框架
+        run: python3 scripts/validate_project_framework.py
