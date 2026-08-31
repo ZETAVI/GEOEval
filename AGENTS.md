@@ -38,6 +38,8 @@ Keep always-loaded guidance short. Load detailed process documents and Skill ref
 - Proposed behavior: `openspec/changes/<change-id>/`
 - Architecture rationale: `docs/architecture/adr/`
 - Execution status and evidence: GitHub Issues, pull requests, CI, and runtime evidence
+- Planning status, priority, and ordering: the repository-linked `GEOEval Delivery`
+  GitHub Project; it never owns requirements, design, implementation, or evidence
 - Continuation state: one task handoff created lazily only while a real handoff
   is needed; the Issue, PR, branch, and current owners replace it at close
 - Released value: `CHANGELOG.md` and GitHub Releases
@@ -72,7 +74,8 @@ Follow `Explore → Align → Propose → Approve → Implement → Verify → R
 
 - Use `$project-router` when the task lane, change class, current phase, or
   relevant installed Skills are not already obvious. It filters only the
-  project catalog; it does not search or install external Skills.
+  project catalog; it also reads live Issue/Project state and does not search or
+  install external Skills.
 - Use `$requirement-grill` when consequential product or engineering ambiguity remains.
 - Invoke `$start-change` explicitly after intent is clear and a durable change record is warranted.
 - Use `$source-research` before relying on an external API, library, platform, license, version, or operational constraint.
@@ -138,7 +141,12 @@ a normal stop. No command above authorizes E0 provider calls or product work.
   to a completed Issue or active change.
 - Keep at most one primary product-delivery parent Issue in progress and one
   non-conflicting research or maintenance Issue; a verified urgent Bug may
-  preempt them. Backlog Issues do not justify branches or worktrees.
+  preempt them. Project Status is the planning authority: Backlog Issues do not
+  justify branches or worktrees, and `blocked` requires a named dependency.
+- Every open Issue has an Assignee, Project Status, and Priority. Set `Ready`
+  only after outcome and acceptance are actionable, `In Progress` only for an
+  active bounded package, and `Review / Decision` when a review or human gate
+  remains.
 - Resolve, update, or explicitly retain any touched document's `Evolution
   marker`; split by stable ownership or activation, not line count alone.
 - Prefer the smallest coherent design; reuse must be earned by stable semantics.

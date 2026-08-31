@@ -90,6 +90,17 @@ One lead owns integration and cleanup. Never delete an unmerged branch or dirty
 worktree merely because it appears old; first establish ancestry, ownership, and
 recovery value.
 
+Recovery branches are transitional. Record exactly one disposition in the
+owning Issue:
+
+- `retain`: the open Issue still needs unique state;
+- `superseded`: a current Issue branch or merged owner contains the state;
+- `archive-tag`: immutable historical input remains useful but is not active;
+- `delete-after-merge`: formal integration will make the branch redundant.
+
+Verify the replacement ref or archive tag remotely before deleting a recovery
+branch. Do not use recovery branches as the project's permanent archive.
+
 ## Handoff rule
 
 Every agent response should make its outcome recoverable. Persist a handoff only when work crosses a session, agent, branch, or owner boundary. A handoff records state and evidence, never hidden reasoning or a transcript.

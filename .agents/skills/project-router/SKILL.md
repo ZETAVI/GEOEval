@@ -11,8 +11,11 @@ layer and not external capability discovery.
 
 ## Workflow
 
-1. Read the request, nearest `AGENTS.md`, current Issue or change, repository
-   status, and the Skill catalog.
+1. Read the request, nearest `AGENTS.md`, current Issue, its `GEOEval Delivery`
+   Status/Priority/Assignee/Dependencies, relevant change, repository status,
+   and the Skill catalog. If the Issue is absent from the Project or live state
+   conflicts with repository control text, report the reconciliation need
+   before routing writes.
 2. Classify the lane: `feature`, `bug`, `maintenance`, `release`, or `read-only`.
 3. Classify the change as trivial, standard, or architectural using
    `docs/process/core-workflow.md`.
@@ -28,6 +31,7 @@ Return:
 ```text
 Lane / class / phase
 Required context
+Live Project state and dependencies
 Selected Skill and why
 Optional candidate Skills
 Explicit gate or next safe action

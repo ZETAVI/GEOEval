@@ -39,6 +39,12 @@ Maintain at most one active product-delivery parent Issue and one
 non-conflicting research or maintenance Issue; leave other outcomes in Backlog
 without creating speculative worktrees.
 
+Add every Issue to `GEOEval Delivery`. Use Project Status for planning flow,
+Assignee for Owner, Priority for ordering, and native Dependencies for genuine
+blocking. Labels continue to express type or risk; `blocked` never means merely
+"not doing this now". A Roadmap date is optional and must represent a real
+commitment.
+
 Before adding a durable design document, follow the [design-knowledge admission test](design-knowledge.md). Record the documentation impact as `none`, `update`, `add`, `move`, `merge`, `delete`, `generate`, or `supersede`.
 
 ## 3. Research before external design
@@ -124,6 +130,8 @@ After approval and verification:
 10. close the Issue only when its original acceptance boundary is met; reopen it
     for premature closure or regression, and create a linked follow-up Issue for
     a later requirement or independently valuable adjustment.
+11. move the Project item to `Done`, clear obsolete blocked relationships, and
+    leave independent later work in its own Project item.
 
 Use `$task-handoff` only when work crosses an agent, session, worktree, branch, or owner boundary. The handoff is a compact current snapshot; it is not a permanent session diary.
 

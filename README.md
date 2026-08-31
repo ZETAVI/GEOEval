@@ -14,14 +14,14 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
   `main`; the S6 real-provider candidate remains an unmerged change
 - Project control: GitHub Issues and pull requests are live; `main` requires a
   pull request, the `AI Native 项目框架 CI` and `完整项目 CI` status checks,
-  linear history, and resolved review conversations. Project initialization is tracked by
-  [Issue #1](https://github.com/ZETAVI/GEOEval/issues/1).
+  linear history, and resolved review conversations. Planning Status/Priority
+  lives only in the [GEOEval Delivery Project](https://github.com/users/ZETAVI/projects/1);
+  governance migration is tracked by [Issue #21](https://github.com/ZETAVI/GEOEval/issues/21).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
-- Active product changes: the completed deterministic slice awaits change
-  retirement and its bounded frontend-presentation follow-up belongs in a new
-  change; real-provider S6 normalization is tracked by
+- Active product changes: deterministic S1-S5 is retired as a completed Change;
+  frontend presentation remains Issue #13, while real-provider S6 is tracked by
   [Issue #4](https://github.com/ZETAVI/GEOEval/issues/4) and remains isolated on
-  `codex/integrate-real-evaluation-providers`
+  `codex/issue-4-s6-real-provider-integration` as Draft PR #20
 - Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,
   Redis/BullMQ, Prisma, and generated OpenAPI client
 - Runtime code: deterministic S1-S5 product behavior is implemented on `main`;
@@ -63,6 +63,9 @@ openspec/specs/       Accepted current capability behavior
 openspec/changes/     Proposed standard or architectural changes
 .github/              Issue, pull request, and validation workflow
 ```
+
+The GitHub Project is a planning projection only. Issues, PRs, OpenSpec,
+current specs, code, tests, and ADRs retain their distinct authority.
 
 ## Validate the project framework
 

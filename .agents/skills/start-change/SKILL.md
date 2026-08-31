@@ -17,8 +17,12 @@ Inspect active changes, branches, worktrees, and handoffs before creating
 anything. Reuse an existing change workspace when it owns the same independently
 mergeable outcome and its state can be attributed safely. If it is dirty,
 understand and preserve the existing work; do not create another branch to
-escape unknown state. A new agent, conversation, review, or session is not a new
-change boundary.
+escape unknown state.
+
+Before creating a Branch, verify the owning Issue is in `GEOEval Delivery`, has
+an Assignee and Priority, and is `Ready`; move it to `In Progress` only when the
+bounded write actually begins. A new agent, conversation, review, or session is
+not a new change boundary.
 
 If outcome, scope, or acceptance is materially ambiguous, run `$requirement-grill` before proceeding.
 

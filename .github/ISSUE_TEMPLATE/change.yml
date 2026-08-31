@@ -4,6 +4,11 @@ title: "[Change]: "
 labels:
   - change
 body:
+  - type: markdown
+    attributes:
+      value: >-
+        创建后将 Issue 加入 `GEOEval Delivery`，设置 Assignee、Status 与 Priority；
+        `blocked` 只用于有明确 Dependency 的真实阻塞。
   - type: textarea
     id: problem
     attributes:

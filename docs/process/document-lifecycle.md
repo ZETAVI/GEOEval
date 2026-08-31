@@ -39,6 +39,20 @@ and evolution-marker rules in [Design Knowledge](design-knowledge.md).
 
 Issues, PRs, CI output, logs, screenshots, and test results prove what happened. They are not the canonical explanation of the system.
 
+PR and CI links are the default evidence; do not copy them into a permanent
+registry. When sensitive, ignored, paid-call, or large runtime evidence cannot
+enter Git, keep one short Manifest in the active Change or Issue containing:
+
+- purpose and execution date;
+- bounded input/route scope and sanitized result;
+- local or protected locator plus content hash;
+- owner, `0700` directory / `0600` file permissions, and retention reason;
+- the merge, decision, or expiry event that deletes or deliberately retains it.
+
+At reconciliation, verify the locator still exists, then delete or explicitly
+retain the raw evidence. A Manifest proves provenance and continuity; it does
+not make the raw content a second current-design authority.
+
 ### Handoff state
 
 A handoff is a compact recovery snapshot. Update or replace it while a task is active. Once work is complete, the PR summary and canonical documents replace it.

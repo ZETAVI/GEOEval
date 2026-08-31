@@ -9,8 +9,9 @@ Convert accepted change evidence into a new, singular current state.
 
 ## Workflow
 
-1. Read the Issue, sub-issues, change record, PR diff, verification matrix,
-   current specs, design owners, ADRs, tests, and workspace state.
+1. Read the Issue, Assignee, `GEOEval Delivery` Status/Priority/Dependencies,
+   sub-issues, change record, PR diff, verification matrix, current specs,
+   design owners, ADRs, tests, evidence locators, and workspace state.
 2. Map every acceptance criterion to implementation and evidence. Identify any
    criterion reduced or changed by an explicit owner decision.
 3. Record tests added, changed, or removed. Remove obsolete tests that preserve
@@ -24,7 +25,10 @@ Convert accepted change evidence into a new, singular current state.
    - failed original acceptance or premature close: reopen the original Issue.
 6. Complete the PR lifecycle summary, release disposition, handoff disposition,
    and branch or worktree exit state.
-7. Close only when `docs/process/change-tracking.md` is satisfied.
+7. Reconcile protected Evidence and recovery refs; do not leave missing locators
+   or a superseded recovery branch as hidden continuation state.
+8. Move the Project item to `Done`, clear stale blocked relationships, and close
+   only when `docs/process/change-tracking.md` is satisfied.
 
 Do not merge, close, archive, or delete a worktree without the authority required
 for that state change. Return a reconciliation patch and an explicit list of

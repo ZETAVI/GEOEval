@@ -45,6 +45,9 @@
 
 ## Lifecycle（生命周期）
 
+- Issue Owner：<Assignee>
+- Project Status：<before → after>
+- Dependency / blocked state：<links or `none`>
 - 文档影响：`none | update | add | move | split | merge | delete | generate | supersede`
 - 正式权威或演进标记：<路径与对账方式，或 `none`>
 - 发布影响：`release:skip | release:candidate` <适用时补充说明或链接>
@@ -61,4 +64,6 @@
 - [ ] 实现说明覆盖关键边界，但没有复制 Diff 或完整规范
 - [ ] 已更新、重构或删除因行为变化而过时、重复或误导的测试
 - [ ] 已记录未执行检查、已知风险以及可行的恢复方式
+- [ ] Issue Assignee、Project Status/Priority、Dependency 与 Checklist 已对账
+- [ ] 已完成的 OpenSpec Change 已归档；未完成时已记录准确退出状态
 - [ ] 已确认发布影响、Handoff 与 Worktree 退出状态
