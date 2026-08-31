@@ -1,6 +1,6 @@
 # Change: Initialize the GitHub Project Control Plane
 
-- Status: Approved for implementation under GitHub Issue #1
+- Status: Completed and reconciled through GitHub PR #16
 - Class: Architectural project-governance change
 - Decision owner: Project owner
 - Approval: 2026-08-31
@@ -34,3 +34,11 @@ Repository creation, private remote configuration, Issue and label creation,
 branch protection, recoverable local cleanup, repository-local governance and
 CI changes, commits, pushes, and pull requests are authorized. This change does
 not authorize production or paid external execution.
+
+## Final disposition
+
+The control plane was merged to `main@d1b4173`. GitHub Issues, protected main,
+the `validate` and `project` checks, default-main workspace, recovery branches,
+and bounded WIP are current. S6 normalization remains in Issue #4, the release-
+feedback contract remains in Issue #5, and local test isolation remains Bug
+#15; none of them keeps this completed Change active.
