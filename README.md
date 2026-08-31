@@ -5,19 +5,28 @@ validated application foundation, and an accepted deterministic first
 evaluation slice. Real-provider execution remains a separately reviewed
 integration boundary until it is merged and accepted.
 
+Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
+
 ## Current status
 
 - Phase: deterministic S1-S5 customer entry, evaluation, report, retry,
   history, and notification behavior are implemented and locally accepted on
   `main`; the S6 real-provider candidate remains an unmerged change
+- Project control: GitHub Issues and pull requests are live; `main` requires a
+  pull request, the `validate` and `project` status checks, linear history, and
+  resolved review conversations. Project initialization is tracked by
+  [Issue #1](https://github.com/ZETAVI/GEOEval/issues/1).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
 - Active product changes: the completed deterministic slice awaits change
   retirement and its bounded frontend-presentation follow-up belongs in a new
-  change; real-provider S6 work is isolated on
+  change; real-provider S6 normalization is tracked by
+  [Issue #4](https://github.com/ZETAVI/GEOEval/issues/4) and remains isolated on
   `codex/integrate-real-evaluation-providers`
 - Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,
   Redis/BullMQ, Prisma, and generated OpenAPI client
-- Runtime code: non-product F0 validation foundation only
+- Runtime code: deterministic S1-S5 product behavior is implemented on `main`;
+  F0 probes remain non-product validation tools and real-provider S6 remains an
+  integration candidate
 
 ## Start here
 

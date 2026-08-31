@@ -1,0 +1,37 @@
+name: Validate Project
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: validate-project-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  project:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.12.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm infra:up
+      - run: pnpm db:generate
+      - run: pnpm db:migrate
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      - run: pnpm --filter @geoeval/backend test
+      - run: pnpm --filter @geoeval/web test
+      - run: pnpm build
+      - run: git diff --exit-code
+      - if: always()
+        run: pnpm infra:down

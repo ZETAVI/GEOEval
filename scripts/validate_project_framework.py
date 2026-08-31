@@ -295,6 +295,12 @@ def validate_tracking_templates(errors: list[str]) -> None:
                     f"{path.relative_to(ROOT)} is missing tracking marker {marker!r}"
                 )
 
+    issue_config = issue_templates / "config.yml"
+    if not issue_config.is_file():
+        errors.append("missing .github/ISSUE_TEMPLATE/config.yml")
+    elif "blank_issues_enabled: false" not in issue_config.read_text(encoding="utf-8"):
+        errors.append(".github/ISSUE_TEMPLATE/config.yml must disable blank issues")
+
     pr_template = ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md"
     if not pr_template.is_file():
         errors.append("missing .github/PULL_REQUEST_TEMPLATE.md")
@@ -309,6 +315,23 @@ def validate_tracking_templates(errors: list[str]) -> None:
             if heading not in body:
                 errors.append(
                     f".github/PULL_REQUEST_TEMPLATE.md is missing {heading!r}"
+                )
+
+    workflows = {
+        "validate-ai-framework.yml": ("name: Validate Project Framework", "python3 scripts/validate_project_framework.py"),
+        "validate-project.yml": ("name: Validate Project", "pnpm db:generate", "pnpm --filter @geoeval/backend test", "pnpm --filter @geoeval/web test", "pnpm build"),
+    }
+    workflow_dir = ROOT / ".github" / "workflows"
+    for name, markers in workflows.items():
+        path = workflow_dir / name
+        if not path.is_file():
+            errors.append(f"missing required workflow: {path.relative_to(ROOT)}")
+            continue
+        body = path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in body:
+                errors.append(
+                    f"{path.relative_to(ROOT)} is missing workflow marker {marker!r}"
                 )
 
 

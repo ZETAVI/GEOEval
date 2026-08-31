@@ -12,6 +12,10 @@ non-product validation code.
 
 Do not treat historical prompts as approved requirements. They are research input.
 
+The live coordination repository is `https://github.com/ZETAVI/GEOEval`.
+Create or identify the owning Issue before a standard or architectural write,
+and deliver changes to protected `main` through a pull request.
+
 ## Read order
 
 1. `docs/product/vision.md`
@@ -132,6 +136,9 @@ a normal stop. No command above authorizes E0 provider calls or product work.
 - Reconcile accepted design into its canonical or executable owner and remove obsolete active explanations before closing a change.
 - Follow `docs/process/change-tracking.md`; do not keep appending later outcomes
   to a completed Issue or active change.
+- Keep at most one primary product-delivery parent Issue in progress and one
+  non-conflicting research or maintenance Issue; a verified urgent Bug may
+  preempt them. Backlog Issues do not justify branches or worktrees.
 - Resolve, update, or explicitly retain any touched document's `Evolution
   marker`; split by stable ownership or activation, not line count alone.
 - Prefer the smallest coherent design; reuse must be earned by stable semantics.
@@ -139,9 +146,10 @@ a normal stop. No command above authorizes E0 provider calls or product work.
 - Research external technology from current primary sources and record uncertainty.
 - Match each completion claim to task-appropriate evidence and disclose skipped checks.
 - Keep one writer for shared specs, public contracts, design primitives, ADRs, and release records.
-- Reuse the current branch for the same outcome. Create separate worktrees only
-  for independently mergeable concurrent writes after interfaces and ownership
-  are fixed; record the workspace exit state at handoff or close.
+- Reuse the current Issue branch for the same outcome. Name a new branch
+  `codex/issue-<number>-<slug>` and create a separate worktree only for an
+  independently mergeable concurrent write after interfaces and ownership are
+  fixed; record the workspace exit state at handoff or close.
 
 ## Human decision boundaries
 
