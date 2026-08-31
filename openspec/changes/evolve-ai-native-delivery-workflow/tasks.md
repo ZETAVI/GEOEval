@@ -17,12 +17,13 @@
 - [x] Run framework, syntax, diff, and repository-appropriate documentation
   verification; review the complete governance diff.
 - [x] Create one coherent governance checkpoint.
-- [ ] Integrate the governance checkpoint into local `main` without touching the
+- [x] Integrate the governance checkpoint into local `main` without touching the
   dirty provider-validation or S6 worktrees.
-- [ ] After the S6 owner checkpoints its current work, merge the same governance
-  commit into `codex/integrate-real-evaluation-providers` and rerun affected
-  verification.
+- [x] Merge the same governance commit into
+  `codex/integrate-real-evaluation-providers`, verify that the five-file S6
+  working diff remains byte-identical, and rerun framework verification.
 - [ ] Use the new Router, code review, and reconciliation contracts to review the
-  remaining S6 acceptance and branch exit.
+  remaining S6 acceptance and branch exit through GitHub Issue #4 and its
+  delivery slices.
 - [ ] Reconcile this governance change into current owners and archive it after
   both target branches consume the same accepted revision.

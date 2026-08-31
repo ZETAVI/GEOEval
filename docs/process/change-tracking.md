@@ -38,6 +38,28 @@ the behavior is accepted and merged. Create a short decision record only when a
 rationale constrains several future changes and would be surprising from code or
 current design alone.
 
+## GitHub control plane
+
+The live coordination repository is
+[`ZETAVI/GEOEval`](https://github.com/ZETAVI/GEOEval). Before a standard or
+architectural write:
+
+1. create or identify the Issue that owns the outcome;
+2. link the relevant current owner and OpenSpec change;
+3. create `codex/issue-<number>-<slug>` from current `main`;
+4. create a worktree only when the branch is an independently mergeable write;
+5. open a pull request before asking for final review or integration.
+
+Protected `main` requires the project checks and normal pull-request path. Do
+not push directly to bypass the lifecycle, reconstruct completed history merely
+to create activity, or keep a branch for a Backlog Issue with no approved next
+action.
+
+For the small current team, allow one primary product-delivery parent Issue and
+one non-conflicting research or maintenance Issue in progress. A verified urgent
+Bug may preempt them. Sub-issues and PRs under the active parent do not each
+consume another parent-level WIP slot.
+
 ## Sub-issues and scope pressure
 
 Create a sub-issue when the work is required for the same parent outcome but can

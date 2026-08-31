@@ -168,3 +168,45 @@ change class, phase, workflow group, trigger description, and exclusions.
 - **AND** the Router SHALL NOT search for, install, or automatically execute
   external Skills
 - **AND** state-changing orchestrators SHALL retain their explicit human gates
+
+### Requirement: GitHub is the live coordination control plane
+
+Standard and architectural writes SHALL begin from an owning GitHub Issue and
+reach protected `main` through a pull request with required project checks.
+
+#### Scenario: A continuing outcome becomes ready to write
+
+- **WHEN** the owner approves a standard or architectural next action
+- **THEN** the work SHALL identify its Issue and current-context pointers
+- **AND** its branch SHALL use `codex/issue-<number>-<slug>` from current `main`
+- **AND** its pull request SHALL carry implementation, evidence,
+  reconciliation, risk, and follow-up state
+- **AND** direct push, force push, and branch deletion SHALL NOT bypass protected
+  `main`
+
+### Requirement: Work in progress remains bounded by outcome
+
+The small current team SHALL keep no more than one primary product-delivery
+parent Issue and one non-conflicting research or maintenance Issue in progress,
+except when a verified urgent Bug preempts normal work.
+
+#### Scenario: Another outcome is recorded in Backlog
+
+- **WHEN** an Issue is valuable but does not own the approved next action
+- **THEN** it SHALL remain in Backlog without a speculative branch or worktree
+- **AND** sub-issues and pull requests under the active parent SHALL NOT be
+  counted as additional parent-level work in progress
+
+### Requirement: Discussion recovery precedes workspace cleanup
+
+Unique committed, modified, or untracked work SHALL receive a recoverable Issue-
+linked checkpoint before its branch or worktree is removed.
+
+#### Scenario: A local discussion worktree is retired
+
+- **WHEN** the discussion has unique repository state
+- **THEN** the owner SHALL record the outcome and recovery revision in its Issue
+- **AND** verify the checkpoint exists remotely before deleting the local copy
+- **BUT WHEN** the worktree is clean with no unique commit
+- **THEN** the Issue MAY preserve the discussion boundary without a recovery
+  branch

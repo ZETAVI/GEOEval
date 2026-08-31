@@ -32,6 +32,13 @@ Classify the work:
 
 GitHub Issues track owner and status. They link to the change folder rather than copying it. Follow the [change-tracking contract](change-tracking.md) for Issue, sub-issue, pull request, commit, reopening, and follow-up rules.
 
+The live repository is [`ZETAVI/GEOEval`](https://github.com/ZETAVI/GEOEval).
+Start a standard or architectural write only after its Issue exists, then use
+`codex/issue-<number>-<slug>` and a pull request into protected `main`.
+Maintain at most one active product-delivery parent Issue and one
+non-conflicting research or maintenance Issue; leave other outcomes in Backlog
+without creating speculative worktrees.
+
 Before adding a durable design document, follow the [design-knowledge admission test](design-knowledge.md). Record the documentation impact as `none`, `update`, `add`, `move`, `merge`, `delete`, `generate`, or `supersede`.
 
 ## 3. Research before external design
