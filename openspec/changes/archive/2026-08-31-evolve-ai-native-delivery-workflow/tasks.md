@@ -22,8 +22,7 @@
 - [x] Merge the same governance commit into
   `codex/integrate-real-evaluation-providers`, verify that the five-file S6
   working diff remains byte-identical, and rerun framework verification.
-- [ ] Use the new Router, code review, and reconciliation contracts to review the
-  remaining S6 acceptance and branch exit through GitHub Issue #4 and its
-  delivery slices.
-- [ ] Reconcile this governance change into current owners and archive it after
-  both target branches consume the same accepted revision.
+- [x] Move remaining S6 review and branch exit to independent Issue #4,
+      Review Gates #6-#9, and Draft PR #20.
+- [x] Reconcile governance into current owners after `main` and the current S6
+      branch consume the accepted rules, then archive this Change.

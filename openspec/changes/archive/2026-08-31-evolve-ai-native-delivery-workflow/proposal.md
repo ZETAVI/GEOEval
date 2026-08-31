@@ -1,6 +1,6 @@
 # Change: Evolve the AI-Native Delivery Workflow
 
-- Status: Approved for project-governance implementation
+- Status: Completed, reconciled, and archived on 2026-08-31
 - Class: Architectural project-governance change
 - Decision owner: Project owner
 - Approval: 2026-08-31
@@ -37,14 +37,11 @@ validation for the new contracts. Product and runtime behavior do not change.
 
 ## Control State
 
-- Documentation: update current governance, process, templates, Skill catalog,
-  and navigation; keep this active change until `main` and the real-provider
-  branch both consume the same governance commit and the target continuation is
-  reviewed under it.
-- Workspace: branch `codex/ai-native-methodology-v2`, based on `main@aa48e96`,
-  worktree `/private/tmp/GEOEval-methodology-v2`, merge destination `main` first
-  and `codex/integrate-real-evaluation-providers` second. The S6 worktree remains
-  a separate writer and its dirty state is not touched.
+- Documentation: governance, process, templates, Skill catalog, and validation
+  are current owners. Remaining S6 review moved to Issue #4 and Draft PR #20.
+- Workspace: the historical methodology Branch/Worktree was integrated and
+  removed through Issue #1/#3. S6 now uses the independent Issue-owned Branch
+  `codex/issue-4-s6-real-provider-integration`.
 
 ## Approval Boundary
 
@@ -52,3 +49,10 @@ Repository-local governance files, templates, Skills, validation, local commits,
 and local branch integration are authorized. No remote push, external Issue/PR
 creation, product-owner acceptance, paid provider call, production change, or
 worktree cleanup is implied.
+
+## Final Disposition
+
+The accepted governance is on `main` and has been consumed by the current S6
+branch. S6 acceptance remains an independent outcome and cannot keep this
+completed governance Change active. Later Skill calibration is tracked by Issue
+#14 and governance migration debt by Issue #21.
