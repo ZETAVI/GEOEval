@@ -104,7 +104,7 @@
 - [x] Execute the provider-related part of the product-definition evolution
       marker by moving activated behavior to owner-local specs and leaving only
       index-level product meaning and links; do not split unrelated capabilities.
-- [ ] Rebuild the S6 commits on the protected GitHub `main` baseline and publish
+- [x] Rebuild the S6 commits on the protected GitHub `main` baseline and publish
       a Draft PR linked to Issues #4 and #6-#9 for bounded review.
 - [ ] Record final product-owner acceptance of the observed S6 result, create a
       verified integration checkpoint, and keep merge, production activation,
