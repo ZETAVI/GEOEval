@@ -16,7 +16,8 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
   pull request, the `AI Native 项目框架 CI` and `完整项目 CI` status checks,
   linear history, and resolved review conversations. Planning Status/Priority
   lives only in the [GEOEval Delivery Project](https://github.com/users/ZETAVI/projects/1);
-  governance migration is tracked by [Issue #21](https://github.com/ZETAVI/GEOEval/issues/21).
+  the initial governance migration closed through
+  [Issue #21](https://github.com/ZETAVI/GEOEval/issues/21).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
 - Active product changes: deterministic S1-S5 is retired as a completed Change;
   frontend presentation remains Issue #13, while real-provider S6 is tracked by

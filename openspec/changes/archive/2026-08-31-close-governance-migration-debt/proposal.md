@@ -1,6 +1,6 @@
 # Change: Close Governance Migration Debt
 
-- Status: Approved for governance reconciliation
+- Status: Completed through PR #22 and archived for final reconciliation
 - Class: Architectural project-governance change
 - Issue: [#21](https://github.com/ZETAVI/GEOEval/issues/21)
 - Decision owner: Project owner
@@ -53,3 +53,16 @@ fields/items, Issue owner/status/relationships, recoverable ref cleanup,
 commits, push, and PR are authorized. S6 acceptance, S6 merge, production,
 customer data, paid calls, deployment, and unrelated product work remain
 outside this Change.
+
+## Final Disposition
+
+- PR #22 merged the accepted governance into `main@3124d1b` with both Required
+  Checks passing.
+- `GEOEval Delivery` is the sole planning projection; every open Issue has an
+  Owner, Status, and Priority.
+- #4, #5, and #15 are independent Follow-ups; #6-#9 remain S6 Review Gates and
+  #4 was not advanced beyond Draft/Review state.
+- Stable Changes, superseded Recovery Branches, and protected Evidence received
+  explicit archive, retain, or exit states.
+- This archive records `remove-after-merge` for the reconciliation Worktree;
+  Issue #21 owns final GitHub cleanup evidence.
