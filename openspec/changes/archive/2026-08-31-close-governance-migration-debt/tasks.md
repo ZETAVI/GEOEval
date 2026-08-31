@@ -28,4 +28,7 @@
 - [x] Run framework, YAML, link, Diff, and complete project CI checks.
 - [x] Review the fixed Diff across intent, engineering, Evidence, and continuity;
       resolve the Review Gate and Delta Spec consistency findings.
-- [ ] Reconcile Project/Issues, archive this Change, merge the PR, and remove the Worktree.
+- [x] Merge governance implementation through PR #22 and reconcile repository
+      current owners.
+- [x] Archive this Change and record the reconciliation Worktree as
+      `remove-after-merge`; Issue #21 owns final removal evidence.
