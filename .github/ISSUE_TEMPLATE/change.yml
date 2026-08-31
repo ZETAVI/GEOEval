@@ -1,70 +1,84 @@
-name: Product or Engineering Change
-description: Propose and track a consequential behavior change
-title: "[Change]: "
+name: 产品或工程变更
+description: 提议并跟踪一项需要形成完整上下文与验收闭环的行为变化
+title: "[变更]: "
 labels:
   - change
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Problem overview
-      description: Who is affected, what problem matters, and why this change is worth doing now.
+      label: 问题概述
+      description: 谁受到影响、需要解决什么问题，以及为什么现在值得推进。
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: Current actual behavior and evidence
-      description: Describe what happens now. Link code, logs, screenshots, reports, or current specs that prove it.
+      label: 当前实际行为与问题证据
+      description: 说明系统当前实际发生什么，并链接能够证明它的代码、日志、截图、报告或当前态规范。
     validations:
       required: true
   - type: textarea
     id: outcome
     attributes:
-      label: Expected outcome
-      description: Describe the observable user, business, developer, or operational result. Do not prescribe implementation unless it is already an accepted boundary.
+      label: 期望目标
+      description: 说明可观察的用户、业务、开发或运维结果。除非实现边界已经确认，否则不要提前指定实现方案。
     validations:
       required: true
   - type: textarea
     id: scope
     attributes:
-      label: Scope and non-goals
+      label: 范围与非目标
+      description: 明确本次包含什么、不包含什么，避免在推进过程中持续扩张。
     validations:
       required: true
   - type: dropdown
     id: class
     attributes:
-      label: Initial change class
+      label: 初始变更等级
+      description: 按不确定性、影响范围和不可逆成本选择，而不是按代码行数选择。
       options:
-        - Trivial
-        - Standard
-        - Architectural
+        - 轻量（Trivial）
+        - 标准（Standard）
+        - 架构级（Architectural）
     validations:
       required: true
   - type: input
     id: spec
     attributes:
-      label: Change record
-      description: Link to openspec/changes/<change-id>/ when required.
+      label: Change 记录
+      description: 标准或架构级变更按需链接 openspec/changes/<change-id>/。
   - type: textarea
     id: decisions
     attributes:
-      label: Confirmed decisions and bounded assumptions
-      description: Record only decisions already accepted for this change. Candidate decisions remain in discussion until confirmed.
+      label: 已确认决定与有边界的假设
+      description: 只记录本次已经确认的决定；候选决定在确认前保留于讨论中。
   - type: textarea
     id: acceptance
     attributes:
-      label: Observable acceptance boundaries
-      description: Use independently verifiable behavior or evidence. Avoid implementation checklists.
+      label: 可观察的验收边界
+      description: 使用可独立验证的行为或证据，不要把实现步骤当作验收标准。
     validations:
       required: true
   - type: textarea
     id: context
     attributes:
-      label: Current-context and evidence pointers
-      description: Link the current spec, design owner, ADR, source brief, or prior evidence. Do not copy their contents.
+      label: 当前态上下文与证据入口
+      description: 链接当前规范、设计权威、ADR、来源简报或既有证据，不复制其全文。
   - type: textarea
     id: slices
     attributes:
-      label: Delivery slices and dependencies
-      description: Link sub-issues only when the parent outcome needs independently verifiable vertical slices.
+      label: 交付切片与依赖
+      description: 只有父目标确实需要可独立验收的垂直切片时，才链接 Sub-Issue。
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: 提交前 Checklist
+      description: 确认 Issue 已具备足够、准确且与本次变化相关的上下文。
+      options:
+        - label: 已区分当前实际行为、期望目标、范围与非目标
+          required: true
+        - label: 已提供可验证的验收边界，而不是只列实现任务
+          required: true
+        - label: 已链接现有规范、代码或证据；不存在时已明确说明
+          required: true

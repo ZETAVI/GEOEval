@@ -1,5 +1,5 @@
-name: Bug Report
-description: Verify, diagnose, and track a defect without mixing diagnosis with unauthorized repair
+name: Bug 缺陷报告
+description: 验证、诊断并跟踪缺陷，避免将诊断与未经确认的修复混在一起
 title: "[Bug]: "
 labels:
   - bug
@@ -7,35 +7,46 @@ body:
   - type: textarea
     id: problem
     attributes:
-      label: Problem overview
-      description: Who is affected and what capability is failing?
+      label: 问题概述
+      description: 谁受到影响，哪项能力发生了故障？
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: Current actual behavior
-      description: Include exact symptoms, frequency, environment, and available evidence.
+      label: 当前实际行为
+      description: 包含准确症状、发生频率、运行环境和已有证据。
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Expected behavior
+      label: 期望行为
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
-      label: Reproduction or feedback loop
-      description: Provide the smallest known trigger, or state what evidence is still needed.
+      label: 复现方式或反馈闭环
+      description: 提供当前已知的最小触发条件，或明确还缺少什么证据。
   - type: textarea
     id: impact
     attributes:
-      label: Impact and boundaries
-      description: State affected users/data and any production, security, cost, or destructive boundary.
+      label: 影响与边界
+      description: 说明受影响的用户、数据，以及生产、安全、成本或破坏性操作边界。
   - type: textarea
     id: acceptance
     attributes:
-      label: Fix acceptance and regression evidence
-      description: Complete after diagnosis establishes the repair boundary. Diagnosis alone does not authorize implementation.
+      label: 修复验收与回归证据
+      description: 在诊断明确修复边界后填写；完成诊断本身不等于已经授权实施修复。
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: 提交前 Checklist
+      options:
+        - label: 已记录准确症状、环境和当前已有证据
+          required: true
+        - label: 已区分观察事实、诊断假设和修复建议
+          required: true
+        - label: 已说明无法复现或证据仍不足的部分
+          required: true

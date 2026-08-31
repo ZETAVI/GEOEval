@@ -1,42 +1,53 @@
-name: Delivery Slice
-description: Track one independently verifiable vertical slice of a parent outcome
-title: "[Slice]: "
+name: 可独立验收的交付切片
+description: 跟踪一个能够独立验证并服务于父目标的垂直切片
+title: "[子任务]: "
 labels:
   - change
 body:
   - type: input
     id: parent
     attributes:
-      label: Parent Issue
-      description: Link the parent outcome this slice contributes to.
+      label: 父 Issue
+      description: 链接本切片所服务的父目标。
     validations:
       required: true
   - type: textarea
     id: outcome
     attributes:
-      label: End-to-end delivery result
-      description: What behavior can be demonstrated or verified when this slice lands?
+      label: 端到端交付结果
+      description: 本切片完成后，能够演示或验证什么完整行为？
     validations:
       required: true
   - type: textarea
     id: scope
     attributes:
-      label: Scope and non-goals
+      label: 范围与非目标
     validations:
       required: true
   - type: textarea
     id: blockers
     attributes:
-      label: Blocked by
-      description: Link only dependencies that genuinely prevent this slice from starting or completing.
+      label: 阻塞依赖
+      description: 只链接真正阻止本切片开始或完成的依赖。
   - type: textarea
     id: acceptance
     attributes:
-      label: Acceptance criteria
+      label: 验收标准
     validations:
       required: true
   - type: textarea
     id: impact
     attributes:
-      label: Current truth and evidence impact
-      description: Name affected specs, schemas, tests, runtime paths, or documentation owners.
+      label: 当前态与证据影响
+      description: 列出受影响的规范、Schema、测试、运行路径或文档权威。
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: 提交前 Checklist
+      options:
+        - label: 本切片能够形成独立、可验证的结果
+          required: true
+        - label: 已链接父 Issue，并且没有复制父 Issue 的全部内容
+          required: true
+        - label: 已明确依赖、范围及受影响的当前态事实
+          required: true
