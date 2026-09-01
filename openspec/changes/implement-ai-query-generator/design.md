@@ -281,6 +281,43 @@ current proposal keeps candidate exploration inside one call and outside the
 business model so Prompt iteration can compare angles without exposing a new
 customer workflow.
 
+## Controlled Query quality review
+
+The first authorized real validation reviews Query generation by itself before
+paying for or interpreting twenty platform samples. It uses three
+representative evaluation-ready profiles:
+
+| Profile | Purpose | Boundary |
+| --- | --- | --- |
+| 互动派科技股份有限公司 | Professional-service and B2B demand language, natural shortening of a legal company name, and two distinct service characteristics | Authorized profile; exact four selected questions require product-owner review |
+| One fictional local storefront | Consumer, nearby-discovery, and concrete storefront-characteristic language | No claim about a real business; Query generation only |
+| One fictional consumer-product brand | Product comparison, suitability, and non-storefront discovery language | No claim about a real product; Query generation only |
+
+Human review uses one `Accept` or `Revise Prompt` outcome rather than a numeric
+quality score or Critic Agent. Each generated set is checked for:
+
+- a natural target name and a broad but non-checklist brand-directed question;
+- an industry question that remains open and does not force the target brand;
+- two characteristic questions that express distinct real needs rather than
+  restating profile fields;
+- varied, ordinary phrasing across direct search, need-first, decision, project,
+  or pain-point forms without requiring every form in every set;
+- no invented budget, audience, scale, effect promise, fact, or external brand
+  information;
+- two or three candidates per role, selected-question membership, and the
+  accepted structural and target-name invariants.
+
+Evidence retains the frozen instruction identity and content, exact resolved
+input, complete protected candidates, selected four questions, route and model,
+attempt status, latency, and available usage. Product review sees the input and
+questions, not credentials, raw provider envelopes, traces, or internal error
+details.
+
+Only an accepted Query set for 互动派 may advance to the separately authorized
+four-by-five evaluation. A `Revise Prompt` result changes the versioned Prompt
+or examples and reruns only the smallest affected Query-only profile; it does
+not automatically call the five sampling platforms.
+
 ## Documentation disposition
 
 - `update`: the evaluation-definition current spec after behavior is accepted.
