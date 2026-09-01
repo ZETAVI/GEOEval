@@ -138,8 +138,15 @@ telemetry exporter.
 - **AND** acquisition retries the same platform route
 - **AND** interpretation uses Model Studio Qwen3.8 Flash for attempts one and
   two and TokenHub Hy3 for attempt three
+- **AND** Qwen interpretation uses low reasoning effort while independently
+  owned Query generation and overall synthesis retain medium reasoning effort
 - **AND** a structured response affects accepted interpretation only after GEO's
   deterministic projection and canonical semantic validation succeed
+- **AND** deterministic projection may remove unsupported optional observations
+  or other-brand records, deduplicate other brands, bound observation groups,
+  and normalize incomplete optional positions to no position
+- **BUT** it never invents target forms, fuzzy evidence, or an open-query
+  position, and missing metric-critical evidence still rejects the attempt
 
 ### Requirement: Protected and non-blocking execution observability
 
@@ -236,10 +243,14 @@ the customer understand the current outcome.
 
 ## Current environment boundary
 
-The business contract remains reproducible with deterministic adapters. One
-complete fictional real 4-by-5 Worker run accepted all twenty platform answers
-on their first acquisition attempts and completed through the reviewed
-Qwen3.8-primary/Hy3-fallback interpretation policy. This proves route and
-recovery compatibility only. Provider-console cost reconciliation, production
-pacing and quota evidence, commercial data approval, and production Redis high
-availability remain later gates.
+The business contract remains reproducible with deterministic adapters. Two
+authorized local 4-by-5 runs acquired all forty platform answers but originally
+used seventy-seven interpretation attempts. Protected-output replay with the
+current projector would accept all forty samples with forty-two attempts while
+preserving the first run's zero open mentions and grounding one previously
+discarded Starbucks mention in literal answer evidence. Four Parser-only real
+calls using the shortened Prompt and low reasoning were accepted in one attempt
+each, with an average observed latency of about nineteen seconds. These results
+prove local parser/recovery compatibility only. Provider-console cost
+reconciliation, production pacing and quota evidence, commercial data approval,
+and production Redis high availability remain later gates.

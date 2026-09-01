@@ -179,16 +179,20 @@ S6 adds explicit deterministic versus real Worker composition, one-call durable
 attempt ownership, provider-specific transport adapters, truthful search and
 source evidence, optional masked Langfuse telemetry, and ambiguity recovery
 without another workflow engine or attempt store. Sampling keeps its five
-accepted platform routes. Per-sample interpretation and overall synthesis use
-Model Studio Qwen3.8 Flash for attempts one and two with `medium` reasoning
-effort, then TokenHub Hy3 as the third-attempt fallback. Query preparation now
-reuses the same semantic route order with its own smaller model contract.
+accepted platform routes. Per-sample interpretation uses Model Studio Qwen3.8
+Flash for attempts one and two with `low` reasoning effort, then TokenHub Hy3 as
+the third-attempt fallback. Query generation and overall synthesis keep Qwen3.8
+Flash at `medium` because they own broader generative judgment.
 
 Semantic provider contracts are deliberately smaller than the canonical GEO
 contracts: models return evidence-linked semantic facts, while deterministic
-projectors assign internal IDs, repair only owner-controlled references, retain
-ungrouped brand mentions, and run the existing strict domain validation before
-acceptance. Default parser and synthesis calls do not use web search. Overall
+projectors assign internal IDs, retain only literal answer anchors, remove
+unsupported optional observations or other brands, normalize incomplete
+optional positions to no position, retain ungrouped brand mentions, and run the
+existing strict domain validation before acceptance. Target mention and
+open-query position remain hard evidence boundaries; the projector does not
+fuzzy-match or invent either. Default parser and synthesis calls do not use web
+search. Overall
 synthesis summarizes sampled platform perception rather than investigating
 real-world brand facts; it groups only obvious name relations from answer
 context and leaves uncertain names separate. Add a web-backed resolver only if
@@ -210,6 +214,16 @@ Qwen execution, and final Web display. Exact frozen-projection replays passed
 Qwen3.8 Flash for all three types and Hy3 for the restaurant fallback. Together
 with the earlier recovered timeout, this supports the existing recovery order
 and Prompt semantics, not production latency or capacity.
+
+Direct-question parser projection tolerance is owned by
+[#32](https://github.com/ZETAVI/GEOEval/issues/32). Two
+authorized runs originally used seventy-seven interpretation attempts for forty
+samples; protected-output replay with the simplified projector needs forty-two,
+accepts every sample, preserves the first run's zero open mentions, and restores
+one literal-evidence Starbucks mention discarded by the old optional-detail
+failure. Four low-reasoning Parser-only real calls were accepted on their first
+attempt at about nineteen seconds average latency. The 17/20 report boundary
+remains unchanged.
 
 ## Architecture qualities
 
