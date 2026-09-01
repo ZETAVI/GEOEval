@@ -22,6 +22,7 @@
 - [x] Run the project framework validator and Diff Check.
 - [x] Review the fixed Diff for instruction clarity, scope, and evidence
       continuity.
-- [ ] Open the final PR with `Closes #29` and wait for requested review results.
+- [x] Open final PR #30 with `Closes #29`; record the unavailable automatic
+      review and the completed fixed-Diff replacement review.
 - [ ] Reconcile the accepted Change, Issue/Project state, and Worktree exit after
       merge approval.

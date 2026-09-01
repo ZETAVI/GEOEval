@@ -1,6 +1,6 @@
 # Change: Normalize Native Issue and Final PR Links
 
-- Status: Approved and in progress
+- Status: Review / Decision in PR #30
 - Class: Standard project-governance change
 - Issue: [#29](https://github.com/ZETAVI/GEOEval/issues/29)
 - Decision owner: Project owner
