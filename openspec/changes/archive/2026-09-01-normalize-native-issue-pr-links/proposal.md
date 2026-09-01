@@ -1,6 +1,6 @@
 # Change: Normalize Native Issue and Final PR Links
 
-- Status: Review / Decision in PR #30
+- Status: Accepted and archived for integration through PR #30
 - Class: Standard project-governance change
 - Issue: [#29](https://github.com/ZETAVI/GEOEval/issues/29)
 - Decision owner: Project owner
@@ -37,10 +37,12 @@ live GitHub state.
 
 ## Control State
 
-- Project: Issue #29 in `GEOEval Delivery`, Status `In Progress`, Priority `P1`.
+- Project: Issue #29 in `GEOEval Delivery`, Status `Review / Decision`, Priority
+  `P1`; PR #30 owns the final acceptance transaction.
 - Branch: `codex/issue-29-native-issue-pr-links` from current protected `main`.
-- Exit: final PR reviewed and merged, Issue/Project reconciled, Change archived,
-  and Worktree removed.
+- Exit: PR #30 is authorized for squash merge; its native closing relationship
+  closes Issue #29, Project automation moves it to `Done`, and the Worktree is
+  removed only after the merged revision is verified on `main`.
 
 ## Approval Boundary
 
@@ -48,3 +50,15 @@ The repository process, current governance spec, PR template, validator,
 bounded historical Development relationships, commits, push, and pull request
 are approved. Product behavior, production, deployment, and unrelated Issue
 state remain outside this Change.
+
+## Final Disposition
+
+- The current Change Tracking owner, Project Governance Spec, PR template, and
+  existing validator contain the accepted relationship and Review rules.
+- Historical native Development relationships are limited to #1/#21→#23,
+  #4→#20, #10→#25, and #15→#24; Review Gates retain ordinary references.
+- The `acceptedAttemptId` observation is not a reachable #4 defect in the
+  current call path. Issue #29 records the trigger for a new maintenance Issue
+  if a new caller, production-hardening need, or reproducible mismatch appears.
+- PR #30 has a completed fixed-Diff review with no must-fix finding and both
+  Required Checks passing. Release disposition remains `release:skip`.

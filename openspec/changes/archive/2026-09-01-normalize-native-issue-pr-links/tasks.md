@@ -24,5 +24,6 @@
       continuity.
 - [x] Open final PR #30 with `Closes #29`; record the unavailable automatic
       review and the completed fixed-Diff replacement review.
-- [ ] Reconcile the accepted Change, Issue/Project state, and Worktree exit after
-      merge approval.
+- [x] Reconcile the accepted Change into current owners, archive it after merge
+      approval, and record Issue/Project closure plus Worktree removal as
+      merge-triggered exit checks.
