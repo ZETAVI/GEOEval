@@ -25,6 +25,7 @@ import type {
   EvaluationBrandSnapshot,
   EvaluationQuestionKind,
 } from "../../geo-intelligence/domain/evaluation.types.js";
+import { evaluationBrandTextContext } from "../../geo-intelligence/domain/evaluation-brand-snapshot.js";
 import {
   EVALUATION_OBJECTIVITY_PROFILE,
   EVALUATION_PLATFORM_POLICY,
@@ -188,6 +189,7 @@ function samplingSmokeBatch(): S6ControlledBatch {
       "成功响应无法形成有效采样证据",
     ],
     cases: EVALUATION_PLATFORM_POLICY.map((platform, index) => {
+      const brand = evaluationBrandTextContext(FICTIONAL_BRAND);
       const route = requiredRoute(platform.routePolicyId);
       if (route.requestedModel !== platform.model) {
         throw new Error(`Sampling model drift for ${platform.routePolicyId}`);
@@ -204,12 +206,12 @@ function samplingSmokeBatch(): S6ControlledBatch {
         input: {
           taskKind: "EVALUATION_ACQUISITION",
           systemInstruction: EVALUATION_OBJECTIVITY_PROFILE.content,
-          companyName: FICTIONAL_BRAND.companyName,
+          companyName: brand.companyName,
           query: FIXED_QUESTIONS[2]!.content,
           questionOrdinal: 3,
           platformLabel: platform.label,
-          province: FICTIONAL_BRAND.province,
-          city: FICTIONAL_BRAND.city,
+          province: brand.province,
+          city: brand.city,
         },
       };
       return {
@@ -260,6 +262,7 @@ function parserCase(
   attemptNumber: number,
 ): S6ControlledCase {
   const fixture = parserFixture(fixtureId);
+  const brand = evaluationBrandTextContext(FICTIONAL_BRAND);
   const route = requiredRoute(routePolicyId);
   const request: AiAttemptRequest = {
     runId: fixedUuid(11),
@@ -271,12 +274,12 @@ function parserCase(
     requestedModel: route.requestedModel,
     correlationId: fixedUuid(13),
     input: buildSampleParserTask({
-      companyName: FICTIONAL_BRAND.companyName,
-      primaryIndustry: FICTIONAL_BRAND.primaryIndustry,
-      secondaryIndustry: FICTIONAL_BRAND.secondaryIndustry,
-      region: `${FICTIONAL_BRAND.province}${FICTIONAL_BRAND.city}${FICTIONAL_BRAND.district}`,
-      characteristicOne: FICTIONAL_BRAND.characteristicOne,
-      characteristicTwo: FICTIONAL_BRAND.characteristicTwo,
+      companyName: brand.companyName,
+      primaryIndustry: brand.primaryIndustry,
+      secondaryIndustry: brand.secondaryIndustry,
+      region: `${brand.province}${brand.city}${brand.terminalRegion}`,
+      characteristicOne: brand.characteristicOne,
+      characteristicTwo: brand.characteristicTwo,
       questionKind: fixture.questionKind,
       question: fixture.question,
       originalAnswer: fixture.originalAnswer,

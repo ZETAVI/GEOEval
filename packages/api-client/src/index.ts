@@ -17,19 +17,15 @@ export type EvaluationReportHistory =
 export type Notification = components["schemas"]["NotificationResponse"];
 export type NotificationList =
   components["schemas"]["NotificationListResponse"];
+export type IndustryCatalog = components["schemas"]["IndustryCatalogResponse"];
+export type RegionOptionList =
+  components["schemas"]["RegionOptionListResponse"];
+export type CityRegionOptionList =
+  components["schemas"]["CityRegionOptionListResponse"];
+export type TerminalRegionOptionList =
+  components["schemas"]["TerminalRegionOptionListResponse"];
 
-export type BrandMutation = {
-  companyName?: string | null;
-  primaryIndustry?: string | null;
-  secondaryIndustry?: string | null;
-  characteristicOne?: string | null;
-  characteristicTwo?: string | null;
-  province?: string | null;
-  city?: string | null;
-  district?: string | null;
-  contactName?: string | null;
-  contactMobile?: string | null;
-};
+export type BrandMutation = components["schemas"]["BrandMutationRequest"];
 
 async function apiRequest<T>(
   apiBaseUrl: string,
@@ -86,6 +82,45 @@ export function logout(apiBaseUrl: string): Promise<void> {
 
 export function listBrands(apiBaseUrl: string): Promise<Brand[]> {
   return apiRequest(apiBaseUrl, "/brands", { cache: "no-store" });
+}
+
+export function getIndustryCatalog(
+  apiBaseUrl: string,
+): Promise<IndustryCatalog> {
+  return apiRequest(apiBaseUrl, "/brand-reference-data/industries", {
+    cache: "force-cache",
+  });
+}
+
+export function listProvinceRegions(
+  apiBaseUrl: string,
+): Promise<RegionOptionList> {
+  return apiRequest(apiBaseUrl, "/brand-reference-data/regions/provinces", {
+    cache: "force-cache",
+  });
+}
+
+export function listCityRegions(
+  apiBaseUrl: string,
+  provinceId: string,
+): Promise<CityRegionOptionList> {
+  return apiRequest(
+    apiBaseUrl,
+    `/brand-reference-data/regions/provinces/${encodeURIComponent(provinceId)}/cities`,
+    { cache: "force-cache" },
+  );
+}
+
+export function listTerminalRegions(
+  apiBaseUrl: string,
+  provinceId: string,
+  cityId: string,
+): Promise<TerminalRegionOptionList> {
+  return apiRequest(
+    apiBaseUrl,
+    `/brand-reference-data/regions/provinces/${encodeURIComponent(provinceId)}/cities/${encodeURIComponent(cityId)}/terminals`,
+    { cache: "force-cache" },
+  );
 }
 
 export function createBrand(

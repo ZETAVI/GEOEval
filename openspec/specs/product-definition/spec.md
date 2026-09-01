@@ -13,7 +13,10 @@
 - Completed extraction: S6 provider execution, protected provider evidence,
   semantic route recovery, and public report projection are owned by the
   [evaluation-evidence](../evaluation-evidence/spec.md) and
-  [evaluation-report](../evaluation-report/spec.md) specifications. This marker
+  [evaluation-report](../evaluation-report/spec.md) specifications. Controlled
+  industry and mainland-region selection, Brand readiness, fingerprint meaning,
+  and the evaluation-purpose projection are owned by the
+  [Brand Knowledge specification](../brand-knowledge/spec.md). This marker
   remains for product capabilities that have not yet gained an activated owner.
 
 ## Requirements
@@ -304,14 +307,11 @@ are outside the initial product boundary.
 #### Scenario: A customer prepares the current brand for evaluation
 
 - **WHEN** the customer wants to start AI diagnosis or evaluation
-- **THEN** the current brand requires a primary industry, dependent secondary
-  industry, two free-text brand characteristics, company or store name,
-  province-city-district or town region, contact person, and mobile number
-- **AND** the industry pair comes from the approved GEOEval-owned catalog and
-  represents the product or service for which the brand most wants to be found
-  and recommended
-- **AND** selecting an `Other` secondary category also requires a concise,
-  concrete product-or-service phrase
+- **THEN** the current brand satisfies the controlled industry, mainland-region,
+  `Other`, company/store name, two-characteristic, contact, and mobile readiness
+  rules owned by the [Brand Knowledge specification](../brand-knowledge/spec.md)
+- **AND** the selected industry represents the product or service for which the
+  brand most wants to be found and recommended
 - **AND** the registration mobile number is prefilled but remains editable
 - **AND** evaluation cannot begin until those fields are complete
 - **AND** the customer can save the brand and continue to either AI diagnosis or
@@ -410,6 +410,9 @@ are outside the initial product boundary.
 The product SHALL use the approved, versioned GEOEval
 [industry catalog](../../../docs/product/industry-catalog.md) to express one
 coherent product-or-service recommendation context for the current brand.
+Exact source ownership, dependent selection, `Other`, mainland-region,
+readiness, and fingerprint behavior are defined once by the
+[Brand Knowledge specification](../brand-knowledge/spec.md).
 
 #### Scenario: A mixed business chooses its evaluation focus
 
@@ -422,60 +425,6 @@ coherent product-or-service recommendation context for the current brand.
   classified activity
 - **AND** legal form, production method, and sales channel do not override the
   intended recommendation scenario
-
-#### Scenario: A listed secondary category fits the brand
-
-- **WHEN** the customer selects a primary industry
-- **THEN** only the active secondary categories owned by that primary industry
-  are available
-- **AND** the saved selection uses the catalog's stable primary and secondary
-  identifiers
-- **AND** local restaurants, beauty, pets, fitness, and vehicle maintenance
-  remain secondary categories under local life and storefront services
-
-#### Scenario: The catalog lacks the exact product or service
-
-- **WHEN** the customer selects the `Other` secondary category under any primary
-- **THEN** the customer must provide a concise, concrete product-or-service
-  phrase before the brand becomes evaluation-ready
-- **AND** the generic word `Other` alone is not valid question context
-- **AND** the supplied phrase participates in question generation and the
-  evaluation-input snapshot without becoming a new catalog category
-
-#### Scenario: The maintained catalog changes
-
-- **WHEN** a display name, search alias, example, ordering, availability, or
-  category set changes
-- **THEN** published stable identifiers are not renumbered, reassigned, or
-  reused for different meanings
-- **AND** aliases help find candidate categories but do not create stored
-  categories or silently choose an ambiguous match
-- **AND** the change receives the version update required by the catalog's
-  compatibility rules
-- **AND** catalog maintenance alone does not create a new evaluation-input
-  revision, question set, or evaluation opportunity for an unchanged brand
-- **AND** an existing saved selection is not silently remapped to another
-  category
-
-#### Scenario: A future boundary change would reinterpret a saved selection
-
-- **WHEN** a proposed catalog change would alter the semantic meaning of an
-  existing category or its recommendation subject
-- **THEN** the change requires a separately approved compatibility and migration
-  decision
-- **AND** it either preserves the earlier meaning for the saved selection or
-  asks the customer to confirm a new profile selection
-- **AND** a customer-confirmed selection change follows the ordinary
-  evaluation-input revision rule
-
-#### Scenario: A regulated business selects an industry
-
-- **WHEN** a medical, health, financial, educational, or other regulated
-  business selects a matching category
-- **THEN** the selection supplies product and recommendation context only
-- **AND** it does not verify licenses, credentials, product registration,
-  eligibility, or legal compliance
-- **AND** later user-notice or agreement controls remain separately owned
 
 ### Requirement: Controlled evaluation-question generation
 

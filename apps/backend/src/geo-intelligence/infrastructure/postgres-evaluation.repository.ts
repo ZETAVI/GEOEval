@@ -5,11 +5,11 @@ import { z } from "zod";
 
 import type { Prisma } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
+import { parseEvaluationBrandSnapshot } from "../domain/evaluation-brand-snapshot.js";
 import type { EvaluationRepository } from "../domain/evaluation.repository.js";
 import { sampleWorkRequestedEvent } from "../domain/evaluation-process.events.js";
 import { synthesisRequestedEvent } from "../domain/evaluation-synthesis.events.js";
 import type {
-  EvaluationBrandSnapshot,
   EvaluationDefinitionInput,
   EvaluationDefinitionView,
   EvaluationPlatformPolicy,
@@ -341,17 +341,6 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
   }
 }
 
-const snapshotSchema = z.object({
-  companyName: z.string(),
-  primaryIndustry: z.string(),
-  secondaryIndustry: z.string(),
-  characteristicOne: z.string(),
-  characteristicTwo: z.string(),
-  province: z.string(),
-  city: z.string(),
-  district: z.string(),
-});
-
 const platformSchema = z.array(
   z.object({
     key: z.string(),
@@ -362,8 +351,8 @@ const platformSchema = z.array(
   }),
 );
 
-function parseSnapshot(value: Prisma.JsonValue): EvaluationBrandSnapshot {
-  return snapshotSchema.parse(value);
+function parseSnapshot(value: Prisma.JsonValue) {
+  return parseEvaluationBrandSnapshot(value);
 }
 
 function parsePlatforms(value: Prisma.JsonValue): EvaluationPlatformPolicy[] {

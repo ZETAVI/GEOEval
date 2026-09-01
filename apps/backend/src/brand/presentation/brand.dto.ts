@@ -5,10 +5,13 @@ export class BrandMutationRequest {
   companyName?: string | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
-  primaryIndustry?: string | null;
+  primaryIndustryId?: string | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
-  secondaryIndustry?: string | null;
+  secondaryIndustryId?: string | null;
+
+  @ApiPropertyOptional({ type: String, nullable: true, maxLength: 60 })
+  otherProductOrService?: string | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   characteristicOne?: string | null;
@@ -17,13 +20,13 @@ export class BrandMutationRequest {
   characteristicTwo?: string | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
-  province?: string | null;
+  provinceRegionId?: string | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
-  city?: string | null;
+  cityRegionId?: string | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
-  district?: string | null;
+  terminalRegionId?: string | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   contactName?: string | null;
@@ -41,6 +44,28 @@ export class BrandResponse extends BrandMutationRequest {
 
   @ApiProperty({ type: String })
   companyName!: string;
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  primaryIndustryLabel!: string | null;
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  secondaryIndustryLabel!: string | null;
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  provinceRegionLabel!: string | null;
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  cityRegionLabel!: string | null;
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  terminalRegionLabel!: string | null;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    enum: ["COUNTY", "TOWNSHIP"],
+  })
+  terminalRegionLevel!: string | null;
 
   @ApiProperty({ type: Boolean })
   readyForEvaluation!: boolean;

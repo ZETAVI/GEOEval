@@ -3,6 +3,10 @@ import { z } from "zod";
 
 import type { Prisma } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
+import {
+  evaluationBrandTextContext,
+  parseEvaluationBrandSnapshot,
+} from "../domain/evaluation-brand-snapshot.js";
 import type { EvaluationProcessRepository } from "../domain/evaluation-process.repository.js";
 import {
   evaluationReadinessRequestedEvent,
@@ -30,17 +34,6 @@ const platformPolicySchema = z.array(
     model: z.string(),
   }),
 );
-
-const brandSnapshotSchema = z.object({
-  companyName: z.string().min(1),
-  primaryIndustry: z.string(),
-  secondaryIndustry: z.string(),
-  characteristicOne: z.string(),
-  characteristicTwo: z.string(),
-  province: z.string(),
-  city: z.string(),
-  district: z.string(),
-});
 
 @Injectable()
 export class PostgresEvaluationProcessRepository implements EvaluationProcessRepository {
@@ -119,7 +112,7 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
     if (!platform) {
       throw new Error(`No platform policy for sample ${sample.id}`);
     }
-    const snapshot = brandSnapshotSchema.parse(
+    const snapshot = parseEvaluationBrandSnapshot(
       sample.run.definition.brandSnapshot,
     );
     return {
@@ -127,7 +120,7 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
       cycleId,
       sampleId: sample.id,
       status: sample.status,
-      companyName: snapshot.companyName,
+      companyName: evaluationBrandTextContext(snapshot).companyName,
       brandSnapshot: snapshot,
       query: sample.question.content,
       questionKind: sample.question.kind,
@@ -391,14 +384,14 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
           "Evidence exhaustion lost its eligible lifecycle state",
         );
       }
-      const snapshot = brandSnapshotSchema.parse(
+      const snapshot = parseEvaluationBrandSnapshot(
         lifecycle.run.definition.brandSnapshot,
       );
       await transaction.productOutboxEvent.create({
         data: evaluationRetryRequiredEvent({
           accountId: lifecycle.run.accountId,
           brandId: lifecycle.run.brandId,
-          brandName: snapshot.companyName,
+          brandName: evaluationBrandTextContext(snapshot).companyName,
           runId,
           cycleId,
           stage: "EVIDENCE",

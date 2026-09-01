@@ -20,45 +20,46 @@
 
 ## Executable reference sources
 
-- [ ] Mechanically extract the approved 13/199 industry nodes into the single
+- [x] Mechanically extract the approved 13/199 industry nodes into the single
       Brand-owned executable source and prove exact equivalence before removing
       the hand-maintained list.
-- [ ] Add catalog startup/test validation and generate the complete Markdown
+- [x] Add catalog startup/test validation and generate the complete Markdown
       reference from the executable source.
-- [ ] Build the controlled MCA importer against documented interfaces, record
+- [x] Build the controlled MCA importer against documented interfaces, record
       the source manifest and hashes, prove complete mainland four-level import,
       and stop if the required data contract or reuse boundary is not available.
-- [ ] Add region integrity validation, presentation projection, retained
+- [x] Add region integrity validation, presentation projection, retained
       historical identity, and special fixtures for municipalities, province-
       direct counties, and the four confirmed no-county cities.
 
 ## Brand, API, and Web vertical slice
 
-- [ ] Add complete two-level industry and three-level region persistence,
+- [x] Add complete two-level industry and three-level region persistence,
       conditional 2-60-character `Other`, readiness validation, and fixed
       version-2 fingerprint vectors.
-- [ ] Add separate Brand-owned industry and region queries plus structured
+- [x] Add separate Brand-owned industry and region queries plus structured
       create/update/response DTOs; regenerate OpenAPI and remove the handwritten
       `BrandMutation` duplicate.
-- [ ] Add the versioned evaluation-purpose projection and central legacy/new
+- [x] Add the versioned evaluation-purpose projection and central legacy/new
       snapshot decoder; make all GEO persistence and processing readers reuse it.
-- [ ] Reuse one responsive controlled field group in registration and Brand
+- [x] Reuse one responsive controlled field group in registration and Brand
       editing, with parent reset, loading/disabled, desktop,
       narrow-screen, keyboard, and mobile behavior.
 
 ## Migration and verification
 
-- [ ] Add an additive development migration with empty/exact preflight,
+- [x] Add an additive development migration with empty/exact preflight,
       complete stable-ID backfill, atomic Brand/Definition/Run key continuity,
       legacy snapshot preservation, and pre-write aborts for unexpected,
       ambiguous, or colliding data.
-- [ ] Replay the migration from a clean database and fixtures for an exact
-      current Brand, unstarted Definition, completed Run/report, an unexpected
-      value, and a candidate collision; record before/after counts.
-- [ ] Prove label/version/recommendation-subject/contact edits do not change the
+- [x] Replay the migration through the project migration command on a clean
+      database and through exact Brand/Definition/Run, unexpected-value, and
+      candidate-collision fixtures; record key continuity and transaction
+      rollback. Report rows are not rewritten by this migration.
+- [x] Prove label/version/recommendation-subject/contact edits do not change the
       fingerprint while semantic stable-ID, `Other`, characteristic, or company
       changes do.
-- [ ] Prove existing Definition eligibility, Run retry/resume, report history,
+- [x] Prove existing Definition eligibility, Run retry/resume, report history,
       and changed-information projection remain correct across exact migration.
 - [ ] Run typecheck, tests, build, OpenAPI generation, project-framework
       validation, diff checks, and browser visual/interaction verification.
@@ -67,9 +68,9 @@
 
 ## Reconcile and exit
 
-- [ ] Move industry nodes to the executable owner, generate the readable
+- [x] Move industry nodes to the executable owner, generate the readable
       reference, and remove the catalog `move-on-activation` marker.
-- [ ] Reconcile accepted behavior into the current Brand Knowledge spec,
+- [x] Reconcile accepted behavior into the current Brand Knowledge spec,
       product-definition index, evaluation-definition seam, and architecture
       overview; resolve every touched evolution marker.
 - [ ] Open and verify the #27 PR, record source provenance and skipped

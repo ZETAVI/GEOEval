@@ -429,14 +429,20 @@ Interaction rules:
 - choosing a primary industry clears the secondary and `Other` value;
 - choosing a secondary outside the selected primary is impossible in the UI
   and rejected by the server;
-- choosing `Other` reveals one labeled concrete product/service input; leaving
-  `Other` clears it after confirmation only if user-entered text would be lost;
+- every secondary `Other` option renders as the concise customer-facing label
+  `其他` while retaining its distinct stable ID and full catalog label;
+- choosing `Other` turns the secondary field into one fused select-and-input
+  control with an always-visible 2-60-character hint rather than adding a
+  separate field below it; leaving `Other` clears the phrase after confirmation
+  only if user-entered text would be lost;
 - choosing a province clears city/group and terminal choices;
 - choosing a city/group clears the terminal choice;
 - downstream selects are disabled until the parent is selected and while
   options load;
-- wide screens use aligned fields and narrow screens stack them; native controls
-  retain platform pickers and visible labels.
+- wide screens give long industry and region prompts sufficient readable width;
+  the fused `Other` row can occupy the full form width, and narrow screens stack
+  fields without horizontal overflow; native controls retain platform pickers
+  and visible labels.
 
 The full region tree never enters the initial JavaScript bundle. The Web loads
 bounded child choices and keeps no second data source. Search, autocomplete,

@@ -228,6 +228,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/brand-reference-data/industries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BrandReferenceController_industries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brand-reference-data/regions/provinces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BrandReferenceController_provinces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brand-reference-data/regions/provinces/{provinceId}/cities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BrandReferenceController_cities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brand-reference-data/regions/provinces/{provinceId}/cities/{cityId}/terminals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BrandReferenceController_terminals"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/brands/{brandId}/evaluation-report": {
         parameters: {
             query?: never;
@@ -434,18 +498,26 @@ export interface components {
         };
         BrandResponse: {
             companyName?: string | null;
-            primaryIndustry?: string | null;
-            secondaryIndustry?: string | null;
+            primaryIndustryId?: string | null;
+            secondaryIndustryId?: string | null;
+            otherProductOrService?: string | null;
             characteristicOne?: string | null;
             characteristicTwo?: string | null;
-            province?: string | null;
-            city?: string | null;
-            district?: string | null;
+            provinceRegionId?: string | null;
+            cityRegionId?: string | null;
+            terminalRegionId?: string | null;
             contactName?: string | null;
             contactMobile?: string | null;
             id: string;
             /** @enum {string} */
             status: "ACTIVE" | "ARCHIVED";
+            primaryIndustryLabel?: string | null;
+            secondaryIndustryLabel?: string | null;
+            provinceRegionLabel?: string | null;
+            cityRegionLabel?: string | null;
+            terminalRegionLabel?: string | null;
+            /** @enum {string|null} */
+            terminalRegionLevel?: "COUNTY" | "TOWNSHIP" | null;
             readyForEvaluation: boolean;
             missingFields: string[];
             isCurrent: boolean;
@@ -456,15 +528,63 @@ export interface components {
         };
         BrandMutationRequest: {
             companyName?: string | null;
-            primaryIndustry?: string | null;
-            secondaryIndustry?: string | null;
+            primaryIndustryId?: string | null;
+            secondaryIndustryId?: string | null;
+            otherProductOrService?: string | null;
             characteristicOne?: string | null;
             characteristicTwo?: string | null;
-            province?: string | null;
-            city?: string | null;
-            district?: string | null;
+            provinceRegionId?: string | null;
+            cityRegionId?: string | null;
+            terminalRegionId?: string | null;
             contactName?: string | null;
             contactMobile?: string | null;
+        };
+        IndustrySecondaryOptionResponse: {
+            id: string;
+            label: string;
+            isOther: boolean;
+        };
+        IndustryPrimaryOptionResponse: {
+            id: string;
+            label: string;
+            secondaryIndustries: components["schemas"]["IndustrySecondaryOptionResponse"][];
+        };
+        IndustryCatalogResponse: {
+            catalogId: string;
+            version: string;
+            contentHash: string;
+            primaryIndustries: components["schemas"]["IndustryPrimaryOptionResponse"][];
+        };
+        RegionOptionResponse: {
+            id: string;
+            label: string;
+        };
+        RegionOptionListResponse: {
+            sourceReleaseId: string;
+            contentHash: string;
+            options: components["schemas"]["RegionOptionResponse"][];
+        };
+        CityRegionOptionResponse: {
+            id: string;
+            label: string;
+            /** @enum {string} */
+            identityKind: "OFFICIAL_DIVISION" | "MUNICIPALITY_REPEAT" | "PROVINCE_DIRECT_GROUP";
+        };
+        CityRegionOptionListResponse: {
+            sourceReleaseId: string;
+            contentHash: string;
+            options: components["schemas"]["CityRegionOptionResponse"][];
+        };
+        TerminalRegionOptionResponse: {
+            id: string;
+            label: string;
+            /** @enum {string} */
+            officialLevel: "COUNTY" | "TOWNSHIP";
+        };
+        TerminalRegionOptionListResponse: {
+            sourceReleaseId: string;
+            contentHash: string;
+            options: components["schemas"]["TerminalRegionOptionResponse"][];
         };
         EvaluationBrandSnapshotResponse: {
             companyName: string;
@@ -983,6 +1103,82 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BrandResponse"];
+                };
+            };
+        };
+    };
+    BrandReferenceController_industries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndustryCatalogResponse"];
+                };
+            };
+        };
+    };
+    BrandReferenceController_provinces: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegionOptionListResponse"];
+                };
+            };
+        };
+    };
+    BrandReferenceController_cities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CityRegionOptionListResponse"];
+                };
+            };
+        };
+    };
+    BrandReferenceController_terminals: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerminalRegionOptionListResponse"];
                 };
             };
         };

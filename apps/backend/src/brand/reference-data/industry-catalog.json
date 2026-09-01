@@ -1,0 +1,1677 @@
+{
+  "catalogId": "industry-catalog",
+  "version": "1.0.0",
+  "contentHash": "e87887dab395800b943aad793dc09df855adf54145b40a7600266722c7512f9e",
+  "primaryIndustries": [
+    {
+      "id": "IND-01",
+      "label": "本地生活与门店服务",
+      "secondaryIndustries": [
+        {
+          "id": "IND-01-01",
+          "parentId": "IND-01",
+          "label": "餐饮门店",
+          "recommendationSubject": "餐厅或餐馆",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-02",
+          "parentId": "IND-01",
+          "label": "饮品甜品",
+          "recommendationSubject": "饮品店或甜品店",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-03",
+          "parentId": "IND-01",
+          "label": "美容美发美甲",
+          "recommendationSubject": "美容美发美甲门店",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-04",
+          "parentId": "IND-01",
+          "label": "非医疗养生按摩",
+          "recommendationSubject": "非医疗养生按摩门店",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-05",
+          "parentId": "IND-01",
+          "label": "健身运动门店",
+          "recommendationSubject": "健身运动场馆",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-06",
+          "parentId": "IND-01",
+          "label": "宠物服务门店",
+          "recommendationSubject": "宠物服务门店",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-07",
+          "parentId": "IND-01",
+          "label": "汽车维修与养护",
+          "recommendationSubject": "汽车维修养护门店",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-08",
+          "parentId": "IND-01",
+          "label": "家政保洁",
+          "recommendationSubject": "家政保洁服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-09",
+          "parentId": "IND-01",
+          "label": "洗衣洗护",
+          "recommendationSubject": "洗衣洗护门店",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-10",
+          "parentId": "IND-01",
+          "label": "摄影婚庆与礼仪",
+          "recommendationSubject": "摄影婚庆礼仪服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-11",
+          "parentId": "IND-01",
+          "label": "亲子游乐与儿童服务",
+          "recommendationSubject": "亲子游乐或儿童服务门店",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-12",
+          "parentId": "IND-01",
+          "label": "维修回收与便民服务",
+          "recommendationSubject": "维修回收或便民服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-01-99",
+          "parentId": "IND-01",
+          "label": "其他本地生活服务",
+          "recommendationSubject": "客户填写的具体本地生活服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-02",
+      "label": "消费品牌与零售",
+      "secondaryIndustries": [
+        {
+          "id": "IND-02-01",
+          "parentId": "IND-02",
+          "label": "食品饮料品牌",
+          "recommendationSubject": "食品或饮料品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-02",
+          "parentId": "IND-02",
+          "label": "美妆护肤与个护",
+          "recommendationSubject": "美妆护肤或个护品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-03",
+          "parentId": "IND-02",
+          "label": "服装服饰",
+          "recommendationSubject": "服装服饰品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-04",
+          "parentId": "IND-02",
+          "label": "鞋靴箱包",
+          "recommendationSubject": "鞋靴箱包品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-05",
+          "parentId": "IND-02",
+          "label": "珠宝钟表与配饰",
+          "recommendationSubject": "珠宝钟表或配饰品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-06",
+          "parentId": "IND-02",
+          "label": "家居日用与清洁用品",
+          "recommendationSubject": "家居日用或清洁用品品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-07",
+          "parentId": "IND-02",
+          "label": "母婴用品与玩具",
+          "recommendationSubject": "母婴用品或玩具品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-08",
+          "parentId": "IND-02",
+          "label": "文具图书与文创商品",
+          "recommendationSubject": "文具图书或文创商品品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-09",
+          "parentId": "IND-02",
+          "label": "运动户外用品",
+          "recommendationSubject": "运动户外用品品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-10",
+          "parentId": "IND-02",
+          "label": "家具与家居用品",
+          "recommendationSubject": "家具或家居用品品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-11",
+          "parentId": "IND-02",
+          "label": "汽车、摩托车与出行装备",
+          "recommendationSubject": "汽车、摩托车或出行装备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-12",
+          "parentId": "IND-02",
+          "label": "礼品鲜花与园艺消费品",
+          "recommendationSubject": "礼品鲜花或园艺消费品商家",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-13",
+          "parentId": "IND-02",
+          "label": "综合零售与商超",
+          "recommendationSubject": "综合零售商或商超",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-14",
+          "parentId": "IND-02",
+          "label": "专业零售与电商店铺",
+          "recommendationSubject": "专业零售商或电商店铺",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-15",
+          "parentId": "IND-02",
+          "label": "眼镜与个人用品",
+          "recommendationSubject": "眼镜或个人用品品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-02-99",
+          "parentId": "IND-02",
+          "label": "其他消费品牌与零售",
+          "recommendationSubject": "客户填写的具体消费产品或零售服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-03",
+      "label": "电子产品与智能设备",
+      "secondaryIndustries": [
+        {
+          "id": "IND-03-01",
+          "parentId": "IND-03",
+          "label": "手机与配件",
+          "recommendationSubject": "手机或手机配件品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-02",
+          "parentId": "IND-03",
+          "label": "电脑与办公硬件",
+          "recommendationSubject": "电脑或办公硬件品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-03",
+          "parentId": "IND-03",
+          "label": "影音娱乐设备",
+          "recommendationSubject": "影音娱乐设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-04",
+          "parentId": "IND-03",
+          "label": "数码影像",
+          "recommendationSubject": "数码影像设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-05",
+          "parentId": "IND-03",
+          "label": "智能穿戴",
+          "recommendationSubject": "智能穿戴设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-06",
+          "parentId": "IND-03",
+          "label": "智能家居设备",
+          "recommendationSubject": "智能家居设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-07",
+          "parentId": "IND-03",
+          "label": "家电与厨房电器",
+          "recommendationSubject": "家电或厨房电器品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-08",
+          "parentId": "IND-03",
+          "label": "网络与通信设备",
+          "recommendationSubject": "网络或通信设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-09",
+          "parentId": "IND-03",
+          "label": "安防监控设备",
+          "recommendationSubject": "安防监控设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-10",
+          "parentId": "IND-03",
+          "label": "车载电子与充电设备",
+          "recommendationSubject": "车载电子或充电设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-11",
+          "parentId": "IND-03",
+          "label": "商用电子与收银设备",
+          "recommendationSubject": "商用电子或收银设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-12",
+          "parentId": "IND-03",
+          "label": "机器人与无人机",
+          "recommendationSubject": "机器人或无人机品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-13",
+          "parentId": "IND-03",
+          "label": "存储配件与数码周边",
+          "recommendationSubject": "存储配件或数码周边品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-03-99",
+          "parentId": "IND-03",
+          "label": "其他电子产品与智能设备",
+          "recommendationSubject": "客户填写的具体电子产品或智能设备",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-04",
+      "label": "医疗健康与康养",
+      "secondaryIndustries": [
+        {
+          "id": "IND-04-01",
+          "parentId": "IND-04",
+          "label": "综合医院与门诊",
+          "recommendationSubject": "综合医院或门诊机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-02",
+          "parentId": "IND-04",
+          "label": "专科医疗",
+          "recommendationSubject": "专科医疗机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-03",
+          "parentId": "IND-04",
+          "label": "口腔医疗",
+          "recommendationSubject": "口腔医疗机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-04",
+          "parentId": "IND-04",
+          "label": "中医医疗",
+          "recommendationSubject": "中医医疗机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-05",
+          "parentId": "IND-04",
+          "label": "医疗美容",
+          "recommendationSubject": "医疗美容机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-06",
+          "parentId": "IND-04",
+          "label": "体检与健康管理",
+          "recommendationSubject": "体检或健康管理机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-07",
+          "parentId": "IND-04",
+          "label": "康复理疗",
+          "recommendationSubject": "康复理疗机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-08",
+          "parentId": "IND-04",
+          "label": "心理咨询与心理服务",
+          "recommendationSubject": "心理咨询或心理服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-09",
+          "parentId": "IND-04",
+          "label": "养老与护理",
+          "recommendationSubject": "养老或护理机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-10",
+          "parentId": "IND-04",
+          "label": "药品与医药服务",
+          "recommendationSubject": "药品品牌或医药服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-11",
+          "parentId": "IND-04",
+          "label": "医疗器械与诊断设备",
+          "recommendationSubject": "医疗器械或诊断设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-12",
+          "parentId": "IND-04",
+          "label": "营养健康与保健食品",
+          "recommendationSubject": "营养健康或保健食品品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-13",
+          "parentId": "IND-04",
+          "label": "母婴健康与生育服务",
+          "recommendationSubject": "母婴健康或生育服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-14",
+          "parentId": "IND-04",
+          "label": "智能健康与可穿戴医疗设备",
+          "recommendationSubject": "智能健康或可穿戴医疗设备品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-04-99",
+          "parentId": "IND-04",
+          "label": "其他医疗健康与康养",
+          "recommendationSubject": "客户填写的具体医疗健康或康养服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-05",
+      "label": "教育培训与知识服务",
+      "secondaryIndustries": [
+        {
+          "id": "IND-05-01",
+          "parentId": "IND-05",
+          "label": "婴幼儿早教",
+          "recommendationSubject": "婴幼儿早教机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-02",
+          "parentId": "IND-05",
+          "label": "中小学教育服务",
+          "recommendationSubject": "中小学教育服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-03",
+          "parentId": "IND-05",
+          "label": "语言培训",
+          "recommendationSubject": "语言培训机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-04",
+          "parentId": "IND-05",
+          "label": "职业技能培训",
+          "recommendationSubject": "职业技能培训机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-05",
+          "parentId": "IND-05",
+          "label": "企业培训",
+          "recommendationSubject": "企业培训服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-06",
+          "parentId": "IND-05",
+          "label": "IT与数字技能培训",
+          "recommendationSubject": "IT或数字技能培训机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-07",
+          "parentId": "IND-05",
+          "label": "艺术兴趣培训",
+          "recommendationSubject": "艺术兴趣培训机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-08",
+          "parentId": "IND-05",
+          "label": "体育培训",
+          "recommendationSubject": "体育培训机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-09",
+          "parentId": "IND-05",
+          "label": "留学与国际教育服务",
+          "recommendationSubject": "留学或国际教育服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-10",
+          "parentId": "IND-05",
+          "label": "考试考证辅导",
+          "recommendationSubject": "考试考证辅导机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-11",
+          "parentId": "IND-05",
+          "label": "高等与继续教育",
+          "recommendationSubject": "高等或继续教育机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-12",
+          "parentId": "IND-05",
+          "label": "知识付费与在线课程",
+          "recommendationSubject": "知识付费平台或在线课程",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-13",
+          "parentId": "IND-05",
+          "label": "教育咨询与升学规划",
+          "recommendationSubject": "教育咨询或升学规划机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-14",
+          "parentId": "IND-05",
+          "label": "专业知识培训",
+          "recommendationSubject": "专业知识培训机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-05-99",
+          "parentId": "IND-05",
+          "label": "其他教育培训与知识服务",
+          "recommendationSubject": "客户填写的具体教育培训或知识服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-06",
+      "label": "企业服务与专业服务",
+      "secondaryIndustries": [
+        {
+          "id": "IND-06-01",
+          "parentId": "IND-06",
+          "label": "法律服务",
+          "recommendationSubject": "律师事务所或法律服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-02",
+          "parentId": "IND-06",
+          "label": "财税与审计",
+          "recommendationSubject": "财税或审计服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-03",
+          "parentId": "IND-06",
+          "label": "工商注册与企业合规",
+          "recommendationSubject": "工商注册或企业合规服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-04",
+          "parentId": "IND-06",
+          "label": "管理与战略咨询",
+          "recommendationSubject": "管理或战略咨询机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-05",
+          "parentId": "IND-06",
+          "label": "人力资源与招聘",
+          "recommendationSubject": "人力资源或招聘服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-06",
+          "parentId": "IND-06",
+          "label": "市场调研与商业数据服务",
+          "recommendationSubject": "市场调研或商业数据服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-07",
+          "parentId": "IND-06",
+          "label": "营销策划与广告代理",
+          "recommendationSubject": "营销策划或广告代理公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-08",
+          "parentId": "IND-06",
+          "label": "品牌设计与公关服务",
+          "recommendationSubject": "品牌设计或公关服务公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-09",
+          "parentId": "IND-06",
+          "label": "会展活动与商务服务",
+          "recommendationSubject": "会展活动或商务服务公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-10",
+          "parentId": "IND-06",
+          "label": "办公与行政外包",
+          "recommendationSubject": "办公或行政外包服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-11",
+          "parentId": "IND-06",
+          "label": "检验检测与认证",
+          "recommendationSubject": "检验检测或认证机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-12",
+          "parentId": "IND-06",
+          "label": "知识产权服务",
+          "recommendationSubject": "知识产权服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-13",
+          "parentId": "IND-06",
+          "label": "翻译与语言服务",
+          "recommendationSubject": "翻译或语言服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-14",
+          "parentId": "IND-06",
+          "label": "安保保洁与设施管理",
+          "recommendationSubject": "企业安保保洁或设施管理服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-15",
+          "parentId": "IND-06",
+          "label": "办公场地与设备租赁",
+          "recommendationSubject": "办公场地或设备租赁服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-06-99",
+          "parentId": "IND-06",
+          "label": "其他企业服务与专业服务",
+          "recommendationSubject": "客户填写的具体企业或专业服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-07",
+      "label": "软件与数字服务",
+      "secondaryIndustries": [
+        {
+          "id": "IND-07-01",
+          "parentId": "IND-07",
+          "label": "企业管理软件",
+          "recommendationSubject": "企业管理软件",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-02",
+          "parentId": "IND-07",
+          "label": "行业业务软件",
+          "recommendationSubject": "行业业务软件",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-03",
+          "parentId": "IND-07",
+          "label": "网站、电商与小程序服务",
+          "recommendationSubject": "网站、电商或小程序服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-04",
+          "parentId": "IND-07",
+          "label": "云计算与数据中心",
+          "recommendationSubject": "云计算或数据中心服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-05",
+          "parentId": "IND-07",
+          "label": "网络安全与运维",
+          "recommendationSubject": "网络安全或运维服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-06",
+          "parentId": "IND-07",
+          "label": "数据分析与商业智能",
+          "recommendationSubject": "数据分析或商业智能产品",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-07",
+          "parentId": "IND-07",
+          "label": "人工智能产品与服务",
+          "recommendationSubject": "人工智能产品或服务",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-08",
+          "parentId": "IND-07",
+          "label": "开发工具与技术平台",
+          "recommendationSubject": "开发工具或技术平台",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-09",
+          "parentId": "IND-07",
+          "label": "通信与协作软件",
+          "recommendationSubject": "通信或协作软件",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-10",
+          "parentId": "IND-07",
+          "label": "营销与客户运营软件",
+          "recommendationSubject": "营销或客户运营软件",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-11",
+          "parentId": "IND-07",
+          "label": "法律、财税与人力资源软件",
+          "recommendationSubject": "法律、财税或人力资源软件",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-12",
+          "parentId": "IND-07",
+          "label": "消费互联网应用与平台",
+          "recommendationSubject": "消费互联网应用或平台",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-13",
+          "parentId": "IND-07",
+          "label": "游戏与互动软件",
+          "recommendationSubject": "游戏或互动软件",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-14",
+          "parentId": "IND-07",
+          "label": "工业软件与物联网平台",
+          "recommendationSubject": "工业软件或物联网平台",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-15",
+          "parentId": "IND-07",
+          "label": "软件定制与技术外包",
+          "recommendationSubject": "软件定制或技术外包服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-07-99",
+          "parentId": "IND-07",
+          "label": "其他软件与数字服务",
+          "recommendationSubject": "客户填写的具体软件或数字服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-08",
+      "label": "地产、装修与工程建设",
+      "secondaryIndustries": [
+        {
+          "id": "IND-08-01",
+          "parentId": "IND-08",
+          "label": "住宅地产开发",
+          "recommendationSubject": "住宅地产项目或开发商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-02",
+          "parentId": "IND-08",
+          "label": "商业地产与产业园区",
+          "recommendationSubject": "商业地产项目或产业园区",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-03",
+          "parentId": "IND-08",
+          "label": "房产经纪与交易服务",
+          "recommendationSubject": "房产经纪或交易服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-04",
+          "parentId": "IND-08",
+          "label": "物业管理与社区服务",
+          "recommendationSubject": "物业管理或社区服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-05",
+          "parentId": "IND-08",
+          "label": "房屋租赁与长租服务",
+          "recommendationSubject": "房屋租赁或长租服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-06",
+          "parentId": "IND-08",
+          "label": "室内设计与装修",
+          "recommendationSubject": "室内设计或装修公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-07",
+          "parentId": "IND-08",
+          "label": "全屋定制与家装服务",
+          "recommendationSubject": "全屋定制或家装服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-08",
+          "parentId": "IND-08",
+          "label": "建筑设计与工程咨询",
+          "recommendationSubject": "建筑设计或工程咨询机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-09",
+          "parentId": "IND-08",
+          "label": "房屋建筑工程",
+          "recommendationSubject": "房屋建筑工程公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-10",
+          "parentId": "IND-08",
+          "label": "市政与基础设施工程",
+          "recommendationSubject": "市政或基础设施工程公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-11",
+          "parentId": "IND-08",
+          "label": "园林景观工程",
+          "recommendationSubject": "园林景观工程公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-12",
+          "parentId": "IND-08",
+          "label": "建材与装饰材料",
+          "recommendationSubject": "建材或装饰材料品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-13",
+          "parentId": "IND-08",
+          "label": "智能建筑与弱电工程",
+          "recommendationSubject": "智能建筑或弱电工程公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-14",
+          "parentId": "IND-08",
+          "label": "工程维修与改造",
+          "recommendationSubject": "工程维修或改造公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-15",
+          "parentId": "IND-08",
+          "label": "工程监理与项目管理",
+          "recommendationSubject": "工程监理或项目管理机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-08-99",
+          "parentId": "IND-08",
+          "label": "其他地产装修与工程建设",
+          "recommendationSubject": "客户填写的具体地产、装修或工程服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-09",
+      "label": "工业制造与供应链",
+      "secondaryIndustries": [
+        {
+          "id": "IND-09-01",
+          "parentId": "IND-09",
+          "label": "机械设备与工业装备",
+          "recommendationSubject": "机械设备或工业装备供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-02",
+          "parentId": "IND-09",
+          "label": "汽车零部件与交通装备制造",
+          "recommendationSubject": "汽车零部件或交通装备制造商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-03",
+          "parentId": "IND-09",
+          "label": "电子元器件与半导体",
+          "recommendationSubject": "电子元器件或半导体供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-04",
+          "parentId": "IND-09",
+          "label": "电气设备与新能源装备",
+          "recommendationSubject": "电气设备或新能源装备供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-05",
+          "parentId": "IND-09",
+          "label": "仪器仪表与工业自动化",
+          "recommendationSubject": "仪器仪表或工业自动化供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-06",
+          "parentId": "IND-09",
+          "label": "金属材料与金属制品",
+          "recommendationSubject": "金属材料或金属制品供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-07",
+          "parentId": "IND-09",
+          "label": "化工材料与化工制品",
+          "recommendationSubject": "化工材料或化工制品供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-08",
+          "parentId": "IND-09",
+          "label": "塑料橡胶与包装材料",
+          "recommendationSubject": "塑料橡胶或包装材料供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-09",
+          "parentId": "IND-09",
+          "label": "纺织服装制造",
+          "recommendationSubject": "纺织服装制造商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-10",
+          "parentId": "IND-09",
+          "label": "食品饮料生产与代工",
+          "recommendationSubject": "食品饮料生产或代工企业",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-11",
+          "parentId": "IND-09",
+          "label": "日化美妆生产与代工",
+          "recommendationSubject": "日化美妆生产或代工企业",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-12",
+          "parentId": "IND-09",
+          "label": "医药原料与医疗器械制造",
+          "recommendationSubject": "医药原料或医疗器械制造商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-13",
+          "parentId": "IND-09",
+          "label": "家具与家居用品制造",
+          "recommendationSubject": "家具或家居用品制造商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-14",
+          "parentId": "IND-09",
+          "label": "印刷包装与加工服务",
+          "recommendationSubject": "印刷包装或加工服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-15",
+          "parentId": "IND-09",
+          "label": "能源、矿产、公用事业与环保",
+          "recommendationSubject": "能源矿产、公用事业或环保服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-16",
+          "parentId": "IND-09",
+          "label": "仓储物流与货运",
+          "recommendationSubject": "仓储物流或货运服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-17",
+          "parentId": "IND-09",
+          "label": "供应链管理与产业贸易",
+          "recommendationSubject": "供应链管理或产业贸易服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-18",
+          "parentId": "IND-09",
+          "label": "工业维修与技术服务",
+          "recommendationSubject": "工业维修或技术服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-09-99",
+          "parentId": "IND-09",
+          "label": "其他工业制造与供应链",
+          "recommendationSubject": "客户填写的具体工业产品或供应链服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-10",
+      "label": "农业与农产品",
+      "secondaryIndustries": [
+        {
+          "id": "IND-10-01",
+          "parentId": "IND-10",
+          "label": "粮食与经济作物种植",
+          "recommendationSubject": "粮食或经济作物生产者",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-02",
+          "parentId": "IND-10",
+          "label": "果蔬与园艺种植",
+          "recommendationSubject": "果蔬或园艺产品生产者",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-03",
+          "parentId": "IND-10",
+          "label": "茶叶咖啡与特色作物",
+          "recommendationSubject": "茶叶、咖啡或特色作物生产者",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-04",
+          "parentId": "IND-10",
+          "label": "畜牧养殖",
+          "recommendationSubject": "畜牧养殖企业",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-05",
+          "parentId": "IND-10",
+          "label": "水产养殖与渔业",
+          "recommendationSubject": "水产养殖或渔业企业",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-06",
+          "parentId": "IND-10",
+          "label": "林业竹木与林下产品",
+          "recommendationSubject": "林业竹木或林下产品供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-07",
+          "parentId": "IND-10",
+          "label": "种子种苗与育种",
+          "recommendationSubject": "种子种苗或育种企业",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-08",
+          "parentId": "IND-10",
+          "label": "饲料肥料与农业投入品",
+          "recommendationSubject": "饲料肥料或农业投入品供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-09",
+          "parentId": "IND-10",
+          "label": "农机农具与农业设施",
+          "recommendationSubject": "农机农具或农业设施供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-10",
+          "parentId": "IND-10",
+          "label": "农业技术与社会化服务",
+          "recommendationSubject": "农业技术或社会化服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-11",
+          "parentId": "IND-10",
+          "label": "初级农产品加工与产地供应",
+          "recommendationSubject": "初级农产品加工或产地供应商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-12",
+          "parentId": "IND-10",
+          "label": "农产品批发与产销对接",
+          "recommendationSubject": "农产品批发或产销服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-10-99",
+          "parentId": "IND-10",
+          "label": "其他农业与农产品",
+          "recommendationSubject": "客户填写的具体农业产品或服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-11",
+      "label": "文化传媒与内容创意",
+      "secondaryIndustries": [
+        {
+          "id": "IND-11-01",
+          "parentId": "IND-11",
+          "label": "新闻资讯与媒体",
+          "recommendationSubject": "新闻资讯或媒体品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-02",
+          "parentId": "IND-11",
+          "label": "出版与数字阅读",
+          "recommendationSubject": "出版或数字阅读品牌",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-03",
+          "parentId": "IND-11",
+          "label": "影视制作与发行",
+          "recommendationSubject": "影视制作或发行公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-04",
+          "parentId": "IND-11",
+          "label": "短视频与内容机构",
+          "recommendationSubject": "短视频或内容机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-05",
+          "parentId": "IND-11",
+          "label": "音乐与音频内容",
+          "recommendationSubject": "音乐或音频内容机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-06",
+          "parentId": "IND-11",
+          "label": "广播电视与直播",
+          "recommendationSubject": "广播电视或直播机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-07",
+          "parentId": "IND-11",
+          "label": "动漫与IP内容",
+          "recommendationSubject": "动漫或IP内容机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-08",
+          "parentId": "IND-11",
+          "label": "游戏内容与电竞",
+          "recommendationSubject": "游戏内容或电竞机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-09",
+          "parentId": "IND-11",
+          "label": "广告内容制作",
+          "recommendationSubject": "广告内容制作公司",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-10",
+          "parentId": "IND-11",
+          "label": "设计与创意工作室",
+          "recommendationSubject": "设计或创意工作室",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-11",
+          "parentId": "IND-11",
+          "label": "艺术展览与演出",
+          "recommendationSubject": "艺术展览或演出机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-12",
+          "parentId": "IND-11",
+          "label": "文博场馆与文化服务",
+          "recommendationSubject": "文博场馆或文化服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-13",
+          "parentId": "IND-11",
+          "label": "体育赛事与运营",
+          "recommendationSubject": "体育赛事或运营机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-14",
+          "parentId": "IND-11",
+          "label": "创作者与MCN机构",
+          "recommendationSubject": "创作者或MCN机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-15",
+          "parentId": "IND-11",
+          "label": "商业摄影与视觉内容",
+          "recommendationSubject": "商业摄影或视觉内容机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-11-99",
+          "parentId": "IND-11",
+          "label": "其他文化传媒与内容创意",
+          "recommendationSubject": "客户填写的具体文化传媒或内容服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-12",
+      "label": "旅游住宿与交通出行",
+      "secondaryIndustries": [
+        {
+          "id": "IND-12-01",
+          "parentId": "IND-12",
+          "label": "酒店",
+          "recommendationSubject": "酒店",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-02",
+          "parentId": "IND-12",
+          "label": "民宿与度假住宿",
+          "recommendationSubject": "民宿或度假住宿",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-03",
+          "parentId": "IND-12",
+          "label": "旅行社与定制旅行",
+          "recommendationSubject": "旅行社或定制旅行服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-04",
+          "parentId": "IND-12",
+          "label": "景区与主题乐园",
+          "recommendationSubject": "景区或主题乐园",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-05",
+          "parentId": "IND-12",
+          "label": "度假区与露营地",
+          "recommendationSubject": "度假区或露营地",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-06",
+          "parentId": "IND-12",
+          "label": "文旅体验与研学旅行",
+          "recommendationSubject": "文旅体验或研学旅行服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-07",
+          "parentId": "IND-12",
+          "label": "票务与旅游平台",
+          "recommendationSubject": "票务或旅游平台",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-08",
+          "parentId": "IND-12",
+          "label": "旅游交通与包车",
+          "recommendationSubject": "旅游交通或包车服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-09",
+          "parentId": "IND-12",
+          "label": "出租车与网约车",
+          "recommendationSubject": "出租车或网约车服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-10",
+          "parentId": "IND-12",
+          "label": "公路铁路水路客运",
+          "recommendationSubject": "公路、铁路或水路客运服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-11",
+          "parentId": "IND-12",
+          "label": "航空与机场服务",
+          "recommendationSubject": "航空或机场服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-12",
+          "parentId": "IND-12",
+          "label": "汽车租赁与共享出行",
+          "recommendationSubject": "汽车租赁或共享出行服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-13",
+          "parentId": "IND-12",
+          "label": "导游与目的地服务",
+          "recommendationSubject": "导游或目的地服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-14",
+          "parentId": "IND-12",
+          "label": "签证与旅行配套服务",
+          "recommendationSubject": "签证或旅行配套服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-12-99",
+          "parentId": "IND-12",
+          "label": "其他旅游住宿与交通出行",
+          "recommendationSubject": "客户填写的具体旅游、住宿或客运服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "IND-13",
+      "label": "金融与保险服务",
+      "secondaryIndustries": [
+        {
+          "id": "IND-13-01",
+          "parentId": "IND-13",
+          "label": "银行与信贷",
+          "recommendationSubject": "银行或信贷服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-02",
+          "parentId": "IND-13",
+          "label": "支付与收单服务",
+          "recommendationSubject": "支付或收单服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-03",
+          "parentId": "IND-13",
+          "label": "证券与基金服务",
+          "recommendationSubject": "证券或基金服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-04",
+          "parentId": "IND-13",
+          "label": "资产管理与财富管理",
+          "recommendationSubject": "资产管理或财富管理机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-05",
+          "parentId": "IND-13",
+          "label": "保险产品与保险服务",
+          "recommendationSubject": "保险产品或保险服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-06",
+          "parentId": "IND-13",
+          "label": "保险经纪与代理",
+          "recommendationSubject": "保险经纪或代理机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-07",
+          "parentId": "IND-13",
+          "label": "融资租赁与商业保理",
+          "recommendationSubject": "融资租赁或商业保理机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-08",
+          "parentId": "IND-13",
+          "label": "担保与小额贷款",
+          "recommendationSubject": "担保或小额贷款机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-09",
+          "parentId": "IND-13",
+          "label": "企业融资与投融资顾问",
+          "recommendationSubject": "企业融资或投融资顾问机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-10",
+          "parentId": "IND-13",
+          "label": "消费金融与分期",
+          "recommendationSubject": "消费金融或分期服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-11",
+          "parentId": "IND-13",
+          "label": "金融科技与互联网金融服务",
+          "recommendationSubject": "金融科技或互联网金融服务商",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-12",
+          "parentId": "IND-13",
+          "label": "财务规划与理财咨询",
+          "recommendationSubject": "财务规划或理财咨询机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-13",
+          "parentId": "IND-13",
+          "label": "征信与风险管理服务",
+          "recommendationSubject": "征信或风险管理服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-14",
+          "parentId": "IND-13",
+          "label": "金融基础设施与清算服务",
+          "recommendationSubject": "金融基础设施或清算服务机构",
+          "isOther": false,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "IND-13-99",
+          "parentId": "IND-13",
+          "label": "其他金融与保险服务",
+          "recommendationSubject": "客户填写的具体金融或保险服务",
+          "isOther": true,
+          "status": "ACTIVE"
+        }
+      ]
+    }
+  ]
+}

@@ -48,7 +48,11 @@ approved primary and SHALL enforce the `Other` product-or-service rule.
 
 - **WHEN** the selected secondary category is its primary's maintained `Other`
   node
-- **THEN** a concrete product-or-service phrase of 2-60 normalized characters
+- **THEN** the dropdown presents that option as the concise label `其他` while
+  retaining its stable category identity
+- **AND** the secondary field becomes one fused select-and-input control rather
+  than adding a separate field below it
+- **AND** a concrete product-or-service phrase of 2-60 normalized characters
   is required before the Brand is evaluation-ready
 - **AND** exact generic values `其他` and `其它` are rejected
 - **AND** the normalized phrase is saved as Brand data and participates in the
@@ -240,4 +244,6 @@ group and one generated API contract.
 - **THEN** the dependent controls retain visible associated labels, native
   keyboard/mobile selection behavior, honest disabled/loading states, and a
   stacked responsive layout
+- **AND** selected industry values, placeholders, and the complete `Other` hint
+  are not clipped by the control layout
 - **AND** the full region tree is not bundled into the initial client route.

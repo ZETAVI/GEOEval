@@ -40,7 +40,7 @@ separate sources with different semantics and maintenance lifecycles.
 - Add Brand-owned reference-data queries and controlled Brand mutations used by
   both registration and brand editing.
 - Replace free-text industry and region inputs with responsive dependent
-  selectors and the conditional `Other` product-or-service input.
+  selectors and a conditional fused `Other` product-or-service control.
 - Persist the complete two-level industry and three-level region identity path,
   validate readiness, compute a semantic
   fingerprint, and expose one evaluation-purpose projection to GEO
@@ -111,9 +111,10 @@ separate sources with different semantics and maintenance lifecycles.
 4. Brand persists and validates the complete selected path:
    `primaryIndustryId`, `secondaryIndustryId`, `provinceRegionId`,
    `cityRegionId`, and `terminalRegionId`.
-5. Selecting `Other` reveals a customer-entered concrete product/service phrase
-   of 2-60 normalized characters. Exact generic values `其他` and `其它` are not
-   valid evaluation context.
+5. Every secondary `Other` option displays as `其他`. Selecting it turns the
+   secondary field into one fused select-and-input control for a customer-
+   entered concrete product/service phrase of 2-60 normalized characters.
+   Exact generic values `其他` and `其它` are not valid evaluation context.
 6. The normalized MCA snapshot records source and publication version. Ordinary
    product development and release do not require a separate legal-approval
    gate; source terms are revisited only if distribution or use materially changes.

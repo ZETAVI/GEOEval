@@ -24,6 +24,7 @@ import { SessionGuard } from "../../identity/presentation/session.guard.js";
 import { EvaluationService } from "../application/evaluation.service.js";
 import { EvaluationReportService } from "../application/evaluation-report.service.js";
 import type { EvaluationReportView } from "../domain/evaluation-report.view.js";
+import { publicEvaluationBrandSnapshot } from "../domain/evaluation-brand-snapshot.js";
 import type {
   EvaluationDefinitionView,
   EvaluationRunView,
@@ -183,7 +184,7 @@ function presentReport(report: EvaluationReportView): EvaluationReportResponse {
     runId: report.runId,
     definitionId: report.definitionId,
     brandId: report.brandId,
-    brandSnapshot: report.brandSnapshot,
+    brandSnapshot: publicEvaluationBrandSnapshot(report.brandSnapshot),
     brandInformationChanged: report.brandInformationChanged,
     startedAt: report.startedAt,
     acceptedAt: report.acceptedAt,
@@ -198,7 +199,7 @@ function presentDefinition(
   return {
     id: definition.id,
     brandId: definition.brandId,
-    brandSnapshot: definition.brandSnapshot,
+    brandSnapshot: publicEvaluationBrandSnapshot(definition.brandSnapshot),
     questions: definition.questions,
     platforms: definition.platforms.map(({ key, label }) => ({ key, label })),
     run: definition.run ? presentRun(definition.run) : null,

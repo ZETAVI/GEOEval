@@ -52,6 +52,17 @@ GEO Intelligence is the executable owner of that profile from S2 onward. The
 provider-validation harness consumes the same production-owned source rather
 than maintaining a calibration copy.
 
+Brand Knowledge owns the editable account-scoped Brand, the executable
+`industry-catalog@1.0.0` source, and a separate checked mainland administrative-
+region snapshot. Web and API use dependent two-level industry and three-level
+region selections; the server validates complete paths and resolves display
+labels. Brand fingerprints contain stable industry and official region
+identities but exclude contact, catalog/source version, labels, and
+presentation-only city groups. GEO Intelligence receives one versioned,
+immutable evaluation-purpose projection and never imports either reference
+source or reads Brand persistence directly. A central decoder keeps original
+flat snapshots readable without rewriting historical JSON.
+
 S3 extends that owner with a PostgreSQL execution cycle, canonical per-sample
 answer, accepted interpretation, exhausted-stage record, and the
 seventeen-of-twenty readiness decision. AI Execution owns only append-oriented

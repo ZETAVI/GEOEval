@@ -2,8 +2,10 @@
 
 import type { Brand, BrandMutation } from "@geoeval/api-client";
 import { useState } from "react";
+import { BrandReferenceFields } from "./brand-reference-fields.js";
 
 type Props = {
+  apiBaseUrl: string;
   brand?: Brand;
   busy: boolean;
   onCancel(): void;
@@ -11,16 +13,23 @@ type Props = {
 };
 const text = (value: string | null | undefined) => value ?? "";
 
-export function BrandEditor({ brand, busy, onCancel, onSave }: Props) {
-  const [form, setForm] = useState<Required<BrandMutation>>({
+export function BrandEditor({
+  apiBaseUrl,
+  brand,
+  busy,
+  onCancel,
+  onSave,
+}: Props) {
+  const [form, setForm] = useState<BrandMutation>({
     companyName: text(brand?.companyName),
-    primaryIndustry: text(brand?.primaryIndustry),
-    secondaryIndustry: text(brand?.secondaryIndustry),
+    primaryIndustryId: brand?.primaryIndustryId ?? null,
+    secondaryIndustryId: brand?.secondaryIndustryId ?? null,
+    otherProductOrService: brand?.otherProductOrService ?? null,
     characteristicOne: text(brand?.characteristicOne),
     characteristicTwo: text(brand?.characteristicTwo),
-    province: text(brand?.province),
-    city: text(brand?.city),
-    district: text(brand?.district),
+    provinceRegionId: brand?.provinceRegionId ?? null,
+    cityRegionId: brand?.cityRegionId ?? null,
+    terminalRegionId: brand?.terminalRegionId ?? null,
     contactName: text(brand?.contactName),
     contactMobile: text(brand?.contactMobile),
   });
@@ -62,22 +71,11 @@ export function BrandEditor({ brand, busy, onCancel, onSave }: Props) {
               onChange={(e) => field("companyName", e.target.value)}
             />
           </label>
-          <label>
-            一级行业 *
-            <input
-              value={text(form.primaryIndustry)}
-              onChange={(e) => field("primaryIndustry", e.target.value)}
-              placeholder="例如：餐饮"
-            />
-          </label>
-          <label>
-            二级行业 *
-            <input
-              value={text(form.secondaryIndustry)}
-              onChange={(e) => field("secondaryIndustry", e.target.value)}
-              placeholder="例如：咖啡店"
-            />
-          </label>
+          <BrandReferenceFields
+            apiBaseUrl={apiBaseUrl}
+            value={form}
+            onChange={setForm}
+          />
           <label>
             品牌特色一 *
             <input
@@ -94,29 +92,6 @@ export function BrandEditor({ brand, busy, onCancel, onSave }: Props) {
               placeholder="例如：精品手冲"
             />
           </label>
-          <fieldset className="wide">
-            <legend>所在地区 *</legend>
-            <div className="triple-fields">
-              <input
-                aria-label="省份"
-                value={text(form.province)}
-                onChange={(e) => field("province", e.target.value)}
-                placeholder="省"
-              />
-              <input
-                aria-label="城市"
-                value={text(form.city)}
-                onChange={(e) => field("city", e.target.value)}
-                placeholder="市"
-              />
-              <input
-                aria-label="区县"
-                value={text(form.district)}
-                onChange={(e) => field("district", e.target.value)}
-                placeholder="区 / 镇"
-              />
-            </div>
-          </fieldset>
           <label>
             联系人 *
             <input
