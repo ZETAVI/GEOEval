@@ -27,14 +27,18 @@ export type EvaluationQuestionGenerationTaskContext = {
 };
 
 const common = loadAsset("common.json");
-const contentHash = createHash("sha256").update(common.content).digest("hex");
+const referenceExamples = loadAsset("reference-examples.json");
+const systemInstruction = `${common.content}\n\n${referenceExamples.content}`;
+const contentHash = createHash("sha256")
+  .update(systemInstruction)
+  .digest("hex");
 
 export function buildEvaluationQuestionGenerationTask(
   context: EvaluationQuestionGenerationTaskContext,
 ) {
   return {
     taskKind: "STRUCTURED_OUTPUT" as const,
-    systemInstruction: common.content,
+    systemInstruction,
     userContext: {
       capabilities: { publicSearch: false },
       ...context,
@@ -51,10 +55,10 @@ export function buildEvaluationQuestionGenerationTask(
 
 export function evaluationQuestionGenerationInstructionSnapshot() {
   return {
-    id: common.id,
-    version: common.version,
+    id: "evaluation.question-generation.profile",
+    version: `${common.version}+${referenceExamples.version}`,
     contentHash,
-    content: common.content,
+    content: systemInstruction,
   };
 }
 

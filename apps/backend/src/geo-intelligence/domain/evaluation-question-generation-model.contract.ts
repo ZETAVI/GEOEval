@@ -43,6 +43,14 @@ const selectedQuestionSchema = z
 
 export const evaluationQuestionGenerationModelOutputSchema = z
   .object({
+    queryTargetName: z
+      .string()
+      .trim()
+      .min(2)
+      .max(120)
+      .describe(
+        "针对性问题使用的自然品牌称呼，必须是 companyName 本身或其中连续出现的有效简称。",
+      ),
     candidateGroups: z
       .array(candidateGroupSchema)
       .length(4)
@@ -104,18 +112,28 @@ export function parseAndProjectEvaluationQuestionModelOutput(
   }
 
   const normalizedCompanyName = normalizeExactName(context.companyName);
+  const normalizedQueryTargetName = normalizeExactName(output.queryTargetName);
   if (!normalizedCompanyName) {
     issues.push("companyName is empty after normalization");
+  } else if (!normalizedCompanyName.includes(normalizedQueryTargetName)) {
+    issues.push("queryTargetName is not contained in companyName");
   } else {
     for (const selected of output.selectedQuestions) {
-      const containsExactName = normalizeExactName(selected.content).includes(
+      const normalizedContent = normalizeExactName(selected.content);
+      const containsQueryTargetName = normalizedContent.includes(
+        normalizedQueryTargetName,
+      );
+      const containsFullCompanyName = normalizedContent.includes(
         normalizedCompanyName,
       );
-      if (selected.kind === "BRAND_DIRECTED" && !containsExactName) {
-        issues.push("BRAND_DIRECTED does not contain the exact company name");
+      if (selected.kind === "BRAND_DIRECTED" && !containsQueryTargetName) {
+        issues.push("BRAND_DIRECTED does not contain queryTargetName");
       }
-      if (selected.kind !== "BRAND_DIRECTED" && containsExactName) {
-        issues.push(`${selected.kind} contains the exact company name`);
+      if (
+        selected.kind !== "BRAND_DIRECTED" &&
+        (containsQueryTargetName || containsFullCompanyName)
+      ) {
+        issues.push(`${selected.kind} contains the target brand name`);
       }
     }
   }

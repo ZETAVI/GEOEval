@@ -64,11 +64,12 @@ for the same brand revision.
 ## Non-goals
 
 - Customer editing, refreshing, choosing, or scoring individual questions.
-- A second Critic Agent, programmatic style scorer, alias expansion, keyword
-  quality rules, or other subjective semantic gate. Program checks the
-  structural contract plus the one metric-protecting name invariant: the
-  brand-directed question contains the current exact brand name and the three
-  open questions do not.
+- A second Critic Agent, programmatic style scorer, unconstrained alias
+  expansion, keyword quality rules, or other subjective semantic gate. Program
+  checks the structural contract plus one metric-protecting invariant: the
+  brand-directed question contains a natural target name validated as the full
+  company/store name or a continuous substring, while the three open questions
+  contain neither that target name nor the full name.
 - Query-Agent web search, automatic enrichment of brand facts, or factual brand
   investigation.
 - Changes to five-platform sampling meaning, parser or overall-synthesis

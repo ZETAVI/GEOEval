@@ -11,8 +11,9 @@ one-definition, and explicit-start journey.
 | Decision | Proposed choice | Main tradeoff | Owner |
 | --- | --- | --- | --- |
 | Generation shape | One Agent call proposes several angles and selects the final four questions together | Better coherence and fewer moving parts than four independent calls; one failure affects the whole set | Product owner |
-| Question quality | Natural, concise Chinese close to ordinary user requests; the Agent receives brand, region, industry recommendation subject, and both characteristics | Relies on a reviewed Prompt and real examples instead of brittle keyword rules | Product owner |
-| Application validation | Validate the output schema, four required roles and order, bounded content, and one exact-name invariant: brand-directed contains the current brand name while the three open questions do not | Protects the recommendation-index meaning without adding alias rules, quality scoring, or a Critic | Product and architecture owners |
+| Question quality | Natural, concise Chinese from a potential customer, consumer, or demander perspective; the Agent receives brand, region, industry recommendation subject, both characteristics, and reviewed diverse examples | Relies on Prompt candidates and product review instead of one repeated sentence template | Product owner |
+| Natural target name | The Agent selects the full name or a natural continuous substring such as `互动派`, then uses it in the brand-directed question | Avoids legal-name phrasing while rejecting invented translations or unrelated aliases | Product and architecture owners |
+| Application validation | Validate the output schema, four required roles and order, bounded content, candidate membership, and the target-name invariant; the three open questions contain neither the selected target name nor the full name | Protects recommendation-index meaning without quality scoring or a Critic | Product and architecture owners |
 | External research | No web search or automatic brand enrichment inside Query generation | Lower latency and less factual drift; brand-profile quality remains the input boundary | Product owner |
 | Request lifecycle | Persist a preparation and Outbox fact, run generation asynchronously, then atomically accept the final definition | Adds one small lifecycle and public preparation state but avoids synchronous timeout, duplicate cost, and lost failure state | Architecture owner |
 | Route sequence | Qwen3.8 Flash, one same-route retry, then Hy3 fallback | Reuses S6-proven structured routes; no silent template fallback in the real path | Product and architecture owners |
@@ -48,7 +49,7 @@ claim. The source boundary is recorded in `research/interaction-pie-test-profile
 
 - Confirmation: `Confirmed` by the product owner on 2026-09-01 for one Agent,
   multiple candidate angles, four selected questions, natural ordinary wording,
-  no refresh/edit, the exact-name metric invariant, the durable asynchronous
+  no refresh/edit, the validated natural-name metric invariant, the durable asynchronous
   preparation boundary, the Qwen3.8-primary/Hy3-fallback route, and the two-
   change delivery sequence.
 - Next action: open and deliver the independently mergeable

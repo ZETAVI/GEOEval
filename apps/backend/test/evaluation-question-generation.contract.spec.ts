@@ -37,6 +37,7 @@ describe("evaluation question generation contract", () => {
     expect(task.outputContract.jsonSchema).toMatchObject({
       $schema: "https://json-schema.org/draft/2020-12/schema",
       properties: {
+        queryTargetName: {},
         candidateGroups: {},
         selectedQuestions: {},
         selectionNote: {},
@@ -48,8 +49,8 @@ describe("evaluation question generation contract", () => {
 
     const instruction = evaluationQuestionGenerationInstructionSnapshot();
     expect(instruction).toMatchObject({
-      id: "evaluation.question-generation.common",
-      version: "1.0.0",
+      id: "evaluation.question-generation.profile",
+      version: "1.1.0+1.0.0",
     });
     expect(instruction.contentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(instruction.content).toContain("不联网");
@@ -65,7 +66,7 @@ describe("evaluation question generation contract", () => {
         kind: "BRAND_DIRECTED",
         ordinal: 1,
         content:
-          "互动派科技股份有限公司的数字营销服务怎么样，有哪些主要特点和需要注意的地方？",
+          "你知道广州的互动派广告公司吗？它主要做什么，提供哪些服务，市场口碑怎么样？",
       },
       {
         kind: "INDUSTRY_RECOMMENDATION",
@@ -88,7 +89,7 @@ describe("evaluation question generation contract", () => {
     ]);
   });
 
-  it("rejects a direct question that omits the exact company name", () => {
+  it("rejects a direct question that omits the chosen target name", () => {
     const output = validOutput();
     output.candidateGroups[0]!.candidates[0] = "这家公司的数字营销服务怎么样？";
     output.selectedQuestions[0]!.content = "这家公司的数字营销服务怎么样？";
@@ -98,7 +99,7 @@ describe("evaluation question generation contract", () => {
     ).toThrowError(EvaluationQuestionGenerationSemanticError);
   });
 
-  it("rejects an open question that forces the exact company name", () => {
+  it("rejects an open question that forces the target brand name", () => {
     const output = validOutput();
     output.candidateGroups[1]!.candidates[0] =
       "互动派科技股份有限公司在广州的广告代理公司中值得推荐吗？";
@@ -107,7 +108,16 @@ describe("evaluation question generation contract", () => {
 
     expect(() =>
       parseAndProjectEvaluationQuestionModelOutput(output, { companyName }),
-    ).toThrowError(/INDUSTRY_RECOMMENDATION contains the exact company name/);
+    ).toThrowError(/INDUSTRY_RECOMMENDATION contains the target brand name/);
+  });
+
+  it("rejects an invented target name outside the full company name", () => {
+    const output = validOutput();
+    output.queryTargetName = "派互动";
+
+    expect(() =>
+      parseAndProjectEvaluationQuestionModelOutput(output, { companyName }),
+    ).toThrowError(/queryTargetName is not contained in companyName/);
   });
 
   it("rejects a selection that is not one of its candidates", () => {
@@ -137,12 +147,13 @@ describe("evaluation question generation contract", () => {
 
 function validOutput() {
   return {
+    queryTargetName: "互动派",
     candidateGroups: [
       {
         kind: "BRAND_DIRECTED" as const,
         candidates: [
-          "互动派科技股份有限公司的数字营销服务怎么样，有哪些主要特点和需要注意的地方？",
-          "互动派科技股份有限公司主要提供哪些营销服务，适合哪些企业？",
+          "你知道广州的互动派广告公司吗？它主要做什么，提供哪些服务，市场口碑怎么样？",
+          "广州的互动派广告公司怎么样，主要提供哪些数字营销服务？",
         ],
       },
       {
@@ -171,7 +182,7 @@ function validOutput() {
       {
         kind: "BRAND_DIRECTED" as const,
         content:
-          "互动派科技股份有限公司的数字营销服务怎么样，有哪些主要特点和需要注意的地方？",
+          "你知道广州的互动派广告公司吗？它主要做什么，提供哪些服务，市场口碑怎么样？",
       },
       {
         kind: "INDUSTRY_RECOMMENDATION" as const,

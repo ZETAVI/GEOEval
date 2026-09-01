@@ -10,7 +10,8 @@
 - [x] Record the proposed product boundary, architecture card, failure matrix,
       controlled test profile, and documentation impact.
 - [x] Obtain explicit product and architecture approval of the two-change
-      sequence, exact-name invariant, and durable preparation lifecycle.
+      sequence, validated natural-name invariant, and durable preparation
+      lifecycle.
 
 ## Upstream brand reference-data activation
 
@@ -34,7 +35,8 @@
 - [x] Add the versioned Query Agent instruction, compact model-output schema,
       deterministic projector, and deterministic candidate fixtures; accept
       only one structurally complete selected four-question set whose direct
-      question contains, and open questions omit, the exact current brand name.
+      question contains a validated natural target name and whose open questions
+      omit both that target name and the full company/store name.
 - [ ] Extend the existing Product Outbox/BullMQ coordinator and AI Execution
       route boundary for idempotent preparation, bounded retry, ambiguity
       recovery, exhaustion, and explicit customer retry.
@@ -75,10 +77,10 @@
 
 ## #26a local evidence
 
-- The focused Query contract suite passes six tests covering the resolved
+- The focused Query contract suite passes seven tests covering the resolved
   no-search task, instruction identity and content hash, one complete 互动派
-  four-question set, exact-name inclusion/exclusion, candidate membership, and
-  required role ordering.
+  four-question set, natural target-name validation, target-name
+  inclusion/exclusion, candidate membership, and required role ordering.
 - Backend TypeScript checking and focused Prettier checking pass using the
   existing project-local binaries. The first pnpm wrapper invocation stopped
   before tests because the current Worktree dependency metadata would have

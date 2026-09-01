@@ -66,8 +66,14 @@ same frozen brand and industry context.
   category and recommendation subject, and two brand characteristics
 - **THEN** it may propose multiple candidate phrasings or angles for the four
   required roles and select the best complete set in the same response
+- **AND** it may use the full company or store name, or a natural continuous
+  substring of that name, in the brand-directed question
 - **AND** the selected questions use concise, natural Chinese similar to an
-  ordinary person's real information or recommendation request
+  ordinary customer, consumer, or demander's real information or recommendation
+  request, including direct search, need-first, decision, project, or pain-point
+  phrasing
+- **AND** the complete set avoids repeating one sentence pattern across all
+  four questions
 - **AND** they are specific enough to the brand context without sounding like a
   rigid field template or exposing internal question-role terminology.
 
@@ -75,11 +81,14 @@ same frozen brand and industry context.
 
 - **WHEN** the structured response is projected into the durable question set
 - **THEN** program logic verifies only the required four roles, order,
-  non-empty bounded content, structural schema, and the exact-name invariant
-- **AND** the brand-directed question contains the current exact company or
-  store name while the three open questions do not contain that exact name
+  non-empty bounded content, candidate membership, structural schema, and the
+  target-name invariant
+- **AND** the selected target name is the full company/store name or a continuous
+  substring of it and appears in the brand-directed question
+- **AND** the three open questions contain neither that selected target name nor
+  the full company/store name
 - **AND** it does not replace product judgment with subjective keyword rules,
-  alias expansion, style scoring, or a second automatic reviewer.
+  unconstrained alias expansion, style scoring, or a second automatic reviewer.
 
 ### Requirement: Honest preparation presentation
 

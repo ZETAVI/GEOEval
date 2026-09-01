@@ -121,20 +121,24 @@ One versioned Query instruction receives:
 The first model-output contract asks the model to consider several ordinary-
 user angles and return:
 
-1. two or three candidate questions for each required role, with no more than
+1. one `queryTargetName` equal to the full company/store name or a natural
+   continuous substring used by the brand-directed question;
+2. two or three candidate questions for each required role, with no more than
    twelve candidates in total;
-2. one selected question for each of the four roles;
-3. one protected selection note of at most 300 characters for diagnosis and
+3. one selected question for each of the four roles;
+4. one protected selection note of at most 300 characters for diagnosis and
    Prompt iteration.
 
 Each candidate or selected question is non-empty and at most 240 characters.
 These are provider and persistence bounds, not a score for writing quality.
 
-The selected set should be natural and context-aware. Naturalness, useful
-recommendation angles, and non-rigid expression remain Prompt and controlled
-product-review responsibilities. The exact brand-name inclusion/exclusion rule
-below is the one deterministic business check because it protects the meaning
-of open-question recommendation metrics.
+The selected set should be natural and context-aware. It uses reviewed examples
+to vary direct search, need-first, decision, project, and pain-point phrasing
+without copying their business facts. Naturalness, useful recommendation angles,
+and non-rigid expression remain Prompt and controlled product-review
+responsibilities. The target-name inclusion/exclusion rule below is the one
+deterministic semantic check because it protects the meaning of open-question
+recommendation metrics.
 
 The deterministic projector checks only:
 
@@ -143,11 +147,14 @@ The deterministic projector checks only:
 - bounded string and collection sizes needed for persistence and provider
   safety;
 - a structurally valid response document;
-- that the brand-directed question contains the normalized exact current brand
-  name and the three open questions do not contain that exact name.
+- that `queryTargetName` is the full normalized company/store name or a
+  continuous substring of it, appears in the brand-directed question, and does
+  not appear in the three open questions;
+- that the full company/store name also does not appear in the three open
+  questions.
 
-It does not expand aliases, score tone, compare candidates, ban other phrases,
-call a second model, or claim that a structurally valid question is good.
+It does not invent or resolve aliases, score tone, compare candidates, ban other
+phrases, call a second model, or claim that a structurally valid question is good.
 Controlled product review of real output remains the quality gate before the
 first four-by-five run.
 
