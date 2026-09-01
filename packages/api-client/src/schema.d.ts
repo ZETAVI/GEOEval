@@ -219,9 +219,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["EvaluationController_observeDefinition"];
         put: operations["EvaluationController_prepareDefinition"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/evaluation-question-preparations/{preparationId}/retries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["EvaluationController_retryDefinitionPreparation"];
         delete?: never;
         options?: never;
         head?: never;
@@ -717,6 +733,15 @@ export interface components {
             run?: components["schemas"]["EvaluationRunResponse"] | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        EvaluationDefinitionPreparationResponse: {
+            /** @enum {string} */
+            status: "PREPARING" | "READY" | "PLEASE_RETRY";
+            preparationId: string | null;
+            definition: components["schemas"]["EvaluationDefinitionResponse"] | null;
+        };
+        CurrentEvaluationDefinitionPreparationResponse: {
+            preparation: components["schemas"]["EvaluationDefinitionPreparationResponse"] | null;
         };
         EvaluationRecommendationIndexResponse: {
             score: number;
@@ -1564,11 +1589,13 @@ export interface operations {
             };
         };
     };
-    EvaluationController_prepareDefinition: {
+    EvaluationController_observeDefinition: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                brandId: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -1578,7 +1605,49 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EvaluationDefinitionResponse"];
+                    "application/json": components["schemas"]["CurrentEvaluationDefinitionPreparationResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_prepareDefinition: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationDefinitionPreparationResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_retryDefinitionPreparation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preparationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationDefinitionPreparationResponse"];
                 };
             };
         };

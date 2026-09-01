@@ -19,7 +19,7 @@ one-definition, and explicit-start journey.
 | Route sequence                     | Qwen3.8 Flash, one same-route retry, then Hy3 fallback                                                                                                                                                               | Reuses S6-proven structured routes; no silent template fallback in the real path                                                               | Product and architecture owners |
 | Candidate storage                  | Store only selected questions as business records; retain full candidate output in protected attempt evidence                                                                                                        | Keeps the product model small while preserving diagnosis evidence                                                                              | Architecture owner              |
 | Brand reference-data dependency    | Deliver industry and administrative-region activation as one independently mergeable Brand Knowledge change, then rebase #26 and consume its stable projection                                                       | Both selectors share the brand form, readiness, fingerprint, snapshot, and migration boundary; their data semantics remain separate            | Product and architecture owners |
-| Existing deterministic definitions | Preserve definitions that already own a run; in the current development-only data boundary, explicitly remove only unstarted deterministic definitions so their unchanged brands can enter Agent preparation         | Preserves used evaluation history and opportunity meaning while avoiding a permanent template bypass; not a production-data migration approval | Product and architecture owners |
+| Existing deterministic definitions | Preserve every existing definition as the accepted question set for its original brand fingerprint; Agent preparation starts only for a fingerprint with no definition                                                        | Avoids destructive migration and preserves both used and unstarted evaluation opportunities; old fingerprints keep their historical template result | Product and architecture owners |
 | Validation sequence                | Query-only review across representative profiles, then one authorized 互动派 four-by-five run                                                                                                                        | Finds question-quality problems before paying for and interpreting twenty platform samples                                                     | Product owner                   |
 
 ## Customer-visible behavior
@@ -49,11 +49,11 @@ claim. The source boundary is recorded in `research/interaction-pie-test-profile
 
 - Confirmation: `Confirmed` by the product owner on 2026-09-01 for one Agent,
   multiple candidate angles, four selected questions, natural ordinary wording,
-  no refresh/edit, the validated natural-name metric invariant, the durable asynchronous
-  preparation boundary, the Qwen3.8-primary/Hy3-fallback route, and the two-
-  change delivery sequence.
-- Next action: #27 and PR #31 are merged on `main@3f8d815`. Implement the
-  deterministic durable-preparation slice against the accepted Brand Knowledge
-  projection before any real provider call.
+  no refresh/edit, the validated natural-name metric invariant, the durable
+  asynchronous preparation boundary, the Qwen3.8-primary/Hy3-fallback route,
+  the additive compatibility rule, and the two-change delivery sequence.
+- Next action: review the deterministic durable-preparation slice on the
+  accepted #27 / PR #31 Brand Knowledge baseline, then run the separately
+  authorized Query-only quality batch if the fixed Diff is accepted.
 - Confirmation required before: the first controlled paid Query-only batch;
   the later four-by-five real evaluation; PR merge; or production activation.

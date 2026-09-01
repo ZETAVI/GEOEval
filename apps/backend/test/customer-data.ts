@@ -130,6 +130,8 @@ export async function clearCustomerData(prisma: PrismaService): Promise<void> {
   await prisma.evaluationRun.deleteMany();
   await prisma.evaluationQuestion.deleteMany();
   await prisma.evaluationDefinition.deleteMany();
+  await prisma.aiQuestionGenerationAttempt.deleteMany();
+  await prisma.evaluationQuestionPreparation.deleteMany();
   await prisma.brandContext.deleteMany();
   await prisma.brandStoreLocation.deleteMany();
   await prisma.brandProfile.deleteMany();

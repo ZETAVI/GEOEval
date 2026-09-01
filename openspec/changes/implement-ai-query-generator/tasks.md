@@ -30,34 +30,35 @@
 
 ## Deterministic vertical slice
 
-- [ ] Add additive question-preparation, generation-attempt, and accepted-
+- [x] Add additive question-preparation, generation-attempt, and accepted-
       definition integrity constraints with a clean migration replay.
 - [x] Add the versioned Query Agent instruction, compact model-output schema,
       deterministic projector, and deterministic candidate fixtures; accept
       only one structurally complete selected four-question set whose direct
       question contains a validated natural target name and whose open questions
       omit both that target name and the full company/store name.
-- [ ] Extend the existing Product Outbox/BullMQ coordinator and AI Execution
+- [x] Extend the existing Product Outbox/BullMQ coordinator and AI Execution
       route boundary for idempotent preparation, bounded retry, ambiguity
       recovery, exhaustion, and explicit customer retry.
-- [ ] Update the authenticated API client and diagnosis page for preparing,
+- [x] Update the authenticated API client and diagnosis page for preparing,
       ready, and please-retry states without exposing technical details.
 
 ## Verification and controlled validation
 
-- [ ] Verify unchanged-fingerprint and concurrent preparation reuse, changed-
+- [x] Verify unchanged-fingerprint and concurrent preparation reuse, changed-
       fingerprint isolation, stale-definition start rejection, duplicate event
       delivery, process interruption, route retry/fallback, exhaustion, and
       explicit retry without duplicate accepted definitions.
-- [ ] Verify that an earlier sequence's late success cannot accept a Definition
+- [x] Verify that an earlier sequence's late success cannot accept a Definition
       and concurrent explicit retries create exactly one new sequence plus one
       first-attempt Outbox fact.
-- [ ] Record the count of development-only unstarted deterministic definitions
-      before and after migration and prove no Definition with a Run is removed.
-- [ ] Verify the stable upstream industry-and-region projection, exact snapshot
+- [x] Replay the additive migration over a database containing both used and
+      unstarted deterministic definitions, and prove both remain unchanged and
+      are observed as ready for their existing fingerprints.
+- [x] Verify the stable upstream industry-and-region projection, exact snapshot
       semantics, cross-account denial, generated OpenAPI types, full tests,
       builds, and a browser journey.
-- [ ] Run architecture and fixed-diff code reviews; resolve every must-fix
+- [x] Run architecture and fixed-diff code reviews; resolve every must-fix
       finding before real calls.
 - [ ] After separate authorization, run a bounded Query-only batch across
       representative profiles, including 互动派科技股份有限公司, and obtain product
@@ -75,14 +76,23 @@
       workspace exit state; close Issue #26 only after the merged acceptance
       boundary is satisfied.
 
-## #26a local evidence
+## Current local evidence
 
-- The focused Query contract suite passes seven tests covering the resolved
-  no-search task, instruction identity and content hash, one complete 互动派
-  four-question set, natural target-name validation, target-name
-  inclusion/exclusion, candidate membership, and required role ordering.
-- Backend TypeScript checking and focused Prettier checking pass using the
-  existing project-local binaries. The first pnpm wrapper invocation stopped
-  before tests because the current Worktree dependency metadata would have
-  triggered an interactive modules-directory rebuild; no dependency reinstall,
-  global package change, or provider call was performed.
+- The focused Query contract suite passes eight tests covering the no-search
+  task, instruction identity and content hash, stable Brand Knowledge text
+  projection, one complete 互动派 four-question set, natural target-name
+  validation, target-name inclusion/exclusion, candidate membership, and role
+  ordering.
+- The durable preparation suite covers concurrent initiation, duplicate event
+  delivery, Qwen retry and Hy3 fallback, sequence exhaustion, concurrent
+  explicit retry, stale-sequence rejection, ambiguous-interruption recovery,
+  and direct reuse of existing deterministic definitions.
+- A migration replay on an isolated database preserved one used and one
+  unstarted four-question deterministic definition without creating synthetic
+  preparations or attempts.
+- The full backend suite, generated OpenAPI client, backend/Web type checks,
+  complete build, and browser journey pass with deterministic Provider mode.
+  Browser evidence includes the visible `preparing` state followed by one
+  ready 互动派 four-question set with no console warnings or errors.
+- No real Provider call, real four-by-five run, production activation, or
+  production-data migration was performed.

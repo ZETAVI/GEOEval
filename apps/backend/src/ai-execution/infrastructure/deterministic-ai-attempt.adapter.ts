@@ -74,6 +74,14 @@ export class DeterministicAiAttemptAdapter implements AiAttemptAdapter {
       };
     }
 
+    if (request.purpose === "EVALUATION_QUESTION_GENERATION") {
+      return {
+        kind: "SUCCEEDED",
+        output: deterministicQuestionGeneration(request.input.userContext),
+        usage: { inputTokens: 420, outputTokens: 240 },
+      };
+    }
+
     const userContext = request.input.userContext;
     const companyName = requiredString(userContext, "companyName");
     const answerContent = requiredString(userContext, "originalAnswer");
@@ -241,6 +249,48 @@ export class DeterministicAiAttemptAdapter implements AiAttemptAdapter {
       usage: { inputTokens: 220, outputTokens: 96 },
     };
   }
+}
+
+function deterministicQuestionGeneration(
+  userContext: Record<string, unknown>,
+): Record<string, unknown> {
+  const companyName = requiredString(userContext, "companyName");
+  const region = requiredString(userContext, "regionLabel");
+  const subject = requiredString(userContext, "recommendationSubject");
+  const characteristicOne = requiredString(userContext, "characteristicOne");
+  const characteristicTwo = requiredString(userContext, "characteristicTwo");
+  const selected = [
+    {
+      kind: "BRAND_DIRECTED",
+      content: `${region}${companyName}这家${subject}怎么样，主要提供哪些业务和服务，市场口碑如何？`,
+    },
+    {
+      kind: "INDUSTRY_RECOMMENDATION",
+      content: `我们准备找${subject}，${region}有哪些公司值得了解和比较？`,
+    },
+    {
+      kind: "CHARACTERISTIC_ONE",
+      content: `我们比较看重${characteristicOne}，${region}有哪些${subject}比较合适？`,
+    },
+    {
+      kind: "CHARACTERISTIC_TWO",
+      content: `想找一家在${characteristicTwo}方面有经验的${subject}，${region}有哪些选择？`,
+    },
+  ];
+  return {
+    queryTargetName: companyName,
+    candidateGroups: selected.map((question) => ({
+      kind: question.kind,
+      candidates: [
+        question.content,
+        question.kind === "BRAND_DIRECTED"
+          ? `${companyName}主要做什么，在${region}的整体表现怎么样？`
+          : `${region}有哪些${subject}可以满足这类需求，选择时应重点了解什么？`,
+      ],
+    })),
+    selectedQuestions: selected,
+    selectionNote: "四个问题分别覆盖品牌了解、行业选择与两个特色需求场景。",
+  };
 }
 
 function deterministicOverallSynthesis(

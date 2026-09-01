@@ -7,6 +7,8 @@ import type {
 
 export const EVALUATION_QUESTION_GENERATION_MODEL_CONTRACT_VERSION =
   "evaluation.question-generation-model@1";
+export const EVALUATION_QUESTION_SET_CONTRACT_VERSION =
+  "evaluation.question-set@1";
 
 const QUESTION_KINDS = [
   "BRAND_DIRECTED",

@@ -66,13 +66,12 @@ definition owner.
   - Add preparation and Query-attempt storage through an additive migration.
   - The upstream brand-reference-data change owns industry and region migration
     plus fingerprint continuity before this branch is rebased.
-  - Existing deterministic definitions with a run remain readable historical
-    definitions and do not grant another evaluation opportunity. In the current
-    development-only data boundary, the implementation migration removes only
-    unstarted deterministic definitions so an unchanged ready brand can be
-    prepared once by the Query Agent. Verification records the before/after
-    count and proves every removed definition had no Run. No production-data
-    migration is claimed.
+  - Every existing deterministic definition remains readable and continues to
+    represent the one accepted question set for its brand fingerprint, whether
+    or not it already has a Run. Agent preparation starts only for a fingerprint
+    with no definition. The additive migration therefore neither deletes nor
+    rewrites definitions and does not silently grant another evaluation
+    opportunity.
   - The real customer path never silently falls back to a template. Operational
     rollback disables new Agent preparation while preserving existing accepted
     definitions and attempts.
@@ -169,6 +168,9 @@ first four-by-five run.
 - Query attempt is unique by
   `(preparationId, sequence, attemptNumber)`; preparation freezes the Query
   Prompt and output-contract identity used by every sequence.
+- Existing definitions may have neither a preparation nor accepted-attempt
+  reference. New Agent-generated definitions have both references; a database
+  check rejects half-linked definitions.
 - Accepted definition and accepted attempt references are unique. Composite
   ownership constraints keep the preparation, brand, definition, account,
   fingerprint, and accepted attempt in the same identity boundary.

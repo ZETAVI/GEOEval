@@ -53,20 +53,30 @@ const contentHash = createHash("sha256")
 export function buildEvaluationQuestionGenerationTask(
   context: EvaluationQuestionGenerationTaskContext,
 ) {
+  return buildFrozenEvaluationQuestionGenerationTask(context, {
+    instruction: evaluationQuestionGenerationInstructionSnapshot(),
+    outputContract: evaluationQuestionGenerationOutputContractSnapshot(),
+  });
+}
+
+export function buildFrozenEvaluationQuestionGenerationTask(
+  context: EvaluationQuestionGenerationTaskContext,
+  frozen: {
+    instruction: { content: string };
+    outputContract: {
+      version: string;
+      jsonSchema: Record<string, unknown>;
+    };
+  },
+) {
   return {
     taskKind: "STRUCTURED_OUTPUT" as const,
-    systemInstruction,
+    systemInstruction: frozen.instruction.content,
     userContext: {
       capabilities: { publicSearch: false },
       ...context,
     },
-    outputContract: {
-      version: EVALUATION_QUESTION_GENERATION_MODEL_CONTRACT_VERSION,
-      jsonSchema: evaluationQuestionGenerationModelJsonSchema as Record<
-        string,
-        unknown
-      >,
-    },
+    outputContract: frozen.outputContract,
   };
 }
 
@@ -76,6 +86,16 @@ export function evaluationQuestionGenerationInstructionSnapshot() {
     version: `${common.version}+${referenceExamples.version}`,
     contentHash,
     content: systemInstruction,
+  };
+}
+
+export function evaluationQuestionGenerationOutputContractSnapshot() {
+  return {
+    version: EVALUATION_QUESTION_GENERATION_MODEL_CONTRACT_VERSION,
+    jsonSchema: evaluationQuestionGenerationModelJsonSchema as Record<
+      string,
+      unknown
+    >,
   };
 }
 

@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 
 import { EvaluationProcessCoordinator } from "../../geo-intelligence/application/evaluation-process.coordinator.js";
+import { EvaluationQuestionPreparationCoordinator } from "../../geo-intelligence/application/evaluation-question-preparation.coordinator.js";
 import {
   EVALUATION_PROCESS_COMPLETED,
   type EvaluationProcessResult,
@@ -19,6 +20,8 @@ export class ProductWorkProcessor {
     private readonly outbox: ProductOutboxRepository,
     @Inject(EvaluationProcessCoordinator)
     private readonly coordinator: EvaluationProcessCoordinator,
+    @Inject(EvaluationQuestionPreparationCoordinator)
+    private readonly questionPreparation: EvaluationQuestionPreparationCoordinator,
     @Inject(NotificationEventHandler)
     private readonly notifications: NotificationEventHandler,
     @Inject(SafeTelemetry)
@@ -34,6 +37,8 @@ export class ProductWorkProcessor {
       event.eventType === "evaluation.retry.required"
     ) {
       await this.notifications.handle(event);
+    } else if (event.eventType === "evaluation.definition.prepare.requested") {
+      result = await this.questionPreparation.process(event.payload);
     } else {
       result = await this.coordinator.process(event);
     }
@@ -48,6 +53,9 @@ export class ProductWorkProcessor {
   }
 
   async reconcile(): Promise<number> {
-    return this.coordinator.reconcile(100);
+    const evaluationRecovered = await this.coordinator.reconcile(100);
+    const questionPreparationRecovered =
+      await this.questionPreparation.reconcile(100);
+    return evaluationRecovered + questionPreparationRecovered;
   }
 }

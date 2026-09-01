@@ -25,6 +25,7 @@ import { EvaluationService } from "../application/evaluation.service.js";
 import { EvaluationReportService } from "../application/evaluation-report.service.js";
 import type { EvaluationReportView } from "../domain/evaluation-report.view.js";
 import { publicEvaluationBrandSnapshot } from "../domain/evaluation-brand-snapshot.js";
+import type { EvaluationDefinitionPreparationView } from "../domain/evaluation-question-preparation.types.js";
 import type {
   EvaluationDefinitionView,
   EvaluationRunView,
@@ -32,6 +33,8 @@ import type {
 import {
   EvaluationBrandSnapshotResponse,
   EvaluationDefinitionResponse,
+  EvaluationDefinitionPreparationResponse,
+  CurrentEvaluationDefinitionPreparationResponse,
   EvaluationPlatformResponse,
   EvaluationQuestionResponse,
   EvaluationRunResponse,
@@ -58,6 +61,8 @@ import {
 @ApiTags("evaluation")
 @ApiExtraModels(
   EvaluationDefinitionResponse,
+  EvaluationDefinitionPreparationResponse,
+  CurrentEvaluationDefinitionPreparationResponse,
   EvaluationBrandSnapshotResponse,
   EvaluationQuestionResponse,
   EvaluationPlatformResponse,
@@ -142,15 +147,45 @@ export class EvaluationController {
       .then(presentReport);
   }
 
+  @Get("brands/:brandId/evaluation-definition")
+  @ApiOkResponse({ type: CurrentEvaluationDefinitionPreparationResponse })
+  @ApiParam({ name: "brandId", type: String })
+  observeDefinition(
+    @Req() request: AuthenticatedRequest,
+    @Param("brandId") brandId: string,
+  ): Promise<CurrentEvaluationDefinitionPreparationResponse> {
+    return this.evaluations
+      .observeDefinition(request.geoevalAccount!.id, brandId)
+      .then((preparation) => ({
+        preparation: preparation
+          ? presentDefinitionPreparation(preparation)
+          : null,
+      }));
+  }
+
   @Put("brands/:brandId/evaluation-definition")
-  @ApiOkResponse({ type: EvaluationDefinitionResponse })
+  @ApiOkResponse({ type: EvaluationDefinitionPreparationResponse })
+  @ApiParam({ name: "brandId", type: String })
   prepareDefinition(
     @Req() request: AuthenticatedRequest,
     @Param("brandId") brandId: string,
-  ): Promise<EvaluationDefinitionResponse> {
+  ): Promise<EvaluationDefinitionPreparationResponse> {
     return this.evaluations
       .prepareDefinition(request.geoevalAccount!.id, brandId)
-      .then(presentDefinition);
+      .then(presentDefinitionPreparation);
+  }
+
+  @Post("evaluation-question-preparations/:preparationId/retries")
+  @HttpCode(200)
+  @ApiOkResponse({ type: EvaluationDefinitionPreparationResponse })
+  @ApiParam({ name: "preparationId", type: String })
+  retryDefinitionPreparation(
+    @Req() request: AuthenticatedRequest,
+    @Param("preparationId") preparationId: string,
+  ): Promise<EvaluationDefinitionPreparationResponse> {
+    return this.evaluations
+      .retryDefinitionPreparation(request.geoevalAccount!.id, preparationId)
+      .then(presentDefinitionPreparation);
   }
 
   @Post("evaluation-definitions/:definitionId/runs")
@@ -204,6 +239,18 @@ function presentDefinition(
     platforms: definition.platforms.map(({ key, label }) => ({ key, label })),
     run: definition.run ? presentRun(definition.run) : null,
     createdAt: definition.createdAt,
+  };
+}
+
+function presentDefinitionPreparation(
+  preparation: EvaluationDefinitionPreparationView,
+): EvaluationDefinitionPreparationResponse {
+  return {
+    status: preparation.status,
+    preparationId: preparation.preparationId,
+    definition: preparation.definition
+      ? presentDefinition(preparation.definition)
+      : null,
   };
 }
 
