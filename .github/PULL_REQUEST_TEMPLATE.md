@@ -8,7 +8,11 @@
 
 - 本次包含：
 - 本次不包含：
-- 关联 Issue / Sub-Issue / Change：
+- Owning relationship（只保留一项）：
+  - Final PR：`Closes #<owning-issue>`
+  - Partial PR：`Part of #<owning-issue> — does not close`
+  - Review Gate：`Review Gate #<issue>`（普通引用；不要求独立 PR）
+- 关联 Sub-Issue / Change：
 
 ## Implementation（实现说明）
 
@@ -59,11 +63,12 @@
 
 ## Merge Checklist
 
-- [ ] 已关联负责本次变化的 Issue；新增独立结果已拆为 Sub-Issue 或后续 Issue
+- [ ] 已选择 Final / Partial / Review Gate 关系；Final PR 的 `Development` 显示 owning Issue
 - [ ] Issue、当前态文档、实现与测试证据彼此一致
 - [ ] 实现说明覆盖关键边界，但没有复制 Diff 或完整规范
 - [ ] 已更新、重构或删除因行为变化而过时、重复或误导的测试
 - [ ] 已记录未执行检查、已知风险以及可行的恢复方式
+- [ ] 已请求的 Review 已完成；阻塞发现已修复或有明确 Evidence / Follow-up disposition
 - [ ] Issue Assignee、Project Status/Priority、Dependency 与 Checklist 已对账
 - [ ] 已完成的 OpenSpec Change 已归档；未完成时已记录准确退出状态
 - [ ] 已确认发布影响、Handoff 与 Worktree 退出状态

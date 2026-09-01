@@ -89,6 +89,10 @@ Follow-up Issue when the new outcome can be deferred, released, prioritized, or
 accepted independently. Use native Dependency links for ordering or blocking,
 not Parent/Sub-Issue merely to draw a sequence.
 
+A Review Gate may use an ordinary reference to the integrated PR. Do not create
+an otherwise unnecessary PR or native closing relationship merely to populate
+the Gate's `Development` field.
+
 Pause and request a split decision when any of these becomes true:
 
 - a second independently valuable acceptance result appears;
@@ -112,6 +116,23 @@ A Pull Request may be one of several PRs that advance one open Issue. Each PR
 must remain independently reviewable and must say what portion of the Issue it
 delivers. The final PR or explicit close decision proves the Issue's full
 acceptance boundary.
+
+State the owning relationship in the PR description:
+
+- a final acceptance PR uses `Closes #<owning-issue>` so GitHub records the
+  native `Development` relationship and closes the Issue after merge to the
+  default branch;
+- a partial PR uses `Part of #<owning-issue> — does not close` and leaves the
+  Issue open;
+- a Review Gate uses an ordinary `Review Gate #<issue>` reference and does not
+  require an independent PR.
+
+When several PRs advance one Issue, only the final acceptance PR creates the
+native closing relationship. Before merge, every requested review must have a
+completed outcome, and each material finding must be fixed, explicitly rejected
+with evidence, or moved to a durable follow-up when it does not invalidate the
+approved result. An in-flight requested review is still `Review / Decision`, not
+a completed merge gate.
 
 The implementation explanation is concrete enough for a reviewer to understand
 the design without reconstructing it from the diff. It covers, when applicable:

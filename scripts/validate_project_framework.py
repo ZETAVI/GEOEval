@@ -320,16 +320,20 @@ def validate_tracking_templates(errors: list[str]) -> None:
         errors.append("missing .github/PULL_REQUEST_TEMPLATE.md")
     else:
         body = pr_template.read_text(encoding="utf-8")
-        for heading in (
+        for marker in (
             "## Implementation（实现说明）",
             "## Evidence（验收与证据）",
             "## Tests & Specs（测试与当前态影响）",
             "## Lifecycle（生命周期）",
             "## Merge Checklist",
+            "Closes #<owning-issue>",
+            "Part of #<owning-issue> — does not close",
+            "Review Gate #<issue>",
+            "已请求的 Review 已完成",
         ):
-            if heading not in body:
+            if marker not in body:
                 errors.append(
-                    f".github/PULL_REQUEST_TEMPLATE.md is missing {heading!r}"
+                    f".github/PULL_REQUEST_TEMPLATE.md is missing {marker!r}"
                 )
 
     workflows = {
