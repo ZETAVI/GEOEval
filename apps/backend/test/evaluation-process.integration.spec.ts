@@ -641,7 +641,7 @@ describe("resumable evaluation evidence", () => {
         semanticDisposition: {
           kind: "REJECTED",
           failureClass: "SEMANTIC_CONTRACT_REJECTED",
-          modelContractVersion: "evaluation.sample-parser-model@2",
+          modelContractVersion: "evaluation.sample-parser-model@3",
           domainContractVersion: "1.0.0",
         },
       },
@@ -701,13 +701,13 @@ describe("resumable evaluation evidence", () => {
       ),
     ).toEqual([
       {
-        routePolicyId: "evaluation.interpretation.qwen-primary@1",
+        routePolicyId: "evaluation.interpretation.qwen-primary@2",
         providerKey: "deterministic-parser",
         requestedModel: "qwen3.8-flash",
         attemptNumber: 1,
       },
       {
-        routePolicyId: "evaluation.interpretation.qwen-primary@1",
+        routePolicyId: "evaluation.interpretation.qwen-primary@2",
         providerKey: "deterministic-parser",
         requestedModel: "qwen3.8-flash",
         attemptNumber: 2,

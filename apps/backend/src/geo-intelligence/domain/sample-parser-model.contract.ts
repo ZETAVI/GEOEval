@@ -10,7 +10,7 @@ import {
 } from "./sample-parser.contract.js";
 
 export const SAMPLE_PARSER_MODEL_CONTRACT_VERSION =
-  "evaluation.sample-parser-model@2";
+  "evaluation.sample-parser-model@3";
 
 const boundedText = (maximum: number) => z.string().trim().min(1).max(maximum);
 
@@ -197,7 +197,10 @@ export function parseAndProjectSampleParserModelOutput(
     return parseSampleParserOutput(acceptedDomainOutput.data, context);
   }
   const modelOutput = sampleParserModelOutputSchema.parse(input);
-  return parseSampleParserOutput(projectModelOutput(modelOutput), context);
+  return parseSampleParserOutput(
+    projectModelOutput(modelOutput, context),
+    context,
+  );
 }
 
 type EvidencePurpose =
@@ -209,50 +212,91 @@ type ModelObservation =
 
 function projectModelOutput(
   input: SampleParserModelOutput,
+  context: SampleParserAcceptanceContext,
 ): SampleParserOutput {
-  const anchors = new EvidenceAnchorRegistry();
+  const anchors = new EvidenceAnchorRegistry(context.originalAnswer);
+  const targetDisplayedForms = input.mentioned
+    ? uniqueStrings([
+        ...input.semantic.targetDisplayedForms.filter((form) =>
+          context.originalAnswer.includes(form),
+        ),
+        ...(context.originalAnswer.includes(context.companyName)
+          ? [context.companyName]
+          : []),
+      ]).slice(0, 12)
+    : [];
+  let targetMentionAnchorIds = input.mentioned
+    ? anchors.references(
+        input.semantic.targetMentionEvidence.filter((span) =>
+          targetDisplayedForms.some((form) => span.exactText.includes(form)),
+        ),
+        "TARGET_MENTION",
+      )
+    : [];
+  if (
+    input.mentioned &&
+    targetMentionAnchorIds.length === 0 &&
+    targetDisplayedForms[0]
+  ) {
+    targetMentionAnchorIds = anchors.references(
+      [{ exactText: targetDisplayedForms[0], occurrence: 1 }],
+      "TARGET_MENTION",
+    );
+  }
+
   let observationOrdinal = 0;
-  const observation = (value: ModelObservation) => ({
-    observationId: `o${++observationOrdinal}`,
-    label: value.label,
-    detail: value.detail,
-    polarity: value.polarity,
-    evidenceAnchorIds: anchors.references(
+  const observation = (value: ModelObservation) => {
+    const evidenceAnchorIds = anchors.references(
       value.evidence,
       value.category === "CHARACTERISTIC" ? "CHARACTERISTIC" : "DESCRIPTION",
-    ),
-  });
-  const otherBrands = input.semantic.otherBrands.map((brand, index) => ({
-    brandMentionId: `b${index + 1}`,
-    displayName: brand.displayName,
-    observedForms: brand.observedForms,
-    role: brand.role,
-    relativePosition: brand.relativePosition,
-    positionKind: brand.positionKind,
-    evidenceAnchorIds: anchors.references(brand.evidence, "OTHER_BRAND"),
-  }));
-  anchors.references(input.semantic.targetMentionEvidence, "TARGET_MENTION");
+    );
+    if (evidenceAnchorIds.length === 0) return undefined;
+    return {
+      observationId: `o${++observationOrdinal}`,
+      label: value.label,
+      detail: value.detail,
+      polarity: value.polarity,
+      evidenceAnchorIds,
+    };
+  };
+  type ProjectedObservation = NonNullable<ReturnType<typeof observation>>;
 
   if (input.family === "BRAND_DIRECTED") {
     const groups = {
-      statedIdentity: [] as ReturnType<typeof observation>[],
-      positioning: [] as ReturnType<typeof observation>[],
-      offerings: [] as ReturnType<typeof observation>[],
-      audiences: [] as ReturnType<typeof observation>[],
-      targetObservations: [] as ReturnType<typeof observation>[],
+      statedIdentity: [] as ProjectedObservation[],
+      positioning: [] as ProjectedObservation[],
+      offerings: [] as ProjectedObservation[],
+      audiences: [] as ProjectedObservation[],
+      targetObservations: [] as ProjectedObservation[],
     };
     for (const value of input.semantic.targetObservations) {
+      const group =
+        value.category === "IDENTITY"
+          ? groups.statedIdentity
+          : value.category === "POSITIONING"
+            ? groups.positioning
+            : value.category === "OFFERING"
+              ? groups.offerings
+              : value.category === "AUDIENCE"
+                ? groups.audiences
+                : groups.targetObservations;
+      if (group.length >= 12) continue;
       const projected = observation(value);
-      if (value.category === "IDENTITY") groups.statedIdentity.push(projected);
-      else if (value.category === "POSITIONING")
-        groups.positioning.push(projected);
-      else if (value.category === "OFFERING") groups.offerings.push(projected);
-      else if (value.category === "AUDIENCE") groups.audiences.push(projected);
-      else groups.targetObservations.push(projected);
+      if (projected) group.push(projected);
     }
     const contextualPositionEvidenceAnchorIds = anchors.references(
       input.semantic.contextualPositionEvidence,
       "TARGET_POSITION",
+    );
+    const hasContextualPosition =
+      input.mentioned &&
+      input.semantic.contextualTargetPosition !== null &&
+      contextualPositionEvidenceAnchorIds.length > 0;
+    const otherBrands = projectOtherBrands(
+      input,
+      context,
+      anchors,
+      targetDisplayedForms,
     );
     return {
       family: "BRAND_DIRECTED",
@@ -261,7 +305,7 @@ function projectModelOutput(
       semantic: {
         profile: "BRAND_DIRECTED",
         answerStructure: input.semantic.answerStructure,
-        targetDisplayedForms: input.semantic.targetDisplayedForms,
+        targetDisplayedForms,
         targetObservations: groups.targetObservations,
         otherBrands,
         evidenceAnchors: anchors.values(),
@@ -271,47 +315,152 @@ function projectModelOutput(
         positioning: groups.positioning,
         offerings: groups.offerings,
         audiences: groups.audiences,
-        contextualTargetPosition: input.semantic.contextualTargetPosition,
-        contextualPositionEvidenceAnchorIds,
+        contextualTargetPosition: hasContextualPosition
+          ? input.semantic.contextualTargetPosition
+          : null,
+        contextualPositionEvidenceAnchorIds: hasContextualPosition
+          ? contextualPositionEvidenceAnchorIds
+          : [],
       },
     };
   }
 
-  anchors.references(input.semantic.targetPositionEvidence, "TARGET_POSITION");
+  let targetPositionEvidenceAnchorIds = input.mentioned
+    ? anchors.references(
+        input.semantic.targetPositionEvidence,
+        "TARGET_POSITION",
+      )
+    : [];
+  if (
+    input.mentioned &&
+    input.position !== null &&
+    targetPositionEvidenceAnchorIds.length === 0 &&
+    targetDisplayedForms[0]
+  ) {
+    targetPositionEvidenceAnchorIds = anchors.references(
+      [{ exactText: targetDisplayedForms[0], occurrence: 1 }],
+      "TARGET_POSITION",
+    );
+  }
   const groups = {
-    recommendationReasons: [] as ReturnType<typeof observation>[],
-    conditions: [] as ReturnType<typeof observation>[],
-    queryFit: [] as ReturnType<typeof observation>[],
-    targetObservations: [] as ReturnType<typeof observation>[],
+    recommendationReasons: [] as ProjectedObservation[],
+    conditions: [] as ProjectedObservation[],
+    queryFit: [] as ProjectedObservation[],
+    targetObservations: [] as ProjectedObservation[],
   };
   for (const value of input.semantic.targetObservations) {
+    const group =
+      value.category === "RECOMMENDATION_REASON"
+        ? groups.recommendationReasons
+        : value.category === "CONDITION"
+          ? groups.conditions
+          : value.category === "QUERY_FIT"
+            ? groups.queryFit
+            : groups.targetObservations;
+    if (group.length >= 12) continue;
     const projected = observation(value);
-    if (value.category === "RECOMMENDATION_REASON")
-      groups.recommendationReasons.push(projected);
-    else if (value.category === "CONDITION") groups.conditions.push(projected);
-    else if (value.category === "QUERY_FIT") groups.queryFit.push(projected);
-    else groups.targetObservations.push(projected);
+    if (projected) group.push(projected);
   }
+  const otherBrands = projectOtherBrands(
+    input,
+    context,
+    anchors,
+    targetDisplayedForms,
+  );
   return {
     family: "OPEN_DISCOVERY",
     questionKind: input.questionKind,
     mentioned: input.mentioned,
-    position: input.position,
+    position: input.mentioned ? input.position : null,
     semantic: {
       profile: "OPEN_DISCOVERY",
       answerStructure: input.semantic.answerStructure,
-      targetDisplayedForms: input.semantic.targetDisplayedForms,
+      targetDisplayedForms,
       targetObservations: groups.targetObservations,
       otherBrands,
       evidenceAnchors: anchors.values(),
       cardInterpretation: input.semantic.cardInterpretation,
       limitations: input.semantic.limitations,
-      targetRole: input.semantic.targetRole,
+      targetRole: input.mentioned
+        ? input.semantic.targetRole === "NOT_MENTIONED"
+          ? "MENTIONED_ONLY"
+          : input.semantic.targetRole
+        : "NOT_MENTIONED",
       recommendationReasons: groups.recommendationReasons,
       conditions: groups.conditions,
       queryFit: groups.queryFit,
     },
   };
+}
+
+function projectOtherBrands(
+  input: SampleParserModelOutput,
+  context: SampleParserAcceptanceContext,
+  anchors: EvidenceAnchorRegistry,
+  targetDisplayedForms: string[],
+) {
+  const targetNames = new Set(
+    [context.companyName, ...targetDisplayedForms]
+      .map(normalizeName)
+      .filter(Boolean),
+  );
+  const seenNames = new Set<string>();
+  const otherBrands: Array<{
+    brandMentionId: string;
+    displayName: string;
+    observedForms: string[];
+    role: SampleParserModelOutput["semantic"]["otherBrands"][number]["role"];
+    relativePosition: number | null;
+    positionKind: "RECOMMENDATION" | "CONTEXTUAL" | null;
+    evidenceAnchorIds: string[];
+  }> = [];
+  for (const brand of input.semantic.otherBrands) {
+    if (otherBrands.length >= 15) break;
+    const observedForms = uniqueStrings(
+      [brand.displayName, ...brand.observedForms].filter((form) =>
+        context.originalAnswer.includes(form),
+      ),
+    ).slice(0, 12);
+    const normalizedForms = observedForms.map(normalizeName).filter(Boolean);
+    const normalizedDisplayName = normalizeName(brand.displayName);
+    const identityNames = uniqueStrings([
+      normalizedDisplayName,
+      ...normalizedForms,
+    ]).filter(Boolean);
+    if (
+      !normalizedDisplayName ||
+      observedForms.length === 0 ||
+      identityNames.some((name) => targetNames.has(name) || seenNames.has(name))
+    ) {
+      continue;
+    }
+    let evidenceAnchorIds = anchors.references(
+      brand.evidence.filter((span) =>
+        observedForms.some((form) => span.exactText.includes(form)),
+      ),
+      "OTHER_BRAND",
+    );
+    if (evidenceAnchorIds.length === 0) {
+      evidenceAnchorIds = anchors.references(
+        [{ exactText: observedForms[0]!, occurrence: 1 }],
+        "OTHER_BRAND",
+      );
+    }
+    if (evidenceAnchorIds.length === 0) continue;
+    identityNames.forEach((name) => seenNames.add(name));
+    const hasCompletePosition =
+      brand.relativePosition !== null && brand.positionKind !== null;
+    otherBrands.push({
+      brandMentionId: `b${otherBrands.length + 1}`,
+      displayName: brand.displayName,
+      observedForms,
+      role: brand.role,
+      relativePosition: hasCompletePosition ? brand.relativePosition : null,
+      positionKind: hasCompletePosition ? brand.positionKind : null,
+      evidenceAnchorIds,
+    });
+  }
+  return otherBrands;
 }
 
 class EvidenceAnchorRegistry {
@@ -323,16 +472,22 @@ class EvidenceAnchorRegistry {
   }> = [];
   private readonly bySpan = new Map<string, number>();
 
+  constructor(private readonly originalAnswer: string) {}
+
   references(spans: EvidenceSpan[], purpose: EvidencePurpose): string[] {
-    return spans.map((span) => {
+    const references: string[] = [];
+    for (const span of spans) {
+      if (!hasOccurrence(this.originalAnswer, span)) continue;
       const key = `${span.occurrence}\u0000${span.exactText}`;
       const existingIndex = this.bySpan.get(key);
       if (existingIndex !== undefined) {
         const existing = this.anchors[existingIndex]!;
         if (!existing.purposes.includes(purpose))
           existing.purposes.push(purpose);
-        return existing.anchorId;
+        references.push(existing.anchorId);
+        continue;
       }
+      if (this.anchors.length >= 40) continue;
       const anchorId = `e${this.anchors.length + 1}`;
       this.bySpan.set(key, this.anchors.length);
       this.anchors.push({
@@ -341,11 +496,36 @@ class EvidenceAnchorRegistry {
         occurrence: span.occurrence,
         purposes: [purpose],
       });
-      return anchorId;
-    });
+      references.push(anchorId);
+    }
+    return uniqueStrings(references);
   }
 
   values(): SampleParserSemantic["evidenceAnchors"] {
     return this.anchors.map((anchor) => ({ ...anchor }));
   }
+}
+
+function hasOccurrence(answer: string, span: EvidenceSpan): boolean {
+  let offset = 0;
+  let found = 0;
+  while (offset <= answer.length - span.exactText.length) {
+    const index = answer.indexOf(span.exactText, offset);
+    if (index < 0) return false;
+    found += 1;
+    if (found === span.occurrence) return true;
+    offset = index + Math.max(1, span.exactText.length);
+  }
+  return false;
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values)];
+}
+
+function normalizeName(value: string): string {
+  return value
+    .normalize("NFKC")
+    .toLocaleLowerCase("zh-CN")
+    .replace(/[^\p{L}\p{N}]+/gu, "");
 }

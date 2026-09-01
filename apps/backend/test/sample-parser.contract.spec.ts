@@ -14,6 +14,7 @@ import {
   SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
   parseAndProjectSampleParserModelOutput,
   sampleParserModelJsonSchemaForQuestionKind,
+  type SampleParserModelOutput,
 } from "../src/geo-intelligence/domain/sample-parser-model.contract.js";
 import {
   buildSampleParserTask,
@@ -65,10 +66,10 @@ describe("sample parser semantic contract", () => {
       SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
     );
     expect(sampleParserInstructionProfile("CHARACTERISTIC_ONE")).toBe(
-      "evaluation.sample-parser.common@2.0.1+evaluation.sample-parser.open-discovery@2.0.0",
+      "evaluation.sample-parser.common@2.1.0+evaluation.sample-parser.open-discovery@2.1.0",
     );
     expect(sampleParserInstructionProfile("BRAND_DIRECTED")).toBe(
-      "evaluation.sample-parser.common@2.0.1+evaluation.sample-parser.brand-directed@2.0.1",
+      "evaluation.sample-parser.common@2.1.0+evaluation.sample-parser.brand-directed@2.1.0",
     );
 
     expect(
@@ -167,6 +168,154 @@ describe("sample parser semantic contract", () => {
         (anchor) => anchor.exactText === targetEvidence.exactText,
       )?.purposes,
     ).toEqual(["TARGET_MENTION", "TARGET_POSITION", "DESCRIPTION"]);
+  });
+
+  it("drops unsupported optional detail and recovers literal target anchors", () => {
+    const answer =
+      "1. 星河咖啡值得关注。\n2. 晨光咖啡也可比较。\nA品牌与B品牌也可比较。";
+    const input = validOpenModel(answer);
+    input.semantic.targetMentionEvidence = [];
+    input.semantic.targetPositionEvidence = [];
+    input.semantic.targetObservations = [
+      {
+        category: "QUERY_FIT",
+        label: "进入候选",
+        detail: "回答将品牌列入候选。",
+        polarity: "POSITIVE",
+        evidence: [{ exactText: "星河咖啡值得关注。", occurrence: 1 }],
+      },
+      {
+        category: "GENERAL",
+        label: "无效观察",
+        detail: "该观察没有原文依据。",
+        polarity: "UNCERTAIN",
+        evidence: [{ exactText: "原文中不存在的内容", occurrence: 1 }],
+      },
+    ];
+    input.semantic.otherBrands = [
+      {
+        displayName: "晨光咖啡",
+        observedForms: ["晨光咖啡"],
+        role: "COMPARED",
+        relativePosition: 2,
+        positionKind: null,
+        evidence: [{ exactText: "晨光咖啡也可比较。", occurrence: 1 }],
+      },
+      {
+        displayName: "晨光咖啡",
+        observedForms: ["晨光咖啡"],
+        role: "MENTIONED_ONLY",
+        relativePosition: null,
+        positionKind: null,
+        evidence: [{ exactText: "晨光咖啡也可比较。", occurrence: 1 }],
+      },
+      {
+        displayName: "无依据品牌",
+        observedForms: ["无依据品牌"],
+        role: "MENTIONED_ONLY",
+        relativePosition: null,
+        positionKind: null,
+        evidence: [{ exactText: "不存在的品牌证据", occurrence: 1 }],
+      },
+      {
+        displayName: ":",
+        observedForms: ["A品牌"],
+        role: "MENTIONED_ONLY",
+        relativePosition: null,
+        positionKind: null,
+        evidence: [{ exactText: "A品牌与B品牌也可比较。", occurrence: 1 }],
+      },
+      {
+        displayName: ":",
+        observedForms: ["B品牌"],
+        role: "MENTIONED_ONLY",
+        relativePosition: null,
+        positionKind: null,
+        evidence: [{ exactText: "A品牌与B品牌也可比较。", occurrence: 1 }],
+      },
+    ];
+
+    const output = parseAndProjectSampleParserModelOutput(input, {
+      questionKind: "CHARACTERISTIC_ONE",
+      companyName: "星河咖啡",
+      originalAnswer: answer,
+    });
+
+    expect(output).toMatchObject({ mentioned: true, position: 1 });
+    if (output.family !== "OPEN_DISCOVERY") throw new Error("wrong family");
+    expect(output.semantic.queryFit).toHaveLength(1);
+    expect(output.semantic.targetObservations).toEqual([]);
+    expect(output.semantic.otherBrands).toEqual([
+      expect.objectContaining({
+        displayName: "晨光咖啡",
+        relativePosition: null,
+        positionKind: null,
+      }),
+    ]);
+    expect(
+      output.semantic.evidenceAnchors.some(
+        (anchor) =>
+          anchor.exactText === "星河咖啡" &&
+          anchor.purposes.includes("TARGET_MENTION") &&
+          anchor.purposes.includes("TARGET_POSITION"),
+      ),
+    ).toBe(true);
+  });
+
+  it("still rejects a claimed mention without a literal target form", () => {
+    const answer = "回答只提到了晨光咖啡。";
+    const input = validOpenModel(answer);
+    input.semantic.targetDisplayedForms = ["陌生别名"];
+    input.semantic.targetMentionEvidence = [
+      { exactText: "陌生别名", occurrence: 1 },
+    ];
+    input.semantic.targetPositionEvidence = [
+      { exactText: "陌生别名", occurrence: 1 },
+    ];
+
+    expect(() =>
+      parseAndProjectSampleParserModelOutput(input, {
+        questionKind: "CHARACTERISTIC_ONE",
+        companyName: "星河咖啡",
+        originalAnswer: answer,
+      }),
+    ).toThrow();
+  });
+
+  it("bounds directed observations per canonical category", () => {
+    const answer = "星河咖啡是一家咖啡品牌。";
+    const evidence = { exactText: answer, occurrence: 1 };
+    const input: SampleParserModelOutput = {
+      family: "BRAND_DIRECTED",
+      mentioned: true,
+      position: null,
+      semantic: {
+        profile: "BRAND_DIRECTED",
+        answerStructure: "PARAGRAPHS",
+        targetDisplayedForms: ["星河咖啡"],
+        targetMentionEvidence: [evidence],
+        otherBrands: [],
+        targetObservations: Array.from({ length: 20 }, (_, index) => ({
+          category: "IDENTITY" as const,
+          label: `品牌身份 ${index + 1}`,
+          detail: "回答介绍了品牌身份。",
+          polarity: "NEUTRAL" as const,
+          evidence: [evidence],
+        })),
+        contextualTargetPosition: null,
+        contextualPositionEvidence: [],
+        cardInterpretation: "回答介绍了当前品牌。",
+        limitations: [],
+      },
+    };
+
+    const output = parseAndProjectSampleParserModelOutput(input, {
+      questionKind: "BRAND_DIRECTED",
+      companyName: "星河咖啡",
+      originalAnswer: answer,
+    });
+    if (output.family !== "BRAND_DIRECTED") throw new Error("wrong family");
+    expect(output.semantic.statedIdentity).toHaveLength(12);
   });
 
   it.each([
@@ -424,6 +573,33 @@ function validNonMention(): OpenParserOutput {
       recommendationReasons: [],
       conditions: [],
       queryFit: [],
+    },
+  };
+}
+
+function validOpenModel(originalAnswer: string): SampleParserModelOutput {
+  const targetEvidence = {
+    exactText: "星河咖啡值得关注。",
+    occurrence: 1,
+  };
+  return {
+    family: "OPEN_DISCOVERY",
+    questionKind: "CHARACTERISTIC_ONE",
+    mentioned: true,
+    position: 1,
+    semantic: {
+      profile: "OPEN_DISCOVERY",
+      answerStructure: "ORDERED_LIST",
+      targetDisplayedForms: ["星河咖啡"],
+      targetMentionEvidence: [targetEvidence],
+      targetPositionEvidence: [targetEvidence],
+      targetRole: "RECOMMENDED",
+      targetObservations: [],
+      otherBrands: [],
+      cardInterpretation: originalAnswer.includes("星河咖啡")
+        ? "回答将当前品牌列入候选。"
+        : "回答声称当前品牌进入候选。",
+      limitations: [],
     },
   };
 }

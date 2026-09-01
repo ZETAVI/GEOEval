@@ -25,7 +25,7 @@ const routeSchema = z.object({
 });
 
 const catalogSchema = z.object({
-  version: z.literal("evaluation-real-routes@2"),
+  version: z.literal("evaluation-real-routes@3"),
   routes: z.array(routeSchema).min(11),
 });
 
