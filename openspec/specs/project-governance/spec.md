@@ -161,6 +161,18 @@ records, and handoffs SHALL keep the responsibilities defined by the
   reconciliation, risk, and follow-up boundary without copying the full diff or
   current specification
 
+#### Scenario: One outcome advances through final, partial, or Review Gate work
+
+- **WHEN** a pull request is the final acceptance transaction for an owning
+  Issue
+- **THEN** its description SHALL create GitHub's native closing relationship
+  using `Closes #<owning-issue>`
+- **BUT WHEN** the pull request advances only part of the same outcome
+- **THEN** it SHALL use an ordinary `Part of #<owning-issue> — does not close`
+  reference and leave the Issue open
+- **AND** a Review Gate MAY use an ordinary Issue reference over the integrated
+  PR without receiving an otherwise unnecessary Branch or pull request
+
 ### Requirement: Completed work does not absorb later requirements
 
 A closed Issue or stable change SHALL preserve its original acceptance history.
@@ -254,6 +266,8 @@ residual dependencies, Evidence disposition, and workspace exit.
   integration is still pending
 - **THEN** the Project Status SHALL be `Review / Decision`
 - **AND** the Issue and PR SHALL name the remaining decision
+- **AND** a requested review SHALL finish and every material finding SHALL have
+  an explicit disposition before merge
 - **AND** the work SHALL NOT be described as complete
 
 ### Requirement: Parent and dependency relationships keep distinct meanings
