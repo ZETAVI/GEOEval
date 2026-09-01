@@ -17,10 +17,6 @@ import { PostgresProductOutboxRepository } from "../src/background-work/infrastr
 import { ProductWorkerRuntime } from "../src/background-work/product-worker-runtime.js";
 import { BrandService } from "../src/brand/application/brand.service.js";
 import { PostgresBrandRepository } from "../src/brand/infrastructure/postgres-brand.repository.js";
-import {
-  loadApiConfig,
-  loadWorkerConfig,
-} from "../src/config/runtime-config.js";
 import { EvaluationProcessCoordinator } from "../src/geo-intelligence/application/evaluation-process.coordinator.js";
 import { EvaluationReportService } from "../src/geo-intelligence/application/evaluation-report.service.js";
 import { EvaluationSynthesisCoordinator } from "../src/geo-intelligence/application/evaluation-synthesis.coordinator.js";
@@ -37,8 +33,13 @@ import { NotificationEventHandler } from "../src/notification/application/notifi
 import { PostgresNotificationRepository } from "../src/notification/infrastructure/postgres-notification.repository.js";
 import { WorkerModule } from "../src/worker.module.js";
 import { clearCustomerData } from "./customer-data.js";
+import {
+  loadIntegrationApiConfig,
+  loadIntegrationWorkerConfig,
+} from "./integration-test-config.js";
 
-const config = loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1", NODE_ENV: "test" });
+const config = loadIntegrationApiConfig();
+const workerConfig = loadIntegrationWorkerConfig();
 
 describe("resumable evaluation evidence", () => {
   const prisma = new PrismaService(config.databaseUrl);
@@ -761,7 +762,7 @@ describe("resumable evaluation evidence", () => {
     const firstRuntime = new ProductWorkerRuntime(
       outbox,
       processor,
-      "redis://127.0.0.1:56379",
+      workerConfig.redisUrl,
     );
     await firstRuntime.onApplicationBootstrap();
     await firstRuntime.onModuleDestroy();
@@ -769,7 +770,7 @@ describe("resumable evaluation evidence", () => {
     const secondRuntime = new ProductWorkerRuntime(
       outbox,
       processor,
-      "redis://127.0.0.1:56379",
+      workerConfig.redisUrl,
     );
     await secondRuntime.onApplicationBootstrap();
     try {
@@ -797,9 +798,7 @@ describe("resumable evaluation evidence", () => {
 
   it("boots and closes the complete Worker module graph", async () => {
     const application = await NestFactory.createApplicationContext(
-      WorkerModule.register(
-        loadWorkerConfig({ GEOEVAL_LOCAL_DEFAULTS: "1", NODE_ENV: "test" }),
-      ),
+      WorkerModule.register(workerConfig),
       { logger: false },
     );
 
@@ -891,7 +890,7 @@ describe("resumable evaluation evidence", () => {
 
 async function clearProductQueue(): Promise<void> {
   const queue = new Queue("geoeval-product", {
-    connection: bullmqConnectionOptions("redis://127.0.0.1:56379"),
+    connection: bullmqConnectionOptions(workerConfig.redisUrl),
   });
   try {
     await queue.removeJobScheduler("evaluation-reconciliation-v1");

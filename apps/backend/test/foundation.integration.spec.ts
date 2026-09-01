@@ -1,6 +1,5 @@
 import { beforeAll, afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { loadApiConfig } from "../src/config/runtime-config.js";
 import { FoundationService } from "../src/foundation/foundation.service.js";
 import { WorkProcessor } from "../src/foundation/work-processor.js";
 import { PostgresFoundationRepository } from "../src/infrastructure/postgres-foundation.repository.js";
@@ -9,8 +8,9 @@ import {
   SafeTelemetry,
   type TelemetrySink,
 } from "../src/infrastructure/telemetry.js";
+import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
-const config = loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" });
+const config = loadIntegrationApiConfig();
 const quietSink: TelemetrySink = { export: async () => undefined };
 const failingSink: TelemetrySink = {
   export: async () => {

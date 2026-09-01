@@ -77,6 +77,21 @@ Before creating one, inspect existing branches and worktrees, then define:
 - handoff format;
 - exit condition.
 
+### Integration-test resource isolation
+
+Worktrees that can run integration tests concurrently must use distinct
+PostgreSQL databases and distinct Redis logical databases or instances. Pass
+both targets explicitly through `DATABASE_URL` and `REDIS_URL`; a partial
+override must fail before cleanup begins. Local defaults are only a single-owner
+convenience and are not a parallel-test boundary.
+
+Test composition may allowlist these resource targets, but must not inherit
+real-provider, telemetry, credential, or production-mode environment variables.
+Database cleanup and queue obliteration must use the same resolved worktree-
+specific targets as the application under test. Verification for a changed
+isolation boundary must prove both that the isolated resources were exercised
+and that the shared defaults remained unchanged.
+
 At handoff or task close, record exact checkout, branch, revision, dirty state,
 verification state, merge status, and one of these exits:
 
