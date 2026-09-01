@@ -307,6 +307,11 @@ are outside the initial product boundary.
 - **THEN** the current brand requires a primary industry, dependent secondary
   industry, two free-text brand characteristics, company or store name,
   province-city-district or town region, contact person, and mobile number
+- **AND** the industry pair comes from the approved GEOEval-owned catalog and
+  represents the product or service for which the brand most wants to be found
+  and recommended
+- **AND** selecting an `Other` secondary category also requires a concise,
+  concrete product-or-service phrase
 - **AND** the registration mobile number is prefilled but remains editable
 - **AND** evaluation cannot begin until those fields are complete
 - **AND** the customer can save the brand and continue to either AI diagnosis or
@@ -400,6 +405,78 @@ are outside the initial product boundary.
 - **AND** the initial product does not retain the replaced candidate as article
   history
 
+### Requirement: Controlled industry classification
+
+The product SHALL use the approved, versioned GEOEval
+[industry catalog](../../../docs/product/industry-catalog.md) to express one
+coherent product-or-service recommendation context for the current brand.
+
+#### Scenario: A mixed business chooses its evaluation focus
+
+- **WHEN** a brand manufactures, sells, or services more than one kind of
+  product
+- **THEN** the customer selects one primary and one dependent secondary industry
+  for the consumer, procurement, or recommendation scenario that matters to the
+  current evaluation
+- **AND** the customer does not enumerate every licensed or statistically
+  classified activity
+- **AND** legal form, production method, and sales channel do not override the
+  intended recommendation scenario
+
+#### Scenario: A listed secondary category fits the brand
+
+- **WHEN** the customer selects a primary industry
+- **THEN** only the active secondary categories owned by that primary industry
+  are available
+- **AND** the saved selection uses the catalog's stable primary and secondary
+  identifiers
+- **AND** local restaurants, beauty, pets, fitness, and vehicle maintenance
+  remain secondary categories under local life and storefront services
+
+#### Scenario: The catalog lacks the exact product or service
+
+- **WHEN** the customer selects the `Other` secondary category under any primary
+- **THEN** the customer must provide a concise, concrete product-or-service
+  phrase before the brand becomes evaluation-ready
+- **AND** the generic word `Other` alone is not valid question context
+- **AND** the supplied phrase participates in question generation and the
+  evaluation-input snapshot without becoming a new catalog category
+
+#### Scenario: The maintained catalog changes
+
+- **WHEN** a display name, search alias, example, ordering, availability, or
+  category set changes
+- **THEN** published stable identifiers are not renumbered, reassigned, or
+  reused for different meanings
+- **AND** aliases help find candidate categories but do not create stored
+  categories or silently choose an ambiguous match
+- **AND** the change receives the version update required by the catalog's
+  compatibility rules
+- **AND** catalog maintenance alone does not create a new evaluation-input
+  revision, question set, or evaluation opportunity for an unchanged brand
+- **AND** an existing saved selection is not silently remapped to another
+  category
+
+#### Scenario: A future boundary change would reinterpret a saved selection
+
+- **WHEN** a proposed catalog change would alter the semantic meaning of an
+  existing category or its recommendation subject
+- **THEN** the change requires a separately approved compatibility and migration
+  decision
+- **AND** it either preserves the earlier meaning for the saved selection or
+  asks the customer to confirm a new profile selection
+- **AND** a customer-confirmed selection change follows the ordinary
+  evaluation-input revision rule
+
+#### Scenario: A regulated business selects an industry
+
+- **WHEN** a medical, health, financial, educational, or other regulated
+  business selects a matching category
+- **THEN** the selection supplies product and recommendation context only
+- **AND** it does not verify licenses, credentials, product registration,
+  eligibility, or legal compliance
+- **AND** later user-notice or agreement controls remain separately owned
+
 ### Requirement: Controlled evaluation-question generation
 
 Evaluation questions SHALL be generated from the current brand profile and
@@ -417,12 +494,24 @@ SHALL not be directly rewritten by the customer.
 - **AND** cannot refresh or replace the question set while the evaluation-
   relevant brand information remains unchanged
 
+#### Scenario: An industry label is too broad to be a natural question
+
+- **WHEN** the product generates the open industry-recommendation question
+- **THEN** it uses the secondary category's maintained recommendation subject
+  together with the current region, concrete product or service, and relevant
+  brand-profile facts
+- **AND** it does not copy a broad primary display name into the question as if
+  that label were a natural customer query
+
 #### Scenario: An evaluation fixes its actual question context
 
 - **GIVEN** the customer has reviewed the currently generated four-question set
 - **WHEN** the customer starts the official evaluation
 - **THEN** the product fixes the exact questions, evaluation-relevant brand
   fields, and related context used by that evaluation
+- **AND** that context includes the selected primary and secondary stable
+  identifiers, their displayed labels, the catalog version, the `Other` phrase
+  when present, and the recommendation subject actually used
 - **AND** later brand edits or question generation cannot alter the active run or
   its report
 - **AND** generating the question set for a revision does not by itself use that
