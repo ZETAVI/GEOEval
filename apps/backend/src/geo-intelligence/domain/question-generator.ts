@@ -33,9 +33,7 @@ export class DeterministicEvaluationQuestionGenerator implements EvaluationQuest
     snapshot: EvaluationBrandSnapshot,
   ): Promise<GeneratedEvaluationQuestion[]> {
     const context = evaluationBrandTextContext(snapshot);
-    const region = [context.province, context.city, context.terminalRegion]
-      .filter(Boolean)
-      .join("");
+    const region = context.regionLabel;
     const industry = context.recommendationSubject;
     return [
       {

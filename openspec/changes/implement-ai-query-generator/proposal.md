@@ -1,16 +1,16 @@
 # Change: Implement the AI Evaluation Query Generator
 
-- Status: Approved; implementation gated by the upstream Brand Knowledge
-  reference-data change
+- Status: Approved and in implementation on the accepted Brand Knowledge
+  reference-data baseline
 - Class: Architectural implementation
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Decision owners: Product owner and architecture owner
 - Architecture direction: Confirmed by the product owner on 2026-09-01
 - Implementation authorization: The isolated Query instruction, model-output
-  contract, deterministic projector, and fixtures are approved as #26a. Durable
-  preparation, public API/Web integration, and real calls begin only after the
-  independently mergeable Brand Knowledge reference-data dependency is accepted
-  and merged.
+  contract, deterministic projector, and fixtures are complete as #26a. Brand
+  Knowledge reference data merged through #27 / PR #31, so durable preparation
+  and deterministic API/Web integration may proceed. Real calls remain a
+  separate explicit gate.
 
 ## Why
 
@@ -42,11 +42,10 @@ for the same brand revision.
 - Preserve the accepted question roles: one brand-specific current-state
   question, one industry-recommendation question, and two recommendation
   questions shaped by the brand's two characteristics.
-- Consume the Brand Knowledge evaluation-purpose projection created by the
-  separate brand-reference-data activation change. That prerequisite owns both
-  the approved industry selection and the province-city-terminal-region
-  selection, while exposing stable identities and display meaning to Query
-  generation.
+- Consume the accepted Brand Knowledge evaluation-purpose projection, which
+  owns both the approved industry selection and the
+  province-city-terminal-region selection while exposing stable identities and
+  display meaning to Query generation.
 - Persist an idempotent preparation state before any provider call and reuse the
   existing Product Outbox, BullMQ worker, provider adapters, structured-output
   transport, and telemetry boundary.
@@ -79,10 +78,10 @@ for the same brand revision.
 
 ## Impact
 
-- **Brand Knowledge:** is an upstream dependency. Its separate reference-data
-  activation change owns executable industry data, authoritative administrative
-  region data, both dependent selectors, persistence, readiness, fingerprint
-  continuity, and the evaluation-purpose projection.
+- **Brand Knowledge:** is the accepted upstream owner of executable industry
+  data, authoritative administrative-region data, both dependent selectors,
+  persistence, readiness, fingerprint continuity, and the evaluation-purpose
+  projection.
 - **GEO Intelligence:** owns question-preparation state, Prompt meaning,
   structured-output acceptance, and the immutable accepted definition.
 - **AI Execution:** gains a question-generation purpose and durable technical
@@ -98,13 +97,12 @@ for the same brand revision.
 
 - Documentation: this active change owns uncertain Query-generation design.
   Accepted behavior will be reconciled into the evaluation-definition current
-  spec and architecture overview. The separate reference-data activation change
-  owns the product catalog's `move-on-activation` reconciliation and region-
-  source maintenance boundary.
+  spec and architecture overview. #27 already reconciled the product catalog's
+  `move-on-activation` and region-source maintenance boundary.
 - Workspace: `codex/issue-26-query-generator` at
-  `main@a1d3d57660df8cc21f1426fe9f05f33a36d1b3b3`, owned by the primary Codex
-  agent, merge destination protected `main`, exit after verified PR merge and
-  branch cleanup.
+  `main@3f8d815486755082f6334f4adac9480d982155d1` after the accepted #27
+  integration, owned by the primary Codex agent, merge destination protected
+  `main`, exit after verified PR merge and branch cleanup.
 - Verification boundary: deterministic lifecycle and recovery evidence,
   migration replay, generated contracts, builds, browser behavior, one
   controlled real Query-only review, and only then one separately authorized

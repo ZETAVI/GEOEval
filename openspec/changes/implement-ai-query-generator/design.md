@@ -94,7 +94,7 @@ definition owner.
   - Background Work -> GEO preparation coordinator;
   - GEO coordinator -> AI Execution question-generation service;
   - AI Execution -> provider adapters and attempt repository.
-  No module reads another module's tables directly.
+    No module reads another module's tables directly.
 - External ports and failure boundary: GEO replaces the current paid-call-
   hiding `generate(snapshot)` path with a preparation coordinator, a pure
   Prompt builder, and a deterministic output projector. AI Execution adds one
@@ -184,28 +184,28 @@ first four-by-five run.
 
 ### Failure and Recovery
 
-| Failure | Classification | Retry or recovery owner | Idempotency or reconciliation evidence |
-| --- | --- | --- | --- |
-| Duplicate prepare HTTP request | Concurrent duplicate | GEO repository | Unique brand-plus-fingerprint preparation; returns existing state |
-| Duplicate Outbox or BullMQ delivery | Delivery duplicate | Background Work and AI Execution | Event business key plus preparation/sequence/attempt unique identity; non-acquired caller sends no request |
-| Provider timeout or transient failure | Transient/ambiguous | AI Execution records; GEO route policy advances | Same ambiguity deadline and delayed-delivery pattern proven in S6 |
-| Structurally invalid Agent output | Semantic/structural rejection | GEO rejects; route policy advances | Rejected attempt envelope remains protected; no definition is created |
-| All three attempts exhausted | Terminal technical failure | GEO marks `PLEASE_RETRY`; customer may explicitly retry | Conditional next sequence, same brand-fingerprint identity, no evaluation consumed |
-| Process stops after provider response | Ambiguous interruption | AI Execution and scheduled reconciliation | Expired started attempt becomes recorded ambiguous failure before a new attempt identity |
-| Brand changes while preparing | Business staleness | Brand Knowledge and GEO start check | New fingerprint gets a separate preparation; stale definition cannot start |
-| Telemetry export fails | Non-business side effect | Telemetry owner | Best-effort failure cannot change attempt or definition acceptance |
+| Failure                               | Classification                | Retry or recovery owner                                 | Idempotency or reconciliation evidence                                                                     |
+| ------------------------------------- | ----------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Duplicate prepare HTTP request        | Concurrent duplicate          | GEO repository                                          | Unique brand-plus-fingerprint preparation; returns existing state                                          |
+| Duplicate Outbox or BullMQ delivery   | Delivery duplicate            | Background Work and AI Execution                        | Event business key plus preparation/sequence/attempt unique identity; non-acquired caller sends no request |
+| Provider timeout or transient failure | Transient/ambiguous           | AI Execution records; GEO route policy advances         | Same ambiguity deadline and delayed-delivery pattern proven in S6                                          |
+| Structurally invalid Agent output     | Semantic/structural rejection | GEO rejects; route policy advances                      | Rejected attempt envelope remains protected; no definition is created                                      |
+| All three attempts exhausted          | Terminal technical failure    | GEO marks `PLEASE_RETRY`; customer may explicitly retry | Conditional next sequence, same brand-fingerprint identity, no evaluation consumed                         |
+| Process stops after provider response | Ambiguous interruption        | AI Execution and scheduled reconciliation               | Expired started attempt becomes recorded ambiguous failure before a new attempt identity                   |
+| Brand changes while preparing         | Business staleness            | Brand Knowledge and GEO start check                     | New fingerprint gets a separate preparation; stale definition cannot start                                 |
+| Telemetry export fails                | Non-business side effect      | Telemetry owner                                         | Best-effort failure cannot change attempt or definition acceptance                                         |
 
 ### Tool and Framework Decision
 
-| Candidate | Adopt, defer, or reject | Evidence and limitation | Exit or refresh trigger |
-| --- | --- | --- | --- |
-| Existing Product Outbox + BullMQ runtime | Adopt | Already owns durable product work, duplicate delivery, delay, and reconciliation; it does not own GEO state | Revisit only if measured Query traffic needs independent backpressure or isolation |
-| Existing provider adapters and structured-output transport | Adopt | S6 verified Qwen3.8 and Hy3 routes, envelopes, timeouts, and strict JSON handling; it does not judge Query quality | Refresh before controlled calls if route/model/config changed |
-| Zod model-output schema + deterministic projector | Adopt | Existing parser/synthesis boundary keeps provider convenience separate from durable meaning | Revise only with a versioned output-contract change |
-| Synchronous `generate()` inside HTTP | Reject | Reachable timeout, concurrent duplicate cost, and missing durable failure state | None while using a paid external model |
-| Second Critic Agent or semantic lint suite | Reject for this change | No demonstrated failure requiring extra cost or brittle rules | Reconsider only after repeated real Query defects with a changed action |
-| Query-Agent web search | Reject for this change | Brand profile is the approved input; search adds latency and another factual authority | Reconsider only if controlled profiles repeatedly cannot produce useful questions |
-| Separate queue/workflow framework | Reject for this change | Existing delivery capability already matches the lifecycle | Reconsider only after observed isolation or scheduling failure |
+| Candidate                                                  | Adopt, defer, or reject | Evidence and limitation                                                                                            | Exit or refresh trigger                                                            |
+| ---------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| Existing Product Outbox + BullMQ runtime                   | Adopt                   | Already owns durable product work, duplicate delivery, delay, and reconciliation; it does not own GEO state        | Revisit only if measured Query traffic needs independent backpressure or isolation |
+| Existing provider adapters and structured-output transport | Adopt                   | S6 verified Qwen3.8 and Hy3 routes, envelopes, timeouts, and strict JSON handling; it does not judge Query quality | Refresh before controlled calls if route/model/config changed                      |
+| Zod model-output schema + deterministic projector          | Adopt                   | Existing parser/synthesis boundary keeps provider convenience separate from durable meaning                        | Revise only with a versioned output-contract change                                |
+| Synchronous `generate()` inside HTTP                       | Reject                  | Reachable timeout, concurrent duplicate cost, and missing durable failure state                                    | None while using a paid external model                                             |
+| Second Critic Agent or semantic lint suite                 | Reject for this change  | No demonstrated failure requiring extra cost or brittle rules                                                      | Reconsider only after repeated real Query defects with a changed action            |
+| Query-Agent web search                                     | Reject for this change  | Brand profile is the approved input; search adds latency and another factual authority                             | Reconsider only if controlled profiles repeatedly cannot produce useful questions  |
+| Separate queue/workflow framework                          | Reject for this change  | Existing delivery capability already matches the lifecycle                                                         | Reconsider only after observed isolation or scheduling failure                     |
 
 ### Operational and Verification Boundary
 
@@ -234,12 +234,12 @@ first four-by-five run.
   recovery after deterministic and controlled evidence. Production capacity,
   customer-data terms, and release remain separate gates.
 
-## Brand reference-data dependency
+## Accepted Brand reference-data dependency
 
-Industry and region activation are independently valuable Brand Knowledge work
-and are not implemented in #26. They share one customer form, readiness rule,
-fingerprint, immutable evaluation snapshot, migration, and evaluation-purpose
-projection, so they belong to one vertical reference-data Change.
+Industry and region activation were delivered independently through #27 / PR
+#31. They share one customer form, readiness rule, fingerprint, immutable
+evaluation snapshot, migration, and evaluation-purpose projection while
+remaining outside #26 ownership.
 
 Inside that Change, they remain two explicit domain sources rather than one
 generic catalog engine:
@@ -250,15 +250,17 @@ generic catalog engine:
   identities from a researched authoritative dataset and does not inherit
   industry recommendation semantics.
 
-The prerequisite must migrate Brand/API/Web selection to stable industry IDs,
-`Other`, and stable region identities; preserve evaluation-fingerprint and
-historical-opportunity meaning across representation changes; handle cities
-without an ordinary county/district tier through the confirmed conventional
-terminal-region behavior; expose the frozen identities and display labels in
-the evaluation-purpose projection; and reconcile `move-on-activation`.
+The accepted owner now persists stable industry IDs, `Other`, and stable region
+identities; preserves evaluation-fingerprint and historical-opportunity meaning;
+handles cities without an ordinary county/district tier through the confirmed
+terminal-region behavior; and freezes identifiers, display labels,
+`recommendationSubject`, source versions, and official region path in the
+evaluation-purpose projection.
 
-After that PR merges, #26 rebases and consumes only the stable projection. GEO
-never imports either reference source or maintains a second mapping.
+#26 consumes only that stable projection through the shared evaluation snapshot
+and `evaluationBrandTextContext`. GEO never imports either reference source or
+maintains a second mapping. Legacy snapshots remain readable through the same
+parser and text-context boundary.
 
 ## Alternatives considered
 
@@ -287,11 +289,11 @@ The first authorized real validation reviews Query generation by itself before
 paying for or interpreting twenty platform samples. It uses three
 representative evaluation-ready profiles:
 
-| Profile | Purpose | Boundary |
-| --- | --- | --- |
-| 互动派科技股份有限公司 | Professional-service and B2B demand language, natural shortening of a legal company name, and two distinct service characteristics | Authorized profile; exact four selected questions require product-owner review |
-| One fictional local storefront | Consumer, nearby-discovery, and concrete storefront-characteristic language | No claim about a real business; Query generation only |
-| One fictional consumer-product brand | Product comparison, suitability, and non-storefront discovery language | No claim about a real product; Query generation only |
+| Profile                              | Purpose                                                                                                                            | Boundary                                                                       |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 互动派科技股份有限公司               | Professional-service and B2B demand language, natural shortening of a legal company name, and two distinct service characteristics | Authorized profile; exact four selected questions require product-owner review |
+| One fictional local storefront       | Consumer, nearby-discovery, and concrete storefront-characteristic language                                                        | No claim about a real business; Query generation only                          |
+| One fictional consumer-product brand | Product comparison, suitability, and non-storefront discovery language                                                             | No claim about a real product; Query generation only                           |
 
 Human review uses one `Accept` or `Revise Prompt` outcome rather than a numeric
 quality score or Critic Agent. Each generated set is checked for:
@@ -321,9 +323,9 @@ not automatically call the five sampling platforms.
 ## Documentation disposition
 
 - `update`: the evaluation-definition current spec after behavior is accepted.
-- `dependency`: the separate brand-reference-data Change owns the exact
-  industry move, region source, selectors, migration, fingerprint continuity,
-  and `move-on-activation` reconciliation before #26 implementation.
+- `resolved dependency`: #27 owns and has reconciled the exact industry move,
+  region source, selectors, migration, fingerprint continuity, and
+  `move-on-activation` behavior now consumed by #26.
 - `update`: architecture overview with the accepted preparation boundary.
 - `archive`: this change after implementation, verification, reconciliation,
   merge, and Issue closure. Do not leave it as a continuing Prompt backlog.

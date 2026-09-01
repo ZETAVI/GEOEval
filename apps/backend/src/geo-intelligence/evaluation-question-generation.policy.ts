@@ -7,6 +7,8 @@ import {
   EVALUATION_QUESTION_GENERATION_MODEL_CONTRACT_VERSION,
   evaluationQuestionGenerationModelJsonSchema,
 } from "./domain/evaluation-question-generation-model.contract.js";
+import type { EvaluationBrandSnapshot } from "./domain/evaluation.types.js";
+import { evaluationBrandTextContext } from "./domain/evaluation-brand-snapshot.js";
 
 const assetSchema = z
   .object({
@@ -25,6 +27,21 @@ export type EvaluationQuestionGenerationTaskContext = {
   characteristicOne: string;
   characteristicTwo: string;
 };
+
+export function evaluationQuestionGenerationTaskContext(
+  snapshot: EvaluationBrandSnapshot,
+): EvaluationQuestionGenerationTaskContext {
+  const context = evaluationBrandTextContext(snapshot);
+  return {
+    companyName: context.companyName,
+    regionLabel: context.regionLabel,
+    primaryIndustryLabel: context.primaryIndustry,
+    secondaryIndustryLabel: context.secondaryIndustry,
+    recommendationSubject: context.recommendationSubject,
+    characteristicOne: context.characteristicOne,
+    characteristicTwo: context.characteristicTwo,
+  };
+}
 
 const common = loadAsset("common.json");
 const referenceExamples = loadAsset("reference-examples.json");

@@ -9,6 +9,7 @@ import {
 import {
   buildEvaluationQuestionGenerationTask,
   evaluationQuestionGenerationInstructionSnapshot,
+  evaluationQuestionGenerationTaskContext,
 } from "../src/geo-intelligence/evaluation-question-generation.policy.js";
 
 const companyName = "互动派科技股份有限公司";
@@ -54,6 +55,74 @@ describe("evaluation question generation contract", () => {
     });
     expect(instruction.contentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(instruction.content).toContain("不联网");
+  });
+
+  it("uses the accepted official path for V2 and retains legacy text compatibility", () => {
+    expect(
+      evaluationQuestionGenerationTaskContext({
+        schemaVersion: "brand-evaluation-snapshot@2",
+        companyName,
+        industry: {
+          catalogId: "industry-catalog",
+          catalogVersion: "1.0.0",
+          primary: { id: "IND-06", label: "企业服务与专业服务" },
+          secondary: { id: "IND-06-07", label: "营销策划与广告代理" },
+          otherProductOrService: null,
+          recommendationSubject: "营销策划或广告代理公司",
+        },
+        region: {
+          sourceReleaseId: "mca-administrative-divisions@2025-12-31",
+          province: { id: "beijing", label: "北京市" },
+          city: {
+            id: "beijing-repeat",
+            label: "北京市",
+            identityKind: "MUNICIPALITY_REPEAT",
+            officialDivisionId: null,
+          },
+          terminal: {
+            id: "chaoyang",
+            label: "朝阳区",
+            officialCode: "110105",
+            officialLevel: "COUNTY",
+          },
+          officialPath: [
+            {
+              id: "beijing",
+              label: "北京市",
+              officialCode: "110000",
+              officialLevel: "PROVINCE",
+            },
+            {
+              id: "chaoyang",
+              label: "朝阳区",
+              officialCode: "110105",
+              officialLevel: "COUNTY",
+            },
+          ],
+        },
+        characteristicOne: "品牌策略",
+        characteristicTwo: "内容与投放执行",
+      }),
+    ).toMatchObject({
+      regionLabel: "北京市朝阳区",
+      recommendationSubject: "营销策划或广告代理公司",
+    });
+
+    expect(
+      evaluationQuestionGenerationTaskContext({
+        companyName: "星河咖啡",
+        primaryIndustry: "本地生活",
+        secondaryIndustry: "咖啡店",
+        characteristicOne: "安静办公",
+        characteristicTwo: "手冲咖啡",
+        province: "广东省",
+        city: "广州市",
+        district: "天河区",
+      }),
+    ).toMatchObject({
+      regionLabel: "广东省广州市天河区",
+      recommendationSubject: "咖啡店",
+    });
   });
 
   it("projects one coherent selected four-question set", () => {

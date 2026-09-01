@@ -15,16 +15,16 @@
 
 ## Upstream brand reference-data activation
 
-- [ ] Open an independently mergeable Brand Knowledge Issue and Change for the
+- [x] Open an independently mergeable Brand Knowledge Issue and Change for the
       executable industry catalog, province-city-terminal-region source,
       dependent API/Web selectors, stable identities, `Other` phrase,
       Readiness, evaluation-purpose projection, fingerprint continuity, and
       `move-on-activation` reconciliation.
-- [ ] Research the current authoritative administrative-region source and
+- [x] Research the current authoritative administrative-region source and
       maintained frontend data/component options from primary sources; keep the
       region dataset distinct from the GEOEval-owned industry catalog rather
       than inventing one universal catalog abstraction.
-- [ ] Merge the verified brand reference-data activation through its own PR,
+- [x] Merge the verified brand reference-data activation through its own PR,
       then rebase #26 and confirm the stable projection contract before Query
       implementation.
 

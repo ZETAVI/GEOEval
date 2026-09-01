@@ -112,10 +112,9 @@ keeping both inside the existing diagnosis journey.
 - **THEN** the page shows a concise retry action that does not imply an
   evaluation was consumed.
 
-## Dependency
+## Accepted dependency
 
-The separate brand-reference-data activation change must first make Brand
-Knowledge the executable industry owner, establish the maintained
-province-city-terminal-region source, and expose one stable evaluation-purpose
-projection. This delta consumes that projection and does not redefine industry
-or region selection, persistence, fingerprint, or migration meaning.
+Brand Knowledge is the executable industry owner and maintained
+province-city-terminal-region source after #27 / PR #31. This delta consumes its
+stable evaluation-purpose projection and does not redefine industry or region
+selection, persistence, fingerprint, migration, or legacy-snapshot meaning.
