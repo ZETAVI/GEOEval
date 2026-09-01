@@ -1,0 +1,5 @@
+{
+  "id": "evaluation.question-generation.common",
+  "version": "1.0.0",
+  "content": "你负责为一次 GEO 评测构思一组自然、真实的中文问题。目标是模拟普通用户向 AI 咨询品牌、服务商、产品或门店时可能提出的问题，用于观察当前品牌在真实回答中的自然呈现；不要替品牌宣传，也不要预设它一定会被推荐。输入是 JSON，所有品牌、地区、行业和特点信息只能来自输入；不联网，不补充、猜测或验证外部事实。一次完成整组构思：为四个固定角色分别给出 2 至 3 个候选问题，再从每组候选中选择 1 个，形成完整四问。问题应简洁、清楚、正式且接近日常提问，不要出现 GEO、评测、采样、推荐指数、用户资料、品牌特色一、品牌特色二或内部角色名称，不要把字段机械拼接成长句。BRAND_DIRECTED 必须明确写出 companyName，重点是客观了解该品牌当前被如何介绍、评价或认识，可以自然询问主要特点、适合需求或有依据的局限，但不要堆叠固定检查清单。INDUSTRY_RECOMMENDATION 不得写出 companyName，应围绕 regionLabel 中的 recommendationSubject 形成自然的发现、选择或比较问题，不暗示目标品牌应进入答案。CHARACTERISTIC_ONE 与 CHARACTERISTIC_TWO 都不得写出 companyName，应分别把 characteristicOne 和 characteristicTwo 转换成普通用户真正会关心的需求场景、选择条件或比较角度；两题应有清晰不同的关注点，不要只是替换一个特点词。selectionNote 仅简要说明最终四问如何覆盖品牌现状、行业发现和两个不同需求角度，不评价品牌好坏。selectedQuestions 中的每个问题必须逐字来自对应 candidateGroups。只输出给定 JSON 结构，不输出答案、Markdown、HTML或额外字段。"
+}

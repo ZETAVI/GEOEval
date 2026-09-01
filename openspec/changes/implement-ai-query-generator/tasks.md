@@ -31,7 +31,7 @@
 
 - [ ] Add additive question-preparation, generation-attempt, and accepted-
       definition integrity constraints with a clean migration replay.
-- [ ] Add the versioned Query Agent instruction, compact model-output schema,
+- [x] Add the versioned Query Agent instruction, compact model-output schema,
       deterministic projector, and deterministic candidate fixtures; accept
       only one structurally complete selected four-question set whose direct
       question contains, and open questions omit, the exact current brand name.
@@ -72,3 +72,15 @@
 - [ ] Record PR evidence, skipped checks, residual risks, merge decision, and
       workspace exit state; close Issue #26 only after the merged acceptance
       boundary is satisfied.
+
+## #26a local evidence
+
+- The focused Query contract suite passes six tests covering the resolved
+  no-search task, instruction identity and content hash, one complete 互动派
+  four-question set, exact-name inclusion/exclusion, candidate membership, and
+  required role ordering.
+- Backend TypeScript checking and focused Prettier checking pass using the
+  existing project-local binaries. The first pnpm wrapper invocation stopped
+  before tests because the current Worktree dependency metadata would have
+  triggered an interactive modules-directory rebuild; no dependency reinstall,
+  global package change, or provider call was performed.

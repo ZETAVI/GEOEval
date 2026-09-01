@@ -8,6 +8,12 @@ export type EvaluationQuestionKind =
 
 export type { EvaluationBrandSnapshot } from "./evaluation-brand-snapshot.js";
 
+export type GeneratedEvaluationQuestion = {
+  kind: EvaluationQuestionKind;
+  ordinal: number;
+  content: string;
+};
+
 export type EvaluationQuestionView = {
   id: string;
   kind: EvaluationQuestionKind;

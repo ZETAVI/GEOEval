@@ -6,8 +6,11 @@
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Decision owners: Product owner and architecture owner
 - Architecture direction: Confirmed by the product owner on 2026-09-01
-- Implementation authorization: Begin only after the independently mergeable
-  Brand Knowledge reference-data dependency is accepted and merged
+- Implementation authorization: The isolated Query instruction, model-output
+  contract, deterministic projector, and fixtures are approved as #26a. Durable
+  preparation, public API/Web integration, and real calls begin only after the
+  independently mergeable Brand Knowledge reference-data dependency is accepted
+  and merged.
 
 ## Why
 

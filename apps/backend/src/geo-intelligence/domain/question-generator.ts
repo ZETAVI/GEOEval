@@ -2,17 +2,11 @@ import { createHash } from "node:crypto";
 
 import type {
   EvaluationBrandSnapshot,
-  EvaluationQuestionKind,
+  GeneratedEvaluationQuestion,
 } from "./evaluation.types.js";
 import { evaluationBrandTextContext } from "./evaluation-brand-snapshot.js";
 
 export const QUESTION_GENERATOR = Symbol("QUESTION_GENERATOR");
-
-export type GeneratedEvaluationQuestion = {
-  kind: EvaluationQuestionKind;
-  ordinal: number;
-  content: string;
-};
 
 export interface EvaluationQuestionGenerator {
   readonly identity: { id: string; version: string; contentHash: string };
