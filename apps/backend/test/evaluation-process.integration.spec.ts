@@ -22,6 +22,7 @@ import { PostgresProductOutboxRepository } from "../src/background-work/infrastr
 import { ProductWorkerRuntime } from "../src/background-work/product-worker-runtime.js";
 import { BrandService } from "../src/brand/application/brand.service.js";
 import { PostgresBrandRepository } from "../src/brand/infrastructure/postgres-brand.repository.js";
+import { BrandReferenceData } from "../src/brand/reference-data/brand-reference-data.js";
 import { EvaluationProcessCoordinator } from "../src/geo-intelligence/application/evaluation-process.coordinator.js";
 import { EvaluationReportService } from "../src/geo-intelligence/application/evaluation-report.service.js";
 import { EvaluationSynthesisCoordinator } from "../src/geo-intelligence/application/evaluation-synthesis.coordinator.js";
@@ -39,7 +40,10 @@ import { SafeTelemetry } from "../src/infrastructure/telemetry.js";
 import { NotificationEventHandler } from "../src/notification/application/notification-event.handler.js";
 import { PostgresNotificationRepository } from "../src/notification/infrastructure/postgres-notification.repository.js";
 import { WorkerModule } from "../src/worker.module.js";
-import { clearCustomerData } from "./customer-data.js";
+import {
+  clearCustomerData,
+  READY_COFFEE_BRAND_FIELDS,
+} from "./customer-data.js";
 import {
   loadIntegrationApiConfig,
   loadIntegrationWorkerConfig,
@@ -50,7 +54,10 @@ const workerConfig = loadIntegrationWorkerConfig();
 
 describe("resumable evaluation evidence", () => {
   const prisma = new PrismaService(config.databaseUrl);
-  const brands = new BrandService(new PostgresBrandRepository(prisma));
+  const brands = new BrandService(
+    new PostgresBrandRepository(prisma),
+    new BrandReferenceData(),
+  );
   const evaluations = new EvaluationService(
     brands,
     new PostgresEvaluationRepository(prisma),
@@ -1031,14 +1038,7 @@ describe("resumable evaluation evidence", () => {
   ) {
     const brand = await brands.create(accountId, {
       companyName: "星河咖啡",
-      primaryIndustry: "餐饮",
-      secondaryIndustry: "咖啡店",
-      characteristicOne: "安静办公",
-      characteristicTwo: "精品手冲",
-      province: "广东省",
-      city: "广州市",
-      district: "天河区",
-      contactName: "林先生",
+      ...READY_COFFEE_BRAND_FIELDS,
       contactMobile: "+8613900000301",
     });
     const definition = await evaluations.prepareDefinition(accountId, brand.id);

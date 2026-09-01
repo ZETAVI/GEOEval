@@ -133,13 +133,14 @@ model BrandProfile {
   accountId              String                 @map("account_id") @db.Uuid
   status                 BrandStatus            @default(ACTIVE)
   companyName            String                 @map("company_name")
-  primaryIndustry        String?                @map("primary_industry")
-  secondaryIndustry      String?                @map("secondary_industry")
+  primaryIndustryId      String?                @map("primary_industry_id") @db.VarChar(100)
+  secondaryIndustryId    String?                @map("secondary_industry_id") @db.VarChar(100)
+  otherProductOrService  String?                @map("other_product_or_service") @db.VarChar(60)
   characteristicOne      String?                @map("characteristic_one")
   characteristicTwo      String?                @map("characteristic_two")
-  province               String?
-  city                   String?
-  district               String?
+  provinceRegionId       String?                @map("province_region_id") @db.VarChar(100)
+  cityRegionId           String?                @map("city_region_id") @db.VarChar(100)
+  terminalRegionId       String?                @map("terminal_region_id") @db.VarChar(100)
   contactName            String?                @map("contact_name")
   contactMobile          String?                @map("contact_mobile") @db.VarChar(20)
   evaluationFingerprint  String                 @map("evaluation_fingerprint") @db.Char(64)

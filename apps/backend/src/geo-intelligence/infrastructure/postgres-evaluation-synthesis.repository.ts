@@ -4,6 +4,10 @@ import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import {
+  evaluationBrandTextContext,
+  parseEvaluationBrandSnapshot,
+} from "../domain/evaluation-brand-snapshot.js";
+import {
   EVALUATION_REPORT_DOCUMENT_VERSION,
   buildEvaluationReportDocument,
 } from "../domain/evaluation-report.document.js";
@@ -30,17 +34,6 @@ import {
   splitOverallSynthesis,
   type OverallSynthesisOutput,
 } from "../domain/overall-synthesis.contract.js";
-
-const brandSnapshotSchema = z.object({
-  companyName: z.string().min(1),
-  primaryIndustry: z.string(),
-  secondaryIndustry: z.string(),
-  characteristicOne: z.string(),
-  characteristicTwo: z.string(),
-  province: z.string(),
-  city: z.string(),
-  district: z.string(),
-});
 
 const platformPolicySchema = z.array(
   z.object({
@@ -274,14 +267,14 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
             "Synthesis exhaustion lost its eligible lifecycle state",
           );
         }
-        const snapshot = brandSnapshotSchema.parse(
+        const snapshot = parseEvaluationBrandSnapshot(
           eligible.run.definition.brandSnapshot,
         );
         await transaction.productOutboxEvent.create({
           data: evaluationRetryRequiredEvent({
             accountId: eligible.run.accountId,
             brandId: eligible.run.brandId,
-            brandName: snapshot.companyName,
+            brandName: evaluationBrandTextContext(snapshot).companyName,
             runId: input.runId,
             cycleId: input.cycleId,
             stage: "SYNTHESIS",
@@ -388,7 +381,7 @@ async function loadContext(
     },
   });
   if (!run) return undefined;
-  const brand = brandSnapshotSchema.parse(run.definition.brandSnapshot);
+  const brand = parseEvaluationBrandSnapshot(run.definition.brandSnapshot);
   const platforms = platformPolicySchema.parse(run.definition.platformPolicy);
   const platformOrder = new Map(
     platforms.map((platform, index) => [platform.key, index + 1]),

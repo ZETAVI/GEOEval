@@ -1,19 +1,12 @@
+import type { EvaluationBrandSnapshot } from "./evaluation-brand-snapshot.js";
+
 export type EvaluationQuestionKind =
   | "BRAND_DIRECTED"
   | "INDUSTRY_RECOMMENDATION"
   | "CHARACTERISTIC_ONE"
   | "CHARACTERISTIC_TWO";
 
-export type EvaluationBrandSnapshot = {
-  companyName: string;
-  primaryIndustry: string;
-  secondaryIndustry: string;
-  characteristicOne: string;
-  characteristicTwo: string;
-  province: string;
-  city: string;
-  district: string;
-};
+export type { EvaluationBrandSnapshot } from "./evaluation-brand-snapshot.js";
 
 export type EvaluationQuestionView = {
   id: string;

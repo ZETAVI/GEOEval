@@ -10,8 +10,8 @@
   "scripts": {
     "build": "pnpm db:generate && pnpm openapi:generate && pnpm --filter @geoeval/backend build && pnpm --filter @geoeval/api-client typecheck && pnpm --filter @geoeval/web build",
     "check": "pnpm format:check && pnpm typecheck && pnpm test",
-    "format": "prettier --write package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/{foundation,provider-validation}/*.{json,mjs}'",
-    "format:check": "prettier --check package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/{foundation,provider-validation}/*.{json,mjs}'",
+    "format": "prettier --write package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/{brand-knowledge,foundation,provider-validation}/*.{json,mjs}'",
+    "format:check": "prettier --check package.json pnpm-workspace.yaml compose.yaml tsconfig.base.json 'apps/**/*.{json,ts,tsx,css}' 'packages/**/*.{json,ts}' 'scripts/{brand-knowledge,foundation,provider-validation}/*.{json,mjs}'",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm --filter @geoeval/backend test",
     "infra:pull": "docker compose pull",

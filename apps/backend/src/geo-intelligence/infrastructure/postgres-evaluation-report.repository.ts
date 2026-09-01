@@ -1,8 +1,10 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { z } from "zod";
-
 import type { Prisma } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
+import {
+  evaluationBrandTextContext,
+  parseEvaluationBrandSnapshot,
+} from "../domain/evaluation-brand-snapshot.js";
 import {
   parseStoredEvaluationReportDocument,
   type EvaluationReportDocument,
@@ -19,17 +21,6 @@ import {
   SAMPLE_PARSER_CONTRACT_VERSION,
   parseStoredSampleSemantic,
 } from "../domain/sample-parser.contract.js";
-
-const snapshotSchema = z.object({
-  companyName: z.string(),
-  primaryIndustry: z.string(),
-  secondaryIndustry: z.string(),
-  characteristicOne: z.string(),
-  characteristicTwo: z.string(),
-  province: z.string(),
-  city: z.string(),
-  district: z.string(),
-});
 
 const reportRunInclude = {
   report: true,
@@ -119,8 +110,9 @@ export class PostgresEvaluationReportRepository implements EvaluationReportRepos
           id: report.id,
           runId: report.runId,
           brandId: report.run.brandId,
-          brandName: snapshotSchema.parse(report.run.definition.brandSnapshot)
-            .companyName,
+          brandName: evaluationBrandTextContext(
+            parseEvaluationBrandSnapshot(report.run.definition.brandSnapshot),
+          ).companyName,
           brandInformationChanged:
             report.run.inputFingerprint !== input.currentInputFingerprint,
           startedAt: report.run.startedAt,
@@ -182,7 +174,7 @@ function mapReport(
     runId: run.id,
     definitionId: run.definitionId,
     brandId: run.brandId,
-    brandSnapshot: snapshotSchema.parse(run.definition.brandSnapshot),
+    brandSnapshot: parseEvaluationBrandSnapshot(run.definition.brandSnapshot),
     brandInformationChanged: run.inputFingerprint !== currentInputFingerprint,
     startedAt: run.startedAt,
     acceptedAt: run.report.acceptedAt,

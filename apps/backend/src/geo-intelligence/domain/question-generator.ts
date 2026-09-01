@@ -4,6 +4,7 @@ import type {
   EvaluationBrandSnapshot,
   EvaluationQuestionKind,
 } from "./evaluation.types.js";
+import { evaluationBrandTextContext } from "./evaluation-brand-snapshot.js";
 
 export const QUESTION_GENERATOR = Symbol("QUESTION_GENERATOR");
 
@@ -37,15 +38,16 @@ export class DeterministicEvaluationQuestionGenerator implements EvaluationQuest
   async generate(
     snapshot: EvaluationBrandSnapshot,
   ): Promise<GeneratedEvaluationQuestion[]> {
-    const region = [snapshot.province, snapshot.city, snapshot.district]
+    const context = evaluationBrandTextContext(snapshot);
+    const region = [context.province, context.city, context.terminalRegion]
       .filter(Boolean)
       .join("");
-    const industry = snapshot.secondaryIndustry || snapshot.primaryIndustry;
+    const industry = context.recommendationSubject;
     return [
       {
         kind: "BRAND_DIRECTED",
         ordinal: 1,
-        content: `请客观介绍并评价位于${region}、从事${industry}的${snapshot.companyName}，包括主要特点、适合人群，并在有依据时说明局限或不确定信息。`,
+        content: `请客观介绍并评价位于${region}、从事${industry}的${context.companyName}，包括主要特点、适合人群，并在有依据时说明局限或不确定信息。`,
       },
       {
         kind: "INDUSTRY_RECOMMENDATION",
@@ -55,12 +57,12 @@ export class DeterministicEvaluationQuestionGenerator implements EvaluationQuest
       {
         kind: "CHARACTERISTIC_ONE",
         ordinal: 3,
-        content: `在${region}寻找${industry}时，哪些品牌或门店在“${snapshot.characteristicOne}”方面表现突出？请客观比较并说明理由。`,
+        content: `在${region}寻找${industry}时，哪些品牌或门店在“${context.characteristicOne}”方面表现突出？请客观比较并说明理由。`,
       },
       {
         kind: "CHARACTERISTIC_TWO",
         ordinal: 4,
-        content: `在${region}寻找${industry}时，哪些品牌或门店在“${snapshot.characteristicTwo}”方面值得关注？请客观比较并说明理由。`,
+        content: `在${region}寻找${industry}时，哪些品牌或门店在“${context.characteristicTwo}”方面值得关注？请客观比较并说明理由。`,
       },
     ];
   }

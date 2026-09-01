@@ -352,6 +352,90 @@
         ]
       }
     },
+    "/brand-reference-data/industries": {
+      "get": {
+        "operationId": "BrandReferenceController_industries",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndustryCatalogResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brand-reference-data"
+        ]
+      }
+    },
+    "/brand-reference-data/regions/provinces": {
+      "get": {
+        "operationId": "BrandReferenceController_provinces",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionOptionListResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brand-reference-data"
+        ]
+      }
+    },
+    "/brand-reference-data/regions/provinces/{provinceId}/cities": {
+      "get": {
+        "operationId": "BrandReferenceController_cities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CityRegionOptionListResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brand-reference-data"
+        ]
+      }
+    },
+    "/brand-reference-data/regions/provinces/{provinceId}/cities/{cityId}/terminals": {
+      "get": {
+        "operationId": "BrandReferenceController_terminals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalRegionOptionListResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brand-reference-data"
+        ]
+      }
+    },
     "/brands/{brandId}/evaluation-report": {
       "get": {
         "operationId": "EvaluationController_currentReport",
@@ -808,13 +892,18 @@
             "type": "string",
             "nullable": true
           },
-          "primaryIndustry": {
+          "primaryIndustryId": {
             "type": "string",
             "nullable": true
           },
-          "secondaryIndustry": {
+          "secondaryIndustryId": {
             "type": "string",
             "nullable": true
+          },
+          "otherProductOrService": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 60
           },
           "characteristicOne": {
             "type": "string",
@@ -824,15 +913,15 @@
             "type": "string",
             "nullable": true
           },
-          "province": {
+          "provinceRegionId": {
             "type": "string",
             "nullable": true
           },
-          "city": {
+          "cityRegionId": {
             "type": "string",
             "nullable": true
           },
-          "district": {
+          "terminalRegionId": {
             "type": "string",
             "nullable": true
           },
@@ -852,6 +941,34 @@
             "enum": [
               "ACTIVE",
               "ARCHIVED"
+            ]
+          },
+          "primaryIndustryLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "secondaryIndustryLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "provinceRegionLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityRegionLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminalRegionLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminalRegionLevel": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "COUNTY",
+              "TOWNSHIP"
             ]
           },
           "readyForEvaluation": {
@@ -892,13 +1009,18 @@
             "type": "string",
             "nullable": true
           },
-          "primaryIndustry": {
+          "primaryIndustryId": {
             "type": "string",
             "nullable": true
           },
-          "secondaryIndustry": {
+          "secondaryIndustryId": {
             "type": "string",
             "nullable": true
+          },
+          "otherProductOrService": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 60
           },
           "characteristicOne": {
             "type": "string",
@@ -908,15 +1030,15 @@
             "type": "string",
             "nullable": true
           },
-          "province": {
+          "provinceRegionId": {
             "type": "string",
             "nullable": true
           },
-          "city": {
+          "cityRegionId": {
             "type": "string",
             "nullable": true
           },
-          "district": {
+          "terminalRegionId": {
             "type": "string",
             "nullable": true
           },
@@ -929,6 +1051,201 @@
             "nullable": true
           }
         }
+      },
+      "IndustrySecondaryOptionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "isOther": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "isOther"
+        ]
+      },
+      "IndustryPrimaryOptionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "secondaryIndustries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IndustrySecondaryOptionResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "secondaryIndustries"
+        ]
+      },
+      "IndustryCatalogResponse": {
+        "type": "object",
+        "properties": {
+          "catalogId": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "primaryIndustries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IndustryPrimaryOptionResponse"
+            }
+          }
+        },
+        "required": [
+          "catalogId",
+          "version",
+          "contentHash",
+          "primaryIndustries"
+        ]
+      },
+      "RegionOptionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ]
+      },
+      "RegionOptionListResponse": {
+        "type": "object",
+        "properties": {
+          "sourceReleaseId": {
+            "type": "string"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionOptionResponse"
+            }
+          }
+        },
+        "required": [
+          "sourceReleaseId",
+          "contentHash",
+          "options"
+        ]
+      },
+      "CityRegionOptionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "identityKind": {
+            "type": "string",
+            "enum": [
+              "OFFICIAL_DIVISION",
+              "MUNICIPALITY_REPEAT",
+              "PROVINCE_DIRECT_GROUP"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "identityKind"
+        ]
+      },
+      "CityRegionOptionListResponse": {
+        "type": "object",
+        "properties": {
+          "sourceReleaseId": {
+            "type": "string"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CityRegionOptionResponse"
+            }
+          }
+        },
+        "required": [
+          "sourceReleaseId",
+          "contentHash",
+          "options"
+        ]
+      },
+      "TerminalRegionOptionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "officialLevel": {
+            "type": "string",
+            "enum": [
+              "COUNTY",
+              "TOWNSHIP"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "officialLevel"
+        ]
+      },
+      "TerminalRegionOptionListResponse": {
+        "type": "object",
+        "properties": {
+          "sourceReleaseId": {
+            "type": "string"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TerminalRegionOptionResponse"
+            }
+          }
+        },
+        "required": [
+          "sourceReleaseId",
+          "contentHash",
+          "options"
+        ]
       },
       "EvaluationBrandSnapshotResponse": {
         "type": "object",

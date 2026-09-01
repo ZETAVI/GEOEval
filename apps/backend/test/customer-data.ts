@@ -1,4 +1,17 @@
 import type { PrismaService } from "../src/infrastructure/prisma.service.js";
+import type { EditableBrandFields } from "../src/brand/domain/brand.types.js";
+
+export const READY_COFFEE_BRAND_FIELDS: EditableBrandFields = {
+  primaryIndustryId: "IND-01",
+  secondaryIndustryId: "IND-01-02",
+  characteristicOne: "安静办公",
+  characteristicTwo: "精品手冲",
+  provinceRegionId: "CN-MCA-PROVINCE-440000",
+  cityRegionId: "CN-MCA-PREFECTURE-440100",
+  terminalRegionId: "CN-MCA-COUNTY-440106",
+  contactName: "林先生",
+  contactMobile: "+8613900000101",
+};
 
 export async function clearCustomerData(prisma: PrismaService): Promise<void> {
   await prisma.notification.deleteMany();

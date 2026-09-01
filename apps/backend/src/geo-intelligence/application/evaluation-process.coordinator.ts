@@ -22,6 +22,7 @@ import {
   SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
   parseAndProjectSampleParserModelOutput,
 } from "../domain/sample-parser-model.contract.js";
+import { evaluationBrandTextContext } from "../domain/evaluation-brand-snapshot.js";
 import { buildSampleParserTask } from "../sample-parser.policy.js";
 import { EvaluationSynthesisCoordinator } from "./evaluation-synthesis.coordinator.js";
 
@@ -121,6 +122,7 @@ export class EvaluationProcessCoordinator {
     if (!context || context.status !== "PENDING") {
       return EVALUATION_PROCESS_COMPLETED;
     }
+    const brand = evaluationBrandTextContext(context.brandSnapshot);
     const outcome = await this.aiExecution.execute({
       runId: context.runId,
       cycleId: context.cycleId,
@@ -137,8 +139,8 @@ export class EvaluationProcessCoordinator {
         query: context.query,
         questionOrdinal: context.questionOrdinal,
         platformLabel: context.platformLabel,
-        province: context.brandSnapshot.province,
-        city: context.brandSnapshot.city,
+        province: brand.province,
+        city: brand.city,
       },
     });
     if (outcome.kind === "DEFERRED") return outcome;
@@ -175,19 +177,16 @@ export class EvaluationProcessCoordinator {
     ) {
       return EVALUATION_PROCESS_COMPLETED;
     }
+    const brand = evaluationBrandTextContext(context.brandSnapshot);
     const parserTask = buildSampleParserTask({
-      companyName: context.brandSnapshot.companyName,
-      primaryIndustry: context.brandSnapshot.primaryIndustry,
-      secondaryIndustry: context.brandSnapshot.secondaryIndustry,
-      region: [
-        context.brandSnapshot.province,
-        context.brandSnapshot.city,
-        context.brandSnapshot.district,
-      ]
+      companyName: brand.companyName,
+      primaryIndustry: brand.primaryIndustry,
+      secondaryIndustry: brand.secondaryIndustry,
+      region: [brand.province, brand.city, brand.terminalRegion]
         .filter(Boolean)
         .join(""),
-      characteristicOne: context.brandSnapshot.characteristicOne,
-      characteristicTwo: context.brandSnapshot.characteristicTwo,
+      characteristicOne: brand.characteristicOne,
+      characteristicTwo: brand.characteristicTwo,
       questionKind: context.questionKind,
       question: context.query,
       originalAnswer: context.evidence.answerContent,

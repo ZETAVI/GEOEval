@@ -22,6 +22,11 @@ brand facts and fingerprint meaning.
   account-owned, evaluation-ready brand
 - **THEN** GEO Intelligence stores an immutable evaluation-purpose brand
   snapshot and the Brand Knowledge fingerprint
+- **AND** the versioned snapshot freezes industry IDs and labels, catalog
+  version, applicable `Other` phrase, actual recommendation subject, all three
+  selected region IDs and labels, terminal official identity and level,
+  official semantic path, and the region source release supplied by Brand
+  Knowledge
 - **AND** stores one ordered brand-directed question, one industry question, and
   two characteristic questions
 - **AND** stores the fixed five-platform policy, question-generator identity,
@@ -40,6 +45,17 @@ brand facts and fingerprint meaning.
   and questions unchanged
 - **AND** an unstarted definition whose fingerprint is no longer current cannot
   start an official run
+
+#### Scenario: An earlier snapshot is read after Brand reference activation
+
+- **WHEN** an existing Definition retains the original unversioned flat Brand
+  snapshot
+- **THEN** GEO Intelligence reads it through the central legacy/new compatibility
+  decoder
+- **AND** question generation, execution, synthesis, report projection, and
+  history keep using its frozen labels
+- **AND** GEO does not re-resolve that history through current Brand reference
+  data.
 
 ### Requirement: Atomic official start
 

@@ -229,7 +229,7 @@ export function BrandWorkspace() {
                   </div>
                   <h3>{brand.companyName}</h3>
                   <p>
-                    {[brand.primaryIndustry, brand.secondaryIndustry]
+                    {[brand.primaryIndustryLabel, brand.secondaryIndustryLabel]
                       .filter(Boolean)
                       .join(" · ") || "行业信息待补充"}
                   </p>
@@ -256,6 +256,8 @@ export function BrandWorkspace() {
       </main>
       {editing && (
         <BrandEditor
+          key={editing === "new" ? "new" : editing.id}
+          apiBaseUrl={apiBaseUrl}
           {...(editing === "new" ? {} : { brand: editing })}
           busy={busy}
           onCancel={() => setEditing(undefined)}
