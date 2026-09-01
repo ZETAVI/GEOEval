@@ -129,6 +129,12 @@ telemetry exporter.
   returns malformed data, or returns semantically invalid structured output
 - **THEN** AI Execution retains stable technical failure evidence without a
   hidden transport retry
+- **AND** when a Provider-successful structured response fails deterministic
+  projection or canonical semantic validation, that exact Attempt becomes
+  `FAILED/SEMANTIC_CONTRACT_REJECTED` before the next purpose attempt is
+  scheduled
+- **AND** its versioned envelope retains the rejected normalized output,
+  Provider Evidence, model-contract version, and domain-contract version
 - **AND** acquisition retries the same platform route
 - **AND** interpretation uses Model Studio Qwen3.8 Flash for attempts one and
   two and TokenHub Hy3 for attempt three

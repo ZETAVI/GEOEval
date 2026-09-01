@@ -15,6 +15,7 @@ import {
   type AiAttemptRepository,
 } from "../domain/ai-attempt.repository.js";
 import { toTerminalAiOutcome } from "../domain/ai-attempt.outcome.js";
+import type { AiSemanticRejection } from "../domain/ai-attempt.envelope.js";
 import type {
   AiAttemptOutcome,
   SampleAiAttemptRequest,
@@ -62,5 +63,18 @@ export class AiExecutionService {
     const outcome = toTerminalAiOutcome(stored);
     if (!outcome) throw new Error("AI attempt did not reach a terminal state");
     return outcome;
+  }
+
+  async rejectSemantics(
+    attemptId: string,
+    rejection: AiSemanticRejection,
+  ): Promise<void> {
+    const attempt = await this.repository.rejectSemantics(attemptId, rejection);
+    if (
+      attempt.status !== "FAILED" ||
+      attempt.failureClass !== rejection.failureClass
+    ) {
+      throw new Error("AI attempt semantic rejection was not persisted");
+    }
   }
 }

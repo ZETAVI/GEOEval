@@ -79,6 +79,10 @@ projection into its canonical parser or synthesis contract.
 - **AND** the projected record must still pass the existing strict domain schema
   and semantic checks before it can affect accepted evidence, calculations, or
   a report
+- **AND** a rejected projection marks that exact Attempt
+  `FAILED/SEMANTIC_CONTRACT_REJECTED` before a later purpose attempt is
+  scheduled, while retaining the rejected normalized output, Provider Evidence,
+  model-contract version, and domain-contract version
 - **AND** the model never owns internal identifiers, foreign keys, aggregate
   counts, scores, or final report metrics
 

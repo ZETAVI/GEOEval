@@ -11,6 +11,7 @@ import {
   NoopAiAttemptTelemetry,
 } from "../domain/ai-attempt.telemetry.js";
 import { toTerminalAiOutcome } from "../domain/ai-attempt.outcome.js";
+import type { AiSemanticRejection } from "../domain/ai-attempt.envelope.js";
 import {
   AI_SYNTHESIS_ATTEMPT_REPOSITORY,
   type AiSynthesisAttemptRepository,
@@ -64,5 +65,18 @@ export class AiSynthesisExecutionService {
       throw new Error("AI synthesis execution did not reach a terminal state");
     }
     return outcome;
+  }
+
+  async rejectSemantics(
+    attemptId: string,
+    rejection: AiSemanticRejection,
+  ): Promise<void> {
+    const attempt = await this.repository.rejectSemantics(attemptId, rejection);
+    if (
+      attempt.status !== "FAILED" ||
+      attempt.failureClass !== rejection.failureClass
+    ) {
+      throw new Error("AI synthesis semantic rejection was not persisted");
+    }
   }
 }

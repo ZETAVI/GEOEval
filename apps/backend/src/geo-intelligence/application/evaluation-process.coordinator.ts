@@ -14,8 +14,14 @@ import {
   EVALUATION_PROCESS_COMPLETED,
   type EvaluationProcessResult,
 } from "../domain/evaluation-process.result.js";
-import { SAMPLE_PARSER_CONTRACT_VERSION } from "../domain/sample-parser.contract.js";
-import { parseAndProjectSampleParserModelOutput } from "../domain/sample-parser-model.contract.js";
+import {
+  SAMPLE_PARSER_CONTRACT_VERSION,
+  SampleParserSemanticError,
+} from "../domain/sample-parser.contract.js";
+import {
+  SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
+  parseAndProjectSampleParserModelOutput,
+} from "../domain/sample-parser-model.contract.js";
 import { buildSampleParserTask } from "../sample-parser.policy.js";
 import { EvaluationSynthesisCoordinator } from "./evaluation-synthesis.coordinator.js";
 
@@ -217,7 +223,18 @@ export class EvaluationProcessCoordinator {
         companyName: context.companyName,
         originalAnswer: context.evidence.answerContent,
       });
-    } catch {
+    } catch (error) {
+      if (
+        !(error instanceof z.ZodError) &&
+        !(error instanceof SampleParserSemanticError)
+      ) {
+        throw error;
+      }
+      await this.aiExecution.rejectSemantics(outcome.attemptId, {
+        failureClass: "SEMANTIC_CONTRACT_REJECTED",
+        modelContractVersion: SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
+        domainContractVersion: SAMPLE_PARSER_CONTRACT_VERSION,
+      });
       await this.handleFailure({
         context,
         purpose: "EVALUATION_INTERPRETATION",

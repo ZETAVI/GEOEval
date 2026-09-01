@@ -3,7 +3,11 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import type { AiAttemptRepository } from "../domain/ai-attempt.repository.js";
-import { buildAttemptEnvelope } from "../domain/ai-attempt.envelope.js";
+import {
+  appendSemanticRejection,
+  buildAttemptEnvelope,
+  type AiSemanticRejection,
+} from "../domain/ai-attempt.envelope.js";
 import type {
   AiAdapterResult,
   BegunAiAttempt,
@@ -95,6 +99,37 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
       where: { id: attemptId },
     });
     return mapAttempt(attempt);
+  }
+
+  async rejectSemantics(
+    attemptId: string,
+    rejection: AiSemanticRejection,
+  ): Promise<StoredAiAttempt> {
+    const current = await this.prisma.aiExecutionAttempt.findUniqueOrThrow({
+      where: { id: attemptId },
+    });
+    if (current.status === "SUCCEEDED") {
+      if (!isRecord(current.responseEnvelope)) {
+        throw new Error("Succeeded AI attempt has no readable envelope");
+      }
+      await this.prisma.aiExecutionAttempt.updateMany({
+        where: { id: attemptId, status: "SUCCEEDED" },
+        data: {
+          status: "FAILED",
+          failureClass: rejection.failureClass,
+          retryable: true,
+          responseEnvelope: appendSemanticRejection(
+            current.responseEnvelope,
+            rejection,
+          ) as Prisma.InputJsonValue,
+        },
+      });
+    }
+    return mapAttempt(
+      await this.prisma.aiExecutionAttempt.findUniqueOrThrow({
+        where: { id: attemptId },
+      }),
+    );
   }
 
   private async resolveExisting(

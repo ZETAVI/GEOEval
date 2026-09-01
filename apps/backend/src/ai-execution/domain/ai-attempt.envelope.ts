@@ -5,6 +5,12 @@ import type {
 
 export const AI_ATTEMPT_ENVELOPE_VERSION = "ai-attempt-envelope@1";
 
+export type AiSemanticRejection = {
+  failureClass: "SEMANTIC_CONTRACT_REJECTED";
+  modelContractVersion: string;
+  domainContractVersion: string;
+};
+
 export function buildAttemptEnvelope(
   result: AiAdapterResult,
 ): Record<string, unknown> {
@@ -31,6 +37,22 @@ export function readProviderAttemptEvidence(
   if (envelope.schemaVersion !== AI_ATTEMPT_ENVELOPE_VERSION) return undefined;
   const evidence = envelope.providerEvidence;
   return isRecord(evidence) ? (evidence as AiProviderEvidence) : undefined;
+}
+
+export function appendSemanticRejection(
+  envelope: Record<string, unknown>,
+  rejection: AiSemanticRejection,
+): Record<string, unknown> {
+  if (envelope.schemaVersion !== AI_ATTEMPT_ENVELOPE_VERSION) {
+    throw new Error("Semantic rejection requires a versioned attempt envelope");
+  }
+  return {
+    ...envelope,
+    semanticDisposition: {
+      kind: "REJECTED",
+      ...rejection,
+    },
+  };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -11,8 +11,14 @@ import {
   EVALUATION_PROCESS_COMPLETED,
   type EvaluationProcessResult,
 } from "../domain/evaluation-process.result.js";
-import { OverallSynthesisSemanticError } from "../domain/overall-synthesis.contract.js";
-import { parseAndProjectOverallSynthesisModelOutput } from "../domain/overall-synthesis-model.contract.js";
+import {
+  OVERALL_SYNTHESIS_CONTRACT_VERSION,
+  OverallSynthesisSemanticError,
+} from "../domain/overall-synthesis.contract.js";
+import {
+  OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION,
+  parseAndProjectOverallSynthesisModelOutput,
+} from "../domain/overall-synthesis-model.contract.js";
 import { buildOverallSynthesisTask } from "../overall-synthesis.policy.js";
 
 const SYNTHESIS_ROUTES = [
@@ -88,6 +94,11 @@ export class EvaluationSynthesisCoordinator {
       ) {
         throw error;
       }
+      await this.aiExecution.rejectSemantics(outcome.attemptId, {
+        failureClass: "SEMANTIC_CONTRACT_REJECTED",
+        modelContractVersion: OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION,
+        domainContractVersion: OVERALL_SYNTHESIS_CONTRACT_VERSION,
+      });
       await this.handleFailure({
         context,
         attemptId: outcome.attemptId,

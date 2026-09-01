@@ -57,6 +57,10 @@
 - [x] Verify representative parser and synthesis fixtures through primary
       success, primary semantic rejection, fallback success, and terminal
       exhaustion before any complete evaluation.
+- [x] Persist a structured-output semantic rejection on the exact Provider-
+      successful Attempt before GEO schedules the next purpose attempt; retain
+      the rejected normalized output plus model and domain contract versions so
+      intermediate Qwen retries and final exhaustion are explicitly explainable.
 
 ## S6c Observability and Controlled Acceptance
 

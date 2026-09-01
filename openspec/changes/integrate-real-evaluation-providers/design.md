@@ -421,6 +421,13 @@ Completion requires:
 - Resolved must-fix: the shared two-attempt recovery helper cannot express the
   confirmed three-step interpretation fallback. Reconciliation must read the
   purpose-owned route sequence and never cap every purpose with one constant.
+- Resolved must-fix: a Provider-successful structured response that GEO rejects
+  could remain durably marked `SUCCEEDED`, leaving an intermediate parser or
+  synthesis retry reason implicit. GEO now reports the semantic rejection back
+  through the AI Execution service before scheduling the next purpose attempt;
+  the same Attempt becomes `FAILED/SEMANTIC_CONTRACT_REJECTED` while retaining
+  its normalized output, Provider Evidence, and both contract versions in the
+  versioned envelope. No second attempt table or workflow is added.
 - Resolved should-fix: real configuration is passed through the composition root
   into AI Execution rather than read from environment variables inside adapters.
 - Resolved should-fix: the broad product-definition evolution marker is not
@@ -467,6 +474,18 @@ Offline evidence on 2026-08-28:
   closing the defect that previously allowed a test cleanup to reach local demo
   data. The authenticated fictional browser report was rechecked against the
   isolated real-run database.
+
+Rebase review evidence on 2026-08-31:
+
+- the retained fictional database demonstrated the gap directly: Provider-
+  successful Qwen parser and synthesis attempts could be followed by retries
+  without a persisted semantic rejection reason;
+- the fixed integration contract asserts that rejected parser and synthesis
+  Attempts become `FAILED/SEMANTIC_CONTRACT_REJECTED`, remain retryable, retain
+  the original envelope, and identify their model and domain contract versions;
+- the isolated Backend suite passed 19 files and 103 tests with Deterministic AI
+  and external Telemetry disabled. The pre-existing `pg@9` nested-query warning
+  remains unrelated maintenance debt.
 
 Controlled external evidence on 2026-08-28:
 

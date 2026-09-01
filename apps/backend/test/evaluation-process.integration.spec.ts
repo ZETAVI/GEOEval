@@ -612,6 +612,27 @@ describe("resumable evaluation evidence", () => {
         },
       }),
     ).toBe(2);
+    const rejected = await prisma.aiExecutionAttempt.findFirstOrThrow({
+      where: {
+        sampleId: controlledSampleId,
+        purpose: "EVALUATION_INTERPRETATION",
+        attemptNumber: 1,
+      },
+    });
+    expect(rejected).toMatchObject({
+      status: "FAILED",
+      failureClass: "SEMANTIC_CONTRACT_REJECTED",
+      retryable: true,
+      responseEnvelope: {
+        schemaVersion: "ai-attempt-envelope@1",
+        semanticDisposition: {
+          kind: "REJECTED",
+          failureClass: "SEMANTIC_CONTRACT_REJECTED",
+          modelContractVersion: "evaluation.sample-parser-model@2",
+          domainContractVersion: "1.0.0",
+        },
+      },
+    });
     const interpretation =
       await prisma.evaluationSampleInterpretation.findUniqueOrThrow({
         where: { sampleId: controlledSampleId },
@@ -861,6 +882,36 @@ describe("resumable evaluation evidence", () => {
     await drain(processor, outbox);
 
     expect(await prisma.aiSynthesisAttempt.count({ where: { runId } })).toBe(3);
+    const rejectedAttempts = await prisma.aiSynthesisAttempt.findMany({
+      where: { runId },
+      orderBy: { attemptNumber: "asc" },
+    });
+    expect(
+      rejectedAttempts.map((attempt) => ({
+        status: attempt.status,
+        failureClass: attempt.failureClass,
+        retryable: attempt.retryable,
+        semanticDisposition:
+          typeof attempt.responseEnvelope === "object" &&
+          attempt.responseEnvelope !== null &&
+          !Array.isArray(attempt.responseEnvelope) &&
+          "semanticDisposition" in attempt.responseEnvelope
+            ? attempt.responseEnvelope.semanticDisposition
+            : undefined,
+      })),
+    ).toEqual(
+      Array.from({ length: 3 }, () => ({
+        status: "FAILED",
+        failureClass: "SEMANTIC_CONTRACT_REJECTED",
+        retryable: true,
+        semanticDisposition: {
+          kind: "REJECTED",
+          failureClass: "SEMANTIC_CONTRACT_REJECTED",
+          modelContractVersion: "evaluation.overall-synthesis-model@2",
+          domainContractVersion: "evaluation.overall-synthesis@1",
+        },
+      })),
+    );
     expect(
       await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
     ).toMatchObject({
