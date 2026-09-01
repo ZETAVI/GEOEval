@@ -60,35 +60,17 @@ The proposal names the current product-definition and glossary conflict and has
 an explicit reconciliation task. The active Change is the correct temporary
 owner; current truth is not edited before implementation approval.
 
-### Consider: procurement currency trigger
+### Product-owner resolutions after review
 
-- **Affected artifact:** `MediaResource.procurementCostFen`.
-- **Reachable consequence:** #34 may find a verified source whose administrator
-  procurement amount is not quoted in RMB; silently storing that amount as RMB
-  would corrupt internal cost meaning.
-- **Current control:** the field is optional and explicitly bounded to RMB fen;
-  no exchange rate, conversion, or customer price derives from it.
-- **Changed action:** if #34 produces one confirmed non-RMB current quote before
-  schema implementation, revise the field to amount-in-minor-unit plus a narrow
-  ISO currency value. Do not add multi-currency now from the mere existence of
-  overseas media.
-- **Origin:** bounded first-release assumption, not pre-existing debt.
-
-### Consider: future same-platform result validation
-
-- **Affected artifact:** future Publication Delivery integration, outside #33.
-- **Reachable consequence:** an unlisted result link may not make its platform
-  identity mechanically obvious, especially for account-hosting platforms.
-- **Current control:** #33 only states the contract: another platform is not an
-  ordinary fulfilment, and Media Supply neither approves nor completes results.
-- **Changed action:** the future Delivery Change must define operator evidence,
-  platform confirmation, and exception handling before it implements result
-  acceptance. #33 must not add URL heuristics or a dormant validator.
-- **Origin:** deferred downstream capability boundary.
+- Procurement cost is uniformly RMB fen in the first release. No currency field
+  or conversion behavior is required.
+- A future successful publication requires a recorded accessible URL. It does
+  not require a catalog-resource match or automated URL-to-platform identity
+  validation. Media Supply remains outside completion ownership.
 
 ## Review result
 
-`ready for product-owner approval`.
+`ready for implementation`.
 
 There are no must-fix or should-fix findings in the proposed #33 boundary. No
 ADR is required. The following evidence remains mandatory during implementation:

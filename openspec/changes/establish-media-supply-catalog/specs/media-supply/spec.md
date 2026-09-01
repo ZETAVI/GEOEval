@@ -220,20 +220,13 @@ candidates and SHALL not own actual-media selection or publication completion.
 
 #### Scenario: Operations publishes through an unlisted account
 
-- **GIVEN** a publishing work item commits to a platform rather than a concrete
-  account
-- **WHEN** operations publishes successfully through an account not stored as a
-  `MediaResource` under that platform
+- **GIVEN** a publishing work item does not commit to a concrete account
+- **WHEN** operations records a successful publication through an account not
+  stored as a `MediaResource`
 - **THEN** Publication Delivery may retain a null media-resource reference
-- **AND** the valid article link and required publication-result facts can
-  complete the work item
+- **AND** a recorded accessible article URL and required publication-result
+  facts can complete the work item
 - **AND** Media Supply does not reject completion or automatically create a new
-  resource from the fulfilment result.
-
-#### Scenario: Operations would use another platform
-
-- **WHEN** the available result belongs to a platform different from the paid
-  platform commitment
-- **THEN** the result is not treated as an ordinary same-platform fulfilment
-- **AND** replacement or point-return handling remains owned by the future
-  Commerce and Delivery exception workflow.
+  resource from the fulfilment result
+- **AND** the system does not require a catalog match or automated URL-to-
+  platform identity check before completion.

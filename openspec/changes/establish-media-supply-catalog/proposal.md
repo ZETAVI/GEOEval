@@ -1,11 +1,14 @@
 # Change: Establish Media Supply Catalog
 
-- Status: Proposed; implementation approval pending
+- Status: Approved for implementation
 - Class: Architectural implementation
 - Owning Issue: [#33](https://github.com/ZETAVI/GEOEval/issues/33)
 - Predecessor research: [#12](https://github.com/ZETAVI/GEOEval/issues/12)
 - Parallel data research: [#34](https://github.com/ZETAVI/GEOEval/issues/34)
 - Decision owners: Product owner and architecture owner
+- Product-owner approval: 2026-09-01
+- Authorization: deterministic implementation and pull-request preparation;
+  no production data, deployment, or merge
 
 ## Why
 
@@ -19,9 +22,9 @@ confirmed product decisions in #12 refine that meaning:
 - the customer selects and pays for a media platform, not a concrete account;
 - concrete resources are optional customer examples and non-blocking operations
   references;
-- operations may publish through an unlisted account under the committed
-  platform, and a valid publication result—not a catalog match—completes future
-  fulfilment;
+- operations may publish through an unlisted account, and a recorded accessible
+  publication URL—not a catalog match or automated platform-recognition rule—
+  completes future fulfilment;
 - the platform listing is the administrator's sale decision and is not derived
   from whether the current database contains a candidate resource.
 
@@ -118,8 +121,9 @@ publication results. Neither caller reads Media Supply tables.
    and cannot block a listing.
 5. Customer examples are capped by the query, are never selectable or priced,
    and use `HIDDEN`, `FULL`, or administrator-supplied `MASKED` presentation.
-6. Operations may use an unlisted account under the committed platform. Future
-   `mediaResourceId` is nullable, and the publication link/result owns completion.
+6. Operations may use an unlisted account. Future `mediaResourceId` is nullable,
+   and a recorded accessible publication URL/result owns completion; the system
+   does not infer or block on URL-to-platform identity.
 7. PostgreSQL is the single source of durable media truth. Catalog polling is a
    disposable freshness mechanism and never replaces payment-time quote checks.
 
@@ -148,16 +152,14 @@ publication results. Neither caller reads Media Supply tables.
 - Writer: the current primary Codex agent; #34 owns only its independent data
   research output
 - Merge destination: protected `main` through a later pull request
-- Current phase: Propose; implementation and migrations are not authorized by
-  this draft
-- Exit for this phase: architecture review is complete, #33 links the Change,
-  and the product owner either approves the implementation boundary or requests
-  a bounded revision
+- Current phase: Implement
+- Exit: verified implementation and current-truth reconciliation are delivered
+  through a pull request; merge remains a separate product-owner decision
 
 ## Approval boundary
 
-The product owner has approved the outcome and first implementation package.
-Approval is still required for this concrete persistence, authorization,
-revision, API, migration, and reconciliation design before implementation.
-This Change does not authorize production data, deployment, or external
-publication activity.
+The product owner approved the persistence, authorization, revision, API,
+migration, reconciliation, RMB procurement-cost, and URL-only fulfilment-
+completion boundaries on 2026-09-01. This authorizes deterministic
+implementation and verification. It does not authorize production data,
+deployment, external publication activity, or pull-request merge.

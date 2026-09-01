@@ -91,7 +91,7 @@ projections rather than exported database records.
 | Business write succeeds but audit or revision write fails | Transaction failure | Administrator retries the whole command | One database transaction; no partial entity, audit, or revision row |
 | Catalog-state singleton is missing | Permanent migration/deployment fault | Operator repairs or reapplies migration before readiness | Startup/repository assertion and migration fixture |
 | A source becomes inactive | Expected operating change | Administrator selects another source or edits the resource | Candidate query excludes it; platform listing remains explicit |
-| Every stored resource is unavailable | Expected operating state | Operations uses an unlisted same-platform account or administrator pauses listing | Listing-only buyability test and empty-candidate contract |
+| Every stored resource is unavailable | Expected operating state | Operations uses an unlisted account or administrator pauses listing | Listing-only buyability test and empty-candidate contract |
 | Customer polls during or after an update | Eventual freshness | Client retains current view and checks again; payment still requotes | Monotonic catalog revision and conditional-query integration test |
 | External Logo URL is unavailable or changes | Presentation degradation | Future Web shows a neutral placeholder; administrator replaces reference | No backend fetch or sale-state dependency |
 | Delete targets a referenced object | Business conflict | Administrator archives, pauses, or deactivates it | Restrict foreign keys and focused deletion tests |
@@ -137,10 +137,11 @@ projections rather than exported database records.
   buyability; quote conflict; generated OpenAPI; typecheck, focused/full tests,
   build, and framework validation. No browser or SSE claim belongs to #33.
 - **Residual risk accepted by:** the product owner accepts listing-only
-  buyability and unlisted same-platform fulfilment. The architecture owner must
-  accept first-release external Logo references and last-write-wins behavior for
-  non-commercial platform/resource/source edits; audit preserves those edits,
-  while listing price/status has optimistic concurrency.
+  buyability, unlisted-account fulfilment, URL-only completion evidence, and RMB
+  procurement cost. The architecture owner accepts first-release external Logo
+  references and last-write-wins behavior for non-commercial platform/resource/
+  source edits; audit preserves those edits, while listing price/status has
+  optimistic concurrency.
 
 ## Domain ownership and language
 
@@ -254,9 +255,8 @@ login lifecycle.
 | `publicationNotes` | Inclusion, speed, edit, content, or other internal notes | null |
 | timestamps | Creation and last modification | database-managed |
 
-The RMB-fen assumption reflects the current domestic sourcing workbook and is
-reversible. A verified need for non-RMB procurement opens a separate currency
-decision rather than adding speculative exchange-rate behavior now.
+Procurement cost is uniformly recorded in RMB fen for the first release. Media
+Supply performs no currency conversion or exchange-rate behavior.
 
 ### `MediaCatalogState`
 
@@ -309,11 +309,13 @@ snapshot.
 
 ### Fulfilment candidates
 
-The internal query accepts the committed platform ID and returns active
+The internal query accepts the order's platform ID and returns active
 resources with active current sources in quality/stable order. It includes the
 internal information operations requires. The result may be empty and never
 allocates, reserves, or selects a resource. Future Delivery owns optional
-selection reference and publication result.
+selection reference and publication result. A recorded accessible publication
+URL can complete future Delivery without a candidate match or automated URL-to-
+platform recognition.
 
 ## Revisions and transaction rules
 

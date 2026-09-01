@@ -18,7 +18,7 @@
       research output; do not make its completion a #33 implementation gate.
 - [x] Complete pre-implementation architecture review of this exact proposal,
       delta, and design; resolve every must-fix and should-fix finding.
-- [ ] Obtain explicit product-owner approval of the concrete persistence,
+- [x] Obtain explicit product-owner approval of the concrete persistence,
       authorization, revision, API, migration, and reconciliation design.
 
 ## Persistence and domain implementation
