@@ -79,6 +79,18 @@ after deterministic projection into its canonical semantic contracts.
 - **AND** invalid overall synthesis uses the same bounded route order before the
   run becomes `PLEASE_RETRY/SYNTHESIS_EXHAUSTED`
 
+#### Scenario: Overall synthesis groups names and summarizes impressions
+
+- **WHEN** accepted sample interpretations contain brand descriptions,
+  uncertain wording, or other-brand names
+- **THEN** overall synthesis summarizes only what the sampled answers expressed
+  and preserves material uncertainty rather than investigating or verifying
+  real-world brand facts
+- **AND** it may group obvious aliases, translations, store formats, or
+  subordinate brand lines from answer context while leaving an uncertain name
+  independent
+- **AND** default synthesis performs no external web-backed entity research
+
 ### Requirement: Explicit public and protected projections
 
 The customer report SHALL expose only the evidence and conclusions needed to

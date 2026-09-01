@@ -1,10 +1,11 @@
 # Change: Integrate Real Evaluation Providers
 
-- Status: Approved for staged design and implementation; controlled paid-call
-  manifests remain explicit execution gates
+- Status: Accepted for integration; production activation, real customer data,
+  billed-cost reconciliation, and deployment remain separate gates
 - Class: Architectural integration
 - Decision owners: Product owner and architecture owner
-- Product confirmation: 2026-08-28
+- Product confirmation: staged implementation 2026-08-28; final bounded S6
+  acceptance 2026-09-01
 
 ## Why
 

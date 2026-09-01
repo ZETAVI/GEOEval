@@ -119,16 +119,14 @@
       `git range-diff`, then pass isolated Backend tests, Web tests, type checks,
       formatting, framework validation, `git diff --check`, and the full build
       without invoking a real Provider.
-- [ ] Record final product-owner acceptance of the observed S6 result, create a
+- [x] Record final product-owner acceptance of the observed S6 result, create a
       verified integration checkpoint, and keep merge, production activation,
       customer-data use, and deployment as separate actions.
 
 ## Ordered continuation
 
-1. Product owner reviews only the bounded items in
-   [`decision-brief.md`](decision-brief.md#product-owner-review-entry).
-2. Record the product-owner decision and create the verified branch checkpoint.
-3. Request a separate integration decision; integration does not authorize
-   customer data, production activation, push, or deployment.
-4. After integration, start the AI question generator as a separate change;
+1. Integrate the confirmed and verified S6 branch under the separately granted
+   merge decision; integration does not authorize customer data, production
+   activation, or deployment.
+2. After integration, start the AI question generator as a separate change;
    deterministic generation remains its baseline and rollback path.

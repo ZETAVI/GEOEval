@@ -27,6 +27,7 @@ experience proven by deterministic S1-S5.
 | Transport implementation | Small Node `fetch` transport with an absolute abort deadline and provider-specific adapters, not a shared SDK retry layer | Preserves raw custom envelopes and keeps every retry visible as a business-owned attempt | Architecture owner |
 | Semantic route order | Model Studio Qwen3.8 Flash with `medium` reasoning effort for attempts one and two; TokenHub Hy3 for attempt three | Controlled evidence showed accepted semantics with materially lower Qwen latency and tokens than its default reasoning posture, while preserving a provider-distinct fallback | Product and architecture owners |
 | Semantic contracts | Compact model-output schemas followed by deterministic projection into strict canonical domain contracts | Keeps internal IDs, references, calculations, and durable meaning under application control | Architecture owner |
+| Overall-synthesis research boundary | Summarize sampled answers without web-backed brand investigation; group only obvious name relations from answer context and leave uncertain names separate | Preserves the report as an evaluation of AI-platform perception without adding latency, factual-verification scope, or a second brand authority | Product owner |
 | Observability | Manual Langfuse JS/TS tracing through a best-effort port, exporting masked correlation, route, model, usage, latency, cost, and status rather than raw customer content | Langfuse remains useful without becoming business truth or a data-leak path | Architecture owner |
 
 ## Acceptance Boundaries
@@ -75,28 +76,28 @@ second product review surface.
 
 | Review item | Observed result | Proposed disposition |
 | --- | --- | --- |
-| Customer journey and report meaning | One fictional brand completed the normal authenticated four-question by five-platform journey with 20/20 valid positions; the customer contract stayed unchanged | `Proposed`: accept the existing journey and report semantics for S6 |
-| Real-route recovery | All twenty sampling calls succeeded on their first route call. Interpretation used ten first Qwen3.8 attempts, eight same-route retries, and two Hy3 fallbacks. Overall synthesis recovered through Hy3 after one semantic rejection and one timeout | `Proposed`: accept the bounded Qwen3.8-primary/Hy3-fallback policy as a locally verified recovery boundary, not as production-capacity evidence |
-| Customer information boundary | The report exposes complete original answers and business conclusions, while provider sources, search observations, model identities, attempts, traces, and internal synthesis notes remain hidden | `Proposed`: accept this public-versus-protected projection |
+| Customer journey and report meaning | One fictional brand completed the normal authenticated four-question by five-platform journey with 20/20 valid positions; the customer contract stayed unchanged | `Confirmed`: accept the existing journey and report semantics for S6 |
+| Real-route recovery | All twenty sampling calls succeeded on their first route call. Interpretation used ten first Qwen3.8 attempts, eight same-route retries, and two Hy3 fallbacks. Overall synthesis recovered through Hy3 after one semantic rejection and one timeout | `Confirmed`: accept the bounded Qwen3.8-primary/Hy3-fallback policy as a locally verified recovery boundary, not as production-capacity evidence |
+| Customer information boundary | The report exposes complete original answers and business conclusions, while provider sources, search observations, model identities, attempts, traces, and internal synthesis notes remain hidden | `Confirmed`: accept this public-versus-protected projection |
 | Visual and copy refinement | The product owner already identified report order, wording, chart, empty-state, and visual refinements; current specs retain those semantics while final presentation remains a separate frontend workstream | `Explicitly skipped for S6`: do not hold the provider integration open for visual redesign |
 | Commercial readiness | Billed cost, commercial data-processing approval, production pacing and quota behavior, and deployment evidence remain unresolved | `Not proposed`: S6 is not approval for real customer data, pricing, production activation, or deployment |
 
-The product-owner decision needed to exit this branch is narrow: confirm that
-the real execution preserves the accepted customer journey and information
-boundary, and that the observed bounded recovery is sufficient for a local S6
-integration checkpoint with the listed commercial gates still open. The product
-owner does not need to approve provider envelope fields, database rows, hashes,
-retry implementation details, or raw traces.
+The product owner confirmed that real execution preserves the accepted customer
+journey and information boundary, and that the observed bounded recovery is
+sufficient for a local S6 integration checkpoint with the listed commercial
+gates still open. Provider envelope fields, database rows, hashes, retry
+implementation details, and raw traces remain architecture evidence rather than
+product approval surfaces.
 
 ## Confirmation and Next Gate
 
-- Confirmation: Outcome, scope, staged delivery, local implementation, sampling
-  smoke, representative semantic calls, and one complete fictional 4-by-5
-  Worker evaluation were confirmed for execution on 2026-08-28. Final
-  product-owner acceptance of the observed S6 result is still `Proposed`.
-- Next action: obtain that bounded review decision, record the verified branch
-  checkpoint, and request a separate integration decision. After S6 is
-  integrated, open a separate bounded change for the AI question generator
-  behind GEO Intelligence's existing question-generation port.
+- Confirmation: `Confirmed` on 2026-09-01 for the bounded S6 customer journey,
+  public-versus-protected information boundary, limited local recovery result,
+  and simple non-research synthesis meaning. This does not approve production,
+  real customer data, pricing, or deployment.
+- Next action: integrate the verified branch under the separately confirmed
+  merge decision. After S6 is integrated, open a separate bounded change for
+  the AI question generator behind GEO Intelligence's existing question-
+  generation port.
 - Confirmation required before: each controlled paid-call batch, branch
   integration, customer-data use, production activation, or deployment.

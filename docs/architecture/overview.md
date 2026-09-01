@@ -1,15 +1,15 @@
 # Architecture Overview
 
-- Status: deterministic S1-S5 behavior is integrated on `main`; this unmerged
-  Draft PR #20 candidate has completed one fictional real 4-by-5 Worker
-  evaluation and authenticated customer-report inspection without making S6
-  accepted current behavior
+- Status: S1-S6 evaluation behavior is integrated after one
+  fictional real 4-by-5 Worker evaluation, authenticated customer-report
+  inspection, fixed-revision review, and product-owner confirmation. Production
+  activation and commercial customer data remain separate gates.
 - Entry condition: Approved product foundation and bounded first product slice
 - Decision history: [`define-application-architecture`](../../openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md)
 - Completed change: [`deliver-first-evaluation-slice`](../../openspec/changes/archive/2026-08-31-deliver-first-evaluation-slice/proposal.md)
-- Active change: [`integrate-real-evaluation-providers`](../../openspec/changes/integrate-real-evaluation-providers/proposal.md),
+- Completed change: [`integrate-real-evaluation-providers`](../../openspec/changes/archive/2026-09-01-integrate-real-evaluation-providers/proposal.md),
   coordinated by [Issue #4](https://github.com/ZETAVI/GEOEval/issues/4) and
-  [Draft PR #20](https://github.com/ZETAVI/GEOEval/pull/20)
+  [PR #20](https://github.com/ZETAVI/GEOEval/pull/20)
 
 ## Current state
 
@@ -95,9 +95,11 @@ Semantic provider contracts are deliberately smaller than the canonical GEO
 contracts: models return evidence-linked semantic facts, while deterministic
 projectors assign internal IDs, repair only owner-controlled references, retain
 ungrouped brand mentions, and run the existing strict domain validation before
-acceptance. Default parser and synthesis calls do not use web search. A future
-brand-entity resolver may search only when ambiguity justifies its separate
-latency and evidence boundary.
+acceptance. Default parser and synthesis calls do not use web search. Overall
+synthesis summarizes sampled platform perception rather than investigating
+real-world brand facts; it groups only obvious name relations from answer
+context and leaves uncertain names separate. Add a web-backed resolver only if
+repeated real evidence later shows that ambiguity materially harms reports.
 
 The first complete real run accepted all twenty acquisition samples on their
 first platform attempt. Ten interpretations passed the first Qwen3.8 attempt,
@@ -122,20 +124,17 @@ When architecture work begins, it must preserve:
 
 ## Next architecture gates
 
-1. Keep destination-branch integration as a separate explicit branch-exit
-   action; the verified S6 branch checkpoint does not imply a merge or
-   deployment.
-2. Reconcile provider-console billed cost and commercial data terms before any
+1. Reconcile provider-console billed cost and commercial data terms before any
    production-capacity, pricing, or real-customer claim. One successful
    fictional run is not a load or quota test.
-3. After the S6 branch is reviewed and integrated, introduce the AI question
+2. Introduce the AI question
    generator as a separate GEO Intelligence change behind the existing
    `EvaluationQuestionGenerator` port. Versioned prompt, model-output contract,
    and fixtures belong to `apps/backend/geo-intelligence/query-generator/`;
    external execution still goes through AI Execution, while GEO retains the
    four-question shape, immutable snapshot, validation, and fallback authority.
    Keep the deterministic generator as the local baseline and rollback path.
-4. Validate SSE proxy buffering and reconnect behavior in the named release
+3. Validate SSE proxy buffering and reconnect behavior in the named release
    environment, and remove or isolate F0-only HTTP, schema, and page probes,
    before a commercial deployment.
 
