@@ -40,15 +40,17 @@ approved primary and SHALL enforce the `Other` product-or-service rule.
 - **WHEN** the customer chooses a primary industry
 - **THEN** the Web offers only active secondary choices owned by that primary
 - **AND** changing the primary clears an incompatible secondary selection
-- **AND** the server derives and validates the primary from the submitted stable
-  secondary identity rather than trusting a copied display label.
+- **AND** the client submits both stable identities and the server verifies that
+  the secondary belongs to the submitted primary rather than trusting display
+  labels or frontend filtering alone.
 
 #### Scenario: A customer selects `Other`
 
 - **WHEN** the selected secondary category is its primary's maintained `Other`
   node
-- **THEN** a concise concrete product-or-service phrase is required before the
-  Brand is evaluation-ready
+- **THEN** a concrete product-or-service phrase of 2-60 normalized characters
+  is required before the Brand is evaluation-ready
+- **AND** exact generic values `其他` and `其它` are rejected
 - **AND** the normalized phrase is saved as Brand data and participates in the
   evaluation fingerprint and future snapshot
 - **BUT WHEN** the selected category is not `Other`
@@ -74,17 +76,20 @@ interaction over the official variable-depth tree.
   district
 - **THEN** the Web presents province, prefecture, and terminal county/district
   choices in dependency order
-- **AND** Brand persists the official terminal identity and resolves its
-  official ancestor path.
+- **AND** Brand persists the complete province, city, and terminal selection
+  identities and the server validates their parent-child path.
 
 #### Scenario: The official tree skips a display tier
 
 - **WHEN** a municipality or province-direct county has no official prefecture
   node
-- **THEN** the Web may repeat the municipality or show a clearly named
-  presentation group to preserve the familiar interaction
-- **BUT** that presentation node is not persisted as an official identity and
-  does not participate in the evaluation fingerprint.
+- **THEN** the Web repeats the municipality or shows the confirmed
+  `province-direct county-level divisions` presentation group in the city
+  control
+- **AND** Brand persists that stable selection identity as part of the visible
+  three-control path
+- **BUT** a presentation-only group does not become an official administrative
+  identity or participate in the semantic fingerprint.
 
 #### Scenario: A prefecture-level city has no ordinary county child
 
@@ -117,18 +122,6 @@ brand facts rather than from non-empty legacy labels.
 - **AND** registration, brand management, and diagnosis observe that same
   readiness result.
 
-#### Scenario: Migrated text has no exact identity
-
-- **WHEN** an old industry or region value cannot be mapped uniquely and
-  exactly
-- **THEN** its original text remains available for review
-- **AND** the current Brand is not evaluation-ready until the customer chooses a
-  controlled value
-- **AND** its current fingerprint uses an unresolved domain that cannot prepare
-  or start an evaluation and makes an unstarted legacy Definition stale
-- **AND** the system does not fabricate a selected option or expose internal
-  migration classification as customer language.
-
 ### Requirement: Semantic evaluation fingerprint
 
 Brand Knowledge SHALL compute the evaluation fingerprint from normalized brand
@@ -137,8 +130,9 @@ maintenance.
 
 #### Scenario: An evaluation-relevant semantic fact changes
 
-- **WHEN** the normalized company name, selected industry identity, applicable
-  `Other` phrase, either characteristic, or official terminal-region path
+- **WHEN** the normalized company name, either selected industry identity,
+  applicable `Other` phrase, either characteristic, or an official identity in
+  the three-level region path
   changes
 - **THEN** Brand Knowledge produces a different evaluation fingerprint
 - **AND** the existing product rule for a new evaluation-input revision applies.
@@ -172,8 +166,8 @@ resolved identity and display meaning consumed by GEO Intelligence.
 - **THEN** Brand Knowledge returns the Brand fingerprint, normalized company
   name and characteristics, industry primary/secondary stable identities and
   labels, catalog version, applicable `Other` phrase, actual recommendation
-  subject, official region identities and labels, terminal level, and source
-  release identity
+  subject, all three selected region identities and labels, terminal official
+  level, and source release identity
 - **AND** an `Other` selection uses the normalized customer product-or-service
   phrase as the actual recommendation subject rather than the generic `Other`
   label
@@ -206,18 +200,17 @@ creating or invalidating an evaluation opportunity.
 - **AND** an unstarted Definition remains eligible exactly when it was eligible
   before the representation change.
 
-#### Scenario: A mapping is unmatched, ambiguous, or colliding
+#### Scenario: Development data cannot be converted exactly
 
 - **WHEN** a legacy value has no exact match, several matches, a missing
   `Other` phrase, or would collapse two Definitions of one Brand onto one stable
   fingerprint
-- **THEN** the migration does not guess, delete, or merge data
-- **AND** unmatched current Brand data becomes incomplete while old Definition
-  and Run history remains readable
-- **AND** the unresolved current fingerprint cannot start an unstarted legacy
-  Definition or be treated as a new evaluation-ready revision
-- **AND** a collision aborts the affected migration before constraints or
-  fingerprint writes are committed.
+- **THEN** the development migration aborts before any affected write or new
+  constraint is committed
+- **AND** it reports the unexpected development record for explicit resolution
+  and replay
+- **AND** the product does not add customer legacy-review UI, unresolved
+  fingerprints, or a mixed old/new write path.
 
 #### Scenario: Old immutable snapshots are read after activation
 
@@ -226,15 +219,6 @@ creating or invalidating an evaluation opportunity.
 - **AND** processing, retry, synthesis, report rendering, and history can use its
   frozen original labels without requiring stable IDs that did not exist
 - **AND** the migration does not rewrite the snapshot JSON.
-
-#### Scenario: A completed report belongs to an unresolved current Brand
-
-- **WHEN** a completed legacy Run remains readable but its current Brand needs
-  industry or region selection review
-- **THEN** the report remains visible and truthful to its original snapshot
-- **AND** the customer sees the stronger current-profile review notice rather
-  than a claim that the historical report became invalid
-- **AND** no new Definition can be prepared until the current Brand is complete.
 
 ### Requirement: One responsive Brand reference form
 

@@ -1,101 +1,86 @@
-# Architecture Review: Brand Knowledge Reference-Data Proposal
+# Architecture Review: Approved Brand Knowledge Reference-Data Design
 
-- Review scope: the proposal, design, delta specification, source brief,
-  decision brief, and tasks in this active Change
+- Review scope: approved proposal, design, delta specification, source brief,
+  decision brief, and tasks after the 2026-09-01 product discussion
 - Current authority: `main@a1d3d57`, approved industry product definition, and
   #26 design checkpoint `33b2972` as read-only downstream context
-- Review type: proposal architecture, not implementation or fixed-diff code
+- Review type: pre-implementation architecture gate
 
 ## Review contract
 
-The proposed Change must make Brand Knowledge the sole executable owner of
-controlled industry and administrative-region selection while preserving the
-accepted Definition, Run, report, and free-opportunity meaning. It must not
-move Query lifecycle into Brand, let GEO resolve reference data, copy the exact
-catalog, invent a universal Catalog Engine, guess legacy mappings, or represent
-commercial source reuse as cleared.
+Brand Knowledge must own executable industry and mainland administrative-region
+selection, complete path validation, readiness, semantic fingerprint, and the
+evaluation-purpose projection. It must preserve Definition/Run opportunity
+meaning without moving Query lifecycle into Brand, letting GEO resolve
+reference data, copying the exact catalog, or inventing a generic Catalog Engine.
 
-The durable design claims reconcile to executable assets, a Brand Knowledge
-current spec, the evaluation-definition seam, generated contracts, and the
-architecture overview. This active review and Change are not current truth.
+The approved customer interaction is two dependent industry controls and three
+dependent region controls. The third region level may be a county/district or a
+township/town/street. Municipalities repeat the municipality in the city
+control; province-direct county-level divisions use a presentation group.
 
 ## Affected slice
 
-- Brand owns two separate immutable reference readers, selection validation,
-  current persistence, readiness, semantic fingerprint, and evaluation-purpose
-  projection.
-- Web and registration consume generated Brand APIs and one controlled field
-  group.
+- Brand owns two separate immutable reference readers, complete path
+  validation, current persistence, readiness, semantic fingerprint, and one
+  frozen evaluation-purpose projection.
+- Registration and Brand editing reuse one generated API contract and one
+  dependent field group.
 - GEO consumes the projection and a centralized legacy/new snapshot decoder;
   Definition, Query, Run, and report ownership remain unchanged.
-- A migration maps exact representation changes across Brand, Definition, and
-  Run keys while preserving immutable snapshot JSON and retaining unresolved
-  legacy data.
-- MCA is an offline update boundary only; source-license risk remains outside
-  normal runtime.
+- A development migration accepts an empty database or unique exact conversions,
+  moves related fingerprint keys together, and aborts before writes on an
+  unexpected value or collision.
+- MCA is an offline attributed update boundary only; runtime has no external
+  region dependency.
 
-## Findings and disposition
+## Review findings
 
-### Resolved must-fix: unresolved Brand could start a legacy Definition
+### No must-fix findings
 
-- **Affected artifact:** migration and readiness design.
-- **Consequence:** preserving an unmatched Brand's old fingerprint would let a
-  caller start an unstarted legacy Definition even though the new Brand
-  readiness rule considered the profile incomplete.
-- **Remediation applied:** the proposal now assigns an evaluation-ineligible
-  `unresolved` fingerprint domain to the current Brand. The old Definition is
-  stale; existing Runs and reports continue from their frozen legacy snapshot.
-- **Origin:** introduced risk in the initial proposal, resolved before review
-  close.
+The revised design has one clear write and validation owner. Web submits the
+complete customer-selected path, but Brand—not the client—decides whether every
+parent-child relation is valid. The small deliberate redundancy improves
+auditability without creating a second source of truth because labels and
+membership remain reference-reader facts.
 
-### Resolved should-fix: special region display lacked a stable downstream identity
+Removing the long-lived unresolved state is proportional to the confirmed
+development-only data boundary. An unexpected record now stops migration before
+writes rather than introducing legacy columns, customer review UI, or a mixed
+fingerprint lifecycle. Exact Brand/Definition/Run key movement remains necessary
+only when representative development history exists.
 
-- **Affected artifact:** Brand-to-#26 projection.
-- **Consequence:** a municipality repeat or direct-county group with only a
-  label would not satisfy #26's stable province/city/terminal projection and
-  could encourage GEO to reconstruct the grouping.
-- **Remediation applied:** `cityContext` now has a stable namespaced projection
-  ID and explicit `identityKind`; only official path IDs enter the fingerprint.
-- **Origin:** introduced omission, resolved before review close.
+The 2-60-character `Other` phrase remains Brand data under a catalog `Other`
+node. It does not create runtime categories or transfer industry ownership to
+customer text.
 
-### Resolved should-fix: `Other` actual recommendation meaning was implicit
+### Consider: presentation city identity
 
-- **Affected artifact:** industry projection.
-- **Consequence:** a consumer could freeze the generic catalog help text rather
-  than the customer's concrete product/service as the actual Query subject.
-- **Remediation applied:** the projection explicitly uses normalized
-  `otherProductOrService` as the actual recommendation subject for `Other` and
-  keeps catalog text as validation/help metadata.
-- **Origin:** introduced ambiguity, resolved before review close.
-
-No other material ownership, dependency-direction, data-integrity, migration,
-reuse, or documentation-lifecycle finding remains in this proposal revision.
+- **Affected artifact:** region selection projection.
+- **Consequence:** a province-direct grouping or repeated municipality is part
+  of the visible three-control path but is not always a legal administrative
+  node.
+- **Control:** keep an explicit `identityKind`; persist the stable selection ID
+  for form restoration and snapshots, but exclude presentation-only IDs from
+  the semantic fingerprint. This is already in the design and requires focused
+  fixtures.
+- **Origin:** inherent official-tree/product-projection mismatch, not debt.
 
 ## Review result
 
-`ready with follow-up` for product-owner decision; `not authorized` for
-implementation.
+`ready` for the approved deterministic implementation.
 
-Required follow-up gates:
+No ADR is required. The stable decisions belong in the executable Brand owner
+and the current Brand Knowledge spec during reconciliation. Implementation must
+still prove:
 
-1. product owner confirms mainland scope, special-city township depth, and
-   unmatched-data revision meaning;
-2. product/legal owner accepts private-development use and preserves a hard
-   commercial-release block until MCA reuse is clarified;
-3. implementation proves the documented MCA interface can produce a complete
-   source without hidden page endpoints;
-4. migration replay and fixed fingerprint vectors prove the proposed
-   continuity contract before any PR completion claim.
+1. the documented source can produce the required mainland province-city-
+   terminal projection, including municipalities, province-direct groupings,
+   and the four no-county cities;
+2. migration replay preserves exact Definition/Run opportunity identity and
+   aborts before writes on unexpected data;
+3. generated API, desktop/narrow-screen interaction, and the Brand-to-GEO
+   projection agree with the accepted contracts;
+4. accepted design is reconciled out of this Change before completion.
 
-No ADR is required at proposal time. The ownership and interface are local to
-the activated Brand capability and belong in the owner-local current spec after
-acceptance. A later cross-change source licensing, multi-country identity, or
-runtime-editing decision may justify its own durable record.
-
-## Residual risk
-
-- The current official API and publication were researched, but a complete
-  importer has not been executed in this turn.
-- Commercial reuse is explicitly unresolved.
-- No database migration, OpenAPI contract, build, browser path, or runtime test
-  exists yet; the review approves the proposal boundary only.
+Provider calls, production changes, and PR merge remain separate gates.

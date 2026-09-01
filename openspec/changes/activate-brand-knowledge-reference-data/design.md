@@ -29,13 +29,13 @@ tables directly.
   semantic evaluation revision identity, and returns one frozen projection for
   a Definition.
 - **In:** executable industry data, normalized region snapshot, reference-data
-  queries, Brand mutation validation, legacy migration classification,
+  queries, Brand mutation validation, development migration preflight,
   readiness, semantic fingerprint, and evaluation-purpose projection.
 - **Out:** Query Prompt, question-generation lifecycle, evaluation opportunity
   execution, report semantics, geocoding, addresses, maps, business districts,
-  regulatory qualification, and production source licensing approval.
+  regulatory qualification, and resale of source datasets.
 - **Upstream prerequisites and downstream consumers:** approved
-  `industry-catalog@1.0.0` and a cleared MCA snapshot are upstream. Registration
+  `industry-catalog@1.0.0` and the attributed MCA snapshot are upstream. Registration
   and brand editing consume public selection queries. GEO Intelligence consumes
   the internal frozen projection after #27 merges.
 
@@ -43,31 +43,31 @@ tables directly.
 
 - **States and allowed transitions:** reference releases move
   `candidate -> validated -> active -> retained historical`; a release never
-  becomes active from an application build. Brand reference selection is either
-  `complete` or `needs review`, derived from resolvable current stable IDs and
-  conditional fields rather than stored as a second workflow state.
+  becomes active from an application build. A Brand path is valid only when
+  every submitted industry and region identity is present and coherent.
 - **Authoritative records and invariants:** the industry JSON is the only exact
   executable industry source; the normalized region release plus its manifest
-  is the only executable region source; Brand stores stable leaf selection
-  identities and customer semantic text; Evaluation Definition stores an
+  is the only executable region source; Brand stores the complete stable
+  selection paths and customer semantic text; Evaluation Definition stores an
   immutable versioned projection.
 - **Transaction, concurrency, and history boundary:** one Brand update validates
   both selections, derives readiness and the semantic fingerprint, and persists
   the selection atomically. Reference files are immutable application inputs,
   not mutable request-time state. Existing Definition/Run history is never
   rewritten from a later reference release.
-- **Migration and rollback:** additive nullable stable-ID fields and legacy
-  preservation precede exact mapping. A preflight classifies every record and
-  aborts on collisions. Exact Brand/Definition/Run fingerprint keys move
+- **Migration and rollback:** additive nullable stable-ID fields precede exact
+  development-data mapping. A preflight accepts only an empty database or
+  unique conversions and aborts before writes on any unexpected value or
+  collision. Exact Brand/Definition/Run fingerprint keys move
   together to the stable scheme without changing snapshots or opportunity
-  counts. Rollback keeps legacy values and the old snapshot reader until the
-  new path is accepted; it does not delete business records.
+  counts. Rollback keeps the old snapshot reader until the new path is accepted;
+  it does not add a mixed-version customer workflow or delete business records.
 
 ### Contracts and Dependencies
 
 - **Public commands, queries, and facts:** separate industry and region queries;
-  structured Brand mutation using stable selection IDs; Brand response with
-  resolved labels and review state; no public fingerprint or raw source tree.
+  structured Brand mutation using complete stable selection paths; Brand
+  response with resolved labels; no public fingerprint or raw source tree.
 - **Dependency direction:** Web -> generated API client -> Brand application;
   GEO application -> Brand evaluation-purpose query; Brand application -> two
   owner-local reference readers -> checked immutable files. No reverse import
@@ -86,24 +86,23 @@ tables directly.
 | Failure | Classification | Retry or recovery owner | Idempotency or reconciliation evidence |
 | --- | --- | --- | --- |
 | Unknown or mismatched industry selection | Business validation | Brand application asks the customer to reselect | Server lookup and parent invariant; no partial Brand selection write |
-| `Other` has no concrete phrase | Business validation | Customer completes the conditional field | Catalog `isOther` rule plus normalized non-empty phrase test |
-| Unknown, presentation-only, or non-terminal region ID | Business validation | Customer reselects a terminal official division | Region projection never persists navigation-group IDs |
+| `Other` phrase is missing, generic, or outside 2-60 characters | Business validation | Customer completes the conditional field | Catalog `isOther` rule plus normalized bounded phrase test |
+| Unknown, mismatched, or non-terminal region path | Business validation | Customer reselects the three-level path | Server checks province-city-terminal membership; no partial Brand write |
 | Parent selection changes in Web | Expected interaction | Web clears and disables every downstream choice | Component state test plus server validation against stale submissions |
 | Reference file is missing or invalid | Permanent deployment fault | Brand module/readiness fails at startup; release is not activated | Startup structural validation and source-manifest hash |
 | Official source cannot be reached | External update failure | Maintainer keeps the prior active release | Update tool is manual; runtime reads the prior immutable snapshot |
 | New source release changes a code/name/parent | Controlled maintenance difference | Maintainer reviews generated diff before activation | Added/renamed/moved/abolished classification and retained history |
-| Legacy text has zero or several exact matches | Migration exception | Preserve legacy text, mark current Brand incomplete, require customer selection | Preflight counts and no guessed mapping |
+| Development text has zero or several exact matches | Migration exception | Abort before writes, resolve the development record, and replay | Preflight counts and no guessed mapping or customer state |
 | Two legacy Definitions collapse to one stable fingerprint | Migration collision | Abort migration and inspect data; never delete or merge Runs automatically | Pre-constraint collision query and zero-write failure |
 | Exact mapping changes a stored fingerprint key | Representation migration | Migration updates Brand, Definition, and Run keys in one transaction | Before/after row counts, relationship checks, and unchanged Run count |
 | Old Definition snapshot lacks stable IDs | Historical compatibility | Versioned snapshot decoder reads legacy shape | Fixed legacy fixtures across repository/process/synthesis/report paths |
-| Commercial reuse is not cleared | Release risk | Product/legal owner blocks commercial release or selects an authorized source | Source brief, attribution manifest, and explicit release gate |
 
 ### Tool and Framework Decision
 
 | Candidate | Adopt, defer, or reject | Evidence and limitation | Exit or refresh trigger |
 | --- | --- | --- | --- |
 | Checked industry JSON plus validator/generator | Adopt | Exact data is small, GEOEval-owned, and already approved; generated Markdown prevents a hand-maintained second list | Revisit only if multiple independent runtimes need a separately published package |
-| Checked normalized region JSON plus source manifest | Adopt subject to reuse clearance | Offline, diffable, no runtime provider, and preserves official code/level/source | Refresh for a new MCA annual version or source-contract change |
+| Checked normalized region JSON plus source manifest | Adopt | Offline, attributed, diffable, no runtime provider, and preserves official code/level/source | Refresh for a new MCA annual version or material source/use change |
 | Native HTML selects | Adopt | Fits current dependency-free React UI, mobile picker, keyboard, and screen-reader baseline | Revisit after observed need for search, virtualization, or richer interaction |
 | `@vant/area-data` | Cross-check only | Current and small, but vendor projection codes are not official identity and provenance is too coarse | Remove when importer diff coverage is independently sufficient |
 | Database reference tables and foreign keys | Reject for first release | Strong relational membership but adds seed/deploy ordering, mutable database ownership, and no benefit for per-request writes over a validated immutable release | Revisit only if administrators must edit data at runtime or SQL consumers require joins |
@@ -121,15 +120,15 @@ tables directly.
   memory problem is required before adding a cache service or database.
 - **Metrics, logs, traces, and operator recovery:** startup logs active source
   IDs and content hashes. An offline update records counts and diff categories.
-  Migration records exact/unmatched/ambiguous/collision counts without customer
+  Migration records exact/unexpected/collision counts without customer
   content in general logs.
 - **Completion claims and discriminating evidence:** catalog and region
-  structural checks; fixed fingerprint vectors; migration replay with legacy,
-  exact, unmatched, ambiguous, and historical-Run fixtures; OpenAPI generation;
+  structural checks; fixed fingerprint vectors; migration replay with empty,
+  exact, unexpected, collision, and historical-Run fixtures; OpenAPI generation;
   full tests/build; desktop and narrow-screen form behavior; no Provider call.
-- **Residual risk accepted by:** product owner accepts geography and terminal
-  granularity; architecture owner accepts data and migration boundaries;
-  product/legal owner separately clears commercial reuse.
+- **Residual risk accepted by:** product owner accepts geography, terminal
+  granularity, source handling, and bounded `Other`; architecture owner accepts
+  data and development-migration boundaries.
 
 ## Owned data sources
 
@@ -164,8 +163,8 @@ Catalog validation proves:
 
 ### Administrative regions
 
-The proposed executable release is
-`mca-administrative-divisions@2025-12-31`, subject to source reuse clearance.
+The executable release is
+`mca-administrative-divisions@2025-12-31` with source attribution.
 Its importer and asset remain separate from industry code and data.
 
 Each official node retains:
@@ -182,36 +181,41 @@ sourceReleaseId     mca-administrative-divisions@YYYY-MM-DD
 ```
 
 The release manifest owns source authority, publication URL, effective date,
-access time, raw evidence hash, normalized asset hash, counts by level, and the
-reuse-clearance state. Historical abolished nodes remain resolvable for old
+access time, raw evidence hash, normalized asset hash, and counts by level.
+Historical abolished nodes remain resolvable for old
 Brand or evaluation display, but are never offered for a new selection.
 
 Presentation nodes such as a repeated municipality or
-`province-direct county divisions` live only in the region selection projector.
-They have namespaced view keys so they cannot pass as official terminal IDs.
+`province-direct county divisions` are stable city-control selection identities.
+They are persisted as part of the visible three-control path but are explicitly
+marked presentation-only so they cannot pass as official terminal identities or
+enter the semantic fingerprint.
 
 ## Brand persistence and vocabulary
 
-The smallest durable Brand write stores leaf semantic identities rather than a
-redundant copy of every ancestor and label:
+The durable Brand write mirrors the customer's complete dependent selection
+without copying display labels:
 
 ```text
-industryCategoryId       selected secondary GEOEval industry ID
+primaryIndustryId        selected primary GEOEval industry ID
+secondaryIndustryId      selected dependent GEOEval industry ID
 otherProductOrService    normalized customer phrase only for an Other category
-terminalRegionId         selected official MCA division identity
+provinceRegionId         selected province identity
+cityRegionId             selected city or presentation-group identity
+terminalRegionId         selected official terminal identity
 evaluationFingerprint    opaque stable semantic hash
-legacyIndustryInput      preserved old text until exact resolution or review
-legacyRegionInput        preserved old text until exact resolution or review
 ```
 
-The industry reader derives the primary node from the selected secondary. The
-region reader derives the official ancestor path from the terminal node. This
-deletion test avoids stored parent/child drift: removing either reader would
-leak the same validation and projection complexity into the API, Web, and GEO.
+The Brand application validates both industry IDs and all three region IDs as
+one coherent path on every write. The reference readers remain necessary: if
+either vanished, membership, parent-child validation, display resolution, and
+Query projection would leak into the API, Web, and GEO.
 
 `Other industry description` becomes the clearer owner-local name
 `otherProductOrService`; product copy may continue to explain it as the concrete
-product or service. It is Brand data, not a generated catalog node.
+product or service. It is Brand data, not a generated catalog node. After
+whitespace normalization it must contain 2-60 characters and cannot be exactly
+`其他` or `其它`.
 
 `district` is replaced in new contracts by `terminal region`. The terminal can
 be a county/district or, for the four confirmed special cities, a township,
@@ -224,15 +228,17 @@ Evaluation readiness remains derived, not stored. It requires:
 
 - non-empty company or store name;
 - an active resolvable industry category;
-- a concrete normalized `otherProductOrService` only when that category is
+- a coherent primary-secondary path and concrete normalized
+  `otherProductOrService` only when that category is
   `Other`, and no stale phrase when it is not;
-- an active official terminal region allowed by the product's selection rule;
+- a coherent province-city-terminal path whose terminal is selectable under the
+  product's three-level rule;
 - two non-empty characteristics;
 - non-empty contact name and mobile under the current product rule.
 
-Legacy text without exact stable identity is preserved but does not satisfy
-readiness. Missing-field output uses customer language such as `行业分类需要重新选择`
-or `所在地区需要重新选择` rather than exposing migration states or source codes.
+Invalid paths are rejected on write rather than persisted as a customer-facing
+migration state. Missing-field output uses ordinary customer language and never
+exposes source codes.
 
 ## Fingerprint contract
 
@@ -244,11 +250,12 @@ scheme prefix and fixed key order:
 {
   "scheme": "brand-evaluation-input@2",
   "companyName": "<normalized>",
-  "industryCategoryId": "<stable secondary ID>",
+  "primaryIndustryId": "<stable primary ID>",
+  "secondaryIndustryId": "<stable secondary ID>",
   "otherProductOrService": "<normalized only for Other, otherwise empty>",
   "characteristicOne": "<normalized>",
   "characteristicTwo": "<normalized>",
-  "regionPath": ["<official ancestor IDs through selected terminal>"]
+  "regionPath": ["<official province ID>", "<official city ID when present>", "<official terminal ID>"]
 }
 ```
 
@@ -260,7 +267,8 @@ Consequences:
 
 - label or version maintenance cannot create a Brand revision;
 - a same-code official rename keeps the fingerprint;
-- changing the selected industry, terminal official identity, `Other` phrase,
+- changing either selected industry identity, any official region identity,
+  `Other` phrase,
   characteristic, or company name changes the fingerprint;
 - changing a reference ID's semantic boundary in place is forbidden. Industry
   uses a new ID/major compatibility decision; MCA uses its official code
@@ -281,17 +289,17 @@ industry:
   recommendationSubject
 region:
   sourceReleaseId
-  officialPath [{ id, officialCode, level, label }]
   province { id, label }
-  cityContext { id, identityKind, label, officialDivisionId? }
+  city { id, identityKind, label, officialDivisionId? }
   terminal { id, officialCode, level, label }
+  officialPath [{ id, officialCode, level, label }]
 characteristicOne, characteristicTwo
 ```
 
-`cityContext` always has a stable namespaced projection ID for #26, but its
+`city` always has a stable selection ID for #26, but its
 `identityKind` distinguishes an official prefecture from a municipality repeat
 or non-semantic direct-county group. Only official path IDs enter the
-fingerprint; the stable presentation ID is frozen for display and Prompt
+fingerprint; a presentation ID is frozen for display and Prompt
 wording. Every official path ID and all labels used by the Definition are
 frozen in the snapshot. For a normal category, `recommendationSubject` is the
 maintained catalog value. For `Other`, the actual recommendation subject is the
@@ -331,8 +339,7 @@ and history-preserving contract required for later real data.
 Before any constraint or fingerprint update, produce counts and record IDs for:
 
 - exact unique industry and region matches;
-- unmatched values;
-- values with multiple possible matches;
+- unexpected values with zero or several possible matches;
 - selected legacy `Other` values that have no concrete phrase;
 - active Brands, unstarted Definitions, Definitions with Runs, and report rows;
 - candidate stable-fingerprint collisions per Brand.
@@ -344,7 +351,8 @@ source or implements a second hand-written classification. Tests compare the
 compiled mapping back to the executable sources and use fixed hash vectors to
 prove the application and database canonicalization agree.
 
-The migration aborts before writes when exact mapping would create duplicate
+The migration accepts an empty database as the ordinary case. It aborts before
+writes when any record is not uniquely convertible or exact mapping would create duplicate
 `(brandId, inputFingerprint)` Definitions or break a Definition/Run ownership
 relationship. No record is deleted, merged, or assigned a nearest value.
 
@@ -352,8 +360,7 @@ relationship. No record is deleted, merged, or assigned a nearest value.
 
 For a unique exact mapping:
 
-1. add the stable Brand selection IDs while retaining the old text as migration
-   evidence;
+1. add and populate the complete stable Brand selection paths;
 2. compute the version-2 semantic fingerprint for the current Brand and every
    legacy Definition snapshot that independently maps exactly;
 3. update Brand, Definition, and Run fingerprint columns together inside the
@@ -367,31 +374,21 @@ Definition stale, and does not release an evaluation opportunity. A later
 contact-only edit recomputes the same version-2 value, so continuity is not a
 one-time SQL exception.
 
-### Unmatched or ambiguous mapping
+### Unexpected development data
 
-Keep the old text in legacy fields, leave stable selection null, and make the
-current Brand not ready. Its current fingerprint moves to a separate
-`brand-evaluation-input-unresolved@2` domain that can never be used to prepare
-or start an evaluation. Existing Definitions and Runs keep their legacy
-fingerprints and snapshot reader. The different current fingerprint makes an
-unstarted legacy Definition stale, while a Run already started continues only
-from its frozen Definition. Report pages prefer the stronger `current brand
-needs reference-data review` notice over claiming that an unresolved migration
-is an ordinary customer edit.
-
-When the customer later chooses controlled values, that choice is a semantic
-confirmation because equivalence was not provable. It creates the ordinary
-version-2 fingerprint. Whether that new revision has an official evaluation
-opportunity follows the existing product rule; the migration itself has not
-granted or guessed one.
+If any value is unmatched, ambiguous, missing a required `Other` phrase, or
+would create a collision, the migration reports the affected development record
+and stops before its transaction commits. The developer resolves or recreates
+that non-production data and replays the same migration. No long-lived legacy
+columns, unresolved fingerprint scheme, customer warning, or dual write path is
+introduced.
 
 ### Rollback
 
-The first rollback disables structured mutations and restores the prior Web
-form only in a development recovery build while leaving added columns and
-legacy values intact. It does not reverse successful evaluations, rewrite
-snapshots, or delete reference releases. A destructive schema cleanup is a
-separate later migration after #27 acceptance and is not part of normal rollback.
+Before release, rollback is a normal code/migration revert or restoration of the
+development database backup. It does not reverse successful evaluations,
+rewrite snapshots, or delete reference releases. No destructive cleanup is part
+of normal rollback.
 
 ## Public API
 
@@ -401,14 +398,14 @@ surface is:
 - one read of the whole active industry tree with version and content hash;
 - region province choices;
 - region child choices by a region-specific navigation key;
-- Brand create/update using `industryCategoryId`, conditional
-  `otherProductOrService`, and official `terminalRegionId`;
-- Brand response with resolved industry and region display objects, readiness,
-  missing-field messages, and retained legacy-review hints when needed.
+- Brand create/update using both industry IDs, conditional
+  `otherProductOrService`, and all three region selection IDs;
+- Brand response with the complete resolved industry and region display paths,
+  readiness, and missing-field messages.
 
-The Web submits leaf identities. Brand derives and validates parents. This is
-smaller and safer than making every client echo a redundant full path. Invalid,
-retired, presentation-only, cross-parent, or non-terminal IDs return one
+The Web submits the complete path that the customer selected. Brand validates
+every dependency rather than trusting the UI. Invalid, retired, cross-parent,
+or non-terminal IDs return one
 customer-actionable validation result and do not partially update the Brand.
 
 Reference responses can use ETag/content hash and immutable release caching.
@@ -416,7 +413,7 @@ The generated OpenAPI client owns request and response types; the current
 handwritten `BrandMutation` duplicate is removed rather than maintained beside
 the generated schema.
 
-Internal fingerprints, legacy migration classification, source raw evidence,
+Internal fingerprints, migration diagnostics, source raw evidence,
 and recommendation subjects that are not customer-facing remain outside the
 public Brand response.
 
@@ -438,8 +435,6 @@ Interaction rules:
 - choosing a city/group clears the terminal choice;
 - downstream selects are disabled until the parent is selected and while
   options load;
-- a saved legacy unresolved value appears as a concise review notice, not as a
-  fabricated selected option;
 - wide screens use aligned fields and narrow screens stack them; native controls
   retain platform pickers and visible labels.
 
@@ -450,16 +445,13 @@ counts or usability evidence changes the action.
 
 ## Interface alternatives
 
-### Leaf-only Brand mutation versus a full echoed path
+### Leaf-only Brand mutation versus a full selected path
 
-**Adopt leaf-only semantic IDs.** A secondary industry uniquely owns its
-primary, and an official terminal region uniquely resolves its ancestor path in
-the active retained snapshot. Brand validation is therefore local and one
-source computes the fingerprint. A full path would duplicate derivable state in
-every client and create more invalid combinations without improving history.
-
-The response still contains the full resolved path because humans and Query
-generation need labels and context.
+**Adopt the full selected path.** Although the leaves can derive their parents,
+the complete IDs mirror the two industry and three region controls, make
+customer intent and snapshots explicit, and are cheap at the Brand-profile
+scale. Brand validates the deliberate redundancy atomically, so a forged or
+stale parent-child combination cannot persist.
 
 ### Immutable files versus reference tables
 

@@ -1,11 +1,12 @@
 # Change: Activate Brand Knowledge Reference Data
 
-- Status: Proposed; awaiting product-owner confirmation
+- Status: Approved for deterministic implementation
 - Class: Architectural implementation
 - Owning Issue: [#27](https://github.com/ZETAVI/GEOEval/issues/27)
 - Parent outcome: [#26 AI Evaluation Query Generator](https://github.com/ZETAVI/GEOEval/issues/26)
 - Decision owners: Product owner and architecture owner
-- Implementation authorization: No
+- Product-owner approval: 2026-09-01
+- Implementation authorization: Yes; no Provider call, production change, or merge
 
 ## Why
 
@@ -40,7 +41,8 @@ separate sources with different semantics and maintenance lifecycles.
   both registration and brand editing.
 - Replace free-text industry and region inputs with responsive dependent
   selectors and the conditional `Other` product-or-service input.
-- Persist stable reference identities, validate readiness, compute a semantic
+- Persist the complete two-level industry and three-level region identity path,
+  validate readiness, compute a semantic
   fingerprint, and expose one evaluation-purpose projection to GEO
   Intelligence.
 - Preserve old Definition, Run, report, and free-opportunity meaning through a
@@ -71,9 +73,10 @@ separate sources with different semantics and maintenance lifecycles.
   Brand tables directly.
 - **Public API and Web:** gain read-only reference-data queries and structured
   Brand selection. Registration and editing reuse one controlled field group.
-- **Data:** Brand persistence changes from display text to stable selection
-  identity while retaining unmatched legacy text for review. Existing
-  immutable snapshots stay readable.
+- **Data:** Brand persistence changes from display text to the complete stable
+  selection path. The development migration accepts only empty or uniquely
+  convertible data and stops on an unexpected value; no customer-facing legacy
+  compatibility state is introduced. Existing immutable snapshots stay readable.
 - **Operations:** region data updates are explicit offline releases with source
   manifest, integrity checks, and a human-reviewed diff; runtime never depends
   on a government or third-party endpoint.
@@ -86,26 +89,38 @@ separate sources with different semantics and maintenance lifecycles.
   fingerprint. Display labels, ordering, source/catalog version, presentation
   groups, and non-semantic recommendation-subject maintenance do not.
 - A deterministic exact migration cannot create a new Definition or free
-  evaluation opportunity. Ambiguous or unmatched legacy data is never guessed;
-  it remains reviewable and makes the current profile incomplete.
+  evaluation opportunity. An unexpected legacy value is never guessed; the
+  development migration stops before writes so the data can be resolved and
+  replayed without a long-lived product migration workflow.
 - Existing Definition and Run snapshots remain immutable and readable. A new
   snapshot schema applies only to newly prepared Definitions.
 - #26 consumes only the accepted Brand evaluation-purpose projection after this
   change merges and its branch rebases.
 
-## Decisions requiring confirmation
+## Confirmed decisions
 
-1. First-release geography is mainland China only; Hong Kong, Macao, and
-   Taiwan remain out until a complete authoritative source is approved.
-2. For Dongguan, Zhongshan, Danzhou, and Jiayuguan, the terminal selection goes
-   to the official township/street level rather than stopping at the prefecture-
-   level city.
-3. Development may use a normalized, attributed snapshot from the official MCA
-   API, but commercial release remains blocked until the source's reuse terms
-   receive written clarification or legal approval.
-4. When a legacy value cannot be proven equivalent, a later customer-controlled
-   selection is treated as a semantic confirmation and may form a new
-   evaluation revision; migration itself never chooses on the customer's behalf.
+1. First-release geography is mainland China. Hong Kong, Macao, and Taiwan are
+   outside the current product boundary.
+2. Industry always uses two dependent controls. Region always uses province,
+   city, and terminal-region controls. Dongguan, Zhongshan, Danzhou, and
+   Jiayuguan remain city-level choices and expose their official township,
+   town, or street children in the third control.
+3. Municipalities repeat the municipality in the city control; province-direct
+   county-level divisions use a presentation group in the city control. The
+   third control still contains the official selectable terminal division.
+4. Brand persists and validates the complete selected path:
+   `primaryIndustryId`, `secondaryIndustryId`, `provinceRegionId`,
+   `cityRegionId`, and `terminalRegionId`.
+5. Selecting `Other` reveals a customer-entered concrete product/service phrase
+   of 2-60 normalized characters. Exact generic values `其他` and `其它` are not
+   valid evaluation context.
+6. The normalized MCA snapshot records source and publication version. Ordinary
+   product development and release do not require a separate legal-approval
+   gate; source terms are revisited only if distribution or use materially changes.
+7. The development migration handles an empty database or unique exact
+   conversions. Any unexpected, ambiguous, or colliding record aborts before
+   writes and is resolved as development data; the product does not add legacy
+   review UI, unresolved fingerprints, or customer migration workflow.
 
 ## Documentation impact
 
@@ -127,13 +142,13 @@ separate sources with different semantics and maintenance lifecycles.
 - Base: `main@a1d3d57660df8cc21f1426fe9f05f33a36d1b3b3`
 - Writer: the primary Codex agent; research sub-agents are read-only
 - Merge destination: protected `main` through a later verified pull request
-- Current phase: Explore / Align / Propose; no implementation or Provider call
-- Exit: retain for product decision; after acceptance, implement here, merge
+- Current phase: Implement; no Provider call or production change
+- Exit: implement and verify here, merge
   through the #27 PR, then remove the branch/worktree only after #26 rebases
 
 ## Approval boundary
 
-Explicit product-owner confirmation of the four decisions above and explicit
-architecture acceptance are required before schema, runtime, generated
-contract, frontend, or migration implementation begins. Provider calls,
-commercial release, production data, and PR merge retain their separate gates.
+The product owner confirmed the decisions above on 2026-09-01. Deterministic
+schema, runtime, generated-contract, frontend, migration, and verification work
+may proceed. Provider calls, production changes, and PR merge retain their
+separate gates.

@@ -21,9 +21,10 @@ nor a Brand identity provider. The National Bureau of Statistics (NBS) and the
 unmaintained `china-division` package are rejected as current upstreams.
 
 Confidence is high for the ownership, offline-snapshot, variable-depth, and
-native-control decisions. Commercial reuse is not yet cleared: the MCA site has
-a general attribution and reproduction statement but no explicit open-data
-license. That uncertainty remains a release gate.
+native-control decisions. The product owner accepts ordinary normalized use with
+source attribution and does not require a separate legal-approval gate. Revisit
+the terms only if the product starts redistributing the original dataset or its
+use materially changes.
 
 ## Decision constraints
 
@@ -36,7 +37,8 @@ license. That uncertainty remains a release gate.
   a usable keyboard and screen-reader baseline.
 - Explicit provenance, source date, integrity hash, refresh trigger, and exit
   path.
-- Commercial reuse must be approved before release.
+- Source authority and publication version remain traceable in the normalized
+  release.
 
 ## Evidence
 
@@ -49,7 +51,7 @@ license. That uncertainty remains a release gate.
 | MCA documents a JSON API and an administrative-division search with `year`, `code`, and `maxLevel`; documented result depth is bounded, so a complete import must page or recurse through the public contract. | [API overview](https://dmfw.mca.gov.cn/baseHtmls/docfile/_1.htm), [administrative-division search](https://dmfw.mca.gov.cn/baseHtmls/docfile/_2.htm) | Accessed 2026-09-01 | A manual update tool can fetch an offline snapshot. Page-internal endpoints or undocumented parameters are not stable dependencies. |
 | GB/T 2260-2007 and GB/T 10114-2003 remain current after a 2023-12-28 review. | [GB/T 2260](https://std.samr.gov.cn/gb/search/gbDetailed?id=Nbs%2BhjQTM1M%3D&mode=p), [GB/T 10114](https://std.samr.gov.cn/gb/search/gbDetailed?id=71F772D79FF6D3A7E05397BE0A0AB82A) | Current at access date | Use the standards for level and code validation; they do not replace a dated data publication. |
 | NBS stopped publicly providing specific statistical division codes from 2024-10; the statistical codes also include survey-oriented units that are not identical to civil-affairs establishments. | [NBS public response](https://www.stats.gov.cn/hd/lyzx/zxgk/202509/t20250903_1960996.html), [statistical-code rules](https://www.stats.gov.cn/sj/tjbz/gjtjbz/202302/t20230213_1902741.html) | Accessed 2026-09-01 | NBS is not a maintainable current public upstream and its virtual/statistical units must not become Brand administrative identities. |
-| The MCA site asks users to identify the source, restricts commercial original-form reproduction, and provides no explicit open-data license. | [MCA copyright statement](https://dmfw.mca.gov.cn/version.html), [contact](https://dmfw.mca.gov.cn/contact.html) | Accessed 2026-09-01 | Normalized private-development use can be designed, but commercial embedding requires written clarification or legal approval. |
+| The MCA site asks users to identify the source, restricts commercial original-form reproduction, and provides no explicit open-data license. | [MCA copyright statement](https://dmfw.mca.gov.cn/version.html), [contact](https://dmfw.mca.gov.cn/contact.html) | Accessed 2026-09-01 | Keep attribution and avoid reproducing the original site/form; refresh the risk decision only if distribution or use materially changes. |
 | The current Web has no direct component-library dependency and uses React 19.2.8 / Next 16.3.2. | [`apps/web/package.json`](../../../../apps/web/package.json) | Repository at `a1d3d57` | A native control is the smallest compatible first interface; a new component system needs a demonstrated interaction requirement. |
 | Native labels and controls provide a standard accessibility baseline; the selected label must be explicitly associated with its control. | [W3C WAI form-label guidance](https://www.w3.org/WAI/tutorials/forms/labels/), [Next.js client-component guidance](https://nextjs.org/docs/app/getting-started/server-and-client-components) | Accessed 2026-09-01 | Use visible labels, disabled downstream controls, and deterministic parent-change reset; test mobile and keyboard behavior. |
 
@@ -87,11 +89,11 @@ official node should retain at least:
 - official parent identity, active or abolished state, and documented
   predecessor/successor when available;
 - source publication, effective date, import time, source URLs, and normalized
-  snapshot hash.
+  snapshot hash and source attribution.
 
 The import records the raw response hash in restricted evidence but commits
-only the normalized executable snapshot and a source manifest if reuse is
-cleared. Validation checks code and identity uniqueness, reachable parents,
+only the normalized executable snapshot and a source manifest. Validation
+checks code and identity uniqueness, reachable parents,
 valid level transitions, non-reuse of retained abolished codes, and an explicit
 diff for addition, rename, affiliation change, and abolition.
 
@@ -111,9 +113,10 @@ projection supplies three user-facing controls:
 - four cities without county children, if confirmed: province -> prefecture ->
   township/town/street.
 
-Repeated municipalities and presentation groups are navigation aids only. They
-are never persisted as official region identities and never enter the
-fingerprint. The selected official terminal identity resolves its official
+Repeated municipalities and presentation groups are navigation identities.
+They may be persisted to restore the visible three-control path, but are marked
+presentation-only and never enter the semantic fingerprint as official
+divisions. The selected official terminal identity resolves its official
 ancestor path. Its code, level, and official ancestor identities form the
 semantic region context.
 
@@ -135,15 +138,16 @@ build and desktop/mobile accessibility check.
 
 ## Unknowns and validation
 
-- **Commercial reuse:** obtain written MCA clarification or legal approval
-  before commercial release. Until then, the normalized full snapshot is a
-  private-development candidate, not cleared product content.
+- **Changed distribution boundary:** refresh the source-terms decision if the
+  product later distributes the original dataset, sells it independently, or
+  changes the use beyond embedded dependent selection.
 - **Documented batch path:** make one controlled importer prototype against the
   documented API and prove full-tree completeness without relying on a hidden
   page endpoint. If the documented contract cannot produce the required tree,
   stop and choose an authorized provider rather than shipping a scraper.
-- **First-release scope and terminal rule:** product owner confirms mainland
-  China and township depth for the four special cities before implementation.
+- **Confirmed product scope:** mainland China; the four special cities remain
+  city-level second choices and expose township/town/street options in the third
+  control.
 - **No initial search:** native dependent selects are proposed because current
   option counts are bounded. Revisit only after observed usability failure.
 

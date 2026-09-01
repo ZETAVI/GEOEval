@@ -15,7 +15,7 @@
       documentation disposition.
 - [x] Complete architecture review of this revision and resolve every must-fix
       or should-fix finding introduced by the proposal.
-- [ ] Obtain explicit product-owner confirmation of geography, special-city
+- [x] Obtain explicit product-owner confirmation of geography, special-city
       terminal depth, source reuse gate, and unmatched-data revision meaning.
 
 ## Executable reference sources
@@ -34,27 +34,27 @@
 
 ## Brand, API, and Web vertical slice
 
-- [ ] Add stable Brand selection persistence, conditional `Other`, legacy
-      recovery values, readiness validation, and fixed version-2 fingerprint
-      vectors.
+- [ ] Add complete two-level industry and three-level region persistence,
+      conditional 2-60-character `Other`, readiness validation, and fixed
+      version-2 fingerprint vectors.
 - [ ] Add separate Brand-owned industry and region queries plus structured
       create/update/response DTOs; regenerate OpenAPI and remove the handwritten
       `BrandMutation` duplicate.
 - [ ] Add the versioned evaluation-purpose projection and central legacy/new
       snapshot decoder; make all GEO persistence and processing readers reuse it.
 - [ ] Reuse one responsive controlled field group in registration and Brand
-      editing, with parent reset, loading/disabled, unresolved legacy, desktop,
+      editing, with parent reset, loading/disabled, desktop,
       narrow-screen, keyboard, and mobile behavior.
 
 ## Migration and verification
 
-- [ ] Add an additive migration with exact/unmatched/ambiguous/Other/collision
-      preflight, no-guess stable-ID backfill, evaluation-ineligible unresolved
-      fingerprints, atomic Brand/Definition/Run key continuity, legacy snapshot
-      preservation, and aborting integrity checks.
-- [ ] Replay the migration from a clean database and fixtures for exact current
-      Brand, unstarted Definition, completed Run/report, unmatched values,
-      ambiguous labels, and a candidate collision; record before/after counts.
+- [ ] Add an additive development migration with empty/exact preflight,
+      complete stable-ID backfill, atomic Brand/Definition/Run key continuity,
+      legacy snapshot preservation, and pre-write aborts for unexpected,
+      ambiguous, or colliding data.
+- [ ] Replay the migration from a clean database and fixtures for an exact
+      current Brand, unstarted Definition, completed Run/report, an unexpected
+      value, and a candidate collision; record before/after counts.
 - [ ] Prove label/version/recommendation-subject/contact edits do not change the
       fingerprint while semantic stable-ID, `Other`, characteristic, or company
       changes do.
@@ -72,7 +72,7 @@
 - [ ] Reconcile accepted behavior into the current Brand Knowledge spec,
       product-definition index, evaluation-definition seam, and architecture
       overview; resolve every touched evolution marker.
-- [ ] Open and verify the #27 PR, record source-license limitation and skipped
+- [ ] Open and verify the #27 PR, record source provenance and skipped
       production checks, and obtain a separate merge decision.
 - [ ] After merge, archive this Change, close #27/Project state, record branch
       and worktree exit, then ask #26 to rebase and verify the projection seam.
