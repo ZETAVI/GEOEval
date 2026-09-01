@@ -4,11 +4,11 @@ import type { INestApplication } from "@nestjs/common";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { createApiApp } from "../src/api-app.js";
-import { loadApiConfig } from "../src/config/runtime-config.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { clearCustomerData } from "./customer-data.js";
+import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
-const config = loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1", NODE_ENV: "test" });
+const config = loadIntegrationApiConfig();
 
 describe("customer-entry HTTP contract", () => {
   const prisma = new PrismaService(config.databaseUrl);

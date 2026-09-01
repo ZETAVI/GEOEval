@@ -2,14 +2,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { BrandService } from "../src/brand/application/brand.service.js";
 import { PostgresBrandRepository } from "../src/brand/infrastructure/postgres-brand.repository.js";
-import { loadApiConfig } from "../src/config/runtime-config.js";
 import { EvaluationService } from "../src/geo-intelligence/application/evaluation.service.js";
 import { DeterministicEvaluationQuestionGenerator } from "../src/geo-intelligence/domain/question-generator.js";
 import { PostgresEvaluationRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation.repository.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { clearCustomerData } from "./customer-data.js";
+import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
-const config = loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1", NODE_ENV: "test" });
+const config = loadIntegrationApiConfig();
 
 describe("evaluation definition and official start", () => {
   const prisma = new PrismaService(config.databaseUrl);

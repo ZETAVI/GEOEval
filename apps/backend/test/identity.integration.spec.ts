@@ -1,12 +1,12 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-import { loadApiConfig } from "../src/config/runtime-config.js";
 import { IdentityService } from "../src/identity/application/identity.service.js";
 import { PostgresIdentityRepository } from "../src/identity/infrastructure/postgres-identity.repository.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { clearCustomerData } from "./customer-data.js";
+import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
-const config = loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1", NODE_ENV: "test" });
+const config = loadIntegrationApiConfig();
 
 describe("terminal-customer passwordless entry", () => {
   const prisma = new PrismaService(config.databaseUrl);
