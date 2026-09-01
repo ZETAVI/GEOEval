@@ -50,7 +50,7 @@ describe("evaluation question generation contract", () => {
     const instruction = evaluationQuestionGenerationInstructionSnapshot();
     expect(instruction).toMatchObject({
       id: "evaluation.question-generation.profile",
-      version: "1.1.0+1.0.0",
+      version: "1.2.0+1.1.0",
     });
     expect(instruction.contentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(instruction.content).toContain("不联网");
@@ -65,8 +65,7 @@ describe("evaluation question generation contract", () => {
       {
         kind: "BRAND_DIRECTED",
         ordinal: 1,
-        content:
-          "你知道广州的互动派广告公司吗？它主要做什么，提供哪些服务，市场口碑怎么样？",
+        content: "广州互动派这家数字营销公司怎么样，主要做哪些业务？",
       },
       {
         kind: "INDUSTRY_RECOMMENDATION",
@@ -152,8 +151,8 @@ function validOutput() {
       {
         kind: "BRAND_DIRECTED" as const,
         candidates: [
-          "你知道广州的互动派广告公司吗？它主要做什么，提供哪些服务，市场口碑怎么样？",
-          "广州的互动派广告公司怎么样，主要提供哪些数字营销服务？",
+          "广州互动派这家数字营销公司怎么样，主要做哪些业务？",
+          "广州互动派主要提供哪些数字营销服务，市场口碑怎么样？",
         ],
       },
       {
@@ -181,8 +180,7 @@ function validOutput() {
     selectedQuestions: [
       {
         kind: "BRAND_DIRECTED" as const,
-        content:
-          "你知道广州的互动派广告公司吗？它主要做什么，提供哪些服务，市场口碑怎么样？",
+        content: "广州互动派这家数字营销公司怎么样，主要做哪些业务？",
       },
       {
         kind: "INDUSTRY_RECOMMENDATION" as const,
