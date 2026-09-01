@@ -19,7 +19,8 @@
 - [x] Prove the stable shared PostgreSQL content hash and Redis DB0 key-set hash
       are unchanged by a repeated isolated full backend run.
 - [x] Reconcile the accepted rule into the current project-governance spec.
-- [ ] Complete PR evidence and set the branch exit state.
+- [x] Complete PR #24 evidence and set the branch exit state to
+      `ready-for-integration`.
 
 ## Local verification evidence
 

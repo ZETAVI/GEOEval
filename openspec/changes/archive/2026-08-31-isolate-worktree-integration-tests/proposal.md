@@ -1,6 +1,6 @@
 # Change: Isolate Worktree Integration Tests
 
-- Status: Implemented and locally verified; Draft PR checkpoint pending
+- Status: Completed, reconciled, and verified through Draft PR #24
 - Class: Standard maintenance bug fix
 - Owner: GitHub Issue #15
 
@@ -47,3 +47,21 @@ unused Redis logical database are authorized for verification. Shared defaults
 may be inspected but not reset, flushed, migrated, or cleaned. Merge, deletion
 of the isolated resources, and Worktree cleanup remain separate lifecycle
 actions.
+
+## Final Disposition
+
+- Current truth: the test Helper and six integration suites own executable
+  behavior; `docs/process/human-agent-collaboration.md` and the project-
+  governance spec own the stable Worktree rule.
+- Evidence: focused red/green, 15-file Backend regression, Web tests, types,
+  build, framework checks, stable shared-resource hashes, PR #24 CI, and matching
+  local/remote Diff hashes.
+- Review: fixed-revision code review found no remaining must-fix; partial
+  resource overrides and hostile environment inheritance are regression-tested.
+- Release: `release:skip`; this changes test safety and project governance, not
+  customer or production behavior.
+- Residual: the pre-existing `pg@9` nested-query deprecation warning remains a
+  separate maintenance concern.
+- Exit: branch is `ready-for-integration`; after merge, close Issue #15, move its
+  Project item to `Done`, clean the Issue-specific database and Redis DB13, and
+  remove the Worktree only after a clean merged-state check.
