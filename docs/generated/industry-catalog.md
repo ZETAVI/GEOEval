@@ -4,6 +4,7 @@
 
 - Catalog: `industry-catalog@1.0.0`
 - Content hash: `e87887dab395800b943aad793dc09df855adf54145b40a7600266722c7512f9e`
+- Nodes: 13 primary / 199 secondary
 
 ## IND-01 本地生活与门店服务
 

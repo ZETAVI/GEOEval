@@ -6,9 +6,16 @@ import { z } from "zod";
 import administrativeRegionsDocument from "./administrative-regions.json" with { type: "json" };
 import industryCatalogDocument from "./industry-catalog.json" with { type: "json" };
 
+const specialTownshipParentIds = new Set([
+  "CN-MCA-PREFECTURE-441900",
+  "CN-MCA-PREFECTURE-442000",
+  "CN-MCA-PREFECTURE-460400",
+  "CN-MCA-PREFECTURE-620200",
+]);
+
 const industrySecondarySchema = z.object({
-  id: z.string().min(1),
-  parentId: z.string().min(1),
+  id: z.string().regex(/^IND-\d{2}-\d{2}$/),
+  parentId: z.string().regex(/^IND-\d{2}$/),
   label: z.string().min(1),
   recommendationSubject: z.string().min(1),
   isOther: z.boolean(),
@@ -16,7 +23,7 @@ const industrySecondarySchema = z.object({
 });
 
 const industryPrimarySchema = z.object({
-  id: z.string().min(1),
+  id: z.string().regex(/^IND-\d{2}$/),
   label: z.string().min(1),
   secondaryIndustries: z.array(industrySecondarySchema).min(1),
 });
@@ -25,7 +32,11 @@ const industryCatalogSchema = z.object({
   catalogId: z.literal("industry-catalog"),
   version: z.string().min(1),
   contentHash: z.string().length(64),
-  primaryIndustries: z.array(industryPrimarySchema).length(13),
+  counts: z.object({
+    primaryIndustries: z.number().int().positive(),
+    secondaryIndustries: z.number().int().positive(),
+  }),
+  primaryIndustries: z.array(industryPrimarySchema).min(1),
 });
 
 const officialRegionSchema = z.object({
@@ -82,7 +93,7 @@ const administrativeRegionsSchema = z.object({
     specialCityRawSha256: z.record(z.string(), z.string().length(64)),
   }),
   contentHash: z.string().length(64),
-  provinces: z.array(provinceRegionSchema).length(31),
+  provinces: z.array(provinceRegionSchema).min(31),
 });
 
 const industryCatalog = industryCatalogSchema.parse(industryCatalogDocument);
@@ -100,7 +111,10 @@ assertContentHash(
   administrativeRegions.provinces,
   "administrative regions",
 );
-assertIndustryCatalog(industryCatalog.primaryIndustries);
+assertIndustryCatalog(
+  industryCatalog.primaryIndustries,
+  industryCatalog.counts,
+);
 assertRegionProjection(
   administrativeRegions.provinces,
   administrativeRegions.source.counts,
@@ -460,7 +474,13 @@ function assertContentHash(
   if (expected !== actual) throw new Error(`${name} content hash mismatch`);
 }
 
-function assertIndustryCatalog(primaries: IndustryPrimary[]): void {
+function assertIndustryCatalog(
+  primaries: IndustryPrimary[],
+  expectedCounts: {
+    primaryIndustries: number;
+    secondaryIndustries: number;
+  },
+): void {
   const ids = new Set<string>();
   const secondaries = primaries.flatMap((primary) => {
     if (ids.has(primary.id))
@@ -471,6 +491,9 @@ function assertIndustryCatalog(primaries: IndustryPrimary[]): void {
     );
     if (others.length !== 1)
       throw new Error(`${primary.id} must own exactly one Other`);
+    if (others[0]?.id !== `${primary.id}-99` || others[0].status !== "ACTIVE") {
+      throw new Error(`${primary.id} must own its active -99 Other`);
+    }
     for (const secondary of primary.secondaryIndustries) {
       if (secondary.parentId !== primary.id) {
         throw new Error(
@@ -480,8 +503,12 @@ function assertIndustryCatalog(primaries: IndustryPrimary[]): void {
     }
     return primary.secondaryIndustries;
   });
-  if (secondaries.length !== 199)
-    throw new Error(`Expected 199 secondary industries`);
+  if (
+    primaries.length !== expectedCounts.primaryIndustries ||
+    secondaries.length !== expectedCounts.secondaryIndustries
+  ) {
+    throw new Error("Industry catalog counts do not match its manifest");
+  }
   for (const secondary of secondaries) {
     if (ids.has(secondary.id))
       throw new Error(`Duplicate industry ID ${secondary.id}`);
@@ -507,8 +534,17 @@ function assertRegionProjection(
     townships: 0,
     presentationCities: 0,
   };
+  const activeProvinceCount = provinces.filter(
+    (province) => province.status === "ACTIVE",
+  ).length;
+  if (activeProvinceCount !== 31) {
+    throw new Error(
+      `Expected 31 active mainland provinces, got ${activeProvinceCount}`,
+    );
+  }
   for (const province of provinces) {
     assertUnique(ids, province.id);
+    assertOfficialIdentity(province);
     if (province.parentId !== null) {
       throw new Error(`${province.id} must not have an official parent`);
     }
@@ -524,18 +560,34 @@ function assertRegionProjection(
         ) {
           throw new Error(`${city.id} has an invalid official city identity`);
         }
+        assertOfficialIdentity(city.officialDivision);
+        if (city.label !== city.officialDivision.label) {
+          throw new Error(`${city.id} has inconsistent official display text`);
+        }
       } else if (city.identityKind === "MUNICIPALITY_REPEAT") {
         actualCounts.presentationCities += 1;
-        if (city.officialDivisionId !== province.id || city.officialDivision) {
+        if (
+          city.id !== `CN-MCA-VIEW-MUNICIPALITY-${province.officialCode}` ||
+          city.label !== province.label ||
+          city.officialDivisionId !== province.id ||
+          city.officialDivision
+        ) {
           throw new Error(`${city.id} has an invalid municipality projection`);
         }
       } else if (city.officialDivisionId || city.officialDivision) {
         throw new Error(`${city.id} has an invalid direct-county projection`);
       } else {
         actualCounts.presentationCities += 1;
+        if (
+          city.id !== `CN-MCA-VIEW-DIRECT-${province.officialCode}` ||
+          city.label !== "省直辖县级行政区划"
+        ) {
+          throw new Error(`${city.id} has invalid direct-county presentation`);
+        }
       }
       for (const terminal of city.terminalRegions) {
         assertUnique(ids, terminal.id);
+        assertOfficialIdentity(terminal);
         if (terminal.officialLevel === "COUNTY") actualCounts.counties += 1;
         if (terminal.officialLevel === "TOWNSHIP") actualCounts.townships += 1;
         const expectedParentId = city.officialDivisionId ?? province.id;
@@ -544,12 +596,27 @@ function assertRegionProjection(
             `${terminal.id} has invalid parent ${terminal.parentId}`,
           );
         }
+        if (
+          terminal.officialLevel === "TOWNSHIP" &&
+          !specialTownshipParentIds.has(terminal.parentId)
+        ) {
+          throw new Error(`${terminal.id} has an unapproved township parent`);
+        }
       }
     }
   }
   if (JSON.stringify(actualCounts) !== JSON.stringify(expectedCounts)) {
     throw new Error(
       "Administrative-region source counts do not match projection",
+    );
+  }
+}
+
+function assertOfficialIdentity(region: OfficialRegion): void {
+  const expectedId = `CN-MCA-${region.officialLevel}-${region.officialCode}`;
+  if (region.id !== expectedId) {
+    throw new Error(
+      `${region.id} does not match official identity ${expectedId}`,
     );
   }
 }

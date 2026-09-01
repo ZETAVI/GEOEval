@@ -61,9 +61,9 @@
       changes do.
 - [x] Prove existing Definition eligibility, Run retry/resume, report history,
       and changed-information projection remain correct across exact migration.
-- [ ] Run typecheck, tests, build, OpenAPI generation, project-framework
+- [x] Run typecheck, tests, build, OpenAPI generation, project-framework
       validation, diff checks, and browser visual/interaction verification.
-- [ ] Run architecture review, fixed-diff code review, and verification review;
+- [x] Run architecture review, fixed-diff code review, and verification review;
       resolve all must-fix findings without invoking a Provider.
 
 ## Reconcile and exit

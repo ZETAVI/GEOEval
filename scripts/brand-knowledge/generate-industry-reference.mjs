@@ -15,6 +15,7 @@ const lines = [
   "",
   `- Catalog: \`${catalog.catalogId}@${catalog.version}\``,
   `- Content hash: \`${catalog.contentHash}\``,
+  `- Nodes: ${catalog.counts.primaryIndustries} primary / ${catalog.counts.secondaryIndustries} secondary`,
   "",
 ];
 

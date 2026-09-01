@@ -1,6 +1,6 @@
 # Change: Activate Brand Knowledge Reference Data
 
-- Status: Approved for deterministic implementation
+- Status: Implemented and locally verified; Draft PR review pending
 - Class: Architectural implementation
 - Owning Issue: [#27](https://github.com/ZETAVI/GEOEval/issues/27)
 - Parent outcome: [#26 AI Evaluation Query Generator](https://github.com/ZETAVI/GEOEval/issues/26)
@@ -143,7 +143,8 @@ separate sources with different semantics and maintenance lifecycles.
 - Base: `main@a1d3d57660df8cc21f1426fe9f05f33a36d1b3b3`
 - Writer: the primary Codex agent; research sub-agents are read-only
 - Merge destination: protected `main` through a later verified pull request
-- Current phase: Implement; no Provider call or production change
+- Current phase: Review / Decision; no Provider call, production change, or PR
+  merge
 - Exit: implement and verify here, merge
   through the #27 PR, then remove the branch/worktree only after #26 rebases
 

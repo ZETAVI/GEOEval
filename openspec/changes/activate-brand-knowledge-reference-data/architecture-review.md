@@ -84,3 +84,39 @@ still prove:
 4. accepted design is reconciled out of this Change before completion.
 
 Provider calls, production changes, and PR merge remain separate gates.
+
+## Post-implementation fixed-diff review
+
+- Review base: `692a064`
+- Scope: requirement fidelity, module ownership, data integrity, migration,
+  generated contracts, Web interaction, and evidence continuity
+- Result: `ready for Draft PR review`; no remaining must-fix or should-fix
+  finding
+
+Requirement fidelity remains intact: industry is two-level, mainland region is
+three-control with official township terminals for the four confirmed cities,
+Brand validates complete paths, `Other` remains bounded Brand data, and GEO
+consumes only the versioned evaluation-purpose projection.
+
+The review found and resolved four implementation-quality issues before this
+result:
+
+1. industry 13/199 counts moved from hard-coded runtime assumptions into the
+   validated catalog manifest so a later approved supplement can update data and
+   counts without weakening current `1.0.0` proof;
+2. the region schema now requires 31 active mainland provinces while allowing
+   retained `ABOLISHED` historical identities beyond that active set;
+3. official region IDs, parents, levels, source release, special township
+   parents, and presentation identities are checked without reconstructing a
+   city from its ID string;
+4. the fused `Other` control uses an accessible group with separately named
+   select and input, and its generator scripts are covered by project formatting
+   checks.
+
+Evidence review found no completion-claim gap: the clean, exact, unexpected,
+and collision migration paths were exercised in isolated databases; source and
+generated artifacts reproduce byte-for-byte; `pnpm check`, Web tests, production
+build, framework validation, and built-runtime browser checks pass. Browser
+evidence confirms concise `其他`, no standalone extra field, complete 2-60 hint,
+desktop/narrow layout, dependent reset, and the special-city third level. No
+Provider or production operation was invoked.

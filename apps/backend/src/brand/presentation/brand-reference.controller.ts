@@ -36,17 +36,24 @@ export class BrandReferenceController {
       catalogId: catalog.catalogId,
       version: catalog.version,
       contentHash: catalog.contentHash,
-      primaryIndustries: catalog.primaryIndustries.map((primary) => ({
-        id: primary.id,
-        label: primary.label,
-        secondaryIndustries: primary.secondaryIndustries
+      primaryIndustries: catalog.primaryIndustries.flatMap((primary) => {
+        const secondaryIndustries = primary.secondaryIndustries
           .filter((secondary) => secondary.status === "ACTIVE")
           .map((secondary) => ({
             id: secondary.id,
             label: secondary.label,
             isOther: secondary.isOther,
-          })),
-      })),
+          }));
+        return secondaryIndustries.length > 0
+          ? [
+              {
+                id: primary.id,
+                label: primary.label,
+                secondaryIndustries,
+              },
+            ]
+          : [];
+      }),
     };
   }
 

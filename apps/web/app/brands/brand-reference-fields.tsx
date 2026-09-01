@@ -11,7 +11,7 @@ import {
   type RegionOptionList,
   type TerminalRegionOptionList,
 } from "@geoeval/api-client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 
 type Props = {
   apiBaseUrl: string;
@@ -20,6 +20,8 @@ type Props = {
 };
 
 export function BrandReferenceFields({ apiBaseUrl, value, onChange }: Props) {
+  const secondaryLabelId = useId();
+  const otherHelpId = useId();
   const [industries, setIndustries] = useState<IndustryCatalog>();
   const [provinces, setProvinces] = useState<RegionOptionList>();
   const [cities, setCities] = useState<CityRegionOptionList>();
@@ -134,14 +136,20 @@ export function BrandReferenceFields({ apiBaseUrl, value, onChange }: Props) {
           ))}
         </select>
       </label>
-      <label className="industry-field secondary-industry-field">
-        二级行业 *
+      <div
+        className="form-field industry-field secondary-industry-field"
+        role="group"
+        aria-labelledby={secondaryLabelId}
+      >
+        <span className="field-label" id={secondaryLabelId}>
+          二级行业 *
+        </span>
         <div
           className={`secondary-industry-control${secondary?.isOther ? " has-other-input" : ""}`}
         >
           <select
             className="industry-select secondary-industry-select"
-            aria-label="二级行业"
+            aria-labelledby={secondaryLabelId}
             value={value.secondaryIndustryId ?? ""}
             disabled={!value.primaryIndustryId}
             onChange={(event) => {
@@ -167,6 +175,7 @@ export function BrandReferenceFields({ apiBaseUrl, value, onChange }: Props) {
               <input
                 className="other-industry-input"
                 aria-label="具体产品或服务"
+                aria-describedby={otherHelpId}
                 value={value.otherProductOrService ?? ""}
                 minLength={2}
                 maxLength={60}
@@ -182,11 +191,11 @@ export function BrandReferenceFields({ apiBaseUrl, value, onChange }: Props) {
           )}
         </div>
         {secondary?.isOther && (
-          <small className="other-industry-help">
+          <small className="other-industry-help" id={otherHelpId}>
             请填写 2–60 个字，不能只填写“其他”
           </small>
         )}
-      </label>
+      </div>
       <fieldset className="wide">
         <legend>所在地区 *</legend>
         <div className="triple-fields">
