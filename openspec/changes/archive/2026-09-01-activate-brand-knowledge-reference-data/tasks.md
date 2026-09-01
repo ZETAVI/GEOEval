@@ -73,7 +73,9 @@
 - [x] Reconcile accepted behavior into the current Brand Knowledge spec,
       product-definition index, evaluation-definition seam, and architecture
       overview; resolve every touched evolution marker.
-- [ ] Open and verify the #27 PR, record source provenance and skipped
-      production checks, and obtain a separate merge decision.
-- [ ] After merge, archive this Change, close #27/Project state, record branch
-      and worktree exit, then ask #26 to rebase and verify the projection seam.
+- [x] Open and verify Final PR #31 with `Closes #27`, source provenance,
+      skipped production checks, completed Required Checks, no requested review,
+      and explicit 2026-09-01 merge authorization.
+- [x] Archive this Change after merge approval and record the merge-triggered
+      exit: native Issue close, Project `Done`, merged-`main` verification,
+      branch/Worktree removal, and #26 rebase/projection verification.

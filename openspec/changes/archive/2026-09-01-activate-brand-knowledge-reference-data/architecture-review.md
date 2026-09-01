@@ -120,3 +120,14 @@ build, framework validation, and built-runtime browser checks pass. Browser
 evidence confirms concise `其他`, no standalone extra field, complete 2-60 hint,
 desktop/narrow layout, dependent reset, and the special-city third level. No
 Provider or production operation was invoked.
+
+### Latest-main integration review
+
+- Integration base: `main@c6cd438`
+- Rebased revision: `1dd507c`
+- Main delta: governance-only PR #30; no Brand, GEO, migration, Web, OpenAPI, or
+  reference-data overlap
+- Review relationship: PR #31 is the Final PR with native `Closes #27`; no
+  requested review exists
+- Verdict: `ready`; the product payload tree is unchanged from the fixed-diff
+  review and the latest framework plus full Required Checks pass

@@ -1,12 +1,13 @@
 # Change: Activate Brand Knowledge Reference Data
 
-- Status: Implemented and locally verified; Draft PR review pending
+- Status: Accepted and archived for integration through PR #31
 - Class: Architectural implementation
 - Owning Issue: [#27](https://github.com/ZETAVI/GEOEval/issues/27)
 - Parent outcome: [#26 AI Evaluation Query Generator](https://github.com/ZETAVI/GEOEval/issues/26)
 - Decision owners: Product owner and architecture owner
 - Product-owner approval: 2026-09-01
-- Implementation authorization: Yes; no Provider call, production change, or merge
+- Authorization: deterministic implementation and PR #31 squash merge; no
+  Provider call, production change, or deployment
 
 ## Why
 
@@ -143,14 +144,27 @@ separate sources with different semantics and maintenance lifecycles.
 - Base: `main@a1d3d57660df8cc21f1426fe9f05f33a36d1b3b3`
 - Writer: the primary Codex agent; research sub-agents are read-only
 - Merge destination: protected `main` through a later verified pull request
-- Current phase: Review / Decision; no Provider call, production change, or PR
-  merge
-- Exit: implement and verify here, merge
-  through the #27 PR, then remove the branch/worktree only after #26 rebases
+- Current phase: Review / Decision; final integration is owned by PR #31
+- Exit: PR #31 is authorized for squash merge; its native `Closes #27`
+  relationship closes the Issue, Project automation moves it to `Done`, and the
+  branch/Worktree are removed only after the merged revision is verified on
+  `main`; #26 then rebases and verifies the projection seam
 
 ## Approval boundary
 
-The product owner confirmed the decisions above on 2026-09-01. Deterministic
-schema, runtime, generated-contract, frontend, migration, and verification work
-may proceed. Provider calls, production changes, and PR merge retain their
-separate gates.
+The product owner confirmed the decisions, deterministic implementation, and
+PR #31 merge on 2026-09-01. Provider calls, production changes, deployment, and
+commercial-readiness claims retain separate gates.
+
+## Final disposition
+
+- Current Brand Knowledge, product-definition, evaluation-definition, and
+  architecture owners contain the accepted behavior; executable sources,
+  generated references, migrations, and tests own their exact facts.
+- PR #31 is the Final PR for #27 and retains native `Closes #27`. No review is
+  requested or in flight; fixed-diff code review has no material finding.
+- The branch was rebased without conflict onto `main@c6cd438`, which adds the
+  Final/Partial/Review Gate governance rules. The product payload is unchanged
+  from its reviewed revision and both Required Checks pass.
+- The product owner authorized merge on 2026-09-01. No Provider call,
+  production migration, deployment, or commercial-readiness claim is included.
