@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildEvaluationReportDocument,
   evaluationReportDocumentSchema,
+  parseStoredEvaluationReportDocument,
 } from "../src/geo-intelligence/domain/evaluation-report.document.js";
 import type { EvaluationReportMetrics } from "../src/geo-intelligence/domain/evaluation-report.policy.js";
 import type {
@@ -49,6 +50,27 @@ describe("evaluation report document", () => {
       sampleCount: 2,
       platforms: ["deepseek", "qwen"],
     });
+    expect(document.limitations).toEqual([]);
+  });
+
+  it("keeps legacy synthesis notes out of the customer projection", () => {
+    const firstSample = randomUUID();
+    const secondSample = randomUUID();
+    const document = buildEvaluationReportDocument({
+      metrics: metricFixture(firstSample, secondSample),
+      synthesis: synthesisFixture(firstSample, secondSample),
+      samples: [
+        sampleContext(firstSample, "deepseek"),
+        sampleContext(secondSample, "qwen"),
+      ],
+    });
+
+    expect(
+      parseStoredEvaluationReportDocument("evaluation.report-document@1", {
+        ...document,
+        limitations: ["evidenceRefs 使用内部样本编号。"],
+      }).limitations,
+    ).toEqual([]);
   });
 
   it("owns the customer-facing theme and direction limits", () => {

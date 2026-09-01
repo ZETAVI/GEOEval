@@ -1,17 +1,18 @@
 # GEOEval
 
 GEOEval is a GEO optimization product with an approved product definition, a
-validated application foundation, and an accepted deterministic first
-evaluation slice. Real-provider execution remains a separately reviewed
-integration boundary until it is merged and accepted.
+validated application foundation, and an accepted S1-S6 evaluation journey.
+Real-provider execution is integrated as a local and release-candidate
+capability; production activation and commercial customer data remain separate
+release gates.
 
 Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
 
 ## Current status
 
-- Phase: deterministic S1-S5 customer entry, evaluation, report, retry,
-  history, and notification behavior are implemented and locally accepted on
-  `main`; the S6 real-provider candidate remains an unmerged change
+- Phase: S1-S6 customer entry, real-provider evaluation, semantic recovery,
+  report, retry, history, and notification behavior are integrated on `main`;
+  AI question generation is the next independent product change
 - Project control: GitHub Issues and pull requests are live; `main` requires a
   pull request, the `AI Native 项目框架 CI` and `完整项目 CI` status checks,
   linear history, and resolved review conversations. Planning Status/Priority
@@ -19,15 +20,15 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
   the initial governance migration closed through
   [Issue #21](https://github.com/ZETAVI/GEOEval/issues/21).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
-- Active product changes: deterministic S1-S5 is retired as a completed Change;
-  frontend presentation remains Issue #13, while real-provider S6 is tracked by
-  [Issue #4](https://github.com/ZETAVI/GEOEval/issues/4) and remains isolated on
-  `codex/issue-4-s6-real-provider-integration` as Draft PR #20
+- Active product changes: deterministic S1-S5 and real-provider S6 are retired
+  as completed Changes; frontend presentation remains Issue #13, while AI
+  question generation must start under its own Issue and Change
 - Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,
   Redis/BullMQ, Prisma, and generated OpenAPI client
-- Runtime code: deterministic S1-S5 product behavior is implemented on `main`;
-  F0 probes remain non-product validation tools and real-provider S6 remains an
-  integration candidate
+- Runtime code: deterministic and real-provider evaluation modes are
+  implemented; F0 probes remain non-product validation tools. Production use
+  still requires the separate release, customer-data, quota, and deployment
+  gates.
 
 ## Start here
 

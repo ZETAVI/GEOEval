@@ -8,6 +8,7 @@ allowBuilds:
   esbuild: true
   msgpackr-extract: false
   prisma: true
+  protobufjs: false
   sharp: true
 
 minimumReleaseAgeExclude:
@@ -15,3 +16,6 @@ minimumReleaseAgeExclude:
   - "@nestjs/core@11.2.2"
   - "@nestjs/platform-express@11.2.2"
   - bullmq@6.2.1
+  - "@langfuse/core@5.11.0"
+  - "@langfuse/otel@5.11.0"
+  - "@langfuse/tracing@5.11.0"

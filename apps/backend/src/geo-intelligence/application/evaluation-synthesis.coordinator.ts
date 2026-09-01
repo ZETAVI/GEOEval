@@ -8,26 +8,31 @@ import {
 } from "../domain/evaluation-synthesis.repository.js";
 import type { EvaluationSynthesisContext } from "../domain/evaluation-synthesis.types.js";
 import {
+  EVALUATION_PROCESS_COMPLETED,
+  type EvaluationProcessResult,
+} from "../domain/evaluation-process.result.js";
+import {
+  OVERALL_SYNTHESIS_CONTRACT_VERSION,
   OverallSynthesisSemanticError,
-  parseOverallSynthesisOutput,
 } from "../domain/overall-synthesis.contract.js";
+import {
+  OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION,
+  parseAndProjectOverallSynthesisModelOutput,
+} from "../domain/overall-synthesis-model.contract.js";
 import { buildOverallSynthesisTask } from "../overall-synthesis.policy.js";
 
 const SYNTHESIS_ROUTES = [
   {
-    routePolicyId: "evaluation.overall-synthesis.deterministic-primary@1",
-    providerKey: "deterministic-synthesis-primary",
-    requestedModel: "deterministic-synthesis-primary-v1",
+    routePolicyId: "evaluation.overall-synthesis.qwen-primary@1",
+    requestedModel: "qwen3.8-flash",
   },
   {
-    routePolicyId: "evaluation.overall-synthesis.deterministic-primary@1",
-    providerKey: "deterministic-synthesis-primary",
-    requestedModel: "deterministic-synthesis-primary-v1",
+    routePolicyId: "evaluation.overall-synthesis.qwen-primary@1",
+    requestedModel: "qwen3.8-flash",
   },
   {
-    routePolicyId: "evaluation.overall-synthesis.deterministic-fallback@1",
-    providerKey: "deterministic-synthesis-fallback",
-    requestedModel: "deterministic-synthesis-fallback-v1",
+    routePolicyId: "evaluation.overall-synthesis.hy3-fallback@1",
+    requestedModel: "hy3",
   },
 ] as const;
 
@@ -46,10 +51,12 @@ export class EvaluationSynthesisCoordinator {
     private readonly aiExecution: AiSynthesisExecutionService,
   ) {}
 
-  async process(payload: Record<string, unknown>): Promise<void> {
+  async process(
+    payload: Record<string, unknown>,
+  ): Promise<EvaluationProcessResult> {
     const work = synthesisWorkSchema.parse(payload);
     const context = await this.repository.getContext(work.runId, work.cycleId);
-    if (!context) return;
+    if (!context) return EVALUATION_PROCESS_COMPLETED;
     const route = SYNTHESIS_ROUTES[work.attemptNumber - 1]!;
     const outcome = await this.aiExecution.execute({
       runId: context.runId,
@@ -57,11 +64,11 @@ export class EvaluationSynthesisCoordinator {
       purpose: "OVERALL_SYNTHESIS",
       attemptNumber: work.attemptNumber,
       routePolicyId: route.routePolicyId,
-      providerKey: route.providerKey,
       requestedModel: route.requestedModel,
       correlationId: context.correlationId,
       input: buildOverallSynthesisTask(context),
     });
+    if (outcome.kind === "DEFERRED") return outcome;
     if (outcome.kind === "FAILED") {
       await this.handleFailure({
         context,
@@ -71,10 +78,15 @@ export class EvaluationSynthesisCoordinator {
         retryable: outcome.retryable,
         reason: "Overall analysis execution failed",
       });
-      return;
+      return EVALUATION_PROCESS_COMPLETED;
     }
+    let synthesis;
     try {
-      parseOverallSynthesisOutput(outcome.output, context.samples);
+      synthesis = parseAndProjectOverallSynthesisModelOutput(
+        outcome.output,
+        context.samples,
+        outcome.providerEvidence,
+      );
     } catch (error) {
       if (
         !(error instanceof z.ZodError) &&
@@ -82,6 +94,11 @@ export class EvaluationSynthesisCoordinator {
       ) {
         throw error;
       }
+      await this.aiExecution.rejectSemantics(outcome.attemptId, {
+        failureClass: "SEMANTIC_CONTRACT_REJECTED",
+        modelContractVersion: OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION,
+        domainContractVersion: OVERALL_SYNTHESIS_CONTRACT_VERSION,
+      });
       await this.handleFailure({
         context,
         attemptId: outcome.attemptId,
@@ -90,13 +107,15 @@ export class EvaluationSynthesisCoordinator {
         retryable: true,
         reason: "Overall analysis output failed the accepted semantic contract",
       });
-      return;
+      return EVALUATION_PROCESS_COMPLETED;
     }
     await this.repository.acceptReport({
       runId: context.runId,
       cycleId: context.cycleId,
       attemptId: outcome.attemptId,
+      synthesis,
     });
+    return EVALUATION_PROCESS_COMPLETED;
   }
 
   reconcile(limit: number): Promise<number> {

@@ -1,13 +1,15 @@
 # Architecture Overview
 
-- Status: deterministic S1-S5 behavior is integrated on `main`, current specs
-  own the accepted boundaries, and real-provider S6 remains an unmerged Draft
-  PR #20 candidate
+- Status: S1-S6 evaluation behavior is integrated after one
+  fictional real 4-by-5 Worker evaluation, authenticated customer-report
+  inspection, fixed-revision review, and product-owner confirmation. Production
+  activation and commercial customer data remain separate gates.
 - Entry condition: Approved product foundation and bounded first product slice
 - Decision history: [`define-application-architecture`](../../openspec/changes/archive/2026-08-25-define-application-architecture/proposal.md)
 - Completed change: [`deliver-first-evaluation-slice`](../../openspec/changes/archive/2026-08-31-deliver-first-evaluation-slice/proposal.md)
-- Active product coordination: [Issue #4](https://github.com/ZETAVI/GEOEval/issues/4)
-  and [Draft PR #20](https://github.com/ZETAVI/GEOEval/pull/20)
+- Completed change: [`integrate-real-evaluation-providers`](../../openspec/changes/archive/2026-09-01-integrate-real-evaluation-providers/proposal.md),
+  coordinated by [Issue #4](https://github.com/ZETAVI/GEOEval/issues/4) and
+  [PR #20](https://github.com/ZETAVI/GEOEval/pull/20)
 
 ## Current state
 
@@ -27,11 +29,13 @@ its [sanitized evidence](../../openspec/changes/archive/2026-08-25-define-applic
 does not authorize provider integration or product implementation. Subsequent
 [restricted search/fidelity probes](../../openspec/changes/archive/2026-08-25-define-application-architecture/research/provider-search-fidelity-evidence.md)
 ultimately produced successful evidence for all fifteen unique R01-R03
-positions after one bounded ERNIE R03 retry. Production infrastructure and real
-external authentication remain outside the current authorization. The
-deterministic S1-S5 journey is implemented and accepted on `main`. Final report
-presentation remains the independent Issue #13 outcome; it may refine
-presentation but must preserve the accepted journey and behavior.
+positions after one bounded ERNIE R03 retry. Controlled S6 calls now use the
+same production-adapter boundary with fictional data, but this branch remains
+unmerged and production deployment and commercial customer data remain outside
+the current authorization. The deterministic S1-S5 journey is implemented and
+accepted on `main`. Final report presentation remains the independent Issue #13
+outcome; it may refine presentation but must preserve the accepted journey and
+behavior.
 
 Customer-visible evaluation uses one shared, versioned
 [objectivity-instruction profile](../../apps/backend/geo-intelligence/evaluation-objectivity.json)
@@ -79,6 +83,33 @@ revision over normal durable reads. The accepted boundaries are specified by
 [`evaluation-report`](../../openspec/specs/evaluation-report/spec.md), and
 [`notification`](../../openspec/specs/notification/spec.md).
 
+S6 adds explicit deterministic versus real Worker composition, one-call durable
+attempt ownership, provider-specific transport adapters, truthful search and
+source evidence, optional masked Langfuse telemetry, and ambiguity recovery
+without another workflow engine or attempt store. Sampling keeps its five
+accepted platform routes. Per-sample interpretation and overall synthesis use
+Model Studio Qwen3.8 Flash for attempts one and two with `medium` reasoning
+effort, then TokenHub Hy3 as the third-attempt fallback.
+
+Semantic provider contracts are deliberately smaller than the canonical GEO
+contracts: models return evidence-linked semantic facts, while deterministic
+projectors assign internal IDs, repair only owner-controlled references, retain
+ungrouped brand mentions, and run the existing strict domain validation before
+acceptance. Default parser and synthesis calls do not use web search. Overall
+synthesis summarizes sampled platform perception rather than investigating
+real-world brand facts; it groups only obvious name relations from answer
+context and leaves uncertain names separate. Add a web-backed resolver only if
+repeated real evidence later shows that ambiguity materially harms reports.
+
+The first complete real run accepted all twenty acquisition samples on their
+first platform attempt. Ten interpretations passed the first Qwen3.8 attempt,
+eight passed its same-route retry, and two used the Hy3 fallback. Overall
+synthesis required the same fallback after one semantic rejection and one
+timeout. This proves the recovery path, not production capacity. It also fixes
+the next semantic-quality frontier: improve evidence extraction, other-brand
+classification, and synthesis-reference discipline from retained real evidence
+before adding retries or weakening the canonical contracts.
+
 ## Architecture qualities
 
 When architecture work begins, it must preserve:
@@ -93,12 +124,16 @@ When architecture work begins, it must preserve:
 
 ## Next architecture gates
 
-1. Keep destination-branch integration as a separate explicit branch-exit
-   action; the accepted S1-S5 checkpoint does not imply a merge or deployment.
-2. Before real-provider S6 integration, preserve the S5 retry and notification
-   boundaries and complete the smallest provider adapter, resilience,
-   capacity/cost, and telemetry evidence; no additional prompt-only five-
-   platform batch is required.
+1. Reconcile provider-console billed cost and commercial data terms before any
+   production-capacity, pricing, or real-customer claim. One successful
+   fictional run is not a load or quota test.
+2. Introduce the AI question
+   generator as a separate GEO Intelligence change behind the existing
+   `EvaluationQuestionGenerator` port. Versioned prompt, model-output contract,
+   and fixtures belong to `apps/backend/geo-intelligence/query-generator/`;
+   external execution still goes through AI Execution, while GEO retains the
+   four-question shape, immutable snapshot, validation, and fallback authority.
+   Keep the deterministic generator as the local baseline and rollback path.
 3. Validate SSE proxy buffering and reconnect behavior in the named release
    environment, and remove or isolate F0-only HTTP, schema, and page probes,
    before a commercial deployment.

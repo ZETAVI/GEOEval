@@ -70,6 +70,7 @@ export class EvaluationService {
         id: EVALUATION_OBJECTIVITY_PROFILE.id,
         version: EVALUATION_OBJECTIVITY_PROFILE.version,
         contentHash: EVALUATION_OBJECTIVITY_PROFILE.contentHash,
+        content: EVALUATION_OBJECTIVITY_PROFILE.content,
       },
       platforms: EVALUATION_PLATFORM_POLICY,
       questions,

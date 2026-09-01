@@ -10,6 +10,15 @@ import {
   sampleParserJsonSchema,
   sampleParserOutputSchema,
 } from "../src/geo-intelligence/domain/sample-parser.contract.js";
+import {
+  SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
+  parseAndProjectSampleParserModelOutput,
+  sampleParserModelJsonSchemaForQuestionKind,
+} from "../src/geo-intelligence/domain/sample-parser-model.contract.js";
+import {
+  buildSampleParserTask,
+  sampleParserInstructionProfile,
+} from "../src/geo-intelligence/sample-parser.policy.js";
 
 type OpenParserOutput = Extract<
   SampleParserOutput,
@@ -32,6 +41,132 @@ describe("sample parser semantic contract", () => {
         unexpected: true,
       }),
     ).toThrow();
+  });
+
+  it("sends only the immutable question family's schema to the provider", () => {
+    const openTask = buildSampleParserTask({
+      companyName: "星河咖啡",
+      primaryIndustry: "本地生活",
+      secondaryIndustry: "咖啡饮品",
+      region: "广东省广州市天河区",
+      characteristicOne: "安静办公空间",
+      characteristicTwo: "手冲咖啡",
+      questionKind: "CHARACTERISTIC_ONE",
+      question: "有哪些适合办公的咖啡店？",
+      originalAnswer: "星河咖啡适合办公。",
+    });
+    expect(openTask.outputContract.jsonSchema).toMatchObject({
+      properties: {
+        family: { const: "OPEN_DISCOVERY" },
+      },
+    });
+    expect(openTask.outputContract.jsonSchema).not.toHaveProperty("oneOf");
+    expect(openTask.outputContract.version).toBe(
+      SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
+    );
+    expect(sampleParserInstructionProfile("CHARACTERISTIC_ONE")).toBe(
+      "evaluation.sample-parser.common@2.0.1+evaluation.sample-parser.open-discovery@2.0.0",
+    );
+    expect(sampleParserInstructionProfile("BRAND_DIRECTED")).toBe(
+      "evaluation.sample-parser.common@2.0.1+evaluation.sample-parser.brand-directed@2.0.1",
+    );
+
+    expect(
+      sampleParserModelJsonSchemaForQuestionKind("BRAND_DIRECTED"),
+    ).toMatchObject({
+      properties: {
+        family: { const: "BRAND_DIRECTED" },
+      },
+    });
+  });
+
+  it("projects simple model evidence into stable domain identities and references", () => {
+    const answer =
+      "云栖咖啡的座位数量较多。\n\n星河咖啡设置了独立办公区域。\n\n林间咖啡以户外空间为主。";
+    const targetEvidence = {
+      exactText: "星河咖啡设置了独立办公区域。",
+      occurrence: 1,
+    };
+    const output = parseAndProjectSampleParserModelOutput(
+      {
+        family: "OPEN_DISCOVERY",
+        questionKind: "CHARACTERISTIC_ONE",
+        mentioned: true,
+        position: 2,
+        semantic: {
+          profile: "OPEN_DISCOVERY",
+          answerStructure: "PARAGRAPHS",
+          targetDisplayedForms: ["星河咖啡"],
+          targetMentionEvidence: [targetEvidence],
+          targetPositionEvidence: [targetEvidence],
+          targetRole: "CONDITIONALLY_RECOMMENDED",
+          targetObservations: [
+            {
+              category: "QUERY_FIT",
+              label: "办公场景匹配",
+              detail: "独立办公区域与问题相关。",
+              polarity: "POSITIVE",
+              evidence: [targetEvidence],
+            },
+          ],
+          otherBrands: [
+            {
+              displayName: "云栖咖啡",
+              observedForms: ["云栖咖啡"],
+              role: "COMPARED",
+              relativePosition: 1,
+              positionKind: "RECOMMENDATION",
+              evidence: [
+                {
+                  exactText: "云栖咖啡的座位数量较多。",
+                  occurrence: 1,
+                },
+              ],
+            },
+            {
+              displayName: "林间咖啡",
+              observedForms: ["林间咖啡"],
+              role: "COMPARED",
+              relativePosition: 3,
+              positionKind: "RECOMMENDATION",
+              evidence: [
+                {
+                  exactText: "林间咖啡以户外空间为主。",
+                  occurrence: 1,
+                },
+              ],
+            },
+          ],
+          cardInterpretation: "当前品牌位于第二个候选。",
+          limitations: [],
+        },
+      },
+      {
+        questionKind: "CHARACTERISTIC_ONE",
+        companyName: "星河咖啡",
+        originalAnswer: answer,
+      },
+    );
+
+    expect(output).toMatchObject({
+      family: "OPEN_DISCOVERY",
+      mentioned: true,
+      position: 2,
+      semantic: {
+        profile: "OPEN_DISCOVERY",
+        queryFit: [{ observationId: "o1" }],
+        otherBrands: [
+          { brandMentionId: "b1", displayName: "云栖咖啡" },
+          { brandMentionId: "b2", displayName: "林间咖啡" },
+        ],
+      },
+    });
+    if (output.family !== "OPEN_DISCOVERY") throw new Error("wrong family");
+    expect(
+      output.semantic.evidenceAnchors.find(
+        (anchor) => anchor.exactText === targetEvidence.exactText,
+      )?.purposes,
+    ).toEqual(["TARGET_MENTION", "TARGET_POSITION", "DESCRIPTION"]);
   });
 
   it.each([

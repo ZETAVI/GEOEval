@@ -6,8 +6,9 @@ Define the accepted S4 behavior that turns sufficient immutable evaluation
 evidence into one customer-visible report and protected optimization guidance.
 This specification owns report acceptance, calculation, projection, current-
 report meaning, immutable report history, and synthesis-only retry. It does not
-own evidence-stage retry, notifications, real-provider integration, or final
-visual polish.
+own evidence-stage retry, notifications, or final visual polish. S6 extends its
+semantic execution boundary without transferring report authority to a model or
+provider.
 
 ## Requirements
 
@@ -59,6 +60,37 @@ coverage value.
 - **AND** accepted report values can be reproduced from the linked immutable
   evidence, interpretation, and policy versions
 
+### Requirement: Model output does not become report truth
+
+GEO Intelligence SHALL accept real parser and overall-synthesis output only
+after deterministic projection into its canonical semantic contracts.
+
+#### Scenario: A provider returns strict structured output
+
+- **WHEN** a compact versioned model-output schema succeeds
+- **THEN** program logic assigns internal identifiers, resolves owner-local
+  references, preserves unmatched other-brand mentions, and rejects unsupported
+  domain meaning before acceptance
+- **AND** the model never owns internal identifiers, foreign keys, aggregate
+  counts, scores, positions already fixed by a sample parse, or final report
+  metrics
+- **AND** invalid parser output uses the bounded Qwen3.8 primary retry and Hy3
+  fallback before the position becomes unavailable
+- **AND** invalid overall synthesis uses the same bounded route order before the
+  run becomes `PLEASE_RETRY/SYNTHESIS_EXHAUSTED`
+
+#### Scenario: Overall synthesis groups names and summarizes impressions
+
+- **WHEN** accepted sample interpretations contain brand descriptions,
+  uncertain wording, or other-brand names
+- **THEN** overall synthesis summarizes only what the sampled answers expressed
+  and preserves material uncertainty rather than investigating or verifying
+  real-world brand facts
+- **AND** it may group obvious aliases, translations, store formats, or
+  subordinate brand lines from answer context while leaving an uncertain name
+  independent
+- **AND** default synthesis performs no external web-backed entity research
+
 ### Requirement: Explicit public and protected projections
 
 The customer report SHALL expose only the evidence and conclusions needed to
@@ -76,6 +108,8 @@ protected.
 - **AND** the response excludes provider sources, search details, models,
   prompts, attempts, traces, queue state, raw semantic payloads, brand-resolution
   provenance, and protected optimization guidance
+- **AND** internal schema, evidence-reference, capability, metric-preservation,
+  retry, or routing explanations are not displayed as report notes
 - **AND** another account cannot discover or read the report
 
 ### Requirement: Current-report meaning
@@ -140,8 +174,11 @@ internal analysis terminology or replacing evidence with decorative output.
 
 ## Current environment boundary
 
-S4 uses deterministic parser and synthesis adapters and proves local contracts,
-calculation, persistence, authorization, safe Markdown, and report interaction.
-It does not prove real-provider quality, production capacity, external cost, or
-commercial deployment readiness. Final visual-language refinement remains a
-separate frontend-design workstream over these accepted semantics.
+The report remains reproducible with deterministic parser and synthesis
+adapters. One complete fictional real 4-by-5 Worker journey produced and exposed
+an authenticated 20/20 report through the Qwen3.8-primary/Hy3-fallback semantic
+routes. Its first overall synthesis was semantically rejected, its second timed
+out, and Hy3 produced the accepted report; this verifies bounded recovery but
+does not establish production capacity, reconciled external cost, or commercial
+deployment readiness. Final visual-language refinement remains a separate
+frontend-design workstream over these accepted semantics.

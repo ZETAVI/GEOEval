@@ -51,7 +51,12 @@ export type EvaluationDefinitionView = {
   inputFingerprint: string;
   brandSnapshot: EvaluationBrandSnapshot;
   questionGenerator: { id: string; version: string; contentHash: string };
-  objectivityProfile: { id: string; version: string; contentHash: string };
+  objectivityProfile: {
+    id: string;
+    version: string;
+    contentHash: string;
+    content: string;
+  };
   platforms: EvaluationPlatformPolicy[];
   questions: EvaluationQuestionView[];
   run: EvaluationRunView | null;

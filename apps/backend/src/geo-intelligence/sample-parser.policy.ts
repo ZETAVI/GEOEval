@@ -4,9 +4,9 @@ import { z } from "zod";
 
 import type { EvaluationQuestionKind } from "./domain/evaluation.types.js";
 import {
-  SAMPLE_PARSER_CONTRACT_VERSION,
-  sampleParserJsonSchema,
-} from "./domain/sample-parser.contract.js";
+  SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
+  sampleParserModelJsonSchemaForQuestionKind,
+} from "./domain/sample-parser-model.contract.js";
 
 const parserAssetSchema = z
   .object({
@@ -40,10 +40,20 @@ export function buildSampleParserTask(context: SampleParserUserContext) {
     systemInstruction: `${common.content}\n\n${profile.content}`,
     userContext: { ...context },
     outputContract: {
-      version: SAMPLE_PARSER_CONTRACT_VERSION,
-      jsonSchema: sampleParserJsonSchema as Record<string, unknown>,
+      version: SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
+      jsonSchema: sampleParserModelJsonSchemaForQuestionKind(
+        context.questionKind,
+      ),
     },
   };
+}
+
+export function sampleParserInstructionProfile(
+  questionKind: EvaluationQuestionKind,
+): string {
+  const profile =
+    questionKind === "BRAND_DIRECTED" ? brandDirected : openDiscovery;
+  return `${common.id}@${common.version}+${profile.id}@${profile.version}`;
 }
 
 function loadAsset(fileName: string) {

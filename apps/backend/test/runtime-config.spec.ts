@@ -22,9 +22,13 @@ describe("process-scoped configuration", () => {
   });
 
   it("provides explicit local-only defaults only when opted in", () => {
-    expect(loadWorkerConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" }).redisUrl).toBe(
-      "redis://127.0.0.1:56379",
-    );
+    const worker = loadWorkerConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" });
+    expect(worker.redisUrl).toBe("redis://127.0.0.1:56379");
+    expect(worker.aiExecution).toMatchObject({
+      mode: "deterministic",
+      requestTimeoutMs: 180_000,
+      ambiguityTimeoutMs: 210_000,
+    });
   });
 
   it("rejects deterministic challenge delivery in production", () => {
@@ -46,5 +50,57 @@ describe("process-scoped configuration", () => {
         REDIS_URL: "redis://example:6379",
       }),
     ).toThrow("forbidden in production");
+  });
+
+  it("requires complete real provider configuration and ordered deadlines", () => {
+    const base = {
+      NODE_ENV: "test",
+      DATABASE_URL: "postgresql://example/worker",
+      REDIS_URL: "redis://example:6379",
+      AI_EXECUTION_MODE: "real",
+      TOKENHUB_BASE_URL: "http://127.0.0.1:4101/v1",
+      ARK_BASE_URL: "http://127.0.0.1:4102/api/v3",
+      DASHSCOPE_BASE_URL: "http://127.0.0.1:4103/v1",
+      QIANFAN_BASE_URL: "http://127.0.0.1:4104/v2",
+      TOKENHUB_API_KEY: "tokenhub-test-key",
+      ARK_API_KEY: "ark-test-key",
+      DASHSCOPE_API_KEY: "dashscope-test-key",
+      QIANFAN_API_KEY: "qianfan-test-key",
+    };
+    expect(loadWorkerConfig(base).aiExecution).toMatchObject({ mode: "real" });
+    expect(() => loadWorkerConfig({ ...base, ARK_API_KEY: "" })).toThrow(
+      "ARK_API_KEY is required",
+    );
+    expect(() =>
+      loadWorkerConfig({
+        ...base,
+        AI_PROVIDER_TIMEOUT_MS: "5000",
+        AI_ATTEMPT_AMBIGUITY_TIMEOUT_MS: "5000",
+      }),
+    ).toThrow("must be greater");
+  });
+
+  it("keeps Langfuse explicit and requires both keys when enabled", () => {
+    const base = {
+      NODE_ENV: "test",
+      DATABASE_URL: "postgresql://example/worker",
+      REDIS_URL: "redis://example:6379",
+      AI_TELEMETRY_MODE: "langfuse",
+      LANGFUSE_BASE_URL: "http://127.0.0.1:4200",
+    };
+    expect(() => loadWorkerConfig(base)).toThrow("LANGFUSE_PUBLIC_KEY");
+    expect(
+      loadWorkerConfig({
+        ...base,
+        LANGFUSE_PUBLIC_KEY: "public-test-key",
+        LANGFUSE_SECRET_KEY: "secret-test-key",
+      }).aiExecution.telemetry,
+    ).toEqual({
+      mode: "langfuse",
+      publicKey: "public-test-key",
+      secretKey: "secret-test-key",
+      baseUrl: "http://127.0.0.1:4200",
+      environment: "development",
+    });
   });
 });

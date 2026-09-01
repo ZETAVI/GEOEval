@@ -1,5 +1,5 @@
 {
   "id": "evaluation.sample-parser.brand-directed",
-  "version": "1.0.0",
-  "content": "这是直接询问当前品牌的问题。重点提取回答如何介绍品牌身份、定位、产品或服务、适合人群、正负面特点和不确定信息。该类问题不参与开放推荐位次统计，顶层 position 必须为 null；若回答确实在有序比较中呈现品牌，可仅在 contextualTargetPosition 中记录相对位置并绑定证据。"
+  "version": "2.0.1",
+  "content": "这是直接询问当前品牌的问题，输出 family 和 semantic.profile 必须为 BRAND_DIRECTED。若 originalAnswer 中出现 companyName，mentioned 必须为 true，targetDisplayedForms 必须包含原文中的品牌名，targetMentionEvidence 必须复制至少一段包含该名称的原文。重点提取回答如何介绍品牌身份、定位、产品或服务、适合人群、正负面特点和不确定信息；originalAnswer 中每个明确且有依据的优点或局限都应成为一条 targetObservations，若同时存在优点和局限，必须分别保留 POSITIVE 与 NEGATIVE 观察。targetObservations 使用 category 区分品牌身份、定位、产品或服务、人群、特点或一般观察。cardInterpretation 是对该回答中品牌表现的简短客观解读，不是判断界面上是否存在卡片，不得填写“无卡片”等界面描述。该类问题不参与开放推荐位次统计，顶层 position 必须为 null；只有回答确实在有序多品牌比较中呈现当前品牌时，才在 contextualTargetPosition 中记录相对位置，并在 contextualPositionEvidence 中提供原文证据。"
 }

@@ -1,0 +1,80 @@
+# Change: Integrate Real Evaluation Providers
+
+- Status: Accepted for integration; production activation, real customer data,
+  billed-cost reconciliation, and deployment remain separate gates
+- Class: Architectural integration
+- Decision owners: Product owner and architecture owner
+- Product confirmation: staged implementation 2026-08-28; final bounded S6
+  acceptance 2026-09-01
+
+## Why
+
+The deterministic S1-S5 slice proves the customer journey, durable evaluation
+lifecycle, semantic contracts, report calculation, retry, history, and
+notification behavior. The next independently valuable outcome is to run that
+same slice through the five accepted commercial model routes and the accepted
+parser and overall-analysis routes without allowing provider behavior to become
+business state or silently weaken the verified contracts.
+
+## Scope
+
+- In: a production-selectable real AI execution mode; five real evaluation
+  sampling adapters; real per-sample interpretation and overall-analysis
+  primary-retry-fallback routes; compact provider-facing semantic contracts and
+  deterministic projection into the canonical domain contracts; provider
+  response, search, source, usage, latency, error, and model-identity
+  normalization; durable ambiguous-attempt recovery; non-blocking Langfuse
+  export; and one complete fictional 4-by-5 browser evaluation.
+- Out: query-generation Agent work, promotional writing, optimization workflow,
+  media publication, commercial customer data, production deployment,
+  open-ended load testing, model-ranking experiments, broad prompt
+  experimentation, default web-backed entity resolution, final report visual
+  polish, and changes to deterministic score ownership.
+
+## Impact
+
+AI Execution gains the real external boundary, route validation, provider
+adapters, technical failure classification, and attempt telemetry. GEO
+Intelligence keeps evaluation meaning, accepted evidence, parser and synthesis
+domain contracts, model-output projection, retry/fallback policy,
+deterministic metrics, and report ownership.
+Background Work remains a delivery mechanism over durable owner state. The
+Worker gains explicit deterministic versus real configuration; the Web and its
+authenticated public contracts do not change in the first implementation
+step.
+
+The current boolean search observation is insufficient for providers that do
+not expose whether a no-source response searched. The change therefore replaces
+it with an internal three-state observation while preserving historical report
+behavior. Existing attempt JSON becomes a versioned normalized-output plus
+provider-evidence envelope without adding a second attempt store.
+
+## Control State
+
+- Documentation: add this proposed delta and source brief; after verification,
+  update the current evaluation-evidence and evaluation-report specs plus the
+  architecture overview, reconcile the old E0 runner so production mappings
+  have one executable owner, execute the provider-related part of the product-
+  definition evolution marker without mass-splitting unrelated requirements,
+  and archive this change. Product meaning remains in `docs/product/` and is
+  not copied here.
+- Workspace: Issue #4 owns branch
+  `codex/issue-4-s6-real-provider-integration`, rebuilt on protected
+  `main@7df111f`; Project Status is `Review / Decision`, Priority is `P1`, and
+  the governance-migration Dependency #21 plus the Worktree test-isolation
+  Dependency #15 are complete. The current agent is the single writer and the
+  merge destination is `main`. Exit requires deterministic regression evidence,
+  controlled provider evidence, one complete fictional browser journey,
+  current-spec reconciliation, final product-owner acceptance, and explicit PR
+  review. Publishing a Draft PR does not authorize merge, production activation,
+  customer-data use, or deployment.
+
+## Approval Boundary
+
+The product owner confirmed the staged S6 outcome and implementation direction.
+Local code, project-local dependencies, local migrations, fictional fixtures,
+and no-secret configuration work are authorized. Each paid batch must still
+state an exact maximum call count, routes, fixtures, retry behavior, and stop
+conditions before it runs. No batch may use commercial customer data, change a
+provider account or quota, deploy production resources, or print credentials or
+raw answers.

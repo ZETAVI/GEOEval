@@ -4,11 +4,16 @@ import { NestFactory } from "@nestjs/core";
 
 import { AiExecutionService } from "../src/ai-execution/application/ai-execution.service.js";
 import { AiSynthesisExecutionService } from "../src/ai-execution/application/ai-synthesis-execution.service.js";
+import { type AiAttemptAdapter } from "../src/ai-execution/domain/ai-attempt.adapter.js";
+import type {
+  AiAdapterResult,
+  AiAttemptRequest,
+  ResolvedAiAttemptRequest,
+} from "../src/ai-execution/domain/ai-attempt.types.js";
 import {
   DeterministicAiAttemptAdapter,
   type DeterministicAttemptScenario,
-} from "../src/ai-execution/domain/ai-attempt.adapter.js";
-import type { AiAttemptRequest } from "../src/ai-execution/domain/ai-attempt.types.js";
+} from "../src/ai-execution/infrastructure/deterministic-ai-attempt.adapter.js";
 import { PostgresAiAttemptRepository } from "../src/ai-execution/infrastructure/postgres-ai-attempt.repository.js";
 import { PostgresAiSynthesisAttemptRepository } from "../src/ai-execution/infrastructure/postgres-ai-synthesis-attempt.repository.js";
 import { ProductWorkProcessor } from "../src/background-work/application/product-work.processor.js";
@@ -21,8 +26,10 @@ import { EvaluationProcessCoordinator } from "../src/geo-intelligence/applicatio
 import { EvaluationReportService } from "../src/geo-intelligence/application/evaluation-report.service.js";
 import { EvaluationSynthesisCoordinator } from "../src/geo-intelligence/application/evaluation-synthesis.coordinator.js";
 import { EvaluationService } from "../src/geo-intelligence/application/evaluation.service.js";
+import { OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
 import { DeterministicEvaluationQuestionGenerator } from "../src/geo-intelligence/domain/question-generator.js";
 import { parseStoredSampleSemantic } from "../src/geo-intelligence/domain/sample-parser.contract.js";
+import { SAMPLE_PARSER_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/sample-parser-model.contract.js";
 import { PostgresEvaluationProcessRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation-process.repository.js";
 import { PostgresEvaluationReportRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation-report.repository.js";
 import { PostgresEvaluationSynthesisRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation-synthesis.repository.js";
@@ -155,7 +162,7 @@ describe("resumable evaluation evidence", () => {
       taskKind: "STRUCTURED_OUTPUT",
       systemInstruction: expect.any(String),
       outputContract: {
-        version: "1.0.0",
+        version: SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
         jsonSchema: expect.any(Object),
       },
     });
@@ -207,6 +214,7 @@ describe("resumable evaluation evidence", () => {
       "model",
       "sources",
       "searchUsed",
+      "searchObservation",
       "attemptNumber",
       "traceId",
       "internalGuidance",
@@ -239,7 +247,7 @@ describe("resumable evaluation evidence", () => {
     });
     expect(synthesisAttempt.requestPayload).toMatchObject({
       taskKind: "STRUCTURED_OUTPUT",
-      outputContract: { version: "evaluation.overall-synthesis@1" },
+      outputContract: { version: OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION },
     });
     expect(synthesisAttempt.requestPayload).not.toHaveProperty(
       "synthesisInputHash",
@@ -604,12 +612,100 @@ describe("resumable evaluation evidence", () => {
         },
       }),
     ).toBe(2);
+    const rejected = await prisma.aiExecutionAttempt.findFirstOrThrow({
+      where: {
+        sampleId: controlledSampleId,
+        purpose: "EVALUATION_INTERPRETATION",
+        attemptNumber: 1,
+      },
+    });
+    expect(rejected).toMatchObject({
+      status: "FAILED",
+      failureClass: "SEMANTIC_CONTRACT_REJECTED",
+      retryable: true,
+      responseEnvelope: {
+        schemaVersion: "ai-attempt-envelope@1",
+        semanticDisposition: {
+          kind: "REJECTED",
+          failureClass: "SEMANTIC_CONTRACT_REJECTED",
+          modelContractVersion: "evaluation.sample-parser-model@2",
+          domainContractVersion: "1.0.0",
+        },
+      },
+    });
     const interpretation =
       await prisma.evaluationSampleInterpretation.findUniqueOrThrow({
         where: { sampleId: controlledSampleId },
         include: { acceptedAttempt: true },
       });
     expect(interpretation.acceptedAttempt.attemptNumber).toBe(2);
+    expect(
+      await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
+    ).toMatchObject({ stage: "REPORT_ACCEPTED" });
+  });
+
+  it("uses Model Studio Qwen primary retry and TokenHub Hy3 fallback only for parsing", async () => {
+    let controlledSampleId: string | undefined;
+    const failPrimaryParser: DeterministicAttemptScenario = (request) => {
+      if (
+        request.purpose === "EVALUATION_ACQUISITION" &&
+        positionKey(request) === "1:DeepSeek"
+      ) {
+        controlledSampleId = request.sampleId;
+      }
+      if (
+        request.purpose === "EVALUATION_INTERPRETATION" &&
+        request.sampleId === controlledSampleId &&
+        request.attemptNumber < 3
+      ) {
+        return {
+          kind: "FAILED",
+          failureClass: "CONTROLLED_PRIMARY_PARSER_FAILURE",
+          retryable: true,
+        };
+      }
+      return undefined;
+    };
+    const { runId, processor, outbox } = await startScenario(failPrimaryParser);
+    await drain(processor, outbox);
+
+    expect(controlledSampleId).toBeDefined();
+    const attempts = await prisma.aiExecutionAttempt.findMany({
+      where: {
+        sampleId: controlledSampleId,
+        purpose: "EVALUATION_INTERPRETATION",
+      },
+      orderBy: { attemptNumber: "asc" },
+    });
+    expect(
+      attempts.map(
+        ({ routePolicyId, providerKey, requestedModel, attemptNumber }) => ({
+          routePolicyId,
+          providerKey,
+          requestedModel,
+          attemptNumber,
+        }),
+      ),
+    ).toEqual([
+      {
+        routePolicyId: "evaluation.interpretation.qwen-primary@1",
+        providerKey: "deterministic-parser",
+        requestedModel: "qwen3.8-flash",
+        attemptNumber: 1,
+      },
+      {
+        routePolicyId: "evaluation.interpretation.qwen-primary@1",
+        providerKey: "deterministic-parser",
+        requestedModel: "qwen3.8-flash",
+        attemptNumber: 2,
+      },
+      {
+        routePolicyId: "evaluation.interpretation.hy3-fallback@1",
+        providerKey: "deterministic-parser-fallback",
+        requestedModel: "hy3",
+        attemptNumber: 3,
+      },
+    ]);
     expect(
       await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
     ).toMatchObject({ stage: "REPORT_ACCEPTED" });
@@ -656,6 +752,93 @@ describe("resumable evaluation evidence", () => {
     ).toMatchObject({ stage: "REPORT_ACCEPTED" });
   });
 
+  it("defers a live duplicate without completing its outbox event or sending a second request", async () => {
+    const blocking = new BlockingAiAttemptAdapter();
+    const { processor, outbox } = await startScenario(
+      undefined,
+      false,
+      blocking,
+      5_000,
+    );
+    const [started] = await outbox.findDeliverable(1);
+    await processor.apply(started!.id);
+    const acquisition = await prisma.productOutboxEvent.findFirstOrThrow({
+      where: { eventType: "evaluation.sample.acquire.requested" },
+      orderBy: { createdAt: "asc" },
+    });
+
+    const first = processor.apply(acquisition.id);
+    await blocking.waitUntilStarted();
+    const duplicate = await processor.apply(acquisition.id);
+    expect(duplicate).toMatchObject({ kind: "DEFERRED" });
+    expect(blocking.callCount).toBe(1);
+    const deferredEvent = await prisma.productOutboxEvent.findUniqueOrThrow({
+      where: { id: acquisition.id },
+    });
+    expect(["PENDING", "DISPATCHED"]).toContain(deferredEvent.status);
+
+    blocking.release();
+    await first;
+    expect(
+      await prisma.productOutboxEvent.findUniqueOrThrow({
+        where: { id: acquisition.id },
+      }),
+    ).toMatchObject({ status: "COMPLETED" });
+    expect(await prisma.aiExecutionAttempt.count()).toBe(1);
+  });
+
+  it("closes an expired in-flight attempt as ambiguous and drops its late result", async () => {
+    const blocking = new BlockingAiAttemptAdapter();
+    const { runId, processor, outbox } = await startScenario(
+      undefined,
+      false,
+      blocking,
+      20,
+    );
+    const [started] = await outbox.findDeliverable(1);
+    await processor.apply(started!.id);
+    const acquisition = await prisma.productOutboxEvent.findFirstOrThrow({
+      where: { eventType: "evaluation.sample.acquire.requested" },
+      orderBy: { createdAt: "asc" },
+    });
+
+    const first = processor.apply(acquisition.id);
+    await blocking.waitUntilStarted();
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    await processor.apply(acquisition.id);
+    blocking.release();
+    await first;
+
+    const ambiguous = await prisma.aiExecutionAttempt.findFirstOrThrow({
+      where: {
+        runId,
+        attemptNumber: 1,
+        failureClass: "AMBIGUOUS_INTERRUPTION",
+      },
+    });
+    expect(ambiguous).toMatchObject({ status: "FAILED", retryable: true });
+    expect(ambiguous.responseEnvelope).toMatchObject({
+      schemaVersion: "ai-attempt-envelope@1",
+      providerEvidence: {
+        failure: { kind: "AMBIGUOUS_INTERRUPTION" },
+      },
+    });
+
+    await drain(processor, outbox);
+    expect(
+      await prisma.aiExecutionAttempt.count({
+        where: {
+          sampleId: ambiguous.sampleId,
+          purpose: "EVALUATION_ACQUISITION",
+        },
+      }),
+    ).toBe(2);
+    expect(await prisma.evaluationSampleEvidence.count()).toBe(20);
+    expect(
+      await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
+    ).toMatchObject({ stage: "REPORT_ACCEPTED" });
+  });
+
   it("uses the primary retry and fallback slots before accepting a report", async () => {
     const failPrimaryRoutes: DeterministicAttemptScenario = (request) =>
       request.purpose === "OVERALL_SYNTHESIS" && request.attemptNumber < 3
@@ -678,6 +861,11 @@ describe("resumable evaluation evidence", () => {
       "deterministic-synthesis-primary",
       "deterministic-synthesis-fallback",
     ]);
+    expect(attempts.map((attempt) => attempt.routePolicyId)).toEqual([
+      "evaluation.overall-synthesis.qwen-primary@1",
+      "evaluation.overall-synthesis.qwen-primary@1",
+      "evaluation.overall-synthesis.hy3-fallback@1",
+    ]);
     expect(
       await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
     ).toMatchObject({ status: "COMPLETED", stage: "REPORT_ACCEPTED" });
@@ -694,6 +882,36 @@ describe("resumable evaluation evidence", () => {
     await drain(processor, outbox);
 
     expect(await prisma.aiSynthesisAttempt.count({ where: { runId } })).toBe(3);
+    const rejectedAttempts = await prisma.aiSynthesisAttempt.findMany({
+      where: { runId },
+      orderBy: { attemptNumber: "asc" },
+    });
+    expect(
+      rejectedAttempts.map((attempt) => ({
+        status: attempt.status,
+        failureClass: attempt.failureClass,
+        retryable: attempt.retryable,
+        semanticDisposition:
+          typeof attempt.responseEnvelope === "object" &&
+          attempt.responseEnvelope !== null &&
+          !Array.isArray(attempt.responseEnvelope) &&
+          "semanticDisposition" in attempt.responseEnvelope
+            ? attempt.responseEnvelope.semanticDisposition
+            : undefined,
+      })),
+    ).toEqual(
+      Array.from({ length: 3 }, () => ({
+        status: "FAILED",
+        failureClass: "SEMANTIC_CONTRACT_REJECTED",
+        retryable: true,
+        semanticDisposition: {
+          kind: "REJECTED",
+          failureClass: "SEMANTIC_CONTRACT_REJECTED",
+          modelContractVersion: "evaluation.overall-synthesis-model@2",
+          domainContractVersion: "evaluation.overall-synthesis@1",
+        },
+      })),
+    );
     expect(
       await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
     ).toMatchObject({
@@ -808,6 +1026,8 @@ describe("resumable evaluation evidence", () => {
   async function startScenario(
     scenario?: DeterministicAttemptScenario,
     telemetryShouldFail = false,
+    adapterOverride?: AiAttemptAdapter,
+    ambiguityTimeoutMs = 210_000,
   ) {
     const brand = await brands.create(accountId, {
       companyName: "星河咖啡",
@@ -824,14 +1044,17 @@ describe("resumable evaluation evidence", () => {
     const definition = await evaluations.prepareDefinition(accountId, brand.id);
     const run = await evaluations.startRun(accountId, definition.id);
     const processRepository = new PostgresEvaluationProcessRepository(prisma);
-    const adapter = new DeterministicAiAttemptAdapter(scenario);
+    const adapter =
+      adapterOverride ?? new DeterministicAiAttemptAdapter(scenario);
     const ai = new AiExecutionService(
       new PostgresAiAttemptRepository(prisma),
       adapter,
+      ambiguityTimeoutMs,
     );
     const synthesisAi = new AiSynthesisExecutionService(
       new PostgresAiSynthesisAttemptRepository(prisma),
       adapter,
+      ambiguityTimeoutMs,
     );
     const synthesis = new EvaluationSynthesisCoordinator(
       new PostgresEvaluationSynthesisRepository(prisma),
@@ -887,6 +1110,40 @@ describe("resumable evaluation evidence", () => {
     throw new Error("Overall-analysis work fact was not created");
   }
 });
+
+class BlockingAiAttemptAdapter implements AiAttemptAdapter {
+  readonly delegate = new DeterministicAiAttemptAdapter();
+  callCount = 0;
+  private startedResolve!: () => void;
+  private releaseResolve!: () => void;
+  private readonly started = new Promise<void>((resolve) => {
+    this.startedResolve = resolve;
+  });
+  private readonly released = new Promise<void>((resolve) => {
+    this.releaseResolve = resolve;
+  });
+
+  resolve(request: AiAttemptRequest) {
+    return this.delegate.resolve(request);
+  }
+
+  async execute(request: ResolvedAiAttemptRequest): Promise<AiAdapterResult> {
+    this.callCount += 1;
+    if (this.callCount === 1 && request.purpose === "EVALUATION_ACQUISITION") {
+      this.startedResolve();
+      await this.released;
+    }
+    return this.delegate.execute(request);
+  }
+
+  waitUntilStarted() {
+    return this.started;
+  }
+
+  release() {
+    this.releaseResolve();
+  }
+}
 
 async function clearProductQueue(): Promise<void> {
   const queue = new Queue("geoeval-product", {

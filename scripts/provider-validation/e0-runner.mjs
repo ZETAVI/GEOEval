@@ -23,6 +23,35 @@ const OBJECTIVITY_INSTRUCTION_PROFILE = JSON.parse(
     "utf8",
   ),
 );
+const REAL_ROUTE_CATALOG = JSON.parse(
+  await readFile(
+    new URL(
+      "../../apps/backend/ai-execution/real-routes.json",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
+if (
+  REAL_ROUTE_CATALOG.version !== "evaluation-real-routes@1" ||
+  !Array.isArray(REAL_ROUTE_CATALOG.routes)
+) {
+  throw new Error("Invalid production real-route catalog");
+}
+function productionRoute(routePolicyId) {
+  const route = REAL_ROUTE_CATALOG.routes.find(
+    (candidate) => candidate.routePolicyId === routePolicyId,
+  );
+  if (!route) throw new Error(`Missing production route ${routePolicyId}`);
+  return route;
+}
+const productionSamplingRoutes = {
+  deepseek: productionRoute("evaluation.deepseek"),
+  hunyuan: productionRoute("evaluation.hunyuan"),
+  doubao: productionRoute("evaluation.doubao"),
+  qwen: productionRoute("evaluation.qwen"),
+  ernie: productionRoute("evaluation.ernie"),
+};
 if (
   typeof OBJECTIVITY_INSTRUCTION_PROFILE.id !== "string" ||
   typeof OBJECTIVITY_INSTRUCTION_PROFILE.version !== "string" ||
@@ -59,20 +88,23 @@ const routeDefinitions = {
     serviceClass: "platform",
     credential: "TOKENHUB_API_KEY",
     method: "GET",
-    expectedModels: ["deepseek-v4-flash", "hy3"],
+    expectedModels: [
+      productionSamplingRoutes.deepseek.requestedModel,
+      productionSamplingRoutes.hunyuan.requestedModel,
+    ],
     url: () =>
       `${baseUrl("TOKENHUB_BASE_URL", "https://tokenhub.tencentmaas.com/v1")}/models`,
   },
   "tokenhub-deepseek": {
-    provider: "tencent-tokenhub",
-    serviceClass: "platform",
+    provider: productionSamplingRoutes.deepseek.providerKey,
+    serviceClass: productionSamplingRoutes.deepseek.serviceClass,
     credential: "TOKENHUB_API_KEY",
-    model: "deepseek-v4-flash",
+    model: productionSamplingRoutes.deepseek.requestedModel,
     method: "POST",
     url: () =>
       `${baseUrl("TOKENHUB_BASE_URL", "https://tokenhub.tencentmaas.com/v1")}/chat/completions`,
     body: (input, fixture, instruction) => ({
-      model: "deepseek-v4-flash",
+      model: productionSamplingRoutes.deepseek.requestedModel,
       messages: [
         ...(instruction ? [{ role: "system", content: instruction }] : []),
         { role: "user", content: input },
@@ -96,15 +128,15 @@ const routeDefinitions = {
     }),
   },
   "tokenhub-hy3": {
-    provider: "tencent-tokenhub",
-    serviceClass: "platform",
+    provider: productionSamplingRoutes.hunyuan.providerKey,
+    serviceClass: productionSamplingRoutes.hunyuan.serviceClass,
     credential: "TOKENHUB_API_KEY",
-    model: "hy3",
+    model: productionSamplingRoutes.hunyuan.requestedModel,
     method: "POST",
     url: () =>
       `${baseUrl("TOKENHUB_BASE_URL", "https://tokenhub.tencentmaas.com/v1")}/responses`,
     body: (input, fixture, instruction) => ({
-      model: "hy3",
+      model: productionSamplingRoutes.hunyuan.requestedModel,
       input,
       ...(instruction ? { instructions: instruction } : {}),
       stream: false,
@@ -129,15 +161,15 @@ const routeDefinitions = {
     }),
   },
   doubao: {
-    provider: "volcengine-ark",
-    serviceClass: "ark-runtime",
+    provider: productionSamplingRoutes.doubao.providerKey,
+    serviceClass: productionSamplingRoutes.doubao.serviceClass,
     credential: "ARK_API_KEY",
-    model: "doubao-seed-2-0-lite-260428",
+    model: productionSamplingRoutes.doubao.requestedModel,
     method: "POST",
     url: () =>
       `${baseUrl("ARK_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3")}/responses`,
     body: (input, fixture, instruction) => ({
-      model: "doubao-seed-2-0-lite-260428",
+      model: productionSamplingRoutes.doubao.requestedModel,
       input,
       ...(instruction ? { instructions: instruction } : {}),
       store: false,
@@ -146,16 +178,16 @@ const routeDefinitions = {
     }),
   },
   qwen: {
-    provider: "alibaba-model-studio",
-    serviceClass: "pay-as-you-go",
+    provider: productionSamplingRoutes.qwen.providerKey,
+    serviceClass: productionSamplingRoutes.qwen.serviceClass,
     credential: "DASHSCOPE_API_KEY",
-    model: "qwen3.7-flash",
+    model: productionSamplingRoutes.qwen.requestedModel,
     method: "POST",
     timeoutMs: 300_000,
     url: () =>
       `${baseUrl("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")}/responses`,
     body: (input, fixture, instruction) => ({
-      model: "qwen3.7-flash",
+      model: productionSamplingRoutes.qwen.requestedModel,
       input,
       ...(instruction ? { instructions: instruction } : {}),
       ...(fixture === "R00" ? { enable_thinking: false } : {}),
@@ -163,15 +195,15 @@ const routeDefinitions = {
     }),
   },
   ernie: {
-    provider: "baidu-qianfan",
-    serviceClass: "v2-chat",
+    provider: productionSamplingRoutes.ernie.providerKey,
+    serviceClass: productionSamplingRoutes.ernie.serviceClass,
     credential: "QIANFAN_API_KEY",
-    model: "ernie-4.5-turbo-128k",
+    model: productionSamplingRoutes.ernie.requestedModel,
     method: "POST",
     url: () =>
       `${baseUrl("QIANFAN_BASE_URL", "https://qianfan.baidubce.com/v2")}/chat/completions`,
     body: (input, fixture, instruction) => ({
-      model: "ernie-4.5-turbo-128k",
+      model: productionSamplingRoutes.ernie.requestedModel,
       messages: [
         ...(instruction ? [{ role: "system", content: instruction }] : []),
         { role: "user", content: input },

@@ -26,7 +26,9 @@
     "e0:entitlement": "node --env-file=.env scripts/provider-validation/e0-runner.mjs entitlement",
     "e0:probe": "node --env-file=.env scripts/provider-validation/e0-runner.mjs probe",
     "e0:instruction-batch": "node --env-file=.env scripts/provider-validation/e0-runner.mjs instruction-batch",
-    "e0:report": "node --env-file=.env scripts/provider-validation/e0-runner.mjs report"
+    "e0:report": "node --env-file=.env scripts/provider-validation/e0-runner.mjs report",
+    "s6:plan": "pnpm --filter @geoeval/backend s6:plan",
+    "s6:execute": "pnpm --filter @geoeval/backend s6:execute"
   },
   "devDependencies": {
     "prettier": "3.9.6",

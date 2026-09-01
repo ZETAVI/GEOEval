@@ -20,7 +20,7 @@ export class WorkerModule {
         PersistenceModule.register(config.databaseUrl),
         TelemetryModule.register(config.telemetryShouldFail),
         FoundationModule,
-        BackgroundWorkModule,
+        BackgroundWorkModule.register(config.aiExecution),
       ],
       providers: [
         { provide: REDIS_URL, useValue: config.redisUrl },

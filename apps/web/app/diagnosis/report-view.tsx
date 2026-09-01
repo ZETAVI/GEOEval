@@ -258,9 +258,6 @@ export function EvaluationReportView({
         <span>
           评测时间：{new Date(report.acceptedAt).toLocaleString("zh-CN")}
         </span>
-        {report.document.limitations.length > 0 && (
-          <span>说明：{report.document.limitations.join("；")}</span>
-        )}
       </footer>
     </div>
   );
