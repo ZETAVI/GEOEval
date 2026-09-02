@@ -43,7 +43,7 @@
 - [x] Reconcile accepted administrator-workspace behavior into the owner-local
       Media Supply current spec, review the product-definition evolution marker,
       archive this Change, and rerun framework validation.
-- [ ] Commit and push the coherent result, open a Final PR with `Closes #37`,
+- [x] Commit and push the coherent result, open Final PR #38 with `Closes #37`,
       map acceptance to evidence and residual risk, move #37 to Review /
       Decision, and retain the branch/worktree for product-owner review without
       self-merge, deployment, or real-data import.
