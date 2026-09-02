@@ -20,8 +20,11 @@
       checks.
 - [x] Reconcile the current spec and architecture owner, then complete a fixed-
       diff review.
-- [ ] Commit and push the stacked branch; update Draft PR #35 and Issue #32 with
+- [x] Commit and push the stacked branch; update Draft PR #35 and Issue #32 with
       evidence and the unchanged integration order.
+- [ ] After #26 reaches `main` and integration is authorized, reconcile this
+      stacked branch against current `main`, rerun Required Checks, and complete
+      the normal review, merge, archive, and workspace-exit gates.
 
 ## Verification evidence
 
