@@ -144,7 +144,8 @@ telemetry exporter.
 ### Requirement: Protected and non-blocking execution observability
 
 AI Execution SHALL retain enough protected evidence to inspect each approved AI
-purpose without transferring customer business truth to telemetry.
+purpose without making telemetry a business truth source or exporting customer
+content by default.
 
 #### Scenario: An internal owner inspects an AI execution
 
@@ -159,8 +160,26 @@ purpose without transferring customer business truth to telemetry.
   complete answers, interpretations, and reports
 - **AND** telemetry unavailability cannot reject or lose accepted business
   evidence
-- **AND** exporting sensitive prompts or outputs requires a separate approved
-  data and retention boundary
+- **AND** Langfuse remains metadata-only by default, and production startup
+  rejects the local diagnostic content mode
+
+#### Scenario: A controlled local diagnostic is explicitly enabled
+
+- **WHEN** a development or test Worker explicitly enables local diagnostic
+  content for fictional or otherwise approved test data
+- **THEN** the Generation input contains a versioned projection of the exact
+  system instruction, its content fingerprint, task context, and applicable
+  output-contract version/schema
+- **AND** its output contains only the provider-neutral normalized result or a
+  stable failure-class/retryability summary
+- **AND** credentials, Authorization values, API keys, Provider request/response
+  envelopes, response headers, source evidence, and reasoning chains are always
+  removed by the controlled projection and serialized export mask
+- **AND** environment, optional release/revision, purpose, route, attempt,
+  run/sample correlation, status, latency, and available usage remain technical
+  observability metadata
+- **AND** production content transfer, retention, and access require a separate
+  approved data boundary
 
 ### Requirement: Readiness boundary
 

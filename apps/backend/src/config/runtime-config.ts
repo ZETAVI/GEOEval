@@ -62,10 +62,14 @@ const workerSchema = commonSchema.extend({
   DASHSCOPE_API_KEY: z.string().default(""),
   QIANFAN_API_KEY: z.string().default(""),
   AI_TELEMETRY_MODE: z.enum(["disabled", "langfuse"]).default("disabled"),
+  AI_TELEMETRY_CONTENT_MODE: z
+    .enum(["metadata-only", "local-diagnostic"])
+    .default("metadata-only"),
   LANGFUSE_SECRET_KEY: z.string().default(""),
   LANGFUSE_PUBLIC_KEY: z.string().default(""),
   LANGFUSE_BASE_URL: z.string().url().default("https://us.cloud.langfuse.com"),
   LANGFUSE_TRACING_ENVIRONMENT: z.string().min(1).default("development"),
+  LANGFUSE_RELEASE: z.string().trim().max(200).default(""),
 });
 
 export type ApiConfig = {
@@ -184,6 +188,14 @@ export function loadWorkerConfig(
 function aiTelemetryConfig(
   parsed: z.infer<typeof workerSchema>,
 ): AiExecutionConfig["telemetry"] {
+  if (
+    parsed.NODE_ENV === "production" &&
+    parsed.AI_TELEMETRY_CONTENT_MODE === "local-diagnostic"
+  ) {
+    throw new Error(
+      "AI_TELEMETRY_CONTENT_MODE=local-diagnostic is forbidden in production",
+    );
+  }
   if (parsed.AI_TELEMETRY_MODE === "disabled") return { mode: "disabled" };
   if (!parsed.LANGFUSE_PUBLIC_KEY.trim()) {
     throw new Error(
@@ -205,6 +217,8 @@ function aiTelemetryConfig(
     secretKey: parsed.LANGFUSE_SECRET_KEY,
     baseUrl: parsed.LANGFUSE_BASE_URL.replace(/\/$/, ""),
     environment: parsed.LANGFUSE_TRACING_ENVIRONMENT,
+    contentMode: parsed.AI_TELEMETRY_CONTENT_MODE,
+    ...(parsed.LANGFUSE_RELEASE ? { release: parsed.LANGFUSE_RELEASE } : {}),
   };
 }
 

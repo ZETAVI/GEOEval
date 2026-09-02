@@ -1,3 +1,5 @@
+export type AiTelemetryContentMode = "metadata-only" | "local-diagnostic";
+
 export type AiTelemetryConfig =
   | { mode: "disabled" }
   | {
@@ -6,6 +8,8 @@ export type AiTelemetryConfig =
       secretKey: string;
       baseUrl: string;
       environment: string;
+      contentMode: AiTelemetryContentMode;
+      release?: string;
     };
 
 type CommonAiExecutionConfig = {

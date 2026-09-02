@@ -101,6 +101,46 @@ describe("process-scoped configuration", () => {
       secretKey: "secret-test-key",
       baseUrl: "http://127.0.0.1:4200",
       environment: "development",
+      contentMode: "metadata-only",
     });
+
+    expect(
+      loadWorkerConfig({
+        ...base,
+        AI_TELEMETRY_CONTENT_MODE: "local-diagnostic",
+        LANGFUSE_PUBLIC_KEY: "public-test-key",
+        LANGFUSE_SECRET_KEY: "secret-test-key",
+        LANGFUSE_RELEASE: "issue-44-test-revision",
+      }).aiExecution.telemetry,
+    ).toEqual({
+      mode: "langfuse",
+      publicKey: "public-test-key",
+      secretKey: "secret-test-key",
+      baseUrl: "http://127.0.0.1:4200",
+      environment: "development",
+      contentMode: "local-diagnostic",
+      release: "issue-44-test-revision",
+    });
+  });
+
+  it("rejects local diagnostic telemetry content in production", () => {
+    expect(() =>
+      loadWorkerConfig({
+        NODE_ENV: "production",
+        DATABASE_URL: "postgresql://example/worker",
+        REDIS_URL: "redis://example:6379",
+        AI_EXECUTION_MODE: "real",
+        AI_TELEMETRY_MODE: "disabled",
+        AI_TELEMETRY_CONTENT_MODE: "local-diagnostic",
+        TOKENHUB_BASE_URL: "https://tokenhub.example/v1",
+        ARK_BASE_URL: "https://ark.example/v1",
+        DASHSCOPE_BASE_URL: "https://model-studio.example/v1",
+        QIANFAN_BASE_URL: "https://qianfan.example/v1",
+        TOKENHUB_API_KEY: "tokenhub-test-key",
+        ARK_API_KEY: "ark-test-key",
+        DASHSCOPE_API_KEY: "dashscope-test-key",
+        QIANFAN_API_KEY: "qianfan-test-key",
+      }),
+    ).toThrow("local-diagnostic is forbidden in production");
   });
 });

@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { startObservation, type LangfuseGeneration } from "@langfuse/tracing";
 
 import type {
@@ -8,13 +10,29 @@ import type {
   AiAdapterResult,
   ResolvedAiAttemptRequest,
 } from "../domain/ai-attempt.types.js";
+import type { AiTelemetryContentMode } from "./ai-execution.config.js";
+import { maskTelemetryData } from "./ai-telemetry.mask.js";
+
+const observationVersion = "geoeval.ai-attempt.telemetry@1";
+const inputProjectionVersion = "geoeval.ai-attempt.input@1";
+const outputProjectionVersion = "geoeval.ai-attempt.output@1";
 
 export class LangfuseAiAttemptTelemetry implements AiAttemptTelemetry {
+  constructor(
+    private readonly contentMode: AiTelemetryContentMode = "metadata-only",
+  ) {}
+
   start(request: ResolvedAiAttemptRequest): AiAttemptTelemetryHandle {
+    const input =
+      this.contentMode === "local-diagnostic"
+        ? diagnosticInputProjection(request)
+        : undefined;
     const observation = startObservation(
       observationName(request.purpose),
       {
         model: request.requestedModel,
+        version: observationVersion,
+        ...(input === undefined ? {} : { input }),
         metadata: {
           correlationId: request.correlationId,
           runId: request.runId,
@@ -26,13 +44,14 @@ export class LangfuseAiAttemptTelemetry implements AiAttemptTelemetry {
           serviceClass: request.serviceClass,
           protocol: request.protocol,
           attemptNumber: request.attemptNumber,
+          contentMode: this.contentMode,
         },
       },
       { asType: "generation" },
     );
     return {
       finish: (result, latencyMs) =>
-        finishObservation(observation, result, latencyMs),
+        finishObservation(observation, result, latencyMs, this.contentMode),
     };
   }
 }
@@ -41,6 +60,7 @@ function finishObservation(
   observation: LangfuseGeneration,
   result: AiAdapterResult,
   latencyMs: number,
+  contentMode: AiTelemetryContentMode,
 ) {
   const usage = usageDetails(result.usage);
   observation.update({
@@ -67,8 +87,73 @@ function finishObservation(
         : {}),
     },
     ...(usage ? { usageDetails: usage } : {}),
+    ...(contentMode === "local-diagnostic"
+      ? { output: diagnosticOutputProjection(result) }
+      : {}),
   });
   observation.end();
+}
+
+export function diagnosticInputProjection(
+  request: ResolvedAiAttemptRequest,
+): unknown {
+  const prompt = {
+    systemInstruction: request.input.systemInstruction,
+    contentHash: createHash("sha256")
+      .update(request.input.systemInstruction)
+      .digest("hex"),
+  };
+  const projection =
+    request.input.taskKind === "EVALUATION_ACQUISITION"
+      ? {
+          schemaVersion: inputProjectionVersion,
+          purpose: request.purpose,
+          prompt,
+          task: {
+            taskKind: request.input.taskKind,
+            companyName: request.input.companyName,
+            query: request.input.query,
+            questionOrdinal: request.input.questionOrdinal,
+            platformLabel: request.input.platformLabel,
+            location: {
+              province: request.input.province,
+              city: request.input.city,
+            },
+          },
+        }
+      : {
+          schemaVersion: inputProjectionVersion,
+          purpose: request.purpose,
+          prompt,
+          task: {
+            taskKind: request.input.taskKind,
+            userContext: request.input.userContext,
+            outputContract: {
+              version: request.input.outputContract.version,
+              jsonSchema: request.input.outputContract.jsonSchema,
+            },
+          },
+        };
+  return maskTelemetryData(projection, "local-diagnostic");
+}
+
+export function diagnosticOutputProjection(result: AiAdapterResult): unknown {
+  const projection =
+    result.kind === "SUCCEEDED"
+      ? {
+          schemaVersion: outputProjectionVersion,
+          status: result.kind,
+          normalizedOutput: result.output,
+        }
+      : {
+          schemaVersion: outputProjectionVersion,
+          status: result.kind,
+          failure: {
+            failureClass: result.failureClass,
+            retryable: result.retryable,
+          },
+        };
+  return maskTelemetryData(projection, "local-diagnostic");
 }
 
 function usageDetails(
