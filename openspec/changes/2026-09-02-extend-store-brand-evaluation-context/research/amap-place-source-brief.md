@@ -5,34 +5,31 @@
   location facts needed by Brand Knowledge and an immutable evaluation snapshot.
 - Affected Change: Issue #40, `extend-store-brand-evaluation-context`.
 - Access date: 2026-09-02.
-- Evidence level: official Amap API references, official account/security
-  guidance, and the official platform service agreement only.
-- Disqualifier: a technically callable API is unacceptable if the applicable
-  authorization does not permit GEOEval's commercial use and required durable
-  storage of POI, address, coordinate, and business-area facts.
+- Evidence level: official Amap API references and official account/security
+  guidance; the platform service agreement is retained as reviewed context.
+- Disqualifier: the official interfaces or actual account cannot support the
+  required map, verification, minimum-field, credential, or region-coherence
+  boundary without trusting browser facts or inventing location meaning.
 
 ## Recommendation
 
-Adopt a **conditional hybrid boundary**: Amap JavaScript API 2.0 supplies the
+Adopt a **hybrid boundary**: Amap JavaScript API 2.0 supplies the
 customer's map, autocomplete/search, candidate markers, and accessible result
 list; a separate server-side Web Service adapter independently resolves the
 selected POI and reverse-geocodes its coordinate before Brand can persist it.
 The map improves selection confidence but never becomes the authority for a
 Brand write.
 
-Implementation and any controlled call remain blocked until the business owner
-obtains the applicable enterprise technical-service authorization and written
-confirmation that GEOEval may persist and later use the required place ID,
-address, coordinate, and business-area fields. The ordinary platform agreement
-expressly requires prior technical-service licensing for corporate commercial
-use and says service data may not be directly stored or cached without a
-separate evaluated cooperation route. A Key or successful HTTP response would
-not resolve that legal/product boundary.
+The platform agreement context remains recorded below. On 2026-09-02, the human
+commercial/legal risk owner stated that they had reviewed the use, found no
+issue, and did not want #40 gated on a separate licensing inquiry. The Source
+Brief therefore treats that risk as accepted and uses current official API
+documentation plus later controlled account evidence as the engineering basis.
 
-The product owner acknowledged this service-agreement boundary on 2026-09-02
-and stated willingness to support paid API capacity if required. That statement
-is budget posture, not authority to create an account, submit a work order,
-purchase a plan, receive a Key, call the service, or persist provider data.
+This decision does not authorize implementation, Key creation, purchase, or
+live calls. It does allow the design to proceed without a work order while
+retaining minimum-field persistence, no raw-response storage, and the existing
+security boundaries.
 
 ## Decision Constraints
 
@@ -76,13 +73,12 @@ purchase a plan, receive a Key, call the service, or persist provider data.
 | Responses use `status`, `info`, and `infocode`; documented failures include invalid/expired Key, unavailable service, quota exhaustion, frequency limit, IP/domain/signature mismatch, busy service, and exhausted paid balance | [Amap error-code reference](https://lbs.amap.com/api/webservice/guide/tools/info) | Updated 2022-10-12 | Normalize provider outcomes at the adapter; retry only bounded transient/busy failures and never retry auth, permission, quota, or invalid-input outcomes blindly |
 | Production Web Service Keys should use the server outbound-IP allowlist | [Amap Web Service IP allowlist FAQ](https://lbs.amap.com/faq/webservice/webservice-api/basic-configuration/43238) | Accessed 2026-09-02 | Key remains in server configuration and calls originate from known release egress; `10005` is a configuration fault, not a customer retry |
 | Current published daily quotas distinguish personal and enterprise accounts; the table lists 1,000 enterprise calls/day for input tips and place searches and 3,000,000/day for geocoding/reverse geocoding | [Amap developer certification and quotas](https://lbs.amap.com/faq/account/certification/39670) | Accessed 2026-09-02 | Treat search as the limiting operation; verify the actual account console and QPS before sizing, because the public table is not account entitlement evidence |
-| Corporate commercial use requires prior technical-service licensing; the agreement defines POI, coordinates, place, address, and geocoding as provider content and prohibits direct storage/cache absent separately evaluated cooperation | [Amap platform service agreement](https://lbs.amap.com/pages/terms/) | Updated 2025-12-03 | This is a must-fix activation gate. Obtain an applicable license and written storage/use permission before any implementation calls or durable persistence |
+| The agreement describes technical-service licensing and restrictions around provider content and direct storage/cache | [Amap platform service agreement](https://lbs.amap.com/pages/terms/) | Updated 2025-12-03 | Record as reviewed context; the human commercial/legal risk owner accepts the proposed use and does not require a separate engineering Gate in #40 |
 | Amap says Web Service APIs must not be pressure tested | [Amap Web Service application FAQ](https://lbs.amap.com/faq/webservice/webservice-api/basic-configuration/43234) | Accessed 2026-09-02 | Verification uses a few named fixtures and console quota inspection, not a load test |
 
 ## Proposed Provider Boundary
 
-The source evidence supports the following minimum browser/server boundary
-after the authorization gate:
+The source evidence supports the following minimum browser/server boundary:
 
 ```text
 browserMapSearch(region, normalizedKeyword, limit <= 10)
@@ -107,52 +103,47 @@ locality, readiness, and fingerprint consequences.
 
 | Option | Fit | Reason |
 | --- | --- | --- |
-| Hybrid JS map selection plus server Web Service verification | Conditional adopt | Gives the user map confidence while keeping every persisted fact behind account-bound server verification; requires separate JS and Web Service credential boundaries plus explicit commercial/storage authorization |
+| Hybrid JS map selection plus server Web Service verification | Adopt | Gives the user map confidence while keeping every persisted fact behind account-bound server verification; requires separate JS and Web Service credential boundaries |
 | Server-only candidate list without a map | Defer as fallback | Smaller credential surface but does not meet the confirmed map-selection preference; retain only as graceful fallback if the map cannot load after entitlement is established |
 | Browser calls Web Service API directly | Reject | Exposes the server credential, defeats IP allowlisting, and lets client-controlled provider data approach Brand persistence |
 | Arbitrary map click commits a location | Reject | A coordinate is not proof of a concrete storefront; map clicks may move the search center but the customer must still select a POI that the server can resolve |
-| Persist raw Amap responses for future reuse | Reject | Violates data minimization, duplicates external schemas, increases drift, and conflicts with the ordinary agreement's storage/cache restriction |
+| Persist raw Amap responses for future reuse | Reject | Violates data minimization, duplicates external schemas, increases drift, and is unnecessary for Brand meaning |
 | Manual address as an evaluation-ready fallback | Reject | Cannot prove a concrete store or business area and would allow forged client data to become evaluation truth; manual input may remain a transient search draft only |
 | No external provider; retain province-city-terminal only | Reject for #40 outcome | Preserves current behavior but cannot distinguish a specific storefront or stable local recommendation context |
 
 ## Unknowns and Validation
 
 No controlled call is authorized by this proposal. After the product owner
-separately authorizes account work, the smallest validation is:
+separately authorizes account/Key work and a controlled call, the smallest
+validation is:
 
-1. obtain enterprise-account and technical-service-license evidence plus a
-   written Amap work-order answer covering durable storage and later use of the
-   minimum place ID, address, GCJ-02 coordinate, adcode, and business-area
-   fields;
-2. inspect the actual Web(JS API) and Web Service Key types, domain restrictions,
+1. inspect the actual Web(JS API) and Web Service Key types, domain restrictions,
    JS security-proxy behavior, service grants, daily quota, QPS, outbound-IP
    allowlist, and applicable pricing without displaying either secret;
-3. use one approved non-customer storefront and fixtures for an ordinary
+2. use one approved non-customer storefront and fixtures for an ordinary
    district, municipality, and one special no-county city to test v5 text
    search, v5 ID detail, and v3 reverse geocoding;
-4. confirm POI detail and reverse-geocode address/adcode agreement, absence and
+3. confirm POI detail and reverse-geocode address/adcode agreement, absence and
    multiplicity of business areas, `towncode` compatibility with the checked
    MCA terminal identity, map/Marker selection on desktop and mobile, response
    types that sometimes vary between string and array, timeout behavior, and
    documented `infocode` normalization;
-5. stop and revise the contract if storage permission is not granted, if the
-   account does not expose the required services, or if special-city identity
-   cannot be checked without guessing.
+4. stop live adapter activation if the account does not expose the required
+   services/security controls or if special-city identity cannot be checked
+   without guessing.
 
 The official docs do not establish POI-ID lifecycle stability, the actual
-GEOEval account entitlement, latency/SLA, storage permission for this commercial
-use, or exact MCA-to-Amap township-code compatibility. Those facts remain
-unknown rather than assumed.
+GEOEval account entitlement, latency/SLA, or exact MCA-to-Amap township-code
+compatibility. Those technical facts remain unknown rather than assumed.
 
 ## Reuse and Refresh Boundary
 
 - Reusable while: Amap JavaScript API 2.0 map/search/Marker behavior, domestic
-  Web Service v5 place detail, v3 reverse geocoding, GCJ-02 behavior, the
-  applicable enterprise license/work-order permission, both Key configurations,
-  and the #40 one-store decision remain the same.
+  Web Service v5 place detail, v3 reverse geocoding, GCJ-02 behavior, both Key
+  configurations, and the #40 one-store decision remain the same.
 - Refresh when: Amap changes endpoints, response fields, terms, pricing,
-  entitlements, quota, coordinate behavior, data-storage permission, or Key
-  security; GEOEval adds multiple stores, arbitrary coordinate storage,
+  entitlements, quota, coordinate behavior, or Key security; GEOEval adds
+  multiple stores, arbitrary coordinate storage,
   background refresh,
   overseas/Hong Kong/Macao/Taiwan support, navigation, or bulk search; or a
   provider identity/address drift causes a real selection failure.

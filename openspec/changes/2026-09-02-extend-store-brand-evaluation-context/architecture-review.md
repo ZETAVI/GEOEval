@@ -2,7 +2,7 @@
 
 - Review scope: Issue #40 proposal, Amap Source Brief, Brand Knowledge delta,
   design, decision brief, and tasks at the Propose revision.
-- Current authority: `main@af72ba5`, current Brand/product/evaluation specs,
+- Current authority: `main@d6d490d`, current Brand/product/evaluation specs,
   current Prisma/Nest/Web/central-snapshot implementation, archived #27 design,
   and live #26/PR #28 dependency state.
 - Review type: revised pre-implementation architectural gate after product-owner
@@ -39,25 +39,6 @@ Current truth remains unchanged until implementation.
 
 ## Findings
 
-### Must-fix: commercial authorization and durable provider-data use are not established
-
-- **Affected artifact:** Source Brief `Decision Constraints` and design
-  `Operational and Verification Boundary`.
-- **Boundary:** external authorization, legal use, data ownership, and recovery.
-- **Consequence:** the proposed product must persist POI identity, address,
-  coordinate, and business-area facts in Brand and v3 snapshots, while the
-  current official Amap agreement both requires prior technical-service licensing
-  for corporate commercial use and prohibits direct storage/cache absent
-  separately evaluated cooperation. Implementing or calling the adapter without
-  written permission could make the central data contract unauthorized and force
-  a destructive provider/persistence redesign after customer data exists.
-- **Narrow remediation:** before implementation or any controlled call, obtain
-  the applicable enterprise/commercial license and a written work-order/license
-  answer permitting the exact minimum durable fields and later snapshot use. If
-  permission is denied or narrower, revise #40 before code.
-- **Origin:** introduced by #40's required external place persistence, not
-  pre-existing Brand debt.
-
 ### Should-fix before adapter activation: JS/Web Service account and special-city contracts need controlled evidence
 
 - **Affected artifact:** Source Brief `Unknowns and Validation`; design `Verify`.
@@ -68,9 +49,9 @@ Current truth remains unchanged until implementation.
   checked MCA township identities used by special cities. Assuming those facts
   could make the map unavailable, reject valid stores, accept a wrong terminal,
   or make retry/capacity behavior misleading.
-- **Narrow remediation:** after the must-fix authorization and separate call
-  approval, run the named bounded fixtures, inspect actual console grants, and
-  block unsupported special-city readiness rather than guessing.
+- **Narrow remediation:** after separate call approval, run the named bounded
+  fixtures, inspect actual console grants, and block unsupported special-city
+  readiness rather than guessing.
 - **Origin:** external uncertainty exposed by #40.
 
 ## Supported Boundaries
@@ -113,6 +94,9 @@ Current truth remains unchanged until implementation.
 - Provider POI identity stability is undocumented. The Brand-owned semantic fact
   identity prevents provider refresh alone from changing a fingerprint, but a
   deleted/replaced POI may require explicit reselection.
+- The official provider-terms context remains recorded, but the human
+  commercial/legal risk owner reviewed and accepted it on 2026-09-02. It is no
+  longer an architecture must-fix or implementation prerequisite.
 - The two-to-six, character bounds, peer semantics, map-assisted selection,
   address-locality fallback, and development reset are confirmed product
   decisions.
@@ -121,16 +105,16 @@ Current truth remains unchanged until implementation.
 
 ## Review Result
 
-`not ready for implementation`.
+`ready with follow-up`.
 
-The revised module/data/reset boundaries are coherent and the product and
-architecture direction is confirmed, but external commercial/storage
-authorization remains a must-fix prerequisite. The actual JS/Web Service account
-configuration and special-city contract evidence are should-fix items before
-adapter activation. No ADR is required; stable accepted behavior should later
-reconcile into Brand Knowledge, the GEO snapshot seam, executable schemas/tests,
-and architecture overview.
+The revised module/data/reset boundaries are coherent, and the product,
+architecture, and commercial/legal risk direction is confirmed. The previous
+external license/storage must-fix is closed by explicit human risk acceptance.
+The actual JS/Web Service account configuration and special-city contract
+evidence remain should-fix items before live adapter activation. No ADR is
+required; stable accepted behavior should later reconcile into Brand Knowledge,
+the GEO snapshot seam, executable schemas/tests, and architecture overview.
 
-The Draft documentation PR may proceed as a Review / Decision artifact. It must
-not be presented as implementation approval, provider entitlement, production
-readiness, or #40 completion.
+The Draft documentation PR may proceed as a Ready design artifact. It must not
+be presented as implementation authorization, observed provider capability,
+production readiness, or #40 completion.

@@ -1,13 +1,13 @@
 # Change: Extend Store Brand Evaluation Context
 
-- Status: Product and architecture direction confirmed with revisions on
-  2026-09-02; external licensing/storage authorization remains
+- Status: Product, architecture, and commercial/legal risk direction confirmed
+  with revisions on 2026-09-02; ready for explicit implementation authorization
 - Class: Architectural
 - Owning Issue: [#40](https://github.com/ZETAVI/GEOEval/issues/40)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Downstream consumer: [#26 Query Generator](https://github.com/ZETAVI/GEOEval/issues/26)
-- Decision owners: Product owner, architecture owner, and commercial/legal risk
-  owner for the external-location license
+- Decision owners: Product owner and architecture owner; the commercial/legal
+  risk owner has reviewed and accepted the provider-terms boundary
 - Authorization: research and proposal documents only; no implementation,
   Amap Key/application/purchase, Provider call, production change, production
   data migration, Query change, or deployment
@@ -50,8 +50,8 @@ may use that reset path.
 ## Scope
 
 - Current official Amap place search, POI detail, reverse geocoding, business-
-  area, coordinate, Key, quota, error, security, commercial authorization, and
-  storage terms research.
+  area, coordinate, Key, quota, error, security, and account guidance research;
+  provider terms are retained as context rather than an engineering Gate.
 - A conditional Amap JavaScript API 2.0 map/search interaction, a separate
   server-side Store Location verification adapter, server-sealed receipt, typed
   provider outcomes, and customer-actionable failure fallback.
@@ -107,9 +107,10 @@ may use that reset path.
 - Because all current data is development-only, implementation may explicitly
   recreate the development database and activate only Snapshot/Fingerprint v3;
   no v1/v2 runtime compatibility or opportunity migration is required.
-- The product owner accepts the applicable platform-service boundary and is
-  willing to support paid API capacity if required. This does not itself grant
-  a Key, purchase, or permission to persist provider data.
+- The commercial/legal risk owner has reviewed the applicable platform-service
+  boundary and accepts the proposed minimum-field use without requiring a
+  separate licensing work order in #40. Paid API capacity may be supported if
+  account evidence later shows it is needed; purchase remains a separate action.
 
 ## Confirmed Decisions
 
@@ -141,10 +142,12 @@ may use that reset path.
 7. Before v3 activation, recreate the project-named development database from
    empty and remove v1/v2/legacy runtime compatibility from the new path. Do
    not write a migration workflow for data that has never reached production.
-8. Do not implement, call, or persist Amap-derived facts until an applicable
-   enterprise technical-service license and written storage/use permission
-   cover this commercial design. If permission is unavailable, #40 must revise
-   the provider or persistence contract rather than accepting legal risk.
+8. Treat the current official API documentation plus later controlled account
+   evidence as the technical contract. The commercial/legal risk owner accepts
+   the proposed minimum-field persistence boundary; #40 does not require a
+   separate licensing inquiry. Continue to minimize fields, never store raw
+   responses, and stop live activation if the actual account cannot expose the
+   required services or security configuration.
 
 ## Impact
 
@@ -168,7 +171,8 @@ may use that reset path.
 - **Operations/security:** add a domain-restricted Web(JS API) Key, server-side
   JS security-key proxy, separate server-only Web Service Key with outbound-IP
   allowlist, response minimization, secret redaction, quota/error metrics, and a
-  license evidence gate. No external call occurs in a Brand database transaction.
+  controlled account-contract check. No external call occurs in a Brand database
+  transaction.
 - **Delivery:** #40 is a Partial child of #39 and the upstream interface owner
   for #26. #39 cannot release the revised evaluation journey until both #40 and
   the rebased #26 consumer pass their own acceptance and the final integration
@@ -189,26 +193,28 @@ may use that reset path.
 ## Control State
 
 - Branch: `codex/issue-40-store-brand-context`
-- Base: `main@af72ba5f261925525b897c9124c28f5fb574c111`
+- Base: `main@d6d490d215389ce6fb1d687eda72ffa21703a0b7`
 - Workspace: the current isolated #40 Codex worktree; recover its path from live
   workspace state rather than preserving a machine-local location
 - Writer: the #40 task owner; #26 remains a separate single writer for Query
-- Current phase: Review / Decision; product and architecture direction are
-  confirmed, external authorization remains
+- Current phase: Ready for explicit implementation authorization; product,
+  architecture, and commercial/legal risk decisions are confirmed
 - PR relationship: documentation-only Partial PR using
   `Part of #40 — does not close`
-- Exit for this task: Draft PR and Issue #40 updated, then stop at the product,
-  architecture, and external-authorization Gate
+- Exit for this task: Draft PR and Issue #40 updated with the accepted risk
+  disposition, then stop before implementation
 
 ## Approval Boundary
 
-The product and architecture decisions above were confirmed with the recorded
-revisions on 2026-09-02. That confirmation does not authorize code
-implementation, a development-data reset, an Amap account/Key, license purchase,
-a work-order submission, a controlled call, production data, production
+The product, architecture, and commercial/legal risk decisions above were
+confirmed with the recorded revisions on 2026-09-02. The risk owner explicitly
+accepts proceeding from current official API documentation without a separate
+licensing/storage inquiry. That decision removes the previous external legal
+must-fix but does not authorize code implementation, a development-data reset,
+an Amap Key, API purchase, controlled call, production data, production
 deployment, Query/Parser/Synthesis/report changes, or Provider evaluation calls.
 
-Implementation may begin only after a separately authorized Amap licensing/
-storage inquiry resolves the must-fix external-data boundary. The destructive
-development reset, account/Key actions, API purchase, controlled calls, Provider
-calls, and production activation retain their own later authorization gates.
+Implementation still requires an explicit implementation instruction. Key
+creation, API purchase, controlled calls, the destructive development reset,
+Provider calls, and production activation retain their own later authorization
+boundaries.

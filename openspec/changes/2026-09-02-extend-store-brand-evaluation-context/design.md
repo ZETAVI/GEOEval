@@ -1,7 +1,8 @@
 # Design: Store Brand Evaluation Context and Amap Selection
 
 - Product/architecture direction: Confirmed with revisions on 2026-09-02
-- Remaining implementation prerequisite: Amap commercial/storage authorization
+- Commercial/legal risk: reviewed and accepted by its human owner on 2026-09-02
+- Remaining live-adapter follow-up: account/Key and controlled contract evidence
 - Current authorization: documents only; no code, Key, purchase, live call, or
   development-data reset
 
@@ -50,9 +51,9 @@ tables.
 - **Out:** a reusable map platform, navigation, distance ranking, multi-store Brand,
   Query Prompt/Agent lifecycle, Parser, Synthesis, report, Provider evaluation,
   production activation, and raw provider-data warehousing.
-- **Upstream prerequisites:** accepted industry and MCA reference sources,
-  applicable Amap enterprise/commercial and data-storage authorization, and an
-  approved Web(JS API) Key/security-proxy and Web Service Key configuration.
+- **Upstream prerequisites:** accepted industry and MCA reference sources, plus
+  a later approved Web(JS API) Key/security-proxy and Web Service Key
+  configuration for live adapter activation.
 - **Downstream consumers:** registration and Brand management use the public
   field group; GEO freezes the internal projection; #26 uses the final locality,
   flagship value, and peer characteristics.
@@ -143,20 +144,19 @@ current verified location
 | Amap unavailable while editing non-location fields | External dependency unavailable | Save unrelated fields without revalidating unchanged location | Brand application | Existing Store Location remains authoritative |
 | Customer changes location during provider outage | Incomplete change | Do not replace current verified location or accept manual facts | Customer retries selection | No partial replacement |
 | Database write fails after receipt verification | Local transactional failure | Retry Brand save while receipt remains valid; otherwise reverify | Brand repository/customer | Transaction rolls back completely |
-| License or storage permission absent/unclear | External authorization blocker | Feature remains inactive | Commercial/legal risk owner | No call and no provider-derived persistence |
 
 ### Tool and Framework Decision
 
 | Candidate | Adopt, defer, or reject | Reason | Exit or refresh trigger |
 | --- | --- | --- | --- |
 | Existing Nest module plus a Brand-owned `StoreLocationProvider` port | Adopt | External protocol variability and fixture substitution are real seams; Brand business rules remain local | Revisit only if another approved provider must be supported |
-| Server-side Amap Web Service v5 detail plus v3 reverse geocode | Conditional adopt | Independently verifies the browser-selected POI while keeping authoritative credentials and facts server-side | License/storage approval, controlled contract validation, endpoint or term change |
+| Server-side Amap Web Service v5 detail plus v3 reverse geocode | Adopt | Independently verifies the browser-selected POI while keeping authoritative credentials and facts server-side | Controlled contract validation, endpoint change, or incompatible account evidence |
 | Existing generated REST/OpenAPI client and shared Brand form | Adopt | Already owns Web transport and registration/edit reuse | None for this change |
 | Server-sealed short-lived verification receipt | Adopt | Prevents forged client facts without a search-session database or an external call inside the Brand transaction | Replace only if receipt size/rotation evidence requires a short-lived server store |
-| Amap JS API 2.0 map, AutoComplete/PlaceSearch, and candidate Markers | Conditional adopt | Meets the confirmed map-selection preference; result list and Marker selection remain accessible while the server independently verifies the selected POI | License/Key approval, controlled mobile/desktop selection evidence, or material quota change |
-| Provider search-session table or Redis cache | Reject initially | Creates transient provider-data persistence and operational cleanup without a required durable workflow | Revisit only if receipt constraints are proven inadequate and storage permission covers it |
+| Amap JS API 2.0 map, AutoComplete/PlaceSearch, and candidate Markers | Adopt | Meets the confirmed map-selection preference; result list and Marker selection remain accessible while the server independently verifies the selected POI | Key configuration, controlled mobile/desktop selection evidence, or material quota change |
+| Provider search-session table or Redis cache | Reject initially | Creates transient provider-data persistence and operational cleanup without a required durable workflow | Revisit only if receipt constraints are proven inadequate |
 | Generic location platform/provider registry/factory | Reject | One bounded external owner and no proven second provider; would widen the interface without removing complexity | A separately approved second provider with the same stable Brand semantics |
-| Raw provider-response persistence | Reject | Violates minimization, binds business data to vendor schema, and conflicts with ordinary service terms | Never without a new explicit product/legal decision |
+| Raw provider-response persistence | Reject | Violates minimization and binds business data to a volatile vendor schema without adding Brand meaning | Revisit only through a new explicit product and architecture decision |
 
 ### Operational and Verification Boundary
 
@@ -178,13 +178,16 @@ current verified location
   latency bucket, retry count, and a request correlation ID. Never record Key,
   full request URL, raw response, sealed receipt, complete input address, or
   provider content in general telemetry.
-- **Verification:** fixtures first; then, only after separate authorization,
+- **Verification:** fixtures first; then, only after separate controlled-call
+  authorization,
   desktop/mobile map load, keyboard list selection, Marker selection, arbitrary
   click rejection, one ordinary district, one municipality, one special no-
   county city, one no-business-area result, one multiple-area result, and named
   failure responses. No evaluation Provider call and no production data.
-- **External-authorization residual:** the architecture is not implementation-
-  ready until the license/storage gate is resolved.
+- **Account-contract residual:** official documentation does not prove actual
+  Key grants, response variability, quota, or special-city mapping. Those are
+  follow-ups before live adapter activation, not blockers to fixture-first
+  implementation.
 
 ## Domain Vocabulary and Ownership
 
@@ -279,7 +282,7 @@ rules that should not expand the Brand row or leak into unrelated callers.
 id                         internal row identity
 brandId                    unique, owned by one Brand
 semanticFactId             internal stable identity used by fingerprint
-searchInput                normalized customer input retained only if licensed
+searchInput                normalized customer input that led to selection
 provider                   AMAP
 providerPlaceId            current source identity, never public mutation input
 providerContractVersion    e.g. amap-js-v2+place-v5+regeo-v3@1
@@ -302,9 +305,9 @@ createdAt
 updatedAt
 ```
 
-The exact provider fields may be persisted only after the external authorization
-gate. Raw responses, phone, rating, reviews, photos, opening hours, and unrelated
-POIs are never stored.
+The listed provider fields are the accepted minimum persistence set. Raw
+responses, phone, rating, reviews, photos, opening hours, and unrelated POIs are
+never stored.
 
 `semanticFactId` is preserved only when server verification proves the same
 provider place remains selected and the final Query locality is unchanged.
@@ -473,8 +476,8 @@ Excluded representation:
   fields, timestamps, and Web presentation.
 
 The excluded provider facts still remain frozen in v3 for historical display
-and audit when licensed; they simply do not define a new opportunity unless the
-customer selects a different semantic Store Location/locality.
+and audit; they simply do not define a new opportunity unless the customer
+selects a different semantic Store Location/locality.
 
 ## Evaluation-purpose Projection and Snapshot v3
 
@@ -576,8 +579,7 @@ selection, preparation lifecycle, examples, and real Query review.
 
 Integration order:
 
-1. use the confirmed #40 product and architecture direction and resolve external
-   authorization;
+1. use the confirmed #40 product, architecture, and risk-acceptance direction;
 2. implement/verify #40 with fixture adapters and no Provider evaluation call;
 3. merge or stack #40's stable projection so #26 can rebase without copying
    Brand/Amap logic;

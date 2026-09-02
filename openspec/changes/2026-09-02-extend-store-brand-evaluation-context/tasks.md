@@ -28,7 +28,7 @@
       empty-database activation, rollback, and #26 seam.
 - [x] Complete a pre-implementation architecture review of this proposal.
 
-## Product, Architecture, and External Authorization Gate
+## Product, Architecture, and Risk Acceptance Gate
 
 - [x] Product owner confirms the 2-80 flagship bound, two-to-six peer
       characteristic count, 2-120 item bound, exact-distinct rule, no priority/
@@ -44,17 +44,18 @@
 - [x] Product owner acknowledges the Amap platform-service boundary and states
       willingness to support paid API capacity if later required; no purchase or
       account action is authorized yet.
-- [ ] Commercial/legal risk owner separately authorizes an Amap inquiry and
-      obtains an applicable enterprise technical-service license plus written
-      permission for the exact durable POI/address/coordinate/business-area use.
-- [ ] Stop and revise the provider/persistence contract if storage/use permission
-      is unavailable; do not request a Key, purchase, or call the API by inference.
+- [x] Commercial/legal risk owner reviews the provider-terms boundary, accepts
+      the proposed minimum-field use, and directs #40 not to require a separate
+      licensing/storage work order as an engineering Gate.
+- [x] Keep Key creation, purchase, controlled calls, and production activation
+      as separate action boundaries; risk acceptance does not authorize them.
 
-## Conditional Controlled Contract Validation
+## Account-specific Controlled Contract Validation
 
-- [ ] After separate authorization, inspect the actual Web(JS API) and Web
-      Service Key types, domain restrictions, JS security proxy, service grants,
-      quota/QPS, pricing, and outbound-IP allowlist without revealing credentials.
+- [ ] After separate Key/call authorization, inspect the actual Web(JS API) and
+      Web Service Key types, domain restrictions, JS security proxy, service
+      grants, quota/QPS, pricing, and outbound-IP allowlist without revealing
+      credentials.
 - [ ] Validate one approved non-customer ordinary district, municipality, and
       special no-county city across v5 text search, v5 ID detail, and v3 reverse
       geocoding; do not pressure/load test.
@@ -115,11 +116,10 @@
 - [x] Commit this proposal revision on the #40 branch.
 - [x] Push the branch, open a Draft Partial PR with
       `Part of #40 — does not close`, and verify the remote head/base/check state.
-- [x] Update #40 with the Source Brief, architecture review, unresolved external
-      authorization, exact decision request, Draft PR, and `Review / Decision`
-      status.
-- [x] Stop at the product/architecture/external-authorization Gate; do not begin
-      conditional validation or implementation.
+- [x] Update #40 with the Source Brief, architecture review, decision request,
+      Draft PR, and then-current `Review / Decision` status.
+- [x] Stop at the documents-only authorization boundary; do not begin account
+      validation or implementation.
 
 ## 2026-09-02 Product Decision Revision
 
@@ -127,5 +127,15 @@
       development-reset decisions across every active Change artifact.
 - [x] Rerun architecture review and document verification for the revised Diff.
 - [x] Commit and push the revision to Draft PR #46.
-- [x] Update PR #46 and Issue #40 with the confirmed decisions and remaining
-      external licensing/storage Gate, then stop without implementation.
+- [x] Update PR #46 and Issue #40 with the confirmed decisions, then stop without
+      implementation.
+
+## 2026-09-02 Commercial and Legal Risk Acceptance Revision
+
+- [x] Reconcile the human risk-acceptance decision across the active proposal,
+      Source Brief, design, decision brief, architecture review, and tasks.
+- [x] Rerun the architecture review and document verification with the prior
+      licensing/storage must-fix removed.
+- [ ] Commit and push the revision to Draft PR #46.
+- [ ] Update PR #46 and Issue #40 to show `ready with follow-up`, then stop before
+      implementation, Key creation, purchase, controlled calls, or database reset.
