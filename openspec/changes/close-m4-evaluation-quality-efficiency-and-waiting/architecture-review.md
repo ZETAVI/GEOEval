@@ -105,3 +105,38 @@ to this session's research archive and parent contract. Approval does not extend
 to PR merge, child implementation outside an owning Issue, real Provider calls,
 production deployment, customer-data migration, API purchase or production
 content telemetry.
+
+## Latest-head fixed-diff integration review
+
+- Review base: `main@af72ba5f261925525b897c9124c28f5fb574c111`
+- Reviewed payload revision: `de2878a5c7bcbebd5b16af3b072e2ea1a6cb0e67`
+- Scope: the same eleven transcript/archive and parent-Change files; no child
+  implementation or overlap with PR #28, #35, or #46–#48
+- Live PR state at review: Ready, CLEAN, MERGEABLE, both Required Checks passed,
+  no requested review, and no `closingIssuesReferences`
+
+### Intent
+
+`ready`. The diff remains limited to Issue #39's approved parent contract and
+verbatim research archive. It neither claims a child outcome nor changes the
+four-question, five-platform, score, history, Provider, notification, production,
+or external-cost boundaries.
+
+### Engineering
+
+`ready`. The Change keeps one owner for every child interface, records the live
+native dependency graph, and makes PR #45 an ordinary non-closing Partial
+reference. Only the future final acceptance PR may create the native closing
+relationship after all Integration Gate rows pass.
+
+### Evidence and continuity
+
+`ready for integration decision`. Transcript `cmp` and SHA-256 checks, framework
+and Markdown-link validation, maintained-document diff checks, and both PR
+Required Checks pass. Product approval and the current Issue/Project pointers are
+recorded. Copilot's only COMMENTED review was unavailable because of quota and
+was not a requested review or a material finding.
+
+No unresolved `must-fix` or `should-fix` finding remains. Merging this Partial
+proposal would establish the approved active parent Change on `main`; it would
+not complete, reconcile, archive, or close Issue #39.
