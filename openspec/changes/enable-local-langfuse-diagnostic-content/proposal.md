@@ -1,6 +1,6 @@
 # Change: Enable Controlled Local Langfuse Diagnostic Content
 
-- Status: Locally verified; Draft PR review pending
+- Status: Locally verified in Draft PR #47; review pending
 - Class: Standard maintenance change
 - Owner: GitHub Issue #44 under M4 parent #39
 
@@ -75,6 +75,6 @@ capture, production configuration changes, deployment, or merge.
   deployed by this PR, and production remains metadata-only.
 - Handoff: no separate file; Issue #44, this branch, and the Draft PR are
   sufficient continuation state.
-- Exit: locally verified and ready for Draft PR review. Archive, Issue close,
+- Exit: locally verified and published for Draft PR #47 review. Archive, Issue close,
   Project Done, branch deletion, merge, and deployment remain later authorized
   actions.

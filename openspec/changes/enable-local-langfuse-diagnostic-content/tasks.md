@@ -20,7 +20,7 @@
       and `git diff --check`; disclose anything not run.
 - [x] Reconcile accepted behavior into the current evaluation-evidence spec and
       record the design/documentation disposition.
-- [ ] Commit, push, open a Draft PR linked to #44 as the Final PR, update #44
+- [x] Commit, push, and open Draft PR #47 linked to #44 as the Final PR; update #44
       with evidence and boundaries, and stop before merge or production change.
 
 ## Local Verification Evidence
