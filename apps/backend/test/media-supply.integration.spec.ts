@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { MediaSupplyService } from "../src/media-supply/application/media-supply.service.js";
@@ -10,9 +12,8 @@ const config = loadIntegrationApiConfig();
 
 describe("Media Supply persistence and projections", () => {
   const prisma = new PrismaService(config.databaseUrl);
-  const service = new MediaSupplyService(
-    new PostgresMediaSupplyRepository(prisma),
-  );
+  const repository = new PostgresMediaSupplyRepository(prisma);
+  const service = new MediaSupplyService(repository);
   let administratorId: string;
 
   beforeAll(async () => prisma.$connect());
@@ -264,7 +265,7 @@ describe("Media Supply persistence and projections", () => {
     ).rejects.toThrow("已有业务依赖");
   });
 
-  it("rolls back the entity and audit when the catalog revision write fails", async () => {
+  it("rolls back entity and revision when the audit write fails", async () => {
     const platform = await createTencentPlatform(service, administratorId);
     await service.upsertListing(administratorId, platform.id, {
       status: "ON_SHELF",
@@ -272,23 +273,19 @@ describe("Media Supply persistence and projections", () => {
       reason: "首期上架",
     });
     const auditCount = await prisma.mediaCatalogAudit.count();
-    await prisma.mediaCatalogState.delete({ where: { id: "global" } });
-    try {
-      await expect(
-        service.updatePlatform(administratorId, platform.id, {
-          description: "不应提交的说明",
-          reason: "模拟 revision 失败",
-        }),
-      ).rejects.toThrow("Media catalog state is missing");
-      expect((await service.adminPlatform(platform.id)).description).toBe(
-        "腾讯旗下新闻内容平台",
-      );
-      expect(await prisma.mediaCatalogAudit.count()).toBe(auditCount);
-    } finally {
-      await prisma.mediaCatalogState.create({
-        data: { id: "global", publicRevision: 1n },
-      });
-    }
+    const revision = await service.catalogRevision();
+    await expect(
+      repository.updatePlatform(
+        { actorAccountId: randomUUID(), reason: "模拟审计失败" },
+        platform.id,
+        { description: "不应提交的说明" },
+      ),
+    ).rejects.toThrow();
+    expect((await service.adminPlatform(platform.id)).description).toBe(
+      "腾讯旗下新闻内容平台",
+    );
+    expect(await service.catalogRevision()).toBe(revision);
+    expect(await prisma.mediaCatalogAudit.count()).toBe(auditCount);
   });
 });
 
