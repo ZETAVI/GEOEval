@@ -95,11 +95,11 @@
 
 ## Current Task Exit
 
-- [ ] Commit this proposal revision on the #40 branch.
-- [ ] Push the branch, open a Draft Partial PR with
+- [x] Commit this proposal revision on the #40 branch.
+- [x] Push the branch, open a Draft Partial PR with
       `Part of #40 — does not close`, and verify the remote head/base/check state.
-- [ ] Update #40 with the Source Brief, architecture review, unresolved external
+- [x] Update #40 with the Source Brief, architecture review, unresolved external
       authorization, exact decision request, Draft PR, and `Review / Decision`
       status.
-- [ ] Stop at the product/architecture/external-authorization Gate; do not begin
+- [x] Stop at the product/architecture/external-authorization Gate; do not begin
       conditional validation or implementation.
