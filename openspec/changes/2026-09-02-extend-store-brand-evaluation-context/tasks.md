@@ -126,6 +126,6 @@
 - [x] Reconcile the confirmed map, peer-characteristic, address-locality, and
       development-reset decisions across every active Change artifact.
 - [x] Rerun architecture review and document verification for the revised Diff.
-- [ ] Commit and push the revision to Draft PR #46.
-- [ ] Update PR #46 and Issue #40 with the confirmed decisions and remaining
+- [x] Commit and push the revision to Draft PR #46.
+- [x] Update PR #46 and Issue #40 with the confirmed decisions and remaining
       external licensing/storage Gate, then stop without implementation.
