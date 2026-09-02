@@ -61,7 +61,6 @@ export class PostgresIdentityRepository implements IdentityRepository {
         update: {},
         select: { id: true, mobile: true, role: true },
       });
-      if (account.role !== "TERMINAL_CUSTOMER") return account;
       await transaction.accountSession.create({
         data: {
           accountId: account.id,

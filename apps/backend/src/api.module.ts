@@ -8,6 +8,7 @@ import { GeoIntelligenceModule } from "./geo-intelligence/geo-intelligence.modul
 import { HealthController } from "./health.controller.js";
 import { IdentityModule } from "./identity/identity.module.js";
 import { PersistenceModule } from "./infrastructure/persistence.module.js";
+import { MediaSupplyModule } from "./media-supply/media-supply.module.js";
 import { TelemetryModule } from "./infrastructure/telemetry.js";
 import { NotificationApiModule } from "./notification/notification-api.module.js";
 import { ReadinessModule } from "./readiness.module.js";
@@ -23,6 +24,7 @@ export class ApiModule {
         IdentityModule.register(config),
         BrandModule,
         GeoIntelligenceModule,
+        MediaSupplyModule,
         NotificationApiModule,
         ReadinessModule,
         FoundationModule,

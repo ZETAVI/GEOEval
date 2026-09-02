@@ -14,6 +14,16 @@ export const READY_COFFEE_BRAND_FIELDS: EditableBrandFields = {
 };
 
 export async function clearCustomerData(prisma: PrismaService): Promise<void> {
+  await prisma.mediaCatalogAudit.deleteMany();
+  await prisma.mediaResource.deleteMany();
+  await prisma.mediaPlatformListing.deleteMany();
+  await prisma.mediaPlatformCategory.deleteMany();
+  await prisma.mediaSupplySource.deleteMany();
+  await prisma.mediaPlatform.deleteMany();
+  await prisma.mediaCatalogState.updateMany({
+    where: { id: "global" },
+    data: { publicRevision: 1n },
+  });
   await prisma.notification.deleteMany();
   await prisma.productOutboxEvent.deleteMany();
   await prisma.evaluationReport.deleteMany();

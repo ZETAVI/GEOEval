@@ -624,6 +624,387 @@
         ]
       }
     },
+    "/media-catalog/revision": {
+      "get": {
+        "operationId": "MediaCatalogController_revision",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaCatalogRevisionResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "media-catalog"
+        ]
+      }
+    },
+    "/media-catalog/categories": {
+      "get": {
+        "operationId": "MediaCatalogController_categories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaCategoryResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "media-catalog"
+        ]
+      }
+    },
+    "/media-catalog/platforms": {
+      "get": {
+        "operationId": "MediaCatalogController_platforms",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaPlatformPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "media-catalog"
+        ]
+      }
+    },
+    "/media-catalog/platforms/{platformId}": {
+      "get": {
+        "operationId": "MediaCatalogController_platform",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaPlatformCustomerResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "media-catalog"
+        ]
+      }
+    },
+    "/admin/media/platforms": {
+      "get": {
+        "operationId": "MediaAdminController_platforms",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaPlatformAdminResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      },
+      "post": {
+        "operationId": "MediaAdminController_createPlatform",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaPlatformAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
+    "/admin/media/platforms/{platformId}": {
+      "get": {
+        "operationId": "MediaAdminController_platform",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaPlatformAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      },
+      "patch": {
+        "operationId": "MediaAdminController_updatePlatform",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaPlatformAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      },
+      "delete": {
+        "operationId": "MediaAdminController_deletePlatform",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
+    "/admin/media/platforms/{platformId}/listing": {
+      "put": {
+        "operationId": "MediaAdminController_listing",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaPlatformAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
+    "/admin/media/sources": {
+      "get": {
+        "operationId": "MediaAdminController_sources",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaSupplySourceResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      },
+      "post": {
+        "operationId": "MediaAdminController_createSource",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaSupplySourceResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
+    "/admin/media/sources/{sourceId}": {
+      "patch": {
+        "operationId": "MediaAdminController_updateSource",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaSupplySourceResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      },
+      "delete": {
+        "operationId": "MediaAdminController_deleteSource",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
+    "/admin/media/platforms/{platformId}/resources": {
+      "get": {
+        "operationId": "MediaAdminController_resources",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaResourceAdminResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
+    "/admin/media/resources": {
+      "post": {
+        "operationId": "MediaAdminController_createResource",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResourceAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
+    "/admin/media/resources/{resourceId}": {
+      "patch": {
+        "operationId": "MediaAdminController_updateResource",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResourceAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      },
+      "delete": {
+        "operationId": "MediaAdminController_deleteResource",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
+    "/admin/media/audits": {
+      "get": {
+        "operationId": "MediaAdminController_audits",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaCatalogAuditResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
     "/notifications": {
       "get": {
         "operationId": "NotificationController_list",
@@ -2007,6 +2388,459 @@
         "required": [
           "items",
           "nextCursor"
+        ]
+      },
+      "MediaCatalogRevisionResponse": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision"
+        ]
+      },
+      "MediaCategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "CENTRAL_MEDIA",
+              "PORTAL_MEDIA",
+              "LOCAL_MEDIA",
+              "VERTICAL_MEDIA",
+              "CONTENT_PLATFORM",
+              "OVERSEAS_MEDIA"
+            ]
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ]
+      },
+      "MediaResourceExampleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "publicationMode": {
+            "type": "string",
+            "enum": [
+              "FIRST_PUBLISH",
+              "REPOST"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "publicationMode"
+        ]
+      },
+      "MediaPlatformCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "regionScope": {
+            "type": "string",
+            "enum": [
+              "DOMESTIC",
+              "OVERSEAS"
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CENTRAL_MEDIA",
+                "PORTAL_MEDIA",
+                "LOCAL_MEDIA",
+                "VERTICAL_MEDIA",
+                "CONTENT_PLATFORM",
+                "OVERSEAS_MEDIA"
+              ]
+            }
+          },
+          "pointPrice": {
+            "type": "number",
+            "minimum": 1
+          },
+          "listingRevision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaResourceExampleResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "regionScope",
+          "categories",
+          "pointPrice",
+          "listingRevision",
+          "examples"
+        ]
+      },
+      "MediaPlatformPageResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaPlatformCustomerResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "MediaListingAdminResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ON_SHELF",
+              "PAUSED",
+              "OFF_SHELF"
+            ]
+          },
+          "pointPrice": {
+            "type": "number",
+            "nullable": true
+          },
+          "revision": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "status",
+          "revision",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MediaPlatformAdminResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "normalizedName": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "regionScope": {
+            "type": "string",
+            "enum": [
+              "DOMESTIC",
+              "OVERSEAS"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "ARCHIVED"
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CENTRAL_MEDIA",
+                "PORTAL_MEDIA",
+                "LOCAL_MEDIA",
+                "VERTICAL_MEDIA",
+                "CONTENT_PLATFORM",
+                "OVERSEAS_MEDIA"
+              ]
+            }
+          },
+          "listing": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MediaListingAdminResponse"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "normalizedName",
+          "displayName",
+          "aliases",
+          "regionScope",
+          "status",
+          "categories",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MediaSupplySourceResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MediaResourceAdminResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supplySourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceName": {
+            "type": "string"
+          },
+          "accountIdentifier": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "publicationMode": {
+            "type": "string",
+            "enum": [
+              "FIRST_PUBLISH",
+              "REPOST"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "PAUSED",
+              "ARCHIVED"
+            ]
+          },
+          "publicVisibility": {
+            "type": "string",
+            "enum": [
+              "HIDDEN",
+              "FULL",
+              "MASKED"
+            ]
+          },
+          "publicAlias": {
+            "type": "string",
+            "nullable": true
+          },
+          "qualityTier": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          },
+          "procurementCostFen": {
+            "type": "number",
+            "nullable": true
+          },
+          "caseUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "publicationNotes": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "$ref": "#/components/schemas/MediaSupplySourceResponse"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "platformId",
+          "supplySourceId",
+          "resourceName",
+          "publicationMode",
+          "status",
+          "publicVisibility",
+          "qualityTier",
+          "source",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MediaCatalogAuditResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "beforeState": {
+            "type": "object",
+            "nullable": true
+          },
+          "afterState": {
+            "type": "object",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "actorAccountId",
+          "entityType",
+          "entityId",
+          "action",
+          "reason",
+          "createdAt"
         ]
       },
       "EvaluationReportNotificationTargetResponse": {

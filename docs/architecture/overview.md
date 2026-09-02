@@ -1,6 +1,7 @@
 # Architecture Overview
 
-- Status: S1-S6 evaluation behavior is integrated after one
+- Status: S1-S6 evaluation behavior and the Media Supply backend foundation are
+  integrated after one
   fictional real 4-by-5 Worker evaluation, authenticated customer-report
   inspection, fixed-revision review, and product-owner confirmation. Production
   activation and commercial customer data remain separate gates.
@@ -29,11 +30,10 @@ its [sanitized evidence](../../openspec/changes/archive/2026-08-25-define-applic
 does not authorize provider integration or product implementation. Subsequent
 [restricted search/fidelity probes](../../openspec/changes/archive/2026-08-25-define-application-architecture/research/provider-search-fidelity-evidence.md)
 ultimately produced successful evidence for all fifteen unique R01-R03
-positions after one bounded ERNIE R03 retry. Controlled S6 calls now use the
-same production-adapter boundary with fictional data, but this branch remains
-unmerged and production deployment and commercial customer data remain outside
-the current authorization. The deterministic S1-S5 journey is implemented and
-accepted on `main`. Final report presentation remains the independent Issue #13
+positions after one bounded ERNIE R03 retry. Controlled S6 calls use the same
+production-adapter boundary with fictional data, while production deployment
+and commercial customer data remain outside the current authorization. Final
+report presentation remains the independent Issue #13
 outcome; it may refine presentation but must preserve the accepted journey and
 behavior.
 
@@ -62,6 +62,24 @@ presentation-only city groups. GEO Intelligence receives one versioned,
 immutable evaluation-purpose projection and never imports either reference
 source or reads Brand persistence directly. A central decoder keeps original
 flat snapshots readable without rewriting historical JSON.
+
+Media Supply owns the global administrator-maintained platform catalog in
+PostgreSQL: stable platform identity, fixed multi-category membership,
+zero-or-one platform Listing and whole-point price, optional concrete resources,
+one current internal source per resource, public catalog revision, and
+administrator audit. Identity owns the reusable all-role session and required-
+role guards; only administrators mutate media facts. Customer HTTP responses
+are explicit safe projections and never reuse administrator DTOs or expose
+procurement cost, source/contact data, cases, or notes.
+
+Listing state and price—not candidate-resource count—decide whether a platform
+is buyable. Future Publishing Commerce consumes a synchronous quote and owns the
+paid snapshot. Future Publication Delivery may consume a possibly empty
+candidate list, but a stored resource reference remains optional and a recorded
+accessible publication URL owns completion. Catalog freshness uses a durable
+global revision and conditional reads; it does not reuse Notification SSE or
+introduce Outbox/BullMQ work without an asynchronous consumer. The accepted
+behavior is specified by [`media-supply`](../../openspec/specs/media-supply/spec.md).
 
 S3 extends that owner with a PostgreSQL execution cycle, canonical per-sample
 answer, accepted interpretation, exhausted-stage record, and the

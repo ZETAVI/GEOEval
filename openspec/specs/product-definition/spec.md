@@ -17,7 +17,10 @@
   industry and mainland-region selection, Brand readiness, fingerprint meaning,
   and the evaluation-purpose projection are owned by the
   [Brand Knowledge specification](../brand-knowledge/spec.md). This marker
-  remains for product capabilities that have not yet gained an activated owner.
+  The administrator-maintained platform catalog, pricing, optional resource
+  examples, revision, and audit boundary are owned by the
+  [Media Supply specification](../media-supply/spec.md). This marker remains for
+  product capabilities that have not yet gained an activated owner.
 
 ## Requirements
 
@@ -1082,10 +1085,11 @@ confirmation, and paid-order decisions.
 - **WHEN** a paid order enters fulfilment
 - **THEN** each purchased publication quantity unit becomes one internal
   publication work item
-- **AND** a random-package item initially has no assigned media and allows
-  operations to select one eligible media-library entry
-- **AND** each precise-publication item carries its committed media-library target
-  from the paid order and cannot be silently changed
+- **AND** the administrator-maintained media library may provide optional
+  operations reference candidates but does not require one to be selected
+- **AND** a future publication result may keep a null media-resource reference
+- **AND** one recorded accessible publication URL and the required result facts
+  are sufficient completion evidence without automated URL-to-platform matching
 - **AND** one work item can produce at most one valid publication result and add
   one to completed progress
 - **AND** a successful result updates the customer-visible progress immediately
@@ -1093,8 +1097,8 @@ confirmation, and paid-order decisions.
 #### Scenario: Operations advances an individual publication item
 
 - **GIVEN** one publication work item is **Pending**
-- **WHEN** the operator selects and confirms an eligible media for a random item
-  or confirms receipt of the committed media information for a precise item
+- **WHEN** the operator starts actual publication work, with or without choosing
+  an existing media-library reference
 - **THEN** that item becomes **Publishing**
 - **AND** publishing means its media submission, review, scheduling, or go-live
   work is underway
@@ -1698,55 +1702,43 @@ withdrawals as two simple and separate routes.
 
 ### Requirement: Truthful media library
 
-The media library SHALL present administrator-maintained media coverage and pricing
-and SHALL support both publishing choices without overstating available
-resources.
+The product SHALL use the owner-local
+[Media Supply specification](../media-supply/spec.md) for the maintained
+platform catalog, platform-level point pricing, optional concrete-resource
+examples, administrator audit, public revision, and downstream quote/candidate
+contracts.
 
 #### Scenario: A customer inspects publishing capability
 
 - **WHEN** the customer views the media library
-- **THEN** the customer can understand the real industry and mainstream-platform
-  coverage available through the service
-- **AND** each professional media card can show media name and icon, media type
-  and industry tags, geographic coverage, concise positioning, current
-  availability, and the precise-mode single-publication point price
-- **AND** cards do not expose specific publishing accounts or unsupported weight,
-  guaranteed inclusion, exposure, or effect claims
-- **AND** can see the library's role in random or precise publishing
-- **AND** displayed inventory, account coverage, and prices reflect maintained
-  operational information rather than illustrative or fabricated claims
-- **AND** actual catalog entries and prices remain maintained operational input
-  supplied by the assigned collector and formally published by an administrator
+- **THEN** the customer can understand the maintained platform coverage and
+  platform-level point prices available through the service
+- **AND** any complete or masked resource examples are non-selectable supporting
+  context rather than specific-account commitments
+- **AND** cards do not expose procurement cost, supply-source/contact data,
+  internal notes, or unsupported weight, inclusion, exposure, or effect claims
 - **AND** the customer can enter the media library independently of an active
   publishing purchase
 - **AND** the customer experience uses a clear professional resource
   presentation rather than exposing an administrator maintenance table
 
-#### Scenario: An administrator maintains catalog and package records
+#### Scenario: An administrator maintains catalog records
 
-- **WHEN** an authorized administrator creates, edits, enables, disables,
-  archives, or publishes media, package, availability, or price changes
-- **THEN** the initial product does not require a second approver
-- **AND** the change records actor, time, reason, and before-and-after values
+- **WHEN** an authorized administrator changes platform, Listing, resource,
+  source, availability, or price facts
+- **THEN** Media Supply applies its role, transaction, audit, revision, and
+  deletion rules without requiring a second approver
 - **AND** operations users cannot maintain media-library, availability, package,
   or price records
 - **AND** administrator maintenance is a role-specific experience distinct from
   the standalone customer presentation while both use the same maintained facts
 - **AND** the change affects new or still-unpaid choices but does not rewrite a
-  paid-order snapshot
-- **AND** a never-used erroneous or test record can be deleted
-- **BUT** a record referenced by an order can only be disabled, taken off sale,
-  or archived and can later be restored
-- **AND** retirement removes it from new precise selection and random eligibility
-  without erasing historical order or delivery meaning
-- **AND** the live catalog, commercial configuration, paid-order snapshot, and
-  historical publication results remain separate lifecycle concepts whose
-  implementation requires architecture review after product approval
+  future paid-order snapshot or publication result.
 
 #### Scenario: Media maintenance overlaps an unpaid customer selection
 
 - **GIVEN** media maintenance is normally scheduled during a low-traffic period
-- **WHEN** package, media availability, or price changes while a customer has an
+- **WHEN** media availability or price changes while a customer has an
   unpaid selection or order review open
 - **THEN** the product does not assume the maintenance window has eliminated
   concurrent customer activity
