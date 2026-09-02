@@ -8,7 +8,10 @@ import {
   type OverallSynthesisOutput,
   type OverallSynthesisSampleContext,
 } from "../src/geo-intelligence/domain/overall-synthesis.contract.js";
-import { parseAndProjectOverallSynthesisModelOutput } from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
+import {
+  buildOverallSynthesisModelReferenceProjection,
+  parseAndProjectOverallSynthesisModelOutput,
+} from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
 
 describe("overall synthesis contract", () => {
   it("accepts complete evidence-linked grouping", () => {
@@ -57,36 +60,62 @@ describe("overall synthesis contract", () => {
   it("projects model proposals into stable identities and singleton brand groups", () => {
     const context = synthesisContext();
     const domainOutput = validOutput(context);
+    const references = buildOverallSynthesisModelReferenceProjection(context);
+    const sampleRef = references.evidenceSamples[0]!.sampleRef;
+    const observationRef =
+      references.evidenceSamples[0]!.observations[0]!.observationRef;
     const output = parseAndProjectOverallSynthesisModelOutput(
       {
         brandEntityGroups: [],
-        recommendationAssessment: domainOutput.recommendationAssessment,
-        brandPerception: domainOutput.brandPerception,
+        recommendationAssessment: {
+          summary: domainOutput.recommendationAssessment.summary,
+          evidenceRefs: [{ sampleRef, observationRef: null }],
+        },
+        brandPerception: {
+          summary: domainOutput.brandPerception.summary,
+          evidenceRefs: [{ sampleRef, observationRef }],
+        },
         themes: {
           positive: domainOutput.themes.positive.map(
             ({ themeId: _themeId, ...theme }) => ({
-              ...theme,
-              evidenceRefs: [
-                ...theme.evidenceRefs,
-                {
-                  sampleId: context[0]!.sampleId,
-                  observationId: "starbucks-reserve",
-                },
-              ],
+              label: theme.label,
+              summary: theme.summary,
+              evidenceRefs: [{ sampleRef, observationRef }],
             }),
           ),
           negative: [],
         },
         customerDirections: domainOutput.customerDirections.map(
-          ({ directionId: _directionId, ...direction }) => direction,
+          ({
+            directionId: _directionId,
+            evidenceRefs: _evidenceRefs,
+            ...direction
+          }) => ({
+            ...direction,
+            evidenceRefs: [{ sampleRef, observationRef: null }],
+          }),
         ),
         internalGuidance: {
           summary: domainOutput.internalGuidance.summary,
           priorities: domainOutput.internalGuidance.priorities.map(
-            ({ guidanceId: _guidanceId, ...guidance }) => guidance,
+            ({
+              guidanceId: _guidanceId,
+              evidenceRefs: _evidenceRefs,
+              ...guidance
+            }) => ({
+              ...guidance,
+              evidenceRefs: [{ sampleRef, observationRef: null }],
+            }),
           ),
           writingAngles: domainOutput.internalGuidance.writingAngles.map(
-            ({ guidanceId: _guidanceId, ...guidance }) => guidance,
+            ({
+              guidanceId: _guidanceId,
+              evidenceRefs: _evidenceRefs,
+              ...guidance
+            }) => ({
+              ...guidance,
+              evidenceRefs: [{ sampleRef, observationRef }],
+            }),
           ),
           cautions: domainOutput.internalGuidance.cautions,
         },
@@ -109,7 +138,7 @@ describe("overall synthesis contract", () => {
         resolutionBasis: [
           {
             kind: "ANSWER_CONTEXT",
-            explanation: "该名称作为独立品牌保留，未与其他名称合并。",
+            explanation: "该候选没有充分证据与其他名称合并，保持独立。",
             sourceUrl: null,
           },
         ],
