@@ -18,7 +18,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AdminSidebar } from "./admin-sidebar.js";
 import {
-  ListingEditor,
   PlatformEditor,
   ResourceEditor,
   SourceEditor,
@@ -30,7 +29,6 @@ import {
   formatDateTime,
   formatFenAsYuan,
   isApiStatus,
-  listingStatusLabels,
   mediaCategoryOptions,
   platformStatusLabels,
   publicationModeLabels,
@@ -39,7 +37,6 @@ import {
   sourceStatusLabels,
   visibilityLabels,
   type PlatformStatusFilter,
-  type SalesStatusFilter,
 } from "./media-ui.js";
 
 const apiBaseUrl =
@@ -50,7 +47,6 @@ type DetailTab = "OVERVIEW" | "RESOURCES" | "SOURCES" | "AUDIT";
 type EditorState =
   | { kind: "platform-new" }
   | { kind: "platform-edit"; platform: MediaPlatformAdmin }
-  | { kind: "listing"; platform: MediaPlatformAdmin }
   | { kind: "resource-new"; platform: MediaPlatformAdmin }
   | {
       kind: "resource-edit";
@@ -68,8 +64,8 @@ const roleLabels: Record<Account["role"], string> = {
 };
 
 const auditEntityLabels: Record<string, string> = {
-  PLATFORM: "平台资料",
-  LISTING: "销售设置",
+  PLATFORM: "媒体平台",
+  LISTING: "历史销售设置",
   RESOURCE: "媒体资源",
   SOURCE: "合作来源",
 };
@@ -97,9 +93,7 @@ export function AdminMediaWorkspace() {
   const [category, setCategory] = useState<
     "ALL" | MediaPlatformAdmin["categories"][number]
   >("ALL");
-  const [platformStatus, setPlatformStatus] =
-    useState<PlatformStatusFilter>("ALL");
-  const [salesStatus, setSalesStatus] = useState<SalesStatusFilter>("ALL");
+  const [status, setStatus] = useState<PlatformStatusFilter>("ALL");
   const [tab, setTab] = useState<DetailTab>("OVERVIEW");
   const [auditScope, setAuditScope] = useState<"SELECTED" | "ALL">("SELECTED");
   const [editor, setEditor] = useState<EditorState>();
@@ -208,16 +202,15 @@ export function AdminMediaWorkspace() {
       filterAdminPlatforms(platforms, {
         search,
         category,
-        platformStatus,
-        salesStatus,
+        status,
       }),
-    [platforms, search, category, platformStatus, salesStatus],
+    [platforms, search, category, status],
   );
   const activeSourceCount = sources.filter(
     (source) => source.status === "ACTIVE",
   ).length;
-  const onShelfCount = platforms.filter(
-    (platform) => platform.listing?.status === "ON_SHELF",
+  const activePlatformCount = platforms.filter(
+    (platform) => platform.status === "ACTIVE",
   ).length;
   const selectedAuditEntityIds = new Set([
     ...(selectedPlatform ? [selectedPlatform.id] : []),
@@ -306,7 +299,7 @@ export function AdminMediaWorkspace() {
             <p className="eyebrow">管理员工作区</p>
             <h1>媒体库管理</h1>
             <p>
-              集中维护媒体平台、销售状态、媒体资源和合作来源，并保留完整操作记录。
+              集中维护媒体平台、价格、启停状态、媒体资源和合作来源，并保留完整操作记录。
             </p>
           </div>
           <div className="workspace-header-actions">
@@ -355,14 +348,11 @@ export function AdminMediaWorkspace() {
           <article>
             <span>平台数量</span>
             <b>{platforms.length}</b>
-            <small>
-              {platforms.filter((item) => item.status === "ACTIVE").length}{" "}
-              个使用中
-            </small>
+            <small>默认停用，确认价格后再启用</small>
           </article>
           <article>
-            <span>销售中</span>
-            <b>{onShelfCount}</b>
+            <span>启用平台</span>
+            <b>{activePlatformCount}</b>
             <small>客户当前可以购买</small>
           </article>
           <article>
@@ -416,33 +406,16 @@ export function AdminMediaWorkspace() {
                   </select>
                 </label>
                 <label>
-                  <span>资料状态</span>
+                  <span>状态</span>
                   <select
-                    value={platformStatus}
+                    value={status}
                     onChange={(event) =>
-                      setPlatformStatus(
-                        event.target.value as PlatformStatusFilter,
-                      )
+                      setStatus(event.target.value as PlatformStatusFilter)
                     }
                   >
-                    <option value="ALL">全部</option>
-                    <option value="ACTIVE">使用中</option>
-                    <option value="ARCHIVED">已归档</option>
-                  </select>
-                </label>
-                <label>
-                  <span>销售状态</span>
-                  <select
-                    value={salesStatus}
-                    onChange={(event) =>
-                      setSalesStatus(event.target.value as SalesStatusFilter)
-                    }
-                  >
-                    <option value="ALL">全部</option>
-                    <option value="NOT_SELLING">未销售</option>
-                    <option value="ON_SHELF">销售中</option>
-                    <option value="PAUSED">暂停销售</option>
-                    <option value="OFF_SHELF">已下架</option>
+                    <option value="ALL">全部状态</option>
+                    <option value="ACTIVE">启用</option>
+                    <option value="INACTIVE">停用</option>
                   </select>
                 </label>
               </div>
@@ -451,7 +424,7 @@ export function AdminMediaWorkspace() {
               <div className="platform-list-empty">
                 <span aria-hidden="true">＋</span>
                 <h3>还没有媒体平台</h3>
-                <p>先填写平台资料，再按需要设置价格、销售状态和媒体资源。</p>
+                <p>先填写平台、价格和分类；新建后默认停用。</p>
                 <button
                   type="button"
                   className="primary-button"
@@ -470,8 +443,7 @@ export function AdminMediaWorkspace() {
                   onClick={() => {
                     setSearch("");
                     setCategory("ALL");
-                    setPlatformStatus("ALL");
-                    setSalesStatus("ALL");
+                    setStatus("ALL");
                   }}
                 >
                   清除筛选
@@ -516,11 +488,9 @@ export function AdminMediaWorkspace() {
                         </small>
                       </span>
                       <em
-                        className={`state-pill ${platform.listing?.status.toLowerCase() ?? "no-listing"}`}
+                        className={`state-pill ${platform.status.toLowerCase()}`}
                       >
-                        {platform.listing
-                          ? listingStatusLabels[platform.listing.status]
-                          : "未销售"}
+                        {platformStatusLabels[platform.status]}
                       </em>
                     </button>
                   );
@@ -539,7 +509,7 @@ export function AdminMediaWorkspace() {
               <div className="detail-empty">
                 <p className="eyebrow">平台详情</p>
                 <h2>选择一个平台开始维护</h2>
-                <p>平台资料、销售设置、媒体资源和操作记录会分别呈现。</p>
+                <p>平台信息、价格、媒体资源和操作记录会集中呈现。</p>
               </div>
             ) : (
               <>
@@ -560,7 +530,7 @@ export function AdminMediaWorkspace() {
                 >
                   {(
                     [
-                      ["OVERVIEW", "平台与销售"],
+                      ["OVERVIEW", "平台信息"],
                       ["RESOURCES", `媒体资源 ${resources.length}`],
                       ["SOURCES", `合作来源 ${sources.length}`],
                       ["AUDIT", "操作记录"],
@@ -585,12 +555,6 @@ export function AdminMediaWorkspace() {
                     onEditPlatform={() =>
                       setEditor({
                         kind: "platform-edit",
-                        platform: selectedPlatform,
-                      })
-                    }
-                    onEditListing={() =>
-                      setEditor({
-                        kind: "listing",
                         platform: selectedPlatform,
                       })
                     }
@@ -647,14 +611,6 @@ export function AdminMediaWorkspace() {
       )}
       {editor?.kind === "platform-edit" && (
         <PlatformEditor
-          apiBaseUrl={apiBaseUrl}
-          platform={editor.platform}
-          onClose={() => setEditor(undefined)}
-          onSaved={(saved, message) => acceptedMutation(message, saved.id)}
-        />
-      )}
-      {editor?.kind === "listing" && (
-        <ListingEditor
           apiBaseUrl={apiBaseUrl}
           platform={editor.platform}
           onClose={() => setEditor(undefined)}
@@ -755,7 +711,7 @@ function PlatformDetailHeader({
           {platform.regionScope === "DOMESTIC" ? "国内" : "海外"}
         </span>
         <button type="button" className="secondary-button" onClick={onEdit}>
-          编辑平台资料
+          编辑平台
         </button>
       </div>
     </header>
@@ -765,19 +721,17 @@ function PlatformDetailHeader({
 function OverviewPanel({
   platform,
   onEditPlatform,
-  onEditListing,
 }: {
   platform: MediaPlatformAdmin;
   onEditPlatform: () => void;
-  onEditListing: () => void;
 }) {
   return (
     <div className="detail-panel-grid">
       <article className="detail-card platform-facts-card">
         <header>
           <div>
-            <p className="step-label">01 · 平台资料</p>
-            <h3>平台基本信息</h3>
+            <p className="step-label">01 · 平台信息</p>
+            <h3>基本信息与价格</h3>
           </div>
           <button
             type="button"
@@ -797,10 +751,18 @@ function OverviewPanel({
             <dd>{platform.regionScope === "DOMESTIC" ? "国内" : "海外"}</dd>
           </div>
           <div>
-            <dt>资料状态</dt>
+            <dt>平台状态</dt>
             <dd>{platformStatusLabels[platform.status]}</dd>
           </div>
           <div>
+            <dt>单次积分价</dt>
+            <dd>
+              {typeof platform.pointPrice === "number"
+                ? `${platform.pointPrice.toLocaleString("zh-CN")} 积分 / 次`
+                : "未设置"}
+            </dd>
+          </div>
+          <div className="wide">
             <dt>别名</dt>
             <dd>{platform.aliases.join("、") || "无"}</dd>
           </div>
@@ -817,39 +779,27 @@ function OverviewPanel({
       <article className="detail-card listing-card">
         <header>
           <div>
-            <p className="step-label">02 · 销售设置</p>
-            <h3>价格与销售状态</h3>
+            <p className="step-label">02 · 使用说明</p>
+            <h3>接单规则</h3>
           </div>
-          <button type="button" className="text-button" onClick={onEditListing}>
-            {platform.listing ? "修改" : "设置"}
-          </button>
         </header>
-        {platform.listing ? (
-          <div className="listing-summary">
-            <span
-              className={`listing-state-orb ${platform.listing.status.toLowerCase()}`}
-              aria-hidden="true"
-            />
-            <div>
-              <b>{listingStatusLabels[platform.listing.status]}</b>
-              <p>
-                {typeof platform.listing.pointPrice !== "number"
-                  ? "尚未设置积分价"
-                  : `${platform.listing.pointPrice.toLocaleString("zh-CN")} 积分 / 次`}
-              </p>
-              <small>
-                最后更新：{formatDateTime(platform.listing.updatedAt)}
-              </small>
-            </div>
+        <div className="listing-summary">
+          <span
+            className={`listing-state-orb ${platform.status.toLowerCase()}`}
+            aria-hidden="true"
+          />
+          <div>
+            <b>{platformStatusLabels[platform.status]}</b>
+            <p>
+              {platform.status === "ACTIVE"
+                ? "客户可以按当前积分价购买该平台。"
+                : "客户不能购买；平台资料和历史记录仍会保留。"}
+            </p>
+            <small>停用后立即停止接单，平台资料和历史记录仍会保留。</small>
           </div>
-        ) : (
-          <div className="listing-empty">
-            <b>暂未设置销售</b>
-            <p>需要对客户开放购买时，再设置单次积分价和销售状态。</p>
-          </div>
-        )}
+        </div>
         <p className="ownership-note">
-          平台资料正常、销售状态为“销售中”且积分价有效时，客户才能购买；媒体资源数量不影响销售状态。
+          媒体资源用于履约参考，不会自动启用或停用平台。
         </p>
       </article>
     </div>
@@ -887,7 +837,7 @@ function ResourcesPanel({
           <span aria-hidden="true">媒</span>
           <div>
             <h4>尚无媒体资源</h4>
-            <p>平台仍可单独设置销售状态；有真实账号或渠道信息时再添加。</p>
+            <p>平台可以独立启用或停用；有真实账号或渠道信息时再添加。</p>
           </div>
         </div>
       ) : (
@@ -967,7 +917,7 @@ function SourcesPanel({
           <p className="step-label">04 · 合作来源</p>
           <h3>合作方与联系方式</h3>
           <p>
-            一个合作来源可以对应多个媒体资源；停用来源不会自动改变平台销售状态。
+            一个合作来源可以对应多个媒体资源；停用来源不会自动改变平台状态。
           </p>
         </div>
         <button type="button" className="primary-button" onClick={onCreate}>

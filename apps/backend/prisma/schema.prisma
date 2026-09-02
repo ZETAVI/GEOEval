@@ -90,7 +90,7 @@ enum NotificationKind {
 
 enum MediaPlatformStatus {
   ACTIVE
-  ARCHIVED
+  INACTIVE
 }
 
 enum MediaCategory {
@@ -105,13 +105,6 @@ enum MediaCategory {
 enum MediaRegionScope {
   DOMESTIC
   OVERSEAS
-}
-
-enum MediaListingStatus {
-  DRAFT
-  ON_SHELF
-  PAUSED
-  OFF_SHELF
 }
 
 enum MediaResourceStatus {
@@ -552,11 +545,12 @@ model MediaPlatform {
   description    String?
   logoUrl        String?             @map("logo_url") @db.VarChar(2048)
   regionScope    MediaRegionScope    @default(DOMESTIC) @map("region_scope")
-  status         MediaPlatformStatus @default(ACTIVE)
+  status         MediaPlatformStatus @default(INACTIVE)
+  pointPrice     Int?                @map("point_price")
+  revision       Int                 @default(1)
   createdAt      DateTime            @default(now()) @map("created_at")
   updatedAt      DateTime            @updatedAt @map("updated_at")
   categories     MediaPlatformCategory[]
-  listing        MediaPlatformListing?
   resources      MediaResource[]
 
   @@index([status, displayName, id])
@@ -571,19 +565,6 @@ model MediaPlatformCategory {
   @@id([platformId, category])
   @@index([category, platformId])
   @@map("media_platform_categories")
-}
-
-model MediaPlatformListing {
-  platformId String             @id @map("platform_id") @db.Uuid
-  status     MediaListingStatus @default(DRAFT)
-  pointPrice Int?               @map("point_price")
-  revision   Int                @default(1)
-  createdAt  DateTime           @default(now()) @map("created_at")
-  updatedAt  DateTime           @updatedAt @map("updated_at")
-  platform   MediaPlatform      @relation(fields: [platformId], references: [id], onDelete: Restrict)
-
-  @@index([status, platformId])
-  @@map("media_platform_listings")
 }
 
 model MediaSupplySource {

@@ -8,7 +8,6 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Query,
   Req,
   UseGuards,
@@ -28,7 +27,6 @@ import type { AuthenticatedRequest } from "../../identity/presentation/session-h
 import { MediaSupplyService } from "../application/media-supply.service.js";
 import {
   MediaCatalogAuditResponse,
-  MediaListingMutationRequest,
   MediaPlatformAdminResponse,
   MediaPlatformCreateRequest,
   MediaPlatformUpdateRequest,
@@ -99,21 +97,6 @@ export class MediaAdminController {
     @Body() input: MediaReasonRequest,
   ): Promise<void> {
     await this.media.deletePlatform(
-      request.geoevalAccount!.id,
-      platformId,
-      input,
-    );
-  }
-
-  @Put("platforms/:platformId/listing")
-  @ApiBody({ type: MediaListingMutationRequest })
-  @ApiOkResponse({ type: MediaPlatformAdminResponse })
-  listing(
-    @Req() request: AuthenticatedRequest,
-    @Param("platformId") platformId: string,
-    @Body() input: MediaListingMutationRequest,
-  ): Promise<MediaPlatformAdminResponse> {
-    return this.media.upsertListing(
       request.geoevalAccount!.id,
       platformId,
       input,

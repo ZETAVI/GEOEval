@@ -65,21 +65,24 @@ flat snapshots readable without rewriting historical JSON.
 
 Media Supply owns the global administrator-maintained platform catalog in
 PostgreSQL: stable platform identity, fixed multi-category membership,
-zero-or-one platform Listing and whole-point price, optional concrete resources,
-one current internal source per resource, public catalog revision, and
-administrator audit. Identity owns the reusable all-role session and required-
-role guards; only administrators mutate media facts. Customer HTTP responses
-are explicit safe projections and never reuse administrator DTOs or expose
-procurement cost, source/contact data, cases, or notes.
+one first-release availability state and whole-point price per platform,
+optional concrete resources, one current internal source per resource, public
+catalog revision, and administrator audit. Identity owns the reusable all-role
+session and required-role guards; only administrators mutate media facts.
+Customer HTTP responses are explicit safe projections and never reuse
+administrator DTOs or expose procurement cost, source/contact data, cases, or
+notes.
 
-Listing state and price—not candidate-resource count—decide whether a platform
-is buyable. Future Publishing Commerce consumes a synchronous quote and owns the
-paid snapshot. Future Publication Delivery may consume a possibly empty
-candidate list, but a stored resource reference remains optional and a recorded
-accessible publication URL owns completion. Catalog freshness uses a durable
-global revision and conditional reads; it does not reuse Notification SSE or
-introduce Outbox/BullMQ work without an asynchronous consumer. The accepted
-behavior is specified by [`media-supply`](../../openspec/specs/media-supply/spec.md).
+Platform state and price—not candidate-resource count—decide whether a platform
+is buyable. A separate one-to-one Listing is intentionally absent until one
+platform needs multiple independently priced or scheduled sale variants. Future
+Publishing Commerce consumes a synchronous quote and owns the paid snapshot.
+Future Publication Delivery may consume a possibly empty candidate list, but a
+stored resource reference remains optional and a recorded accessible
+publication URL owns completion. Catalog freshness uses a durable global
+revision and conditional reads; it does not reuse Notification SSE or introduce
+Outbox/BullMQ work without an asynchronous consumer. The accepted behavior is
+specified by [`media-supply`](../../openspec/specs/media-supply/spec.md).
 
 S3 extends that owner with a PostgreSQL execution cycle, canonical per-sample
 answer, accepted interpretation, exhausted-stage record, and the

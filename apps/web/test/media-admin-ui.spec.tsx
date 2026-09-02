@@ -7,20 +7,19 @@ import {
   type MediaSupplySource,
 } from "@geoeval/api-client";
 import {
-  ListingEditor,
   PlatformEditor,
   ResourceEditor,
+  SourceEditor,
 } from "../app/admin/media/media-editors.js";
 import {
-  allowedListingStatuses,
-  buildListingMutation,
   filterAdminPlatforms,
   formatAuditValue,
   isApiStatus,
-  isListingRevisionConflict,
+  isPlatformRevisionConflict,
   isSupportedUrlReference,
   parseNullableWholeNumber,
   parseNullableWholeYuanToFen,
+  parsePlatformPointPrice,
 } from "../app/admin/media/media-ui.js";
 
 const platforms: MediaPlatformAdmin[] = [
@@ -33,14 +32,9 @@ const platforms: MediaPlatformAdmin[] = [
     logoUrl: null,
     regionScope: "DOMESTIC",
     status: "ACTIVE",
+    pointPrice: 500,
     categories: ["CENTRAL_MEDIA", "PORTAL_MEDIA"],
-    listing: {
-      status: "ON_SHELF",
-      pointPrice: 500,
-      revision: 3,
-      createdAt: "2026-09-01T00:00:00.000Z",
-      updatedAt: "2026-09-01T00:00:00.000Z",
-    },
+    revision: 3,
     createdAt: "2026-09-01T00:00:00.000Z",
     updatedAt: "2026-09-01T00:00:00.000Z",
   },
@@ -52,9 +46,10 @@ const platforms: MediaPlatformAdmin[] = [
     description: null,
     logoUrl: null,
     regionScope: "DOMESTIC",
-    status: "ARCHIVED",
+    status: "INACTIVE",
+    pointPrice: null,
     categories: ["CONTENT_PLATFORM"],
-    listing: null,
+    revision: 1,
     createdAt: "2026-09-01T00:00:00.000Z",
     updatedAt: "2026-09-01T00:00:00.000Z",
   },
@@ -66,55 +61,24 @@ describe("Media Supply administrator UI behavior", () => {
       filterAdminPlatforms(platforms, {
         search: "people",
         category: "PORTAL_MEDIA",
-        platformStatus: "ACTIVE",
-        salesStatus: "ON_SHELF",
+        status: "ACTIVE",
       }).map((platform) => platform.displayName),
     ).toEqual(["人民网"]);
     expect(
       filterAdminPlatforms(platforms, {
         search: "",
         category: "ALL",
-        platformStatus: "ALL",
-        salesStatus: "NOT_SELLING",
+        status: "INACTIVE",
       }).map((platform) => platform.displayName),
     ).toEqual(["百家号"]);
   });
 
-  it("includes the displayed Listing revision in every existing update", () => {
-    expect(
-      buildListingMutation({
-        status: "PAUSED",
-        pointPriceInput: "500",
-        reason: "临时维护",
-        currentRevision: 3,
-      }),
-    ).toEqual({
-      errors: {},
-      value: {
-        status: "PAUSED",
-        pointPrice: 500,
-        reason: "临时维护",
-        expectedRevision: 3,
-      },
-    });
-  });
-
-  it("does not offer a return to Draft after a Listing has left Draft", () => {
-    expect(allowedListingStatuses(platforms[0]!.listing)).toEqual([
-      "ON_SHELF",
-      "PAUSED",
-      "OFF_SHELF",
-    ]);
-  });
-
-  it("rejects an on-shelf Listing without a positive whole point price", () => {
-    expect(
-      buildListingMutation({
-        status: "ON_SHELF",
-        pointPriceInput: "",
-        reason: "首次上架",
-      }).errors.pointPrice,
-    ).toBe("上架前必须设置有效积分价");
+  it("requires a positive whole point price only when the platform is enabled", () => {
+    expect(parsePlatformPointPrice("ACTIVE", "").error).toBe(
+      "启用前必须设置有效积分价",
+    );
+    expect(parsePlatformPointPrice("INACTIVE", "")).toEqual({ value: null });
+    expect(parsePlatformPointPrice("ACTIVE", "500")).toEqual({ value: 500 });
     expect(parseNullableWholeNumber("12.5", { allowZero: false }).error).toBe(
       "请输入整数",
     );
@@ -139,11 +103,11 @@ describe("Media Supply administrator UI behavior", () => {
 
   it("presents operation-history fields and common values in business Chinese", () => {
     const value = formatAuditValue({
-      status: "ON_SHELF",
+      status: "ACTIVE",
       procurementCostFen: 12_500,
       publicationMode: "FIRST_PUBLISH",
     });
-    expect(value).toContain('"状态": "销售中"');
+    expect(value).toContain('"状态": "启用"');
     expect(value).toContain('"采购成本": "125 元"');
     expect(value).toContain('"发布方式": "首发"');
     expect(value).not.toContain("procurementCostFen");
@@ -151,12 +115,14 @@ describe("Media Supply administrator UI behavior", () => {
 
   it("classifies stale revision conflicts without treating other failures alike", () => {
     expect(
-      isListingRevisionConflict(
-        new ApiRequestError("销售配置已经变化，请刷新后重试", 409),
+      isPlatformRevisionConflict(
+        new ApiRequestError("平台资料已经变化，请刷新后重试", 409),
       ),
     ).toBe(true);
     expect(
-      isListingRevisionConflict(new ApiRequestError("归档平台不能上架", 409)),
+      isPlatformRevisionConflict(
+        new ApiRequestError("启用前必须设置价格", 409),
+      ),
     ).toBe(false);
     expect(isApiStatus(new ApiRequestError("数据已变化", 409), 409)).toBe(true);
     expect(isApiStatus(new ApiRequestError("服务暂不可用", 503), 409)).toBe(
@@ -191,18 +157,9 @@ describe("Media Supply administrator UI behavior", () => {
         onSaved={() => undefined}
       />,
     );
-    const salesMarkup = renderToStaticMarkup(
-      <ListingEditor
+    const sourceMarkup = renderToStaticMarkup(
+      <SourceEditor
         apiBaseUrl="http://127.0.0.1:3300"
-        platform={platforms[0]!}
-        onClose={() => undefined}
-        onSaved={() => undefined}
-      />,
-    );
-    const initialSalesMarkup = renderToStaticMarkup(
-      <ListingEditor
-        apiBaseUrl="http://127.0.0.1:3300"
-        platform={platforms[1]!}
         onClose={() => undefined}
         onSaved={() => undefined}
       />,
@@ -219,6 +176,10 @@ describe("Media Supply administrator UI behavior", () => {
     expect(platformMarkup).toContain('<option value="DOMESTIC" selected="">');
     expect(platformMarkup).not.toContain("Listing");
     expect(platformMarkup).not.toContain("revision");
+    expect(platformMarkup).toContain('<option value="INACTIVE" selected="">');
+    expect(platformMarkup).toContain("单次积分价");
+    expect(platformMarkup).not.toContain("资料状态");
+    expect(platformMarkup).not.toContain("销售状态");
     expect(platformMarkup).toContain("平台图标地址");
     expect(platformMarkup).not.toContain("修改说明");
     expect(platformEditMarkup).toContain('src="/media/logo.svg"');
@@ -230,10 +191,7 @@ describe("Media Supply administrator UI behavior", () => {
     expect(resourceMarkup).toContain('<option value="MEDIUM" selected="">');
     expect(resourceMarkup).toContain("采购成本（元）");
     expect(resourceMarkup).not.toContain("变更原因");
-    expect(salesMarkup).toContain("销售状态");
-    expect(salesMarkup).not.toContain("Listing");
-    expect(salesMarkup).not.toContain("revision");
-    expect(salesMarkup).not.toContain("草稿");
-    expect(initialSalesMarkup).not.toContain("修改说明");
+    expect(sourceMarkup).toContain('<label class="wide">来源名称');
+    expect(sourceMarkup).not.toContain("修改说明");
   });
 });

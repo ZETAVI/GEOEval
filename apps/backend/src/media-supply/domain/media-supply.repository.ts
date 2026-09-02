@@ -2,7 +2,6 @@ import type {
   MediaCatalogAuditView,
   MediaCategory,
   MediaFulfillmentCandidate,
-  MediaListingFields,
   MediaMutationContext,
   MediaPlatformAdminView,
   MediaPlatformCustomerView,
@@ -39,17 +38,12 @@ export interface MediaSupplyRepository {
     context: MediaMutationContext,
     platformId: string,
     fields: Partial<MediaPlatformFields>,
+    expectedRevision?: number,
   ): Promise<MediaPlatformAdminView>;
   deletePlatform(
     context: MediaMutationContext,
     platformId: string,
   ): Promise<void>;
-  upsertListing(
-    context: MediaMutationContext,
-    platformId: string,
-    fields: MediaListingFields,
-    expectedRevision?: number,
-  ): Promise<MediaPlatformAdminView>;
   listSources(): Promise<MediaSupplySourceView[]>;
   createSource(
     context: MediaMutationContext,

@@ -24,7 +24,7 @@ export function AdminSidebar({ account }: { account: Account }) {
       </nav>
       <div className="admin-boundary-note">
         <b>职责说明</b>
-        <p>管理员维护平台资料和销售设置；实际发布由运营人员负责。</p>
+        <p>管理员维护媒体平台、价格和资源；实际发布由运营人员负责。</p>
       </div>
       <div className="sidebar-account">
         <span>{account.mobile.slice(-4)}</span>

@@ -11,7 +11,6 @@ import type {
   MediaCatalogAuditView,
   MediaCategory,
   MediaFulfillmentCandidate,
-  MediaListingFields,
   MediaMutationContext,
   MediaPlatformAdminView,
   MediaPlatformCustomerView,
@@ -27,7 +26,7 @@ import { MEDIA_CATEGORIES } from "../domain/media-supply.types.js";
 
 type Transaction = Prisma.TransactionClient;
 type PlatformRecord = Prisma.MediaPlatformGetPayload<{
-  include: { categories: true; listing: true };
+  include: { categories: true };
 }>;
 type ResourceRecord = Prisma.MediaResourceGetPayload<{
   include: { supplySource: true };
@@ -35,7 +34,6 @@ type ResourceRecord = Prisma.MediaResourceGetPayload<{
 
 const PLATFORM_INCLUDE = {
   categories: true,
-  listing: true,
 } as const;
 
 @Injectable()
@@ -58,7 +56,7 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
     const platforms = await this.prisma.mediaPlatform.findMany({
       where: {
         status: "ACTIVE",
-        listing: { is: { status: "ON_SHELF", pointPrice: { gt: 0 } } },
+        pointPrice: { gt: 0 },
         ...(input.category
           ? { categories: { some: { category: input.category } } }
           : {}),
@@ -83,7 +81,7 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
       where: {
         id: platformId,
         status: "ACTIVE",
-        listing: { is: { status: "ON_SHELF", pointPrice: { gt: 0 } } },
+        pointPrice: { gt: 0 },
       },
       include: {
         ...PLATFORM_INCLUDE,
@@ -145,12 +143,14 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
             logoUrl: fields.logoUrl,
             regionScope: fields.regionScope,
             status: fields.status,
+            pointPrice: fields.pointPrice,
             categories: {
               create: fields.categories.map((category) => ({ category })),
             },
           },
           include: PLATFORM_INCLUDE,
         });
+        if (isPublicPlatform(platform)) await touchCatalog(tx);
         await audit(
           tx,
           context,
@@ -169,6 +169,7 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
     context: MediaMutationContext,
     platformId: string,
     fields: Partial<MediaPlatformFields>,
+    expectedRevision?: number,
   ): Promise<MediaPlatformAdminView> {
     return this.withErrors(() =>
       this.prisma.$transaction(async (tx) => {
@@ -177,10 +178,18 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
           include: PLATFORM_INCLUDE,
         });
         if (!before) throw new MediaSupplyNotFoundError("未找到该媒体平台");
+        const nextStatus = fields.status ?? before.status;
+        const nextPointPrice =
+          fields.pointPrice === undefined
+            ? before.pointPrice
+            : fields.pointPrice;
+        if (
+          nextStatus === "ACTIVE" &&
+          (typeof nextPointPrice !== "number" || nextPointPrice <= 0)
+        ) {
+          throw new MediaSupplyConflictError("启用前必须设置有效积分价");
+        }
         const { categories, ...scalarFields } = fields;
-        const quoteVisibleChanged = ["displayName", "status"].some(
-          (key) => key in scalarFields,
-        );
         const publicChanged =
           [
             "displayName",
@@ -188,30 +197,28 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
             "logoUrl",
             "regionScope",
             "status",
+            "pointPrice",
           ].some((key) => key in scalarFields) || categories !== undefined;
-        if (categories) {
-          await tx.mediaPlatformCategory.deleteMany({ where: { platformId } });
-        }
-        await tx.mediaPlatform.update({
-          where: { id: platformId },
+        const updated = await tx.mediaPlatform.updateMany({
+          where: {
+            id: platformId,
+            revision: expectedRevision ?? before.revision,
+          },
           data: {
             ...scalarFields,
             ...(fields.displayName
               ? { normalizedName: normalizePlatformName(fields.displayName) }
               : {}),
-            ...(categories
-              ? {
-                  categories: {
-                    create: categories.map((category) => ({ category })),
-                  },
-                }
-              : {}),
+            revision: { increment: 1 },
           },
         });
-        if (before.listing && quoteVisibleChanged) {
-          await tx.mediaPlatformListing.update({
-            where: { platformId },
-            data: { revision: { increment: 1 } },
+        if (updated.count !== 1) {
+          throw new MediaSupplyConflictError("平台资料已经变化，请刷新后重试");
+        }
+        if (categories) {
+          await tx.mediaPlatformCategory.deleteMany({ where: { platformId } });
+          await tx.mediaPlatformCategory.createMany({
+            data: categories.map((category) => ({ platformId, category })),
           });
         }
         const after = await tx.mediaPlatform.findUniqueOrThrow({
@@ -252,16 +259,10 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
           },
         });
         if (!before) throw new MediaSupplyNotFoundError("未找到该媒体平台");
-        if (
-          (before.listing && before.listing.status !== "DRAFT") ||
-          before._count.resources > 0
-        ) {
+        if (before.status === "ACTIVE" || before._count.resources > 0) {
           throw new MediaSupplyConflictError(
-            "该平台已有业务依赖，请改为归档或下架",
+            "该平台正在使用或已有业务依赖，请先停用",
           );
-        }
-        if (before.listing) {
-          await tx.mediaPlatformListing.delete({ where: { platformId } });
         }
         await tx.mediaPlatformCategory.deleteMany({ where: { platformId } });
         await tx.mediaPlatform.delete({ where: { id: platformId } });
@@ -274,72 +275,6 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
           before,
           null,
         );
-      }),
-    );
-  }
-
-  upsertListing(
-    context: MediaMutationContext,
-    platformId: string,
-    fields: MediaListingFields,
-    expectedRevision?: number,
-  ): Promise<MediaPlatformAdminView> {
-    return this.withErrors(() =>
-      this.prisma.$transaction(async (tx) => {
-        const platform = await tx.mediaPlatform.findUnique({
-          where: { id: platformId },
-          include: PLATFORM_INCLUDE,
-        });
-        if (!platform) throw new MediaSupplyNotFoundError("未找到该媒体平台");
-        if (fields.status === "ON_SHELF" && platform.status !== "ACTIVE") {
-          throw new MediaSupplyConflictError("归档平台不能上架");
-        }
-        const before = platform.listing;
-        if (before && !listingTransitionAllowed(before.status, fields.status)) {
-          throw new MediaSupplyConflictError("销售配置不能返回该状态");
-        }
-        if (!before) {
-          if (expectedRevision !== undefined) {
-            throw new MediaSupplyConflictError(
-              "销售配置已经变化，请刷新后重试",
-            );
-          }
-          await tx.mediaPlatformListing.create({
-            data: { platformId, ...fields },
-          });
-        } else if (expectedRevision !== undefined) {
-          const updated = await tx.mediaPlatformListing.updateMany({
-            where: { platformId, revision: expectedRevision },
-            data: { ...fields, revision: { increment: 1 } },
-          });
-          if (updated.count !== 1) {
-            throw new MediaSupplyConflictError(
-              "销售配置已经变化，请刷新后重试",
-            );
-          }
-        } else {
-          await tx.mediaPlatformListing.update({
-            where: { platformId },
-            data: { ...fields, revision: { increment: 1 } },
-          });
-        }
-        const after = await tx.mediaPlatform.findUniqueOrThrow({
-          where: { id: platformId },
-          include: PLATFORM_INCLUDE,
-        });
-        if (before?.status === "ON_SHELF" || fields.status === "ON_SHELF") {
-          await touchCatalog(tx);
-        }
-        await audit(
-          tx,
-          context,
-          "LISTING",
-          platformId,
-          before ? "UPDATE" : "CREATE",
-          before,
-          after.listing,
-        );
-        return mapAdminPlatform(after);
       }),
     );
   }
@@ -535,20 +470,18 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
   async quotePlatform(platformId: string): Promise<MediaPlatformQuote> {
     const platform = await this.prisma.mediaPlatform.findUnique({
       where: { id: platformId },
-      include: { listing: true },
     });
     if (!platform) throw new MediaSupplyNotFoundError("未找到该媒体平台");
     const buyable =
       platform.status === "ACTIVE" &&
-      platform.listing?.status === "ON_SHELF" &&
-      typeof platform.listing.pointPrice === "number" &&
-      platform.listing.pointPrice > 0;
+      typeof platform.pointPrice === "number" &&
+      platform.pointPrice > 0;
     return {
       platformId,
       displayName: platform.displayName,
       buyable,
-      pointPrice: platform.listing?.pointPrice ?? null,
-      listingRevision: platform.listing?.revision ?? null,
+      pointPrice: platform.pointPrice,
+      revision: platform.revision,
     };
   }
 
@@ -624,16 +557,9 @@ function mapAdminPlatform(platform: PlatformRecord): MediaPlatformAdminView {
     logoUrl: platform.logoUrl,
     regionScope: platform.regionScope,
     status: platform.status,
+    pointPrice: platform.pointPrice,
     categories: orderedCategories(platform.categories),
-    listing: platform.listing
-      ? {
-          status: platform.listing.status,
-          pointPrice: platform.listing.pointPrice,
-          revision: platform.listing.revision,
-          createdAt: platform.listing.createdAt,
-          updatedAt: platform.listing.updatedAt,
-        }
-      : null,
+    revision: platform.revision,
     createdAt: platform.createdAt,
     updatedAt: platform.updatedAt,
   };
@@ -650,8 +576,8 @@ function mapCustomerPlatform(
     logoUrl: platform.logoUrl,
     regionScope: platform.regionScope,
     categories: orderedCategories(platform.categories),
-    pointPrice: platform.listing!.pointPrice!,
-    listingRevision: platform.listing!.revision,
+    pointPrice: platform.pointPrice!,
+    revision: platform.revision,
     examples,
   };
 }
@@ -689,28 +615,11 @@ function orderedCategories(
   return MEDIA_CATEGORIES.filter((category) => selected.has(category));
 }
 
-function listingTransitionAllowed(
-  from: MediaListingFields["status"],
-  to: MediaListingFields["status"],
-): boolean {
-  const allowed: Record<
-    MediaListingFields["status"],
-    MediaListingFields["status"][]
-  > = {
-    DRAFT: ["DRAFT", "ON_SHELF", "OFF_SHELF"],
-    ON_SHELF: ["ON_SHELF", "PAUSED", "OFF_SHELF"],
-    PAUSED: ["PAUSED", "ON_SHELF", "OFF_SHELF"],
-    OFF_SHELF: ["OFF_SHELF", "ON_SHELF"],
-  };
-  return allowed[from].includes(to);
-}
-
 function isPublicPlatform(platform: PlatformRecord): boolean {
   return (
     platform.status === "ACTIVE" &&
-    platform.listing?.status === "ON_SHELF" &&
-    typeof platform.listing.pointPrice === "number" &&
-    platform.listing.pointPrice > 0
+    typeof platform.pointPrice === "number" &&
+    platform.pointPrice > 0
   );
 }
 
@@ -723,14 +632,12 @@ async function isPublicResource(
   }
   const platform = await tx.mediaPlatform.findUnique({
     where: { id: resource.platformId },
-    include: { listing: true },
   });
   return Boolean(
     platform &&
     platform.status === "ACTIVE" &&
-    platform.listing?.status === "ON_SHELF" &&
-    platform.listing.pointPrice &&
-    platform.listing.pointPrice > 0,
+    platform.pointPrice &&
+    platform.pointPrice > 0,
   );
 }
 

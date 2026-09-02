@@ -26,8 +26,6 @@ export type TerminalRegionOptionList =
   components["schemas"]["TerminalRegionOptionListResponse"];
 export type MediaPlatformAdmin =
   components["schemas"]["MediaPlatformAdminResponse"];
-export type MediaListingAdmin =
-  components["schemas"]["MediaListingAdminResponse"];
 export type MediaSupplySource =
   components["schemas"]["MediaSupplySourceResponse"];
 export type MediaResourceAdmin =
@@ -40,8 +38,6 @@ export type MediaPlatformCreate =
   components["schemas"]["MediaPlatformCreateRequest"];
 export type MediaPlatformUpdate =
   components["schemas"]["MediaPlatformUpdateRequest"];
-export type MediaListingMutation =
-  components["schemas"]["MediaListingMutationRequest"];
 export type MediaSupplySourceCreate =
   components["schemas"]["MediaSupplySourceCreateRequest"];
 export type MediaSupplySourceUpdate =
@@ -318,18 +314,6 @@ export function updateAdminMediaPlatform(
     apiBaseUrl,
     `/admin/media/platforms/${encodeURIComponent(platformId)}`,
     { method: "PATCH", body: JSON.stringify(input) },
-  );
-}
-
-export function saveAdminMediaListing(
-  apiBaseUrl: string,
-  platformId: string,
-  input: MediaListingMutation,
-): Promise<MediaPlatformAdmin> {
-  return apiRequest(
-    apiBaseUrl,
-    `/admin/media/platforms/${encodeURIComponent(platformId)}/listing`,
-    { method: "PUT", body: JSON.stringify(input) },
   );
 }
 

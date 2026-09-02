@@ -836,37 +836,6 @@
         ]
       }
     },
-    "/admin/media/platforms/{platformId}/listing": {
-      "put": {
-        "operationId": "MediaAdminController_listing",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MediaListingMutationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MediaPlatformAdminResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "admin-media"
-        ]
-      }
-    },
     "/admin/media/sources": {
       "get": {
         "operationId": "MediaAdminController_sources",
@@ -2591,7 +2560,7 @@
             "type": "number",
             "minimum": 1
           },
-          "listingRevision": {
+          "revision": {
             "type": "number",
             "minimum": 1
           },
@@ -2608,7 +2577,7 @@
           "regionScope",
           "categories",
           "pointPrice",
-          "listingRevision",
+          "revision",
           "examples"
         ]
       },
@@ -2629,41 +2598,6 @@
         },
         "required": [
           "items"
-        ]
-      },
-      "MediaListingAdminResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "ON_SHELF",
-              "PAUSED",
-              "OFF_SHELF"
-            ]
-          },
-          "pointPrice": {
-            "type": "number",
-            "nullable": true
-          },
-          "revision": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "status",
-          "revision",
-          "createdAt",
-          "updatedAt"
         ]
       },
       "MediaPlatformAdminResponse": {
@@ -2704,8 +2638,13 @@
             "type": "string",
             "enum": [
               "ACTIVE",
-              "ARCHIVED"
+              "INACTIVE"
             ]
+          },
+          "pointPrice": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1
           },
           "categories": {
             "type": "array",
@@ -2721,14 +2660,9 @@
               ]
             }
           },
-          "listing": {
-            "nullable": true,
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MediaListingAdminResponse"
-              }
-            ]
+          "revision": {
+            "type": "number",
+            "minimum": 1
           },
           "createdAt": {
             "type": "string",
@@ -2747,6 +2681,7 @@
           "regionScope",
           "status",
           "categories",
+          "revision",
           "createdAt",
           "updatedAt"
         ]
@@ -2789,9 +2724,14 @@
             "type": "string",
             "enum": [
               "ACTIVE",
-              "ARCHIVED"
+              "INACTIVE"
             ],
-            "default": "ACTIVE"
+            "default": "INACTIVE"
+          },
+          "pointPrice": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1
           },
           "categories": {
             "type": "array",
@@ -2850,8 +2790,13 @@
             "type": "string",
             "enum": [
               "ACTIVE",
-              "ARCHIVED"
+              "INACTIVE"
             ]
+          },
+          "pointPrice": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1
           },
           "categories": {
             "type": "array",
@@ -2866,10 +2811,15 @@
                 "OVERSEAS_MEDIA"
               ]
             }
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "expectedRevision"
         ]
       },
       "MediaReasonRequest": {
@@ -2882,38 +2832,6 @@
         },
         "required": [
           "reason"
-        ]
-      },
-      "MediaListingMutationRequest": {
-        "type": "object",
-        "properties": {
-          "reason": {
-            "type": "string",
-            "maxLength": 320
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "ON_SHELF",
-              "PAUSED",
-              "OFF_SHELF"
-            ]
-          },
-          "pointPrice": {
-            "type": "number",
-            "nullable": true,
-            "minimum": 1
-          },
-          "expectedRevision": {
-            "type": "number",
-            "minimum": 1
-          }
-        },
-        "required": [
-          "reason",
-          "status",
-          "pointPrice"
         ]
       },
       "MediaSupplySourceResponse": {

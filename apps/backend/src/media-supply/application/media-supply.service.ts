@@ -18,7 +18,6 @@ import {
 import {
   MEDIA_CATEGORIES,
   type MediaCategory,
-  type MediaListingFields,
   type MediaPlatformFields,
   type MediaResourceFields,
   type MediaSupplySourceFields,
@@ -91,12 +90,13 @@ export class MediaSupplyService {
 
   updatePlatform(actorAccountId: string, platformId: string, input: unknown) {
     const parsed = parseOrBadRequest(platformUpdateSchema, input);
-    const { reason, ...fields } = parsed;
+    const { reason, expectedRevision, ...fields } = parsed;
     return this.execute(() =>
       this.repository.updatePlatform(
         { actorAccountId, reason },
         platformId,
         fields as Partial<MediaPlatformFields>,
+        expectedRevision,
       ),
     );
   }
@@ -105,19 +105,6 @@ export class MediaSupplyService {
     const { reason } = parseOrBadRequest(reasonSchema, input);
     return this.execute(() =>
       this.repository.deletePlatform({ actorAccountId, reason }, platformId),
-    );
-  }
-
-  upsertListing(actorAccountId: string, platformId: string, input: unknown) {
-    const parsed = parseOrBadRequest(listingSchema, input);
-    const { reason, expectedRevision, ...fields } = parsed;
-    return this.execute(() =>
-      this.repository.upsertListing(
-        { actorAccountId, reason },
-        platformId,
-        fields as MediaListingFields,
-        expectedRevision,
-      ),
     );
   }
 
@@ -250,42 +237,56 @@ const optionalUrl = z
 const reasonSchema = z.object({ reason }).strict();
 const platformFields = z.object({
   displayName: z.string().trim().min(1).max(160),
-  aliases: z.array(z.string().trim().min(1).max(160)).max(20).default([]),
-  description: nullableText(2000).default(null),
-  logoUrl: optionalUrl.default(null),
-  regionScope: z.enum(["DOMESTIC", "OVERSEAS"]).default("DOMESTIC"),
-  status: z.enum(["ACTIVE", "ARCHIVED"]).default("ACTIVE"),
+  aliases: z.array(z.string().trim().min(1).max(160)).max(20),
+  description: nullableText(2000),
+  logoUrl: optionalUrl,
+  regionScope: z.enum(["DOMESTIC", "OVERSEAS"]),
+  status: z.enum(["ACTIVE", "INACTIVE"]),
+  pointPrice: z.number().int().positive().max(2_147_483_647).nullable(),
   categories: z.array(z.enum(MEDIA_CATEGORIES)).min(1).transform(unique),
 });
-const platformCreateSchema = platformFields.extend({ reason }).strict();
-const platformUpdateSchema = platformFields
-  .partial()
-  .extend({ reason })
-  .strict()
-  .refine((value) => Object.keys(value).some((key) => key !== "reason"), {
-    message: "至少修改一个平台字段",
-  });
-
-const listingSchema = z
-  .object({
-    status: z.enum(["DRAFT", "ON_SHELF", "PAUSED", "OFF_SHELF"]),
-    pointPrice: z.number().int().positive().max(2_147_483_647).nullable(),
-    expectedRevision: z.number().int().positive().optional(),
+const platformCreateSchema = platformFields
+  .extend({
+    aliases: platformFields.shape.aliases.default([]),
+    description: platformFields.shape.description.default(null),
+    logoUrl: platformFields.shape.logoUrl.default(null),
+    regionScope: platformFields.shape.regionScope.default("DOMESTIC"),
+    status: platformFields.shape.status.default("INACTIVE"),
+    pointPrice: platformFields.shape.pointPrice.default(null),
     reason,
   })
   .strict()
-  .refine((value) => value.status !== "ON_SHELF" || value.pointPrice !== null, {
-    message: "上架前必须设置有效积分价",
+  .refine((value) => value.status !== "ACTIVE" || value.pointPrice !== null, {
+    message: "启用前必须设置有效积分价",
   });
+const platformUpdateSchema = platformFields
+  .partial()
+  .extend({ expectedRevision: z.number().int().positive(), reason })
+  .strict()
+  .refine(
+    (value) =>
+      Object.keys(value).some(
+        (key) => key !== "reason" && key !== "expectedRevision",
+      ),
+    { message: "至少修改一个平台字段" },
+  );
 
 const sourceFields = z.object({
   name: z.string().trim().min(1).max(160),
-  contactName: nullableText(160).default(null),
-  contactMethod: nullableText(320).default(null),
-  status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
-  notes: nullableText(4000).default(null),
+  contactName: nullableText(160),
+  contactMethod: nullableText(320),
+  status: z.enum(["ACTIVE", "INACTIVE"]),
+  notes: nullableText(4000),
 });
-const sourceCreateSchema = sourceFields.extend({ reason }).strict();
+const sourceCreateSchema = sourceFields
+  .extend({
+    contactName: sourceFields.shape.contactName.default(null),
+    contactMethod: sourceFields.shape.contactMethod.default(null),
+    status: sourceFields.shape.status.default("ACTIVE"),
+    notes: sourceFields.shape.notes.default(null),
+    reason,
+  })
+  .strict();
 const sourceUpdateSchema = sourceFields
   .partial()
   .extend({ reason })
@@ -298,25 +299,37 @@ const resourceFields = z.object({
   platformId: z.string().uuid(),
   supplySourceId: z.string().uuid(),
   resourceName: z.string().trim().min(1).max(240),
-  accountIdentifier: nullableText(240).default(null),
-  accountUrl: optionalUrl.default(null),
-  publicationMode: z.enum(["FIRST_PUBLISH", "REPOST"]).default("FIRST_PUBLISH"),
-  status: z.enum(["ACTIVE", "PAUSED", "ARCHIVED"]).default("ACTIVE"),
-  publicVisibility: z.enum(["HIDDEN", "FULL", "MASKED"]).default("HIDDEN"),
-  publicAlias: nullableText(240).default(null),
-  qualityTier: z.enum(["HIGH", "MEDIUM", "LOW"]).default("MEDIUM"),
+  accountIdentifier: nullableText(240),
+  accountUrl: optionalUrl,
+  publicationMode: z.enum(["FIRST_PUBLISH", "REPOST"]),
+  status: z.enum(["ACTIVE", "PAUSED", "ARCHIVED"]),
+  publicVisibility: z.enum(["HIDDEN", "FULL", "MASKED"]),
+  publicAlias: nullableText(240),
+  qualityTier: z.enum(["HIGH", "MEDIUM", "LOW"]),
   procurementCostFen: z
     .number()
     .int()
     .nonnegative()
     .max(2_147_483_647)
-    .nullable()
-    .default(null),
-  caseUrl: optionalUrl.default(null),
-  publicationNotes: nullableText(8000).default(null),
+    .nullable(),
+  caseUrl: optionalUrl,
+  publicationNotes: nullableText(8000),
 });
 const resourceCreateSchema = resourceFields
-  .extend({ reason })
+  .extend({
+    accountIdentifier: resourceFields.shape.accountIdentifier.default(null),
+    accountUrl: resourceFields.shape.accountUrl.default(null),
+    publicationMode:
+      resourceFields.shape.publicationMode.default("FIRST_PUBLISH"),
+    status: resourceFields.shape.status.default("ACTIVE"),
+    publicVisibility: resourceFields.shape.publicVisibility.default("HIDDEN"),
+    publicAlias: resourceFields.shape.publicAlias.default(null),
+    qualityTier: resourceFields.shape.qualityTier.default("MEDIUM"),
+    procurementCostFen: resourceFields.shape.procurementCostFen.default(null),
+    caseUrl: resourceFields.shape.caseUrl.default(null),
+    publicationNotes: resourceFields.shape.publicationNotes.default(null),
+    reason,
+  })
   .strict()
   .refine(
     (value) =>

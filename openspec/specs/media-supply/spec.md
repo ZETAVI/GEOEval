@@ -11,7 +11,7 @@ non-selectable examples and operations references.
 #### Scenario: A customer browses the media library
 
 - **WHEN** an authenticated customer opens the media library
-- **THEN** the customer first sees the fixed media categories and the on-shelf
+- **THEN** the customer first sees the fixed media categories and the enabled
   platforms associated with the selected category
 - **AND** one platform associated with several categories remains one platform
   record and one platform-level price
@@ -31,37 +31,38 @@ non-selectable examples and operations references.
 - **AND** the first release does not require province, city, industry-tag, or
   platform-form sub-classification.
 
-### Requirement: Independent platform and listing lifecycles
+### Requirement: One platform is one priced sales unit
 
-Media Supply SHALL keep stable platform identity separate from its zero-or-one
-customer sales listing without introducing a separate catalog-offer domain.
+Media Supply SHALL keep the first-release price and availability on the media
+platform itself and SHALL NOT introduce a separate one-to-one Listing lifecycle.
 
 #### Scenario: An administrator prepares a platform before sale
 
 - **WHEN** an administrator creates a platform
-- **THEN** the platform identity, classification, description, and Logo
-  reference can exist without a customer listing
-- **AND** a listing can later move through `DRAFT`, `ON_SHELF`, `PAUSED`, and
-  `OFF_SHELF`
-- **AND** only an active platform whose listing is `ON_SHELF` with a positive
-  whole-number point price is buyable.
+- **THEN** the platform defaults to `INACTIVE` while its identity,
+  classification, description, Logo reference, resources, and optional point
+  price can still be maintained
+- **AND** only an `ACTIVE` platform with a positive whole-number point price is
+  buyable
+- **AND** changing the platform to `INACTIVE` immediately stops new orders
+  without deleting its facts, resources, or history.
 
 #### Scenario: A platform has no stored resource candidate
 
-- **GIVEN** an active platform has an on-shelf listing and valid point price
+- **GIVEN** an active platform has a valid point price
 - **WHEN** it has no active stored resource or every stored source is inactive
-- **THEN** the platform remains buyable because the listing is the
+- **THEN** the platform remains buyable because its active state is the
   administrator's explicit sale decision
 - **AND** the customer sees no unsupported resource example
 - **AND** operations may arrange an unlisted account
-- **AND** an administrator pauses or takes the listing off shelf when the
-  platform as a whole can no longer be fulfilled.
+- **AND** an administrator disables the platform when it can no longer accept
+  orders.
 
 #### Scenario: A commercial fact changes
 
-- **WHEN** the point price, listing status, or another quote-visible platform
+- **WHEN** the point price, platform status, or another quote-visible platform
   fact changes
-- **THEN** the listing commercial revision advances atomically with the change
+- **THEN** the platform revision advances atomically with the change
 - **AND** a later quote returns the new fact and revision
 - **AND** an earlier page or unpaid choice does not reserve the old price.
 
@@ -98,7 +99,7 @@ SLA sub-system.
   role
 - **AND** optional RMB procurement cost, case link, speed, inclusion,
   modification, and content constraints remain internal records or notes
-- **AND** missing procurement cost cannot block platform listing.
+- **AND** missing procurement cost cannot block platform activation.
 
 ### Requirement: Customer-safe resource examples
 
@@ -137,13 +138,13 @@ than reusing administrator records or implying a resource-level commitment.
 ### Requirement: Administrator-owned maintenance and audit
 
 Media Supply SHALL allow only system administrators to mutate media facts,
-availability, listing state, or point price and SHALL record every accepted
+availability or point price and SHALL record every accepted
 mutation atomically with its audit evidence.
 
 #### Scenario: An administrator changes catalog data
 
-- **WHEN** an authenticated `ADMINISTRATOR` creates, edits, archives, restores,
-  prices, pauses, publishes, or takes a media record off shelf
+- **WHEN** an authenticated `ADMINISTRATOR` creates, edits, enables, disables,
+  or prices a media platform or maintains a resource or source
 - **THEN** the same database transaction records the actor, time, action,
   reason, entity identity, and before-and-after values
 - **AND** a failed mutation leaves neither a partial business write nor an audit
@@ -160,10 +161,10 @@ mutation atomically with its audit evidence.
 
 #### Scenario: A record has business dependents
 
-- **WHEN** a platform, listing, resource, or source is referenced by another
+- **WHEN** a platform, resource, or source is referenced by another
   durable record
 - **THEN** it cannot be removed through cascading physical deletion
-- **AND** the administrator uses pause, off-shelf, inactive, or archive state to
+- **AND** the administrator uses inactive or archive state to
   stop new use while preserving historical meaning
 - **BUT WHEN** an erroneous test record has no dependents
 - **THEN** an explicit administrator delete may remove it while preserving the
@@ -172,8 +173,8 @@ mutation atomically with its audit evidence.
 ### Requirement: Role-specific administrator maintenance workspace
 
 Media Supply SHALL provide a Web workspace that lets an authenticated system
-administrator use the existing maintenance and audit contracts without merging
-platform identity, Listing, concrete resource, or internal source ownership.
+administrator maintain media platforms, concrete resources, and internal
+sources through their owner-local contracts.
 
 #### Scenario: An administrator signs in or returns to maintenance
 
@@ -198,16 +199,16 @@ platform identity, Listing, concrete resource, or internal source ownership.
 - **WHEN** the administrator searches or filters the workspace
 - **THEN** one platform identity remains one result even when it belongs to
   several categories
-- **AND** text and category can narrow the result while platform-data status
-  and customer-sales status remain two separately labeled filters
+- **AND** text, category, and one platform-status filter can narrow the result
+  by `ACTIVE` or `INACTIVE`
 - **AND** an empty catalog offers platform creation while a filtered-empty result
   offers filter recovery
-- **AND** selecting a platform opens separately labeled platform-data, sales,
+- **AND** selecting a platform opens clearly labeled platform-information,
   media-resource, partner-source, and operation-history regions
 - **AND** the Web uses concise Chinese business language rather than exposing
   internal names such as Listing or revision
-- **AND** internal Draft is presented as not on sale rather than as a customer-
-  facing draft workflow
+- **AND** the Web does not expose internal names such as Listing, Draft,
+  on-shelf, off-shelf, or a second sales-status concept
 - **AND** create forms generate a bounded create reason without asking the
   administrator to type one, while later edits require a short change note
 - **AND** every accepted mutation refreshes the projection and operation-history
@@ -216,7 +217,7 @@ platform identity, Listing, concrete resource, or internal source ownership.
 #### Scenario: A create form uses the accepted defaults
 
 - **WHEN** the administrator creates a platform, resource, or source
-- **THEN** platform scope defaults to domestic and platform status to active
+- **THEN** platform scope defaults to domestic and platform status to inactive
 - **AND** resource mode defaults to first publish, status to active, customer
   visibility to hidden, and internal quality tier to medium
 - **AND** source status defaults to active
@@ -253,12 +254,13 @@ platform identity, Listing, concrete resource, or internal source ownership.
 ### Requirement: Durable catalog and commercial revisions
 
 Media Supply SHALL use PostgreSQL as the only durable catalog source and SHALL
-separate customer freshness revision from per-listing commercial revision.
+separate customer freshness revision from each platform's optimistic-concurrency
+revision.
 
 #### Scenario: A customer-visible fact changes
 
 - **WHEN** an administrator commits a change that alters categories, an
-  on-shelf platform projection, point price, listing availability, or visible
+  enabled platform projection, point price, platform availability, or visible
   resource examples
 - **THEN** one global public-catalog revision advances in the same transaction
 - **AND** a lightweight revision or conditional catalog request can detect the
@@ -266,15 +268,15 @@ separate customer freshness revision from per-listing commercial revision.
 - **AND** internal-only source, procurement, contact, case, or note edits do not
   create unnecessary customer refreshes.
 
-#### Scenario: Two administrator pages edit the same Listing revision
+#### Scenario: Two administrator pages edit the same platform revision
 
-- **GIVEN** two pages show the same current Listing revision
-- **WHEN** one page saves a commercial change and the other later submits the
+- **GIVEN** two pages show the same current platform revision
+- **WHEN** one page saves a platform change and the other later submits the
   older revision
-- **THEN** every existing-Listing mutation includes the revision displayed by
+- **THEN** every existing-platform mutation includes the revision displayed by
   that page as `expectedRevision`
 - **AND** the stale request cannot overwrite the accepted price or state
-- **AND** the Web explains that commercial data changed elsewhere
+- **AND** the Web explains that platform data changed elsewhere
 - **AND** the administrator must refresh to the latest revision, review the new
   price and state, and submit again before another change can succeed.
 
@@ -291,7 +293,7 @@ separate customer freshness revision from per-listing commercial revision.
 
 - **WHEN** future Publishing Commerce requests a quote before deducting points
 - **THEN** Media Supply returns the platform identity, current customer display
-  name, buyability, whole-number point price, and listing revision
+  name, buyability, whole-number point price, and platform revision
 - **AND** Commerce rejects or reconfirms an unavailable or changed quote and
   owns the paid platform, price, revision, and quantity snapshot
 - **AND** catalog polling never substitutes for this synchronous check.

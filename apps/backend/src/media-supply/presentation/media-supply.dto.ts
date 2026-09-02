@@ -30,8 +30,11 @@ export class MediaPlatformCreateRequest extends MediaReasonRequest {
   @ApiPropertyOptional({ enum: ["DOMESTIC", "OVERSEAS"], default: "DOMESTIC" })
   regionScope?: string;
 
-  @ApiPropertyOptional({ enum: ["ACTIVE", "ARCHIVED"], default: "ACTIVE" })
+  @ApiPropertyOptional({ enum: ["ACTIVE", "INACTIVE"], default: "INACTIVE" })
   status?: string;
+
+  @ApiPropertyOptional({ type: Number, nullable: true, minimum: 1 })
+  pointPrice?: number | null;
 
   @ApiProperty({ enum: CATEGORIES, isArray: true })
   categories!: string[];
@@ -53,22 +56,17 @@ export class MediaPlatformUpdateRequest extends MediaReasonRequest {
   @ApiPropertyOptional({ enum: ["DOMESTIC", "OVERSEAS"] })
   regionScope?: string;
 
-  @ApiPropertyOptional({ enum: ["ACTIVE", "ARCHIVED"] })
+  @ApiPropertyOptional({ enum: ["ACTIVE", "INACTIVE"] })
   status?: string;
+
+  @ApiPropertyOptional({ type: Number, nullable: true, minimum: 1 })
+  pointPrice?: number | null;
 
   @ApiPropertyOptional({ enum: CATEGORIES, isArray: true })
   categories?: string[];
-}
 
-export class MediaListingMutationRequest extends MediaReasonRequest {
-  @ApiProperty({ enum: ["DRAFT", "ON_SHELF", "PAUSED", "OFF_SHELF"] })
-  status!: string;
-
-  @ApiProperty({ type: Number, nullable: true, minimum: 1 })
-  pointPrice!: number | null;
-
-  @ApiPropertyOptional({ type: Number, minimum: 1 })
-  expectedRevision?: number;
+  @ApiProperty({ type: Number, minimum: 1 })
+  expectedRevision!: number;
 }
 
 export class MediaSupplySourceCreateRequest extends MediaReasonRequest {
@@ -238,7 +236,7 @@ export class MediaPlatformCustomerResponse {
   pointPrice!: number;
 
   @ApiProperty({ type: Number, minimum: 1 })
-  listingRevision!: number;
+  revision!: number;
 
   @ApiProperty({ type: [MediaResourceExampleResponse] })
   examples!: MediaResourceExampleResponse[];
@@ -255,23 +253,6 @@ export class MediaPlatformPageResponse {
 export class MediaCatalogRevisionResponse {
   @ApiProperty({ type: String })
   revision!: string;
-}
-
-export class MediaListingAdminResponse {
-  @ApiProperty({ enum: ["DRAFT", "ON_SHELF", "PAUSED", "OFF_SHELF"] })
-  status!: string;
-
-  @ApiPropertyOptional({ type: Number, nullable: true })
-  pointPrice!: number | null;
-
-  @ApiProperty({ type: Number })
-  revision!: number;
-
-  @ApiProperty({ type: String, format: "date-time" })
-  createdAt!: Date;
-
-  @ApiProperty({ type: String, format: "date-time" })
-  updatedAt!: Date;
 }
 
 export class MediaPlatformAdminResponse {
@@ -296,14 +277,17 @@ export class MediaPlatformAdminResponse {
   @ApiProperty({ enum: ["DOMESTIC", "OVERSEAS"] })
   regionScope!: string;
 
-  @ApiProperty({ enum: ["ACTIVE", "ARCHIVED"] })
+  @ApiProperty({ enum: ["ACTIVE", "INACTIVE"] })
   status!: string;
+
+  @ApiPropertyOptional({ type: Number, nullable: true, minimum: 1 })
+  pointPrice!: number | null;
 
   @ApiProperty({ enum: CATEGORIES, isArray: true })
   categories!: string[];
 
-  @ApiPropertyOptional({ type: MediaListingAdminResponse, nullable: true })
-  listing!: MediaListingAdminResponse | null;
+  @ApiProperty({ type: Number, minimum: 1 })
+  revision!: number;
 
   @ApiProperty({ type: String, format: "date-time" })
   createdAt!: Date;

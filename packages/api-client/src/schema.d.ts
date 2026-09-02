@@ -484,22 +484,6 @@ export interface paths {
         patch: operations["MediaAdminController_updatePlatform"];
         trace?: never;
     };
-    "/admin/media/platforms/{platformId}/listing": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["MediaAdminController_listing"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/media/sources": {
         parameters: {
             query?: never;
@@ -1001,23 +985,13 @@ export interface components {
             regionScope: "DOMESTIC" | "OVERSEAS";
             categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
             pointPrice: number;
-            listingRevision: number;
+            revision: number;
             examples: components["schemas"]["MediaResourceExampleResponse"][];
         };
         MediaPlatformPageResponse: {
             items: components["schemas"]["MediaPlatformCustomerResponse"][];
             /** Format: uuid */
             nextCursor?: string | null;
-        };
-        MediaListingAdminResponse: {
-            /** @enum {string} */
-            status: "DRAFT" | "ON_SHELF" | "PAUSED" | "OFF_SHELF";
-            pointPrice?: number | null;
-            revision: number;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
         };
         MediaPlatformAdminResponse: {
             /** Format: uuid */
@@ -1030,9 +1004,10 @@ export interface components {
             /** @enum {string} */
             regionScope: "DOMESTIC" | "OVERSEAS";
             /** @enum {string} */
-            status: "ACTIVE" | "ARCHIVED";
+            status: "ACTIVE" | "INACTIVE";
+            pointPrice?: number | null;
             categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
-            listing?: components["schemas"]["MediaListingAdminResponse"] | null;
+            revision: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -1051,10 +1026,11 @@ export interface components {
              */
             regionScope: "DOMESTIC" | "OVERSEAS";
             /**
-             * @default ACTIVE
+             * @default INACTIVE
              * @enum {string}
              */
-            status: "ACTIVE" | "ARCHIVED";
+            status: "ACTIVE" | "INACTIVE";
+            pointPrice?: number | null;
             categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
         };
         MediaPlatformUpdateRequest: {
@@ -1066,18 +1042,13 @@ export interface components {
             /** @enum {string} */
             regionScope?: "DOMESTIC" | "OVERSEAS";
             /** @enum {string} */
-            status?: "ACTIVE" | "ARCHIVED";
+            status?: "ACTIVE" | "INACTIVE";
+            pointPrice?: number | null;
             categories?: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
+            expectedRevision: number;
         };
         MediaReasonRequest: {
             reason: string;
-        };
-        MediaListingMutationRequest: {
-            reason: string;
-            /** @enum {string} */
-            status: "DRAFT" | "ON_SHELF" | "PAUSED" | "OFF_SHELF";
-            pointPrice: number | null;
-            expectedRevision?: number;
         };
         MediaSupplySourceResponse: {
             /** Format: uuid */
@@ -1922,29 +1893,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["MediaPlatformUpdateRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MediaPlatformAdminResponse"];
-                };
-            };
-        };
-    };
-    MediaAdminController_listing: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MediaListingMutationRequest"];
             };
         };
         responses: {

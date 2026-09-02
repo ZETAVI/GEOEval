@@ -5,13 +5,12 @@ import {
   createAdminMediaResource,
   createAdminMediaSource,
   getAdminMediaPlatform,
-  saveAdminMediaListing,
   updateAdminMediaPlatform,
   updateAdminMediaResource,
   updateAdminMediaSource,
-  type MediaListingMutation,
   type MediaPlatformAdmin,
   type MediaPlatformCreate,
+  type MediaPlatformUpdate,
   type MediaResourceAdmin,
   type MediaResourceCreate,
   type MediaSupplySource,
@@ -20,14 +19,12 @@ import {
 import { useMemo, useState, type ReactNode } from "react";
 
 import {
-  allowedListingStatuses,
-  buildListingMutation,
   categoryLabels,
   formatFenAsYuan,
-  isListingRevisionConflict,
+  isPlatformRevisionConflict,
   isSupportedUrlReference,
-  listingStatusLabels,
   mediaCategoryOptions,
+  parsePlatformPointPrice,
   parseNullableWholeYuanToFen,
   platformStatusLabels,
   publicationModeLabels,
@@ -147,6 +144,7 @@ export function PlatformEditor({
   onClose: () => void;
   onSaved: SaveResult<MediaPlatformAdmin>;
 }) {
+  const [current, setCurrent] = useState(platform);
   const [displayName, setDisplayName] = useState(platform?.displayName ?? "");
   const [aliases, setAliases] = useState(platform?.aliases.join("，") ?? "");
   const [description, setDescription] = useState(platform?.description ?? "");
@@ -155,7 +153,10 @@ export function PlatformEditor({
     MediaPlatformCreate["regionScope"]
   >(platform?.regionScope ?? "DOMESTIC");
   const [status, setStatus] = useState<MediaPlatformCreate["status"]>(
-    platform?.status ?? "ACTIVE",
+    platform?.status ?? "INACTIVE",
+  );
+  const [pointPrice, setPointPrice] = useState(
+    platform?.pointPrice?.toString() ?? "",
   );
   const [categories, setCategories] = useState<
     MediaPlatformCreate["categories"]
@@ -163,6 +164,8 @@ export function PlatformEditor({
   const [reason, setReason] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [conflict, setConflict] = useState(false);
   const [busy, setBusy] = useState(false);
 
   function toggleCategory(category: MediaPlatformCreate["categories"][number]) {
@@ -179,33 +182,75 @@ export function PlatformEditor({
     if (categories.length === 0) nextErrors.categories = "至少选择一个媒体分类";
     if (!isSupportedUrlReference(logoUrl))
       nextErrors.logoUrl = "仅支持 HTTPS 或以 / 开头的项目资源路径";
+    const price = parsePlatformPointPrice(status!, pointPrice);
+    if (price.error) nextErrors.pointPrice = price.error;
     if (platform && !reason.trim()) nextErrors.reason = "请填写修改说明";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    const input: MediaPlatformCreate = {
+    const values = {
       displayName: displayName.trim(),
       aliases: splitAliases(aliases),
       description: optionalText(description),
       logoUrl: optionalText(logoUrl),
       regionScope,
       status,
+      pointPrice: price.value,
       categories,
-      reason: platform ? reason.trim() : "创建媒体平台",
     };
     setBusy(true);
     setError("");
     try {
       const saved = platform
-        ? await updateAdminMediaPlatform(apiBaseUrl, platform.id, input)
-        : await createAdminMediaPlatform(apiBaseUrl, input);
+        ? await updateAdminMediaPlatform(apiBaseUrl, platform.id, {
+            ...values,
+            expectedRevision: current!.revision,
+            reason: reason.trim(),
+          } satisfies MediaPlatformUpdate)
+        : await createAdminMediaPlatform(apiBaseUrl, {
+            ...values,
+            reason: "创建媒体平台",
+          } satisfies MediaPlatformCreate);
       await onSaved(
         saved,
-        platform ? "平台资料已更新" : `已创建「${saved.displayName}」`,
+        platform ? "平台已更新" : `已创建「${saved.displayName}」`,
       );
       onClose();
     } catch (caught) {
-      setError(messageFor(caught, "平台未保存，请稍后重试"));
+      if (isPlatformRevisionConflict(caught)) {
+        setConflict(true);
+        setError(
+          "平台已在其他页面发生变化。请刷新最新内容，重新核对后再保存。",
+        );
+      } else {
+        setError(messageFor(caught, "平台未保存，请稍后重试"));
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function refresh() {
+    if (!current) return;
+    setBusy(true);
+    setError("");
+    try {
+      const refreshed = await getAdminMediaPlatform(apiBaseUrl, current.id);
+      setCurrent(refreshed);
+      setDisplayName(refreshed.displayName);
+      setAliases(refreshed.aliases.join("，"));
+      setDescription(refreshed.description ?? "");
+      setLogoUrl(refreshed.logoUrl ?? "");
+      setRegionScope(refreshed.regionScope);
+      setStatus(refreshed.status);
+      setPointPrice(refreshed.pointPrice?.toString() ?? "");
+      setCategories(refreshed.categories);
+      setReason("");
+      setConflict(false);
+      setNotice("已获取最新平台内容，请重新确认后保存。");
+      setErrors({});
+    } catch (caught) {
+      setError(messageFor(caught, "暂时无法刷新平台内容"));
     } finally {
       setBusy(false);
     }
@@ -215,7 +260,7 @@ export function PlatformEditor({
     <EditorFrame
       eyebrow="媒体平台"
       title={platform ? "编辑媒体平台" : "创建媒体平台"}
-      description="先填写平台基本资料和分类。价格与销售状态可以稍后单独设置。"
+      description="平台就是客户购买的媒体单位。新建默认停用，启用前必须设置有效积分价。"
       onClose={onClose}
     >
       <form
@@ -324,172 +369,24 @@ export function PlatformEditor({
             </div>
             <FieldError value={errors.categories} />
           </fieldset>
-          {platform && (
-            <>
-              <label>
-                资料状态
-                <select
-                  value={status}
-                  onChange={(event) =>
-                    setStatus(
-                      event.target.value as MediaPlatformCreate["status"],
-                    )
-                  }
-                >
-                  {Object.entries(platformStatusLabels).map(
-                    ([value, label]) => (
-                      <option value={value} key={value}>
-                        {label}
-                      </option>
-                    ),
-                  )}
-                </select>
-              </label>
-              <label className="wide reason-field">
-                修改说明 <em>必填 · 保留在操作记录中</em>
-                <input
-                  value={reason}
-                  maxLength={320}
-                  onChange={(event) => setReason(event.target.value)}
-                  placeholder="例如：根据最新资料修正分类"
-                  aria-invalid={Boolean(errors.reason)}
-                />
-                <FieldError value={errors.reason} />
-              </label>
-            </>
-          )}
-        </div>
-        <MutationFooter
-          busy={busy}
-          submitLabel={platform ? "保存平台资料" : "创建平台"}
-          error={error}
-          onClose={onClose}
-        />
-      </form>
-    </EditorFrame>
-  );
-}
-
-export function ListingEditor({
-  apiBaseUrl,
-  platform,
-  onClose,
-  onSaved,
-}: {
-  apiBaseUrl: string;
-  platform: MediaPlatformAdmin;
-  onClose: () => void;
-  onSaved: SaveResult<MediaPlatformAdmin>;
-}) {
-  const [current, setCurrent] = useState(platform);
-  const [status, setStatus] = useState<MediaListingMutation["status"]>(
-    platform.listing?.status ?? "DRAFT",
-  );
-  const [pointPrice, setPointPrice] = useState(
-    platform.listing?.pointPrice?.toString() ?? "",
-  );
-  const [reason, setReason] = useState("");
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  const [conflict, setConflict] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const allowedStatuses = allowedListingStatuses(current.listing);
-
-  async function submit() {
-    const built = buildListingMutation({
-      status,
-      pointPriceInput: pointPrice,
-      reason: current.listing ? reason : "设置初始销售状态",
-      ...(current.listing ? { currentRevision: current.listing.revision } : {}),
-    });
-    if (status === "ON_SHELF" && current.status !== "ACTIVE") {
-      built.errors.status = "归档平台不能上架，请先恢复平台";
-    }
-    setErrors(built.errors);
-    if (!built.value || Object.keys(built.errors).length > 0) return;
-    setBusy(true);
-    setError("");
-    setNotice("");
-    try {
-      const saved = await saveAdminMediaListing(
-        apiBaseUrl,
-        current.id,
-        built.value,
-      );
-      await onSaved(saved, "销售设置已保存");
-      onClose();
-    } catch (caught) {
-      if (isListingRevisionConflict(caught)) {
-        setConflict(true);
-        setError(
-          "销售设置已在其他页面发生变化。请刷新最新内容，重新核对价格和状态后再保存。",
-        );
-      } else {
-        setError(messageFor(caught, "销售设置未保存，请稍后重试"));
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function refresh() {
-    setBusy(true);
-    setError("");
-    try {
-      const refreshed = await getAdminMediaPlatform(apiBaseUrl, current.id);
-      setCurrent(refreshed);
-      setStatus(refreshed.listing?.status ?? "DRAFT");
-      setPointPrice(refreshed.listing?.pointPrice?.toString() ?? "");
-      setConflict(false);
-      setNotice(
-        refreshed.listing
-          ? "已获取最新销售设置，请重新确认后保存。"
-          : "已刷新，当前尚未设置销售，请重新确认后保存。",
-      );
-      setErrors({});
-    } catch (caught) {
-      setError(messageFor(caught, "暂时无法刷新销售设置"));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <EditorFrame
-      eyebrow="销售设置"
-      title={`设置「${platform.displayName}」的价格与销售状态`}
-      description="只有处于销售中且设置了有效积分价的平台，客户才能购买。"
-      onClose={onClose}
-    >
-      <form
-        className="media-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void submit();
-        }}
-      >
-        <div className="media-form-grid">
           <div className="wide media-form-section-label">
-            <b>价格与销售状态</b>
-            <span>系统会自动检查是否有其他人刚刚修改过这项设置。</span>
+            <b>价格与状态</b>
+            <span>停用后客户不能购买；启用时必须填写积分价。</span>
           </div>
           <label>
-            销售状态
+            平台状态
             <select
               value={status}
               onChange={(event) =>
-                setStatus(event.target.value as MediaListingMutation["status"])
+                setStatus(event.target.value as MediaPlatformCreate["status"])
               }
-              aria-invalid={Boolean(errors.status)}
             >
-              {allowedStatuses.map((value) => (
-                <option key={value} value={value}>
-                  {listingStatusLabels[value]}
+              {Object.entries(platformStatusLabels).map(([value, label]) => (
+                <option value={value} key={value}>
+                  {label}
                 </option>
               ))}
             </select>
-            <FieldError value={errors.status} />
           </label>
           <label>
             单次积分价
@@ -497,19 +394,19 @@ export function ListingEditor({
               inputMode="numeric"
               value={pointPrice}
               onChange={(event) => setPointPrice(event.target.value)}
-              placeholder="上架时必须为正整数"
+              placeholder="启用时必须为正整数"
               aria-invalid={Boolean(errors.pointPrice)}
             />
             <FieldError value={errors.pointPrice} />
           </label>
-          {current.listing && (
+          {platform && (
             <label className="wide reason-field">
               修改说明 <em>必填 · 保留在操作记录中</em>
               <input
                 value={reason}
                 maxLength={320}
                 onChange={(event) => setReason(event.target.value)}
-                placeholder="例如：渠道维护，暂时停止新订单"
+                placeholder="例如：根据最新资料修正分类"
                 aria-invalid={Boolean(errors.reason)}
               />
               <FieldError value={errors.reason} />
@@ -528,12 +425,12 @@ export function ListingEditor({
             disabled={busy}
             onClick={() => void refresh()}
           >
-            刷新最新销售设置
+            刷新最新平台内容
           </button>
         )}
         <MutationFooter
           busy={busy}
-          submitLabel="保存销售设置"
+          submitLabel={platform ? "保存平台" : "创建平台"}
           error={error}
           onClose={onClose}
         />
@@ -618,7 +515,7 @@ export function SourceEditor({
             <b>基本信息</b>
             <span>记录资源来自哪个合作方以及如何联系。</span>
           </div>
-          <label>
+          <label className={source ? undefined : "wide"}>
             来源名称 <em>必填</em>
             <input
               autoFocus
@@ -982,7 +879,7 @@ export function ResourceEditor({
               />
               <FieldError value={errors.accountUrl} />
             </label>
-            <label className="wide">
+            <label>
               参考案例链接 <em>内部</em>
               <input
                 value={caseUrl}

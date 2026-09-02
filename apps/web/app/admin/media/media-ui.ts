@@ -1,8 +1,4 @@
-import {
-  ApiRequestError,
-  type MediaListingMutation,
-  type MediaPlatformAdmin,
-} from "@geoeval/api-client";
+import { ApiRequestError, type MediaPlatformAdmin } from "@geoeval/api-client";
 
 export const mediaCategoryOptions = [
   ["CENTRAL_MEDIA", "中央媒体"],
@@ -17,16 +13,9 @@ export const categoryLabels = Object.fromEntries(
   mediaCategoryOptions,
 ) as Record<MediaPlatformAdmin["categories"][number], string>;
 
-export const listingStatusLabels = {
-  DRAFT: "未销售",
-  ON_SHELF: "销售中",
-  PAUSED: "暂停销售",
-  OFF_SHELF: "已下架",
-} as const;
-
 export const platformStatusLabels = {
-  ACTIVE: "使用中",
-  ARCHIVED: "已归档",
+  ACTIVE: "启用",
+  INACTIVE: "停用",
 } as const;
 
 export const resourceStatusLabels = {
@@ -59,18 +48,12 @@ export const qualityLabels = {
 
 export type PlatformStatusFilter = "ALL" | MediaPlatformAdmin["status"];
 
-export type SalesStatusFilter =
-  | "ALL"
-  | "NOT_SELLING"
-  | Exclude<NonNullable<MediaPlatformAdmin["listing"]>["status"], "DRAFT">;
-
 export function filterAdminPlatforms(
   platforms: MediaPlatformAdmin[],
   filters: {
     search: string;
     category: "ALL" | MediaPlatformAdmin["categories"][number];
-    platformStatus: PlatformStatusFilter;
-    salesStatus: SalesStatusFilter;
+    status: PlatformStatusFilter;
   },
 ): MediaPlatformAdmin[] {
   const term = filters.search.trim().toLocaleLowerCase("zh-CN");
@@ -84,22 +67,9 @@ export function filterAdminPlatforms(
     const matchesCategory =
       filters.category === "ALL" ||
       platform.categories.includes(filters.category);
-    const matchesPlatformStatus =
-      filters.platformStatus === "ALL" ||
-      platform.status === filters.platformStatus;
-    const matchesSalesStatus =
-      filters.salesStatus === "ALL" ||
-      (filters.salesStatus === "NOT_SELLING"
-        ? platform.listing === null ||
-          platform.listing === undefined ||
-          platform.listing.status === "DRAFT"
-        : platform.listing?.status === filters.salesStatus);
-    return (
-      matchesSearch &&
-      matchesCategory &&
-      matchesPlatformStatus &&
-      matchesSalesStatus
-    );
+    const matchesStatus =
+      filters.status === "ALL" || platform.status === filters.status;
+    return matchesSearch && matchesCategory && matchesStatus;
   });
 }
 
@@ -134,6 +104,18 @@ export function parseNullableWholeNumber(
   return { value: parsed };
 }
 
+export function parsePlatformPointPrice(
+  status: MediaPlatformAdmin["status"],
+  value: string,
+): { value: number | null; error?: string } {
+  const price = parseNullableWholeNumber(value, { allowZero: false });
+  if (price.error) return price;
+  if (status === "ACTIVE" && price.value === null) {
+    return { value: null, error: "启用前必须设置有效积分价" };
+  }
+  return price;
+}
+
 export function parseNullableWholeYuanToFen(value: string): {
   value: number | null;
   error?: string;
@@ -156,56 +138,11 @@ export function formatFenAsYuan(value: number): string {
       });
 }
 
-export function buildListingMutation(input: {
-  status: MediaListingMutation["status"];
-  pointPriceInput: string;
-  reason: string;
-  currentRevision?: number;
-}): { value?: MediaListingMutation; errors: Record<string, string> } {
-  const errors: Record<string, string> = {};
-  const price = parseNullableWholeNumber(input.pointPriceInput, {
-    allowZero: false,
-  });
-  if (price.error) errors.pointPrice = price.error;
-  if (input.status === "ON_SHELF" && price.value === null) {
-    errors.pointPrice = "上架前必须设置有效积分价";
-  }
-  if (!input.reason.trim()) errors.reason = "请填写本次调整原因";
-  if (Object.keys(errors).length > 0) return { errors };
-  return {
-    errors,
-    value: {
-      status: input.status,
-      pointPrice: price.value,
-      reason: input.reason.trim(),
-      ...(input.currentRevision === undefined
-        ? {}
-        : { expectedRevision: input.currentRevision }),
-    },
-  };
-}
-
-export function allowedListingStatuses(
-  current: MediaPlatformAdmin["listing"],
-): MediaListingMutation["status"][] {
-  if (!current) return ["DRAFT", "ON_SHELF", "OFF_SHELF"];
-  const allowed: Record<
-    MediaListingMutation["status"],
-    MediaListingMutation["status"][]
-  > = {
-    DRAFT: ["DRAFT", "ON_SHELF", "OFF_SHELF"],
-    ON_SHELF: ["ON_SHELF", "PAUSED", "OFF_SHELF"],
-    PAUSED: ["PAUSED", "ON_SHELF", "OFF_SHELF"],
-    OFF_SHELF: ["OFF_SHELF", "ON_SHELF"],
-  };
-  return allowed[current.status];
-}
-
 export function isApiStatus(error: unknown, status: number): boolean {
   return error instanceof ApiRequestError && error.status === status;
 }
 
-export function isListingRevisionConflict(error: unknown): boolean {
+export function isPlatformRevisionConflict(error: unknown): boolean {
   return (
     error instanceof ApiRequestError &&
     error.status === 409 &&
@@ -228,7 +165,6 @@ export function formatAuditValue(value: unknown): string {
     regionScope: "覆盖地区",
     status: "状态",
     categories: "媒体分类",
-    listing: "销售设置",
     pointPrice: "单次积分价",
     revision: "数据版本",
     name: "名称",
@@ -250,7 +186,6 @@ export function formatAuditValue(value: unknown): string {
   };
   const valueLabels: Record<string, string> = {
     ...categoryLabels,
-    ...listingStatusLabels,
     ...platformStatusLabels,
     ...resourceStatusLabels,
     ...sourceStatusLabels,

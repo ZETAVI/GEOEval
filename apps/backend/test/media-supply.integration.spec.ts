@@ -27,25 +27,21 @@ describe("Media Supply persistence and projections", () => {
     ).id;
   });
 
-  it("lists an explicitly on-shelf platform without requiring stored resources", async () => {
+  it("lists an enabled priced platform without requiring stored resources", async () => {
     const platform = await createTencentPlatform(service, administratorId);
-    const listed = await service.upsertListing(administratorId, platform.id, {
-      status: "ON_SHELF",
-      pointPrice: 300,
-      reason: "首期上架",
-    });
+    const enabled = await activatePlatform(service, administratorId, platform);
 
-    expect(listed.listing).toMatchObject({
-      status: "ON_SHELF",
+    expect(enabled).toMatchObject({
+      status: "ACTIVE",
       pointPrice: 300,
-      revision: 1,
+      revision: 2,
     });
     expect(await service.quotePlatform(platform.id)).toEqual({
       platformId: platform.id,
       displayName: "腾讯新闻",
       buyable: true,
       pointPrice: 300,
-      listingRevision: 1,
+      revision: 2,
     });
     expect((await service.listCustomerPlatforms({})).items).toHaveLength(1);
     expect((await service.customerPlatform(platform.id)).examples).toEqual([]);
@@ -54,11 +50,7 @@ describe("Media Supply persistence and projections", () => {
 
   it("separates full, masked, hidden, and administrator-only resource facts", async () => {
     const platform = await createTencentPlatform(service, administratorId);
-    await service.upsertListing(administratorId, platform.id, {
-      status: "ON_SHELF",
-      pointPrice: 300,
-      reason: "首期上架",
-    });
+    await activatePlatform(service, administratorId, platform);
     const source = await service.createSource(administratorId, {
       name: "渠道 A",
       contactName: "张先生",
@@ -66,7 +58,7 @@ describe("Media Supply persistence and projections", () => {
       notes: "内部来源",
       reason: "创建来源",
     });
-    await service.createResource(administratorId, {
+    const fullResource = await service.createResource(administratorId, {
       platformId: platform.id,
       supplySourceId: source.id,
       resourceName: "优先完整资源",
@@ -76,6 +68,20 @@ describe("Media Supply persistence and projections", () => {
       caseUrl: "https://example.com/internal-case",
       publicationNotes: "内部发文说明",
       reason: "创建完整示例",
+    });
+    const updatedFullResource = await service.updateResource(
+      administratorId,
+      fullResource.id,
+      {
+        publicationNotes: "更新后的内部发文说明",
+        reason: "更新说明",
+      },
+    );
+    expect(updatedFullResource).toMatchObject({
+      resourceName: "优先完整资源",
+      procurementCostFen: 12_300,
+      publicVisibility: "FULL",
+      publicationNotes: "更新后的内部发文说明",
     });
     await service.createResource(administratorId, {
       platformId: platform.id,
@@ -113,19 +119,17 @@ describe("Media Supply persistence and projections", () => {
     });
   });
 
-  it("advances only the relevant revisions and rejects a stale listing edit", async () => {
+  it("advances the platform revision, rejects stale edits, and stops orders when disabled", async () => {
     const platform = await createTencentPlatform(service, administratorId);
     const initialCatalog = await service.catalogRevision();
-    const first = await service.upsertListing(administratorId, platform.id, {
-      status: "ON_SHELF",
-      pointPrice: 300,
-      reason: "首期上架",
-    });
+    const first = await activatePlatform(service, administratorId, platform);
     expect(BigInt(await service.catalogRevision())).toBeGreaterThan(
       BigInt(initialCatalog),
     );
     const source = await service.createSource(administratorId, {
       name: "渠道 A",
+      contactName: "张先生",
+      contactMethod: "13800000000",
       reason: "创建来源",
     });
     const beforeInternalEdit = await service.catalogRevision();
@@ -135,44 +139,40 @@ describe("Media Supply persistence and projections", () => {
     });
     expect(await service.catalogRevision()).toBe(beforeInternalEdit);
 
-    const second = await service.upsertListing(administratorId, platform.id, {
-      status: "ON_SHELF",
+    const second = await service.updatePlatform(administratorId, platform.id, {
       pointPrice: 320,
-      expectedRevision: first.listing!.revision,
+      expectedRevision: first.revision,
       reason: "调整积分价",
     });
-    expect(second.listing!.revision).toBe(2);
+    expect(second.revision).toBe(3);
     await expect(
-      service.upsertListing(administratorId, platform.id, {
-        status: "ON_SHELF",
+      service.updatePlatform(administratorId, platform.id, {
         pointPrice: 350,
-        expectedRevision: first.listing!.revision,
+        expectedRevision: first.revision,
         reason: "过期修改",
       }),
-    ).rejects.toThrow("销售配置已经变化");
-    await expect(
-      service.upsertListing(administratorId, platform.id, {
-        status: "DRAFT",
-        pointPrice: 320,
-        expectedRevision: second.listing!.revision,
-        reason: "错误返回草稿",
-      }),
-    ).rejects.toThrow("不能返回该状态");
-    expect((await service.quotePlatform(platform.id)).pointPrice).toBe(320);
+    ).rejects.toThrow("平台资料已经变化");
+    const stopped = await service.updatePlatform(administratorId, platform.id, {
+      status: "INACTIVE",
+      expectedRevision: second.revision,
+      reason: "停止接单",
+    });
+    expect(stopped).toMatchObject({ status: "INACTIVE", revision: 4 });
+    expect(await service.quotePlatform(platform.id)).toMatchObject({
+      buyable: false,
+      pointPrice: 320,
+      revision: 4,
+    });
     expect(
       await prisma.mediaCatalogAudit.count({
-        where: { entityType: "LISTING", entityId: platform.id },
+        where: { entityType: "PLATFORM", entityId: platform.id },
       }),
-    ).toBe(2);
+    ).toBe(4);
   });
 
   it("caps customer examples at fifty in stable quality order", async () => {
     const platform = await createTencentPlatform(service, administratorId);
-    await service.upsertListing(administratorId, platform.id, {
-      status: "ON_SHELF",
-      pointPrice: 300,
-      reason: "首期上架",
-    });
+    await activatePlatform(service, administratorId, platform);
     const source = await service.createSource(administratorId, {
       name: "渠道 A",
       reason: "创建来源",
@@ -193,15 +193,13 @@ describe("Media Supply persistence and projections", () => {
     expect(examples[0]?.displayName).toBe("资源-50");
   });
 
-  it("filters inactive sources from optional candidates without taking the platform off shelf", async () => {
+  it("filters inactive sources from optional candidates without disabling the platform", async () => {
     const platform = await createTencentPlatform(service, administratorId);
-    await service.upsertListing(administratorId, platform.id, {
-      status: "ON_SHELF",
-      pointPrice: 300,
-      reason: "首期上架",
-    });
+    await activatePlatform(service, administratorId, platform);
     const source = await service.createSource(administratorId, {
       name: "渠道 A",
+      contactName: "张先生",
+      contactMethod: "13800000000",
       reason: "创建来源",
     });
     await service.createResource(administratorId, {
@@ -215,19 +213,19 @@ describe("Media Supply persistence and projections", () => {
       status: "INACTIVE",
       reason: "暂停来源",
     });
+    expect((await service.listSources())[0]).toMatchObject({
+      status: "INACTIVE",
+      contactName: "张先生",
+      contactMethod: "13800000000",
+    });
     expect(await service.fulfillmentCandidates(platform.id)).toEqual([]);
     expect((await service.quotePlatform(platform.id)).buyable).toBe(true);
   });
 
-  it("deletes an unused draft but refuses destructive deletion with resource dependents", async () => {
+  it("deletes an unused inactive platform but refuses deletion with resource dependents", async () => {
     const platform = await createTencentPlatform(service, administratorId);
-    await service.upsertListing(administratorId, platform.id, {
-      status: "DRAFT",
-      pointPrice: null,
-      reason: "创建销售草稿",
-    });
     await service.deletePlatform(administratorId, platform.id, {
-      reason: "删除未使用草稿",
+      reason: "删除未使用平台",
     });
     const audits = await service.listAudits({
       entityType: "PLATFORM",
@@ -237,7 +235,7 @@ describe("Media Supply persistence and projections", () => {
     expect(audits[0]).toMatchObject({
       actorAccountId: administratorId,
       action: "DELETE",
-      reason: "删除未使用草稿",
+      reason: "删除未使用平台",
       afterState: null,
     });
     expect(audits[1]).toMatchObject({
@@ -267,11 +265,7 @@ describe("Media Supply persistence and projections", () => {
 
   it("rolls back entity and revision when the audit write fails", async () => {
     const platform = await createTencentPlatform(service, administratorId);
-    await service.upsertListing(administratorId, platform.id, {
-      status: "ON_SHELF",
-      pointPrice: 300,
-      reason: "首期上架",
-    });
+    const enabled = await activatePlatform(service, administratorId, platform);
     const auditCount = await prisma.mediaCatalogAudit.count();
     const revision = await service.catalogRevision();
     await expect(
@@ -279,6 +273,7 @@ describe("Media Supply persistence and projections", () => {
         { actorAccountId: randomUUID(), reason: "模拟审计失败" },
         platform.id,
         { description: "不应提交的说明" },
+        enabled.revision,
       ),
     ).rejects.toThrow();
     expect((await service.adminPlatform(platform.id)).description).toBe(
@@ -300,5 +295,18 @@ function createTencentPlatform(
     logoUrl: "/media-logos/tencent-news.svg",
     categories: ["PORTAL_MEDIA", "CONTENT_PLATFORM"],
     reason: "建立平台",
+  });
+}
+
+function activatePlatform(
+  service: MediaSupplyService,
+  administratorId: string,
+  platform: { id: string; revision: number },
+) {
+  return service.updatePlatform(administratorId, platform.id, {
+    status: "ACTIVE",
+    pointPrice: 300,
+    expectedRevision: platform.revision,
+    reason: "启用平台",
   });
 }

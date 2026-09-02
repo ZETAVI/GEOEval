@@ -80,24 +80,30 @@ describe("Media Supply HTTP authorization and projection", () => {
       }),
     });
     expect(platformResponse.status).toBe(201);
-    const platform = (await platformResponse.json()) as { id: string };
+    const platform = (await platformResponse.json()) as {
+      id: string;
+      status: string;
+      revision: number;
+    };
+    expect(platform).toMatchObject({ status: "INACTIVE", revision: 1 });
 
-    const listingResponse = await fetch(
-      `${baseUrl}/admin/media/platforms/${platform.id}/listing`,
+    const enableResponse = await fetch(
+      `${baseUrl}/admin/media/platforms/${platform.id}`,
       {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "content-type": "application/json",
           cookie: administrator.cookie,
         },
         body: JSON.stringify({
-          status: "ON_SHELF",
+          status: "ACTIVE",
           pointPrice: 500,
-          reason: "首期上架",
+          expectedRevision: platform.revision,
+          reason: "启用平台",
         }),
       },
     );
-    expect(listingResponse.status).toBe(200);
+    expect(enableResponse.status).toBe(200);
 
     const catalog = await fetch(
       `${baseUrl}/media-catalog/platforms?category=CENTRAL_MEDIA`,

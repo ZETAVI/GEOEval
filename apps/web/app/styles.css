@@ -2414,7 +2414,7 @@ a {
 }
 .platform-filters > div {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 .platform-list {
@@ -2507,7 +2507,8 @@ a {
   color: #1d7048;
 }
 .state-pill.paused,
-.state-pill.draft {
+.state-pill.draft,
+.state-pill.not_selling {
   background: #fff3db;
   color: #8a641c;
 }
@@ -2737,11 +2738,13 @@ a {
   border-radius: 50%;
   box-shadow: 0 0 0 5px #eff4f1;
 }
-.listing-state-orb.on_shelf {
+.listing-state-orb.on_shelf,
+.listing-state-orb.active {
   border-color: #48a976;
 }
 .listing-state-orb.paused,
-.listing-state-orb.draft {
+.listing-state-orb.draft,
+.listing-state-orb.inactive {
   border-color: #dfaa49;
 }
 .listing-summary b {

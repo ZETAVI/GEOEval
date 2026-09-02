@@ -9,8 +9,7 @@ export const MEDIA_CATEGORIES = [
 
 export type MediaCategory = (typeof MEDIA_CATEGORIES)[number];
 export type MediaRegionScope = "DOMESTIC" | "OVERSEAS";
-export type MediaPlatformStatus = "ACTIVE" | "ARCHIVED";
-export type MediaListingStatus = "DRAFT" | "ON_SHELF" | "PAUSED" | "OFF_SHELF";
+export type MediaPlatformStatus = "ACTIVE" | "INACTIVE";
 export type MediaResourceStatus = "ACTIVE" | "PAUSED" | "ARCHIVED";
 export type MediaSupplySourceStatus = "ACTIVE" | "INACTIVE";
 export type MediaPublicationMode = "FIRST_PUBLISH" | "REPOST";
@@ -24,12 +23,8 @@ export interface MediaPlatformFields {
   logoUrl: string | null;
   regionScope: MediaRegionScope;
   status: MediaPlatformStatus;
-  categories: MediaCategory[];
-}
-
-export interface MediaListingFields {
-  status: MediaListingStatus;
   pointPrice: number | null;
+  categories: MediaCategory[];
 }
 
 export interface MediaSupplySourceFields {
@@ -56,16 +51,10 @@ export interface MediaResourceFields {
   publicationNotes: string | null;
 }
 
-export interface MediaListingView extends MediaListingFields {
-  revision: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface MediaPlatformAdminView extends MediaPlatformFields {
   id: string;
   normalizedName: string;
-  listing: MediaListingView | null;
+  revision: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -97,7 +86,7 @@ export interface MediaPlatformCustomerView {
   regionScope: MediaRegionScope;
   categories: MediaCategory[];
   pointPrice: number;
-  listingRevision: number;
+  revision: number;
   examples: MediaResourceExample[];
 }
 
@@ -111,7 +100,7 @@ export interface MediaPlatformQuote {
   displayName: string;
   buyable: boolean;
   pointPrice: number | null;
-  listingRevision: number | null;
+  revision: number;
 }
 
 export interface MediaFulfillmentCandidate {
