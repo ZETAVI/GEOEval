@@ -341,11 +341,15 @@ function deterministicOverallSynthesis(
     .map(({ sampleRef, observationRef }) => ({ sampleRef, observationRef }));
   const directionEvidence =
     openReferences.length > 0 ? openReferences : sampleReferences;
+  const proposedGroups = [...groupMap.values()];
 
   return {
-    brandEntityGroups: [...groupMap.values()].filter(
+    brandEntityGroups: proposedGroups.filter(
       (group) => group.members.length >= 2,
     ),
+    independentCandidateRefs: proposedGroups
+      .filter((group) => group.members.length === 1)
+      .map((group) => group.members[0]!.candidateRef),
     recommendationAssessment: {
       summary:
         "当前品牌在开放问题中的可见度存在差异，应结合提及与位置综合理解。",

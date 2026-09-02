@@ -14,6 +14,16 @@ describe("overall synthesis customer-quality replay", () => {
   it("uses compact local references, merges obvious name variants, and fails safe at the public boundary", () => {
     const context = headFamilyReplayContext();
     const task = buildOverallSynthesisTask(context);
+    expect(task.systemInstruction).toContain("分析顺序");
+    expect(task.systemInstruction).toContain("完成标准");
+    for (const symptomToken of [
+      "BRAND_DIRECTED",
+      "targetRole",
+      "observationId",
+      "UUID",
+    ]) {
+      expect(task.systemInstruction).not.toContain(symptomToken);
+    }
     const modelContext = task.userContext as {
       evidenceScope: {
         validSampleCount: number;
@@ -109,6 +119,13 @@ describe("overall synthesis customer-quality replay", () => {
           explanation: "两个名称共享清晰的消费者品牌主体。",
         },
       ],
+      independentCandidateRefs: modelContext.brandCandidates
+        .map((candidate) => candidate.candidateRef)
+        .filter(
+          (candidateRef) =>
+            candidateRef !== studio!.candidateRef &&
+            candidateRef !== researchStudio!.candidateRef,
+        ),
       recommendationAssessment: {
         summary:
           "BRAND_DIRECTED 的 targetRole 来自 00000000-0000-4000-8000-000000000001，observationId 如下：}}}",
@@ -193,6 +210,15 @@ describe("overall synthesis customer-quality replay", () => {
     unresolved.customerDirections[0]!.evidenceRefs[0]!.observationRef = "o99";
     expect(() =>
       parseAndProjectOverallSynthesisModelOutput(unresolved, replayedSamples),
+    ).toThrow(OverallSynthesisSemanticError);
+
+    const omittedBrandDecision = structuredClone(modelOutput);
+    expect(omittedBrandDecision.independentCandidateRefs.pop()).toBeDefined();
+    expect(() =>
+      parseAndProjectOverallSynthesisModelOutput(
+        omittedBrandDecision,
+        replayedSamples,
+      ),
     ).toThrow(OverallSynthesisSemanticError);
   });
 });

@@ -12,21 +12,21 @@ import {
 } from "./sample-parser.contract.js";
 
 export const OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION =
-  "evaluation.overall-synthesis-model@3";
+  "evaluation.overall-synthesis-model@4";
 
 const boundedText = (maximum: number) => z.string().trim().min(1).max(maximum);
 const localSampleRef = z
   .string()
   .regex(/^s\d{2,3}$/)
-  .describe("仅用于 evidenceRefs 的本次请求样本引用，不得写入客户文案");
+  .describe("关联输入 evidenceSamples 中的一条样本");
 const localObservationRef = z
   .string()
   .regex(/^o\d{2,3}$/)
-  .describe("仅用于 evidenceRefs 的本次请求观察引用，不得写入客户文案");
+  .describe("关联同一样本中的一条观察");
 const localCandidateRef = z
   .string()
   .regex(/^b\d{2,3}$/)
-  .describe("仅用于品牌归组成员的本次请求候选引用，不得写入客户文案");
+  .describe("关联输入 brandCandidates 中的一个品牌候选");
 
 const sampleReferenceSchema = z
   .object({
@@ -44,15 +44,16 @@ const observationReferenceSchema = z
 
 const customerNarrative = (maximum: number, purpose: string) =>
   boundedText(maximum).describe(
-    `${purpose}。使用正式、简洁、自然的客户语言；只陈述证据含义，不得出现输入字段名、内部枚举、引用、ID、UUID 或 JSON 结构`,
+    `${purpose}；使用品牌经营者可以直接阅读的正式、简洁中文`,
   );
 
-const evidenceLinkedNarrativeSchema = z
-  .object({
-    summary: customerNarrative(1_200, "面向客户的完整段落"),
-    evidenceRefs: z.array(sampleReferenceSchema).min(1).max(40),
-  })
-  .strict();
+const evidenceLinkedNarrativeSchema = (purpose: string) =>
+  z
+    .object({
+      summary: customerNarrative(1_200, purpose),
+      evidenceRefs: z.array(sampleReferenceSchema).min(1).max(40),
+    })
+    .strict();
 
 const brandGroupProposalSchema = z
   .object({
@@ -73,26 +74,26 @@ const brandGroupProposalSchema = z
       )
       .min(2)
       .max(100)
-      .describe("只列出确实需要合并的两个或更多品牌候选"),
+      .describe("属于同一消费者品牌的两个或更多候选"),
     explanation: boundedText(500).describe(
-      "内部归组依据；说明答案名称为何明显属于同一消费者品牌，不写入客户报告",
+      "简要说明这些名称属于同一消费者品牌的依据，供归组审计使用",
     ),
   })
   .strict();
 
 const themeProposalSchema = z
   .object({
-    label: customerNarrative(80, "面向客户的宽主题标题"),
-    summary: customerNarrative(600, "面向客户的主题说明"),
+    label: customerNarrative(80, "概括一项主要证据模式的主题标题"),
+    summary: customerNarrative(600, "说明该模式及其证据范围的主题段落"),
     evidenceRefs: z.array(observationReferenceSchema).min(1).max(60),
   })
   .strict();
 
 const customerDirectionProposalSchema = z
   .object({
-    currentProblem: customerNarrative(400, "面向客户的当前问题"),
-    recommendedDirection: customerNarrative(600, "面向客户的建议方向"),
-    intendedImprovement: customerNarrative(300, "非保证性的预期改善"),
+    currentProblem: customerNarrative(400, "基于证据指出当前差距"),
+    recommendedDirection: customerNarrative(600, "给出与差距对应的可执行方向"),
+    intendedImprovement: customerNarrative(300, "说明合理且非保证性的预期改善"),
     evidenceRefs: z.array(sampleReferenceSchema).min(1).max(60),
   })
   .strict();
@@ -110,16 +111,28 @@ export const overallSynthesisModelOutputSchema = z
     brandEntityGroups: z
       .array(brandGroupProposalSchema)
       .max(100)
-      .describe("只输出需要语义合并的候选组；未列出的候选由程序保留为独立品牌"),
-    recommendationAssessment: evidenceLinkedNarrativeSchema,
-    brandPerception: evidenceLinkedNarrativeSchema,
+      .describe("经过语义判断需要合并的品牌候选组"),
+    independentCandidateRefs: z
+      .array(localCandidateRef)
+      .max(100)
+      .describe("判断为独立或证据不足以合并的全部品牌候选"),
+    recommendationAssessment: evidenceLinkedNarrativeSchema(
+      "概括当前品牌在开放推荐问题中的表现及证据范围",
+    ),
+    brandPerception: evidenceLinkedNarrativeSchema(
+      "概括各平台对当前品牌形成的主要认知与差异",
+    ),
     themes: z
       .object({
         positive: z.array(themeProposalSchema).max(5),
         negative: z.array(themeProposalSchema).max(5),
       })
       .strict(),
-    customerDirections: z.array(customerDirectionProposalSchema).min(1).max(3),
+    customerDirections: z
+      .array(customerDirectionProposalSchema)
+      .min(1)
+      .max(3)
+      .describe("按业务影响排序的客户优化方向"),
     internalGuidance: z
       .object({
         summary: boundedText(2_000),
@@ -234,6 +247,20 @@ function projectModelOutput(
       groupedCandidates.add(member.candidateRef);
     }
   }
+  for (const candidateRef of input.independentCandidateRefs) {
+    if (!references.candidateByRef.has(candidateRef)) {
+      issues.push(`independent brand references missing ${candidateRef}`);
+    }
+    if (groupedCandidates.has(candidateRef)) {
+      issues.push(`${candidateRef} appears in more than one brand decision`);
+    }
+    groupedCandidates.add(candidateRef);
+  }
+  for (const candidateRef of references.candidateByRef.keys()) {
+    if (!groupedCandidates.has(candidateRef)) {
+      issues.push(`brand decision omitted ${candidateRef}`);
+    }
+  }
   if (issues.length > 0) throw new OverallSynthesisSemanticError(issues);
 
   const proposedGroups = input.brandEntityGroups.map((group) => ({
@@ -248,16 +275,17 @@ function projectModelOutput(
     ),
     explanation: group.explanation,
   }));
-  const singletonGroups = [...references.candidateByRef.values()]
-    .filter((candidate) => !groupedCandidates.has(candidate.candidateRef))
-    .map((candidate) => ({
+  const singletonGroups = input.independentCandidateRefs.map((candidateRef) => {
+    const candidate = references.candidateByRef.get(candidateRef)!;
+    return {
       displayName: candidate.names[0]!,
       members: candidate.members.map((source) => ({
         ...source,
         relationship: "SAME_NAME" as const,
       })),
-      explanation: "该候选没有充分证据与其他名称合并，保持独立。",
-    }));
+      explanation: "该候选经本次证据判断保持独立。",
+    };
+  });
   const brandEntityGroups = [...proposedGroups, ...singletonGroups].map(
     (group, index) => ({
       groupId: `brand-group-${index + 1}`,

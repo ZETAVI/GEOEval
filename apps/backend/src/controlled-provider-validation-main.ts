@@ -10,7 +10,11 @@ import { executeS6ControlledBatch } from "./ai-execution/controlled-validation/s
 import { RealAiAttemptAdapter } from "./ai-execution/infrastructure/providers/real-ai-attempt.adapter.js";
 import { loadWorkerConfig } from "./config/runtime-config.js";
 
-const BATCH_IDS: S6ControlledBatchId[] = ["sampling-smoke", "semantic-probe"];
+const BATCH_IDS: S6ControlledBatchId[] = [
+  "sampling-smoke",
+  "semantic-probe",
+  "synthesis-quality-probe",
+];
 
 async function main(): Promise<void> {
   const [command, batchArgument, ...options] = process.argv.slice(2);
@@ -53,7 +57,12 @@ async function main(): Promise<void> {
 }
 
 function parseBatchId(value: string): S6ControlledBatchId {
-  if (value === "sampling-smoke" || value === "semantic-probe") return value;
+  if (
+    value === "sampling-smoke" ||
+    value === "semantic-probe" ||
+    value === "synthesis-quality-probe"
+  )
+    return value;
   throw new Error("Unknown S6 controlled batch");
 }
 

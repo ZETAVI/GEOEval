@@ -26,10 +26,13 @@ internal analysis terminology or replacing evidence with decorative output.
 
 - **WHEN** the model returns the report assessment, brand perception, theme, or
   optimization-direction copy
-- **THEN** the instruction and strict output descriptions require formal,
-  concise natural language grounded in the supplied evidence
-- **AND** customer copy does not contain internal enums, field names, local or
-  owner references, UUID fragments, or JSON structural residue
+- **THEN** each section expresses its distinct business purpose in formal,
+  concise customer language grounded in the supplied evidence
+- **AND** the synthesis distinguishes repeated signals, isolated observations,
+  cross-platform differences, and evidence gaps before prioritizing conclusions
+- **AND** conclusion strength is proportional to the cited evidence range
+- **AND** technical references remain in structured evidence fields rather than
+  becoming customer-facing explanation
 - **AND** the backend public-document boundary omits an unsafe optional theme or
   direction and uses restrained deterministic copy only where a required public
   section would otherwise expose an observed boundary failure
@@ -40,10 +43,10 @@ internal analysis terminology or replacing evidence with decorative output.
 - **WHEN** accepted sample interpretations contain repeated other-brand names
 - **THEN** program logic folds exact formatting duplicates into compact
   candidates without deciding semantic identity
-- **AND** the overall-synthesis Agent may group two or more candidates that are
-  obvious aliases, abbreviations, store forms, or subordinate brand lines from
-  the supplied answer context
-- **AND** program logic expands each accepted candidate group to every retained
-  source mention and preserves every ungrouped candidate as an independent group
+- **AND** the overall-synthesis Agent places every candidate exactly once in
+  either an evidence-supported semantic merge group or an explicit independent
+  list
+- **AND** program logic rejects missing, duplicate, or unknown candidate
+  decisions before expanding accepted groups to retained source mentions
 - **AND** uncertain relations stay separate and the default request performs no
   external investigation

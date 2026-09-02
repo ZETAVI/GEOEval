@@ -57,7 +57,7 @@ describe("overall synthesis contract", () => {
     );
   });
 
-  it("projects model proposals into stable identities and singleton brand groups", () => {
+  it("projects explicit model decisions into stable brand groups", () => {
     const context = synthesisContext();
     const domainOutput = validOutput(context);
     const references = buildOverallSynthesisModelReferenceProjection(context);
@@ -67,6 +67,7 @@ describe("overall synthesis contract", () => {
     const output = parseAndProjectOverallSynthesisModelOutput(
       {
         brandEntityGroups: [],
+        independentCandidateRefs: [references.brandCandidates[0]!.candidateRef],
         recommendationAssessment: {
           summary: domainOutput.recommendationAssessment.summary,
           evidenceRefs: [{ sampleRef, observationRef: null }],
@@ -138,7 +139,7 @@ describe("overall synthesis contract", () => {
         resolutionBasis: [
           {
             kind: "ANSWER_CONTEXT",
-            explanation: "该候选没有充分证据与其他名称合并，保持独立。",
+            explanation: "该候选经本次证据判断保持独立。",
             sourceUrl: null,
           },
         ],

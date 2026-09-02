@@ -1,7 +1,7 @@
 # Change: Normalize Report Copy and Brand Grouping
 
-- Status: Partial implementation; paused at the #42 architecture decision
-- Class: Standard bug fix with an architectural continuation boundary
+- Status: Implementation re-aligned; Prompt `4.0.0` awaits controlled validation
+- Class: Standard bug fix
 - Decision owner: Product owner
 - Owning Issue: #41 under M4 parent #39
 - Product confirmation: accepted M4 decisions and delegated implementation on
@@ -23,9 +23,11 @@ narrative field.
 - Replace the complete synthesis payload with a compact projection of customer-
   meaningful brand context, deterministic performance facts, concise evidence,
   local evidence references, and deduplicated other-brand candidates.
-- Make the overall-synthesis instruction and strict model contract explicitly
-  own formal, concise customer copy and semantic grouping of obvious aliases,
-  abbreviations, store formats, and subordinate brand lines.
+- Give the overall-synthesis Agent one positive task model for evidence
+  comparison, prioritization, customer reporting, and semantic grouping rather
+  than a list of observed failure strings.
+- Require an explicit decision for every compact brand candidate: either place
+  it in a semantic merge group or identify it as independent.
 - Resolve model-local references back to owner-local sample, observation, and
   brand-mention identities before canonical validation.
 - Add a final backend report-document guard for the observed internal enum,
@@ -58,27 +60,32 @@ that already suppresses legacy implementation notes.
 ## Architecture Boundary
 
 The compact projection, request-local references, deterministic metrics, and
-public-document guard remain the correct GEO Intelligence seam. Controlled real
-evidence disproved the assumption that one model call can reliably own both
-brand-identity decisions and customer narrative: Prompt `3.0.0` grouped the
-obvious Chinese/English brand line but mislabeled sample counts, while Prompt
-`3.0.1` corrected the count wording but omitted the same only candidate group.
-The current output cannot distinguish a deliberate keep-separate decision from
-an omitted grouping task.
+public-document guard remain the correct GEO Intelligence seam. Short local
+references are machine-checkable handles placed next to semantic content; the
+Agent does not infer identity, counts, or meaning from them. GEO Intelligence
+owns exact calculation, reference resolution, and candidate-decision coverage,
+while the Agent owns evidence comparison, semantic relationships,
+prioritization, and language.
 
-Further Prompt accumulation has no checkable completion condition, while a
-program-only brand resolver would duplicate semantic judgment. The smallest
-coherent continuation belongs to #42: one brand-grouping semantic task over the
-compact candidates and one themes/directions narrative task over compact
-evidence, executable in parallel and accepted through deterministic GEO
-assembly. This Change does not implement that persistent task split; it retains
-the shared compact input, narrative boundary, and regression evidence as a
-partial independently reviewable foundation.
+The earlier Prompt `3.0.1` result did not prove that synthesis must be split. Its
+output contract treated an omitted candidate exactly like an explicit
+keep-separate decision, so the observed missing merge could be either a semantic
+judgment or an unfinished subtask. Model contract v4 removes that ambiguity by
+requiring every candidate to appear exactly once in either a merge group or the
+independent list. Prompt `4.0.0` then expresses one positive analysis workflow
+and four proportional quality expectations: faithful, complete, prioritized,
+and customer-readable.
+
+#42 remains a later performance and architecture option, not a conclusion of
+this Change. A persistent task split becomes justified only if controlled,
+repeated evidence shows that the re-aligned single-Agent contract still cannot
+meet quality or latency boundaries.
 
 ## Control State
 
-- Workspace: branch `codex/issue-41-report-copy-brand-grouping` from
-  `main@af72ba5`; Issue #41 is `In Progress`, Priority `P0`.
+- Workspace: branch `codex/issue-41-report-copy-brand-grouping`, rebased through
+  the locally verified `main@d6d490d`; Issue #41 is `Review / Decision`,
+  Priority `P0`.
 - Evidence: the original local database no longer contains the retained run;
   #39/#41 remain the durable evidence entry for its run identity and observed
   output. A deterministic focused replay protects that failure shape. After
@@ -90,10 +97,18 @@ partial independently reviewable foundation.
 - A separately authorized Prompt `3.0.1` rerun used one request before its stop
   condition: Y02 expressed counts correctly but omitted the only obvious
   Chinese/English candidate group and was semantically rejected. Y03 did not run.
-  This is the evidence that moved continuation to #42 rather than another Prompt
-  patch.
+  This rejects Prompt `3.0.1`; it does not by itself establish an architecture
+  split.
+- Prompt `4.0.0` and model contract v4 have focused offline evidence only. They
+  replace symptom-led prohibitions with a positive analysis workflow and make
+  candidate coverage checkable, but customer quality remains unverified until a
+  separately authorized controlled Provider comparison is inspected.
+- The prepared `synthesis-quality-probe` manifest contains four Qwen requests:
+  complex and sparse fixtures interleaved twice, zero automatic retries, and
+  stop on the first structural or semantic failure. Planning the manifest made
+  no external request.
 - Exit: focused replay, model-contract, report-document, deterministic end-to-
   end, type, build, formatting, and framework evidence; Draft PR and Issue
-  update. PR #48 is Partial and must not close #41. #42 owns the architecture
-  decision and any persistent split; additional Provider calls, billing
-  activation, merge, production, and deployment remain separate gates.
+  update. PR #48 remains Draft and must not close #41. Additional Provider
+  calls, any #42 task split, billing activation, merge, production, and
+  deployment remain separate gates.
