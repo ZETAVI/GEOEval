@@ -136,6 +136,6 @@
       Source Brief, design, decision brief, architecture review, and tasks.
 - [x] Rerun the architecture review and document verification with the prior
       licensing/storage must-fix removed.
-- [ ] Commit and push the revision to Draft PR #46.
-- [ ] Update PR #46 and Issue #40 to show `ready with follow-up`, then stop before
+- [x] Commit and push the revision to Draft PR #46.
+- [x] Update PR #46 and Issue #40 to show `ready with follow-up`, then stop before
       implementation, Key creation, purchase, controlled calls, or database reset.
