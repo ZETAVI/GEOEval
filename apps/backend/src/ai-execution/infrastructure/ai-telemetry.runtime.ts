@@ -7,6 +7,9 @@ import { LangfuseSpanProcessor } from "@langfuse/otel";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 
 import type { AiTelemetryConfig } from "./ai-execution.config.js";
+import { maskTelemetryData } from "./ai-telemetry.mask.js";
+
+export { maskTelemetryData } from "./ai-telemetry.mask.js";
 
 @Injectable()
 export class AiTelemetryRuntime
@@ -17,19 +20,21 @@ export class AiTelemetryRuntime
   constructor(private readonly config: AiTelemetryConfig) {}
 
   onApplicationBootstrap(): void {
-    if (this.config.mode === "disabled") return;
+    const config = this.config;
+    if (config.mode === "disabled") return;
     try {
       this.sdk = new NodeSDK({
         spanProcessors: [
           new LangfuseSpanProcessor({
-            publicKey: this.config.publicKey,
-            secretKey: this.config.secretKey,
-            baseUrl: this.config.baseUrl,
-            environment: this.config.environment,
+            publicKey: config.publicKey,
+            secretKey: config.secretKey,
+            baseUrl: config.baseUrl,
+            environment: config.environment,
+            ...(config.release ? { release: config.release } : {}),
             exportMode: "batched",
             mediaUploadEnabled: false,
             shouldExportSpan: ({ otelSpan }) => otelSpan.name.startsWith("ai."),
-            mask: ({ data }) => maskTelemetryData(data),
+            mask: ({ data }) => maskTelemetryData(data, config.contentMode),
           }),
         ],
       });
@@ -61,23 +66,4 @@ export class AiTelemetryRuntime
       })}\n`,
     );
   }
-}
-
-export function maskTelemetryData(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(maskTelemetryData);
-  if (!isRecord(value)) return value;
-  return Object.fromEntries(
-    Object.entries(value).map(([key, item]) => [
-      key,
-      /(input|output|prompt|answer|content|raw|credential|authorization|secret|api.?key)/i.test(
-        key,
-      )
-        ? "[redacted]"
-        : maskTelemetryData(item),
-    ]),
-  );
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

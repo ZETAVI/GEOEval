@@ -7,25 +7,26 @@ import { AiTelemetryRuntime } from "../src/ai-execution/infrastructure/ai-teleme
 import { LangfuseAiAttemptTelemetry } from "../src/ai-execution/infrastructure/langfuse-ai-attempt.telemetry.js";
 
 describe("Langfuse telemetry runtime", () => {
-  it("exports one masked technical generation and shuts down without owning business state", async () => {
+  it("exports controlled local content, keeps metadata-only empty, and isolates exporter failure", async () => {
     const requests: Array<{
       url: string;
       contentType?: string;
-      bytes: number;
+      body: Buffer;
     }> = [];
     const server = createServer(async (request, response) => {
       const chunks: Buffer[] = [];
       for await (const chunk of request) chunks.push(Buffer.from(chunk));
+      const body = Buffer.concat(chunks);
       requests.push({
         url: request.url ?? "",
         ...(request.headers["content-type"]
           ? { contentType: request.headers["content-type"] }
           : {}),
-        bytes: Buffer.concat(chunks).length,
+        body,
       });
-      response.statusCode = 200;
+      response.statusCode = 400;
       response.setHeader("Content-Type", "application/json");
-      response.end("{}");
+      response.end('{"error":"fixture rejected export"}');
     });
     await new Promise<void>((resolve) =>
       server.listen(0, "127.0.0.1", resolve),
@@ -40,11 +41,15 @@ describe("Langfuse telemetry runtime", () => {
       secretKey: "secret-fixture",
       baseUrl: `http://127.0.0.1:${address.port}`,
       environment: "test",
+      contentMode: "local-diagnostic",
+      release: "issue-44-test-revision",
     });
     try {
       runtime.onApplicationBootstrap();
-      const handle = new LangfuseAiAttemptTelemetry().start(request);
-      handle.finish(
+      const metadataOnly = new LangfuseAiAttemptTelemetry(
+        "metadata-only",
+      ).start(request);
+      metadataOnly.finish(
         {
           kind: "SUCCEEDED",
           output: { answerContent: "must-not-be-exported" },
@@ -61,17 +66,51 @@ describe("Langfuse telemetry runtime", () => {
         },
         42,
       );
+      const diagnostic = new LangfuseAiAttemptTelemetry(
+        "local-diagnostic",
+      ).start({
+        ...request,
+        input: {
+          ...request.input,
+          systemInstruction: "controlled local prompt",
+          companyName: "controlled fictional brand",
+          query: "controlled local task",
+        },
+      });
+      diagnostic.finish(
+        {
+          kind: "SUCCEEDED",
+          output: {
+            answerContent: "controlled normalized answer",
+            apiKey: "must-always-be-redacted",
+            rawResponse: "raw-provider-envelope",
+            reasoningContent: "private-reasoning-chain",
+          },
+          usage: { input_tokens: 15, output_tokens: 9 },
+        },
+        48,
+      );
       await runtime.onModuleDestroy();
     } finally {
       await new Promise<void>((resolve, reject) =>
         server.close((error) => (error ? reject(error) : resolve())),
       );
     }
-    expect(requests).toHaveLength(1);
+    expect(requests.length).toBeGreaterThan(0);
     expect(requests[0]).toMatchObject({
       url: "/api/public/otel/v1/traces",
     });
-    expect(requests[0]!.bytes).toBeGreaterThan(0);
+    const exported = Buffer.concat(requests.map(({ body }) => body)).toString(
+      "utf8",
+    );
+    expect(exported).toContain("geoeval.ai-attempt.input@1");
+    expect(exported).toContain("issue-44-test-revision");
+    expect(exported).toContain("controlled local prompt");
+    expect(exported).toContain("controlled normalized answer");
+    expect(exported).not.toContain("must-not-be-exported");
+    expect(exported).not.toContain("must-always-be-redacted");
+    expect(exported).not.toContain("raw-provider-envelope");
+    expect(exported).not.toContain("private-reasoning-chain");
   });
 });
 

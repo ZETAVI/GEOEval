@@ -53,7 +53,7 @@ export class AiExecutionModule {
           useFactory: () =>
             new SafeAiAttemptTelemetry(
               config.telemetry.mode === "langfuse"
-                ? new LangfuseAiAttemptTelemetry()
+                ? new LangfuseAiAttemptTelemetry(config.telemetry.contentMode)
                 : new NoopAiAttemptTelemetry(),
             ),
         },
