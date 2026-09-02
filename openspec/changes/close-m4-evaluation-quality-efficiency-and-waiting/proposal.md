@@ -1,0 +1,74 @@
+# Change: 收束 M4 评测质量、效率与等待体验
+
+- Status: Proposed; awaiting product-owner approval before this parent advances
+  any child beyond its separately recorded boundary or admits it to integration
+- Class: Architectural parent
+- Owning Issue: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
+- Decision owners: Product owner and architecture owner
+- Implementation authorization: None from this Change
+
+## Why
+
+M4 的真实内部评测已证明注册、Brand、四问×五平台、逐样本解析、整体综合、
+报告与通知能够形成闭环，但同一运行也暴露了会直接损害客户交付的四类问题：
+评测上下文过宽、Agent 客户文案越过产品边界、明显品牌名称未归并，以及长耗时
+缺少可理解的真实等待进度。Langfuse 的 metadata-only Trace 已证明连接正常，却
+不能支持本地 Prompt 与结构输出诊断。
+
+两份 M4 会议文字稿已按字节原样归档。它们只证明讨论发生过，包含互相冲突的
+建议、实现猜测和未确认目标；已确认产品决定只来自 owning Issue #39，并由本
+Change 的 [decision brief](decision-brief.md) 收口供审批。
+
+## Outcome
+
+在不改变既有四问×五平台、17/20 报告边界、推荐指数、历史不可变性和 Provider
+名单的前提下，建立一组可由 #26、#32、#40–#44 独立交付、最终统一验收的父级
+产品和接口契约，使下一次获授权的代表性门店评测同时证明：
+
+- Brand 输入能形成准确门店位置、主打产品或服务和有序特点的冻结上下文；
+- 四问保留既有业务角色，但三个开放问题围绕商圈和主打品类自然展开；
+- 客户报告没有结构残片、内部枚举、引用 ID 或技术字段，并合理归并明显名称
+  变体；
+- 评测任务在不改变业务事实的前提下具备阶段耗时、预算、并发和回退证据；
+- 等待页展示按平台的真实获取与分析数量，仍支持离开页面和完成通知；
+- 本地/测试 Langfuse 可在显式模式下查看受控诊断内容，生产继续默认
+  metadata-only。
+
+## Scope
+
+### In
+
+- M4 研究输入的原样归档、哈希和非权威边界；
+- 已确认产品决定、待批准实现边界和未决项的单一 change-local review pack；
+- 七个子 Issue 的 producer/consumer 契约、GitHub 原生依赖图和集成顺序；
+- 面向最终代表性门店 4×5 的父级 Integration Gate 与证据矩阵；
+- 父级 product-definition、evaluation-evidence 和 evaluation-report 行为 delta。
+
+### Out
+
+- Brand、Query、Parser、Synthesis、Worker、Langfuse 或 Web 实现；
+- 真实 Provider 调用、生产部署、真实客户数据迁移、生产内容遥测或额外 API 采购；
+- 改变四问×五平台、推荐指数 70/30、17/20 可用边界、当前 Provider 名单、历史
+  报告内容或通知事实；
+- 全站或报告页视觉重设计；Issue #13 继续拥有报告视觉优化；
+- 用父 Change 复制任一子 Change 的 Schema、Prompt、任务图或页面详细设计。
+
+## Impact
+
+该父 Change 只拥有跨子任务产品含义、接口兼容、依赖和最终验收。各子 Issue 在
+自己的 Change/PR 内拥有实现和 owner-local delta；合并后的 current truth 仍由
+Brand Knowledge、Evaluation Definition、Evaluation Evidence、Evaluation Report、
+Notification、架构概览和可执行契约分别拥有。
+
+本 Propose 阶段不修改任何 current spec。最终接受的子 Change 必须分别对账其
+owner-local current owner；父 Change 仅在所有集成 Gate 通过后完成最终对账和归档。
+
+## Approval Boundary
+
+产品负责人批准前，本分支只允许审查和修订父 Change；它既不暂停已有子 Issue
+的独立授权，也不为其增加实现权限。父级批准必须明确覆盖：
+
+1. [decision brief](decision-brief.md) 中 D1–D9 的产品含义；
+2. [design](design.md) 中七个 producer/consumer 契约与依赖顺序；
+3. 未确认项继续留在对应子 Issue，不被本 Change 默认为已批准；
+4. 最终真实 4×5 仍需独立 Provider 调用授权，生产遥测内容仍需独立数据与保留审批。

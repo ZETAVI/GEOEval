@@ -17,6 +17,8 @@ what was discussed, not approved requirements.
 | [M2 product and requirements discussion](GEO-Eval-M2-需求讨论.txt) | 2026-08-11 02:12 CST; 24 minutes 44 seconds | Speaker 3 | `1b908beb04bd4494b86bf97aea241e69ff8de2c4685d1cae7fd9a41bd70b3cf8` |
 | [M2 product and requirements discussion, part 2](GEO-Eval-M2-需求讨论-part2.txt) | 2026-08-12 02:37 CST; 57 minutes 3 seconds | Speaker 3 | `836ea58b3f89f17f6fb45a4cd2839ab1dd65dad37f193a715c33ff4dc6bbfb33` |
 | [M3 initial development-plan discussion](GEO-Eval-M3-开发计划初步讨论.txt) | 2026-08-11 04:59 CST; 7 minutes 48 seconds | Speaker 2 | `67ae876974278ac36e29e91c74fd901c9cae3d5babc6346b20b0beb25562d470` |
+| [M4 evaluation-system optimization and iteration, part 1](GEO-Eval-M4-评测系统优化与功能迭代-part1.txt) | 2026-09-02, inferred from the filename and Issue sequence; duration not present | Not confirmed | `7026de2b364d17fe63fbae1c209b597babd094d36bf5689f8ced4cf0c764cc2a` |
+| [M4 evaluation-system optimization and iteration, part 2](GEO-Eval-M4-评测系统优化与功能迭代-part2.txt) | 2026-09-02, inferred from the filename and Issue sequence; continuation record, duration not present | Not confirmed | `0be82ab0cc65801263acbc8e7001e6051197b139af61c1df5f71d6674a40f8d1` |
 
 The files were copied without content changes from `/Users/lucien/Downloads/`.
 The hashes above allow later checks that the archived inputs still match the
@@ -25,6 +27,8 @@ supplied source files.
 ## Interpretation rules
 
 - Attribute the user's statements using the speaker mapping above.
+- When the speaker mapping is not confirmed, do not attribute a statement to
+  the product owner merely because it is detailed, repeated, or appears later.
 - Separate explicit decisions from preferences, hypotheses, questions, and
   implementation brainstorming.
 - Resolve contradictions through product discussion rather than selecting the
