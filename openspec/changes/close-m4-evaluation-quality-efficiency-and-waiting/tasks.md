@@ -44,6 +44,8 @@
       and resolve every material finding.
 - [ ] Reconcile accepted behavior into owner-local current specs, executable
       contracts, architecture overview and any touched Evolution marker.
+- [ ] After every Gate row passes, make only the final acceptance PR use bare
+      `Closes #39`; keep earlier Partial PRs as ordinary cross-references.
 - [ ] Archive this parent Change only after the #39 acceptance boundary is met;
       move independent residual work to an owned follow-up rather than retaining
       an open-ended parent backlog.

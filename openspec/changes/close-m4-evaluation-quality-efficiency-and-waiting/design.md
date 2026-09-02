@@ -106,6 +106,12 @@ safe rollback or compatible forward path.
    the integrated customer and operational outcome. Parent current-spec
    reconciliation and archive happen only after this Gate.
 
+PR #45 remains a session-scoped Partial PR with the ordinary reference
+`Part of #39 — does not close`; it is not the native closing link for the parent.
+Only after every final Gate row passes may the final acceptance PR use bare
+`Closes #39`, creating GitHub's native Linked PR/closing relationship for the
+complete parent outcome.
+
 ## Final Integration Gate
 
 The Gate is a review result over the integrated revision, not an extra feature
@@ -139,4 +145,5 @@ tests, a Draft PR or this proposal cannot satisfy that row.
   Issue #39 is verified without a closing relationship.
 - Parent completion condition: every Integration Gate row passes or has explicit
   owner-approved risk disposition, current truth is reconciled, the Change is
-  archived, and branch/worktree exit is recorded.
+  archived, the final PR has the native `Closes #39` relationship, and
+  branch/worktree exit is recorded.
