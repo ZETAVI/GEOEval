@@ -39,8 +39,9 @@
   narrative from the retained failure strings.
 - Focused contracts: `3` files and `8` tests passed for synthesis projection,
   report materialization/history protection, and the quality replay.
-- Full Backend regression: `23` files and `119` tests passed, including the
-  deterministic twenty-position integration journey and synthesis retry paths.
+- Full Backend regression after rebasing onto current `main`: `23` files and
+  `122` tests passed, including the deterministic twenty-position integration
+  journey and synthesis retry paths.
 - Controlled real synthesis on Prompt `3.0.0`: Qwen Y02 and Y03 passed strict
   structured and domain validation in `36.373s` and `42.202s`; obvious Chinese
   and English brand-line names grouped correctly, the sparse case did not invent
