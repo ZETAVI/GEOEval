@@ -33,6 +33,9 @@ type BrandDirectedParserOutput = Extract<
 describe("sample parser semantic contract", () => {
   it("exports one strict JSON-representable structural contract", () => {
     expect(SAMPLE_PARSER_CONTRACT_VERSION).toBe("1.0.0");
+    expect(SAMPLE_PARSER_MODEL_CONTRACT_VERSION).toBe(
+      "evaluation.sample-parser-model@4",
+    );
     expect(sampleParserJsonSchema).toMatchObject({
       $schema: "https://json-schema.org/draft/2020-12/schema",
     });
@@ -65,11 +68,17 @@ describe("sample parser semantic contract", () => {
     expect(openTask.outputContract.version).toBe(
       SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
     );
+    expect(openTask.systemInstruction).toContain(
+      "cardInterpretation 面向非专业客户",
+    );
+    expect(openTask.systemInstruction).toContain(
+      "cardInterpretation 写“该回答未提及当前品牌。”",
+    );
     expect(sampleParserInstructionProfile("CHARACTERISTIC_ONE")).toBe(
-      "evaluation.sample-parser.common@2.1.0+evaluation.sample-parser.open-discovery@2.1.0",
+      "evaluation.sample-parser.common@2.2.0+evaluation.sample-parser.open-discovery@2.2.0",
     );
     expect(sampleParserInstructionProfile("BRAND_DIRECTED")).toBe(
-      "evaluation.sample-parser.common@2.1.0+evaluation.sample-parser.brand-directed@2.1.0",
+      "evaluation.sample-parser.common@2.2.0+evaluation.sample-parser.brand-directed@2.2.0",
     );
 
     expect(
@@ -77,6 +86,13 @@ describe("sample parser semantic contract", () => {
     ).toMatchObject({
       properties: {
         family: { const: "BRAND_DIRECTED" },
+        semantic: {
+          properties: {
+            cardInterpretation: {
+              description: expect.stringContaining("面向客户"),
+            },
+          },
+        },
       },
     });
   });
@@ -168,6 +184,76 @@ describe("sample parser semantic contract", () => {
         (anchor) => anchor.exactText === targetEvidence.exactText,
       )?.purposes,
     ).toEqual(["TARGET_MENTION", "TARGET_POSITION", "DESCRIPTION"]);
+  });
+
+  it("replays a protected non-mention structural fragment with a formal fallback", () => {
+    const originalAnswer = "1. 晨光餐厅\n2. 城市餐厅";
+    const input: SampleParserModelOutput = {
+      family: "OPEN_DISCOVERY",
+      questionKind: "INDUSTRY_RECOMMENDATION",
+      mentioned: false,
+      position: null,
+      semantic: {
+        profile: "OPEN_DISCOVERY",
+        answerStructure: "UNORDERED_LIST",
+        targetDisplayedForms: [],
+        targetMentionEvidence: [],
+        targetPositionEvidence: [],
+        targetRole: "NOT_MENTIONED",
+        targetObservations: [],
+        otherBrands: [],
+        cardInterpretation: "}}}",
+        limitations: [
+          "结果仅反映本次回答。",
+          "未核验线下经营情况。",
+          "候选顺序不代表长期表现。",
+        ],
+      },
+    };
+
+    const output = parseAndProjectSampleParserModelOutput(input, {
+      questionKind: "INDUSTRY_RECOMMENDATION",
+      companyName: "星河餐厅",
+      originalAnswer,
+    });
+
+    expect(output).toMatchObject({
+      mentioned: false,
+      position: null,
+      semantic: {
+        cardInterpretation: "该回答未提及当前品牌。",
+        targetRole: "NOT_MENTIONED",
+      },
+    });
+
+    input.semantic.cardInterpretation = "回答有效，但没有明确提及当前品牌。";
+    expect(
+      parseAndProjectSampleParserModelOutput(input, {
+        questionKind: "INDUSTRY_RECOMMENDATION",
+        companyName: "星河餐厅",
+        originalAnswer,
+      }).semantic.cardInterpretation,
+    ).toBe("回答有效，但没有明确提及当前品牌。");
+  });
+
+  it("falls back from a structural fragment using only accepted mention and position", () => {
+    const answer = "1. 星河咖啡值得关注。";
+    const input = validOpenModel(answer);
+    input.semantic.cardInterpretation = "[]";
+
+    const output = parseAndProjectSampleParserModelOutput(input, {
+      questionKind: "CHARACTERISTIC_ONE",
+      companyName: "星河咖啡",
+      originalAnswer: answer,
+    });
+
+    expect(output).toMatchObject({
+      mentioned: true,
+      position: 1,
+      semantic: {
+        cardInterpretation: "该回答提及了当前品牌，位于第1个候选位置。",
+      },
+    });
   });
 
   it("drops unsupported optional detail and recovers literal target anchors", () => {

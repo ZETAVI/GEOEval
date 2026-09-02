@@ -191,8 +191,12 @@ unsupported optional observations or other brands, normalize incomplete
 optional positions to no position, retain ungrouped brand mentions, and run the
 existing strict domain validation before acceptance. Target mention and
 open-query position remain hard evidence boundaries; the projector does not
-fuzzy-match or invent either. Default parser and synthesis calls do not use web
-search. Overall
+fuzzy-match or invent either. Parser instructions and their provider-facing
+schema require concise formal customer card prose. The same projector replaces
+only a card value with no letter or numeral, using already accepted mention and
+open-position facts; readable prose passes through, and the report projection
+does not maintain a second hiding rule. Default parser and synthesis calls do
+not use web search. Overall
 synthesis summarizes sampled platform perception rather than investigating
 real-world brand facts; it groups only obvious name relations from answer
 context and leaves uncertain names separate. Add a web-backed resolver only if

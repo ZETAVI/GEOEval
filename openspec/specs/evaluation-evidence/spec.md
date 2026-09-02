@@ -148,6 +148,22 @@ telemetry exporter.
 - **BUT** it never invents target forms, fuzzy evidence, or an open-query
   position, and missing metric-critical evidence still rejects the attempt
 
+#### Scenario: A parser proposal contains unreadable customer card copy
+
+- **WHEN** a structurally valid proposal supplies a `cardInterpretation` with no
+  customer-readable letter or numeral
+- **THEN** the versioned Parser Prompt and output description remain the primary
+  controls for concise, formal, customer-readable prose
+- **AND** the deterministic model-to-domain projector replaces only that field
+  with a statement derived from the accepted mention and open-position facts
+- **AND** a non-mention becomes `该回答未提及当前品牌。`
+- **AND** readable model prose passes through unchanged without content scoring
+  or rewriting
+- **AND** no Critic Agent, human review, resampling, or extra Provider attempt is
+  added
+- **AND** canonical evidence, persistence, readiness, and report-projection
+  semantics remain unchanged.
+
 ### Requirement: Protected and non-blocking execution observability
 
 AI Execution SHALL retain enough protected evidence to inspect each approved AI

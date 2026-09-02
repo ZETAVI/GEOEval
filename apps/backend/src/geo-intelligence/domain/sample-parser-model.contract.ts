@@ -10,7 +10,7 @@ import {
 } from "./sample-parser.contract.js";
 
 export const SAMPLE_PARSER_MODEL_CONTRACT_VERSION =
-  "evaluation.sample-parser-model@3";
+  "evaluation.sample-parser-model@4";
 
 const boundedText = (maximum: number) => z.string().trim().min(1).max(maximum);
 
@@ -109,7 +109,9 @@ const sharedSemanticShape = {
     .max(12)
     .describe("判定当前品牌被提及的直接原文证据。"),
   otherBrands: z.array(otherBrandSchema).max(30),
-  cardInterpretation: boundedText(500),
+  cardInterpretation: boundedText(500).describe(
+    "面向客户的一至两句简洁正式说明：说明原回答是否提及当前品牌以及如何呈现，只写原回答支持的结论。不得填写 JSON 符号、字段名、枚举、ID 或结构说明；未提及时写“该回答未提及当前品牌。”",
+  ),
   limitations: z.array(boundedText(300)).max(8),
 };
 
@@ -309,7 +311,11 @@ function projectModelOutput(
         targetObservations: groups.targetObservations,
         otherBrands,
         evidenceAnchors: anchors.values(),
-        cardInterpretation: input.semantic.cardInterpretation,
+        cardInterpretation: projectCardInterpretation(
+          input.semantic.cardInterpretation,
+          input.mentioned,
+          null,
+        ),
         limitations: input.semantic.limitations,
         statedIdentity: groups.statedIdentity,
         positioning: groups.positioning,
@@ -379,7 +385,11 @@ function projectModelOutput(
       targetObservations: groups.targetObservations,
       otherBrands,
       evidenceAnchors: anchors.values(),
-      cardInterpretation: input.semantic.cardInterpretation,
+      cardInterpretation: projectCardInterpretation(
+        input.semantic.cardInterpretation,
+        input.mentioned,
+        input.position,
+      ),
       limitations: input.semantic.limitations,
       targetRole: input.mentioned
         ? input.semantic.targetRole === "NOT_MENTIONED"
@@ -528,4 +538,16 @@ function normalizeName(value: string): string {
     .normalize("NFKC")
     .toLocaleLowerCase("zh-CN")
     .replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function projectCardInterpretation(
+  value: string,
+  mentioned: boolean,
+  position: number | null,
+): string {
+  if (/[\p{L}\p{N}]/u.test(value)) return value;
+  if (!mentioned) return "该回答未提及当前品牌。";
+  return position === null
+    ? "该回答提及了当前品牌。"
+    : `该回答提及了当前品牌，位于第${position}个候选位置。`;
 }

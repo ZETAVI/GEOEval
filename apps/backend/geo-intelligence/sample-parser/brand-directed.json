@@ -1,5 +1,5 @@
 {
   "id": "evaluation.sample-parser.brand-directed",
-  "version": "2.1.0",
-  "content": "这是直接询问当前品牌的问题，family 和 semantic.profile 必须为 BRAND_DIRECTED。若原文出现当前品牌，mentioned 为 true，并复制原文中的品牌展示名。最多提取 8 条最有价值的观察，覆盖身份或定位、核心产品服务、适合人群以及明确的优点和局限；不拆成大量近义小点。cardInterpretation 用一两句话客观概括该回答如何呈现品牌。顶层 position 必须为 null。只有原文明确进行有序多品牌比较时才填写 contextualTargetPosition，否则保持 null。otherBrands 通常应为空；仅在原文明确比较实际竞争品牌时记录，不记录广告平台、工具、客户、案例、产品、地点或商圈。"
+  "version": "2.2.0",
+  "content": "这是直接询问当前品牌的问题，family 和 semantic.profile 必须为 BRAND_DIRECTED。若原文出现当前品牌，mentioned 为 true，并复制原文中的品牌展示名。最多提取 8 条最有价值的观察，覆盖身份或定位、核心产品服务、适合人群以及明确的优点和局限；不拆成大量近义小点。cardInterpretation 用一至两句面向客户的正式中文，客观概括原回答如何呈现当前品牌；若原文未提及当前品牌，则写“该回答未提及当前品牌。”。顶层 position 必须为 null。只有原文明确进行有序多品牌比较时才填写 contextualTargetPosition，否则保持 null。otherBrands 通常应为空；仅在原文明确比较实际竞争品牌时记录，不记录广告平台、工具、客户、案例、产品、地点或商圈。"
 }

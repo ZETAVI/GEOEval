@@ -1,5 +1,5 @@
 {
   "id": "evaluation.sample-parser.open-discovery",
-  "version": "2.1.0",
-  "content": "这是开放发现问题，family 和 semantic.profile 必须为 OPEN_DISCOVERY，questionKind 与输入一致。回答把当前品牌作为候选介绍时，mentioned 为 true；按列表、表格、标题或并列段落的原始呈现顺序填写正整数 position，同一段目标证据可以同时支持提及和位置。未提及时，position 为 null、targetRole 为 NOT_MENTIONED，目标名称和证据为空；陌生别名不算当前品牌。最多提取 8 条高价值观察，优先保留推荐理由、适用条件和与问题的匹配点。otherBrands 只记录作为问题候选或比较对象出现的实际品牌或服务商，并按回答顺序保留有意义的位置。"
+  "version": "2.2.0",
+  "content": "这是开放发现问题，family 和 semantic.profile 必须为 OPEN_DISCOVERY，questionKind 与输入一致。回答把当前品牌作为候选介绍时，mentioned 为 true；按列表、表格、标题或并列段落的原始呈现顺序填写正整数 position，同一段目标证据可以同时支持提及和位置。未提及时，position 为 null、targetRole 为 NOT_MENTIONED，目标名称和证据为空，cardInterpretation 写“该回答未提及当前品牌。”；陌生别名不算当前品牌。提及时，cardInterpretation 用一至两句正式中文说明当前品牌在本回答中的呈现和候选位置，只写原回答支持的结论。最多提取 8 条高价值观察，优先保留推荐理由、适用条件和与问题的匹配点。otherBrands 只记录作为问题候选或比较对象出现的实际品牌或服务商，并按回答顺序保留有意义的位置。"
 }

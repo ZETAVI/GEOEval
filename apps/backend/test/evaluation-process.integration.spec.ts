@@ -288,6 +288,85 @@ describe("resumable evaluation evidence", () => {
     ).rejects.toThrow();
   });
 
+  it("normalizes an unreadable parser card before persistence and report projection", async () => {
+    let protectedSampleId: string | undefined;
+    const structuralCardFragment: DeterministicAttemptScenario = (request) => {
+      if (
+        request.purpose !== "EVALUATION_INTERPRETATION" ||
+        protectedSampleId !== undefined ||
+        request.input.userContext.questionKind !== "INDUSTRY_RECOMMENDATION"
+      ) {
+        return undefined;
+      }
+      protectedSampleId = request.sampleId;
+      return {
+        kind: "SUCCEEDED",
+        output: {
+          family: "OPEN_DISCOVERY",
+          questionKind: "INDUSTRY_RECOMMENDATION",
+          mentioned: false,
+          position: null,
+          semantic: {
+            profile: "OPEN_DISCOVERY",
+            answerStructure: "UNORDERED_LIST",
+            targetDisplayedForms: [],
+            targetMentionEvidence: [],
+            targetPositionEvidence: [],
+            targetRole: "NOT_MENTIONED",
+            targetObservations: [],
+            otherBrands: [],
+            cardInterpretation: "}}}",
+            limitations: ["结果仅反映本次回答。"],
+          },
+        },
+      };
+    };
+    const { runId, brandId, processor, outbox } = await startScenario(
+      structuralCardFragment,
+    );
+    await drain(processor, outbox);
+
+    expect(protectedSampleId).toBeDefined();
+    if (!protectedSampleId)
+      throw new Error("Protected replay sample was not captured");
+    const interpretation =
+      await prisma.evaluationSampleInterpretation.findUniqueOrThrow({
+        where: { sampleId: protectedSampleId },
+      });
+    expect(
+      parseStoredSampleSemantic(
+        interpretation.semanticContractVersion,
+        interpretation.semanticPayload,
+      ),
+    ).toMatchObject({
+      profile: "OPEN_DISCOVERY",
+      cardInterpretation: "该回答未提及当前品牌。",
+      targetRole: "NOT_MENTIONED",
+    });
+    expect(
+      await prisma.aiExecutionAttempt.count({
+        where: {
+          sampleId: protectedSampleId,
+          purpose: "EVALUATION_INTERPRETATION",
+        },
+      }),
+    ).toBe(1);
+    expect(
+      await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
+    ).toMatchObject({ status: "COMPLETED", stage: "REPORT_ACCEPTED" });
+
+    const report = await reports.current(accountId, brandId);
+    const replaySample = report?.questions
+      .flatMap((question) => question.samples)
+      .find((sample) => sample.id === protectedSampleId);
+    expect(replaySample).toMatchObject({
+      availability: "INCLUDED",
+      mentioned: false,
+      position: null,
+      cardInterpretation: "该回答未提及当前品牌。",
+    });
+  });
+
   it("uses the seventeen-of-twenty boundary for readiness and please-retry", async () => {
     const failThree = failedPositions(3, "EVALUATION_ACQUISITION");
     const first = await startScenario(failThree);
@@ -641,7 +720,7 @@ describe("resumable evaluation evidence", () => {
         semanticDisposition: {
           kind: "REJECTED",
           failureClass: "SEMANTIC_CONTRACT_REJECTED",
-          modelContractVersion: "evaluation.sample-parser-model@3",
+          modelContractVersion: "evaluation.sample-parser-model@4",
           domainContractVersion: "1.0.0",
         },
       },
