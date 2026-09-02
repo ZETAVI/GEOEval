@@ -388,6 +388,214 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/media-catalog/revision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaCatalogController_revision"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media-catalog/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaCatalogController_categories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media-catalog/platforms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaCatalogController_platforms"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media-catalog/platforms/{platformId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaCatalogController_platform"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/media/platforms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaAdminController_platforms"];
+        put?: never;
+        post: operations["MediaAdminController_createPlatform"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/media/platforms/{platformId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaAdminController_platform"];
+        put?: never;
+        post?: never;
+        delete: operations["MediaAdminController_deletePlatform"];
+        options?: never;
+        head?: never;
+        patch: operations["MediaAdminController_updatePlatform"];
+        trace?: never;
+    };
+    "/admin/media/platforms/{platformId}/listing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["MediaAdminController_listing"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/media/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaAdminController_sources"];
+        put?: never;
+        post: operations["MediaAdminController_createSource"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/media/sources/{sourceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["MediaAdminController_deleteSource"];
+        options?: never;
+        head?: never;
+        patch: operations["MediaAdminController_updateSource"];
+        trace?: never;
+    };
+    "/admin/media/platforms/{platformId}/resources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaAdminController_resources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/media/resources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MediaAdminController_createResource"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/media/resources/{resourceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["MediaAdminController_deleteResource"];
+        options?: never;
+        head?: never;
+        patch: operations["MediaAdminController_updateResource"];
+        trace?: never;
+    };
+    "/admin/media/audits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaAdminController_audits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications": {
         parameters: {
             query?: never;
@@ -767,6 +975,125 @@ export interface components {
         EvaluationReportHistoryResponse: {
             items: components["schemas"]["EvaluationReportSummaryResponse"][];
             nextCursor: string | null;
+        };
+        MediaCatalogRevisionResponse: {
+            revision: string;
+        };
+        MediaCategoryResponse: {
+            /** @enum {string} */
+            id: "CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA";
+            label: string;
+        };
+        MediaResourceExampleResponse: {
+            /** Format: uuid */
+            id: string;
+            displayName: string;
+            /** @enum {string} */
+            publicationMode: "FIRST_PUBLISH" | "REPOST";
+        };
+        MediaPlatformCustomerResponse: {
+            /** Format: uuid */
+            id: string;
+            displayName: string;
+            description?: string | null;
+            logoUrl?: string | null;
+            /** @enum {string} */
+            regionScope: "DOMESTIC" | "OVERSEAS";
+            categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
+            pointPrice: number;
+            listingRevision: number;
+            examples: components["schemas"]["MediaResourceExampleResponse"][];
+        };
+        MediaPlatformPageResponse: {
+            items: components["schemas"]["MediaPlatformCustomerResponse"][];
+            /** Format: uuid */
+            nextCursor?: string | null;
+        };
+        MediaListingAdminResponse: {
+            /** @enum {string} */
+            status: "DRAFT" | "ON_SHELF" | "PAUSED" | "OFF_SHELF";
+            pointPrice?: number | null;
+            revision: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        MediaPlatformAdminResponse: {
+            /** Format: uuid */
+            id: string;
+            normalizedName: string;
+            displayName: string;
+            aliases: string[];
+            description?: string | null;
+            logoUrl?: string | null;
+            /** @enum {string} */
+            regionScope: "DOMESTIC" | "OVERSEAS";
+            /** @enum {string} */
+            status: "ACTIVE" | "ARCHIVED";
+            categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
+            listing?: components["schemas"]["MediaListingAdminResponse"] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        MediaSupplySourceResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            contactName?: string | null;
+            contactMethod?: string | null;
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+            notes?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        MediaResourceAdminResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            platformId: string;
+            /** Format: uuid */
+            supplySourceId: string;
+            resourceName: string;
+            accountIdentifier?: string | null;
+            accountUrl?: string | null;
+            /** @enum {string} */
+            publicationMode: "FIRST_PUBLISH" | "REPOST";
+            /** @enum {string} */
+            status: "ACTIVE" | "PAUSED" | "ARCHIVED";
+            /** @enum {string} */
+            publicVisibility: "HIDDEN" | "FULL" | "MASKED";
+            publicAlias?: string | null;
+            /** @enum {string} */
+            qualityTier: "HIGH" | "MEDIUM" | "LOW";
+            procurementCostFen?: number | null;
+            caseUrl?: string | null;
+            publicationNotes?: string | null;
+            source: components["schemas"]["MediaSupplySourceResponse"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        MediaCatalogAuditResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            actorAccountId: string;
+            entityType: string;
+            /** Format: uuid */
+            entityId: string;
+            action: string;
+            reason: string;
+            beforeState?: Record<string, never> | null;
+            afterState?: Record<string, never> | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         EvaluationReportNotificationTargetResponse: {
             /** @enum {string} */
@@ -1305,6 +1632,361 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvaluationRunResponse"];
+                };
+            };
+        };
+    };
+    MediaCatalogController_revision: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaCatalogRevisionResponse"];
+                };
+            };
+        };
+    };
+    MediaCatalogController_categories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaCategoryResponse"][];
+                };
+            };
+        };
+    };
+    MediaCatalogController_platforms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaPlatformPageResponse"];
+                };
+            };
+        };
+    };
+    MediaCatalogController_platform: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaPlatformCustomerResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_platforms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaPlatformAdminResponse"][];
+                };
+            };
+        };
+    };
+    MediaAdminController_createPlatform: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaPlatformAdminResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_platform: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaPlatformAdminResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_deletePlatform: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MediaAdminController_updatePlatform: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaPlatformAdminResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_listing: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaPlatformAdminResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_sources: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaSupplySourceResponse"][];
+                };
+            };
+        };
+    };
+    MediaAdminController_createSource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaSupplySourceResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_deleteSource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MediaAdminController_updateSource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaSupplySourceResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_resources: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaResourceAdminResponse"][];
+                };
+            };
+        };
+    };
+    MediaAdminController_createResource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaResourceAdminResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_deleteResource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MediaAdminController_updateResource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaResourceAdminResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_audits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaCatalogAuditResponse"][];
                 };
             };
         };

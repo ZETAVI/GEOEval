@@ -88,6 +88,60 @@ enum NotificationKind {
   EVALUATION_RETRY_REQUIRED
 }
 
+enum MediaPlatformStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum MediaCategory {
+  CENTRAL_MEDIA
+  PORTAL_MEDIA
+  LOCAL_MEDIA
+  VERTICAL_MEDIA
+  CONTENT_PLATFORM
+  OVERSEAS_MEDIA
+}
+
+enum MediaRegionScope {
+  DOMESTIC
+  OVERSEAS
+}
+
+enum MediaListingStatus {
+  DRAFT
+  ON_SHELF
+  PAUSED
+  OFF_SHELF
+}
+
+enum MediaResourceStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum MediaSupplySourceStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum MediaPublicationMode {
+  FIRST_PUBLISH
+  REPOST
+}
+
+enum MediaPublicVisibility {
+  HIDDEN
+  FULL
+  MASKED
+}
+
+enum MediaQualityTier {
+  HIGH
+  MEDIUM
+  LOW
+}
+
 model Account {
   id           String           @id @default(uuid()) @db.Uuid
   mobile       String           @unique @db.VarChar(20)
@@ -98,6 +152,7 @@ model Account {
   brands       BrandProfile[]
   brandContext BrandContext?
   notifications Notification[]
+  mediaCatalogAudits MediaCatalogAudit[]
 
   @@map("accounts")
 }
@@ -487,6 +542,113 @@ model Notification {
   @@index([recipientAccountId, createdAt, id])
   @@index([recipientAccountId, readAt])
   @@map("notifications")
+}
+
+model MediaPlatform {
+  id             String              @id @default(uuid()) @db.Uuid
+  normalizedName String              @unique @map("normalized_name") @db.VarChar(160)
+  displayName    String              @map("display_name") @db.VarChar(160)
+  aliases        String[]            @default([])
+  description    String?
+  logoUrl        String?             @map("logo_url") @db.VarChar(2048)
+  regionScope    MediaRegionScope    @default(DOMESTIC) @map("region_scope")
+  status         MediaPlatformStatus @default(ACTIVE)
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  categories     MediaPlatformCategory[]
+  listing        MediaPlatformListing?
+  resources      MediaResource[]
+
+  @@index([status, displayName, id])
+  @@map("media_platforms")
+}
+
+model MediaPlatformCategory {
+  platformId String        @map("platform_id") @db.Uuid
+  category   MediaCategory
+  platform   MediaPlatform @relation(fields: [platformId], references: [id], onDelete: Restrict)
+
+  @@id([platformId, category])
+  @@index([category, platformId])
+  @@map("media_platform_categories")
+}
+
+model MediaPlatformListing {
+  platformId String             @id @map("platform_id") @db.Uuid
+  status     MediaListingStatus @default(DRAFT)
+  pointPrice Int?               @map("point_price")
+  revision   Int                @default(1)
+  createdAt  DateTime           @default(now()) @map("created_at")
+  updatedAt  DateTime           @updatedAt @map("updated_at")
+  platform   MediaPlatform      @relation(fields: [platformId], references: [id], onDelete: Restrict)
+
+  @@index([status, platformId])
+  @@map("media_platform_listings")
+}
+
+model MediaSupplySource {
+  id            String                  @id @default(uuid()) @db.Uuid
+  name          String                  @db.VarChar(160)
+  contactName   String?                 @map("contact_name") @db.VarChar(160)
+  contactMethod String?                 @map("contact_method") @db.VarChar(320)
+  status        MediaSupplySourceStatus @default(ACTIVE)
+  notes         String?
+  createdAt     DateTime                @default(now()) @map("created_at")
+  updatedAt     DateTime                @updatedAt @map("updated_at")
+  resources     MediaResource[]
+
+  @@index([status, name, id])
+  @@map("media_supply_sources")
+}
+
+model MediaResource {
+  id                 String                @id @default(uuid()) @db.Uuid
+  platformId         String                @map("platform_id") @db.Uuid
+  supplySourceId     String                @map("supply_source_id") @db.Uuid
+  resourceName       String                @map("resource_name") @db.VarChar(240)
+  accountIdentifier  String?               @map("account_identifier") @db.VarChar(240)
+  accountUrl         String?               @map("account_url") @db.VarChar(2048)
+  publicationMode    MediaPublicationMode  @default(FIRST_PUBLISH) @map("publication_mode")
+  status             MediaResourceStatus   @default(ACTIVE)
+  publicVisibility   MediaPublicVisibility @default(HIDDEN) @map("public_visibility")
+  publicAlias        String?               @map("public_alias") @db.VarChar(240)
+  qualityTier        MediaQualityTier      @default(MEDIUM) @map("quality_tier")
+  procurementCostFen Int?                  @map("procurement_cost_fen")
+  caseUrl            String?               @map("case_url") @db.VarChar(2048)
+  publicationNotes   String?               @map("publication_notes")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
+  platform           MediaPlatform         @relation(fields: [platformId], references: [id], onDelete: Restrict)
+  supplySource       MediaSupplySource     @relation(fields: [supplySourceId], references: [id], onDelete: Restrict)
+
+  @@index([platformId, status, publicVisibility, qualityTier, id])
+  @@index([supplySourceId, status, id])
+  @@map("media_resources")
+}
+
+model MediaCatalogState {
+  id             String   @id @db.VarChar(32)
+  publicRevision BigInt   @default(1) @map("public_revision")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("media_catalog_state")
+}
+
+model MediaCatalogAudit {
+  id             String   @id @default(uuid()) @db.Uuid
+  actorAccountId String   @map("actor_account_id") @db.Uuid
+  entityType     String   @map("entity_type") @db.VarChar(80)
+  entityId       String   @map("entity_id") @db.Uuid
+  action         String   @db.VarChar(80)
+  reason         String   @db.VarChar(320)
+  beforeState    Json?    @map("before_state")
+  afterState     Json?    @map("after_state")
+  createdAt      DateTime @default(now()) @map("created_at")
+  actor          Account  @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([actorAccountId, createdAt])
+  @@map("media_catalog_audits")
 }
 
 model FoundationRecord {

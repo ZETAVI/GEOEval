@@ -59,6 +59,26 @@ describe("terminal-customer passwordless entry", () => {
     expect(await prisma.accountSession.count()).toBe(0);
   });
 
+  it("creates a session for an existing administrator without granting customer access", async () => {
+    await prisma.account.create({
+      data: { mobile: "+8613800138003", role: "ADMINISTRATOR" },
+    });
+    const challenge = await service.requestChallenge("13800138003");
+    const completed = await service.completeChallenge({
+      challengeId: challenge.challengeId,
+      mobile: "13800138003",
+      code: challenge.developmentCode!,
+    });
+
+    expect(completed.account.role).toBe("ADMINISTRATOR");
+    expect(await service.authenticateAccount(completed.token)).toEqual(
+      completed.account,
+    );
+    await expect(service.authenticate(completed.token)).rejects.toThrow(
+      "登录状态已失效",
+    );
+  });
+
   it("consumes a challenge once and revokes logout immediately", async () => {
     const challenge = await service.requestChallenge("13800138002");
     const input = {

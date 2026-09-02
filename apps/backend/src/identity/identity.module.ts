@@ -8,6 +8,8 @@ import {
 import { IDENTITY_REPOSITORY } from "./domain/identity.repository.js";
 import { PostgresIdentityRepository } from "./infrastructure/postgres-identity.repository.js";
 import { IdentityController } from "./presentation/identity.controller.js";
+import { AccountSessionGuard } from "./presentation/account-session.guard.js";
+import { RoleGuard } from "./presentation/role.guard.js";
 import { SessionGuard } from "./presentation/session.guard.js";
 
 @Global()
@@ -26,9 +28,11 @@ export class IdentityModule {
           useExisting: PostgresIdentityRepository,
         },
         IdentityService,
+        AccountSessionGuard,
         SessionGuard,
+        RoleGuard,
       ],
-      exports: [IdentityService, SessionGuard],
+      exports: [IdentityService, AccountSessionGuard, SessionGuard, RoleGuard],
     };
   }
 }

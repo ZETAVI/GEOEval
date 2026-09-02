@@ -1134,8 +1134,9 @@ The two publishing choices are peers:
   successful-publication quantity and total point price. The quantity counts
   completed media publications based on differently optimized variants of the
   confirmed core article, rather than identical copies or separately confirmed
-  core articles. The platform assigns eligible media from the media library, so
-  library entries are visible but cannot be selected in this mode. The
+  core articles. Operations may use the media library as a non-blocking
+  reference but can also publish through an unlisted account, so library
+  resources are visible examples and cannot be selected in this mode. The
   presentation should clearly communicate random allocation. The service
   guarantees the purchased quantity within the stated media scope, not a
   particular platform or account; unavailable placements can be replaced by
@@ -1154,22 +1155,25 @@ prices are not approved until the assigned colleague supplies the information
 and an administrator publishes the maintained catalog.
 
 The media library has two product responsibilities. It demonstrates the
-platform's real, maintained resource coverage across industries, mainstream
-media platforms, and available accounts; and it supplies the eligible pool for
-random publishing and the selectable, priced destinations for precise
-publishing. Administrators own the accuracy of the inventory and pricing shown to
-customers. Customer-facing media entries use a professional card presentation
-with media name and icon, media type and industry tags, geographic coverage, one
-concise positioning description, current availability, and—in precise mode—the
-single-publication point price. Specific publishing accounts and unsupported
-weight, guaranteed inclusion, exposure, or effect claims are not shown. The
-actual catalog content and prices remain separately assigned business input.
+platform's real, maintained coverage through media platforms and optional
+concrete-resource examples; and it supplies the selectable, platform-priced
+destinations for precise publishing plus non-blocking references for operations.
+Administrators own the accuracy of the platforms, examples, availability, and
+pricing shown to customers. Customer-facing entries use the fixed media
+categories, platform name and icon, domestic or overseas scope, one concise
+description, current availability, and the platform's single-publication point
+price. Up to fifty administrator-approved concrete-resource examples may be
+shown completely or with an explicit masked alias, but cannot be selected or
+treated as account-level commitments. Procurement cost, internal sources,
+contacts, operating notes, unsupported weight, guaranteed inclusion, exposure,
+or effect claims are not shown. The actual catalog content and prices remain
+separately assigned business input.
 
 The media library is a standalone primary customer entry in addition to its use
 inside publishing-service selection. Its customer experience is designed as a
 clear, professional resource presentation rather than an administrator table.
 The administrator receives a separate maintenance experience for the same
-catalog, including availability, prices, packages, retirement, and audit. The
+catalog, including availability, platform prices, retirement, and audit. The
 two role views share truthful maintained media facts but do not share the same
 page organization or available actions.
 
@@ -1179,33 +1183,31 @@ prices, or packages. The colleague responsible for collection can prepare or
 import source information, while an administrator is the role that publishes and
 maintains it in the product. The initial product has no multi-person approval:
 an authorized administrator can create, edit, enable, disable, archive, or
-publish media and package changes directly. Every change retains the actor,
+publish media changes directly. Every change retains the actor,
 time, reason, and before-and-after values. Changes affect new and still-unpaid
 choices only; paid orders continue from their committed snapshots.
 
-An erroneous or test media or package record that has never been used may be
+An erroneous or test media record that has never been used may be
 deleted. Once referenced by an order, it can only be disabled, taken off sale,
 or archived and may later be restored. Retirement removes it from new precise
-selection and the eligible random pool without erasing historical order or
-delivery meaning. Future architecture must keep the live catalog, commercial
-configuration, paid-order snapshot, and historical publication results as
-separately owned lifecycle concepts. Module boundaries, dependency direction,
-snapshot integrity, retirement behavior, and prevention of cascading deletion
-must be architecture-reviewed after product approval rather than being chosen
-prematurely during discovery.
+selection without erasing historical order or delivery meaning. The architecture
+keeps the live catalog, platform commercial configuration, paid-order snapshot,
+and historical publication results as separately owned lifecycle concepts.
+Media Supply owns the first two live facts; Publishing Commerce and Publication
+Delivery retain snapshot and result ownership without direct media-table access.
 
 Random and precise publishing use the same maintained library. Random mode
-shows the eligible library as non-selectable supporting context and uses clear
+shows the library as non-selectable supporting context and uses clear
 interaction or motion to express random allocation; its package quantity and
 total price remain the commercial focus rather than individual-media prices.
-Precise mode enables media and quantity selection and keeps each price and the
+Precise mode enables platform and quantity selection and keeps each price and the
 running total visible.
 
 Browsing, selecting, or reaching order review never reserves media or locks an
 unpaid price. Immediately before point deduction, the product rechecks package
 or media availability and price. A change is explained and requires explicit
 reconfirmation. Successful paid submission fixes a snapshot of the selected
-package scope or precise media facts, quantities, and prices as the order
+package scope or precise platform facts, quantities, and prices as the order
 commitment; later library edits cannot rewrite that order. Media maintenance is
 normally scheduled for low-traffic overnight periods, but correctness cannot
 assume that no customer is selecting at the same time. A later availability

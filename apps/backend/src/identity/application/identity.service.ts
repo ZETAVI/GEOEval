@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Inject,
   Injectable,
   UnauthorizedException,
@@ -110,19 +109,24 @@ export class IdentityService {
     if (!account) {
       throw new UnauthorizedException("验证码已使用，请重新获取");
     }
-    if (account.role !== "TERMINAL_CUSTOMER") {
-      throw new ForbiddenException("该入口仅供终端客户使用");
-    }
     return { account, token, expiresAt };
   }
 
   async authenticate(token: string | undefined): Promise<AccountView> {
+    const account = await this.authenticateAccount(token);
+    if (account.role !== "TERMINAL_CUSTOMER") {
+      throw new UnauthorizedException("登录状态已失效，请重新登录");
+    }
+    return account;
+  }
+
+  async authenticateAccount(token: string | undefined): Promise<AccountView> {
     if (!token) throw new UnauthorizedException("请先登录");
     const session = await this.repository.findSession(
       sessionDigest(token),
       new Date(),
     );
-    if (!session || session.account.role !== "TERMINAL_CUSTOMER") {
+    if (!session) {
       throw new UnauthorizedException("登录状态已失效，请重新登录");
     }
     return session.account;

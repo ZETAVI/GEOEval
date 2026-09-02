@@ -36,6 +36,7 @@ import {
   type HeaderWriter,
 } from "./session-http.js";
 import { SessionGuard } from "./session.guard.js";
+import { AccountSessionGuard } from "./account-session.guard.js";
 
 @ApiTags("identity")
 @Controller("identity")
@@ -74,7 +75,7 @@ export class IdentityController {
   }
 
   @Get("me")
-  @UseGuards(SessionGuard)
+  @UseGuards(AccountSessionGuard)
   @ApiOkResponse({ type: AccountResponse })
   me(@Req() request: AuthenticatedRequest): AccountResponse {
     return request.geoevalAccount!;
