@@ -16,6 +16,8 @@
       preserving diagnostic content only in the explicit local/test mode.
 - [x] Verify metadata-only, local diagnostic, mask, and exporter failure with
       focused unit/integration tests and no real Provider calls.
+- [x] Emit one credentialed, fictional Langfuse Cloud smoke batch and read it
+      back through Observations API v2 without calling any Provider.
 - [x] Pass typecheck, relevant test suites, build, format, framework validation,
       and `git diff --check`; disclose anything not run.
 - [x] Reconcile accepted behavior into the current evaluation-evidence spec and
@@ -34,8 +36,10 @@
 | Formatting and diff hygiene | `pnpm format:check`; `git diff --check` | Passed |
 | Project framework and links remain valid | `python3 scripts/validate_project_framework.py` | 17 cataloged Skills and local Markdown links passed |
 | Database compatibility | `pnpm db:migrate` | 14 migrations found; no pending migration |
+| Actual Langfuse account behavior | Two fictional Generations exported to `us.cloud.langfuse.com`, then queried via Observations API v2 with `core,basic,io,metadata,model,usage,trace_context` | HTTP 200 on first read; metadata-only Input/Output empty; local-diagnostic Input/Output present; release/contentMode matched; secret, raw-envelope, and reasoning markers absent; redaction present; Provider calls 0 |
 
 No real Provider call, customer-data upload, production configuration change,
-deployment, or browser/UI action was performed. The loopback OTLP fixture used
-fictional content and intentionally returned HTTP 400 to exercise export
-failure isolation.
+deployment, or browser/UI action was performed. Both the loopback exporter-
+failure fixture and live Langfuse smoke used fictional content. UI rendering
+was not inspected; the live server-side result was verified through the
+authenticated Observations API v2.

@@ -1,6 +1,6 @@
 # Change: Enable Controlled Local Langfuse Diagnostic Content
 
-- Status: Locally verified in Draft PR #47; review pending
+- Status: Live Langfuse verified in Draft PR #47; ready for review
 - Class: Standard maintenance change
 - Owner: GitHub Issue #44 under M4 parent #39
 
@@ -59,9 +59,10 @@ state, Provider request, or second business truth source.
 ## Approval Boundary
 
 Issue #44 and the delegated task authorize local implementation, fictional
-test fixtures, project-local dependencies, and a loopback OTLP fixture. They do
-not authorize real Provider calls, real customer material, production content
-capture, production configuration changes, deployment, or merge.
+test fixtures, project-local dependencies, a loopback OTLP fixture, and one
+credentialed Langfuse Cloud smoke with fictional content. They do not authorize
+real Provider calls, real customer material, production content capture,
+production configuration changes, deployment, or merge.
 
 ## Reconciliation State
 
@@ -75,6 +76,6 @@ capture, production configuration changes, deployment, or merge.
   deployed by this PR, and production remains metadata-only.
 - Handoff: no separate file; Issue #44, this branch, and the Draft PR are
   sufficient continuation state.
-- Exit: locally verified and published for Draft PR #47 review. Archive, Issue close,
-  Project Done, branch deletion, merge, and deployment remain later authorized
-  actions.
+- Exit: locally and live-Langfuse verified, published for PR #47 review.
+  Archive, Issue close, Project Done, branch deletion, merge, and deployment
+  remain later authorized actions.
