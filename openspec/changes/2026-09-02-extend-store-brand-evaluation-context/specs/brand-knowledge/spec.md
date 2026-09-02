@@ -13,16 +13,24 @@ in evaluation readiness and projection.
 - **GIVEN** an authenticated customer has selected a valid Brand-owned official
   region path
 - **WHEN** the customer submits a specific store name, landmark, or address
-- **THEN** Brand queries the approved server-side Store Location adapter within
-  that region and returns a bounded safe candidate list
-- **AND** the browser receives no Web Service Key, raw provider response, or
-  authoritative mutation fields
+- **THEN** Web presents an Amap JS API map, bounded autocomplete/search,
+  selectable POI Markers, and an accessible address list within that region
+- **AND** the browser receives only the domain-restricted Web(JS API) Key, never
+  the JS security key, Web Service Key, raw provider response, or authoritative
+  mutation fields
 - **AND** search text and unselected candidates do not become Brand or
   evaluation business truth.
 
+#### Scenario: A customer clicks the map outside a POI
+
+- **WHEN** the customer clicks an arbitrary map coordinate
+- **THEN** Web may recenter or search nearby
+- **AND** the coordinate cannot become a Store Location until the customer
+  selects a concrete POI and the server independently verifies it.
+
 #### Scenario: A customer selects a candidate
 
-- **WHEN** the customer selects one candidate
+- **WHEN** the customer selects one Marker or its matching list item
 - **THEN** the server resolves current provider place detail and reverse-
   geocodes its coordinate
 - **AND** checks required identity, structured address, coordinate, and official-
@@ -70,8 +78,10 @@ or one precise verified address locality and SHALL preserve the distinction.
 - **WHEN** a verified Store Location has no business-area candidate
 - **THEN** Brand offers a precise verified address/place locality with kind
   `ADDRESS_LOCALITY`
-- **AND** customer and Query projections do not label or describe that value as
-  a business area.
+- **AND** customer and Query projections do not label that value as a business
+  area
+- **AND** #26 may phrase the verified address locality naturally without
+  changing it or inventing a business area.
 
 ### Requirement: Required flagship product or service
 
@@ -95,25 +105,26 @@ evaluation meaning remains separate from industry classification.
 - **THEN** the Brand may remain a draft but is not evaluation-ready
 - **AND** no Provider or Agent invents a substitute.
 
-### Requirement: Ordered extensible characteristics
+### Requirement: Peer extensible characteristics
 
-Brand Knowledge SHALL store one ordered characteristic collection, render two
+Brand Knowledge SHALL store one peer characteristic collection, render two
 inputs by default, and bound evaluation-ready profiles to two through six
-distinct normalized values.
+distinct normalized values without a priority contract.
 
 #### Scenario: A customer maintains characteristics
 
-- **WHEN** the customer adds, edits, removes, or reorders characteristics
-- **THEN** the Web preserves the visible customer order and supports keyboard-
-  accessible add/remove/move behavior
+- **WHEN** the customer adds, edits, or removes characteristics
+- **THEN** the Web supports keyboard-accessible add/remove behavior without move
+  controls or priority copy
 - **AND** the server accepts at most six values, each 2-120 characters
 - **AND** rejects exact normalized duplicates
-- **AND** the complete order participates in the evaluation fingerprint.
+- **AND** Brand canonicalizes the normalized set so presentation order does not
+  participate in the evaluation fingerprint.
 
 #### Scenario: Query later consumes the list
 
 - **WHEN** #26 constructs the two existing characteristic question roles
-- **THEN** it consumes the frozen ordered list from the v3 projection
+- **THEN** it consumes the frozen peer set from the v3 projection
 - **AND** may select or combine characteristics according to its own approved
   Prompt and Model Contract
 - **AND** Brand does not create more questions, choose angles, or expose its
@@ -121,16 +132,23 @@ distinct normalized values.
 
 ### Requirement: Semantic evaluation fingerprint v3
 
-Brand Knowledge SHALL compute new store-context revisions through
-`brand-evaluation-input@3` while preserving migrated v2 identity until a real
-evaluation-semantic edit occurs.
+Brand Knowledge SHALL compute store-context revisions through the single
+`brand-evaluation-input@3` scheme.
 
 #### Scenario: Store-context meaning changes
 
 - **WHEN** the selected Store Location or final Query locality, flagship product
-  or service, any characteristic value, or characteristic order changes
+  or service, or any characteristic value changes
 - **THEN** the v3 fingerprint changes
 - **AND** the ordinary new evaluation-input revision rule applies.
+
+#### Scenario: Characteristic presentation order changes
+
+- **WHEN** the same normalized characteristic values appear in another
+  presentation order
+- **THEN** canonicalization produces the same fingerprint
+- **AND** the order does not imply customer priority or create another question
+  set or evaluation opportunity.
 
 #### Scenario: Provider representation changes
 
@@ -160,7 +178,7 @@ SHALL freeze it without reading Brand persistence or the Store Location adapter.
   existing readiness facts
 - **THEN** Brand returns its v3 fingerprint, existing frozen industry/official-
   region meaning, structured Store Location display and provenance, explicit
-  coordinate system, final Query locality, flagship value, and ordered
+  coordinate system, final Query locality, flagship value, and peer
   characteristics
 - **AND** GEO stores `brand-evaluation-snapshot@3`
 - **AND** #26 consumes only a GEO-owned Query projection over that snapshot
@@ -174,49 +192,29 @@ SHALL freeze it without reading Brand persistence or the Store Location adapter.
 - **THEN** that Definition, its questions, Run, retry, report, and history retain
   the exact frozen v3 projection actually used.
 
-### Requirement: v1/v2 history and opportunity continuity
+### Requirement: Development reset activates one v3 contract
 
-Activation SHALL preserve every existing snapshot and business record and SHALL
-not manufacture or hide an evaluation opportunity through representation
-migration.
+Activation SHALL recreate only the explicitly authorized development database
+from empty and SHALL not introduce runtime compatibility for development-only
+v1/v2/legacy data.
 
-#### Scenario: Existing Brands are migrated
+#### Scenario: The development database is prepared for v3
 
-- **WHEN** the two current characteristic columns map exactly to an ordered
-  collection
-- **THEN** migration preserves their order and text
-- **AND** retains the exact Brand v2 fingerprint and records its scheme
-- **AND** creates no Store Location or flagship value
-- **AND** rewrites no Definition/Run fingerprint, snapshot JSON, question, Run,
-  sample, attempt, synthesis, report, notification, or completed count.
+- **GIVEN** the target database is proven to be the project-named development
+  database and not production
+- **WHEN** the separately authorized reset is executed
+- **THEN** the database is recreated from empty and the repository migration
+  chain is replayed
+- **AND** every new Brand, Definition, Run, and report uses the v3 contract
+- **AND** no old development Brand, question, opportunity, Run, or report is
+  migrated or restored.
 
-#### Scenario: An unchanged existing Definition is observed
+#### Scenario: The target cannot be proven safe
 
-- **GIVEN** migration made the current Brand incomplete for a new v3 Definition
-- **WHEN** the Brand still has an existing v1/v2 Definition at its retained
-  current v2 fingerprint
-- **THEN** GEO finds and returns that Definition before requiring a new v3-ready
-  projection
-- **AND** an unstarted Definition remains eligible, while active/retryable/
-  completed Runs continue from their frozen snapshots.
-
-#### Scenario: The customer makes the first semantic edit
-
-- **WHEN** the customer changes any evaluation-semantic field after migration
-- **THEN** the current Brand moves to v3 fingerprint semantics
-- **AND** an earlier unstarted v1/v2 Definition becomes stale through the
-  ordinary rule
-- **AND** a later completed v3 profile receives a new opportunity because its
-  meaning changed, not because migration ran.
-
-#### Scenario: Historical snapshots are decoded
-
-- **WHEN** processing or presentation reads an unversioned legacy-v1,
-  structured-v2, or structured-v3 snapshot
-- **THEN** one GEO-owned strict union decoder returns its frozen meaning
-- **AND** no optional-field inference rewrites one version as another
-- **AND** Parser, Synthesis, report, retry, and history behavior for v1/v2 remain
-  unchanged by #40.
+- **WHEN** the target is production, contains a production marker, or cannot be
+  proven to be the authorized development database
+- **THEN** reset fails before deletion
+- **AND** #40 grants no authority to clear or migrate that data.
 
 ### Requirement: One responsive Store Brand form
 
@@ -227,8 +225,9 @@ one accessible field group for location, flagship value, and characteristics.
 
 - **WHEN** the Store Brand field group is shown
 - **THEN** it provides visible labels, address feedback before confirmation,
-  honest loading/empty/failure states, two default characteristic rows, bounded
-  add/remove/reorder actions, and a stacked narrow-screen layout
+  an Amap map with matching accessible candidate list, honest loading/empty/
+  failure states, two default characteristic rows, bounded add/remove actions,
+  and a stacked narrow-screen layout
 - **AND** the customer can save an incomplete draft
 - **AND** all required fields and one verified Store Location are necessary
   before entering the new v3 evaluation path.
@@ -251,9 +250,7 @@ Brand Knowledge SHALL derive readiness from all accepted current facts.
 
 - **WHEN** company name, valid industry/`Other`, valid official region, one
   verified Store Location coherent with that region, concrete flagship
-  product/service, two through six valid ordered characteristics, contact name,
+  product/service, two through six valid peer characteristics, contact name,
   and contact mobile satisfy their rules
 - **THEN** the Brand is ready for a new v3 evaluation
-- **AND** registration, Brand management, and diagnosis observe the same result
-- **BUT** an unchanged existing v1/v2 Definition retains its separate historical
-  eligibility under the continuity requirement.
+- **AND** registration, Brand management, and diagnosis observe the same result.

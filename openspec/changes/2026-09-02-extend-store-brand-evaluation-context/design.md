@@ -1,5 +1,10 @@
 # Design: Store Brand Evaluation Context and Amap Selection
 
+- Product/architecture direction: Confirmed with revisions on 2026-09-02
+- Remaining implementation prerequisite: Amap commercial/storage authorization
+- Current authorization: documents only; no code, Key, purchase, live call, or
+  development-data reset
+
 ## Design Position
 
 Store Location is a deeper Brand Knowledge value, not a generic map service and
@@ -12,10 +17,11 @@ The external seam is deliberately narrow:
 
 ```text
 Web
-  -> generated Brand API
+  -> Amap JavaScript API 2.0 map/search/Marker UI (selection only)
+  -> generated Brand API with untrusted selected POI ID
   -> Brand application
-  -> Store Location port
-  -> Amap Web Service adapter
+  -> Store Location verification port
+  -> Amap Web Service detail/reverse-geocode adapter
 
 GEO Intelligence
   -> Brand evaluation-purpose query
@@ -34,21 +40,22 @@ tables.
 ### Outcome and Boundary
 
 - **Owner and observable outcome:** Brand Knowledge accepts one verified
-  storefront, one required flagship product/service, and two to six ordered
+  storefront, one required flagship product/service, and two to six peer
   characteristics; it exposes one stable v3 projection for evaluation.
 - **In:** store search/selection, server verification, structured display
-  address, GCJ-02 coordinate, official-region coherence, locality candidates,
-  customer-confirmed Query locality, flagship product/service, characteristics,
-  readiness, fingerprint, migration classification, and snapshot projection.
-- **Out:** maps as a platform, navigation, distance ranking, multi-store Brand,
+  map and Marker interaction, address, GCJ-02 coordinate, official-region
+  coherence, locality candidates, customer-confirmed Query locality, flagship
+  product/service, characteristics, readiness, fingerprint, development reset,
+  and snapshot projection.
+- **Out:** a reusable map platform, navigation, distance ranking, multi-store Brand,
   Query Prompt/Agent lifecycle, Parser, Synthesis, report, Provider evaluation,
   production activation, and raw provider-data warehousing.
 - **Upstream prerequisites:** accepted industry and MCA reference sources,
   applicable Amap enterprise/commercial and data-storage authorization, and an
-  approved server Key configuration.
+  approved Web(JS API) Key/security-proxy and Web Service Key configuration.
 - **Downstream consumers:** registration and Brand management use the public
   field group; GEO freezes the internal projection; #26 uses the final locality,
-  flagship value, and ordered characteristics.
+  flagship value, and peer characteristics.
 
 ### Lifecycle and Data
 
@@ -56,8 +63,9 @@ Store selection is an interaction, not an independently durable workflow:
 
 ```text
 no current location
-  -> search candidates (external, read-only)
-  -> verify one candidate (external, read-only)
+  -> map/autocomplete/POI search and candidate Markers (external, untrusted)
+  -> select one concrete POI
+  -> server independently verifies that POI (external, read-only)
   -> sealed verification receipt (short-lived, not business truth)
   -> atomic Brand commit (current StoreLocation becomes business truth)
 
@@ -69,8 +77,9 @@ current verified location
 
 - A Brand draft may omit Store Location, flagship product/service, or enough
   characteristics. It remains saveable but not evaluation-ready.
-- Search text and candidates remain transient until the customer selects a
-  candidate and the server verifies it. There is no database of searches.
+- Search text, map clicks, and candidates remain transient until the customer
+  selects a concrete POI and the server verifies it. There is no database of
+  searches, and an arbitrary coordinate is never a Store Location.
 - One Brand has at most one current Store Location. It is an owned value with no
   independent customer lifecycle, history, archive, or sharing across Brands.
 - A verified Store Location remains usable when Amap is unavailable later.
@@ -78,7 +87,7 @@ current verified location
 - Reverification of the same provider place may refresh excluded display or
   provenance fields without changing its internal semantic fact identity.
   Selecting another place or final locality creates a new semantic fact identity.
-- A Brand write, Store Location replacement, ordered characteristic collection,
+- A Brand write, Store Location replacement, peer characteristic collection,
   readiness consequences, fingerprint, and ordinary profile fields commit in
   one PostgreSQL transaction. No external call occurs inside that transaction.
 - The immutable Definition stores the exact v3 projection supplied at prepare
@@ -86,14 +95,14 @@ current verified location
 
 ### Contracts and Dependencies
 
-- **Public search query:** account-authenticated, region-scoped text search;
-  returns no more than ten safe candidates with one opaque selection token,
-  name, address feedback, region display, and coordinate only when the approved
-  UI needs it.
-- **Public verification command:** accepts one selection token; the server
-  resolves current POI detail and reverse geocoding, checks region coherence,
-  and returns a short-lived sealed receipt plus a safe structured preview and
-  locality candidates.
+- **Map selection UI:** Amap JavaScript API 2.0 renders one responsive map,
+  region-scoped autocomplete/search, no more than ten candidate results, and
+  selectable POI Markers plus an accessible list. A map click may recenter or
+  start a nearby search but does not produce an authoritative Brand mutation.
+- **Public verification command:** accepts one untrusted provider POI ID; the
+  server resolves current POI detail and reverse geocoding, checks region
+  coherence, and returns a short-lived sealed receipt plus a safe structured
+  preview and locality candidates.
 - **Brand mutation:** accepts ordinary Brand fields plus the sealed receipt and
   one candidate identifier. It never accepts an authoritative provider ID,
   coordinate, address component, adcode, or free-form business area.
@@ -102,21 +111,26 @@ current verified location
   readiness; it never exposes credentials or raw provider envelopes.
 - **Internal evaluation query:** returns one complete v3 value object only after
   readiness succeeds. GEO maps it into its own versioned snapshot.
-- **Dependency direction:** Web -> generated client -> Brand application ->
-  Store Location port -> Amap adapter. GEO application -> Brand evaluation
-  query. No reverse imports, shared tables, or generic external-data registry.
-- **External call boundary:** the adapter owns request construction, Key
-  injection, minimum-field selection, total deadline, retry classification,
-  response parsing, credential redaction, and `infocode` normalization.
-  Brand owns all business validation.
+- **Dependency direction:** Web -> Amap JS UI for temporary display/selection;
+  Web -> generated client -> Brand application -> Store Location verification
+  port -> Amap Web Service adapter for authoritative facts. GEO application ->
+  Brand evaluation query. No reverse imports, shared tables, or generic
+  external-data registry.
+- **External call boundary:** Web owns map lifecycle and accessible selection.
+  The server adapter owns request construction, Web Service Key injection,
+  minimum-field selection, total deadline, retry classification, response
+  parsing, credential redaction, and `infocode` normalization. Brand owns all
+  business validation.
 
 ### Failure and Recovery
 
 | Failure | Classification | Customer behavior | Retry or recovery owner | Durable effect |
 | --- | --- | --- | --- | --- |
 | Search keyword missing or too short | Input correction | Ask for a more specific store name/address | Web/Brand validation; no provider call | None |
+| Map script, tile, domain, or JS security-proxy load fails | Client/external configuration failure | Show a retryable map-unavailable state and allow unrelated draft fields to save | Web/operator | None |
 | No candidate in the selected region | Valid empty result | Change keyword or region and search again | Customer | None |
-| Candidate token altered, expired, or bound to another account/Brand | Authorization/integrity failure | Search and select again | Brand application | None |
+| Customer clicks a coordinate with no selected concrete POI | Incomplete interaction | Recenter/search nearby and choose a Marker/list item | Web/customer | None |
+| Client submits a forged or unknown provider POI ID | Untrusted-input failure | Search and select again | Brand application/server adapter | None |
 | POI detail no longer exists | Provider-data drift | Explain that the candidate changed and re-search | Customer after adapter result | None |
 | POI detail and reverse-geocode coordinate/address disagree materially | Data-integrity failure | Do not offer confirmation; re-search or support | Brand application/operator evidence | None |
 | Provider adcode conflicts with Brand official terminal region | Business validation | Ask the customer to choose the correct region/store | Brand application | None |
@@ -136,35 +150,39 @@ current verified location
 | Candidate | Adopt, defer, or reject | Reason | Exit or refresh trigger |
 | --- | --- | --- | --- |
 | Existing Nest module plus a Brand-owned `StoreLocationProvider` port | Adopt | External protocol variability and fixture substitution are real seams; Brand business rules remain local | Revisit only if another approved provider must be supported |
-| Server-side Amap Web Service v5 search/detail plus v3 reverse geocode | Conditional adopt | Provides required evidence while keeping credentials and verification server-side | License/storage approval, controlled contract validation, endpoint or term change |
+| Server-side Amap Web Service v5 detail plus v3 reverse geocode | Conditional adopt | Independently verifies the browser-selected POI while keeping authoritative credentials and facts server-side | License/storage approval, controlled contract validation, endpoint or term change |
 | Existing generated REST/OpenAPI client and shared Brand form | Adopt | Already owns Web transport and registration/edit reuse | None for this change |
 | Server-sealed short-lived verification receipt | Adopt | Prevents forged client facts without a search-session database or an external call inside the Brand transaction | Replace only if receipt size/rotation evidence requires a short-lived server store |
-| Amap JS API 2.0 map/autocomplete | Defer | Adds a second credential/security-key surface; a bounded result list meets first acceptance | Observed selection failure that a visual map materially fixes, plus separate Key/security approval |
+| Amap JS API 2.0 map, AutoComplete/PlaceSearch, and candidate Markers | Conditional adopt | Meets the confirmed map-selection preference; result list and Marker selection remain accessible while the server independently verifies the selected POI | License/Key approval, controlled mobile/desktop selection evidence, or material quota change |
 | Provider search-session table or Redis cache | Reject initially | Creates transient provider-data persistence and operational cleanup without a required durable workflow | Revisit only if receipt constraints are proven inadequate and storage permission covers it |
 | Generic location platform/provider registry/factory | Reject | One bounded external owner and no proven second provider; would widen the interface without removing complexity | A separately approved second provider with the same stable Brand semantics |
 | Raw provider-response persistence | Reject | Violates minimization, binds business data to vendor schema, and conflicts with ordinary service terms | Never without a new explicit product/legal decision |
 
 ### Operational and Verification Boundary
 
-- **Security:** `AMAP_WEB_SERVICE_KEY` is a server secret, not a request field.
-  Production config uses an egress-IP allowlist. Query strings and Key-bearing
-  URLs are never logged. Search text and exact address are customer data and are
-  omitted or purposefully redacted from ordinary logs/traces.
+- **Security:** use separate credential classes. The Web(JS API) Key is loaded
+  by the approved domain only; its security key remains server-side behind the
+  documented `/_AMapService` proxy. `AMAP_WEB_SERVICE_KEY` remains a server
+  secret with an egress-IP allowlist. Key-bearing URLs are never logged. Search
+  text and exact address are customer data and are omitted or purposefully
+  redacted from ordinary logs/traces.
 - **Authorization:** every endpoint requires a terminal-customer session and
   binds receipt/account/Brand. Search may occur before a Brand exists during
   registration, so the receipt binds to account plus a server nonce and may be
   consumed only by that account's new Brand mutation.
-- **Cost and capacity:** no per-keystroke provider calls, maximum ten candidates,
-  no background refresh, no load test, and metrics by operation/outcome only.
-  The actual account quota and QPS are checked before implementation validation.
+- **Cost and capacity:** autocomplete starts only after a minimum input length
+  and is debounced; search returns at most ten candidates. There is no
+  background refresh or load test, and metrics are by operation/outcome only.
+  Actual JS/Web Service quota and QPS are checked before validation.
 - **Observability:** record operation name, normalized outcome/`infocode`,
   latency bucket, retry count, and a request correlation ID. Never record Key,
   full request URL, raw response, sealed receipt, complete input address, or
   provider content in general telemetry.
 - **Verification:** fixtures first; then, only after separate authorization,
-  one ordinary district, one municipality, one special no-county city, one no-
-  business-area result, one multiple-area result, and named failure responses.
-  No evaluation Provider call and no production data.
+  desktop/mobile map load, keyboard list selection, Marker selection, arbitrary
+  click rejection, one ordinary district, one municipality, one special no-
+  county city, one no-business-area result, one multiple-area result, and named
+  failure responses. No evaluation Provider call and no production data.
 - **External-authorization residual:** the architecture is not implementation-
   ready until the license/storage gate is resolved.
 
@@ -211,12 +229,12 @@ It is distinct from:
 The values may legitimately be textually equal, but their owners and change
 reasons remain distinct.
 
-### Ordered Characteristics
+### Peer Characteristics
 
-Two to six normalized customer priorities used as possible Query angles. The
-list order is business meaning: earlier items express higher customer priority.
-#26 may select or combine the list into the existing two characteristic question
-roles; neither Brand nor #40 generates those questions.
+Two to six distinct normalized Brand traits used as possible Query angles. They
+are peers, not a customer priority or ranking. #26 may select or combine the set
+into the existing two characteristic question roles; neither Brand nor #40
+generates those questions.
 
 ## Persistence Model
 
@@ -234,21 +252,22 @@ cityRegionId
 terminalRegionId
 storeLocation?                 -> one BrandStoreLocation
 flagshipProductOrService?
-characteristics[]              -> ordered JSON array, 0..6 in a draft
+characteristics[]              -> bounded JSON array, 0..6 in a draft
 contactName
 contactMobile
-evaluationFingerprint
-evaluationFingerprintScheme   -> brand-evaluation-input@2 | @3
+evaluationFingerprint          -> brand-evaluation-input@3 hash
 ```
 
 `characteristics` is a bounded JSON array rather than a child entity because a
 characteristic has no independent identity, lifecycle, authorization, or
-consumer. Array order is the contract. Server validation and database JSON
-shape/length checks protect 0-6 strings; readiness applies the 2-6 rule.
+consumer. Server validation and database JSON shape/length checks protect 0-6
+strings; readiness applies the 2-6 rule. Evaluation canonicalization sorts the
+normalized set, so presentation order cannot change the fingerprint or imply
+priority.
 
-The existing `characteristicOne` and `characteristicTwo` columns are migration
-inputs only. They do not remain a second writable current source after the
-contract step.
+The existing `characteristicOne` and `characteristicTwo` columns are removed
+after the authorized development database is recreated; they are not migration
+inputs or a second writable current source.
 
 ### Brand Store Location
 
@@ -263,7 +282,7 @@ semanticFactId             internal stable identity used by fingerprint
 searchInput                normalized customer input retained only if licensed
 provider                   AMAP
 providerPlaceId            current source identity, never public mutation input
-providerContractVersion    e.g. amap-place-v5+regeo-v3@1
+providerContractVersion    e.g. amap-js-v2+place-v5+regeo-v3@1
 verifiedAt
 placeName
 formattedAddress
@@ -306,45 +325,46 @@ semantic fact identity.
 
 ### Characteristics
 
-- draft: zero to six ordered normalized strings;
-- UI: render two empty rows by default, add up to six, remove while preserving
-  remaining order, and provide keyboard-accessible move up/down controls;
+- draft: zero to six normalized strings;
+- UI: render two empty rows by default, add up to six, and remove values; do not
+  expose move controls or priority copy;
 - evaluation-ready: two to six values;
 - each value: 2-120 normalized characters;
 - exact normalized duplicates: rejected;
-- fingerprint: full ordered list included, so add/remove/edit/reorder is a
-  semantic change.
+- fingerprint: the sorted normalized set is included, so add/remove/edit is a
+  semantic change but presentation reordering is not.
 
-The proposed limits keep one profile usable for Query while preventing an
-unbounded marketing brief. They remain product-owner decisions, not facts
-copied into current specs before approval.
+The confirmed limits keep one profile usable for Query while preventing an
+unbounded marketing brief. They remain in this active Change until
+implementation reconciliation updates current truth.
 
 ## Location Selection and Commit
 
-### 1. Search
+### 1. Map Search and Selection
 
-The customer first chooses the existing Brand official region, then enters a
-specific store name, landmark, or address and explicitly searches. Web waits for
-submit (and may debounce duplicate submits), calls a GEOEval endpoint, and shows
-no more than ten candidates with place name and complete address feedback.
+The customer first chooses the existing Brand official region. Web initializes
+one Amap JavaScript API 2.0 map centered on that region, then provides
+AutoComplete/PlaceSearch over a specific store name, landmark, or address.
 
-The server calls v5 text search with:
+- autocomplete starts after a minimum input length and is debounced;
+- an explicit search action remains available;
+- `citylimit=true` scopes the result where the provider supports the selected
+  region;
+- no more than ten results appear as both clickable Markers and an accessible
+  address list;
+- selecting either representation selects the same provider POI ID;
+- clicking empty map space only recenters or starts a nearby search and cannot
+  confirm a Store Location.
 
-- one normalized keyword, at most the provider's documented 80 characters;
-- region/adcode derived from the Brand-owned official region;
-- `city_limit=true` where the provider contract supports the selected region;
-- minimum required fields only;
-- a bounded total deadline and no broad pagination.
-
-For Brand creation during registration, the request carries the controlled
-region path in the authenticated request. Brand validates that path before it
-is used as a search scope.
+The Web(JS API) Key is bound to the approved domain. The security key is added
+through the server `/_AMapService` proxy before the JS API loads. Search results
+and map coordinates are untrusted presentation evidence.
 
 ### 2. Verify
 
-Candidate response contains a short-lived selection token, not an authoritative
-client-editable provider ID. The verify command resolves v5 ID detail and v3
-reverse geocoding at the returned coordinate. Brand then checks:
+Web submits the untrusted selected provider POI ID. The server verify command
+resolves v5 ID detail and v3 reverse geocoding using the separate Web Service
+Key. Brand then checks:
 
 1. status/`infocode` and required field types;
 2. selected POI identity and coordinate presence;
@@ -367,8 +387,9 @@ Candidate order is deterministic within the verified result:
 
 Provider order is presentation only; the customer chooses the final candidate.
 When the list is empty, Brand constructs one `ADDRESS_LOCALITY` from verified
-place/address components and displays that honest type. The Agent never chooses
-or invents a locality.
+place/address components and displays that honest type. #26 may later phrase
+that verified locality naturally in a question, but it cannot rename it as or
+invent a business area.
 
 ### 4. Commit
 
@@ -389,12 +410,8 @@ new semantic fact merely from duplicate HTTP delivery.
 Exact URI naming is reversible; the semantic surface is:
 
 ```text
-POST /brand-location-candidate-searches
-  { officialRegionPath, keyword }
-  -> { candidates[{ selectionToken, placeName, addressDisplay, regionDisplay }] }
-
 POST /brand-location-verifications
-  { selectionToken }
+  { officialRegionPath, providerPlaceId }
   -> {
        verificationReceipt,
        expiresAt,
@@ -417,11 +434,11 @@ makes the Brand incomplete; setting arbitrary location fields to null or partial
 values is rejected.
 
 Provider credentials, provider request URLs, raw responses, response digests,
-fingerprint, fingerprint scheme, and migration diagnostics remain internal.
+fingerprint, fingerprint scheme, and reset diagnostics remain internal.
 
 ## Evaluation Fingerprint v3
 
-`brand-evaluation-input@3` hashes one canonical ordered document:
+`brand-evaluation-input@3` hashes one canonical document:
 
 ```json
 {
@@ -433,7 +450,7 @@ fingerprint, fingerprint scheme, and migration diagnostics remain internal.
   "officialRegionPath": ["<official IDs only>"],
   "storeLocationSemanticFactId": "<Brand-owned stable identity>",
   "flagshipProductOrService": "<normalized>",
-  "characteristics": ["<ordered normalized values>"]
+  "characteristics": ["<sorted normalized peer values>"]
 }
 ```
 
@@ -445,11 +462,12 @@ Included meaning:
 - the selected physical Store Location and final Query locality through its
   Brand-owned semantic fact identity;
 - flagship product/service;
-- every characteristic and its order.
+- every characteristic as a peer set.
 
 Excluded representation:
 
-- Amap Key, provider response hash, provider contract version, verification
+- characteristic presentation order, Amap Key, provider response hash,
+  provider contract version, verification
   time, POI ID, address labels, coordinate digits, candidate ordering, provider
   source release, official-region labels, catalog/source versions, contact
   fields, timestamps, and Web presentation.
@@ -473,7 +491,7 @@ industry:
   recommendationSubject
 region:
   sourceReleaseId
-  province, city, terminal, officialPath        # current v2 structure
+  province, city, terminal, officialPath        # existing official semantics
 storeLocation:
   semanticFactId
   placeName
@@ -483,7 +501,7 @@ storeLocation:
   queryLocality { kind, label }
   source { provider: AMAP, placeId, contractVersion, verifiedAt }
 flagshipProductOrService
-characteristics[]
+characteristics[]             # deterministic sorted peer set
 ```
 
 GEO maps it without re-resolution to:
@@ -491,127 +509,75 @@ GEO maps it without re-resolution to:
 ```text
 schemaVersion: brand-evaluation-snapshot@3
 companyName
-industry                     # same semantic structure as v2
-region                       # same official structure as v2
+industry                     # existing frozen industry semantics
+region                       # existing frozen official-region semantics
 storeLocation                # frozen display, coordinate, locality, provenance
 flagshipProductOrService
 characteristics[]
 ```
 
-Only `queryLocality.label`, `flagshipProductOrService`, and the ordered
+Only `queryLocality.label`, `flagshipProductOrService`, and the peer
 `characteristics` are required by #26 Query wording. Coordinates, address, and
 provenance are frozen Brand evidence, not Prompt instructions. #26 must import
 the GEO snapshot/query projection, not Brand domain types or Amap contracts.
 
-## Snapshot Compatibility
+## Development Reset and Single v3 Activation
 
-The GEO-owned decoder becomes a strict union:
+The product owner confirmed that all current records are development data and
+that #40 should not carry a v1/v2 opportunity-migration contract. Activation
+therefore starts from one explicitly named empty development database and one
+snapshot/fingerprint scheme:
 
 ```text
-legacy-v1: no discriminator; original eight text fields
-v2: brand-evaluation-snapshot@2; structured industry/region, two characteristics
-v3: brand-evaluation-snapshot@3; Store Location, flagship value, characteristic list
+brand-evaluation-input@3
+brand-evaluation-snapshot@3
 ```
 
-Parsing order is v3 -> v2 -> exact legacy-v1. No version is inferred from
-optional new fields. Migration never rewrites snapshot JSON.
+### Reset Preflight
 
-Separate narrow projections prevent #40 from silently changing other owners:
+Before the later destructive action:
 
-- historical/report text projection accepts v1/v2/v3 and retains existing
-  Parser/Synthesis/report meaning;
-- the #26 Query input projection requires v3 for the revised store-centered
-  Prompt;
-- public historical responses retain their original frozen shape/meaning; any
-  new v3 response fields are explicit additions rather than synthetic backfill
-  for v1/v2.
+1. identify the exact project-named database and environment;
+2. fail if the target is production, contains a production marker, or cannot be
+   proven to be the authorized development database;
+3. record row counts only as deletion evidence, not as migration inputs;
+4. stop services that can write to the target;
+5. obtain the implementation-stage reset authorization recorded by #40.
 
-## Migration and Opportunity Continuity
+The reset recreates that development database from empty and then replays the
+repository migration chain. It does not add a runtime migration workflow,
+v1/v2/legacy decoder, dual fingerprint scheme, or historical repair path.
 
-### Preflight
+### Activation Contract
 
-Before any write, classify:
-
-- Brand count and status;
-- current `characteristicOne`/`characteristicTwo` null, length, normalization,
-  and duplicate cases;
-- Brands with no Definition, an unstarted Definition, active Run, retryable Run,
-  completed report, and current report;
-- exact current Brand/Definition/Run fingerprint relationships;
-- snapshot counts by legacy-v1 and v2;
-- unexpected existing columns/data from other worktrees or deployments.
-
-The proposal assumes no production migration. Any later real-customer migration
-requires a separately approved representative-data plan.
-
-### Representation Migration
-
-For every current Brand:
-
-1. add nullable Store Location and flagship fields;
-2. backfill `characteristics` exactly from the two normalized existing fields,
-   preserving order and content;
-3. set `evaluationFingerprintScheme` to `brand-evaluation-input@2` and retain
-   the exact current fingerprint value;
-4. do not create Store Location, invent flagship data, call Amap, change
-   readiness history, rewrite Definition/Run keys, or rewrite snapshot JSON;
-5. keep all Definitions, questions, Runs, attempts, samples, synthesis, reports,
-   notifications, and completed-opportunity counts unchanged.
-
-The application cuts over to the array as the only current characteristic
-writer. Old columns are removed only after backfill and compatibility checks in
-the same isolated migration package; no long-lived dual write is accepted.
-
-### Existing Definition Continuity
-
-After migration an existing Brand lacks new v3 facts and is incomplete for a
-new v3 Definition. That incompleteness must not hide an unchanged existing
-Definition. GEO therefore observes the Brand's current fingerprint identity and
-looks up an existing Definition before requesting a new ready v3 projection.
-
-- unchanged v1/v2 Definition with the same retained v2 fingerprint: remains
-  viewable and startable;
-- existing active/retryable/completed Run: resumes and reports only from its
-  frozen old snapshot;
-- contact-only edit: retains v2 fingerprint and existing Definition eligibility;
-- first evaluation-semantic edit after migration—including location,
-  flagship, characteristic add/remove/edit/reorder, company, industry, or
-  official region—moves the current Brand to a v3 fingerprint, so the old
-  unstarted Definition becomes stale through the ordinary rule;
-- completing all v3 fields creates a genuinely new eligible semantic revision;
-  that new opportunity comes from customer meaning, not migration.
-
-New Brands created after activation use v3 fingerprint semantics from their
-first save, even while incomplete.
+- `characteristicOne` and `characteristicTwo` disappear from current storage;
+- `characteristics` becomes the only peer collection;
+- all new Brands and Definitions use v3 from their first write;
+- #26 rebases to and accepts only the v3 Query projection;
+- Parser/Synthesis/report code keeps only the v3 text projection needed by
+  current behavior; no old data exists to decode;
+- CI and isolated test databases always prove the empty-database path.
 
 ### Rollback
 
-Before production authorization:
+Before production use, rollback reverts code and recreates the named
+development database again from empty. No old development report is recovered.
 
-- revert code and rebuild/restore the isolated development database from the
-  pre-migration backup;
-- retain every old snapshot and business record;
-- do not delete provider-derived data through an ad hoc cleanup.
-
-After any real customer data exists, ordinary rollback is forward-compatible:
-
-- disable new search/verification and keep current verified Store Locations
-  readable;
-- preserve v3 snapshots and the v1/v2/v3 decoder;
-- continue existing Definitions/Runs/reports;
-- repair the adapter or release a forward migration;
-- never downgrade v3 fingerprints to v2, rewrite history, or remove location
-  records without separate destructive-data authorization.
+Once any production/customer data exists, this reset path is permanently
+inapplicable. Future schema changes require a separately designed
+non-destructive migration and forward-compatible rollback; #40 grants no
+authority to clear that data.
 
 ## #26 Integration and Release Boundary
 
-#40 owns and later implements only the v3 producer and compatibility decoder.
+#40 owns and later implements only the v3 producer and snapshot contract.
 #26 remains the single writer for Query Prompt, Model Contract, candidate
 selection, preparation lifecycle, examples, and real Query review.
 
 Integration order:
 
-1. approve #40 product semantics, architecture, and external authorization;
+1. use the confirmed #40 product and architecture direction and resolve external
+   authorization;
 2. implement/verify #40 with fixture adapters and no Provider evaluation call;
 3. merge or stack #40's stable projection so #26 can rebase without copying
    Brand/Amap logic;
@@ -626,13 +592,13 @@ release authorization.
 
 ## Interface Alternatives
 
-### Direct Browser Provider versus Brand BFF
+### Hybrid Map Selection versus Server-only Candidate List
 
-**Adopt Brand BFF.** Direct JS API is visually rich but creates another Key and
-security-proxy boundary and still cannot make client results authoritative.
-The BFF keeps provider protocol, credentials, verification, errors, and fixtures
-behind one Brand-owned port. Web receives a smaller interface and the server can
-enforce account, region, receipt, and atomic-write invariants.
+**Adopt the hybrid boundary.** Amap JS API owns the temporary map, search, result
+list, and Marker interaction; Brand BFF independently verifies the selected POI
+before persistence. A server-only list would reduce one credential surface but
+does not meet the confirmed map-selection preference. A browser-only provider
+flow cannot enforce account, region, receipt, and atomic-write invariants.
 
 ### Free-form Address Mutation versus Verified Receipt
 
@@ -650,21 +616,23 @@ replacement, and provider authorization fields. Putting them all on Brand would
 expand every repository projection and make unrelated Brand callers know the
 external boundary. The public Brand interface remains one coherent aggregate.
 
-### Characteristic Rows versus Ordered JSON
+### Characteristic Rows versus Peer JSON Collection
 
-**Adopt ordered JSON.** Characteristics have no independent identity, lookup,
-authorization, lifecycle, or consumer. A table would add joins and reorder
-transactions without hiding meaningful complexity. A bounded validated array
-is the smallest truthful contract and snapshots naturally preserve it.
+**Adopt bounded JSON.** Characteristics have no independent identity, lookup,
+authorization, lifecycle, priority, or consumer. A table would add joins without
+hiding meaningful complexity. The application treats the array as a peer set,
+rejects exact duplicates, and sorts normalized values for fingerprint/snapshot
+projection so presentation order cannot create meaning.
 
 ## Documentation Reconciliation
 
 Only after implementation and acceptance:
 
 - update `openspec/specs/brand-knowledge/spec.md` with Store Location, flagship,
-  ordered characteristics, v3 fingerprint/projection, migration, and form rules;
-- update evaluation-definition only with the v3 frozen-seam and compatibility
-  behavior, without copying Brand fields;
+  peer characteristics, v3 fingerprint/projection, development reset, and form
+  rules;
+- update evaluation-definition only with the v3 frozen seam, without copying
+  Brand fields;
 - move activated customer meaning from the broad product-definition/vision
   summaries to the Brand owner and retain index links/evolution-marker state;
 - add agreed glossary terms only after product approval;
@@ -674,8 +642,7 @@ Only after implementation and acceptance:
 - archive this Change only after all accepted design has a current or executable
   owner and obsolete active explanations are removed.
 
-No ADR is proposed before approval. The Brand-to-GEO owner direction already
-has a current owner-local contract; the provider choice and field limits remain
-change-local until the license and product decisions are accepted. Create or
-supersede an ADR only if approval establishes a surprising cross-change provider
-or geospatial policy that future capabilities must preserve.
+No ADR is proposed. The Brand-to-GEO owner direction already has a current
+owner-local contract; the confirmed map/provider choice and field limits remain
+change-local until implementation reconciliation. Create or supersede an ADR
+only if a later cross-change provider or geospatial policy requires it.
