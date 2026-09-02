@@ -148,8 +148,8 @@
 
 ## 2026-09-02 Amap Account and API Contract Preparation
 
-- [x] Create the approved Amap application and two scoped Key types; keep all
-      credential values outside Git, Issue/PR text, logs, and design artifacts.
+- [x] Create the approved Amap application and two scoped Key types; do not copy
+      credential values into Git, Issue/PR text, or design artifacts.
 - [x] Re-read the current official JS API 2.0, Web Service Key, POI detail,
       reverse-geocoding, error, billing, and service-upgrade documentation.
 - [x] Record the exact initial endpoints, parameters, minimum-field mapping,
