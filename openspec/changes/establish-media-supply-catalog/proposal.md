@@ -152,9 +152,9 @@ publication results. Neither caller reads Media Supply tables.
 - Writer: the current primary Codex agent; #34 owns only its independent data
   research output
 - Merge destination: protected `main` through a later pull request
-- Current phase: Implement
-- Exit: verified implementation and current-truth reconciliation are delivered
-  through a pull request; merge remains a separate product-owner decision
+- Current phase: Review / Decision in pull request #36
+- Exit: verified implementation and current-truth reconciliation are available
+  for review; Required Checks and explicit product-owner merge approval remain
 
 ## Approval boundary
 

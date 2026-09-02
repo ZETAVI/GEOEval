@@ -85,7 +85,7 @@
       dependency direction.
 - [x] Review every touched evolution marker and remove competing active
       explanations before archiving this Change.
-- [ ] Open a pull request that identifies `Closes #33`, implementation scope,
+- [x] Open pull request #36 with `Closes #33`, implementation scope,
       migration and verification evidence, residual risks, skipped production
       checks, and separate #34 status.
 - [ ] After explicit merge approval and Required Checks, verify merged `main`,
