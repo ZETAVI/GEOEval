@@ -69,7 +69,7 @@
       restrictions.
 - [x] Run OpenAPI generation, typecheck, focused and full tests, build, project-
       framework validation, migration checks, formatting, and diff checks.
-- [ ] Run fixed-diff architecture, code, and verification reviews and resolve
+- [x] Run fixed-diff architecture, code, and verification reviews and resolve
       every must-fix finding before requesting merge review.
 
 ## Reconcile and exit

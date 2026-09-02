@@ -90,3 +90,74 @@ ADR is required. The following evidence remains mandatory during implementation:
 
 Implementation, migration execution beyond isolated development verification,
 PR merge, production data, and deployment remain separate gates.
+
+## Post-implementation fixed-diff review
+
+- Approved implementation base: `e60e56f`
+- Reviewed implementation revision: `b6aff43`
+- Review axes: requirement fidelity, module ownership, authorization, migration
+  integrity, transaction boundaries, public projection, generated contracts,
+  current-truth reconciliation, and evidence continuity
+
+### Intent
+
+`ready`. The implementation keeps the customer and price unit at
+`MediaPlatform`, preserves Listing-only buyability, treats concrete resources
+as optional examples/candidates, records procurement cost only as RMB fen, and
+does not add fulfilment URL matching, packages, SSE, Outbox, CQRS, full data
+import, or visual pages.
+
+### Engineering
+
+`ready`. Media Supply is the only owner of its seven normalized records and
+four application surfaces. Prisma stays in the infrastructure adapter; customer
+and administrator DTOs are distinct; future Commerce/Delivery callers receive
+application projections rather than table access. Business write, audit, and
+required revisions share a transaction. Database checks and restrict foreign
+keys preserve positive price, masked alias, singleton revision, and dependent-
+record boundaries.
+
+The fixed-diff review found and resolved these implementation issues:
+
+1. existing Identity authenticated only terminal-customer sessions, which would
+   make administrator APIs unreachable; existing non-customer accounts now
+   create ordinary single-role sessions through the same challenge flow;
+2. a separate all-role `AccountSessionGuard` protects Identity `me` and Media
+   Supply, while the original `SessionGuard` keeps Brand/Evaluation endpoints
+   terminal-customer-only and `RoleGuard` gates administrator mutations;
+3. Listing transitions now prevent a previously activated Listing from
+   returning to Draft, integer inputs are bounded to PostgreSQL `INTEGER`, and
+   database constraint failures become controlled conflicts;
+4. an unused platform with only a Draft Listing can be deleted with audit, but
+   resource or activated-Listing dependents require archive/off-shelf handling;
+5. the atomic rollback test now fails the audit foreign key inside the same
+   transaction instead of deleting the shared catalog singleton, avoiding a
+   cross-test race while proving entity, audit, and revision rollback together.
+
+No must-fix or should-fix finding remains. The owner-local repository is large
+because it contains one cohesive transaction boundary; splitting it by line
+count would expose transaction helpers or create several writers for the same
+catalog invariants without an independent lifecycle.
+
+### Evidence and continuity
+
+`ready for pull-request review`.
+
+- clean-database migration: all fourteen migrations applied, including
+  `20260901120000_media_supply_catalog`;
+- live schema inspection: singleton revision `1`, `aliases` is non-null, and the
+  three named price/mask/singleton checks exist;
+- focused Identity/Media tests: 3 files, 12 tests passed;
+- full repository check: formatting, all workspace typechecks, 22 Backend test
+  files and 118 tests passed;
+- production build: Prisma generation, OpenAPI/client generation, Backend,
+  API-client typecheck, and Next.js build passed;
+- framework validator and diff check passed;
+- current behavior is reconciled into Media Supply spec, product-definition,
+  glossary, vision, and architecture overview; no behavior remains only in this
+  Change.
+
+Known `pg@8` nested-query deprecation warnings and controlled telemetry-failure
+fixtures were pre-existing test output and did not fail the suite. Production
+data, deployment, runtime customer traffic, and PR merge were not run and remain
+separate gates.
