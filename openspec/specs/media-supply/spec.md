@@ -169,6 +169,78 @@ mutation atomically with its audit evidence.
 - **THEN** an explicit administrator delete may remove it while preserving the
   deletion audit.
 
+### Requirement: Role-specific administrator maintenance workspace
+
+Media Supply SHALL provide a Web workspace that lets an authenticated system
+administrator use the existing maintenance and audit contracts without merging
+platform identity, Listing, concrete resource, or internal source ownership.
+
+#### Scenario: An administrator signs in or returns to maintenance
+
+- **WHEN** an account with role `ADMINISTRATOR` completes the existing login
+  challenge or opens `/admin/media`
+- **THEN** the Web enters the Media Supply administrator workspace without
+  calling terminal-customer Brand APIs
+- **AND** the workspace loads platform, source, resource, and audit projections
+  only after confirming the account role
+- **AND** the administrator can sign out through the authenticated shell.
+
+#### Scenario: Another role opens the maintenance route
+
+- **WHEN** a terminal customer, operations user, or agent opens `/admin/media`
+- **THEN** the Web presents an access-denied state without requesting or
+  rendering administrator Media Supply projections
+- **AND** the backend role guard remains the authoritative rejection boundary
+  for direct administrator API calls.
+
+#### Scenario: An administrator finds and maintains media facts
+
+- **WHEN** the administrator searches or filters the workspace
+- **THEN** one platform identity remains one result even when it belongs to
+  several categories
+- **AND** text, category, platform state, Listing state, and no-Listing filters
+  can narrow the result
+- **AND** an empty catalog offers platform creation while a filtered-empty result
+  offers filter recovery
+- **AND** selecting a platform opens separately labeled platform-fact, Listing,
+  resource, source, and audit regions
+- **AND** every mutation requires a reason and refreshes the accepted projection
+  and audit feedback after success.
+
+#### Scenario: A create form uses the accepted defaults
+
+- **WHEN** the administrator creates a platform, resource, or source
+- **THEN** platform scope defaults to domestic and platform status to active
+- **AND** resource mode defaults to first publish, status to active, customer
+  visibility to hidden, and internal quality tier to medium
+- **AND** source status defaults to active
+- **AND** optional procurement cost remains nullable RMB fen
+- **AND** masked customer display requires an explicit approved alias.
+
+#### Scenario: Interactive maintenance does not complete cleanly
+
+- **WHEN** initial or selected data is still loading
+- **THEN** the workspace retains stable orientation and identifies the pending
+  region
+- **BUT WHEN** input needs correction or the backend rejects a business rule
+- **THEN** entered values remain available and the relevant field or region
+  explains the corrective action
+- **BUT WHEN** an unauthenticated session, forbidden role, or temporary backend
+  failure is returned
+- **THEN** the Web respectively returns to login, presents access denial, or
+  retains a retryable failure state without claiming a partial save
+- **AND** accepted audit entries remain read-only and expose actor, time, action,
+  reason, entity, and bounded before-and-after values only to administrators.
+
+#### Scenario: The administrator uses a narrow viewport
+
+- **WHEN** the desktop-first workspace is used on a tablet or mobile-sized Web
+  viewport
+- **THEN** navigation, platform selection, status inspection, forms, feedback,
+  and ordinary save actions remain reachable without horizontal page overflow
+- **AND** dense regions stack in a stable reading order
+- **AND** the page does not become the terminal-customer media presentation.
+
 ### Requirement: Durable catalog and commercial revisions
 
 Media Supply SHALL use PostgreSQL as the only durable catalog source and SHALL
@@ -184,6 +256,18 @@ separate customer freshness revision from per-listing commercial revision.
   change
 - **AND** internal-only source, procurement, contact, case, or note edits do not
   create unnecessary customer refreshes.
+
+#### Scenario: Two administrator pages edit the same Listing revision
+
+- **GIVEN** two pages show the same current Listing revision
+- **WHEN** one page saves a commercial change and the other later submits the
+  older revision
+- **THEN** every existing-Listing mutation includes the revision displayed by
+  that page as `expectedRevision`
+- **AND** the stale request cannot overwrite the accepted price or state
+- **AND** the Web explains that commercial data changed elsewhere
+- **AND** the administrator must refresh to the latest revision, review the new
+  price and state, and submit again before another change can succeed.
 
 #### Scenario: An already-open page checks for changes
 

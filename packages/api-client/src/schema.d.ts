@@ -1038,6 +1038,47 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
+        MediaPlatformCreateRequest: {
+            reason: string;
+            displayName: string;
+            /** @default [] */
+            aliases: string[];
+            description?: string | null;
+            logoUrl?: string | null;
+            /**
+             * @default DOMESTIC
+             * @enum {string}
+             */
+            regionScope: "DOMESTIC" | "OVERSEAS";
+            /**
+             * @default ACTIVE
+             * @enum {string}
+             */
+            status: "ACTIVE" | "ARCHIVED";
+            categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
+        };
+        MediaPlatformUpdateRequest: {
+            reason: string;
+            displayName?: string;
+            aliases?: string[];
+            description?: string | null;
+            logoUrl?: string | null;
+            /** @enum {string} */
+            regionScope?: "DOMESTIC" | "OVERSEAS";
+            /** @enum {string} */
+            status?: "ACTIVE" | "ARCHIVED";
+            categories?: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
+        };
+        MediaReasonRequest: {
+            reason: string;
+        };
+        MediaListingMutationRequest: {
+            reason: string;
+            /** @enum {string} */
+            status: "DRAFT" | "ON_SHELF" | "PAUSED" | "OFF_SHELF";
+            pointPrice: number | null;
+            expectedRevision?: number;
+        };
         MediaSupplySourceResponse: {
             /** Format: uuid */
             id: string;
@@ -1051,6 +1092,27 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        MediaSupplySourceCreateRequest: {
+            reason: string;
+            name: string;
+            contactName?: string | null;
+            contactMethod?: string | null;
+            /**
+             * @default ACTIVE
+             * @enum {string}
+             */
+            status: "ACTIVE" | "INACTIVE";
+            notes?: string | null;
+        };
+        MediaSupplySourceUpdateRequest: {
+            reason: string;
+            name?: string;
+            contactName?: string | null;
+            contactMethod?: string | null;
+            /** @enum {string} */
+            status?: "ACTIVE" | "INACTIVE";
+            notes?: string | null;
         };
         MediaResourceAdminResponse: {
             /** Format: uuid */
@@ -1079,6 +1141,62 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        MediaResourceCreateRequest: {
+            reason: string;
+            /** Format: uuid */
+            platformId: string;
+            /** Format: uuid */
+            supplySourceId: string;
+            resourceName: string;
+            accountIdentifier?: string | null;
+            accountUrl?: string | null;
+            /**
+             * @default FIRST_PUBLISH
+             * @enum {string}
+             */
+            publicationMode: "FIRST_PUBLISH" | "REPOST";
+            /**
+             * @default ACTIVE
+             * @enum {string}
+             */
+            status: "ACTIVE" | "PAUSED" | "ARCHIVED";
+            /**
+             * @default HIDDEN
+             * @enum {string}
+             */
+            publicVisibility: "HIDDEN" | "FULL" | "MASKED";
+            publicAlias?: string | null;
+            /**
+             * @default MEDIUM
+             * @enum {string}
+             */
+            qualityTier: "HIGH" | "MEDIUM" | "LOW";
+            procurementCostFen?: number | null;
+            caseUrl?: string | null;
+            publicationNotes?: string | null;
+        };
+        MediaResourceUpdateRequest: {
+            reason: string;
+            /** Format: uuid */
+            platformId?: string;
+            /** Format: uuid */
+            supplySourceId?: string;
+            resourceName?: string;
+            accountIdentifier?: string | null;
+            accountUrl?: string | null;
+            /** @enum {string} */
+            publicationMode?: "FIRST_PUBLISH" | "REPOST";
+            /** @enum {string} */
+            status?: "ACTIVE" | "PAUSED" | "ARCHIVED";
+            /** @enum {string} */
+            publicVisibility?: "HIDDEN" | "FULL" | "MASKED";
+            publicAlias?: string | null;
+            /** @enum {string} */
+            qualityTier?: "HIGH" | "MEDIUM" | "LOW";
+            procurementCostFen?: number | null;
+            caseUrl?: string | null;
+            publicationNotes?: string | null;
         };
         MediaCatalogAuditResponse: {
             /** Format: uuid */
@@ -1738,7 +1856,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaPlatformCreateRequest"];
+            };
+        };
         responses: {
             201: {
                 headers: {
@@ -1776,7 +1898,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaReasonRequest"];
+            };
+        };
         responses: {
             204: {
                 headers: {
@@ -1793,7 +1919,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaPlatformUpdateRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -1812,7 +1942,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaListingMutationRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -1850,7 +1984,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaSupplySourceCreateRequest"];
+            };
+        };
         responses: {
             201: {
                 headers: {
@@ -1869,7 +2007,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaReasonRequest"];
+            };
+        };
         responses: {
             204: {
                 headers: {
@@ -1886,7 +2028,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaSupplySourceUpdateRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -1924,7 +2070,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaResourceCreateRequest"];
+            };
+        };
         responses: {
             201: {
                 headers: {
@@ -1943,7 +2093,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaReasonRequest"];
+            };
+        };
         responses: {
             204: {
                 headers: {
@@ -1960,7 +2114,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaResourceUpdateRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {

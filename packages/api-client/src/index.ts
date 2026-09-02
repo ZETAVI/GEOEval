@@ -24,8 +24,42 @@ export type CityRegionOptionList =
   components["schemas"]["CityRegionOptionListResponse"];
 export type TerminalRegionOptionList =
   components["schemas"]["TerminalRegionOptionListResponse"];
+export type MediaPlatformAdmin =
+  components["schemas"]["MediaPlatformAdminResponse"];
+export type MediaListingAdmin =
+  components["schemas"]["MediaListingAdminResponse"];
+export type MediaSupplySource =
+  components["schemas"]["MediaSupplySourceResponse"];
+export type MediaResourceAdmin =
+  components["schemas"]["MediaResourceAdminResponse"];
+export type MediaCatalogAudit =
+  components["schemas"]["MediaCatalogAuditResponse"];
 
 export type BrandMutation = components["schemas"]["BrandMutationRequest"];
+export type MediaPlatformCreate =
+  components["schemas"]["MediaPlatformCreateRequest"];
+export type MediaPlatformUpdate =
+  components["schemas"]["MediaPlatformUpdateRequest"];
+export type MediaListingMutation =
+  components["schemas"]["MediaListingMutationRequest"];
+export type MediaSupplySourceCreate =
+  components["schemas"]["MediaSupplySourceCreateRequest"];
+export type MediaSupplySourceUpdate =
+  components["schemas"]["MediaSupplySourceUpdateRequest"];
+export type MediaResourceCreate =
+  components["schemas"]["MediaResourceCreateRequest"];
+export type MediaResourceUpdate =
+  components["schemas"]["MediaResourceUpdateRequest"];
+
+export class ApiRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = "ApiRequestError";
+  }
+}
 
 async function apiRequest<T>(
   apiBaseUrl: string,
@@ -46,7 +80,10 @@ async function apiRequest<T>(
     const message = Array.isArray(body?.message)
       ? body.message.join("；")
       : body?.message;
-    throw new Error(message ?? `请求失败（${response.status}）`);
+    throw new ApiRequestError(
+      message ?? `请求失败（${response.status}）`,
+      response.status,
+    );
   }
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
@@ -241,6 +278,136 @@ export function markAllNotificationsRead(
   apiBaseUrl: string,
 ): Promise<{ unreadCount: number }> {
   return apiRequest(apiBaseUrl, "/notifications/read-all", { method: "PUT" });
+}
+
+export function listAdminMediaPlatforms(
+  apiBaseUrl: string,
+): Promise<MediaPlatformAdmin[]> {
+  return apiRequest(apiBaseUrl, "/admin/media/platforms", {
+    cache: "no-store",
+  });
+}
+
+export function getAdminMediaPlatform(
+  apiBaseUrl: string,
+  platformId: string,
+): Promise<MediaPlatformAdmin> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/platforms/${encodeURIComponent(platformId)}`,
+    { cache: "no-store" },
+  );
+}
+
+export function createAdminMediaPlatform(
+  apiBaseUrl: string,
+  input: MediaPlatformCreate,
+): Promise<MediaPlatformAdmin> {
+  return apiRequest(apiBaseUrl, "/admin/media/platforms", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateAdminMediaPlatform(
+  apiBaseUrl: string,
+  platformId: string,
+  input: MediaPlatformUpdate,
+): Promise<MediaPlatformAdmin> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/platforms/${encodeURIComponent(platformId)}`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function saveAdminMediaListing(
+  apiBaseUrl: string,
+  platformId: string,
+  input: MediaListingMutation,
+): Promise<MediaPlatformAdmin> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/platforms/${encodeURIComponent(platformId)}/listing`,
+    { method: "PUT", body: JSON.stringify(input) },
+  );
+}
+
+export function listAdminMediaSources(
+  apiBaseUrl: string,
+): Promise<MediaSupplySource[]> {
+  return apiRequest(apiBaseUrl, "/admin/media/sources", {
+    cache: "no-store",
+  });
+}
+
+export function createAdminMediaSource(
+  apiBaseUrl: string,
+  input: MediaSupplySourceCreate,
+): Promise<MediaSupplySource> {
+  return apiRequest(apiBaseUrl, "/admin/media/sources", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateAdminMediaSource(
+  apiBaseUrl: string,
+  sourceId: string,
+  input: MediaSupplySourceUpdate,
+): Promise<MediaSupplySource> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/sources/${encodeURIComponent(sourceId)}`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function listAdminMediaResources(
+  apiBaseUrl: string,
+  platformId: string,
+): Promise<MediaResourceAdmin[]> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/platforms/${encodeURIComponent(platformId)}/resources`,
+    { cache: "no-store" },
+  );
+}
+
+export function createAdminMediaResource(
+  apiBaseUrl: string,
+  input: MediaResourceCreate,
+): Promise<MediaResourceAdmin> {
+  return apiRequest(apiBaseUrl, "/admin/media/resources", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateAdminMediaResource(
+  apiBaseUrl: string,
+  resourceId: string,
+  input: MediaResourceUpdate,
+): Promise<MediaResourceAdmin> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/resources/${encodeURIComponent(resourceId)}`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function listAdminMediaAudits(
+  apiBaseUrl: string,
+  options: { entityType?: string; entityId?: string; limit?: number } = {},
+): Promise<MediaCatalogAudit[]> {
+  const query = new URLSearchParams();
+  if (options.entityType) query.set("entityType", options.entityType);
+  if (options.entityId) query.set("entityId", options.entityId);
+  if (options.limit !== undefined) query.set("limit", String(options.limit));
+  const suffix = query.size ? `?${query.toString()}` : "";
+  return apiRequest(apiBaseUrl, `/admin/media/audits${suffix}`, {
+    cache: "no-store",
+  });
 }
 
 function queryString(options: { limit?: number; cursor?: string }): string {

@@ -14,6 +14,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import {
+  ApiBody,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -64,6 +65,7 @@ export class MediaAdminController {
   }
 
   @Post("platforms")
+  @ApiBody({ type: MediaPlatformCreateRequest })
   @ApiCreatedResponse({ type: MediaPlatformAdminResponse })
   createPlatform(
     @Req() request: AuthenticatedRequest,
@@ -73,6 +75,7 @@ export class MediaAdminController {
   }
 
   @Patch("platforms/:platformId")
+  @ApiBody({ type: MediaPlatformUpdateRequest })
   @ApiOkResponse({ type: MediaPlatformAdminResponse })
   updatePlatform(
     @Req() request: AuthenticatedRequest,
@@ -87,6 +90,7 @@ export class MediaAdminController {
   }
 
   @Delete("platforms/:platformId")
+  @ApiBody({ type: MediaReasonRequest })
   @HttpCode(204)
   @ApiNoContentResponse()
   async deletePlatform(
@@ -102,6 +106,7 @@ export class MediaAdminController {
   }
 
   @Put("platforms/:platformId/listing")
+  @ApiBody({ type: MediaListingMutationRequest })
   @ApiOkResponse({ type: MediaPlatformAdminResponse })
   listing(
     @Req() request: AuthenticatedRequest,
@@ -122,6 +127,7 @@ export class MediaAdminController {
   }
 
   @Post("sources")
+  @ApiBody({ type: MediaSupplySourceCreateRequest })
   @ApiCreatedResponse({ type: MediaSupplySourceResponse })
   createSource(
     @Req() request: AuthenticatedRequest,
@@ -131,6 +137,7 @@ export class MediaAdminController {
   }
 
   @Patch("sources/:sourceId")
+  @ApiBody({ type: MediaSupplySourceUpdateRequest })
   @ApiOkResponse({ type: MediaSupplySourceResponse })
   updateSource(
     @Req() request: AuthenticatedRequest,
@@ -141,6 +148,7 @@ export class MediaAdminController {
   }
 
   @Delete("sources/:sourceId")
+  @ApiBody({ type: MediaReasonRequest })
   @HttpCode(204)
   @ApiNoContentResponse()
   async deleteSource(
@@ -160,6 +168,7 @@ export class MediaAdminController {
   }
 
   @Post("resources")
+  @ApiBody({ type: MediaResourceCreateRequest })
   @ApiCreatedResponse({ type: MediaResourceAdminResponse })
   createResource(
     @Req() request: AuthenticatedRequest,
@@ -169,6 +178,7 @@ export class MediaAdminController {
   }
 
   @Patch("resources/:resourceId")
+  @ApiBody({ type: MediaResourceUpdateRequest })
   @ApiOkResponse({ type: MediaResourceAdminResponse })
   updateResource(
     @Req() request: AuthenticatedRequest,
@@ -183,6 +193,7 @@ export class MediaAdminController {
   }
 
   @Delete("resources/:resourceId")
+  @ApiBody({ type: MediaReasonRequest })
   @HttpCode(204)
   @ApiNoContentResponse()
   async deleteResource(

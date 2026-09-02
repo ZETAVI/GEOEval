@@ -9,6 +9,7 @@ import {
 } from "@geoeval/api-client";
 import { useState } from "react";
 import { BrandReferenceFields } from "../brands/brand-reference-fields.js";
+import { postLoginRoute } from "./post-login-route.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -43,7 +44,20 @@ export function EntryFlow() {
     setBusy(true);
     setMessage("");
     try {
-      await completeLogin(apiBaseUrl, { challengeId, mobile, code });
+      const account = await completeLogin(apiBaseUrl, {
+        challengeId,
+        mobile,
+        code,
+      });
+      const route = postLoginRoute(account.role);
+      if (route.kind === "redirect") {
+        window.location.assign(route.path);
+        return;
+      }
+      if (route.kind === "unsupported-role") {
+        setMessage("当前角色的工作区尚未接入，请使用对应的已开放入口");
+        return;
+      }
       const brands = await listBrands(apiBaseUrl);
       if (brands.length > 0) {
         window.location.assign("/brands");
