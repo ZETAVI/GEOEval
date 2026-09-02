@@ -24,6 +24,14 @@
       record the design/documentation disposition.
 - [x] Commit, push, and open Draft PR #47 linked to #44 as the Final PR; update #44
       with evidence and boundaries, and stop before merge or production change.
+- [x] Rebase the fixed diff onto `main@29518a8`, confirm patch equivalence, and
+      rerun focused tests, full tests, type checks, build, format, migration,
+      framework, and diff validation.
+- [x] Confirm PR #47 still carries the native `Closes #44` relationship, both
+      Required Checks pass on the rebased revision, and #39 remains the open M4
+      parent for later child delivery and final integration.
+- [x] Reconcile accepted behavior into the current evaluation-evidence owner and
+      archive this temporary Change before the authorized integration gate.
 
 ## Local Verification Evidence
 

@@ -1,5 +1,8 @@
 # Design: Controlled Local Langfuse Diagnostic Content
 
+Archive disposition: accepted for integration in PR #47 after current-spec
+reconciliation and verification on `main@29518a8`.
+
 ## Decision
 
 Extend the existing Langfuse follower rather than adding a second telemetry

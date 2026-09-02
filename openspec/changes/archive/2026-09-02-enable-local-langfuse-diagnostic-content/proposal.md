@@ -1,6 +1,7 @@
 # Change: Enable Controlled Local Langfuse Diagnostic Content
 
-- Status: Live Langfuse verified in Draft PR #47; ready for review
+- Status: Accepted for integration in PR #47; production content capture,
+  deployment, and release remain separate gates
 - Class: Standard maintenance change
 - Owner: GitHub Issue #44 under M4 parent #39
 
@@ -76,6 +77,7 @@ production configuration changes, deployment, or merge.
   deployed by this PR, and production remains metadata-only.
 - Handoff: no separate file; Issue #44, this branch, and the Draft PR are
   sufficient continuation state.
-- Exit: locally and live-Langfuse verified, published for PR #47 review.
-  Archive, Issue close, Project Done, branch deletion, merge, and deployment
-  remain later authorized actions.
+- Exit: locally and live-Langfuse verified, rebased onto `main@29518a8`, and
+  accepted for integration in PR #47. Issue close, Project Done, branch
+  deletion, merge, and deployment remain lifecycle actions outside this
+  archived design record.

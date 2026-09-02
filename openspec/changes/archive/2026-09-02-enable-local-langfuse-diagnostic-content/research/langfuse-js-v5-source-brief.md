@@ -1,5 +1,9 @@
 # Source Brief: Langfuse JS/TS v5 Controlled Observation Content
 
+Archive disposition: retained as the external-interface evidence used by PR
+#47; refresh when the locked Langfuse SDK major version or export boundary
+changes.
+
 ## Recommendation
 
 Use the already locked `@langfuse/tracing` and `@langfuse/otel` 5.11.0

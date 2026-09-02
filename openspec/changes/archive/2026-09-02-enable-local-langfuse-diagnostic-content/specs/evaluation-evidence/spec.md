@@ -1,5 +1,8 @@
 # Evaluation Evidence Delta
 
+Archive disposition: accepted requirements are reconciled into
+`openspec/specs/evaluation-evidence/spec.md`.
+
 ## Modified Requirements
 
 ### Requirement: Protected and non-blocking execution observability
