@@ -152,14 +152,14 @@ publication results. Neither caller reads Media Supply tables.
 - Writer: the current primary Codex agent; #34 owns only its independent data
   research output
 - Merge destination: protected `main` through a later pull request
-- Current phase: Review / Decision in pull request #36
-- Exit: verified implementation and current-truth reconciliation are available
-  for review; Required Checks and explicit product-owner merge approval remain
+- Current phase: Reconcile / Close in pull request #36
+- Exit: the accepted Change is archived and ready for squash merge; merged-main,
+  Issue/Project, branch, and Worktree exit verification remain
 
 ## Approval boundary
 
 The product owner approved the persistence, authorization, revision, API,
 migration, reconciliation, RMB procurement-cost, and URL-only fulfilment-
-completion boundaries on 2026-09-01. This authorizes deterministic
-implementation and verification. It does not authorize production data,
-deployment, external publication activity, or pull-request merge.
+completion boundaries on 2026-09-01, then explicitly approved continuation
+through pull-request merge after reviewing the verified result. This does not
+authorize production data, deployment, or external publication activity.

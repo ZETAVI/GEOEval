@@ -88,5 +88,7 @@
 - [x] Open pull request #36 with `Closes #33`, implementation scope,
       migration and verification evidence, residual risks, skipped production
       checks, and separate #34 status.
-- [ ] After explicit merge approval and Required Checks, verify merged `main`,
-      archive the Change, move #33 to Done, and record branch/Worktree exit.
+- [x] After explicit merge approval and Required Checks, archive the accepted
+      Change and re-run the framework validator before merge.
+- [ ] Squash-merge pull request #36, verify merged `main`, move #33 to Done,
+      and record branch/Worktree exit.
