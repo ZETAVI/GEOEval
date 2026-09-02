@@ -7,6 +7,7 @@ import {
   type MediaSupplySource,
 } from "@geoeval/api-client";
 import {
+  ListingEditor,
   PlatformEditor,
   ResourceEditor,
 } from "../app/admin/media/media-editors.js";
@@ -14,10 +15,12 @@ import {
   allowedListingStatuses,
   buildListingMutation,
   filterAdminPlatforms,
+  formatAuditValue,
   isApiStatus,
   isListingRevisionConflict,
   isSupportedUrlReference,
   parseNullableWholeNumber,
+  parseNullableWholeYuanToFen,
 } from "../app/admin/media/media-ui.js";
 
 const platforms: MediaPlatformAdmin[] = [
@@ -63,14 +66,16 @@ describe("Media Supply administrator UI behavior", () => {
       filterAdminPlatforms(platforms, {
         search: "people",
         category: "PORTAL_MEDIA",
-        status: "ON_SHELF",
+        platformStatus: "ACTIVE",
+        salesStatus: "ON_SHELF",
       }).map((platform) => platform.displayName),
     ).toEqual(["人民网"]);
     expect(
       filterAdminPlatforms(platforms, {
         search: "",
         category: "ALL",
-        status: "NO_LISTING",
+        platformStatus: "ALL",
+        salesStatus: "NOT_SELLING",
       }).map((platform) => platform.displayName),
     ).toEqual(["百家号"]);
   });
@@ -115,19 +120,33 @@ describe("Media Supply administrator UI behavior", () => {
     );
   });
 
-  it("keeps RMB-fen cost nullable and allows an explicit zero", () => {
-    expect(parseNullableWholeNumber("", { allowZero: true })).toEqual({
+  it("accepts whole-yuan cost input and converts it to stored fen", () => {
+    expect(parseNullableWholeYuanToFen("")).toEqual({
       value: null,
     });
-    expect(parseNullableWholeNumber("0", { allowZero: true })).toEqual({
+    expect(parseNullableWholeYuanToFen("0")).toEqual({
       value: 0,
     });
+    expect(parseNullableWholeYuanToFen("125")).toEqual({ value: 12_500 });
+    expect(parseNullableWholeYuanToFen("12.5").error).toBe("请输入整数");
   });
 
   it("matches the backend HTTPS or project-path reference boundary", () => {
     expect(isSupportedUrlReference("/media/logo.svg")).toBe(true);
     expect(isSupportedUrlReference("https://example.com/logo.svg")).toBe(true);
     expect(isSupportedUrlReference("http://example.com/logo.svg")).toBe(false);
+  });
+
+  it("presents operation-history fields and common values in business Chinese", () => {
+    const value = formatAuditValue({
+      status: "ON_SHELF",
+      procurementCostFen: 12_500,
+      publicationMode: "FIRST_PUBLISH",
+    });
+    expect(value).toContain('"状态": "销售中"');
+    expect(value).toContain('"采购成本": "125 元"');
+    expect(value).toContain('"发布方式": "首发"');
+    expect(value).not.toContain("procurementCostFen");
   });
 
   it("classifies stale revision conflicts without treating other failures alike", () => {
@@ -172,13 +191,49 @@ describe("Media Supply administrator UI behavior", () => {
         onSaved={() => undefined}
       />,
     );
+    const salesMarkup = renderToStaticMarkup(
+      <ListingEditor
+        apiBaseUrl="http://127.0.0.1:3300"
+        platform={platforms[0]!}
+        onClose={() => undefined}
+        onSaved={() => undefined}
+      />,
+    );
+    const initialSalesMarkup = renderToStaticMarkup(
+      <ListingEditor
+        apiBaseUrl="http://127.0.0.1:3300"
+        platform={platforms[1]!}
+        onClose={() => undefined}
+        onSaved={() => undefined}
+      />,
+    );
+    const platformEditMarkup = renderToStaticMarkup(
+      <PlatformEditor
+        apiBaseUrl="http://127.0.0.1:3300"
+        platform={{ ...platforms[0]!, logoUrl: "/media/logo.svg" }}
+        onClose={() => undefined}
+        onSaved={() => undefined}
+      />,
+    );
 
     expect(platformMarkup).toContain('<option value="DOMESTIC" selected="">');
-    expect(platformMarkup).toContain('<option value="ACTIVE" selected="">');
+    expect(platformMarkup).not.toContain("Listing");
+    expect(platformMarkup).not.toContain("revision");
+    expect(platformMarkup).toContain("平台图标地址");
+    expect(platformMarkup).not.toContain("修改说明");
+    expect(platformEditMarkup).toContain('src="/media/logo.svg"');
+    expect(platformEditMarkup).toContain("修改说明");
     expect(resourceMarkup).toContain(
       '<option value="FIRST_PUBLISH" selected="">',
     );
     expect(resourceMarkup).toContain('<option value="HIDDEN" selected="">');
     expect(resourceMarkup).toContain('<option value="MEDIUM" selected="">');
+    expect(resourceMarkup).toContain("采购成本（元）");
+    expect(resourceMarkup).not.toContain("变更原因");
+    expect(salesMarkup).toContain("销售状态");
+    expect(salesMarkup).not.toContain("Listing");
+    expect(salesMarkup).not.toContain("revision");
+    expect(salesMarkup).not.toContain("草稿");
+    expect(initialSalesMarkup).not.toContain("修改说明");
   });
 });

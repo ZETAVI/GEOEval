@@ -28,6 +28,7 @@ import {
   filterAdminPlatforms,
   formatAuditValue,
   formatDateTime,
+  formatFenAsYuan,
   isApiStatus,
   listingStatusLabels,
   mediaCategoryOptions,
@@ -38,6 +39,7 @@ import {
   sourceStatusLabels,
   visibilityLabels,
   type PlatformStatusFilter,
+  type SalesStatusFilter,
 } from "./media-ui.js";
 
 const apiBaseUrl =
@@ -66,10 +68,16 @@ const roleLabels: Record<Account["role"], string> = {
 };
 
 const auditEntityLabels: Record<string, string> = {
-  PLATFORM: "平台事实",
-  LISTING: "销售配置",
-  RESOURCE: "具体资源",
-  SOURCE: "供给来源",
+  PLATFORM: "平台资料",
+  LISTING: "销售设置",
+  RESOURCE: "媒体资源",
+  SOURCE: "合作来源",
+};
+
+const auditActionLabels: Record<string, string> = {
+  CREATE: "创建",
+  UPDATE: "修改",
+  DELETE: "删除",
 };
 
 export function AdminMediaWorkspace() {
@@ -89,7 +97,9 @@ export function AdminMediaWorkspace() {
   const [category, setCategory] = useState<
     "ALL" | MediaPlatformAdmin["categories"][number]
   >("ALL");
-  const [status, setStatus] = useState<PlatformStatusFilter>("ALL");
+  const [platformStatus, setPlatformStatus] =
+    useState<PlatformStatusFilter>("ALL");
+  const [salesStatus, setSalesStatus] = useState<SalesStatusFilter>("ALL");
   const [tab, setTab] = useState<DetailTab>("OVERVIEW");
   const [auditScope, setAuditScope] = useState<"SELECTED" | "ALL">("SELECTED");
   const [editor, setEditor] = useState<EditorState>();
@@ -194,8 +204,14 @@ export function AdminMediaWorkspace() {
   }
 
   const filteredPlatforms = useMemo(
-    () => filterAdminPlatforms(platforms, { search, category, status }),
-    [platforms, search, category, status],
+    () =>
+      filterAdminPlatforms(platforms, {
+        search,
+        category,
+        platformStatus,
+        salesStatus,
+      }),
+    [platforms, search, category, platformStatus, salesStatus],
   );
   const activeSourceCount = sources.filter(
     (source) => source.status === "ACTIVE",
@@ -218,7 +234,7 @@ export function AdminMediaWorkspace() {
         <span className="loading-orbit" />
         <div>
           <b>正在核验管理员身份</b>
-          <small>通过后再加载媒体平台、供给来源与审计记录</small>
+          <small>通过后再加载媒体平台、合作来源与操作记录</small>
         </div>
       </main>
     );
@@ -235,7 +251,7 @@ export function AdminMediaWorkspace() {
           <h1>该账号不能进入媒体库管理</h1>
           <p>
             当前账号角色是「{roleLabels[account.role]}
-            」。平台事实、价格、内部来源、采购成本与审计只向系统管理员开放。
+            」。平台资料、价格、合作来源、采购成本和操作记录只向系统管理员开放。
           </p>
           <div>
             {account.role === "TERMINAL_CUSTOMER" && (
@@ -287,10 +303,10 @@ export function AdminMediaWorkspace() {
       <main className="workspace admin-media-workspace" id="media-catalog">
         <header className="workspace-header admin-workspace-header">
           <div>
-            <p className="eyebrow">Media Supply · 管理员工作区</p>
-            <h1>媒体库热维护</h1>
+            <p className="eyebrow">管理员工作区</p>
+            <h1>媒体库管理</h1>
             <p>
-              把平台事实、销售配置、资源与内部供给分层维护，并从审计还原每一次变化。
+              集中维护媒体平台、销售状态、媒体资源和合作来源，并保留完整操作记录。
             </p>
           </div>
           <div className="workspace-header-actions">
@@ -337,7 +353,7 @@ export function AdminMediaWorkspace() {
 
         <section className="admin-metric-strip" aria-label="媒体库概况">
           <article>
-            <span>平台主数据</span>
+            <span>平台数量</span>
             <b>{platforms.length}</b>
             <small>
               {platforms.filter((item) => item.status === "ACTIVE").length}{" "}
@@ -345,17 +361,17 @@ export function AdminMediaWorkspace() {
             </small>
           </article>
           <article>
-            <span>当前上架</span>
+            <span>销售中</span>
             <b>{onShelfCount}</b>
-            <small>由管理员 Listing 决定</small>
+            <small>客户当前可以购买</small>
           </article>
           <article>
-            <span>内部来源</span>
+            <span>合作来源</span>
             <b>{activeSourceCount}</b>
             <small>{sources.length} 个来源记录</small>
           </article>
           <article>
-            <span>最近审计</span>
+            <span>操作记录</span>
             <b>{audits.length}</b>
             <small>当前加载的只读记录</small>
           </article>
@@ -365,7 +381,7 @@ export function AdminMediaWorkspace() {
           <aside className="platform-browser" aria-label="媒体平台列表">
             <header>
               <div>
-                <p className="step-label">平台身份</p>
+                <p className="step-label">平台列表</p>
                 <h2>媒体平台</h2>
               </div>
               <span>
@@ -382,7 +398,7 @@ export function AdminMediaWorkspace() {
                   placeholder="输入名称…"
                 />
               </label>
-              <div>
+              <div className="platform-filter-row">
                 <label>
                   <span>分类</span>
                   <select
@@ -400,21 +416,33 @@ export function AdminMediaWorkspace() {
                   </select>
                 </label>
                 <label>
-                  <span>状态</span>
+                  <span>资料状态</span>
                   <select
-                    value={status}
+                    value={platformStatus}
                     onChange={(event) =>
-                      setStatus(event.target.value as PlatformStatusFilter)
+                      setPlatformStatus(
+                        event.target.value as PlatformStatusFilter,
+                      )
                     }
                   >
-                    <option value="ALL">全部状态</option>
-                    <option value="ACTIVE">平台使用中</option>
-                    <option value="ARCHIVED">平台已归档</option>
-                    <option value="DRAFT">Listing 草稿</option>
-                    <option value="ON_SHELF">Listing 已上架</option>
-                    <option value="PAUSED">Listing 已暂停</option>
-                    <option value="OFF_SHELF">Listing 已下架</option>
-                    <option value="NO_LISTING">尚无 Listing</option>
+                    <option value="ALL">全部</option>
+                    <option value="ACTIVE">使用中</option>
+                    <option value="ARCHIVED">已归档</option>
+                  </select>
+                </label>
+                <label>
+                  <span>销售状态</span>
+                  <select
+                    value={salesStatus}
+                    onChange={(event) =>
+                      setSalesStatus(event.target.value as SalesStatusFilter)
+                    }
+                  >
+                    <option value="ALL">全部</option>
+                    <option value="NOT_SELLING">未销售</option>
+                    <option value="ON_SHELF">销售中</option>
+                    <option value="PAUSED">暂停销售</option>
+                    <option value="OFF_SHELF">已下架</option>
                   </select>
                 </label>
               </div>
@@ -423,7 +451,7 @@ export function AdminMediaWorkspace() {
               <div className="platform-list-empty">
                 <span aria-hidden="true">＋</span>
                 <h3>还没有媒体平台</h3>
-                <p>先建立平台事实，再独立设置价格、资源与上架状态。</p>
+                <p>先填写平台资料，再按需要设置价格、销售状态和媒体资源。</p>
                 <button
                   type="button"
                   className="primary-button"
@@ -442,7 +470,8 @@ export function AdminMediaWorkspace() {
                   onClick={() => {
                     setSearch("");
                     setCategory("ALL");
-                    setStatus("ALL");
+                    setPlatformStatus("ALL");
+                    setSalesStatus("ALL");
                   }}
                 >
                   清除筛选
@@ -460,8 +489,22 @@ export function AdminMediaWorkspace() {
                       onClick={() => void selectPlatform(platform.id)}
                       aria-current={selected ? "true" : undefined}
                     >
-                      <span className="platform-list-logo" aria-hidden="true">
-                        {platform.displayName.slice(0, 1)}
+                      <span className="platform-list-logo">
+                        {platform.logoUrl && (
+                          <img
+                            src={platform.logoUrl}
+                            alt=""
+                            onLoad={(event) => {
+                              event.currentTarget.style.display = "block";
+                            }}
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                            }}
+                          />
+                        )}
+                        <b aria-hidden="true">
+                          {platform.displayName.slice(0, 1)}
+                        </b>
                       </span>
                       <span>
                         <b>{platform.displayName}</b>
@@ -477,7 +520,7 @@ export function AdminMediaWorkspace() {
                       >
                         {platform.listing
                           ? listingStatusLabels[platform.listing.status]
-                          : "未配置"}
+                          : "未销售"}
                       </em>
                     </button>
                   );
@@ -490,13 +533,13 @@ export function AdminMediaWorkspace() {
             {detailLoading ? (
               <div className="detail-loading" role="status">
                 <span className="loading-orbit" />
-                正在加载平台事实与资源…
+                正在加载平台资料与资源…
               </div>
             ) : !selectedPlatform ? (
               <div className="detail-empty">
-                <p className="eyebrow">平台工作区</p>
+                <p className="eyebrow">平台详情</p>
                 <h2>选择一个平台开始维护</h2>
-                <p>平台事实、销售配置、资源和审计会在这里保持分层呈现。</p>
+                <p>平台资料、销售设置、媒体资源和操作记录会分别呈现。</p>
               </div>
             ) : (
               <>
@@ -518,9 +561,9 @@ export function AdminMediaWorkspace() {
                   {(
                     [
                       ["OVERVIEW", "平台与销售"],
-                      ["RESOURCES", `具体资源 ${resources.length}`],
-                      ["SOURCES", `供给来源 ${sources.length}`],
-                      ["AUDIT", "变更审计"],
+                      ["RESOURCES", `媒体资源 ${resources.length}`],
+                      ["SOURCES", `合作来源 ${sources.length}`],
+                      ["AUDIT", "操作记录"],
                     ] as const
                   ).map(([value, label]) => (
                     <button
@@ -681,6 +724,9 @@ function PlatformDetailHeader({
             <img
               src={platform.logoUrl}
               alt=""
+              onLoad={(event) => {
+                event.currentTarget.style.display = "block";
+              }}
               onError={(event) => {
                 event.currentTarget.style.display = "none";
               }}
@@ -695,7 +741,7 @@ function PlatformDetailHeader({
               {platformStatusLabels[platform.status]}
             </span>
           </div>
-          <p>{platform.description || "尚未填写客户简介"}</p>
+          <p>{platform.description || "尚未填写平台简介"}</p>
           <div className="platform-category-row">
             {platform.categories.map((category) => (
               <span key={category}>{categoryLabels[category]}</span>
@@ -709,7 +755,7 @@ function PlatformDetailHeader({
           {platform.regionScope === "DOMESTIC" ? "国内" : "海外"}
         </span>
         <button type="button" className="secondary-button" onClick={onEdit}>
-          编辑平台事实
+          编辑平台资料
         </button>
       </div>
     </header>
@@ -730,8 +776,8 @@ function OverviewPanel({
       <article className="detail-card platform-facts-card">
         <header>
           <div>
-            <p className="step-label">01 · 平台事实</p>
-            <h3>客户认识的稳定身份</h3>
+            <p className="step-label">01 · 平台资料</p>
+            <h3>平台基本信息</h3>
           </div>
           <button
             type="button"
@@ -747,11 +793,11 @@ function OverviewPanel({
             <dd>{platform.normalizedName}</dd>
           </div>
           <div>
-            <dt>区域范围</dt>
+            <dt>覆盖地区</dt>
             <dd>{platform.regionScope === "DOMESTIC" ? "国内" : "海外"}</dd>
           </div>
           <div>
-            <dt>平台状态</dt>
+            <dt>资料状态</dt>
             <dd>{platformStatusLabels[platform.status]}</dd>
           </div>
           <div>
@@ -759,8 +805,8 @@ function OverviewPanel({
             <dd>{platform.aliases.join("、") || "无"}</dd>
           </div>
           <div className="wide">
-            <dt>Logo 引用</dt>
-            <dd>{platform.logoUrl || "未设置"}</dd>
+            <dt>平台图标</dt>
+            <dd>{platform.logoUrl ? "已设置并展示" : "未设置"}</dd>
           </div>
           <div className="wide">
             <dt>最后更新</dt>
@@ -771,11 +817,11 @@ function OverviewPanel({
       <article className="detail-card listing-card">
         <header>
           <div>
-            <p className="step-label">02 · 销售配置</p>
-            <h3>平台级价格与上下架</h3>
+            <p className="step-label">02 · 销售设置</p>
+            <h3>价格与销售状态</h3>
           </div>
           <button type="button" className="text-button" onClick={onEditListing}>
-            {platform.listing ? "调整" : "建立 Listing"}
+            {platform.listing ? "修改" : "设置"}
           </button>
         </header>
         {platform.listing ? (
@@ -792,22 +838,18 @@ function OverviewPanel({
                   : `${platform.listing.pointPrice.toLocaleString("zh-CN")} 积分 / 次`}
               </p>
               <small>
-                商业 revision {platform.listing.revision} ·{" "}
-                {formatDateTime(platform.listing.updatedAt)}
+                最后更新：{formatDateTime(platform.listing.updatedAt)}
               </small>
             </div>
           </div>
         ) : (
           <div className="listing-empty">
-            <b>尚未建立销售配置</b>
-            <p>
-              平台事实可以先存在；需要销售时再设置平台级积分价与 Listing 状态。
-            </p>
+            <b>暂未设置销售</b>
+            <p>需要对客户开放购买时，再设置单次积分价和销售状态。</p>
           </div>
         )}
         <p className="ownership-note">
-          是否可售由有效平台、已上架 Listing
-          与正整数积分价共同决定，不从资源数量推断。
+          平台资料正常、销售状态为“销售中”且积分价有效时，客户才能购买；媒体资源数量不影响销售状态。
         </p>
       </article>
     </div>
@@ -829,8 +871,8 @@ function ResourcesPanel({
     <section className="resource-panel">
       <header className="panel-section-header">
         <div>
-          <p className="step-label">03 · 具体资源</p>
-          <h3>示例与运营参考</h3>
+          <p className="step-label">03 · 媒体资源</p>
+          <h3>媒体账号与渠道</h3>
           <p>
             资源不可由客户单独购买，也不会自动决定「{platform.displayName}
             」是否可售。
@@ -842,10 +884,10 @@ function ResourcesPanel({
       </header>
       {resources.length === 0 ? (
         <div className="panel-empty-state">
-          <span aria-hidden="true">R</span>
+          <span aria-hidden="true">媒</span>
           <div>
-            <h4>尚无具体资源</h4>
-            <p>平台仍可根据 Listing 独立上架；有真实账号或渠道信息时再添加。</p>
+            <h4>尚无媒体资源</h4>
+            <p>平台仍可单独设置销售状态；有真实账号或渠道信息时再添加。</p>
           </div>
         </div>
       ) : (
@@ -881,11 +923,11 @@ function ResourcesPanel({
               <div className="resource-meta">
                 <span>{publicationModeLabels[resource.publicationMode]}</span>
                 <span>{qualityLabels[resource.qualityTier]}</span>
-                <span>来源：{resource.source.name}</span>
+                <span>合作来源：{resource.source.name}</span>
               </div>
               <dl>
                 <div>
-                  <dt>账号标识</dt>
+                  <dt>账号名称或编号</dt>
                   <dd>{resource.accountIdentifier || "未记录"}</dd>
                 </div>
                 <div>
@@ -894,7 +936,7 @@ function ResourcesPanel({
                     {resource.procurementCostFen === null ||
                     resource.procurementCostFen === undefined
                       ? "未记录"
-                      : `¥${(resource.procurementCostFen / 100).toFixed(2)}`}
+                      : `¥${formatFenAsYuan(resource.procurementCostFen)}`}
                   </dd>
                 </div>
               </dl>
@@ -922,22 +964,22 @@ function SourcesPanel({
     <section className="source-panel">
       <header className="panel-section-header">
         <div>
-          <p className="step-label">04 · 内部供给</p>
-          <h3>来源与联系方式</h3>
+          <p className="step-label">04 · 合作来源</p>
+          <h3>合作方与联系方式</h3>
           <p>
-            来源可被多个资源引用；停用来源会影响候选资格，但不会替管理员下架平台。
+            一个合作来源可以对应多个媒体资源；停用来源不会自动改变平台销售状态。
           </p>
         </div>
         <button type="button" className="primary-button" onClick={onCreate}>
-          ＋ 创建来源
+          ＋ 创建合作来源
         </button>
       </header>
       {sources.length === 0 ? (
         <div className="panel-empty-state">
-          <span aria-hidden="true">S</span>
+          <span aria-hidden="true">合</span>
           <div>
-            <h4>尚无供给来源</h4>
-            <p>创建来源后，才能为具体资源指定当前内部供给。</p>
+            <h4>尚无合作来源</h4>
+            <p>创建合作来源后，才能为媒体资源记录当前合作方。</p>
           </div>
         </div>
       ) : (
@@ -1004,11 +1046,11 @@ function AuditPanel({
     <section className="audit-panel">
       <header className="panel-section-header audit-header">
         <div>
-          <p className="step-label">05 · 只读审计</p>
-          <h3>关键变更历史</h3>
-          <p>审计解释谁在何时因何原因改变了什么，不提供历史回滚按钮。</p>
+          <p className="step-label">05 · 操作记录</p>
+          <h3>重要修改历史</h3>
+          <p>记录谁在什么时间修改了什么；这里只查看记录，不提供一键恢复。</p>
         </div>
-        <div className="audit-scope-toggle" role="group" aria-label="审计范围">
+        <div className="audit-scope-toggle" role="group" aria-label="记录范围">
           <button
             type="button"
             className={scope === "SELECTED" ? "active" : ""}
@@ -1027,13 +1069,13 @@ function AuditPanel({
       </header>
       {audits.length === 0 ? (
         <div className="panel-empty-state">
-          <span aria-hidden="true">A</span>
+          <span aria-hidden="true">记</span>
           <div>
-            <h4>暂无审计记录</h4>
+            <h4>暂无操作记录</h4>
             <p>
               {scope === "SELECTED"
                 ? `「${selectedName}」及其当前资源尚无已加载记录。`
-                : "当前查询没有返回审计记录。"}
+                : "当前查询没有返回操作记录。"}
             </p>
           </div>
         </div>
@@ -1046,18 +1088,18 @@ function AuditPanel({
                 <header>
                   <div>
                     <span className="audit-entity">
-                      {auditEntityLabels[audit.entityType] ?? audit.entityType}
+                      {auditEntityLabels[audit.entityType] ?? "其他记录"}
                     </span>
-                    <b>{audit.action}</b>
+                    <b>{auditActionLabels[audit.action] ?? "修改"}</b>
                   </div>
                   <time>{formatDateTime(audit.createdAt)}</time>
                 </header>
                 <p>{audit.reason}</p>
                 <small>
-                  操作者 {audit.actorAccountId} · 实体 {audit.entityId}
+                  操作账号 {audit.actorAccountId} · 记录编号 {audit.entityId}
                 </small>
                 <details>
-                  <summary>查看变更前后值</summary>
+                  <summary>查看修改前后内容</summary>
                   <div className="audit-value-grid">
                     <section>
                       <b>变更前</b>

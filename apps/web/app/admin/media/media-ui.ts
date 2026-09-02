@@ -18,9 +18,9 @@ export const categoryLabels = Object.fromEntries(
 ) as Record<MediaPlatformAdmin["categories"][number], string>;
 
 export const listingStatusLabels = {
-  DRAFT: "草稿",
-  ON_SHELF: "已上架",
-  PAUSED: "已暂停",
+  DRAFT: "未销售",
+  ON_SHELF: "销售中",
+  PAUSED: "暂停销售",
   OFF_SHELF: "已下架",
 } as const;
 
@@ -46,9 +46,9 @@ export const publicationModeLabels = {
 } as const;
 
 export const visibilityLabels = {
-  HIDDEN: "客户隐藏",
-  FULL: "完整展示",
-  MASKED: "脱敏展示",
+  HIDDEN: "不向客户展示",
+  FULL: "展示完整名称",
+  MASKED: "展示替代名称",
 } as const;
 
 export const qualityLabels = {
@@ -57,18 +57,20 @@ export const qualityLabels = {
   LOW: "补充",
 } as const;
 
-export type PlatformStatusFilter =
+export type PlatformStatusFilter = "ALL" | MediaPlatformAdmin["status"];
+
+export type SalesStatusFilter =
   | "ALL"
-  | MediaPlatformAdmin["status"]
-  | NonNullable<MediaPlatformAdmin["listing"]>["status"]
-  | "NO_LISTING";
+  | "NOT_SELLING"
+  | Exclude<NonNullable<MediaPlatformAdmin["listing"]>["status"], "DRAFT">;
 
 export function filterAdminPlatforms(
   platforms: MediaPlatformAdmin[],
   filters: {
     search: string;
     category: "ALL" | MediaPlatformAdmin["categories"][number];
-    status: PlatformStatusFilter;
+    platformStatus: PlatformStatusFilter;
+    salesStatus: SalesStatusFilter;
   },
 ): MediaPlatformAdmin[] {
   const term = filters.search.trim().toLocaleLowerCase("zh-CN");
@@ -82,13 +84,22 @@ export function filterAdminPlatforms(
     const matchesCategory =
       filters.category === "ALL" ||
       platform.categories.includes(filters.category);
-    const matchesStatus =
-      filters.status === "ALL" ||
-      (filters.status === "NO_LISTING"
-        ? platform.listing === null || platform.listing === undefined
-        : platform.status === filters.status ||
-          platform.listing?.status === filters.status);
-    return matchesSearch && matchesCategory && matchesStatus;
+    const matchesPlatformStatus =
+      filters.platformStatus === "ALL" ||
+      platform.status === filters.platformStatus;
+    const matchesSalesStatus =
+      filters.salesStatus === "ALL" ||
+      (filters.salesStatus === "NOT_SELLING"
+        ? platform.listing === null ||
+          platform.listing === undefined ||
+          platform.listing.status === "DRAFT"
+        : platform.listing?.status === filters.salesStatus);
+    return (
+      matchesSearch &&
+      matchesCategory &&
+      matchesPlatformStatus &&
+      matchesSalesStatus
+    );
   });
 }
 
@@ -121,6 +132,28 @@ export function parseNullableWholeNumber(
     };
   }
   return { value: parsed };
+}
+
+export function parseNullableWholeYuanToFen(value: string): {
+  value: number | null;
+  error?: string;
+} {
+  const yuan = parseNullableWholeNumber(value, { allowZero: true });
+  if (yuan.error || yuan.value === null) return yuan;
+  if (yuan.value > Math.floor(2_147_483_647 / 100)) {
+    return { value: null, error: "金额超出可保存范围" };
+  }
+  return { value: yuan.value * 100 };
+}
+
+export function formatFenAsYuan(value: number): string {
+  const yuan = value / 100;
+  return Number.isInteger(yuan)
+    ? yuan.toLocaleString("zh-CN")
+    : yuan.toLocaleString("zh-CN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
 }
 
 export function buildListingMutation(input: {
@@ -182,7 +215,73 @@ export function isListingRevisionConflict(error: unknown): boolean {
 
 export function formatAuditValue(value: unknown): string {
   if (value === null || value === undefined) return "无";
-  return JSON.stringify(value, null, 2);
+  const keyLabels: Record<string, string> = {
+    id: "记录编号",
+    platformId: "平台编号",
+    supplySourceId: "合作来源编号",
+    source: "合作来源",
+    normalizedName: "标准名称",
+    displayName: "平台名称",
+    aliases: "别名",
+    description: "平台简介",
+    logoUrl: "平台图标地址",
+    regionScope: "覆盖地区",
+    status: "状态",
+    categories: "媒体分类",
+    listing: "销售设置",
+    pointPrice: "单次积分价",
+    revision: "数据版本",
+    name: "名称",
+    contactName: "联系人",
+    contactMethod: "联系方式",
+    notes: "备注",
+    resourceName: "资源名称",
+    accountIdentifier: "账号名称或编号",
+    accountUrl: "账号链接",
+    publicationMode: "发布方式",
+    publicVisibility: "客户展示方式",
+    publicAlias: "客户展示名称",
+    qualityTier: "资源优先级",
+    procurementCostFen: "采购成本",
+    caseUrl: "参考案例链接",
+    publicationNotes: "发布说明",
+    createdAt: "创建时间",
+    updatedAt: "更新时间",
+  };
+  const valueLabels: Record<string, string> = {
+    ...categoryLabels,
+    ...listingStatusLabels,
+    ...platformStatusLabels,
+    ...resourceStatusLabels,
+    ...sourceStatusLabels,
+    ...publicationModeLabels,
+    ...visibilityLabels,
+    ...qualityLabels,
+    ACTIVE: "启用",
+    ARCHIVED: "已归档",
+    PAUSED: "暂停",
+    INACTIVE: "已停用",
+    DOMESTIC: "国内",
+    OVERSEAS: "海外",
+  };
+  function localize(current: unknown, parentKey?: string): unknown {
+    if (parentKey === "procurementCostFen" && typeof current === "number") {
+      return `${formatFenAsYuan(current)} 元`;
+    }
+    if (Array.isArray(current))
+      return current.map((item) => localize(item, parentKey));
+    if (typeof current === "string") return valueLabels[current] ?? current;
+    if (current && typeof current === "object") {
+      return Object.fromEntries(
+        Object.entries(current).map(([key, item]) => [
+          keyLabels[key] ?? key,
+          localize(item, key),
+        ]),
+      );
+    }
+    return current;
+  }
+  return JSON.stringify(localize(value), null, 2);
 }
 
 export function formatDateTime(value: string): string {

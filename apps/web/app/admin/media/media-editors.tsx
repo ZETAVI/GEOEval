@@ -23,11 +23,12 @@ import {
   allowedListingStatuses,
   buildListingMutation,
   categoryLabels,
+  formatFenAsYuan,
   isListingRevisionConflict,
   isSupportedUrlReference,
   listingStatusLabels,
   mediaCategoryOptions,
-  parseNullableWholeNumber,
+  parseNullableWholeYuanToFen,
   platformStatusLabels,
   publicationModeLabels,
   qualityLabels,
@@ -178,7 +179,7 @@ export function PlatformEditor({
     if (categories.length === 0) nextErrors.categories = "至少选择一个媒体分类";
     if (!isSupportedUrlReference(logoUrl))
       nextErrors.logoUrl = "仅支持 HTTPS 或以 / 开头的项目资源路径";
-    if (!reason.trim()) nextErrors.reason = "请填写本次变更原因";
+    if (platform && !reason.trim()) nextErrors.reason = "请填写修改说明";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
@@ -190,7 +191,7 @@ export function PlatformEditor({
       regionScope,
       status,
       categories,
-      reason: reason.trim(),
+      reason: platform ? reason.trim() : "创建媒体平台",
     };
     setBusy(true);
     setError("");
@@ -200,7 +201,7 @@ export function PlatformEditor({
         : await createAdminMediaPlatform(apiBaseUrl, input);
       await onSaved(
         saved,
-        platform ? "平台事实已更新" : `已创建「${saved.displayName}」`,
+        platform ? "平台资料已更新" : `已创建「${saved.displayName}」`,
       );
       onClose();
     } catch (caught) {
@@ -212,9 +213,9 @@ export function PlatformEditor({
 
   return (
     <EditorFrame
-      eyebrow="平台事实"
+      eyebrow="媒体平台"
       title={platform ? "编辑媒体平台" : "创建媒体平台"}
-      description="维护客户认识的平台身份与分类；价格和上下架在独立销售配置中处理。"
+      description="先填写平台基本资料和分类。价格与销售状态可以稍后单独设置。"
       onClose={onClose}
     >
       <form
@@ -225,8 +226,12 @@ export function PlatformEditor({
         }}
       >
         <div className="media-form-grid">
+          <div className="wide media-form-section-label">
+            <b>基本资料</b>
+            <span>用于平台列表、搜索和客户展示。</span>
+          </div>
           <label>
-            平台展示名称 <em>必填</em>
+            平台名称 <em>必填</em>
             <input
               autoFocus
               value={displayName}
@@ -238,7 +243,7 @@ export function PlatformEditor({
             <FieldError value={errors.displayName} />
           </label>
           <label>
-            区域范围
+            覆盖地区
             <select
               value={regionScope}
               onChange={(event) =>
@@ -260,17 +265,7 @@ export function PlatformEditor({
             />
           </label>
           <label className="wide">
-            Logo 引用
-            <input
-              value={logoUrl}
-              onChange={(event) => setLogoUrl(event.target.value)}
-              placeholder="https://… 或 /assets/…"
-              aria-invalid={Boolean(errors.logoUrl)}
-            />
-            <FieldError value={errors.logoUrl} />
-          </label>
-          <label className="wide">
-            客户简介
+            平台简介
             <textarea
               value={description}
               maxLength={2000}
@@ -278,21 +273,39 @@ export function PlatformEditor({
               placeholder="一句话说明平台定位，不填写未经支持的效果承诺"
             />
           </label>
-          <label>
-            平台状态
-            <select
-              value={status}
-              onChange={(event) =>
-                setStatus(event.target.value as MediaPlatformCreate["status"])
-              }
-            >
-              {Object.entries(platformStatusLabels).map(([value, label]) => (
-                <option value={value} key={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="wide media-form-section-label">
+            <b>展示与分类</b>
+            <span>填写图标地址后会立即显示预览。</span>
+          </div>
+          <div className="wide logo-field-row">
+            <label>
+              平台图标地址
+              <input
+                value={logoUrl}
+                onChange={(event) => setLogoUrl(event.target.value)}
+                placeholder="https://… 或 /assets/…"
+                aria-invalid={Boolean(errors.logoUrl)}
+              />
+              <FieldError value={errors.logoUrl} />
+            </label>
+            <div className="logo-input-preview" aria-label="平台图标预览">
+              {logoUrl.trim() && isSupportedUrlReference(logoUrl) ? (
+                <img
+                  src={logoUrl.trim()}
+                  alt="平台图标预览"
+                  onLoad={(event) => {
+                    event.currentTarget.style.display = "block";
+                  }}
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                  }}
+                />
+              ) : (
+                <span aria-hidden="true">图</span>
+              )}
+              <small>图标预览</small>
+            </div>
+          </div>
           <fieldset className="wide media-checkbox-field">
             <legend>
               媒体分类 <em>至少一项</em>
@@ -311,21 +324,44 @@ export function PlatformEditor({
             </div>
             <FieldError value={errors.categories} />
           </fieldset>
-          <label className="wide reason-field">
-            变更原因 <em>必填 · 写入审计</em>
-            <input
-              value={reason}
-              maxLength={320}
-              onChange={(event) => setReason(event.target.value)}
-              placeholder="例如：根据最新平台资料修正分类"
-              aria-invalid={Boolean(errors.reason)}
-            />
-            <FieldError value={errors.reason} />
-          </label>
+          {platform && (
+            <>
+              <label>
+                资料状态
+                <select
+                  value={status}
+                  onChange={(event) =>
+                    setStatus(
+                      event.target.value as MediaPlatformCreate["status"],
+                    )
+                  }
+                >
+                  {Object.entries(platformStatusLabels).map(
+                    ([value, label]) => (
+                      <option value={value} key={value}>
+                        {label}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+              <label className="wide reason-field">
+                修改说明 <em>必填 · 保留在操作记录中</em>
+                <input
+                  value={reason}
+                  maxLength={320}
+                  onChange={(event) => setReason(event.target.value)}
+                  placeholder="例如：根据最新资料修正分类"
+                  aria-invalid={Boolean(errors.reason)}
+                />
+                <FieldError value={errors.reason} />
+              </label>
+            </>
+          )}
         </div>
         <MutationFooter
           busy={busy}
-          submitLabel={platform ? "保存平台事实" : "创建平台"}
+          submitLabel={platform ? "保存平台资料" : "创建平台"}
           error={error}
           onClose={onClose}
         />
@@ -364,7 +400,7 @@ export function ListingEditor({
     const built = buildListingMutation({
       status,
       pointPriceInput: pointPrice,
-      reason,
+      reason: current.listing ? reason : "设置初始销售状态",
       ...(current.listing ? { currentRevision: current.listing.revision } : {}),
     });
     if (status === "ON_SHELF" && current.status !== "ACTIVE") {
@@ -381,16 +417,16 @@ export function ListingEditor({
         current.id,
         built.value,
       );
-      await onSaved(saved, "销售配置已保存，商业 revision 已更新");
+      await onSaved(saved, "销售设置已保存");
       onClose();
     } catch (caught) {
       if (isListingRevisionConflict(caught)) {
         setConflict(true);
         setError(
-          "销售配置已在其他页面变化。请刷新到最新 revision，重新核对价格和状态后再保存。",
+          "销售设置已在其他页面发生变化。请刷新最新内容，重新核对价格和状态后再保存。",
         );
       } else {
-        setError(messageFor(caught, "销售配置未保存，请稍后重试"));
+        setError(messageFor(caught, "销售设置未保存，请稍后重试"));
       }
     } finally {
       setBusy(false);
@@ -408,12 +444,12 @@ export function ListingEditor({
       setConflict(false);
       setNotice(
         refreshed.listing
-          ? `已刷新到 revision ${refreshed.listing.revision}，请重新确认后保存。`
-          : "已刷新，当前尚无销售配置，请重新确认后保存。",
+          ? "已获取最新销售设置，请重新确认后保存。"
+          : "已刷新，当前尚未设置销售，请重新确认后保存。",
       );
       setErrors({});
     } catch (caught) {
-      setError(messageFor(caught, "暂时无法刷新销售配置"));
+      setError(messageFor(caught, "暂时无法刷新销售设置"));
     } finally {
       setBusy(false);
     }
@@ -421,9 +457,9 @@ export function ListingEditor({
 
   return (
     <EditorFrame
-      eyebrow="销售配置"
-      title={`维护「${platform.displayName}」Listing`}
-      description="客户按平台和单次积分价购买。资源数量不会自动决定平台是否可售。"
+      eyebrow="销售设置"
+      title={`设置「${platform.displayName}」的价格与销售状态`}
+      description="只有处于销售中且设置了有效积分价的平台，客户才能购买。"
       onClose={onClose}
     >
       <form
@@ -433,14 +469,13 @@ export function ListingEditor({
           void submit();
         }}
       >
-        <div className="listing-revision-callout">
-          <span>当前商业 revision</span>
-          <b>{current.listing?.revision ?? "尚未建立"}</b>
-          <small>保存现有 Listing 时会携带此 revision，防止静默覆盖。</small>
-        </div>
         <div className="media-form-grid">
+          <div className="wide media-form-section-label">
+            <b>价格与销售状态</b>
+            <span>系统会自动检查是否有其他人刚刚修改过这项设置。</span>
+          </div>
           <label>
-            Listing 状态
+            销售状态
             <select
               value={status}
               onChange={(event) =>
@@ -467,31 +502,19 @@ export function ListingEditor({
             />
             <FieldError value={errors.pointPrice} />
           </label>
-          <div className="wide listing-state-guide">
-            <span>
-              <b>草稿</b> 尚未销售
-            </span>
-            <span>
-              <b>已上架</b> 可供新选择
-            </span>
-            <span>
-              <b>已暂停</b> 暂停新选择
-            </span>
-            <span>
-              <b>已下架</b> 退出当前销售
-            </span>
-          </div>
-          <label className="wide reason-field">
-            调整原因 <em>必填 · 写入审计</em>
-            <input
-              value={reason}
-              maxLength={320}
-              onChange={(event) => setReason(event.target.value)}
-              placeholder="例如：渠道维护，暂时停止新订单"
-              aria-invalid={Boolean(errors.reason)}
-            />
-            <FieldError value={errors.reason} />
-          </label>
+          {current.listing && (
+            <label className="wide reason-field">
+              修改说明 <em>必填 · 保留在操作记录中</em>
+              <input
+                value={reason}
+                maxLength={320}
+                onChange={(event) => setReason(event.target.value)}
+                placeholder="例如：渠道维护，暂时停止新订单"
+                aria-invalid={Boolean(errors.reason)}
+              />
+              <FieldError value={errors.reason} />
+            </label>
+          )}
         </div>
         {notice && (
           <p className="media-inline-notice" role="status">
@@ -505,12 +528,12 @@ export function ListingEditor({
             disabled={busy}
             onClick={() => void refresh()}
           >
-            刷新最新销售配置
+            刷新最新销售设置
           </button>
         )}
         <MutationFooter
           busy={busy}
-          submitLabel="保存销售配置"
+          submitLabel="保存销售设置"
           error={error}
           onClose={onClose}
         />
@@ -546,8 +569,8 @@ export function SourceEditor({
 
   async function submit() {
     const nextErrors: FieldErrors = {};
-    if (!name.trim()) nextErrors.name = "请填写内部来源名称";
-    if (!reason.trim()) nextErrors.reason = "请填写本次变更原因";
+    if (!name.trim()) nextErrors.name = "请填写合作来源名称";
+    if (source && !reason.trim()) nextErrors.reason = "请填写修改说明";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
     const input: MediaSupplySourceCreate = {
@@ -556,7 +579,7 @@ export function SourceEditor({
       contactMethod: optionalText(contactMethod),
       status,
       notes: optionalText(notes),
-      reason: reason.trim(),
+      reason: source ? reason.trim() : "创建合作来源",
     };
     setBusy(true);
     setError("");
@@ -566,7 +589,7 @@ export function SourceEditor({
         : await createAdminMediaSource(apiBaseUrl, input);
       await onSaved(
         saved,
-        source ? "内部供给来源已更新" : `已创建来源「${saved.name}」`,
+        source ? "合作来源已更新" : `已创建来源「${saved.name}」`,
       );
       onClose();
     } catch (caught) {
@@ -578,9 +601,9 @@ export function SourceEditor({
 
   return (
     <EditorFrame
-      eyebrow="内部供给"
-      title={source ? "编辑供给来源" : "创建供给来源"}
-      description="来源、联系方式和备注只供内部维护，不会进入客户媒体库。"
+      eyebrow="合作来源"
+      title={source ? "编辑合作来源" : "创建合作来源"}
+      description="联系人和备注只供内部使用，不会展示给客户。"
       onClose={onClose}
     >
       <form
@@ -591,6 +614,10 @@ export function SourceEditor({
         }}
       >
         <div className="media-form-grid">
+          <div className="wide media-form-section-label">
+            <b>基本信息</b>
+            <span>记录资源来自哪个合作方以及如何联系。</span>
+          </div>
           <label>
             来源名称 <em>必填</em>
             <input
@@ -603,23 +630,25 @@ export function SourceEditor({
             />
             <FieldError value={errors.name} />
           </label>
-          <label>
-            有效状态
-            <select
-              value={status}
-              onChange={(event) =>
-                setStatus(
-                  event.target.value as MediaSupplySourceCreate["status"],
-                )
-              }
-            >
-              {Object.entries(sourceStatusLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
+          {source && (
+            <label>
+              来源状态
+              <select
+                value={status}
+                onChange={(event) =>
+                  setStatus(
+                    event.target.value as MediaSupplySourceCreate["status"],
+                  )
+                }
+              >
+                {Object.entries(sourceStatusLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label>
             联系人
             <input
@@ -645,16 +674,18 @@ export function SourceEditor({
               onChange={(event) => setNotes(event.target.value)}
             />
           </label>
-          <label className="wide reason-field">
-            变更原因 <em>必填 · 写入审计</em>
-            <input
-              value={reason}
-              maxLength={320}
-              onChange={(event) => setReason(event.target.value)}
-              aria-invalid={Boolean(errors.reason)}
-            />
-            <FieldError value={errors.reason} />
-          </label>
+          {source && (
+            <label className="wide reason-field">
+              修改说明 <em>必填 · 保留在操作记录中</em>
+              <input
+                value={reason}
+                maxLength={320}
+                onChange={(event) => setReason(event.target.value)}
+                aria-invalid={Boolean(errors.reason)}
+              />
+              <FieldError value={errors.reason} />
+            </label>
+          )}
         </div>
         <MutationFooter
           busy={busy}
@@ -709,8 +740,11 @@ export function ResourceEditor({
   const [qualityTier, setQualityTier] = useState<
     MediaResourceCreate["qualityTier"]
   >(resource?.qualityTier ?? "MEDIUM");
-  const [procurementCostFen, setProcurementCostFen] = useState(
-    resource?.procurementCostFen?.toString() ?? "",
+  const [procurementCostYuan, setProcurementCostYuan] = useState(
+    resource?.procurementCostFen === null ||
+      resource?.procurementCostFen === undefined
+      ? ""
+      : formatFenAsYuan(resource.procurementCostFen).replaceAll(",", ""),
   );
   const [caseUrl, setCaseUrl] = useState(resource?.caseUrl ?? "");
   const [publicationNotes, setPublicationNotes] = useState(
@@ -724,7 +758,7 @@ export function ResourceEditor({
   async function submit() {
     const nextErrors: FieldErrors = {};
     if (!resourceName.trim()) nextErrors.resourceName = "请填写资源名称";
-    if (!supplySourceId) nextErrors.supplySourceId = "请选择当前供给来源";
+    if (!supplySourceId) nextErrors.supplySourceId = "请选择合作来源";
     if (!isSupportedUrlReference(accountUrl))
       nextErrors.accountUrl = "仅支持 HTTPS 或项目资源路径";
     if (!isSupportedUrlReference(caseUrl))
@@ -732,11 +766,9 @@ export function ResourceEditor({
     if (publicVisibility === "MASKED" && !publicAlias.trim()) {
       nextErrors.publicAlias = "脱敏展示必须填写客户展示名称";
     }
-    const cost = parseNullableWholeNumber(procurementCostFen, {
-      allowZero: true,
-    });
+    const cost = parseNullableWholeYuanToFen(procurementCostYuan);
     if (cost.error) nextErrors.procurementCostFen = cost.error;
-    if (!reason.trim()) nextErrors.reason = "请填写本次变更原因";
+    if (resource && !reason.trim()) nextErrors.reason = "请填写修改说明";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
     const input: MediaResourceCreate = {
@@ -754,7 +786,7 @@ export function ResourceEditor({
       procurementCostFen: cost.value,
       caseUrl: optionalText(caseUrl),
       publicationNotes: optionalText(publicationNotes),
-      reason: reason.trim(),
+      reason: resource ? reason.trim() : "创建媒体资源",
     };
     setBusy(true);
     setError("");
@@ -776,19 +808,17 @@ export function ResourceEditor({
 
   return (
     <EditorFrame
-      eyebrow="具体资源"
+      eyebrow="媒体资源"
       title={
         resource ? "编辑媒体资源" : `为「${platform.displayName}」添加资源`
       }
-      description="资源是不可供客户选择的示例与运营参考；当前来源、采购成本和备注保持内部可见。"
+      description="记录实际可用的媒体账号或渠道。合作来源、成本和备注只供内部使用。"
       onClose={onClose}
     >
       {sources.length === 0 ? (
         <div className="media-editor-blocked">
-          <h3>请先建立供给来源</h3>
-          <p>
-            每个资源必须关联一个当前内部来源。关闭后在“供给来源”区域创建来源。
-          </p>
+          <h3>请先建立合作来源</h3>
+          <p>每个资源必须关联一个合作来源。关闭后在“合作来源”区域创建来源。</p>
           <button className="secondary-button" type="button" onClick={onClose}>
             返回工作区
           </button>
@@ -802,6 +832,10 @@ export function ResourceEditor({
           }}
         >
           <div className="media-form-grid">
+            <div className="wide media-form-section-label">
+              <b>基本资料</b>
+              <span>先确认资源名称和当前合作来源。</span>
+            </div>
             <label>
               资源名称 <em>必填</em>
               <input
@@ -815,7 +849,7 @@ export function ResourceEditor({
               <FieldError value={errors.resourceName} />
             </label>
             <label>
-              当前供给来源 <em>内部</em>
+              合作来源 <em>内部</em>
               <select
                 value={supplySourceId}
                 onChange={(event) => setSupplySourceId(event.target.value)}
@@ -830,6 +864,10 @@ export function ResourceEditor({
               </select>
               <FieldError value={errors.supplySourceId} />
             </label>
+            <div className="wide media-form-section-label">
+              <b>发布与客户展示</b>
+              <span>决定资源如何使用，以及客户能看到多少信息。</span>
+            </div>
             <label>
               发布方式
               <select
@@ -864,7 +902,7 @@ export function ResourceEditor({
               </select>
             </label>
             <label>
-              客户展示
+              客户是否可见
               <select
                 value={publicVisibility}
                 onChange={(event) =>
@@ -895,7 +933,7 @@ export function ResourceEditor({
               </label>
             )}
             <label>
-              内部质量档次
+              资源优先级
               <select
                 value={qualityTier}
                 onChange={(event) =>
@@ -911,19 +949,23 @@ export function ResourceEditor({
                 ))}
               </select>
             </label>
+            <div className="wide media-form-section-label">
+              <b>内部成本与链接</b>
+              <span>以下内容不会展示给客户。</span>
+            </div>
             <label>
-              采购成本（人民币分） <em>可空</em>
+              采购成本（元） <em>可空 · 填整数</em>
               <input
                 inputMode="numeric"
-                value={procurementCostFen}
-                onChange={(event) => setProcurementCostFen(event.target.value)}
-                placeholder="例如：12500 表示 ¥125.00"
+                value={procurementCostYuan}
+                onChange={(event) => setProcurementCostYuan(event.target.value)}
+                placeholder="例如：125"
                 aria-invalid={Boolean(errors.procurementCostFen)}
               />
               <FieldError value={errors.procurementCostFen} />
             </label>
             <label>
-              内部账号标识
+              账号名称或编号
               <input
                 value={accountIdentifier}
                 maxLength={240}
@@ -931,7 +973,7 @@ export function ResourceEditor({
               />
             </label>
             <label>
-              内部账号链接
+              账号链接
               <input
                 value={accountUrl}
                 onChange={(event) => setAccountUrl(event.target.value)}
@@ -941,7 +983,7 @@ export function ResourceEditor({
               <FieldError value={errors.accountUrl} />
             </label>
             <label className="wide">
-              案例链接 <em>内部</em>
+              参考案例链接 <em>内部</em>
               <input
                 value={caseUrl}
                 onChange={(event) => setCaseUrl(event.target.value)}
@@ -951,7 +993,7 @@ export function ResourceEditor({
               <FieldError value={errors.caseUrl} />
             </label>
             <label className="wide">
-              发文与内容备注 <em>内部</em>
+              发布说明 <em>内部</em>
               <textarea
                 value={publicationNotes}
                 maxLength={8000}
@@ -959,16 +1001,18 @@ export function ResourceEditor({
                 placeholder="记录速度、收录、修改或内容约束；不要写成客户保证"
               />
             </label>
-            <label className="wide reason-field">
-              变更原因 <em>必填 · 写入审计</em>
-              <input
-                value={reason}
-                maxLength={320}
-                onChange={(event) => setReason(event.target.value)}
-                aria-invalid={Boolean(errors.reason)}
-              />
-              <FieldError value={errors.reason} />
-            </label>
+            {resource && (
+              <label className="wide reason-field">
+                修改说明 <em>必填 · 保留在操作记录中</em>
+                <input
+                  value={reason}
+                  maxLength={320}
+                  onChange={(event) => setReason(event.target.value)}
+                  aria-invalid={Boolean(errors.reason)}
+                />
+                <FieldError value={errors.reason} />
+              </label>
+            )}
           </div>
           <MutationFooter
             busy={busy}

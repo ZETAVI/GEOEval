@@ -15,16 +15,16 @@ export function AdminSidebar({ account }: { account: Account }) {
       <div className="admin-area-label">内容与供给</div>
       <nav aria-label="管理员功能">
         <a className="side-link active" href="/admin/media" aria-current="page">
-          <i>M</i>
+          <i>媒</i>
           <span>
             <b>媒体库管理</b>
-            <small>平台、价格与供给</small>
+            <small>平台、价格与合作来源</small>
           </span>
         </a>
       </nav>
       <div className="admin-boundary-note">
-        <b>管理员边界</b>
-        <p>维护平台事实与销售配置；实际发布履约由运营流程负责。</p>
+        <b>职责说明</b>
+        <p>管理员维护平台资料和销售设置；实际发布由运营人员负责。</p>
       </div>
       <div className="sidebar-account">
         <span>{account.mobile.slice(-4)}</span>

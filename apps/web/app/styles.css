@@ -2414,7 +2414,7 @@ a {
 }
 .platform-filters > div {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 .platform-list {
@@ -2447,15 +2447,26 @@ a {
   box-shadow: inset 3px 0 #2c825a;
 }
 .platform-list-logo {
+  position: relative;
   display: grid;
   width: 38px;
   height: 38px;
   place-items: center;
+  overflow: hidden;
   border-radius: 11px;
   background: #dfece4;
   color: #286748;
   font-size: 0.82rem;
   font-weight: 850;
+}
+.platform-list-logo img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: white;
 }
 .platform-list > button > span:nth-child(2) {
   min-width: 0;
@@ -3243,6 +3254,70 @@ a {
 .media-form-grid .wide {
   grid-column: 1 / -1;
 }
+.media-form-section-label {
+  display: grid;
+  gap: 3px;
+  padding-top: 4px;
+  color: #244a38;
+}
+.media-form-section-label:not(:first-child) {
+  margin-top: 4px;
+  padding-top: 17px;
+  border-top: 1px solid #e4eae6;
+}
+.media-form-section-label b {
+  font-size: 0.82rem;
+}
+.media-form-section-label span {
+  color: #78857d;
+  font-size: 0.63rem;
+  line-height: 1.5;
+}
+.logo-field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 14px;
+  align-items: stretch;
+}
+.logo-field-row > label {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  color: #41534a;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+.logo-input-preview {
+  min-height: 94px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+  overflow: hidden;
+  border: 1px dashed #c9d7ce;
+  border-radius: 12px;
+  background: #f7faf8;
+  color: #537163;
+}
+.logo-input-preview img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+}
+.logo-input-preview > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 13px;
+  background: #e3eee7;
+  font-weight: 850;
+}
+.logo-input-preview small {
+  color: #7d8982;
+  font-size: 0.58rem;
+}
 .media-form-grid em,
 .media-checkbox-field legend em {
   color: #8a7652;
@@ -3541,6 +3616,9 @@ a {
   }
   .media-checkbox-field {
     grid-column: auto;
+  }
+  .logo-field-row {
+    grid-template-columns: 1fr;
   }
   .media-checkbox-field > div,
   .listing-state-guide {

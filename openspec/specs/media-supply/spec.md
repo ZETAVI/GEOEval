@@ -198,14 +198,20 @@ platform identity, Listing, concrete resource, or internal source ownership.
 - **WHEN** the administrator searches or filters the workspace
 - **THEN** one platform identity remains one result even when it belongs to
   several categories
-- **AND** text, category, platform state, Listing state, and no-Listing filters
-  can narrow the result
+- **AND** text and category can narrow the result while platform-data status
+  and customer-sales status remain two separately labeled filters
 - **AND** an empty catalog offers platform creation while a filtered-empty result
   offers filter recovery
-- **AND** selecting a platform opens separately labeled platform-fact, Listing,
-  resource, source, and audit regions
-- **AND** every mutation requires a reason and refreshes the accepted projection
-  and audit feedback after success.
+- **AND** selecting a platform opens separately labeled platform-data, sales,
+  media-resource, partner-source, and operation-history regions
+- **AND** the Web uses concise Chinese business language rather than exposing
+  internal names such as Listing or revision
+- **AND** internal Draft is presented as not on sale rather than as a customer-
+  facing draft workflow
+- **AND** create forms generate a bounded create reason without asking the
+  administrator to type one, while later edits require a short change note
+- **AND** every accepted mutation refreshes the projection and operation-history
+  feedback after success.
 
 #### Scenario: A create form uses the accepted defaults
 
@@ -214,7 +220,10 @@ platform identity, Listing, concrete resource, or internal source ownership.
 - **AND** resource mode defaults to first publish, status to active, customer
   visibility to hidden, and internal quality tier to medium
 - **AND** source status defaults to active
-- **AND** optional procurement cost remains nullable RMB fen
+- **AND** optional procurement cost is entered as nullable whole RMB yuan in the
+  Web and converted to the existing RMB-fen persistence contract
+- **AND** a valid platform-icon address shows an immediate preview and the saved
+  icon renders in the platform list and detail header
 - **AND** masked customer display requires an explicit approved alias.
 
 #### Scenario: Interactive maintenance does not complete cleanly
