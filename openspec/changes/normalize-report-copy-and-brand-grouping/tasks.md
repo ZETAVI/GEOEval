@@ -29,11 +29,11 @@
 - [x] Make model contract v4 a strict, self-describing output form: every
       top-level section and internal-guidance field owns a positive purpose, and
       focused tests require the complete field set and descriptions.
-- [ ] Execute a separately authorized controlled Provider comparison for Prompt
-      `4.0.0` and inspect customer quality; do not infer quality from offline
-      guards or constructed model output.
-- [ ] Decide from that evidence whether the single-Agent contract is acceptable
-      or whether #42 needs a persistent task split.
+- [x] Execute the authorized controlled Provider comparison for Prompt `4.0.0`;
+      stop after the first Y02 semantic failure and inspect both machine
+      validation and customer prose.
+- [x] Reject the current single-Agent contract from the controlled evidence and
+      reopen #42 for the smallest persistent task-boundary decision.
 - [ ] Run final architecture and fixed-diff code review with no remaining
       must-fix finding.
 - [x] Publish Draft PR #48 and update #41 plus GEOEval Delivery with the
@@ -78,8 +78,15 @@
   guard, and call-ceiling behavior only, not real customer-copy quality.
 - Controlled validation planning: `synthesis-quality-probe` contains four Qwen
   requests (Y02, Y03, Y02, Y03), zero automatic retries, and stop on first
-  failure. The manifest was generated successfully; no Provider request was
-  executed.
+  failure.
+- Controlled Prompt `4.0.0` execution used one of the four authorized Qwen
+  requests and returned in `46.996s` (`1,106` prompt, `2,647` completion,
+  `3,753` total tokens). The JSON matched the strict top-level shape and
+  preserved deterministic counts/platform facts, but omitted both brand
+  candidates from merge and independent decisions. The semantic guard rejected
+  it; inspection also found nonexistent observation references, unsupported
+  tactical specifics, and an unjustified ranking target. The batch stopped, so
+  Y03 and both repeat calls were not executed.
 - Hy3 returned HTTP `402` / provider code `401008`: its free-trial quota is
   exhausted and postpaid billing is disabled. No billing setting was changed,
   so live fallback compatibility with current model contract v4 remains
@@ -87,8 +94,9 @@
 - Static and packaging: repository formatting, all workspace type checks,
   production build, framework validation, and `git diff --check` passed.
 - Review result: PR #48 remains `not ready`. Its deterministic boundaries are
-  coherent, but Prompt `4.0.0` and model contract v4 have not yet been exercised
-  through a real Provider, so #41 remains the active decision owner.
-- Not run: Prompt `4.0.0` controlled Provider comparison, external entity
-  research, production deployment, billing change, accepted historical-report
-  rewrite, or #42 workflow split.
+  coherent, but the real Prompt `4.0.0` result failed both completeness and
+  evidence-grounding. #42 owns the next architecture decision; #41 remains open
+  for final customer-report acceptance.
+- Not run: the remaining three authorized calls after stop-on-first-failure,
+  external entity research, production deployment, billing change, accepted
+  historical-report rewrite, or #42 workflow-split implementation.

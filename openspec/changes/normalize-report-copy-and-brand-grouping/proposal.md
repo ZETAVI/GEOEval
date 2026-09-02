@@ -1,6 +1,6 @@
 # Change: Normalize Report Copy and Brand Grouping
 
-- Status: Implementation re-aligned; Prompt `4.0.0` awaits controlled validation
+- Status: Prompt `4.0.0` rejected by controlled evidence; #42 decision reopened
 - Class: Standard bug fix
 - Decision owner: Product owner
 - Owning Issue: #41 under M4 parent #39
@@ -80,10 +80,18 @@ independent list. Prompt `4.0.0` then expresses one positive analysis workflow
 and four proportional quality expectations: faithful, complete, prioritized,
 and customer-readable.
 
-#42 remains a later performance and architecture option, not a conclusion of
-this Change. A persistent task split becomes justified only if controlled,
-repeated evidence shows that the re-aligned single-Agent contract still cannot
-meet quality or latency boundaries.
+Before controlled execution, #42 remained a conditional performance and
+architecture option. The Prompt `4.0.0` result now satisfies the decision gate
+to reopen #42: despite positive task framing, self-described strict output, and
+explicit candidate coverage, the first Y02 response omitted both brand
+candidates, referenced observations that did not exist in their samples, and
+introduced unsupported tactical specifics and outcome targets. It did preserve
+the deterministic count and platform facts and produced readable prose.
+
+This evidence rejects the current single-call contract; it does not by itself
+approve a particular task graph. #42 must select the smallest decomposition and
+its latency/cost boundary. This Change stops before implementing a persistent
+workflow split.
 
 ## Control State
 
@@ -109,10 +117,15 @@ meet quality or latency boundaries.
   separately authorized controlled Provider comparison is inspected.
 - The prepared `synthesis-quality-probe` manifest contains four Qwen requests:
   complex and sparse fixtures interleaved twice, zero automatic retries, and
-  stop on the first structural or semantic failure. Planning the manifest made
-  no external request.
+  stop on the first structural or semantic failure. After explicit authority,
+  the batch executed one Y02 request in `46.996s` and stopped as required. The
+  response was structurally valid and used the deterministic metrics correctly,
+  but semantic validation rejected omitted `b01` and `b02`; inspection also
+  found invalid observation references and unsupported operational specifics.
+  Y03 and the second repeats did not run.
 - Exit: focused replay, model-contract, report-document, deterministic end-to-
   end, type, build, formatting, and framework evidence; Draft PR and Issue
-  update. PR #48 remains Draft and must not close #41. Additional Provider
-  calls, any #42 task split, billing activation, merge, production, and
-  deployment remain separate gates.
+  update. PR #48 remains Draft and must not close #41. #42 now owns the next
+  architecture decision; additional Provider calls, any task-split
+  implementation, billing activation, merge, production, and deployment remain
+  separate gates.
