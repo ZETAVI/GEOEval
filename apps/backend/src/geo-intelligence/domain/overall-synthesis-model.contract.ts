@@ -33,14 +33,16 @@ const sampleReferenceSchema = z
     sampleRef: localSampleRef,
     observationRef: localObservationRef.nullable(),
   })
-  .strict();
+  .strict()
+  .describe("支持一项报告结论的样本或样本内观察");
 
 const observationReferenceSchema = z
   .object({
     sampleRef: localSampleRef,
     observationRef: localObservationRef,
   })
-  .strict();
+  .strict()
+  .describe("支持一项主题判断的具体样本观察");
 
 const customerNarrative = (maximum: number, purpose: string) =>
   boundedText(maximum).describe(
@@ -51,24 +53,33 @@ const evidenceLinkedNarrativeSchema = (purpose: string) =>
   z
     .object({
       summary: customerNarrative(1_200, purpose),
-      evidenceRefs: z.array(sampleReferenceSchema).min(1).max(40),
+      evidenceRefs: z
+        .array(sampleReferenceSchema)
+        .min(1)
+        .max(40)
+        .describe("直接支持该结论的样本证据"),
     })
-    .strict();
+    .strict()
+    .describe(`${purpose}及其证据`);
 
 const brandGroupProposalSchema = z
   .object({
-    displayName: customerNarrative(120, "普通客户可识别的统一品牌名称"),
+    displayName: customerNarrative(120, "该组普通客户可识别的统一品牌名称"),
     members: z
       .array(
         z
           .object({
             candidateRef: localCandidateRef,
-            relationship: z.enum([
-              "SAME_NAME",
-              "TRANSLATION_OR_ABBREVIATION",
-              "STORE_FORMAT",
-              "SUBORDINATE_BRAND_LINE",
-            ]),
+            relationship: z
+              .enum([
+                "SAME_NAME",
+                "TRANSLATION_OR_ABBREVIATION",
+                "STORE_FORMAT",
+                "SUBORDINATE_BRAND_LINE",
+              ])
+              .describe(
+                "该候选与统一品牌名称的关系：同名、翻译或简称、门店形态、从属品牌线",
+              ),
           })
           .strict(),
       )
@@ -79,32 +90,48 @@ const brandGroupProposalSchema = z
       "简要说明这些名称属于同一消费者品牌的依据，供归组审计使用",
     ),
   })
-  .strict();
+  .strict()
+  .describe("一个经过语义判断需要合并的消费者品牌组");
 
 const themeProposalSchema = z
   .object({
     label: customerNarrative(80, "概括一项主要证据模式的主题标题"),
     summary: customerNarrative(600, "说明该模式及其证据范围的主题段落"),
-    evidenceRefs: z.array(observationReferenceSchema).min(1).max(60),
+    evidenceRefs: z
+      .array(observationReferenceSchema)
+      .min(1)
+      .max(60)
+      .describe("直接支持该主题的观察证据"),
   })
-  .strict();
+  .strict()
+  .describe("一项跨样本主题及其证据");
 
 const customerDirectionProposalSchema = z
   .object({
     currentProblem: customerNarrative(400, "基于证据指出当前差距"),
     recommendedDirection: customerNarrative(600, "给出与差距对应的可执行方向"),
     intendedImprovement: customerNarrative(300, "说明合理且非保证性的预期改善"),
-    evidenceRefs: z.array(sampleReferenceSchema).min(1).max(60),
+    evidenceRefs: z
+      .array(sampleReferenceSchema)
+      .min(1)
+      .max(60)
+      .describe("直接支持当前差距和建议方向的样本证据"),
   })
-  .strict();
+  .strict()
+  .describe("一项由证据差距推导出的客户优化方向");
 
 const guidanceProposalSchema = z
   .object({
-    label: boundedText(100),
-    detail: boundedText(1_000),
-    evidenceRefs: z.array(sampleReferenceSchema).min(1).max(80),
+    label: boundedText(100).describe("内部内容工作项的简短名称"),
+    detail: boundedText(1_000).describe("说明内容工作应关注什么以及为什么"),
+    evidenceRefs: z
+      .array(sampleReferenceSchema)
+      .min(1)
+      .max(80)
+      .describe("支持该内容工作项的样本证据"),
   })
-  .strict();
+  .strict()
+  .describe("一项受保护的内部内容工作建议");
 
 export const overallSynthesisModelOutputSchema = z
   .object({
@@ -124,10 +151,17 @@ export const overallSynthesisModelOutputSchema = z
     ),
     themes: z
       .object({
-        positive: z.array(themeProposalSchema).max(5),
-        negative: z.array(themeProposalSchema).max(5),
+        positive: z
+          .array(themeProposalSchema)
+          .max(5)
+          .describe("按重要性排列的主要正向证据模式"),
+        negative: z
+          .array(themeProposalSchema)
+          .max(5)
+          .describe("按重要性排列的主要负向或缺口证据模式"),
       })
-      .strict(),
+      .strict()
+      .describe("跨样本形成的主要正向与负向主题"),
     customerDirections: z
       .array(customerDirectionProposalSchema)
       .min(1)
@@ -135,15 +169,33 @@ export const overallSynthesisModelOutputSchema = z
       .describe("按业务影响排序的客户优化方向"),
     internalGuidance: z
       .object({
-        summary: boundedText(2_000),
-        priorities: z.array(guidanceProposalSchema).min(1).max(8),
-        writingAngles: z.array(guidanceProposalSchema).min(1).max(8),
-        cautions: z.array(boundedText(500)).max(8),
+        summary: boundedText(2_000).describe(
+          "受保护的内部内容工作总原则，不进入客户报告",
+        ),
+        priorities: z
+          .array(guidanceProposalSchema)
+          .min(1)
+          .max(8)
+          .describe("按业务影响排序的内容建设优先项"),
+        writingAngles: z
+          .array(guidanceProposalSchema)
+          .min(1)
+          .max(8)
+          .describe("可用于后续内容创作的不同切入角度"),
+        cautions: z
+          .array(boundedText(500))
+          .max(8)
+          .describe("根据证据边界需要避免的内容表达"),
       })
-      .strict(),
-    limitations: z.array(boundedText(500)).max(8),
+      .strict()
+      .describe("不进入客户报告的内部内容工作指导"),
+    limitations: z
+      .array(boundedText(500))
+      .max(8)
+      .describe("影响本轮结论强度的证据范围或不一致之处"),
   })
-  .strict();
+  .strict()
+  .describe("一份完整的评测综合决策和证据引用");
 
 export type OverallSynthesisModelOutput = z.infer<
   typeof overallSynthesisModelOutputSchema

@@ -26,6 +26,8 @@ narrative field.
 - Give the overall-synthesis Agent one positive task model for evidence
   comparison, prioritization, customer reporting, and semantic grouping rather
   than a list of observed failure strings.
+- Make the strict model-facing JSON Schema the single owner of output fields,
+  quantities, section responsibilities, and required structure.
 - Require an explicit decision for every compact brand candidate: either place
   it in a semantic merge group or identify it as independent.
 - Resolve model-local references back to owner-local sample, observation, and
@@ -65,7 +67,9 @@ references are machine-checkable handles placed next to semantic content; the
 Agent does not infer identity, counts, or meaning from them. GEO Intelligence
 owns exact calculation, reference resolution, and candidate-decision coverage,
 while the Agent owns evidence comparison, semantic relationships,
-prioritization, and language.
+prioritization, and language. The Prompt owns the analysis workflow, while the
+provider-facing JSON Schema owns the output form and field-level purpose so the
+same instruction does not compete with a second prose schema.
 
 The earlier Prompt `3.0.1` result did not prove that synthesis must be split. Its
 output contract treated an omitted candidate exactly like an explicit

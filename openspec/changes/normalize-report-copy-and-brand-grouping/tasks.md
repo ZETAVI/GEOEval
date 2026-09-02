@@ -26,6 +26,9 @@
       complete candidate-decision coverage remain deterministic.
 - [x] Replace Prompt `3.0.1` with the positive Prompt `4.0.0` workflow and make
       every brand candidate an explicit merge-or-independent decision.
+- [x] Make model contract v4 a strict, self-describing output form: every
+      top-level section and internal-guidance field owns a positive purpose, and
+      focused tests require the complete field set and descriptions.
 - [ ] Execute a separately authorized controlled Provider comparison for Prompt
       `4.0.0` and inspect customer quality; do not infer quality from offline
       guards or constructed model output.
@@ -46,7 +49,7 @@
 - Focused contracts: `3` files and `8` tests passed for synthesis projection,
   report materialization/history protection, and the quality replay.
 - Full Backend regression after rebasing onto current `main`: `23` files and
-  `122` tests passed, including the deterministic twenty-position integration
+  `123` tests passed, including the deterministic twenty-position integration
   journey and synthesis retry paths.
 - Controlled real synthesis on Prompt `3.0.0`: Qwen Y02 and Y03 passed strict
   structured and domain validation in `36.373s` and `42.202s`; obvious Chinese
@@ -70,7 +73,7 @@
 - Prompt `4.0.0` now defines one positive analysis sequence and four bounded
   quality expectations. Model contract v4 requires every brand candidate to be
   classified exactly once across merge groups and independent candidates.
-- Focused Prompt/contract/manifest replay: `3` files and `9` tests passed; all
+- Focused Prompt/contract/manifest replay: `3` files and `10` tests passed; all
   workspace type checks passed. This proves schema, coverage, projection,
   guard, and call-ceiling behavior only, not real customer-copy quality.
 - Controlled validation planning: `synthesis-quality-probe` contains four Qwen

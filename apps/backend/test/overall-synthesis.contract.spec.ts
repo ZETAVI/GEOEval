@@ -10,10 +10,54 @@ import {
 } from "../src/geo-intelligence/domain/overall-synthesis.contract.js";
 import {
   buildOverallSynthesisModelReferenceProjection,
+  overallSynthesisModelJsonSchema,
   parseAndProjectOverallSynthesisModelOutput,
 } from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
 
 describe("overall synthesis contract", () => {
+  it("publishes one strict, self-describing model output form", () => {
+    const schema = overallSynthesisModelJsonSchema as {
+      description?: string;
+      additionalProperties?: boolean;
+      required?: string[];
+      properties?: Record<
+        string,
+        {
+          description?: string;
+          properties?: Record<string, { description?: string }>;
+        }
+      >;
+    };
+    expect(schema.description).toBe("一份完整的评测综合决策和证据引用");
+    expect(schema.additionalProperties).toBe(false);
+    expect(schema.required).toEqual(
+      expect.arrayContaining([
+        "brandEntityGroups",
+        "independentCandidateRefs",
+        "recommendationAssessment",
+        "brandPerception",
+        "themes",
+        "customerDirections",
+        "internalGuidance",
+        "limitations",
+      ]),
+    );
+    for (const field of schema.required ?? []) {
+      expect(schema.properties?.[field]?.description, field).toBeTruthy();
+    }
+    for (const field of [
+      "summary",
+      "priorities",
+      "writingAngles",
+      "cautions",
+    ]) {
+      expect(
+        schema.properties?.internalGuidance?.properties?.[field]?.description,
+        `internalGuidance.${field}`,
+      ).toBeTruthy();
+    }
+  });
+
   it("accepts complete evidence-linked grouping", () => {
     const context = synthesisContext();
     const output = validOutput(context);
