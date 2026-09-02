@@ -15,6 +15,19 @@ describe("overall synthesis customer-quality replay", () => {
     const context = headFamilyReplayContext();
     const task = buildOverallSynthesisTask(context);
     const modelContext = task.userContext as {
+      evidenceScope: {
+        validSampleCount: number;
+        distinctQuestionCount: number;
+        platformCount: number;
+        statement: string;
+      };
+      performance: {
+        openQuestionEvidence: {
+          mentionedSampleCount: number;
+          validSampleCount: number;
+          statement: string;
+        };
+      };
       evidenceSamples: Array<{
         sampleRef: string;
         observations: Array<{ observationRef: string }>;
@@ -25,6 +38,18 @@ describe("overall synthesis customer-quality replay", () => {
       }>;
     };
     const requestText = JSON.stringify(modelContext);
+
+    expect(modelContext.evidenceScope).toEqual({
+      validSampleCount: 20,
+      distinctQuestionCount: 4,
+      platformCount: 5,
+      statement: "本次综合输入包含 20 条有效样本，覆盖 4 个问题和 5 个平台。",
+    });
+    expect(modelContext.performance.openQuestionEvidence).toEqual({
+      mentionedSampleCount: 0,
+      validSampleCount: 15,
+      statement: "15 条开放问题有效样本中，当前品牌被提及 0 条。",
+    });
 
     for (const privateToken of [
       "BRAND_DIRECTED",

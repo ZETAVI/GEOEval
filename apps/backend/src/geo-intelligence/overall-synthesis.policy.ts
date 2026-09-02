@@ -58,6 +58,7 @@ export function buildOverallSynthesisTask(
     systemInstruction: common.content,
     userContext: {
       brand: evaluationBrandTextContext(context.brand),
+      evidenceScope: compactEvidenceScope(orderedSamples),
       performance: compactPerformance(context.metrics),
       evidenceSamples: references.evidenceSamples.map((sample, index) => {
         const source = orderedSamples[index]!;
@@ -102,18 +103,49 @@ function loadAsset(fileName: string) {
 }
 
 function compactPerformance(metrics: EvaluationReportMetrics) {
+  const mentionedSampleCount = metrics.recommendationIndex.mentionCount;
+  const validOpenSampleCount = metrics.recommendationIndex.validOpenSampleCount;
   return {
-    recommendationIndex: metrics.recommendationIndex.displayScore,
-    openQuestionMentions: `${metrics.recommendationIndex.mentionCount}/${metrics.recommendationIndex.validOpenSampleCount}`,
+    recommendationIndex: {
+      score: metrics.recommendationIndex.displayScore,
+      scale: "0 至 5 分",
+      statement: `推荐指数为 ${metrics.recommendationIndex.displayScore}，满分为 5 分。`,
+    },
+    openQuestionEvidence: {
+      mentionedSampleCount,
+      validSampleCount: validOpenSampleCount,
+      statement: `${validOpenSampleCount} 条开放问题有效样本中，当前品牌被提及 ${mentionedSampleCount} 条。`,
+    },
     typicalPosition: formatTypicalPosition(metrics.typicalPosition),
-    validCoverage: `${metrics.coverage.validSampleCount}/${metrics.coverage.totalSampleCount}`,
+    coverage: {
+      validSampleCount: metrics.coverage.validSampleCount,
+      totalSampleCount: metrics.coverage.totalSampleCount,
+      statement: `共 ${metrics.coverage.totalSampleCount} 条样本，其中 ${metrics.coverage.validSampleCount} 条有效。`,
+    },
     platforms: metrics.platforms.map((platform) => ({
       platform: platform.platformLabel,
-      openQuestionMentions: `${platform.mentionCount}/${platform.validOpenSampleCount}`,
+      mentionedOpenSampleCount: platform.mentionCount,
+      validOpenSampleCount: platform.validOpenSampleCount,
+      statement: `${platform.platformLabel} 的 ${platform.validOpenSampleCount} 条开放问题有效样本中，当前品牌被提及 ${platform.mentionCount} 条。`,
       typicalPosition: formatTypicalPosition(
         typicalPositionFromPositions(platform.mentionedPositions),
       ),
     })),
+  };
+}
+
+function compactEvidenceScope(samples: OverallSynthesisTaskContext["samples"]) {
+  const validSampleCount = samples.length;
+  const distinctQuestionCount = new Set(
+    samples.map((sample) => sample.questionId),
+  ).size;
+  const platformCount = new Set(samples.map((sample) => sample.platformKey))
+    .size;
+  return {
+    validSampleCount,
+    distinctQuestionCount,
+    platformCount,
+    statement: `本次综合输入包含 ${validSampleCount} 条有效样本，覆盖 ${distinctQuestionCount} 个问题和 ${platformCount} 个平台。`,
   };
 }
 

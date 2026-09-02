@@ -13,7 +13,11 @@
 - [x] Apply the smallest backend report-document guard for the observed internal
       enum, field-name, UUID, and structural-fragment failures.
 - [x] Pass focused replay, contract, report projection, deterministic end-to-end,
-      type, build, formatting, framework, and diff checks without a real Provider.
+      type, build, formatting, framework, and diff checks before the controlled
+      Provider gate.
+- [x] Execute the authorized three-request synthesis batch, inspect customer
+      copy and latency, and convert the observed sample/question/platform count
+      ambiguity into Prompt `3.0.1` plus explicit deterministic scope statements.
 - [x] Run final architecture and fixed-diff code review with no remaining
       must-fix finding.
 - [x] Publish Draft PR #48 and update #41 plus GEOEval Delivery with the
@@ -30,13 +34,25 @@
   report materialization/history protection, and the quality replay.
 - Full Backend regression: `23` files and `119` tests passed, including the
   deterministic twenty-position integration journey and synthesis retry paths.
+- Controlled real synthesis on Prompt `3.0.0`: Qwen Y02 and Y03 passed strict
+  structured and domain validation in `36.373s` and `42.202s`; obvious Chinese
+  and English brand-line names grouped correctly, the sparse case did not invent
+  groups or negative themes, and no internal reference field entered customer
+  prose. The complex result nevertheless mislabeled four samples as four
+  questions, proving that compact ratios still lacked sufficient count meaning.
+- Prompt `3.0.1` now supplies explicit valid-sample, distinct-question, and
+  platform scope plus natural-language deterministic metric statements; its
+  focused red/green replay and the full regression pass.
+- Hy3 returned HTTP `402` / provider code `401008`: its free-trial quota is
+  exhausted and postpaid billing is disabled. No billing setting was changed,
+  so live fallback compatibility with model contract v3 remains unverified.
 - Static and packaging: repository formatting, all workspace type checks,
   production build, framework validation, and `git diff --check` passed.
-- Review result: architecture and code review are `ready`; request-local
-  references have a stable order across replay, canonical report/metric
-  ownership is unchanged, and no parser, Brand, Query, Worker task graph,
-  frontend report layout, or Provider route changed.
-- Not run by design: no real Provider call, external entity research, production
-  deployment, or rewrite of an accepted historical report. Live model wording
-  quality remains a later controlled-provider acceptance check, not evidence
-  claimed by this offline change.
+- Fixed-diff review after the controlled call is `ready with follow-up`: the
+  Prompt `3.0.1` repair keeps deterministic facts with GEO Intelligence and adds
+  no workflow split or durable owner. Post-push CI and a bounded real Qwen rerun
+  remain before the PR returns to formal Review.
+- Not run: Prompt `3.0.1` has not yet been re-exercised through a real Provider;
+  that requires a new bounded-call authorization. No external entity research,
+  production deployment, billing change, or accepted historical-report rewrite
+  was performed.

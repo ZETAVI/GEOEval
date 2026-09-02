@@ -41,8 +41,9 @@ narrative field.
 - No parser, Brand, Query Generator, Worker concurrency, multi-Agent task graph,
   recommendation-index, provider-route, report-layout, or frontend masking
   change.
-- No real Provider call, production activation, deployment, or historical
-  report rewrite.
+- No production activation, deployment, historical report rewrite, or
+  unbounded Provider experimentation. Any controlled real validation requires
+  an exact manifest, request ceiling, stop conditions, and explicit authority.
 
 ## Impact
 
@@ -70,8 +71,13 @@ cleanly as the compact projection at the current model-contract boundary.
   `main@af72ba5`; Issue #41 is `In Progress`, Priority `P0`.
 - Evidence: the original local database no longer contains the retained run;
   #39/#41 remain the durable evidence entry for its run identity and observed
-  output. Verification uses a deterministic focused replay and makes no real
-  Provider call.
+  output. A deterministic focused replay protects that failure shape. After
+  explicit authorization, one controlled three-request synthesis batch exercised
+  Prompt `3.0.0` and model contract v3: two Qwen cases were accepted, while the
+  Hy3 case failed because the account had exhausted free quota without postpaid
+  billing. The first Qwen result exposed sample/question/platform count ambiguity
+  and directly produced the Prompt `3.0.1` and explicit evidence-scope repair.
 - Exit: focused replay, model-contract, report-document, deterministic end-to-
   end, type, build, formatting, and framework evidence; Draft PR and Issue
-  update. Merge, production, and real-provider execution remain unapproved.
+  update. Additional Provider calls, billing activation, merge, production, and
+  deployment remain separate gates.
