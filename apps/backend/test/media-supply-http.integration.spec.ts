@@ -37,6 +37,7 @@ describe("Media Supply HTTP authorization and projection", () => {
       }),
     });
     expect(denied.status).toBe(403);
+    expect(await prisma.mediaPlatform.count()).toBe(0);
 
     for (const [mobile, role] of [
       ["+8613900003303", "OPERATIONS"],

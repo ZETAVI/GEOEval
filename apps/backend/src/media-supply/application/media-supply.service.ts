@@ -269,7 +269,7 @@ const platformUpdateSchema = platformFields
 const listingSchema = z
   .object({
     status: z.enum(["DRAFT", "ON_SHELF", "PAUSED", "OFF_SHELF"]),
-    pointPrice: z.number().int().positive().nullable(),
+    pointPrice: z.number().int().positive().max(2_147_483_647).nullable(),
     expectedRevision: z.number().int().positive().optional(),
     reason,
   })
@@ -305,7 +305,13 @@ const resourceFields = z.object({
   publicVisibility: z.enum(["HIDDEN", "FULL", "MASKED"]).default("HIDDEN"),
   publicAlias: nullableText(240).default(null),
   qualityTier: z.enum(["HIGH", "MEDIUM", "LOW"]).default("MEDIUM"),
-  procurementCostFen: z.number().int().nonnegative().nullable().default(null),
+  procurementCostFen: z
+    .number()
+    .int()
+    .nonnegative()
+    .max(2_147_483_647)
+    .nullable()
+    .default(null),
   caseUrl: optionalUrl.default(null),
   publicationNotes: nullableText(8000).default(null),
 });

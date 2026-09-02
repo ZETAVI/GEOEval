@@ -218,29 +218,77 @@ describe("Media Supply persistence and projections", () => {
     expect((await service.quotePlatform(platform.id)).buyable).toBe(true);
   });
 
-  it("records audit history and refuses destructive deletion with dependents", async () => {
+  it("deletes an unused draft but refuses destructive deletion with resource dependents", async () => {
     const platform = await createTencentPlatform(service, administratorId);
     await service.upsertListing(administratorId, platform.id, {
       status: "DRAFT",
       pointPrice: null,
       reason: "创建销售草稿",
     });
-    await expect(
-      service.deletePlatform(administratorId, platform.id, {
-        reason: "尝试删除",
-      }),
-    ).rejects.toThrow("已有业务依赖");
+    await service.deletePlatform(administratorId, platform.id, {
+      reason: "删除未使用草稿",
+    });
     const audits = await service.listAudits({
       entityType: "PLATFORM",
       entityId: platform.id,
     });
-    expect(audits).toHaveLength(1);
+    expect(audits).toHaveLength(2);
     expect(audits[0]).toMatchObject({
+      actorAccountId: administratorId,
+      action: "DELETE",
+      reason: "删除未使用草稿",
+      afterState: null,
+    });
+    expect(audits[1]).toMatchObject({
       actorAccountId: administratorId,
       action: "CREATE",
       reason: "建立平台",
       beforeState: null,
     });
+
+    const dependent = await createTencentPlatform(service, administratorId);
+    const source = await service.createSource(administratorId, {
+      name: "渠道 A",
+      reason: "创建来源",
+    });
+    await service.createResource(administratorId, {
+      platformId: dependent.id,
+      supplySourceId: source.id,
+      resourceName: "依赖资源",
+      reason: "创建依赖",
+    });
+    await expect(
+      service.deletePlatform(administratorId, dependent.id, {
+        reason: "尝试删除依赖平台",
+      }),
+    ).rejects.toThrow("已有业务依赖");
+  });
+
+  it("rolls back the entity and audit when the catalog revision write fails", async () => {
+    const platform = await createTencentPlatform(service, administratorId);
+    await service.upsertListing(administratorId, platform.id, {
+      status: "ON_SHELF",
+      pointPrice: 300,
+      reason: "首期上架",
+    });
+    const auditCount = await prisma.mediaCatalogAudit.count();
+    await prisma.mediaCatalogState.delete({ where: { id: "global" } });
+    try {
+      await expect(
+        service.updatePlatform(administratorId, platform.id, {
+          description: "不应提交的说明",
+          reason: "模拟 revision 失败",
+        }),
+      ).rejects.toThrow("Media catalog state is missing");
+      expect((await service.adminPlatform(platform.id)).description).toBe(
+        "腾讯旗下新闻内容平台",
+      );
+      expect(await prisma.mediaCatalogAudit.count()).toBe(auditCount);
+    } finally {
+      await prisma.mediaCatalogState.create({
+        data: { id: "global", publicRevision: 1n },
+      });
+    }
   });
 });
 

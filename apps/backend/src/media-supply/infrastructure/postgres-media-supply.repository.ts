@@ -252,10 +252,16 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
           },
         });
         if (!before) throw new MediaSupplyNotFoundError("未找到该媒体平台");
-        if (before.listing || before._count.resources > 0) {
+        if (
+          (before.listing && before.listing.status !== "DRAFT") ||
+          before._count.resources > 0
+        ) {
           throw new MediaSupplyConflictError(
             "该平台已有业务依赖，请改为归档或下架",
           );
+        }
+        if (before.listing) {
+          await tx.mediaPlatformListing.delete({ where: { platformId } });
         }
         await tx.mediaPlatformCategory.deleteMany({ where: { platformId } });
         await tx.mediaPlatform.delete({ where: { id: platformId } });
