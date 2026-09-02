@@ -39,19 +39,21 @@ Current truth remains unchanged until implementation.
 
 ## Findings
 
-### Should-fix before adapter activation: JS/Web Service account and special-city contracts need controlled evidence
+### Should-fix before adapter activation: certified account and special-city contracts need controlled evidence
 
 - **Affected artifact:** Source Brief `Unknowns and Validation`; design `Verify`.
 - **Boundary:** provider interface correctness and official-region integrity.
-- **Consequence:** official documentation does not prove the actual GEOEval
-  JS/Web Service account entitlement/QPS, domain/security-proxy configuration,
-  POI-ID lifecycle, latency, or exact Amap `towncode` compatibility with the
-  checked MCA township identities used by special cities. Assuming those facts
-  could make the map unavailable, reject valid stores, accept a wrong terminal,
-  or make retry/capacity behavior misleading.
-- **Narrow remediation:** after separate call approval, run the named bounded
-  fixtures, inspect actual console grants, and block unsupported special-city
-  readiness rather than guessing.
+- **Consequence:** separate GEOEval JS/Web Service Key types now exist, but the
+  pending identity review and published zero unverified quota/QPS do not prove
+  callable entitlement. Release-domain/security-proxy configuration,
+  outbound-IP allowlisting, POI-ID lifecycle, latency, and exact Amap `towncode`
+  compatibility with the checked MCA township identities used by special
+  cities remain unverified. Assuming those facts could make the map unavailable,
+  reject valid stores, accept a wrong terminal, or make retry/capacity behavior
+  misleading.
+- **Narrow remediation:** after identity approval and separate call approval,
+  inspect actual console grants and restrictions, run the named bounded
+  fixtures, and block unsupported special-city readiness rather than guessing.
 - **Origin:** external uncertainty exposed by #40.
 
 ## Supported Boundaries
@@ -110,8 +112,9 @@ Current truth remains unchanged until implementation.
 The revised module/data/reset boundaries are coherent, and the product,
 architecture, and commercial/legal risk direction is confirmed. The previous
 external license/storage must-fix is closed by explicit human risk acceptance.
-The actual JS/Web Service account configuration and special-city contract
-evidence remain should-fix items before live adapter activation. No ADR is
+The certified account entitlement, production credential restrictions, and
+special-city contract evidence remain should-fix items before live adapter
+activation. No ADR is
 required; stable accepted behavior should later reconcile into Brand Knowledge,
 the GEO snapshot seam, executable schemas/tests, and architecture overview.
 

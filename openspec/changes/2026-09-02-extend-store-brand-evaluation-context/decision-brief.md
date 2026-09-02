@@ -54,12 +54,15 @@ account's documented service grants, Key types, quotas, and security controls.
 
 ## Next Gate
 
-The design is ready for explicit implementation authorization. Account-specific
-Key configuration, controlled calls, and any paid capacity are technical/
-operational follow-ups and retain their own action boundaries; they are not a
+The design is ready for explicit implementation authorization. The approved
+application and separate JS/Web Service Key types exist, but identity review is
+pending and the current published unverified tier has zero quota/QPS. After
+certification, account-specific allowlists, security-proxy behavior, actual
+quota/QPS, bounded controlled calls, and any paid capacity remain technical/
+operational follow-ups with their own action boundaries; they are not a
 remaining product or legal design decision.
 
 Not authorized by this confirmation: implementation, development-data reset,
-Key creation, purchase, live Amap call, Query/Parser/Synthesis/report change,
-real evaluation Provider call, production migration, deployment, or Issue/PR
-merge.
+additional credential changes, purchase, live Amap call,
+Query/Parser/Synthesis/report change, real evaluation Provider call, production
+migration, deployment, or Issue/PR merge.

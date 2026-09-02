@@ -26,10 +26,10 @@ issue, and did not want #40 gated on a separate licensing inquiry. The Source
 Brief therefore treats that risk as accepted and uses current official API
 documentation plus later controlled account evidence as the engineering basis.
 
-This decision does not authorize implementation, Key creation, purchase, or
-live calls. It does allow the design to proceed without a work order while
-retaining minimum-field persistence, no raw-response storage, and the existing
-security boundaries.
+Application and Key creation were separately authorized and completed on
+2026-09-02. This decision still does not authorize implementation, purchase, or
+live calls. It allows the design to proceed while retaining minimum-field
+persistence, no raw-response storage, and the existing security boundaries.
 
 ## Decision Constraints
 
@@ -58,6 +58,28 @@ security boundaries.
 - No pressure/load test is permitted. Capacity evidence must come from account
   quota inspection and ordinary bounded validation only.
 
+## Account and Credential Preparation Evidence
+
+- The Amap console contains one application named `GEOEval` and two separately
+  scoped credentials: `GEOEval Web JS` for `Web端(JS API)` and
+  `GEOEval Server` for `Web服务`. No credential value is copied into the
+  changed files or this Source Brief; later Issue/PR updates must also remain
+  value-free.
+- The Web(JS API) domain allowlist and Web Service outbound-IP allowlist are
+  intentionally empty only for local preparation. They must be set to the
+  approved release domain and fixed server egress before production activation.
+- The developer identity review is still pending according to the human owner.
+  The current official billing table assigns unverified developers zero monthly
+  quota and zero QPS for the required JS map initialization, search, POI detail,
+  and reverse-geocoding service groups. Key existence therefore does not prove
+  callable entitlement, and no live probe is attempted while the account is
+  unverified.
+- No recharge or traffic-package purchase is useful at this stage: identity
+  certification is the prerequisite that changes the account entitlement.
+  After certification, inspect the actual console quota/QPS first. Purchase is
+  considered only when the certified account's granted monthly quota or QPS is
+  insufficient; it is not a substitute for certification.
+
 ## Evidence
 
 | Claim | Primary source | Version/date | Design implication |
@@ -72,9 +94,64 @@ security boundaries.
 | Amap coordinates in mainland use GCJ-02; non-Amap coordinates must be converted before use with Amap | [Amap coordinate conversion](https://lbs.amap.com/api/javascript-api-v2/guide/transform/convertfrom) | Updated 2024-07-29 | Persist `GCJ-02` explicitly and keep longitude/latitude to the documented six-decimal request precision |
 | Responses use `status`, `info`, and `infocode`; documented failures include invalid/expired Key, unavailable service, quota exhaustion, frequency limit, IP/domain/signature mismatch, busy service, and exhausted paid balance | [Amap error-code reference](https://lbs.amap.com/api/webservice/guide/tools/info) | Updated 2022-10-12 | Normalize provider outcomes at the adapter; retry only bounded transient/busy failures and never retry auth, permission, quota, or invalid-input outcomes blindly |
 | Production Web Service Keys should use the server outbound-IP allowlist | [Amap Web Service IP allowlist FAQ](https://lbs.amap.com/faq/webservice/webservice-api/basic-configuration/43238) | Accessed 2026-09-02 | Key remains in server configuration and calls originate from known release egress; `10005` is a configuration fault, not a customer retry |
-| Current published daily quotas distinguish personal and enterprise accounts; the table lists 1,000 enterprise calls/day for input tips and place searches and 3,000,000/day for geocoding/reverse geocoding | [Amap developer certification and quotas](https://lbs.amap.com/faq/account/certification/39670) | Accessed 2026-09-02 | Treat search as the limiting operation; verify the actual account console and QPS before sizing, because the public table is not account entitlement evidence |
+| The current billing table assigns unverified developers `0` monthly quota and `0` QPS for the required service groups; a personal-certified account is listed with 150,000 monthly basic-LBS calls, 1,500,000 JS map initializations, and 5,000 basic-search calls | [Amap base-service billing](https://lbs.amap.com/pages/base_service_price) | Accessed 2026-09-02 | Do not make a live call before certification. After certification, inspect the actual console rather than assuming the public tier applies to this account |
+| Requests consume monthly quota first; only quota above the granted amount requires a paid traffic package, and the published base price is 30 CNY per 10,000 basic-LBS/search calls and 3 CNY per 10,000 map-initialization calls | [Amap service upgrade and pricing](https://lbs.amap.com/upgrade#price) | Accessed 2026-09-02 | Do not recharge speculatively. Reassess capacity only after certification and a normal development usage estimate |
+| Official setup uses a `Web端(JS API)` Key plus security key for JS API 2.0 and a separate `Web服务` Key for Web Service APIs | [Amap JS API prerequisites](https://lbs.amap.com/api/javascript-api-v2/prerequisites), [Amap Web Service Key setup](https://lbs.amap.com/api/webservice/create-project-and-key) | Updated 2024-04-09 and 2026-03-30; accessed 2026-09-02 | The two observed GEOEval Key types match the documented split; their values remain outside version control and product contracts |
 | The agreement describes technical-service licensing and restrictions around provider content and direct storage/cache | [Amap platform service agreement](https://lbs.amap.com/pages/terms/) | Updated 2025-12-03 | Record as reviewed context; the human commercial/legal risk owner accepts the proposed use and does not require a separate engineering Gate in #40 |
 | Amap says Web Service APIs must not be pressure tested | [Amap Web Service application FAQ](https://lbs.amap.com/faq/webservice/webservice-api/basic-configuration/43234) | Accessed 2026-09-02 | Verification uses a few named fixtures and console quota inspection, not a load test |
+
+## Exact Initial API Contract
+
+### Browser interaction
+
+- Load JavaScript API 2.0 with the `Web端(JS API)` Key. For keys created after
+  2021-12-02, configure `securityJsCode` through the documented server proxy and
+  set `window._AMapSecurityConfig.serviceHost = '/_AMapService'` before loading
+  the JS API script.
+- Use `AMap.Map`, `AMap.AutoComplete`, `AMap.PlaceSearch`, and `AMap.Marker`.
+  Constrain both suggestion/search to the Brand-selected city; set strict city
+  limiting, `pageSize: 10`, `pageIndex: 1`, the current `map`, an accessible
+  result `panel`, and `autoFitView: true`.
+- A selected candidate contributes only its POI ID to the GEOEval verify
+  command. Name, address, coordinate, business area, and result order from the
+  browser remain preview data and cannot be committed as facts.
+
+### Server POI verification
+
+- Call `GET https://restapi.amap.com/v5/place/detail` with the server-only
+  `Web服务` Key and exactly one selected `id`. Although the API accepts up to ten
+  IDs separated by `|`, the #40 verification command deliberately accepts one.
+- Request `show_fields=business` only to obtain the optional
+  `business.business_area`. The grouped response may include phone, hours,
+  rating, and other fields; the adapter discards them immediately and returns
+  only the selected minimum facts.
+- Normalize the documented base fields needed by #40: `id`, `name`, `location`,
+  `address`, `pname`, `cityname`, `adname`, `pcode`, `citycode`, and `adcode`.
+  Treat absent fields and string/array response variation defensively.
+
+### Server reverse geocoding
+
+- Call `GET https://restapi.amap.com/v3/geocode/regeo` with the server-only Key,
+  `location=<longitude>,<latitude>` in longitude-first order at no more than six
+  decimal places, `extensions=base`, and JSON output.
+- Use reverse geocoding to verify formatted address and administrative
+  components (`province`, `city`, `district`, `adcode`, `township`, and
+  `towncode`). Do not request nearby POIs, roads, or intersections merely to
+  strengthen confidence. If controlled evidence later proves `extensions=all`
+  necessary for an accepted business-area requirement, revise this contract
+  explicitly rather than widening it silently.
+- A municipality or province-direct county may return an empty city field.
+  Empty values and provider array/string variation are normalized before Brand
+  performs MCA region-coherence checks.
+
+### Result and error classification
+
+- Accept a provider response only when `status = "1"` and
+  `infocode = "10000"`; `info` is retained only as a redacted diagnostic class.
+- Authentication, Key type, permission, signature, domain/IP restriction,
+  quota, QPS, paid balance, and invalid-input errors are non-retryable operator
+  or user outcomes. Only documented busy/engine/transient failures may receive
+  one bounded retry within the total deadline.
 
 ## Proposed Provider Boundary
 
@@ -113,13 +190,13 @@ locality, readiness, and fingerprint consequences.
 
 ## Unknowns and Validation
 
-No controlled call is authorized by this proposal. After the product owner
-separately authorizes account/Key work and a controlled call, the smallest
-validation is:
+No controlled call is useful while the account is unverified and its published
+quota/QPS is zero. After certification and separate controlled-call
+authorization, the smallest validation is:
 
-1. inspect the actual Web(JS API) and Web Service Key types, domain restrictions,
-   JS security-proxy behavior, service grants, daily quota, QPS, outbound-IP
-   allowlist, and applicable pricing without displaying either secret;
+1. inspect the certified account's actual service grants, monthly quota, QPS,
+   allowed release domain, JS security-proxy behavior, fixed outbound IP, and
+   applicable pricing without displaying either secret;
 2. use one approved non-customer storefront and fixtures for an ordinary
    district, municipality, and one special no-county city to test v5 text
    search, v5 ID detail, and v3 reverse geocoding;

@@ -1,16 +1,17 @@
 # Change: Extend Store Brand Evaluation Context
 
-- Status: Product, architecture, and commercial/legal risk direction confirmed
-  with revisions on 2026-09-02; ready for explicit implementation authorization
+- Status: Product, architecture, commercial/legal risk, and external API design
+  direction confirmed on 2026-09-02; ready for explicit implementation
+  authorization, while live activation still requires account follow-up
 - Class: Architectural
 - Owning Issue: [#40](https://github.com/ZETAVI/GEOEval/issues/40)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Downstream consumer: [#26 Query Generator](https://github.com/ZETAVI/GEOEval/issues/26)
 - Decision owners: Product owner and architecture owner; the commercial/legal
   risk owner has reviewed and accepted the provider-terms boundary
-- Authorization: research and proposal documents only; no implementation,
-  Amap Key/application/purchase, Provider call, production change, production
-  data migration, Query change, or deployment
+- Authorization: research, proposal documents, and separately approved Amap
+  application/Key preparation only; no implementation, API purchase, live call,
+  production change, production data migration, Query change, or deployment
 
 ## Why
 
@@ -52,6 +53,9 @@ may use that reset path.
 - Current official Amap place search, POI detail, reverse geocoding, business-
   area, coordinate, Key, quota, error, security, and account guidance research;
   provider terms are retained as context rather than an engineering Gate.
+- Non-secret account-contract preparation: observed JS/Web Service Key types,
+  pending identity entitlement, published zero unverified quota/QPS, exact
+  endpoint/parameter mapping, and post-certification validation plan.
 - A conditional Amap JavaScript API 2.0 map/search interaction, a separate
   server-side Store Location verification adapter, server-sealed receipt, typed
   provider outcomes, and customer-actionable failure fallback.
@@ -80,9 +84,9 @@ may use that reset path.
   Agent-invented location.
 - Automatic choice of a business area from provider ranking; a missing business
   area is represented honestly by a verified address locality fallback.
-- Amap account creation, Key request, enterprise verification, license purchase,
+- Additional Amap credentials, account-type changes, license/traffic purchase,
   work-order submission, controlled call, production migration, or production
-  deployment without separate human authorization.
+  deployment without their separate authorization.
 - Executing the approved development reset, changing current product truth, or
   implementing behavior in this documentation revision.
 
@@ -111,6 +115,10 @@ may use that reset path.
   boundary and accepts the proposed minimum-field use without requiring a
   separate licensing work order in #40. Paid API capacity may be supported if
   account evidence later shows it is needed; purchase remains a separate action.
+- The approved `GEOEval` application now has separate JS and Web Service Key
+  types. The identity review remains pending, so the published account tier has
+  zero quota/QPS and no live call is attempted. Recharge is deferred until a
+  certified account's actual quota proves insufficient.
 
 ## Confirmed Decisions
 
@@ -197,12 +205,13 @@ may use that reset path.
 - Workspace: the current isolated #40 Codex worktree; recover its path from live
   workspace state rather than preserving a machine-local location
 - Writer: the #40 task owner; #26 remains a separate single writer for Query
-- Current phase: Ready for explicit implementation authorization; product,
-  architecture, and commercial/legal risk decisions are confirmed
+- Current phase: API contract preparation complete; ready for explicit
+  implementation authorization, while live-adapter validation waits for
+  identity approval and actual account entitlement
 - PR relationship: documentation-only Partial PR using
   `Part of #40 — does not close`
-- Exit for this task: Draft PR and Issue #40 updated with the accepted risk
-  disposition, then stop before implementation
+- Exit for this task: Draft PR and Issue #40 updated with the non-secret Amap
+  account/API contract evidence, then stop before implementation and live calls
 
 ## Approval Boundary
 
@@ -210,11 +219,13 @@ The product, architecture, and commercial/legal risk decisions above were
 confirmed with the recorded revisions on 2026-09-02. The risk owner explicitly
 accepts proceeding from current official API documentation without a separate
 licensing/storage inquiry. That decision removes the previous external legal
-must-fix but does not authorize code implementation, a development-data reset,
-an Amap Key, API purchase, controlled call, production data, production
-deployment, Query/Parser/Synthesis/report changes, or Provider evaluation calls.
+must-fix. A later explicit action authorized creation of the application and two
+scoped Key types only; it does not authorize code implementation, a
+development-data reset, API purchase, controlled call, production data,
+production deployment, Query/Parser/Synthesis/report changes, or Provider
+evaluation calls.
 
-Implementation still requires an explicit implementation instruction. Key
-creation, API purchase, controlled calls, the destructive development reset,
-Provider calls, and production activation retain their own later authorization
-boundaries.
+Implementation still requires an explicit implementation instruction.
+Additional credential changes, API purchase, controlled calls, the destructive
+development reset, Provider calls, and production activation retain their own
+later authorization boundaries.

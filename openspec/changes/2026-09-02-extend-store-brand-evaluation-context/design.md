@@ -2,9 +2,10 @@
 
 - Product/architecture direction: Confirmed with revisions on 2026-09-02
 - Commercial/legal risk: reviewed and accepted by its human owner on 2026-09-02
-- Remaining live-adapter follow-up: account/Key and controlled contract evidence
-- Current authorization: documents only; no code, Key, purchase, live call, or
-  development-data reset
+- Remaining live-adapter follow-up: certified account entitlement, production
+  allowlists/security proxy, and controlled contract evidence
+- Current authorization: documents plus completed application/Key preparation;
+  no code, purchase, live call, or development-data reset
 
 ## Design Position
 
@@ -51,9 +52,10 @@ tables.
 - **Out:** a reusable map platform, navigation, distance ranking, multi-store Brand,
   Query Prompt/Agent lifecycle, Parser, Synthesis, report, Provider evaluation,
   production activation, and raw provider-data warehousing.
-- **Upstream prerequisites:** accepted industry and MCA reference sources, plus
-  a later approved Web(JS API) Key/security-proxy and Web Service Key
-  configuration for live adapter activation.
+- **Upstream prerequisites:** accepted industry and MCA reference sources. The
+  separate Web(JS API) and Web Service Key types exist; identity approval,
+  release-domain/security-proxy configuration, fixed outbound-IP allowlisting,
+  and actual entitlement evidence remain prerequisites for live activation.
 - **Downstream consumers:** registration and Brand management use the public
   field group; GEO freezes the internal projection; #26 uses the final locality,
   flagship value, and peer characteristics.
@@ -173,7 +175,10 @@ current verified location
 - **Cost and capacity:** autocomplete starts only after a minimum input length
   and is debounced; search returns at most ten candidates. There is no
   background refresh or load test, and metrics are by operation/outcome only.
-  Actual JS/Web Service quota and QPS are checked before validation.
+  The unverified published tier currently grants zero quota/QPS, so no live
+  validation occurs before certification. Actual certified JS/Web Service quota
+  and QPS are checked before validation; purchase is considered only after that
+  evidence, never as a substitute for identity approval.
 - **Observability:** record operation name, normalized outcome/`infocode`,
   latency bucket, retry count, and a request correlation ID. Never record Key,
   full request URL, raw response, sealed receipt, complete input address, or
@@ -184,10 +189,11 @@ current verified location
   click rejection, one ordinary district, one municipality, one special no-
   county city, one no-business-area result, one multiple-area result, and named
   failure responses. No evaluation Provider call and no production data.
-- **Account-contract residual:** official documentation does not prove actual
-  Key grants, response variability, quota, or special-city mapping. Those are
-  follow-ups before live adapter activation, not blockers to fixture-first
-  implementation.
+- **Account-contract residual:** the correct JS/Web Service Key types are
+  observed, but pending identity review means callable entitlement is not yet
+  established. Official documentation also does not prove response variability
+  or special-city mapping. Those are follow-ups before live adapter activation,
+  not blockers to fixture-first implementation.
 
 ## Domain Vocabulary and Ownership
 

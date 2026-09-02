@@ -42,20 +42,26 @@
       collection, v3 fingerprint/snapshot, development reset, rollback, and #26
       dependency direction.
 - [x] Product owner acknowledges the Amap platform-service boundary and states
-      willingness to support paid API capacity if later required; no purchase or
-      account action is authorized yet.
+      willingness to support paid API capacity if later required.
 - [x] Commercial/legal risk owner reviews the provider-terms boundary, accepts
       the proposed minimum-field use, and directs #40 not to require a separate
       licensing/storage work order as an engineering Gate.
 - [x] Keep Key creation, purchase, controlled calls, and production activation
-      as separate action boundaries; risk acceptance does not authorize them.
+      as separate action boundaries; the product owner later authorized only
+      the application/Key preparation boundary.
 
 ## Account-specific Controlled Contract Validation
 
-- [ ] After separate Key/call authorization, inspect the actual Web(JS API) and
-      Web Service Key types, domain restrictions, JS security proxy, service
-      grants, quota/QPS, pricing, and outbound-IP allowlist without revealing
-      credentials.
+- [x] Create the `GEOEval` Amap application plus separate `GEOEval Web JS`
+      (`Web端(JS API)`) and `GEOEval Server` (`Web服务`) credentials after
+      explicit action-time authorization, without recording either credential
+      value.
+- [x] Confirm from the current official billing table that unverified accounts
+      have zero monthly quota and zero QPS for the required service groups;
+      defer live calls and speculative recharge while identity review is pending.
+- [ ] After certification, inspect actual service grants, monthly quota/QPS,
+      pricing, the approved release-domain restriction, JS security proxy, and
+      fixed outbound-IP allowlist without revealing credentials.
 - [ ] Validate one approved non-customer ordinary district, municipality, and
       special no-county city across v5 text search, v5 ID detail, and v3 reverse
       geocoding; do not pressure/load test.
@@ -139,3 +145,20 @@
 - [x] Commit and push the revision to Draft PR #46.
 - [x] Update PR #46 and Issue #40 to show `ready with follow-up`, then stop before
       implementation, Key creation, purchase, controlled calls, or database reset.
+
+## 2026-09-02 Amap Account and API Contract Preparation
+
+- [x] Create the approved Amap application and two scoped Key types; keep all
+      credential values outside Git, Issue/PR text, logs, and design artifacts.
+- [x] Re-read the current official JS API 2.0, Web Service Key, POI detail,
+      reverse-geocoding, error, billing, and service-upgrade documentation.
+- [x] Record the exact initial endpoints, parameters, minimum-field mapping,
+      retry classes, local-only empty allowlists, and production hardening
+      boundary in the Source Brief.
+- [x] Record that pending identity verification currently means zero published
+      quota/QPS and that recharge does not replace certification.
+- [ ] After identity approval, inspect actual console entitlement and run only
+      the named bounded non-customer contract fixtures after separate live-call
+      authorization; do not pressure/load test.
+- [ ] Do not begin #40 implementation until the product owner explicitly
+      authorizes the fixed design package.
