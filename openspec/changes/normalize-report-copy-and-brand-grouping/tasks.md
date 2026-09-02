@@ -16,8 +16,8 @@
       type, build, formatting, framework, and diff checks without a real Provider.
 - [x] Run final architecture and fixed-diff code review with no remaining
       must-fix finding.
-- [ ] Publish a Draft PR and update #41 with the evidence and remaining
-      merge/production boundaries.
+- [x] Publish Draft PR #48 and update #41 plus GEOEval Delivery with the
+      evidence and remaining merge/production boundaries.
 
 ## Verification Evidence
 
