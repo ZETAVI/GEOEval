@@ -12,7 +12,7 @@
       Integration Gate without implementing a child capability.
 - [x] Validate the documentation and run fixed-revision architecture, intent,
       engineering and evidence review.
-- [ ] Product owner approves the decision brief, interface registry, dependency
+- [x] Product owner approves the decision brief, interface registry, dependency
       graph and Integration Gate.
 
 ## Stage 2 — Child outcomes

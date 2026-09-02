@@ -84,8 +84,9 @@ safe rollback or compatible forward path.
 
 ## Integration sequence
 
-1. **Parent approval:** approve the decision brief, interfaces, dependencies and
-   Gate. This authorizes no child implementation by itself.
+1. **Parent approval — completed 2026-09-02:** approve the decision brief,
+   interfaces, dependencies and Gate. This authorizes no child implementation
+   by itself.
 2. **Independent producer work:** #40, #32, #41 and #44 may continue or complete
    only inside their separately approved Issue-level boundaries. #32/#41 keep
    disjoint per-sample versus cross-sample ownership.
@@ -132,9 +133,10 @@ tests, a Draft PR or this proposal cannot satisfy that row.
   source inventory; current specs remain unchanged.
 - Child acceptance impact: each child reconciles its owner-local current spec,
   executable contract and architecture overview as applicable.
-- Parent stopping condition for this PR: documents and hashes verify, fixed diff
-  review has no unresolved material finding, Draft PR exists, Issue #39 links
-  the review pack, and phase remains `Propose → Approve`.
+- Parent stopping condition for this session: documents and hashes verify, fixed
+  diff review has no unresolved material finding, product approval is recorded,
+  PR #45 remains scoped to this session, and its Partial PR association with
+  Issue #39 is verified without a closing relationship.
 - Parent completion condition: every Integration Gate row passes or has explicit
   owner-approved risk disposition, current truth is reconciled, the Change is
   archived, and branch/worktree exit is recorded.

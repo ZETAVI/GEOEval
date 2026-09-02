@@ -91,6 +91,17 @@ No unresolved `must-fix` or `should-fix` finding remains.
 - Live Issue/PR/dependency state can drift and must be reread at each activation
   and the final Gate.
 
-Overall result: `ready for Draft PR review`; product meaning and the parent
-integration contract remain unapproved until the product owner explicitly
-accepts the Propose package.
+Overall pre-approval result: `ready for Draft PR review`.
+
+## Product-owner disposition
+
+The product owner approved D1–D9, the preserved meaning, the interface registry,
+the native dependency graph and the Integration Gate on 2026-09-02. The approval
+is recorded in
+[Issue #39](https://github.com/ZETAVI/GEOEval/issues/39#issuecomment-5505659279).
+
+Disposition: `ready for Partial PR integration review`. PR #45 remains limited
+to this session's research archive and parent contract. Approval does not extend
+to PR merge, child implementation outside an owning Issue, real Provider calls,
+production deployment, customer-data migration, API purchase or production
+content telemetry.

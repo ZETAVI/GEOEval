@@ -1,11 +1,12 @@
 # Change: 收束 M4 评测质量、效率与等待体验
 
-- Status: Proposed; awaiting product-owner approval before this parent advances
-  any child beyond its separately recorded boundary or admits it to integration
+- Status: Parent contract approved on 2026-09-02; Partial PR integration remains
+  pending and child work continues only inside each owning Issue
 - Class: Architectural parent
 - Owning Issue: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owners: Product owner and architecture owner
-- Implementation authorization: None from this Change
+- Implementation authorization: Parent coordination only; this Change does not
+  replace any child Issue's implementation or external-operation authority
 
 ## Why
 
@@ -60,15 +61,20 @@ Change 的 [decision brief](decision-brief.md) 收口供审批。
 Brand Knowledge、Evaluation Definition、Evaluation Evidence、Evaluation Report、
 Notification、架构概览和可执行契约分别拥有。
 
-本 Propose 阶段不修改任何 current spec。最终接受的子 Change 必须分别对账其
-owner-local current owner；父 Change 仅在所有集成 Gate 通过后完成最终对账和归档。
+本父 Change 的批准不修改任何 current spec。最终接受的子 Change 必须分别对账
+其 owner-local current owner；父 Change 仅在所有集成 Gate 通过后完成最终对账和
+归档。
 
-## Approval Boundary
+## Approval Result and Remaining Boundary
 
-产品负责人批准前，本分支只允许审查和修订父 Change；它既不暂停已有子 Issue
-的独立授权，也不为其增加实现权限。父级批准必须明确覆盖：
+产品负责人于 2026-09-02
+[批准](https://github.com/ZETAVI/GEOEval/issues/39#issuecomment-5505659279)
+以下父级边界：
 
 1. [decision brief](decision-brief.md) 中 D1–D9 的产品含义；
 2. [design](design.md) 中七个 producer/consumer 契约与依赖顺序；
 3. 未确认项继续留在对应子 Issue，不被本 Change 默认为已批准；
 4. 最终真实 4×5 仍需独立 Provider 调用授权，生产遥测内容仍需独立数据与保留审批。
+
+该批准允许按依赖图继续子任务协调，但不授权合并本 PR、扩大任何子 Issue、调用
+真实 Provider、部署、迁移客户数据、采购 API 或启用生产内容遥测。

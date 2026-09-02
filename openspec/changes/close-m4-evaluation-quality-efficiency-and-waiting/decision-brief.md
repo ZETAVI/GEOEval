@@ -2,7 +2,10 @@
 
 ## State and authority
 
-- Review state: `Propose → Approve`
+- Review state: Approved on 2026-09-02; child delivery coordination may proceed
+  within the approved dependency graph
+- Approval evidence:
+  [Issue #39 product-owner record](https://github.com/ZETAVI/GEOEval/issues/39#issuecomment-5505659279)
 - Confirmed-decision source: owning Issue
   [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Research inputs:
@@ -40,7 +43,7 @@
 - Notification remains a durable inbox with SSE as a recoverable refresh hint;
   M4 progress does not introduce a second notification or realtime authority.
 
-## Not yet approved
+## Child-owned decisions not approved by this parent
 
 These choices remain with the named child Issue and are not implied by D1–D9:
 
@@ -59,10 +62,10 @@ No exact three-minute or five-minute customer SLA is confirmed. The transcript
 contains both numbers as discussion, while #42 must establish a measured baseline,
 budget and acceptance threshold before such a promise can become current truth.
 
-## Approval request
+## Approval result
 
-The product owner is asked to approve D1–D9, the preserved meaning, the child
-ownership of open decisions, and the integration dependency graph. Approval does
-not authorize implementation outside a child Issue, any real Provider call,
-production deployment, API purchase, customer-data migration or production
-content telemetry.
+The product owner approved D1–D9, the preserved meaning, the child ownership of
+open decisions, and the integration dependency graph on 2026-09-02. The approval
+does not authorize implementation outside a child Issue, PR merge, any real
+Provider call, production deployment, API purchase, customer-data migration or
+production content telemetry.
