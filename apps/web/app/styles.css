@@ -1855,33 +1855,25 @@ a {
 .store-location-map.is-ready {
   display: block;
 }
-.location-candidate-list {
+.amap-place-picker {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr);
+  gap: 10px;
+  align-items: stretch;
 }
-.location-candidate-list > button {
-  display: grid;
-  gap: 4px;
-  padding: 11px 12px;
+.amap-place-picker:has(.amap-place-search-panel:empty) {
+  grid-template-columns: 1fr;
+}
+.amap-place-search-panel {
+  min-width: 0;
+  max-height: 320px;
+  overflow: auto;
   border: 1px solid #d5ded8;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fff;
-  color: #263a30;
-  text-align: left;
 }
-.location-candidate-list > button:hover {
-  border-color: #7dab90;
-  background: #f7fbf8;
-}
-.location-candidate-list strong {
-  font-size: 0.78rem;
-}
-.location-candidate-list span {
-  color: #6b776f;
-  font-size: 0.68rem;
-  line-height: 1.45;
+.amap-place-search-panel:empty {
+  display: none;
 }
 .verified-location-card {
   display: grid;
@@ -1899,34 +1891,6 @@ a {
   color: #277149;
   font-size: 0.64rem;
   font-weight: 800;
-}
-.verified-location-card fieldset {
-  margin: 6px 0 0;
-  padding: 0;
-}
-.verified-location-card fieldset label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 6px 0 0;
-  padding: 9px 10px;
-  border: 1px solid #d4dfd8;
-  border-radius: 9px;
-  background: #fff;
-}
-.verified-location-card input[type="radio"] {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-}
-.verified-location-card label span {
-  display: flex;
-  gap: 8px;
-  color: #3f5047;
-  font-size: 0.75rem;
-}
-.verified-location-card label b {
-  color: #28714a;
 }
 .location-status {
   margin: 9px 0 0;
@@ -2468,7 +2432,6 @@ a {
   .triple-fields {
     grid-template-columns: 1fr;
   }
-  .location-candidate-list,
   .characteristic-list {
     grid-template-columns: 1fr;
   }
@@ -2477,6 +2440,12 @@ a {
   }
   .store-location-map {
     min-height: 190px;
+  }
+  .amap-place-picker {
+    grid-template-columns: 1fr;
+  }
+  .amap-place-search-panel {
+    max-height: 280px;
   }
   .brand-editor {
     max-height: calc(100vh - 20px);

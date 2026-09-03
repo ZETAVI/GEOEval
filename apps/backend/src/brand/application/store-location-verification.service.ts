@@ -23,10 +23,7 @@ import {
   BrandReferenceValidationError,
 } from "../reference-data/brand-reference-data.js";
 import { normalizeText } from "../domain/brand-profile.js";
-import {
-  StoreLocationReceiptCodec,
-  type StoreLocationCandidate,
-} from "./store-location-receipt.js";
+import { StoreLocationReceiptCodec } from "./store-location-receipt.js";
 
 export type StoreLocationVerificationView = {
   targetBrandId: string;
@@ -38,7 +35,10 @@ export type StoreLocationVerificationView = {
     coordinate: { longitude: number; latitude: number; system: "GCJ_02" };
     officialRegion: ReturnType<BrandReferenceData["deriveOfficialRegion"]>;
   };
-  localityCandidates: StoreLocationCandidate[];
+  queryLocality: {
+    kind: "BUSINESS_AREA" | "ADDRESS_LOCALITY";
+    label: string;
+  };
 };
 
 @Injectable()
@@ -142,7 +142,7 @@ export class StoreLocationVerificationService {
       }
       throw error;
     }
-    const localityCandidates = createLocalityCandidates(
+    const queryLocality = deriveQueryLocality(
       evidence.businessAreaLabels,
       evidence.formattedAddress,
       evidence.placeName,
@@ -168,7 +168,7 @@ export class StoreLocationVerificationService {
         verifiedAt: evidence.verifiedAt.toISOString(),
       },
       officialRegion,
-      localityCandidates,
+      queryLocality,
     });
     return {
       targetBrandId,
@@ -179,7 +179,7 @@ export class StoreLocationVerificationService {
         coordinate: evidence.coordinate,
         officialRegion,
       },
-      localityCandidates,
+      queryLocality,
     };
   }
 }
@@ -199,26 +199,20 @@ function verificationOutcome(error: unknown): string {
   return "UNEXPECTED_FAILURE";
 }
 
-function createLocalityCandidates(
+function deriveQueryLocality(
   businessAreaLabels: string[],
   formattedAddress: string,
   placeName: string,
-): StoreLocationCandidate[] {
-  const labels = [
-    ...new Set(businessAreaLabels.map(normalizeText).filter(Boolean)),
-  ].slice(0, 10);
-  if (labels.length > 0) {
-    return labels.map((label, index) => ({
-      id: `business-area-${index + 1}`,
+): StoreLocationVerificationView["queryLocality"] {
+  const businessArea = businessAreaLabels.map(normalizeText).find(Boolean);
+  if (businessArea) {
+    return {
       kind: "BUSINESS_AREA",
-      label,
-    }));
+      label: businessArea,
+    };
   }
-  return [
-    {
-      id: "address-locality-1",
-      kind: "ADDRESS_LOCALITY",
-      label: normalizeText(formattedAddress) || normalizeText(placeName),
-    },
-  ];
+  return {
+    kind: "ADDRESS_LOCALITY",
+    label: normalizeText(formattedAddress) || normalizeText(placeName),
+  };
 }

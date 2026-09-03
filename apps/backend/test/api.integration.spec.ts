@@ -113,7 +113,7 @@ describe("customer-entry HTTP contract", () => {
     expect(verificationResponse.status).toBe(201);
     const verification = (await verificationResponse.json()) as {
       verificationReceipt: string;
-      localityCandidates: Array<{ id: string; label: string }>;
+      queryLocality: { kind: string; label: string };
       locationPreview: {
         officialRegion: { terminal: { label: string } };
       };
@@ -121,10 +121,10 @@ describe("customer-entry HTTP contract", () => {
     expect(verification.locationPreview.officialRegion.terminal.label).toBe(
       "海珠区",
     );
-    expect(verification.localityCandidates.map((item) => item.label)).toEqual([
-      "赤岗",
-      "客村",
-    ]);
+    expect(verification.queryLocality).toEqual({
+      kind: "BUSINESS_AREA",
+      label: "赤岗",
+    });
     const brandResponse = await fetch(`${baseUrl}/brands`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie },
@@ -139,7 +139,6 @@ describe("customer-entry HTTP contract", () => {
         locationChange: {
           action: "REPLACE",
           verificationReceipt: verification.verificationReceipt,
-          localityCandidateId: verification.localityCandidates[0]!.id,
         },
       }),
     });

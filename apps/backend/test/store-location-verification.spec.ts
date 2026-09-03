@@ -28,7 +28,7 @@ describe("Store Location verification service", () => {
     { export: async () => undefined } as never,
   );
 
-  it("derives the exact region and returns bounded locality candidates", async () => {
+  it("derives the exact region and automatically selects one locality", async () => {
     const result = await service.verify(accountId, {
       searchInput: " 广州塔 ",
       providerPlaceId: "fixture-guangzhou-tower",
@@ -39,14 +39,15 @@ describe("Store Location verification service", () => {
       city: { label: "广州市" },
       terminal: { label: "海珠区", officialLevel: "COUNTY" },
     });
-    expect(result.localityCandidates).toEqual([
-      { id: "business-area-1", kind: "BUSINESS_AREA", label: "赤岗" },
-      { id: "business-area-2", kind: "BUSINESS_AREA", label: "客村" },
-    ]);
+    expect(result.queryLocality).toEqual({
+      kind: "BUSINESS_AREA",
+      label: "赤岗",
+    });
     expect(receiptCodec.verify(result.verificationReceipt)).toMatchObject({
       accountId,
       targetBrandId: result.targetBrandId,
       searchInput: "广州塔",
+      queryLocality: { kind: "BUSINESS_AREA", label: "赤岗" },
     });
   });
 
@@ -55,13 +56,10 @@ describe("Store Location verification service", () => {
       searchInput: "故宫博物院",
       providerPlaceId: "fixture-palace-museum",
     });
-    expect(result.localityCandidates).toEqual([
-      {
-        id: "address-locality-1",
-        kind: "ADDRESS_LOCALITY",
-        label: "北京市东城区景山前街4号",
-      },
-    ]);
+    expect(result.queryLocality).toEqual({
+      kind: "ADDRESS_LOCALITY",
+      label: "北京市东城区景山前街4号",
+    });
   });
 
   it("rejects an unowned existing Brand and an unknown provider place", async () => {

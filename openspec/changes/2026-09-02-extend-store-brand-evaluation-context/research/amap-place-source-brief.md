@@ -66,9 +66,9 @@ credential boundaries remain unchanged.
   server verifies structure and derives one exact maintained region path;
   neither the Agent nor the client may invent a place, region, or business area.
 - Search and input-tip quotas are materially lower than geocoding quotas in the
-  current official table. Autocomplete therefore starts only after a minimum
-  input length, is debounced, and never loads unbounded pages; an explicit
-  search remains available.
+  current official table. Explicit search therefore requires two characters
+  and never loads unbounded pages; Amap AutoComplete owns its request timing and
+  dropdown instead of a second GEOEval request layer.
 - No pressure/load test is permitted. Capacity evidence must come from account
   quota inspection and ordinary bounded validation only.
 
@@ -194,7 +194,8 @@ deployment remain separate evidence.
 | Place Search 2.0 supports keyword, nearby, polygon, and ID search; text search can be region-scoped and strictly limited with `city_limit`; ID detail accepts up to ten IDs | [Amap Place Search 2.0](https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch) | Updated 2026-07-15; accessed 2026-09-02 | Use JavaScript API 2.0 for interactive candidate discovery and server-side v5 ID detail for authoritative verification; reserve server-side v5 text search for a separately justified fallback and do not treat result ordering as product truth |
 | Place results expose POI ID, name, address, coordinate, province/city/district names and codes; `business.business_area` is optional through `show_fields` | [Amap Place Search 2.0](https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch) | Updated 2026-07-15 | Request only the minimum fields; model absence as normal and never require provider rating, phone, photos, or commercial metadata |
 | Reverse geocoding returns structured address components and, with extended output, business-area, POI, AOI, road, and neighborhood information | [Amap geocoding and reverse geocoding](https://lbs.amap.com/api/webservice/guide/api/georegeo) | Updated 2026-02-02 | Reverify the selected coordinate server-side; derive bounded business-area candidates and a precise address fallback without copying the raw response |
-| JS API 2.0 provides `AMap.AutoComplete` and `AMap.PlaceSearch`; `PlaceSearch` can draw results on an `AMap.Map`, populate a panel, constrain a city, and auto-fit markers | [Amap JS API input tips and POI search](https://lbs.amap.com/api/javascript-api-v2/guide/services/autocomplete), [Amap map POI search](https://lbs.amap.com/api/javascript-api-v2/tutorails/search-poi) | Updated 2026-07-15 and 2024-07-12 | Adopt a responsive map plus accessible candidate list; cap results at ten and treat every browser result as untrusted until server verification |
+| JS API 2.0 provides `AMap.AutoComplete` and `AMap.PlaceSearch`; `PlaceSearch` can draw results on an `AMap.Map`, populate its own panel, and auto-fit markers | [Amap JS API input tips and POI search](https://lbs.amap.com/api/javascript-api-v2/guide/services/autocomplete), [Amap map POI search](https://lbs.amap.com/api/javascript-api-v2/tutorails/search-poi) | Updated 2026-07-15 and 2024-07-12 | Let Amap own autocomplete, result presentation, Markers, and viewport fitting; cap results at ten and treat every browser result as untrusted until server verification |
+| `PlaceSearch` emits `selectChanged`, `markerClick`, and `listElementClick`, and the selected event carries the POI ID/data plus its matching Marker and panel element | [Amap PlaceSearch reference](https://lbs.amap.com/api/maps-javascript-api/reference/search/placesearch) | Updated 2026-07-02; accessed 2026-09-03 | Listen to `selectChanged` as the single selection seam and do not parse provider results into a GEOEval-owned candidate list or manually duplicate Markers |
 | `AutoComplete.city` and `PlaceSearch.city` default to nationwide search, while `PlaceSearch.citylimit` defaults to `false` | [Amap JS API input tips and POI search](https://lbs.amap.com/api/javascript-api-v2/guide/services/autocomplete), [Amap PlaceSearch reference](https://lbs.amap.com/api/maps-javascript-api/reference/search/placesearch), [Amap map POI search](https://lbs.amap.com/api/javascript-api-v2/tutorails/search-poi) | Updated 2026-07-15, 2026-07-02, and 2024-07-12; accessed 2026-09-03 | Do not require a separate region selector; guide the customer to include city/address/landmark text and show full addresses for disambiguation |
 | `AMap.Map`, AutoComplete/PlaceSearch, and `AMap.Geolocation` are separate capabilities/plugins; map center is optional configuration | [Amap JS API 2.0 reference](https://lbs.amap.com/api/javascript-api-v2/documentation), [Amap geolocation plugin](https://lbs.amap.com/api/javascript-api-v2/guide/services/geolocation) | Updated 2025-09-12; accessed 2026-09-03 | Do not load Geolocation or request browser/device/IP position; initialize a neutral map and fit the view after search results |
 | `AMap.Marker` supports displayed coordinates and click events, while map click events expose a selected longitude/latitude | [Amap Marker](https://lbs.amap.com/api/javascript-api-v2/guide/amap-marker/default-marker), [Amap map lifecycle](https://lbs.amap.com/api/javascript-api-v2/guide/map/lifecycle) | Updated 2024-07-12 and 2023-12-12 | Candidate Marker clicks select POIs; a free map click may reposition or search nearby but cannot directly commit a Store Location |
@@ -220,11 +221,13 @@ deployment remain separate evidence.
   2021-12-02, configure `securityJsCode` through the documented server proxy and
   set `window._AMapSecurityConfig.serviceHost = '/_AMapService'` before loading
   the JS API script.
-- Use `AMap.Map`, `AMap.AutoComplete`, `AMap.PlaceSearch`, and `AMap.Marker`.
+- Use `AMap.Map`, `AMap.AutoComplete`, and `AMap.PlaceSearch`; pass the map,
+  result-panel container, and `autoFitView: true` to `PlaceSearch` so Amap owns
+  its list and Markers.
   Do not set a city/city-limit from a product field. Set `pageSize: 10`,
   `pageIndex: 1`, the current `map`, an accessible result `panel`, and
-  `autoFitView: true`; require keyword guidance and full-address result display
-  to disambiguate same-name stores.
+  `autoFitView: true`; consume `selectChanged` as the single selected-POI event
+  and require full-address result display to disambiguate same-name stores.
 - Do not load `AMap.Geolocation`, call `navigator.geolocation`, infer position
   from IP, or render a current-location control. Search and map interaction must
   work without a permission prompt.
@@ -292,7 +295,7 @@ serverVerifyStoreSelection(providerPlaceId)
   -> verified place detail
   -> reverse-geocoded structured address at the returned coordinate
   -> exactly one derived maintained MCA official-region path
-  -> normalized business-area candidates
+  -> one automatic Query locality
   -> provider outcome and verification timestamp
 ```
 
@@ -300,14 +303,15 @@ The JavaScript boundary owns only transient interaction. The server adapter
 returns typed normalized values and provider error categories and does not
 expose the Web Service Key, raw response, request URL, provider rating, phone,
 photos, reviews, or unrelated POI metadata. Brand application logic—not either
-provider client—checks the account, exact provider-to-MCA derivation, customer-
-confirmed locality, readiness, and fingerprint consequences.
+provider client—checks the account, exact provider-to-MCA derivation, automatic
+locality, readiness, and fingerprint consequences.
 
 ## Alternatives
 
 | Option | Fit | Reason |
 | --- | --- | --- |
 | Hybrid JS map selection plus server Web Service verification | Adopt | Gives the user map confidence while keeping every persisted fact behind account-bound server verification; requires separate JS and Web Service credential boundaries |
+| AMapUI `PoiPicker` | Reject for this implementation | Its older AMapUI 1.1 integration adds another UI/runtime layer and a jQuery/Zepto-era dependency, while current JS API 2.0 `PlaceSearch` already owns the required panel, Markers, viewport, and selection events |
 | Separate three-level region selector plus map search | Reject after 2026-09-03 revision | Creates two customer-visible location standards that can disagree; the verified place already supplies the evidence needed to derive the maintained region identity |
 | Server-only candidate list without a map | Defer as fallback | Smaller credential surface but does not meet the confirmed map-selection preference; retain only as graceful fallback if the map cannot load after entitlement is established |
 | Browser calls Web Service API directly | Reject | Exposes the server credential, defeats IP allowlisting, and lets client-controlled provider data approach Brand persistence |

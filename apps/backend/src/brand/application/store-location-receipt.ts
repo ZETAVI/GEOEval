@@ -29,7 +29,7 @@ const derivedRegionSchema = z.object({
 });
 
 const receiptPayloadSchema = z.object({
-  receiptVersion: z.literal("store-location-verification@1"),
+  receiptVersion: z.literal("store-location-verification@2"),
   verificationId: z.string().uuid(),
   accountId: z.string().uuid(),
   targetBrandId: z.string().uuid(),
@@ -57,23 +57,15 @@ const receiptPayloadSchema = z.object({
     verifiedAt: z.string().datetime(),
   }),
   officialRegion: derivedRegionSchema,
-  localityCandidates: z
-    .array(
-      z.object({
-        id: z.string().min(1).max(80),
-        kind: z.enum(["BUSINESS_AREA", "ADDRESS_LOCALITY"]),
-        label: z.string().min(1).max(240),
-      }),
-    )
-    .min(1)
-    .max(10),
+  queryLocality: z.object({
+    kind: z.enum(["BUSINESS_AREA", "ADDRESS_LOCALITY"]),
+    label: z.string().min(1).max(240),
+  }),
   issuedAt: z.number().int().positive(),
   expiresAt: z.number().int().positive(),
 });
 
 export type StoreLocationReceiptPayload = z.infer<typeof receiptPayloadSchema>;
-export type StoreLocationCandidate =
-  StoreLocationReceiptPayload["localityCandidates"][number];
 
 export class StoreLocationReceiptError extends Error {}
 
@@ -92,14 +84,14 @@ export class StoreLocationReceiptCodec {
   ): { verificationReceipt: string; expiresAt: Date } {
     const issuedAt = this.now().getTime();
     const payload = receiptPayloadSchema.parse({
-      receiptVersion: "store-location-verification@1",
+      receiptVersion: "store-location-verification@2",
       ...input,
       issuedAt,
       expiresAt: issuedAt + this.ttlSeconds * 1000,
     });
     const encodedPayload = encode(JSON.stringify(payload));
     return {
-      verificationReceipt: `v1.${encodedPayload}.${this.sign(encodedPayload)}`,
+      verificationReceipt: `v2.${encodedPayload}.${this.sign(encodedPayload)}`,
       expiresAt: new Date(payload.expiresAt),
     };
   }
@@ -108,7 +100,7 @@ export class StoreLocationReceiptCodec {
     const [version, encodedPayload, providedSignature, extra] =
       receipt.split(".");
     if (
-      version !== "v1" ||
+      version !== "v2" ||
       !encodedPayload ||
       !providedSignature ||
       extra !== undefined

@@ -6,9 +6,6 @@ export class BrandLocationChangeRequest {
 
   @ApiPropertyOptional({ type: String })
   verificationReceipt?: string;
-
-  @ApiPropertyOptional({ type: String })
-  localityCandidateId?: string;
 }
 
 export class BrandMutationRequest {
@@ -203,17 +200,6 @@ export class StoreLocationVerificationRequest {
   providerPlaceId!: string;
 }
 
-export class StoreLocationCandidateResponse {
-  @ApiProperty({ type: String })
-  id!: string;
-
-  @ApiProperty({ type: String, enum: ["BUSINESS_AREA", "ADDRESS_LOCALITY"] })
-  kind!: string;
-
-  @ApiProperty({ type: String })
-  label!: string;
-}
-
 export class StoreLocationVerificationResponse {
   @ApiProperty({ type: String })
   targetBrandId!: string;
@@ -227,6 +213,6 @@ export class StoreLocationVerificationResponse {
   @ApiProperty({ type: StoreLocationPreviewResponse })
   locationPreview!: StoreLocationPreviewResponse;
 
-  @ApiProperty({ type: [StoreLocationCandidateResponse] })
-  localityCandidates!: StoreLocationCandidateResponse[];
+  @ApiProperty({ type: QueryLocalityResponse })
+  queryLocality!: QueryLocalityResponse;
 }

@@ -80,8 +80,8 @@ in readiness, fingerprinting, or evaluation projection.
 - **GIVEN** an authenticated customer is creating or editing a Brand
 - **WHEN** the customer submits a specific store name plus city, landmark, or
   address text
-- **THEN** Web presents an Amap JS API map, bounded autocomplete/search,
-  selectable POI Markers, and an accessible full-address list
+- **THEN** Web delegates autocomplete, the full-address result panel, POI
+  Markers, viewport fitting, and result selection to Amap JS API `PlaceSearch`
 - **AND** no separate province/city/terminal selector is present
 - **AND** Web does not load Geolocation, request browser/device/IP position, or
   show a current-location action by default
@@ -118,8 +118,8 @@ in readiness, fingerprinting, or evaluation projection.
 
 #### Scenario: A verified location is committed
 
-- **WHEN** a valid unconsumed verification receipt and permitted Query locality
-  choice are submitted with a Brand mutation
+- **WHEN** a valid unconsumed verification receipt is submitted with a Brand
+  mutation
 - **THEN** Brand atomically stores the minimum approved structured Store
   Location, source provenance, receipt-consumption state, and final locality
   with the profile update
@@ -139,22 +139,23 @@ in readiness, fingerprinting, or evaluation projection.
 
 ### Requirement: Honest Query locality
 
-Brand Knowledge SHALL expose either one customer-selected verified business area
-or one precise verified address locality and SHALL preserve the distinction.
+Brand Knowledge SHALL automatically expose either one verified business area or
+one precise verified address locality and SHALL preserve the distinction.
 
 #### Scenario: Provider evidence contains business areas
 
 - **WHEN** verified place and reverse-geocode evidence contains one or more
-  bounded business-area candidates
-- **THEN** Brand de-duplicates them in deterministic order and asks the customer
-  to select one
-- **AND** only that selected candidate becomes the final Query locality
-- **AND** provider ranking or Agent inference does not make the choice.
+  bounded business-area labels
+- **THEN** Brand de-duplicates them in deterministic evidence order
+- **AND** automatically uses the selected POI detail business area first, then
+  the first reverse-geocode business area
+- **AND** the customer, browser, and Agent cannot substitute another locality.
 
 #### Scenario: Provider evidence contains no business area
 
 - **WHEN** a verified Store Location has no business-area candidate
-- **THEN** Brand offers a precise verified address/place locality with kind
+- **THEN** Brand automatically uses a precise verified address/place locality
+  with kind
   `ADDRESS_LOCALITY`
 - **AND** customer and Query projections do not label it as a business area
 - **AND** Query may phrase it naturally without changing or inventing it.

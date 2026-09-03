@@ -36,4 +36,18 @@ describe("shared Brand v3 fields", () => {
     expect(source).toContain("NEXT_PUBLIC_AMAP_JS_KEY");
     expect(source).toContain("/_AMapService");
   });
+
+  it("delegates candidate presentation and selection to Amap", () => {
+    const source = readFileSync(
+      new URL("../app/brands/store-location-picker.tsx", import.meta.url),
+      "utf8",
+    );
+    expect(source).toContain("panel: panelId");
+    expect(source).toContain('event: "selectChanged"');
+    expect(source).toContain("autoFitView: true");
+    expect(source).toContain("service.clear()");
+    expect(source).not.toContain("location-candidate-list");
+    expect(source).not.toContain("localityCandidateId");
+    expect(source).not.toContain('type="radio"');
+  });
 });

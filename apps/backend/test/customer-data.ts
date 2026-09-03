@@ -40,7 +40,6 @@ export function readyCoffeeBrandInput(
     locationChange: {
       action: "REPLACE",
       verificationReceipt: issued,
-      localityCandidateId: "business-area-1",
     },
   };
 }
@@ -48,7 +47,7 @@ export function readyCoffeeBrandInput(
 export function replacementStoreLocationInput(
   accountId: string,
   brandId: string,
-  localityCandidateId = "business-area-1",
+  localityLabel = "赤岗",
 ): BrandMutationInput {
   return {
     locationChange: {
@@ -57,8 +56,8 @@ export function replacementStoreLocationInput(
         accountId,
         targetBrandId: brandId,
         targetKind: "EXISTING_BRAND",
+        localityLabel,
       }),
-      localityCandidateId,
     },
   };
 }
@@ -67,12 +66,14 @@ function issueStoreLocationReceipt(input: {
   accountId: string;
   targetBrandId: string;
   targetKind: "NEW_BRAND" | "EXISTING_BRAND";
+  localityLabel?: string;
 }): string {
   receiptNowMs += 1;
   const receiptNow = new Date(receiptNowMs);
+  const { localityLabel = "赤岗", ...receiptBinding } = input;
   return TEST_STORE_LOCATION_RECEIPTS.issue({
     verificationId: randomUUID(),
-    ...input,
+    ...receiptBinding,
     searchInput: "广州塔",
     evidence: {
       providerPlaceId: "fixture-guangzhou-tower",
@@ -96,10 +97,10 @@ function issueStoreLocationReceipt(input: {
       adcode: "440105",
       towncode: "440105001000",
     }),
-    localityCandidates: [
-      { id: "business-area-1", kind: "BUSINESS_AREA", label: "赤岗" },
-      { id: "business-area-2", kind: "BUSINESS_AREA", label: "客村" },
-    ],
+    queryLocality: {
+      kind: "BUSINESS_AREA",
+      label: localityLabel,
+    },
   }).verificationReceipt;
 }
 

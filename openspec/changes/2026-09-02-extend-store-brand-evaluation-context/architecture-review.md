@@ -30,10 +30,10 @@ the remaining activation detail stays in this active Change.
   derived MCA official region, peer characteristics, v3 readiness/fingerprint,
   and evaluation projection. Separate customer-writable region fields disappear
   after the authorized development reset.
-- Web gains one Amap JavaScript API 2.0 map picker with a domain-restricted JS
-  Key, server security-key proxy, nationwide candidate list, and POI Markers.
-  It does not load Geolocation or ask for current position. Browser facts remain
-  untrusted.
+- Web gains one Amap JavaScript API 2.0 picker with a domain-restricted JS Key,
+  server security-key proxy, and an Amap-owned autocomplete/result panel/map/
+  Marker interaction. It does not load Geolocation or ask for current position.
+  Browser facts remain untrusted.
 - A Brand-owned infrastructure adapter maps Amap place detail/reverse-geocoding
   into typed evidence; no other module imports it.
 - Web uses generated GEOEval APIs and a server-sealed receipt; it never owns
@@ -116,8 +116,8 @@ the remaining activation detail stays in this active Change.
   and no generic location module is introduced.
 - **Receipt and minimization:** a signed exact-target-Brand receipt prevents
   cross-account/Brand mutation, a server-generated target ID prevents duplicate
-  create from the same receipt, and only the final customer locality—not the
-  candidate set—becomes durable.
+  create from the same receipt, and contains only one automatically derived
+  Query locality rather than a client-selectable candidate set.
 - **Development data:** an exact non-production preflight plus empty-database
   rebuild removes v1/v2 migration complexity. The destructive path is explicitly
   unavailable once production/customer data exists.
@@ -226,11 +226,14 @@ only the immutable v3 projection. No generic map/provider registry, search
 session database, Redis cache, raw provider persistence, or Query-to-Brand
 reach-through was added.
 
-The real JS map, accessible candidate list, bounded security proxy, selected-POI
-server verification, sealed-receipt commit, business-area choice, and real
-address-locality fallback are desktop Chrome-proven with credentials held only
-in process memory. Ten bounded multi-store search/detail/reverse chains across
-eight cities also passed. Narrow-screen Chrome emulation, production domain/IP
+The prior real JS map, Amap candidate search, bounded security proxy,
+selected-POI server verification, sealed-receipt commit, and real address-
+locality fallback are desktop Chrome-proven with credentials held only in
+process memory. The fixed diff now delegates the result panel/Markers to Amap
+and removes the second business-area choice; focused contract/component tests
+cover that new boundary. Ten bounded multi-store search/detail/reverse chains
+across eight cities also passed. Credentialed narrow-screen Chrome validation,
+production domain/IP
 allowlists, technical-service activation, shared-development reset, #26
 adaptation, merge, and release remain explicit follow-ups; this review does not
 claim them.

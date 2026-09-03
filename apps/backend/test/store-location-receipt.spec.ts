@@ -18,13 +18,13 @@ describe("Store Location verification receipt", () => {
     const issued = codec.issue(payload());
 
     expect(issued.expiresAt.toISOString()).toBe("2026-09-03T00:15:00.000Z");
+    expect(issued.verificationReceipt.startsWith("v2.")).toBe(true);
     expect(codec.verify(issued.verificationReceipt)).toMatchObject({
       accountId,
       targetBrandId,
       verificationId,
-      localityCandidates: [
-        { id: "business-area-1", kind: "BUSINESS_AREA", label: "赤岗" },
-      ],
+      receiptVersion: "store-location-verification@2",
+      queryLocality: { kind: "BUSINESS_AREA", label: "赤岗" },
     });
   });
 
@@ -36,6 +36,9 @@ describe("Store Location verification receipt", () => {
     const altered = `${parts[0]}.${parts[1]}x.${parts[2]}`;
 
     expect(() => codec.verify(altered)).toThrow(StoreLocationReceiptError);
+    expect(() => codec.verify(receipt.replace(/^v2\./, "v1."))).toThrow(
+      "门店验证凭证格式无效",
+    );
     now = new Date("2026-09-03T00:15:00.000Z");
     expect(() => codec.verify(receipt)).toThrow("门店验证已过期");
   });
@@ -70,8 +73,6 @@ function payload() {
       adcode: "440105",
       towncode: "440105001000",
     }),
-    localityCandidates: [
-      { id: "business-area-1", kind: "BUSINESS_AREA" as const, label: "赤岗" },
-    ],
+    queryLocality: { kind: "BUSINESS_AREA" as const, label: "赤岗" },
   };
 }

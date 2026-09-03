@@ -3580,9 +3580,6 @@
           },
           "verificationReceipt": {
             "type": "string"
-          },
-          "localityCandidateId": {
-            "type": "string"
           }
         },
         "required": [
@@ -3747,29 +3744,6 @@
           "officialRegion"
         ]
       },
-      "StoreLocationCandidateResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "kind": {
-            "type": "string",
-            "enum": [
-              "BUSINESS_AREA",
-              "ADDRESS_LOCALITY"
-            ]
-          },
-          "label": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "kind",
-          "label"
-        ]
-      },
       "StoreLocationVerificationResponse": {
         "type": "object",
         "properties": {
@@ -3786,11 +3760,8 @@
           "locationPreview": {
             "$ref": "#/components/schemas/StoreLocationPreviewResponse"
           },
-          "localityCandidates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/StoreLocationCandidateResponse"
-            }
+          "queryLocality": {
+            "$ref": "#/components/schemas/QueryLocalityResponse"
           }
         },
         "required": [
@@ -3798,7 +3769,7 @@
           "verificationReceipt",
           "expiresAt",
           "locationPreview",
-          "localityCandidates"
+          "queryLocality"
         ]
       }
     }

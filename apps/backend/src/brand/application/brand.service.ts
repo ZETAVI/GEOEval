@@ -91,17 +91,17 @@ export class BrandService {
       : null;
     if (
       receipt &&
-      (await this.repository.find(accountId, receipt.payload.targetBrandId))
+      (await this.repository.find(accountId, receipt.targetBrandId))
     ) {
       throw new BadRequestException("门店验证凭证已使用，请重新选择门店");
     }
     const storeLocation = receipt
-      ? locationFromReceipt(receipt.payload, receipt.candidate, randomUUID())
+      ? locationFromReceipt(receipt, randomUUID())
       : null;
     let created: BrandProfileView;
     try {
       created = await this.repository.create({
-        ...(receipt ? { brandId: receipt.payload.targetBrandId } : {}),
+        ...(receipt ? { brandId: receipt.targetBrandId } : {}),
         accountId,
         fields,
         storeLocation,
@@ -244,30 +244,20 @@ export class BrandService {
       "EXISTING_BRAND",
       brandId,
     );
-    if (current?.verificationId === receipt.payload.verificationId) {
+    if (current?.verificationId === receipt.verificationId) {
       throw new BadRequestException("门店验证凭证已使用，请重新选择门店");
     }
-    if (
-      current &&
-      receipt.payload.issuedAt <= current.receiptIssuedAt.getTime()
-    ) {
+    if (current && receipt.issuedAt <= current.receiptIssuedAt.getTime()) {
       throw new BadRequestException("门店验证凭证已过期，请重新选择门店");
     }
     const candidate = {
-      providerPlaceId: receipt.payload.evidence.providerPlaceId,
-      queryLocality: {
-        kind: receipt.candidate.kind,
-        label: receipt.candidate.label,
-      },
+      providerPlaceId: receipt.evidence.providerPlaceId,
+      queryLocality: receipt.queryLocality,
     };
     const semanticFactId = sameStoreLocationMeaning(current, candidate)
       ? current!.semanticFactId
       : randomUUID();
-    return locationFromReceipt(
-      receipt.payload,
-      receipt.candidate,
-      semanticFactId,
-    );
+    return locationFromReceipt(receipt, semanticFactId);
   }
 
   private verifyReceipt(
@@ -292,13 +282,7 @@ export class BrandService {
     ) {
       throw new BadRequestException("门店验证凭证不属于当前品牌");
     }
-    const candidate = payload.localityCandidates.find(
-      (item) => item.id === change.localityCandidateId,
-    );
-    if (!candidate) {
-      throw new BadRequestException("请选择本次验证返回的位置范围");
-    }
-    return { payload, candidate };
+    return payload;
   }
 
   private assertIndustrySelection(fields: BrandProfileFields): void {
@@ -405,7 +389,6 @@ const brandMutationSchema = z
           .object({
             action: z.literal("REPLACE"),
             verificationReceipt: z.string().min(1).max(20_000),
-            localityCandidateId: z.string().min(1).max(80),
           })
           .strict(),
       ])
@@ -430,7 +413,6 @@ function completeFields(input: EditableBrandFields): BrandProfileFields {
 
 function locationFromReceipt(
   payload: StoreLocationReceiptPayload,
-  candidate: StoreLocationReceiptPayload["localityCandidates"][number],
   semanticFactId: string,
 ): BrandStoreLocationWrite {
   return {
@@ -452,7 +434,7 @@ function locationFromReceipt(
     providerTowncode: payload.evidence.towncode,
     officialRegion: payload.officialRegion,
     coordinate: payload.evidence.coordinate,
-    queryLocality: { kind: candidate.kind, label: candidate.label },
+    queryLocality: payload.queryLocality,
   };
 }
 

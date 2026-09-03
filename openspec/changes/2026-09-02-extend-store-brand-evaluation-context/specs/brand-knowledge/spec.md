@@ -13,9 +13,9 @@ in evaluation readiness and projection.
 - **GIVEN** an authenticated customer is creating or editing a Brand
 - **WHEN** the customer submits a specific store name plus city, landmark, or
   address text
-- **THEN** Web presents an Amap JS API map, bounded autocomplete/search,
-  selectable POI Markers, and an accessible full-address list without requiring
-  a separate province/city/terminal selection
+- **THEN** Web delegates bounded autocomplete, the full-address result panel,
+  POI Markers, viewport fitting, and selection to Amap JS API `PlaceSearch`
+  without requiring a separate province/city/terminal selection
 - **AND** Web does not load Geolocation, request browser/device/IP position, or
   show a current-location action by default
 - **AND** the browser receives only the domain-restricted Web(JS API) Key, never
@@ -59,8 +59,7 @@ in evaluation readiness and projection.
 
 #### Scenario: A verified location is committed
 
-- **WHEN** a valid verification receipt and permitted Query locality choice are
-  submitted with a Brand mutation
+- **WHEN** a valid verification receipt is submitted with a Brand mutation
 - **THEN** Brand atomically stores the minimum approved structured Store
   Location, source provenance, and final locality with the profile update
 - **AND** rejects same/older receipt reuse and serializes the Brand aggregate so
@@ -80,22 +79,23 @@ in evaluation readiness and projection.
 
 ### Requirement: Honest Query locality
 
-Brand Knowledge SHALL expose either one customer-selected verified business area
-or one precise verified address locality and SHALL preserve the distinction.
+Brand Knowledge SHALL automatically expose either one verified business area or
+one precise verified address locality and SHALL preserve the distinction.
 
 #### Scenario: Provider evidence contains business areas
 
 - **WHEN** verified place and reverse-geocode evidence contains one or more
-  bounded business-area candidates
-- **THEN** Brand de-duplicates them in deterministic order and asks the customer
-  to select one
-- **AND** only that selected candidate becomes the final Query locality
-- **AND** provider ranking or Agent inference does not make the choice.
+  bounded business-area labels
+- **THEN** Brand de-duplicates them in deterministic evidence order
+- **AND** automatically uses the selected POI detail business area first, then
+  the first reverse-geocode business area
+- **AND** the customer, browser, and Agent cannot substitute another locality.
 
 #### Scenario: Provider evidence contains no business area
 
 - **WHEN** a verified Store Location has no business-area candidate
-- **THEN** Brand offers a precise verified address/place locality with kind
+- **THEN** Brand automatically uses a precise verified address/place locality
+  with kind
   `ADDRESS_LOCALITY`
 - **AND** customer and Query projections do not label that value as a business
   area
@@ -260,10 +260,10 @@ characteristics.
 #### Scenario: A customer creates or edits a Brand
 
 - **WHEN** the shared Brand field group is shown
-- **THEN** it provides visible labels, address feedback before confirmation,
-  an Amap map with matching accessible candidate list, honest loading/empty/
-  failure states, two default characteristic rows, bounded add/remove actions,
-  and a stacked narrow-screen layout
+- **THEN** it provides visible labels, an Amap-owned autocomplete/map/result
+  panel/Marker interaction, verified address and automatic-locality feedback,
+  honest loading/empty/failure states, two default characteristic rows, bounded
+  add/remove actions, and a stacked narrow-screen layout
 - **AND** it has no independent province/city/terminal controls and requests no
   browser location permission
 - **AND** registration and later editing use the same industry, `Other`, Store

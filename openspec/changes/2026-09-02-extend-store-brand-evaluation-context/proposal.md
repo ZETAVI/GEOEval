@@ -39,8 +39,7 @@ One Brand can save a draft or become evaluation-ready with:
 - one server-verified concrete storefront;
 - the customer's search input, a structured display address, explicit GCJ-02
   coordinate, one MCA official-region identity derived from that verified
-  storefront, bounded business-area candidates, and one customer-confirmed Query
-  locality;
+  storefront, and one automatically derived Query locality;
 - one required `主打产品或服务` value independent of industry classification;
 - a peer collection of two to six customer characteristics, with two fields
   shown by default and accessible add/remove behavior but no priority ordering;
@@ -110,8 +109,9 @@ may use that reset path.
   and may be extended to six. Presentation order is not business meaning and
   does not participate in the fingerprint. Query still produces the existing
   two characteristic question roles rather than one question per characteristic.
-- The first Web interaction includes an Amap map, POI search, accessible result
-  list, and selectable candidate Markers. A free map click may reposition the
+- The first Web interaction delegates autocomplete, the result panel, POI
+  Markers, viewport fitting, and selection to Amap `PlaceSearch`. A free map
+  click may reposition the
   search but cannot become a Store Location without selecting and verifying a
   concrete POI.
 - The customer no longer selects a separate three-level administrative region.
@@ -150,8 +150,9 @@ may use that reset path.
    collection. Evaluation readiness requires 2-6 non-empty, pairwise-distinct
    values; each is 2-120 characters. Presentation order is excluded from both
    meaning and fingerprint.
-3. Use Amap JavaScript API 2.0 for a responsive map, autocomplete/search,
-   accessible candidate list, and selectable POI Markers. Use a separate
+3. Use Amap JavaScript API 2.0 for a responsive map and delegate autocomplete,
+   the full-address result panel, POI Markers, and selection to `PlaceSearch`.
+   Use a separate
    Web(JS API) Key plus server security-key proxy; never expose the Web Service
    Key or accept arbitrary map coordinates as a Store Location. Do not load the
    Geolocation plugin or request browser/device location by default; do not
@@ -159,9 +160,9 @@ may use that reset path.
 4. The server independently verifies the selected POI through Web Service v5 ID
    detail plus v3 reverse geocoding, maps the result exactly to the maintained
    MCA province/city/terminal path, and issues a short-lived, account/Brand-bound
-   sealed receipt. Brand commits only fields covered by that receipt and the
-   customer's choice from its bounded locality candidates.
-5. Prefer a customer-selected Amap business-area candidate. If none exists,
+   sealed receipt. Brand commits only fields covered by that receipt.
+5. Automatically prefer the selected POI detail business area, then the first
+   reverse-geocode business area. If none exists,
    freeze a precise verified `ADDRESS_LOCALITY` label and never display or
    describe it as a business area. #26 may turn that fact into a natural
    location phrase without changing its meaning.
@@ -193,9 +194,9 @@ may use that reset path.
   complete Brand projection and never reads Brand or provider persistence. #26
   owns the later Query consumer.
 - **Web/API:** reuse registration and Brand editing without the three-level
-  region controls. The browser sees a safe Amap map and untrusted candidate
-  markers, then submits a selected POI for server verification and a signed
-  receipt plus one locality choice; it never submits authoritative provider
+  region controls. The browser sees an Amap-owned map, result panel, and
+  untrusted candidate Markers, then submits a selected POI for server
+  verification and an opaque signed receipt; it never submits authoritative provider
   fields or device location.
 - **Data:** add Store Location and v3 field persistence on a recreated empty
   development database. Characteristics become one peer collection; no v1/v2

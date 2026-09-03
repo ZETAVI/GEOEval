@@ -84,8 +84,8 @@
 ## Conditional Implementation
 
 - [x] Add an accessible Amap JS API 2.0 map picker with AutoComplete/PlaceSearch,
-      a nationwide full-address candidate list and Markers, minimum-input/
-      debounce/result bounds, no Geolocation/current-position permission, map
+      an Amap-owned nationwide full-address panel and Markers, explicit-search
+      minimum/result bounds, no Geolocation/current-position permission, map
       lifecycle cleanup, domain-restricted JS Key, and server security-key proxy.
 - [x] Add the Brand-owned Store Location verification port, fixture adapter,
       conditional Web Service adapter/config, typed outcomes, deadlines,
@@ -105,7 +105,7 @@
       requirements and prove the reset cannot address a production database.
 - [x] Reuse one responsive form in registration and Brand management with
       map/Marker/address/derived-region feedback, no region selector or location
-      permission, candidate/locality selection, two default peer characteristics,
+      permission, automatic locality, two default peer characteristics,
       max-six add/remove, narrow-screen, keyboard, and failure behavior.
 - [x] Regenerate OpenAPI/client and add focused domain, adapter-contract, HTTP,
       migration, snapshot, API, component, and browser tests.
@@ -233,8 +233,8 @@
 - [x] Define the explicit public `PRESERVE`/`REMOVE`/`REPLACE` semantics, unique
       `verificationId`, replay behavior, and one atomic Brand/Store Location/
       fingerprint repository transaction.
-- [x] Remove business-area candidates from durable persistence; keep them in the
-      short-lived receipt and persist only the customer-confirmed Query locality.
+- [x] Remove business-area candidates from both durable persistence and the
+      public receipt; seal and persist only the automatically derived Query locality.
 - [x] Map one shared registration/edit field group, isolated map lifecycle,
       generated verification API use, and package-specific verification matrix.
 - [x] Product owner removes the separate official-region edit path: the verified
@@ -288,8 +288,8 @@
       browser inspection.
 - [x] Read the existing JS/Web Service/security credentials from authenticated
       Chrome into process memory without writing `.env`; prove the real desktop
-      JS map, candidate Marker/list, bounded security proxy, server verification,
-      receipt commit, business-area choice, address-locality fallback, reload,
+      JS map, Amap-owned Marker/panel, bounded security proxy, server verification,
+      receipt commit, automatic locality, address-locality fallback, reload,
       and two-Brand persistence.
 - [x] Run ten serial multi-store search/detail/reverse chains across eight cities
       and multiple industries with no retry/load test; correct the target from

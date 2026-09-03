@@ -15,37 +15,28 @@ type Props = {
   onChange(value: BrandMutation): void;
 };
 
-type Candidate = {
-  id: string;
-  name: string;
-  address: string;
-  position: [number, number] | null;
-};
-
 type AmapRuntime = {
   Map: new (
     container: HTMLElement,
     options: Record<string, unknown>,
   ) => AmapMap;
-  Marker: new (options: Record<string, unknown>) => AmapMarker;
   PlaceSearch: new (options: Record<string, unknown>) => AmapPlaceSearch;
   AutoComplete: new (options: Record<string, unknown>) => AmapAutoComplete;
 };
 
 type AmapMap = {
   destroy(): void;
-  setFitView(markers?: AmapMarker[]): void;
-};
-
-type AmapMarker = {
-  on(event: "click", listener: () => void): void;
-  setMap(map: AmapMap | null): void;
 };
 
 type AmapPlaceSearch = {
+  clear(): void;
   search(
     keyword: string,
     callback: (status: string, result: unknown) => void,
+  ): void;
+  on(
+    event: "selectChanged",
+    listener: (event: { id?: unknown; data?: unknown }) => void,
   ): void;
 };
 
@@ -68,27 +59,39 @@ export function StoreLocationPicker({
   onChange,
 }: Props) {
   const inputId = `store-location-${useId().replace(/:/g, "")}`;
+  const panelId = `${inputId}-amap-panel`;
   const mapContainer = useRef<HTMLDivElement>(null);
-  const runtime = useRef<AmapRuntime | undefined>(undefined);
   const map = useRef<AmapMap | undefined>(undefined);
   const placeSearch = useRef<AmapPlaceSearch | undefined>(undefined);
-  const markers = useRef<AmapMarker[]>([]);
   const loadingPromise = useRef<Promise<void> | undefined>(undefined);
+  const disposed = useRef(false);
+  const latestValue = useRef(value);
+  const latestOnChange = useRef(onChange);
+  const latestBrandId = useRef(brand?.id);
+  const latestQuery = useRef("");
+  const activeSearchInput = useRef("");
+  const verificationSequence = useRef(0);
   const [query, setQuery] = useState("");
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [verification, setVerification] = useState<StoreLocationVerification>();
   const [busy, setBusy] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [message, setMessage] = useState("");
 
-  useEffect(
-    () => () => {
-      clearMarkers(markers.current);
+  latestValue.current = value;
+  latestOnChange.current = onChange;
+  latestBrandId.current = brand?.id;
+  latestQuery.current = query;
+
+  useEffect(() => {
+    disposed.current = false;
+    return () => {
+      disposed.current = true;
+      verificationSequence.current += 1;
       map.current?.destroy();
       map.current = undefined;
-    },
-    [],
-  );
+      placeSearch.current = undefined;
+    };
+  }, []);
 
   async function ensureMap(): Promise<void> {
     if (mapReady) return;
@@ -105,7 +108,7 @@ export function StoreLocationPicker({
         version: "2.0",
         plugins: ["AMap.AutoComplete", "AMap.PlaceSearch"],
       })) as AmapRuntime;
-      runtime.current = AMap;
+      if (disposed.current || !mapContainer.current) return;
       map.current = new AMap.Map(mapContainer.current, {
         zoom: 4,
         center: [104.195397, 35.86166],
@@ -117,6 +120,17 @@ export function StoreLocationPicker({
         pageSize: 10,
         pageIndex: 1,
         extensions: "all",
+        map: map.current,
+        panel: panelId,
+        autoFitView: true,
+      });
+      placeSearch.current.on("selectChanged", (event) => {
+        const providerPlaceId = selectedPlaceId(event);
+        if (!providerPlaceId) return;
+        void verifySelectedPlace(
+          providerPlaceId,
+          selectedPlaceName(event.data),
+        );
       });
       const autocomplete = new AMap.AutoComplete({
         city: "全国",
@@ -124,11 +138,18 @@ export function StoreLocationPicker({
         input: inputId,
       });
       autocomplete.on("select", (event) => {
-        const candidate = normalizePoi(event.poi);
-        if (candidate) void selectCandidate(candidate);
+        const keyword =
+          latestQuery.current.trim() || selectedPlaceName(event.poi);
+        if (!keyword) return;
+        latestQuery.current = keyword;
+        setQuery(keyword);
+        void searchPlaces(keyword);
       });
       setMapReady(true);
     })().catch((error) => {
+      map.current?.destroy();
+      map.current = undefined;
+      placeSearch.current = undefined;
       loadingPromise.current = undefined;
       throw error;
     });
@@ -136,11 +157,24 @@ export function StoreLocationPicker({
   }
 
   async function search() {
-    const searchInput = query.trim();
+    await searchPlaces(latestQuery.current);
+  }
+
+  async function initializeMap() {
+    try {
+      await ensureMap();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "地图搜索暂时不可用");
+    }
+  }
+
+  async function searchPlaces(rawInput: string) {
+    const searchInput = rawInput.trim();
     if (searchInput.length < 2) {
       setMessage("请至少输入 2 个字，并尽量带上城市、地址或地标");
       return;
     }
+    const sequence = ++verificationSequence.current;
     setBusy(true);
     setMessage("");
     setVerification(undefined);
@@ -149,102 +183,90 @@ export function StoreLocationPicker({
       await ensureMap();
       const service = placeSearch.current;
       if (!service) throw new Error("地图搜索尚未准备好");
-      const result = await new Promise<unknown>((resolve, reject) => {
-        service.search(searchInput, (status, response) => {
-          if (status === "complete") resolve(response);
-          else if (status === "no_data") resolve({});
-          else reject(new Error("地图搜索暂时不可用，请稍后重试"));
-        });
-      });
-      const next = extractCandidates(result).slice(0, 10);
-      setCandidates(next);
-      renderMarkers(next);
+      activeSearchInput.current = searchInput;
+      service.clear();
+      const status = await new Promise<"complete" | "no_data">(
+        (resolve, reject) => {
+          service.search(searchInput, (status) => {
+            if (status === "complete") resolve("complete");
+            else if (status === "no_data") resolve("no_data");
+            else reject(new Error("地图搜索暂时不可用，请稍后重试"));
+          });
+        },
+      );
+      if (sequence !== verificationSequence.current) return;
       setMessage(
-        next.length > 0
-          ? `找到 ${next.length} 个候选，请从地图标记或完整地址列表中选择`
+        status === "complete"
+          ? "请直接在高德结果列表或地图标记中选择具体门店"
           : "没有找到候选，请补充城市、地址或附近地标后重试",
       );
     } catch (error) {
+      if (sequence !== verificationSequence.current) return;
       setMessage(error instanceof Error ? error.message : "地图搜索暂时不可用");
     } finally {
-      setBusy(false);
+      if (sequence === verificationSequence.current) setBusy(false);
     }
   }
 
-  function renderMarkers(next: Candidate[]) {
-    clearMarkers(markers.current);
-    const AMap = runtime.current;
-    const currentMap = map.current;
-    if (!AMap || !currentMap) return;
-    markers.current = next.flatMap((candidate) => {
-      if (!candidate.position) return [];
-      const marker = new AMap.Marker({
-        map: currentMap,
-        position: candidate.position,
-        title: candidate.name,
-      });
-      marker.on("click", () => void selectCandidate(candidate));
-      return [marker];
-    });
-    if (markers.current.length > 0) currentMap.setFitView(markers.current);
-  }
-
-  async function selectCandidate(candidate: Candidate) {
-    if (!candidate.id) return;
+  async function verifySelectedPlace(
+    providerPlaceId: string,
+    placeName: string,
+  ) {
+    const sequence = ++verificationSequence.current;
     setBusy(true);
     setMessage("正在由服务端复核门店地址与行政地区…");
     setVerification(undefined);
     clearPendingReplacement();
     try {
       const result = await verifyStoreLocation(apiBaseUrl, {
-        ...(brand ? { brandId: brand.id } : {}),
-        searchInput: query.trim() || candidate.name,
-        providerPlaceId: candidate.id,
+        ...(latestBrandId.current ? { brandId: latestBrandId.current } : {}),
+        searchInput: activeSearchInput.current || placeName,
+        providerPlaceId,
       });
+      if (sequence !== verificationSequence.current) return;
       setVerification(result);
-      setMessage("门店已复核，请确认用于评测的位置范围");
+      emitChange({
+        ...latestValue.current,
+        locationChange: {
+          action: "REPLACE",
+          verificationReceipt: result.verificationReceipt,
+        },
+      });
+      setMessage("门店已复核，评测位置范围已根据高德地址自动确定");
     } catch (error) {
+      if (sequence !== verificationSequence.current) return;
       setMessage(error instanceof Error ? error.message : "门店复核失败");
     } finally {
-      setBusy(false);
+      if (sequence === verificationSequence.current) setBusy(false);
     }
   }
 
-  function chooseLocality(candidateId: string) {
-    if (!verification) return;
-    onChange({
-      ...value,
-      locationChange: {
-        action: "REPLACE",
-        verificationReceipt: verification.verificationReceipt,
-        localityCandidateId: candidateId,
-      },
-    });
+  function emitChange(next: BrandMutation) {
+    latestValue.current = next;
+    latestOnChange.current(next);
   }
 
   function clearPendingReplacement() {
-    if (value.locationChange?.action !== "REPLACE") return;
-    const { locationChange: _discarded, ...rest } = value;
-    onChange(rest);
+    if (latestValue.current.locationChange?.action !== "REPLACE") return;
+    const { locationChange: _discarded, ...rest } = latestValue.current;
+    emitChange(rest);
   }
 
   function removeCurrentLocation() {
     setVerification(undefined);
-    onChange({ ...value, locationChange: { action: "REMOVE" } });
+    emitChange({
+      ...latestValue.current,
+      locationChange: { action: "REMOVE" },
+    });
   }
 
   function retainCurrentLocation() {
-    const { locationChange: _discarded, ...rest } = value;
-    onChange(rest);
+    const { locationChange: _discarded, ...rest } = latestValue.current;
+    emitChange(rest);
   }
 
   const storedLocation = brand?.storeLocation;
   const removingStoredLocation = value.locationChange?.action === "REMOVE";
-  const chosenCandidateId =
-    value.locationChange?.action === "REPLACE"
-      ? value.locationChange.localityCandidateId
-      : undefined;
-
   return (
     <fieldset className="wide store-location-fieldset">
       <legend>具体门店 *</legend>
@@ -297,7 +319,11 @@ export function StoreLocationPicker({
             maxLength={200}
             autoComplete="off"
             placeholder="例如：广州 星河咖啡 珠江新城"
-            onChange={(event) => setQuery(event.target.value)}
+            onFocus={() => void initializeMap()}
+            onChange={(event) => {
+              latestQuery.current = event.target.value;
+              setQuery(event.target.value);
+            }}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 event.preventDefault();
@@ -315,30 +341,22 @@ export function StoreLocationPicker({
           </button>
         </div>
       </div>
-      <div
-        className={`store-location-map${mapReady ? " is-ready" : ""}`}
-        ref={mapContainer}
-        aria-label="高德门店候选地图"
-      >
-        {!mapReady && (
-          <span>{amapJsKey ? "输入门店后加载地图" : "地图服务尚未配置"}</span>
-        )}
-      </div>
-      {candidates.length > 0 && (
-        <div className="location-candidate-list" aria-label="门店候选列表">
-          {candidates.map((candidate) => (
-            <button
-              type="button"
-              key={candidate.id}
-              disabled={busy}
-              onClick={() => void selectCandidate(candidate)}
-            >
-              <strong>{candidate.name}</strong>
-              <span>{candidate.address || "高德暂未返回完整地址"}</span>
-            </button>
-          ))}
+      <div className="amap-place-picker">
+        <div
+          className={`store-location-map${mapReady ? " is-ready" : ""}`}
+          ref={mapContainer}
+          aria-label="高德门店地图"
+        >
+          {!mapReady && (
+            <span>{amapJsKey ? "输入门店后加载地图" : "地图服务尚未配置"}</span>
+          )}
         </div>
-      )}
+        <div
+          id={panelId}
+          className="amap-place-search-panel"
+          aria-label="高德门店搜索结果"
+        />
+      </div>
       {verification && (
         <section className="verified-location-card" aria-label="已复核门店">
           <div>
@@ -350,29 +368,13 @@ export function StoreLocationPicker({
               {verification.locationPreview.officialRegion.city.label} ·{" "}
               {verification.locationPreview.officialRegion.terminal.label}
             </small>
+            <small>
+              {verification.queryLocality.kind === "BUSINESS_AREA"
+                ? "商圈"
+                : "门店地址范围"}
+              ：{verification.queryLocality.label}（自动确定）
+            </small>
           </div>
-          <fieldset>
-            <legend>选择用于评测的位置范围</legend>
-            {verification.localityCandidates.map((candidate) => (
-              <label key={candidate.id}>
-                <input
-                  type="radio"
-                  name={`${inputId}-locality`}
-                  value={candidate.id}
-                  checked={chosenCandidateId === candidate.id}
-                  onChange={() => chooseLocality(candidate.id)}
-                />
-                <span>
-                  <b>
-                    {candidate.kind === "BUSINESS_AREA"
-                      ? "商圈"
-                      : "门店地址范围"}
-                  </b>
-                  {candidate.label}
-                </span>
-              </label>
-            ))}
-          </fieldset>
         </section>
       )}
       {message && (
@@ -384,70 +386,17 @@ export function StoreLocationPicker({
   );
 }
 
-function extractCandidates(result: unknown): Candidate[] {
-  if (!isRecord(result) || !isRecord(result.poiList)) return [];
-  const pois = Array.isArray(result.poiList.pois) ? result.poiList.pois : [];
-  const seen = new Set<string>();
-  return pois.flatMap((poi) => {
-    const candidate = normalizePoi(poi);
-    if (!candidate || seen.has(candidate.id)) return [];
-    seen.add(candidate.id);
-    return [candidate];
-  });
+function selectedPlaceId(event: { id?: unknown; data?: unknown }): string {
+  if (typeof event.id === "string") return event.id.trim();
+  if (!isRecord(event.data)) return "";
+  return typeof event.data.id === "string" ? event.data.id.trim() : "";
 }
 
-function normalizePoi(value: unknown): Candidate | null {
-  if (!isRecord(value)) return null;
-  const id = scalar(value.id);
-  const name = scalar(value.name);
-  if (!id || !name) return null;
-  const addressParts = [
-    scalar(value.pname),
-    scalar(value.cityname),
-    scalar(value.adname),
-    scalar(value.address),
-  ].filter(Boolean);
-  return {
-    id,
-    name,
-    address: [...new Set(addressParts)].join(" "),
-    position: position(value.location),
-  };
-}
-
-function position(value: unknown): [number, number] | null {
-  if (Array.isArray(value) && value.length >= 2) {
-    const longitude = Number(value[0]);
-    const latitude = Number(value[1]);
-    return Number.isFinite(longitude) && Number.isFinite(latitude)
-      ? [longitude, latitude]
-      : null;
-  }
-  if (isRecord(value)) {
-    const longitude =
-      typeof value.getLng === "function"
-        ? Number(value.getLng())
-        : Number(value.lng);
-    const latitude =
-      typeof value.getLat === "function"
-        ? Number(value.getLat())
-        : Number(value.lat);
-    return Number.isFinite(longitude) && Number.isFinite(latitude)
-      ? [longitude, latitude]
-      : null;
-  }
-  return null;
-}
-
-function scalar(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
+function selectedPlaceName(value: unknown): string {
+  if (!isRecord(value)) return "";
+  return typeof value.name === "string" ? value.name.trim() : "";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function clearMarkers(markers: AmapMarker[]) {
-  for (const marker of markers) marker.setMap(null);
-  markers.length = 0;
 }

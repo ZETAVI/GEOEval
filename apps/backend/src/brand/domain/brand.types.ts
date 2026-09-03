@@ -101,7 +101,6 @@ export type LocationChangeRequest =
   | {
       action: "REPLACE";
       verificationReceipt: string;
-      localityCandidateId: string;
     };
 
 export type BrandMutationInput = EditableBrandFields & {

@@ -54,13 +54,14 @@ than maintaining a calibration copy.
 
 Brand Knowledge owns the editable account-scoped Brand, the executable
 `industry-catalog@1.0.0` source, and a separate checked mainland administrative-
-region snapshot. Web uses dependent two-level industry selection plus one Amap
-map/list POI interaction; it requests no device location and exposes no separate
+region snapshot. Web uses dependent two-level industry selection plus one
+Amap-owned autocomplete/map/result-panel/Marker POI interaction; it requests no
+device location and exposes no separate
 province/city/terminal mutation. Brand independently resolves selected POI
 detail and reverse-geocode evidence through its conditional server adapter,
-derives exactly one official region, and commits only an account/Brand-bound
-short-lived receipt with a customer-selected business area or honest address
-locality. The Store Location, flagship product/service, and two-to-six peer
+derives exactly one official region and one automatic Query locality, and commits
+only an account/Brand-bound short-lived receipt. The Store Location, flagship
+product/service, and two-to-six peer
 characteristics belong to the Brand aggregate and participate in
 `brand-evaluation-input@3`; characteristic order, contact, and provider
 representation do not. GEO Intelligence freezes one

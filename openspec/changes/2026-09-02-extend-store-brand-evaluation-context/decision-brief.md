@@ -17,11 +17,11 @@ locality, and development-reset revisions below.
 | Store cardinality | One current concrete Store Location per first-stage Brand | Meets the confirmed target market without introducing branch/store management | Product owner |
 | Flagship field | `flagshipProductOrService`, customer label `主打产品或服务`, 2-80 characters and required for v3 readiness | Adds a concrete recommendation anchor while remaining distinct from industry and a future product catalog | Product owner |
 | Characteristics | Peer collection; two fields by default; 2-6 distinct items; 2-120 characters each; presentation order has no priority and does not affect fingerprint | Gives #26 more useful angles while avoiding an unintended ranking contract | Product owner |
-| Initial place UX | Amap JS API 2.0 map, autocomplete/search, accessible result list, and selectable POI Markers; arbitrary map coordinates cannot be committed | Better selection confidence; requires a separate Web(JS API) Key and server security-key proxy | Product and architecture owners |
+| Initial place UX | Amap JS API 2.0 owns autocomplete, the `PlaceSearch` result panel, POI Markers, viewport fitting, and selection; GEOEval renders only the form shell and verified Brand summary | Keeps search interaction visually consistent with Amap while preserving a small business-authority boundary | Product and architecture owners |
 | Verification | v5 POI detail plus v3 reverse geocode; server-sealed short-lived receipt; Brand commits only receipt-covered facts | Adds one verification round but prevents forged client position data and external calls inside a DB transaction | Architecture owner |
 | Administrative region | Remove customer province/city/terminal selection; derive the maintained MCA path only from the verified Store Location | Eliminates two competing inputs; a place without an exact mapping remains a draft rather than accepting manual correction | Product and architecture owners |
 | Device location | Do not load Geolocation or request browser/device/IP location by default | Avoids permission prompts and accidental proximity semantics; customers search by store name plus city/address/landmark text | Product owner |
-| Query locality | Customer selects a verified business-area candidate; if none exists, freeze an honestly labelled verified address locality that #26 may phrase naturally | Avoids invented business areas while keeping every verified store usable | Product owner |
+| Query locality | Brand automatically uses the selected POI detail business area, then the first reverse-geocode business area; if none exists, freeze an honestly labelled verified address locality that #26 may phrase naturally | Removes a redundant customer choice while avoiding invented business areas | Product owner |
 | Provider data | Amap is a conditional runtime adapter; retain only the minimum verified facts and never raw responses | Keeps provider replaceable and data minimized; commercial/legal risk is accepted by its human owner | Architecture and commercial/legal risk owners |
 | Fingerprint | v3 includes Brand-owned Store Location semantic identity, flagship value, and the normalized characteristic set; excludes characteristic presentation order and provider representation/provenance | Correct evaluation meaning without treating field order or provider refresh as a new opportunity | Product and architecture owners |
 | Development data | Recreate the project-named development database from empty and activate a single v3 contract; do not carry v1/v2/legacy runtime compatibility into #40 | Removes migration complexity while the product has no production/customer data; reset must never run against production | Product and architecture owners |
@@ -43,13 +43,15 @@ account's documented service grants, Key types, quotas, and security controls.
 ## Customer-visible Behavior
 
 - The customer searches by a concrete store name plus city/address/landmark text
-  on an Amap map, reviews candidate Markers plus an accessible full-address list,
-  selects one POI, and then chooses a business area when candidates exist.
+  through Amap autocomplete, reviews Amap's own full-address panel and Markers,
+  and selects one POI entirely through that component.
 - The form has no separate province/city/terminal controls and does not request
   device-location permission. The server displays the official region derived
   from the verified POI for confirmation rather than manual editing.
-- If no business area exists, the form shows a precise address locality without
-  calling it a business area.
+- Brand automatically derives the Query locality from the verified POI. If no
+  business area exists, the form shows a precise address locality without
+  calling it a business area; the customer does not make a second locality
+  choice.
 - Two characteristic inputs appear by default; the customer may add up to six.
   They are peers, with no priority or reorder behavior.
 - Provider failure never invents a location. The customer can save other Brand
@@ -64,8 +66,8 @@ test-scale monthly quota, and bounded Web Service success shapes are observed.
 The single-source Store Location/derived-region decision removed the last
 product ambiguity, and the owner explicitly authorized fixture-first runtime
 implementation on 2026-09-03. A technical-service license is not active, and
-production domain/IP restrictions plus real JS map/security-proxy behavior are
-not yet verified. Those controls and any purchase remain later operational
+production domain/IP restrictions are later Amap release controls rather than a
+current development gate. Those controls and any purchase remain operational
 boundaries rather than product decisions.
 
 #40 is the upstream v3 producer. PR #28 currently overlaps the Prisma schema,

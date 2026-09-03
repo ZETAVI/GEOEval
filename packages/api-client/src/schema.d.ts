@@ -1247,7 +1247,6 @@ export interface components {
             /** @enum {string} */
             action: "REMOVE" | "REPLACE";
             verificationReceipt?: string;
-            localityCandidateId?: string;
         };
         BrandMutationRequest: {
             companyName?: string | null;
@@ -1287,19 +1286,13 @@ export interface components {
             coordinate: components["schemas"]["StoreLocationCoordinateResponse"];
             officialRegion: components["schemas"]["DerivedOfficialRegionResponse"];
         };
-        StoreLocationCandidateResponse: {
-            id: string;
-            /** @enum {string} */
-            kind: "BUSINESS_AREA" | "ADDRESS_LOCALITY";
-            label: string;
-        };
         StoreLocationVerificationResponse: {
             targetBrandId: string;
             verificationReceipt: string;
             /** Format: date-time */
             expiresAt: string;
             locationPreview: components["schemas"]["StoreLocationPreviewResponse"];
-            localityCandidates: components["schemas"]["StoreLocationCandidateResponse"][];
+            queryLocality: components["schemas"]["QueryLocalityResponse"];
         };
     };
     responses: never;
