@@ -54,15 +54,18 @@ account's documented service grants, Key types, quotas, and security controls.
 
 ## Next Gate
 
-The design is ready for explicit implementation authorization. The application,
-separate JS/Web Service Key types, enterprise certification, and test-scale
-monthly quota are observed. The bounded public-landmark probe also confirmed the
-current Web Service success shapes, municipality/special-city empty-array
-variation, plural business areas, and one exact direct-admin township mapping.
-A technical-service license is not active, and production domain/IP restrictions
-and JS map/security-proxy behavior are not verified. Those production controls
-and any purchase remain technical/operational follow-ups with their own action
-boundaries; they are not a remaining product decision.
+One product decision remains before explicit implementation authorization: when
+the customer changes the official region of a Brand that already has a verified
+Store Location, the mutation must either require an explicit location action or
+apply a confirmed automatic rule. The server may never commit the new region
+with an incoherent old Store Location.
+
+The application, separate JS/Web Service Key types, enterprise certification,
+test-scale monthly quota, and bounded Web Service success shapes are observed.
+The current-code module blueprint is otherwise ready. A technical-service
+license is not active, and production domain/IP restrictions and JS map/security-
+proxy behavior are not verified. Those production controls and any purchase
+remain later technical/operational boundaries rather than product decisions.
 
 #40 is the upstream v3 producer. PR #28 currently overlaps the Prisma schema,
 evaluation service, snapshot parser, OpenAPI/client, and integration tests and

@@ -7,6 +7,8 @@
 - Current authorization: documents, completed application/Key preparation, and
   completed controlled Web Service calls; no runtime code, purchase,
   production activation, or development-data reset
+- Open product decision: how an official-region edit handles an existing
+  verified Store Location; runtime mutation design remains gated on that answer
 
 ## Design Position
 
@@ -178,8 +180,8 @@ current verified location
   repository-ignored `.env` or release secret store, never committed fixtures.
 - **Authorization:** every endpoint requires a terminal-customer session and
   binds receipt/account/Brand. Search may occur before a Brand exists during
-  registration, so the receipt binds to account plus a server nonce and may be
-  consumed only by that account's new Brand mutation.
+  registration, so verification allocates and binds a future server-generated
+  Brand ID that only that account's create mutation may use.
 - **Cost and capacity:** autocomplete starts only after a minimum input length
   and is debounced; search returns at most ten candidates. There is no
   background refresh or load test, and metrics are by operation/outcome only.
@@ -236,6 +238,176 @@ current verified location
    full CI/build, browser/accessibility checks, secret scans, architecture/code
    reviews, current-spec reconciliation, and only then convert Draft PR #46 from
    Partial to the final #40 closing PR.
+
+## Implementation Blueprint Against Current Code
+
+This design deepens the existing Brand capability instead of introducing a
+parallel location service. The deletion test is explicit: removing the proposed
+Brand-local verification seam would force Amap parsing, credential handling,
+region coherence, receipt integrity, and failure mapping into `BrandService`,
+controllers, and Web callers. Keeping that seam inside `BrandModule` removes
+that leakage while preserving one business owner.
+
+### Existing Owners and Planned Changes
+
+| Current owner | Planned responsibility | Boundary kept internal |
+| --- | --- | --- |
+| `brand/domain/brand-profile.ts` | v3 normalization, readiness, semantic-fact comparison, and canonical fingerprint | no provider protocol, DTO, Prisma, or Web state |
+| `brand/domain/brand.types.ts` | Brand aggregate, Store Location value, locality, and evaluation-purpose projection types | no Amap envelope or receipt serialization |
+| `brand/domain/brand.repository.ts` plus `postgres-brand.repository.ts` | load and atomically write Brand plus its owned Store Location | no external call and no receipt signature logic |
+| `brand/application/brand.service.ts` | create/update Brand, preserve/remove/replace location, and compute the final aggregate | consumes verified receipt facts; never calls Amap |
+| new Brand-local `StoreLocationVerificationService` | orchestrate provider resolution, official-region checks, locality candidates, and receipt issuance | no database write and no Brand mutation |
+| new Brand-local `StoreLocationProvider` port | resolve one selected provider place into minimum typed evidence | one method; no generic provider registry or search API |
+| new Amap adapter in Brand infrastructure | v5 ID detail, v3 `extensions=all` reverse geocode, timeout/error normalization, and redaction | Web Service Key and Amap response shapes never escape the adapter |
+| `config/runtime-config.ts` and `ApiModule.register` | validate disabled/Amap mode and pass sanitized configuration into `BrandModule.register` | adapters do not read ambient environment variables directly |
+| `geo-intelligence/domain/evaluation-brand-snapshot.ts` | become the single v3 parser/text/public projection after the authorized reset | no Brand repository or Amap imports |
+| shared Web Brand fields | one registration/edit field group containing reference selection, Store Location picker, flagship, and peer characteristics | map lifecycle remains in one child component; generated API client owns HTTP |
+
+`BrandModule` remains the module boundary. It exports the existing Brand-facing
+application contract used by GEO; it does not export the provider port, Amap
+adapter, receipt codec, or provider configuration.
+
+### Small Internal Interfaces
+
+The external port stays smaller than the provider protocol:
+
+```text
+StoreLocationProvider.resolveSelectedPlace({ providerPlaceId })
+  -> ProviderPlaceEvidence {
+       providerPlaceId, placeName, formattedAddress,
+       coordinate { longitude, latitude, system: GCJ_02 },
+       provinceName, cityName?, districtName?, townshipName?,
+       adcode, towncode?, businessAreaLabels[],
+       providerContractVersion, verifiedAt
+     }
+  throws PLACE_NOT_FOUND | PROVIDER_UNAVAILABLE
+       | PROVIDER_CONFIGURATION | PROVIDER_CAPACITY
+```
+
+The provider does not accept Brand official-region IDs and cannot decide
+readiness or locality. `StoreLocationVerificationService` resolves the submitted
+MCA IDs through `BrandReferenceData`, calls the port, applies the explicit
+county/municipality/direct-admin coherence rules, creates de-duplicated locality
+candidates, and issues the receipt.
+
+The verification service adds Brand-owned validation outcomes without widening
+the provider port:
+
+```text
+INVALID_SELECTION | REGION_MISMATCH
+```
+
+`INVALID_SELECTION`, `PLACE_NOT_FOUND`, and `REGION_MISMATCH` may produce
+selection-correction copy. Credential, signature, allowlist, quota, QPS,
+balance, and provider-engine details collapse to an operator-owned unavailable
+response and never reach the customer or logs.
+
+### Runtime Configuration and Call Safety
+
+- Store Location provider mode defaults to `disabled`; `amap` must be explicit.
+- Amap mode fails configuration validation unless the Web Service Key, receipt-
+  signing secret, HTTPS base URL, request deadline, and receipt TTL are valid.
+- The initial receipt TTL is 15 minutes and remains bounded configuration rather
+  than customer data. Expiry is checked before any transaction.
+- Tests inject a synthetic fixture adapter through the Brand-local port. Runtime
+  code never selects a fake provider from customer input.
+- The real adapter performs ID detail then reverse geocoding outside the Brand
+  transaction. Only documented transient/busy failures may receive one retry
+  within the total deadline; auth/config/input/capacity outcomes never retry.
+- Production fixed-egress allowlisting and JS-domain restriction remain release
+  configuration evidence, not values embedded in code.
+
+### Verification Receipt Contract
+
+Use a compact versioned HMAC-SHA-256 signed envelope with constant-time
+signature comparison. Integrity, not confidentiality, is the property: the Web
+treats the receipt as opaque and never parses it, but the design does not assume
+that a signed payload is encrypted. The covered payload contains:
+
+```text
+receiptVersion, verificationId
+accountId
+targetBrandId: exact existing owned ID | server-generated ID for a new Brand
+officialRegionIds
+normalized searchInput
+verified Store Location facts
+permitted localityCandidates[{ id, kind, label }]
+providerContractVersion
+issuedAt, expiresAt
+```
+
+For an existing Brand, verification first proves account ownership and binds the
+receipt to that ID. For registration/create, verification allocates the future
+Brand UUID and covers it; Brand creation uses that server-generated ID. A retry
+therefore cannot create a second Brand from the same receipt without adding a
+receipt-consumption table.
+
+The browser receives the signed receipt, expiry, safe preview, and candidate IDs
+but cannot alter the covered facts. A mutation verifies signature, version,
+expiry, account, target Brand, official region, and selected candidate before
+building the aggregate. `verificationId` is persisted as a unique idempotency/
+provenance identity on the owned Store Location. Cross-account and cross-Brand
+replay is rejected by the signed bindings; re-delivery to the same target Brand
+with the same final locality may be a no-op for the location portion. A receipt
+never authorizes arbitrary coordinates, provider fields, a different official
+region, or a second locality.
+
+### Aggregate Write and Transaction
+
+The public mutation uses a three-state discriminated change rather than nullable
+location fields:
+
+```text
+locationChange omitted
+  -> preserve the current Store Location
+
+locationChange { action: REMOVE }
+  -> remove it explicitly and make readiness incomplete
+
+locationChange {
+  action: REPLACE,
+  verificationReceipt,
+  localityCandidateId
+}
+  -> consume verified facts and atomically replace it
+```
+
+Create rejects `REMOVE`; an omitted change creates a valid draft without a
+location. The application constructs the next Brand aggregate, preserves the
+current `semanticFactId` only for the same provider place plus final locality,
+otherwise creates a new one, computes readiness/fingerprint, and gives the
+repository one atomic write. The repository transaction owns Brand fields,
+Store Location insert/update/delete, verification identity, and final fingerprint
+together. It never receives a Key, raw response, or signed receipt.
+
+The rule for changing official region while a verified Store Location exists is
+the only remaining product decision at this layer. No implementation may allow
+the region and Store Location to commit incoherently.
+
+### Web Component Boundary
+
+- A shared Brand profile field group replaces duplicated registration/edit
+  inputs and owns form-level draft state.
+- The Store Location picker activates only after a complete official region,
+  lazy-loads JS API 2.0, and caps accessible list/Marker candidates at ten.
+- The map child owns loader/map/plugin lifecycle and calls `destroy()` on
+  cleanup. It never receives the Web Service Key or JS security code.
+- Selecting a list item or Marker submits only POI ID, proposed official-region
+  IDs, normalized search input, and optional target Brand ID to the generated
+  verification API. The safe preview/locality choice becomes `locationChange`.
+- A map/API failure retains unrelated form fields. Existing stored location is
+  visually distinct from an uncommitted candidate; closing/cancelling the form
+  cannot mutate either Brand or Store Location.
+
+### Package Verification Matrix
+
+| Package | Smallest discriminating evidence |
+| --- | --- |
+| Brand domain/persistence | v3 canonical vectors, order-independent characteristic properties, semantic-fact preservation/replacement tests, empty-database migration, unique receipt/replay and atomic write integration tests |
+| Verification API/adapter | synthetic minimal response shapes for ordinary/municipality/direct-admin/zero/multiple area, deadline/error mapping, receipt tamper/expiry/account/Brand/region/candidate/replay tests, HTTP contract tests; no real call required by default |
+| Shared Web interaction | loader/map mocks, list/Marker equivalence, keyboard and narrow-screen component tests, region-change behavior after the product decision, then controlled desktop/mobile browser evidence |
+| Snapshot v3/handoff | one v3 parser, canonical frozen vectors, public/report/Query projection tests, OpenAPI/client regeneration, and PR #28 rebase proof |
+| Activation | named development-target preflight, authorized empty rebuild rehearsal, full CI/build, secret scans, browser evidence, current-spec reconciliation, and production controls kept outside the claim |
 
 ## Domain Vocabulary and Ownership
 
@@ -335,6 +507,7 @@ provider                   AMAP
 providerPlaceId            current source identity, never public mutation input
 providerContractVersion    e.g. amap-js-v2+place-v5+regeo-v3@1
 verifiedAt
+verificationId             unique verification/idempotency identity
 placeName
 formattedAddress
 provinceName
@@ -346,16 +519,16 @@ providerTowncode?
 longitude                  decimal, six places
 latitude                   decimal, six places
 coordinateSystem           GCJ_02
-businessAreaCandidates     bounded ordered normalized values
 queryLocalityKind          BUSINESS_AREA | ADDRESS_LOCALITY
 queryLocalityLabel
 createdAt
 updatedAt
 ```
 
-The listed provider fields are the accepted minimum persistence set. Raw
-responses, phone, rating, reviews, photos, opening hours, and unrelated POIs are
-never stored.
+The listed provider fields are the accepted minimum persistence set. Candidate
+business areas remain only in the short-lived receipt; after commit, only the
+customer-selected Query locality is durable. Raw responses, phone, rating,
+reviews, photos, opening hours, and unrelated POIs are never stored.
 
 `semanticFactId` is preserved only when server verification proves the same
 provider place remains selected and the final Query locality is unchanged.
@@ -461,9 +634,9 @@ the customer fields, computes readiness/fingerprint, and atomically writes the
 Brand plus Store Location.
 
 The receipt is not a business record and cannot be replayed across accounts or
-Brands. A consumed receipt can be made idempotent by comparing its digest with
-the already committed current location; it must never create another Brand or a
-new semantic fact merely from duplicate HTTP delivery.
+target Brands. Re-delivery to the same target compares `verificationId`, final
+locality, and the already committed location; it must never create another Brand
+or a new semantic fact merely from duplicate HTTP delivery.
 
 ## Public API Shape
 
@@ -471,7 +644,7 @@ Exact URI naming is reversible; the semantic surface is:
 
 ```text
 POST /brand-location-verifications
-  { officialRegionPath, providerPlaceId }
+  { brandId?, officialRegionIds, searchInput, providerPlaceId }
   -> {
        verificationReceipt,
        expiresAt,
@@ -484,11 +657,13 @@ POST/PATCH /brands
     ...existing fields,
     flagshipProductOrService,
     characteristics[],
-    locationSelection?: { verificationReceipt, localityCandidateId }
+    locationChange?:
+      | { action: REMOVE }
+      | { action: REPLACE, verificationReceipt, localityCandidateId }
   }
 ```
 
-Updating unrelated fields omits `locationSelection` and preserves the current
+Updating unrelated fields omits `locationChange` and preserves the current
 verified location. Explicit removal is allowed only as one named action that
 makes the Brand incomplete; setting arbitrary location fields to null or partial
 values is rejected.

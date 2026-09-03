@@ -1,9 +1,10 @@
 # Change: Extend Store Brand Evaluation Context
 
 - Status: Product, architecture, commercial/legal risk, and external API design
-  direction confirmed; enterprise certification, test-scale quota, and bounded
-  Web Service success shapes observed on 2026-09-03; ready for explicit runtime
-  implementation authorization while production activation retains a separate gate
+  direction confirmed; enterprise certification, test-scale quota, bounded Web
+  Service success shapes, and the current-code module blueprint are recorded on
+  2026-09-03; one official-region-edit decision remains in Review / Decision
+  before explicit runtime implementation authorization
 - Class: Architectural
 - Owning Issue: [#40](https://github.com/ZETAVI/GEOEval/issues/40)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -214,15 +215,14 @@ may use that reset path.
 - Workspace: the current isolated #40 Codex worktree; recover its path from live
   workspace state rather than preserving a machine-local location
 - Writer: the #40 task owner; #26 remains a separate single writer for Query
-- Current phase: enterprise account and API contract preparation complete;
-  ready for explicit implementation authorization, while controlled calls,
-  production credential restrictions, and technical-service activation remain
-  separate gates
+- Current phase: enterprise account/API contract preparation and current-code
+  module blueprint complete; one official-region-edit decision is in Review /
+  Decision before explicit implementation authorization. Production credential
+  restrictions and technical-service activation remain separate gates
 - PR relationship: documentation-only Partial PR using
   `Part of #40 — does not close`
-- Exit for this task: Draft PR and Issue #40 updated with the enterprise account,
-  dependency-order, and implementation-package plan, then stop before code and
-  live calls
+- Exit for this task: Draft PR and Issue #40 updated with the module blueprint,
+  architecture finding, and one bounded product question, then stop before code
 
 ## Approval Boundary
 
@@ -230,13 +230,13 @@ The product, architecture, and commercial/legal risk decisions above were
 confirmed with the recorded revisions on 2026-09-02. The risk owner explicitly
 accepts proceeding from current official API documentation without a separate
 licensing/storage inquiry. That decision removes the previous external legal
-must-fix. A later explicit action authorized creation of the application and two
-scoped Key types only; it does not authorize code implementation, a
-development-data reset, API purchase, controlled call, production data,
-production deployment, Query/Parser/Synthesis/report changes, or Provider
-evaluation calls.
+must-fix. Later explicit actions authorized creation of the application and two
+scoped Key types plus the completed bounded public-place contract calls. They do
+not authorize code implementation, a development-data reset, API purchase,
+production data, production deployment, Query/Parser/Synthesis/report changes,
+or evaluation Provider calls.
 
 Implementation still requires an explicit implementation instruction.
-Additional credential changes, API purchase, controlled calls, the destructive
-development reset, Provider calls, and production activation retain their own
-later authorization boundaries.
+Additional credential changes, API purchase, any further justified live Amap
+calls, the destructive development reset, evaluation Provider calls, and
+production activation retain their own later authorization boundaries.

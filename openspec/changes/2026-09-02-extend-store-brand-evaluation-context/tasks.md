@@ -214,3 +214,27 @@
 - [x] Stop before runtime implementation, dependency changes, Prisma/OpenAPI,
       JS map/security-proxy configuration, purchase, or database reset without
       their own authorization/evidence gates.
+
+## 2026-09-03 Module Implementation Blueprint
+
+- [x] Map the proposed Store Location capability onto the current Brand domain,
+      application, repository, controller, runtime-config, Web form, generated
+      client, and central Snapshot owners without adding a generic location
+      service or provider registry.
+- [x] Fix the small internal interfaces: provider resolution returns minimum
+      typed evidence; Brand application owns official-region coherence,
+      locality, readiness, fingerprint, receipt consumption, and the aggregate.
+- [x] Define disabled-by-default runtime configuration, Amap fail-fast config,
+      server-only credentials, fixture injection, deadlines/retry classes, and
+      the 15-minute account/exact-target-Brand/region-bound receipt.
+- [x] Define the explicit public `PRESERVE`/`REMOVE`/`REPLACE` semantics, unique
+      `verificationId`, replay behavior, and one atomic Brand/Store Location/
+      fingerprint repository transaction.
+- [x] Remove business-area candidates from durable persistence; keep them in the
+      short-lived receipt and persist only the customer-confirmed Query locality.
+- [x] Map one shared registration/edit field group, isolated map lifecycle,
+      generated verification API use, and package-specific verification matrix.
+- [ ] Product owner decides how an official-region edit interacts with an
+      existing verified Store Location before the mutation contract is fixed.
+- [ ] After that decision, rerun the affected architecture-review dimensions and
+      keep the explicit runtime-implementation authorization gate closed.

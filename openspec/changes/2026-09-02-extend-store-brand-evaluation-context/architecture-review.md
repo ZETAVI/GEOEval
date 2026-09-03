@@ -6,8 +6,8 @@
   current Prisma/Nest/Web/central-snapshot implementation, archived #27 design,
   and live #26/PR #28 dependency state.
 - Review type: revised pre-implementation architectural gate after enterprise
-  account evidence, controlled Web Service contract validation, and
-  implementation-package planning on 2026-09-03.
+  account evidence, controlled Web Service contract validation, and the
+  current-code module blueprint on 2026-09-03.
 - Non-goals: implementation review, Query/Parser/Synthesis/report redesign,
   further Amap account/Key mutation, purchase, runtime implementation,
   production migration, or deployment.
@@ -39,6 +39,23 @@ Current truth remains unchanged until implementation.
   no provider call occurs in a transaction and no search-session store is added.
 
 ## Findings
+
+### Must-fix before runtime mutation implementation: official-region edits lack a confirmed Store Location action
+
+- **Affected artifact:** design `Aggregate Write and Transaction`; public Brand
+  mutation contract and shared Web form.
+- **Boundary:** Brand aggregate consistency and customer-visible data loss.
+- **Consequence:** preserving the old Store Location after an official-region
+  edit can commit contradictory Brand facts. Automatically deleting it can
+  silently discard a customer-confirmed evaluation fact. Requiring immediate
+  reselection can prevent the customer from saving an otherwise valid draft.
+- **Narrow remediation:** the product owner chooses one explicit region-change
+  rule. The recommended option requires the same save to contain either a newly
+  verified `REPLACE` or an explicit `REMOVE`; omission is rejected with clear
+  copy. This preserves consistency without silent deletion while retaining a
+  deliberate draft path.
+- **Origin:** ambiguity exposed by deepening #40 against the current create/edit
+  form and aggregate transaction.
 
 ### Resolved follow-up: endpoint and special-city success contracts
 
@@ -90,6 +107,14 @@ Current truth remains unchanged until implementation.
 - **Data integrity:** one Store Location value, bounded peer JSON collection,
   external-call-free transaction, explicit coordinate system, locality kind,
   order-independent fingerprint, and no raw responses keep ownership reviewable.
+- **Implementation locality:** the current Brand domain/service/repository and
+  one Brand-local verification service absorb the change. The provider port has
+  one resolve method; Amap protocol, config, and receipt details are not exported
+  and no generic location module is introduced.
+- **Receipt and minimization:** a signed exact-target-Brand receipt prevents
+  cross-account/Brand mutation, a server-generated target ID prevents duplicate
+  create from the same receipt, and only the final customer locality—not the
+  candidate set—becomes durable.
 - **Development data:** an exact non-production preflight plus empty-database
   rebuild removes v1/v2 migration complexity. The destructive path is explicitly
   unavailable once production/customer data exists.
@@ -128,19 +153,20 @@ Current truth remains unchanged until implementation.
 
 ## Review Result
 
-`ready with follow-up`.
+`not ready`.
 
-The revised module/data/reset boundaries are coherent, and the product,
-architecture, commercial/legal risk, endpoint success, and special-city
-direction is confirmed. The previous external license/storage must-fix is closed
-by explicit human risk acceptance, and the previous endpoint/special-city
-follow-up is closed by the controlled evidence. JS/browser security, named
-failure/zero-locality behavior, and production credential/license controls
-remain follow-ups before production activation. No ADR is required; stable
-accepted behavior should later reconcile into Brand Knowledge, the GEO snapshot
-seam, executable schemas/tests, and architecture overview.
+The deepened module, port, receipt, persistence-minimization, configuration, and
+verification-package boundaries are coherent. The previous external license/
+storage must-fix is closed by explicit human risk acceptance, and the previous
+endpoint/special-city follow-up is closed by controlled evidence. The one
+official-region edit rule is a reachable product/data-integrity decision and
+must be confirmed before runtime mutation implementation. JS/browser security,
+named failure/zero-locality behavior, and production credential/license controls
+remain later follow-ups. No ADR is required; stable accepted behavior should
+later reconcile into Brand Knowledge, the GEO snapshot seam, executable schemas/
+tests, and architecture overview.
 
-The Draft documentation PR may proceed as a Ready design artifact, and the
-architecture is ready for explicit fixture-first runtime implementation
-authorization. It must not be presented as runtime implementation, production
-readiness, or #40 completion.
+The Draft documentation PR may proceed as a decision-ready design artifact. The
+architecture returns to `ready with follow-up` only after the region-edit answer
+is reconciled and this affected review dimension is rerun. It must not be
+presented as runtime implementation, production readiness, or #40 completion.
