@@ -1,9 +1,10 @@
 # Change: Extend Store Brand Evaluation Context
 
-- Status: Runtime implementation and current-truth reconciliation complete;
-  isolated/full test evidence, real Amap native panel/Marker verification, and
-  the explicitly authorized empty development reset pass. Product-owner
-  hands-on acceptance and final PR/Issue closure remain open.
+- Status: Accepted and archived for Final integration through PR #46; runtime
+  implementation, current-truth reconciliation, the stable #26 Query handoff,
+  isolated/full tests, real Amap native panel/Marker verification, and the
+  explicitly authorized empty development reset are complete. Production
+  activation and the parent #39 integration remain separate gates.
 - Class: Architectural
 - Owning Issue: [#40](https://github.com/ZETAVI/GEOEval/issues/40)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -208,12 +209,12 @@ may use that reset path.
   allowlist, response minimization, secret redaction, quota/error metrics, and a
   controlled account-contract check. No external call occurs in a Brand database
   transaction.
-- **Delivery:** #40 is a Partial child of #39 and the upstream interface owner
-  for #26. #39 cannot release the revised evaluation journey until both #40 and
-  the rebased #26 consumer pass their own acceptance and the final integration
-  gate. PR #28 currently overlaps Prisma, evaluation preparation, snapshot,
-  OpenAPI/client, and integration tests and is merge-conflicted; #40 stabilizes
-  the v3 producer first, then #26 rebases and adapts without importing Brand/Amap.
+- **Delivery:** #40 is a completed child of the still-open #39 parent and the
+  upstream interface owner for #26. The stable v3 Query projection is handed
+  off in Issue #26; after PR #46 reaches protected `main`, PR #28 rebases and
+  adapts without importing Brand/Amap. #39 cannot release the revised
+  evaluation journey until the rebased #26 consumer and later parent
+  integration gate pass their own acceptance.
 
 ## Documentation Impact
 
@@ -223,25 +224,26 @@ may use that reset path.
   evaluation-definition seam, product-definition index, product vision field
   summary, glossary, and architecture overview.
 - `generated after implementation`: OpenAPI and API client.
-- `archive only at close`: this Change after implementation, reconciliation,
-  final evidence, PR acceptance, and workspace exit.
+- `archive`: this Change after implementation, reconciliation, final evidence,
+  product-owner acceptance, and #26 handoff; merge/Issue/Project/workspace exit
+  remain execution evidence rather than current design truth.
 - Accepted implemented behavior is reconciled into the current-truth owners;
-  unproven activation and delivery detail remains in this active Change.
+  unproven activation and delivery detail remains in this archived Change.
 
 ## Control State
 
 - Branch: `codex/issue-40-store-brand-context`
-- Base: `main@f1b5ef47097bc50947f85808e326d88372f925ae`
+- Final reviewed base: `main@99f59ca896da1009e0b4dd28edb92dd12af4a02c`
 - Workspace: the current isolated #40 Codex worktree; recover its path from live
   workspace state rather than preserving a machine-local location
 - Writer: the #40 task owner; #26 remains a separate single writer for Query
-- Current phase: runtime implementation verification and reconciliation;
-  production credential restrictions, technical-service activation, #26 Query
-  adaptation, and release integration remain separate gates
-- PR relationship: implementation Partial PR using
-  `Part of #40 — does not close`
-- Exit for this task: fixed-diff reviews, complete local/real-browser evidence,
-  owner acceptance, and an honest Final PR/Issue state; no production activation
+- Current phase: accepted and archived for Final PR integration; production
+  credential restrictions, technical-service activation, #26 Query adaptation,
+  and parent release integration remain separate gates
+- PR relationship: Final PR #46 using bare `Closes #40`
+- Exit for this task: squash merge, native Issue closure, Project Done, clean
+  protected `main`, stopped local test runtimes, and exact #40 workspace/branch
+  removal; no production activation
 
 ## Approval Boundary
 
@@ -253,6 +255,30 @@ must-fix. Later explicit actions authorized creation of the application and two
 scoped Key types, completed bounded public-place calls, and fixture-first runtime
 implementation with real Amap calls permitted when credentials are available.
 The exact shared-development reset was later explicitly authorized and
-completed from empty. API purchase, production data/deployment, #26 Query
-behavior, evaluation Provider calls, merge, and production activation retain
-their own later authorization boundaries.
+completed from empty. On 2026-09-03 the product owner accepted the completed
+implementation, authorized PR/Issue closure, and requested exact development-
+environment cleanup. API purchase, production data/deployment, #26 Query
+behavior, evaluation Provider calls, and production activation retain their own
+later authorization boundaries.
+
+## Reconciliation State
+
+- Current truth: Brand domain/application/infrastructure code, Prisma/OpenAPI,
+  generated client, focused tests, current Brand Knowledge and Evaluation
+  Definition specs, product language, and the architecture overview own the
+  accepted behavior. This Change no longer contains the only stable design.
+- Review: fixed-diff review is `ready with disclosed evidence limitation`; the
+  reachable empty-result message defect found during final review was corrected
+  with a focused test. No unresolved intent, engineering, or evidence finding
+  requires another #40 implementation change.
+- Evidence limitation: credentialed desktop Chrome proves local input, explicit
+  PlaceSearch, native list/Marker selection, server verification, exact address,
+  automatic locality, and non-food search. Independent credentialed narrow-
+  viewport control was unavailable and is not claimed; the product owner
+  accepted it as non-blocking for this development integration.
+- Release: `release:skip`; merge activates no production credential, domain/IP
+  restriction, paid capacity, deployment, customer migration, or evaluation
+  Provider call.
+- Handoff: Issue #26 comment `5523970836` identifies the narrow v3 Query
+  projection and the required post-merge PR #28 rebase. #40 does not edit that
+  downstream implementation.

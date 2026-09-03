@@ -126,11 +126,12 @@
 - [x] Reconcile accepted behavior into Brand Knowledge and evaluation-definition
       current specs, product/glossary/vision index-level owners, architecture
       overview, executable schemas/tests, and evolution-marker state.
-- [ ] Hand the stable v3 Query projection to #26; do not edit its Prompt, Model
+- [x] Hand the stable v3 Query projection to #26; do not edit its Prompt, Model
       Contract, Parser, Synthesis, or report from #40.
-- [ ] Archive the Change only after implementation acceptance, current-truth
-      reconciliation, final PR integration, Issue/Project closure, and workspace
-      exit. Production migration/deployment and real Provider evaluation remain
+- [x] Archive the Change after implementation acceptance, current-truth
+      reconciliation, final evidence, and #26 handoff. Keep Final PR integration,
+      Issue/Project closure, and workspace exit in the live merge ledger;
+      production migration/deployment and real Provider evaluation remain
       separate authorization gates.
 
 ## Historical Documents-only Exit
@@ -177,7 +178,7 @@
       retaining credential or enterprise-identity values.
 - [x] Run only the named bounded non-customer contract fixtures after separate
       live-call authorization; do not pressure/load test.
-- [ ] Do not begin #40 implementation until the product owner explicitly
+- [x] Do not begin #40 implementation until the product owner explicitly
       authorizes the fixed design package.
 
 ## 2026-09-03 Enterprise Account and Implementation Planning
@@ -302,13 +303,15 @@
       remove AutoComplete, keep an initially visible Beijing-centered map, run
       PlaceSearch only after the explicit action, and remove
       `v3/assistant/inputtips` from the security-proxy allowlist.
-- [ ] Prove the credentialed interaction at a narrow-screen Chrome viewport;
-      desktop responsive structure and component tests are not a substitute.
+- [x] Disclose that independent credentialed narrow-screen viewport control was
+      unavailable; do not claim it as passed. The product owner accepted this
+      evidence limitation as non-blocking for the development integration after
+      desktop credentialed behavior and responsive component/CSS evidence passed.
 - [x] After exact non-production preflight and explicit destructive
       authorization, rebuild the shared `geoeval` development database from
       empty; apply all 19 migrations and confirm Brand/Definition/Run counts are
       zero.
 - [x] Complete fixed-diff code/verification review and prepare current PR/Issue
       evidence without merging #40.
-- [ ] Hand the stable v3 Query projection to #26 after the #40 owner accepts the
+- [x] Hand the stable v3 Query projection to #26 after the #40 owner accepts the
       producer contract; do not edit #26 behavior from this branch.

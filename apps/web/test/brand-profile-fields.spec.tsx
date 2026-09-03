@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { BrandProfileFields } from "../app/brands/brand-profile-fields.js";
+import { hasAmapPlaceSearchResults } from "../app/brands/store-location-picker.js";
 
 describe("shared Brand v3 fields", () => {
   it("renders one store-search path, flagship, and peer characteristics", () => {
@@ -54,5 +55,13 @@ describe("shared Brand v3 fields", () => {
     expect(source).not.toContain("location-candidate-list");
     expect(source).not.toContain("localityCandidateId");
     expect(source).not.toContain('type="radio"');
+  });
+
+  it("distinguishes a successful empty search from a selectable POI result", () => {
+    expect(
+      hasAmapPlaceSearchResults({ poiList: { pois: [{ id: "fixture" }] } }),
+    ).toBe(true);
+    expect(hasAmapPlaceSearchResults({ poiList: { pois: [] } })).toBe(false);
+    expect(hasAmapPlaceSearchResults("no_data")).toBe(false);
   });
 });

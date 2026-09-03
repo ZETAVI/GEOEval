@@ -176,9 +176,11 @@ export function StoreLocationPicker({
       service.clear();
       const status = await new Promise<"complete" | "no_data">(
         (resolve, reject) => {
-          service.search(searchInput, (status) => {
-            if (status === "complete") resolve("complete");
-            else if (status === "no_data") resolve("no_data");
+          service.search(searchInput, (status, result) => {
+            if (status === "complete" && hasAmapPlaceSearchResults(result))
+              resolve("complete");
+            else if (status === "complete" || status === "no_data")
+              resolve("no_data");
             else reject(new Error("地图搜索暂时不可用，请稍后重试"));
           });
         },
@@ -387,6 +389,11 @@ function providerPlaceIdFromEvent(event: {
 function selectedPlaceName(value: unknown): string {
   if (!isRecord(value)) return "";
   return typeof value.name === "string" ? value.name.trim() : "";
+}
+
+export function hasAmapPlaceSearchResults(value: unknown): boolean {
+  if (!isRecord(value) || !isRecord(value.poiList)) return false;
+  return Array.isArray(value.poiList.pois) && value.poiList.pois.length > 0;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
