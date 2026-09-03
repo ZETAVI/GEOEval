@@ -1,7 +1,9 @@
 # Verification: Controlled first-batch Media Supply import
 
 - Result: `verified` for implementation and isolated review-database rehearsal
-- Revision under test: working tree based on `origin/main@f1b5ef47097bc50947f85808e326d88372f925ae`
+- Implementation revision: `eee5cb9` based on
+  `origin/main@f1b5ef47097bc50947f85808e326d88372f925ae`
+- Acceptance PR: #52, stopped at `Review / Decision` without merge
 - Review database: local PostgreSQL `geoeval_issue51_review`
 - Full-test database: local PostgreSQL `geoeval_issue51_test`
 - Formal/production database write: not run and not authorized

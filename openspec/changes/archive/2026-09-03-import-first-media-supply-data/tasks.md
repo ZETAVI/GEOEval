@@ -51,6 +51,6 @@
 - [x] Reconcile accepted behavior into the current Media Supply owner and
       architecture overview; the product-definition Evolution marker remains
       valid and unchanged, and no new ADR is warranted.
-- [ ] Open the final acceptance PR with `Closes #51`, isolated rehearsal
+- [x] Open final acceptance PR #52 with `Closes #51`, isolated rehearsal
       evidence, formal-import/deployment gates, and an explicit retained-worktree
       exit state; stop at Review / Decision without merging.
