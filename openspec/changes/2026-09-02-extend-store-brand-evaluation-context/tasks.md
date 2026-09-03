@@ -77,51 +77,52 @@
       contract, detail/regeo adcode coherence, present/absent detail business
       area, multiple reverse business areas, and exact fixture Amap-to-MCA
       adcode/towncode behavior; revise the reverse contract to `extensions=all`.
-- [ ] During adapter implementation, prove named timeout/error mapping and a
+- [x] During adapter implementation, prove named timeout/error mapping and a
       zero-combined-business-area address-locality fallback with fixtures before
       any further controlled failure call is justified.
 
 ## Conditional Implementation
 
-- [ ] Add an accessible Amap JS API 2.0 map picker with AutoComplete/PlaceSearch,
+- [x] Add an accessible Amap JS API 2.0 map picker with AutoComplete/PlaceSearch,
       a nationwide full-address candidate list and Markers, minimum-input/
       debounce/result bounds, no Geolocation/current-position permission, map
       lifecycle cleanup, domain-restricted JS Key, and server security-key proxy.
-- [ ] Add the Brand-owned Store Location verification port, fixture adapter,
+- [x] Add the Brand-owned Store Location verification port, fixture adapter,
       conditional Web Service adapter/config, typed outcomes, deadlines,
       redaction, and operation metrics.
-- [ ] Add an authenticated verify endpoint and account/Brand-bound sealed
+- [x] Add an authenticated verify endpoint and account/Brand-bound sealed
       receipts; prove arbitrary coordinates, altered, expired, replayed, and
       cross-account receipts fail.
-- [ ] Add Store Location with its derived MCA official-region path, flagship,
+- [x] Add Store Location with its derived MCA official-region path, flagship,
       peer characteristics, v3 fingerprint, readiness, v3 canonical hash vectors,
       atomic Brand write, and response projections; remove separate writable
       province/city/terminal fields after the authorized reset.
-- [ ] Add the single `brand-evaluation-snapshot@3` contract and separate
+- [x] Add the single `brand-evaluation-snapshot@3` contract and separate
       historical/report and #26 Query projections without changing Query/Parser/
       Synthesis/report behavior in #40.
 - [ ] Recreate only the explicitly named development database from empty after a
       preflight proves the target is non-production; remove v1/v2 compatibility
       requirements and prove the reset cannot address a production database.
-- [ ] Reuse one responsive form in registration and Brand management with
+- [x] Reuse one responsive form in registration and Brand management with
       map/Marker/address/derived-region feedback, no region selector or location
       permission, candidate/locality selection, two default peer characteristics,
       max-six add/remove, narrow-screen, keyboard, and failure behavior.
-- [ ] Regenerate OpenAPI/client and add focused domain, adapter-contract, HTTP,
+- [x] Regenerate OpenAPI/client and add focused domain, adapter-contract, HTTP,
       migration, snapshot, API, component, and browser tests.
 
 ## Conditional Verification and Reconciliation
 
-- [ ] Run focused static/domain/contract checks before any authorized external
+- [x] Run focused static/domain/contract checks before any authorized external
       probe; then run typecheck, tests, build, OpenAPI generation, framework
-      validation, development reset/rebuild rehearsal, `git diff --check`, and
-      browser inspection.
-- [ ] Prove the Web Service Key and JS security key never enter browser assets,
+      validation, isolated empty-database rebuild rehearsal, `git diff --check`,
+      and browser inspection. The separately gated shared-development reset and
+      credentialed browser path remain open below.
+- [x] Prove the Web Service Key and JS security key never enter browser assets,
       OpenAPI, generated client, logs, traces, snapshots, or fixtures; the
       domain-restricted JS Key is the only intentionally browser-loaded key.
-- [ ] Perform fixed-diff architecture, code, and verification reviews; resolve
+- [x] Perform fixed-diff architecture, code, and verification reviews; resolve
       every must-fix/should-fix finding within #40.
-- [ ] Reconcile accepted behavior into Brand Knowledge and evaluation-definition
+- [x] Reconcile accepted behavior into Brand Knowledge and evaluation-definition
       current specs, product/glossary/vision index-level owners, architecture
       overview, executable schemas/tests, and evolution-marker state.
 - [ ] Hand the stable v3 Query projection to #26; do not edit its Prompt, Model
@@ -131,15 +132,15 @@
       exit. Production migration/deployment and real Provider evaluation remain
       separate authorization gates.
 
-## Current Task Exit
+## Historical Documents-only Exit
 
 - [x] Commit this proposal revision on the #40 branch.
 - [x] Push the branch, open a Draft Partial PR with
       `Part of #40 — does not close`, and verify the remote head/base/check state.
 - [x] Update #40 with the Source Brief, architecture review, decision request,
       Draft PR, and then-current `Review / Decision` status.
-- [x] Stop at the documents-only authorization boundary; do not begin account
-      validation or implementation.
+- [x] At that revision, stop at the documents-only authorization boundary; do
+      not begin account validation or implementation until later authorization.
 
 ## 2026-09-02 Product Decision Revision
 
@@ -198,7 +199,7 @@
       reconciliation packages with explicit evidence for each.
 - [x] Obtain separate authorization before reading credentials into an execution
       environment or making the three named controlled Amap request chains.
-- [ ] Obtain explicit implementation authorization before changing runtime code,
+- [x] Obtain explicit implementation authorization before changing runtime code,
       dependencies, Prisma, OpenAPI/client, or Web behavior.
 
 ## 2026-09-03 Controlled Web Service Contract Validation
@@ -256,5 +257,39 @@
       address disambiguation, and no browser/device/IP location permission.
 - [x] Reconcile proposal, decision brief, Source Brief, design, Brand delta,
       architecture review, and task plan; close the prior region-edit must-fix.
-- [x] Restore Issue #40 Project Status to Ready after document verification;
-      runtime implementation remains separately unauthorized.
+- [x] At that revision, restore Issue #40 Project Status to Ready after document
+      verification; runtime implementation remained separately unauthorized
+      until the later fixture-first decision.
+
+## 2026-09-03 Fixture-first Runtime Implementation
+
+- [x] Record explicit fixture-first runtime authorization and move Issue #40 to
+      `In Progress`; retain separate merge, shared-development reset, purchase,
+      production, and #26 behavior gates.
+- [x] Add v3 Prisma persistence, atomic Brand/Store Location writes, monotonic
+      receipt consumption, aggregate-row serialization, exact MCA derivation,
+      v3 fingerprint vectors, and concurrent replay/lost-update tests.
+- [x] Add disabled/deterministic/Amap Provider modes, v5 detail plus v3 reverse-
+      geocode adapter, typed failure outcomes, timeout/redaction, safe operation
+      telemetry, sealed receipts, and authenticated verification HTTP contract.
+- [x] Remove public province/city/terminal routes and legacy Brand selection
+      helpers; regenerate OpenAPI/client and activate only the v3 snapshot plus a
+      narrow GEO-owned Query projection.
+- [x] Add the official loader, bounded Next `/_AMapService` proxy, shared
+      registration/edit field group, peer-characteristic controls, no-device-
+      location copy, and map-unavailable draft behavior.
+- [x] Rebuild isolated #40 databases from empty; after rebasing onto
+      `main@f1b5ef4`, pass the complete 19-migration chain on
+      `geoeval_issue40_rebased` without touching the shared `geoeval`
+      development database.
+- [x] Pass focused backend/Web tests, 29-file/148-test backend regression,
+      5-file/21-test Web regression, all-workspace typecheck, production build,
+      framework validation, static browser-asset secret scan, and desktop no-Key
+      browser inspection.
+- [ ] Supply ignored local JS/Web Service/security credentials and prove the
+      real JS map, autocomplete, candidate Markers/list, security proxy, and
+      server verification on desktop and narrow screen.
+- [ ] Execute the separately gated shared-development database reset only after
+      an exact non-production preflight and explicit destructive authorization.
+- [ ] Complete fixed-diff code/verification review, update PR/Issue evidence,
+      and hand the stable v3 Query projection to #26 without merging #40.

@@ -5,9 +5,9 @@
 - Commercial/legal risk: reviewed and accepted by its human owner on 2026-09-02
 - Remaining activation follow-up: JS map/security-proxy evidence, named failure
   and zero-locality fixtures, production allowlists/license, and release runtime
-- Current authorization: documents, completed application/Key preparation, and
-  completed controlled Web Service calls; no runtime code, purchase,
-  production activation, or development-data reset
+- Current authorization: fixture-first runtime implementation, isolated local
+  verification, and real Amap calls when credentials are supplied; no purchase,
+  shared-development reset, production activation, merge, or #26 Query change
 
 ## Design Position
 
@@ -352,12 +352,12 @@ receipt-consumption table.
 receives the signed receipt, expiry, safe preview, derived region, and candidate IDs
 but cannot alter the covered facts. A mutation verifies signature, version,
 expiry, account, target Brand, official region, and selected candidate before
-building the aggregate. `verificationId` is persisted as a unique idempotency/
-provenance identity on the owned Store Location. Cross-account and cross-Brand
-replay is rejected by the signed bindings; re-delivery to the same target Brand
-with the same final locality may be a no-op for the location portion. A receipt
-never authorizes arbitrary coordinates, provider fields, a different official
-region, or a second locality.
+building the aggregate. `verificationId` and `receiptIssuedAt` are persisted as
+receipt-consumption and provenance facts on the owned Store Location. Cross-
+account and cross-Brand replay is rejected by the signed bindings; same-receipt
+or older-receipt replay is rejected even after a later verification replaces the
+current ID. A receipt never authorizes arbitrary coordinates, provider fields, a
+different official region, or a second locality.
 
 ### Aggregate Write and Transaction
 
@@ -385,7 +385,9 @@ current `semanticFactId` only for the same provider place plus final locality,
 otherwise creates a new one, computes readiness/fingerprint, and gives the
 repository one atomic write. The repository transaction owns Brand fields,
 Store Location insert/update/delete, verification identity, and final fingerprint
-together. It never receives a Key, raw response, or signed receipt.
+together. It locks the Brand row and compares the expected current verification
+identity so a concurrent stale mutation cannot overwrite a newer location. It
+never receives a Key, raw response, or signed receipt.
 
 There is no separate official-region mutation. Replacing or removing the Store
 Location atomically replaces or removes its derived region, locality, and
@@ -514,6 +516,7 @@ providerPlaceId            current source identity, never public mutation input
 providerContractVersion    e.g. amap-js-v2+place-v5+regeo-v3@1
 verifiedAt
 verificationId             unique verification/idempotency identity
+receiptIssuedAt             monotonic replay boundary for current location
 placeName
 formattedAddress
 provinceName

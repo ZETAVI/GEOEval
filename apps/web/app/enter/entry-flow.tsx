@@ -8,7 +8,7 @@ import {
   type BrandMutation,
 } from "@geoeval/api-client";
 import { useState } from "react";
-import { BrandReferenceFields } from "../brands/brand-reference-fields.js";
+import { BrandProfileFields } from "../brands/brand-profile-fields.js";
 import { postLoginRoute } from "./post-login-route.js";
 
 const apiBaseUrl =
@@ -20,7 +20,9 @@ export function EntryFlow() {
   const [code, setCode] = useState("");
   const [challengeId, setChallengeId] = useState("");
   const [developmentCode, setDevelopmentCode] = useState<string>();
-  const [brandForm, setBrandForm] = useState<BrandMutation>({});
+  const [brandForm, setBrandForm] = useState<BrandMutation>({
+    characteristics: ["", ""],
+  });
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -63,6 +65,10 @@ export function EntryFlow() {
         window.location.assign("/brands");
         return;
       }
+      setBrandForm((current) => ({
+        ...current,
+        contactMobile: current.contactMobile || mobile,
+      }));
       setStep("brand");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "登录失败，请重试");
@@ -162,75 +168,11 @@ export function EntryFlow() {
             可以现在完成诊断资料，也可以只保存名称后进入平台继续补充。
           </p>
           <div className="form-grid entry-brand-form">
-            <label className="wide">
-              公司或店铺名称
-              <input
-                value={brandForm.companyName ?? ""}
-                onChange={(event) =>
-                  setBrandForm((current) => ({
-                    ...current,
-                    companyName: event.target.value,
-                  }))
-                }
-                placeholder="例如：星河咖啡"
-              />
-            </label>
-            <BrandReferenceFields
+            <BrandProfileFields
               apiBaseUrl={apiBaseUrl}
               value={brandForm}
               onChange={setBrandForm}
             />
-            <label>
-              品牌特色一
-              <input
-                value={brandForm.characteristicOne ?? ""}
-                onChange={(event) =>
-                  setBrandForm((current) => ({
-                    ...current,
-                    characteristicOne: event.target.value,
-                  }))
-                }
-                placeholder="例如：适合安静办公"
-              />
-            </label>
-            <label>
-              品牌特色二
-              <input
-                value={brandForm.characteristicTwo ?? ""}
-                onChange={(event) =>
-                  setBrandForm((current) => ({
-                    ...current,
-                    characteristicTwo: event.target.value,
-                  }))
-                }
-                placeholder="例如：精品手冲"
-              />
-            </label>
-            <label>
-              联系人
-              <input
-                value={brandForm.contactName ?? ""}
-                onChange={(event) =>
-                  setBrandForm((current) => ({
-                    ...current,
-                    contactName: event.target.value,
-                  }))
-                }
-              />
-            </label>
-            <label>
-              手机号
-              <input
-                inputMode="tel"
-                value={brandForm.contactMobile ?? mobile}
-                onChange={(event) =>
-                  setBrandForm((current) => ({
-                    ...current,
-                    contactMobile: event.target.value,
-                  }))
-                }
-              />
-            </label>
           </div>
           <button
             className="primary-button"

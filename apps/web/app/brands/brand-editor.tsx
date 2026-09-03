@@ -2,7 +2,7 @@
 
 import type { Brand, BrandMutation } from "@geoeval/api-client";
 import { useState } from "react";
-import { BrandReferenceFields } from "./brand-reference-fields.js";
+import { BrandProfileFields } from "./brand-profile-fields.js";
 
 type Props = {
   apiBaseUrl: string;
@@ -25,17 +25,14 @@ export function BrandEditor({
     primaryIndustryId: brand?.primaryIndustryId ?? null,
     secondaryIndustryId: brand?.secondaryIndustryId ?? null,
     otherProductOrService: brand?.otherProductOrService ?? null,
-    characteristicOne: text(brand?.characteristicOne),
-    characteristicTwo: text(brand?.characteristicTwo),
-    provinceRegionId: brand?.provinceRegionId ?? null,
-    cityRegionId: brand?.cityRegionId ?? null,
-    terminalRegionId: brand?.terminalRegionId ?? null,
+    flagshipProductOrService: brand?.flagshipProductOrService ?? null,
+    characteristics:
+      brand?.characteristics && brand.characteristics.length > 0
+        ? brand.characteristics
+        : ["", ""],
     contactName: text(brand?.contactName),
     contactMobile: text(brand?.contactMobile),
   });
-  function field(name: keyof BrandMutation, value: string) {
-    setForm((current) => ({ ...current, [name]: value }));
-  }
 
   return (
     <div className="editor-backdrop" role="presentation">
@@ -64,49 +61,12 @@ export function BrandEditor({
           的内容齐全后即可进入免费诊断。
         </p>
         <div className="form-grid">
-          <label className="wide">
-            公司或店铺名称 *
-            <input
-              value={text(form.companyName)}
-              onChange={(e) => field("companyName", e.target.value)}
-            />
-          </label>
-          <BrandReferenceFields
+          <BrandProfileFields
             apiBaseUrl={apiBaseUrl}
+            {...(brand ? { brand } : {})}
             value={form}
             onChange={setForm}
           />
-          <label>
-            品牌特色一 *
-            <input
-              value={text(form.characteristicOne)}
-              onChange={(e) => field("characteristicOne", e.target.value)}
-              placeholder="例如：适合安静办公"
-            />
-          </label>
-          <label>
-            品牌特色二 *
-            <input
-              value={text(form.characteristicTwo)}
-              onChange={(e) => field("characteristicTwo", e.target.value)}
-              placeholder="例如：精品手冲"
-            />
-          </label>
-          <label>
-            联系人 *
-            <input
-              value={text(form.contactName)}
-              onChange={(e) => field("contactName", e.target.value)}
-            />
-          </label>
-          <label>
-            手机号 *
-            <input
-              inputMode="tel"
-              value={text(form.contactMobile)}
-              onChange={(e) => field("contactMobile", e.target.value)}
-            />
-          </label>
         </div>
         <div className="editor-actions">
           <button className="secondary-button" type="button" onClick={onCancel}>

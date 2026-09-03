@@ -58,6 +58,8 @@ in evaluation readiness and projection.
   submitted with a Brand mutation
 - **THEN** Brand atomically stores the minimum approved structured Store
   Location, source provenance, and final locality with the profile update
+- **AND** rejects same/older receipt reuse and serializes the Brand aggregate so
+  a concurrent stale mutation cannot overwrite a newer Store Location
 - **AND** records GCJ-02 explicitly for provider coordinates
 - **AND** no external call occurs inside the database transaction
 - **AND** an unchanged committed location remains usable without a runtime

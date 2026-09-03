@@ -1,16 +1,15 @@
 # Architecture Review: Proposed Store Brand Evaluation Context
 
 - Review scope: Issue #40 proposal, Amap Source Brief, Brand Knowledge delta,
-  design, decision brief, and tasks at the Propose revision.
-- Current authority: `main@d6d490d`, current Brand/product/evaluation specs,
+  design, decision brief, tasks, and the current fixed implementation diff.
+- Current authority: `main@f1b5ef4`, current Brand/product/evaluation specs,
   current Prisma/Nest/Web/central-snapshot implementation, archived #27 design,
   and live #26/PR #28 dependency state.
-- Review type: revised pre-implementation architectural gate after enterprise
-  account evidence, controlled Web Service contract validation, and the
-  current-code module blueprint on 2026-09-03.
-- Non-goals: implementation review, Query/Parser/Synthesis/report redesign,
-  further Amap account/Key mutation, purchase, runtime implementation,
-  production migration, or deployment.
+- Review type: pre-implementation architectural gate plus the fixed-diff
+  implementation review recorded below.
+- Non-goals: Query/Parser/Synthesis/report redesign, further Amap account/Key
+  mutation, purchase, shared-development reset, production migration, or
+  deployment.
 
 ## Review Contract
 
@@ -21,8 +20,9 @@ as peers, activate one v3 contract through a development-only reset, keep
 external calls outside the Brand transaction, prevent forged browser facts,
 derive one maintained official-region identity from the verified place rather
 than a second customer input, avoid browser/device location permission, minimize
-credentials/provider data, and give #26 one frozen v3 projection. Current truth
-remains unchanged until implementation.
+credentials/provider data, and give #26 one frozen v3 projection. Accepted
+implemented truth is reconciled into the current specs and executable owners;
+the remaining activation detail stays in this active Change.
 
 ## Affected Slice
 
@@ -133,9 +133,9 @@ remains unchanged until implementation.
   central snapshot contract. The current merge-conflicted PR #28 overlaps those
   files, so it rebases and adapts only after #40 stabilizes the projection; #40
   does not absorb Query Prompt, Model Contract, or execution behavior.
-- **Design knowledge:** all candidate decisions remain in this active Change.
-  Current specs/glossary/architecture are intentionally not edited before
-  approval; reconciliation targets are explicit.
+- **Design knowledge:** candidate and remaining activation detail stay in this
+  active Change, while accepted implemented behavior is reconciled into current
+  specs, glossary/product language, executable contracts, and architecture.
 
 ## Residual Risks
 
@@ -154,7 +154,7 @@ remains unchanged until implementation.
 - #40 alone does not improve questions. Production activation of the revised
   evaluation path remains gated on #26's v3 consumer and #39 integration.
 
-## Review Result
+## Pre-implementation Review Result
 
 `ready with follow-up`.
 
@@ -173,3 +173,54 @@ The Draft documentation PR may proceed as a Ready design artifact, and the
 architecture is ready for explicit fixture-first runtime implementation
 authorization. It must not be presented as runtime implementation, production
 readiness, or #40 completion.
+
+## 2026-09-03 Fixed-diff Implementation Review
+
+### Review contract and affected slice
+
+This review covers the fixture-first runtime diff against this Change design:
+Brand domain/application/persistence, the Store Location Provider port and Amap
+adapter, sealed verification receipt, authenticated HTTP contract, v3 central
+snapshot/Query seam, generated client, shared Web form/map child, and the Next
+security proxy. Query Prompt/Model Contract, evaluation Provider behavior,
+production deployment, purchase, and the shared development reset remain out of
+scope.
+
+### Resolved findings
+
+1. **must-fix — replay and lost-update integrity (introduced).** Keeping only
+   the current `verificationId` meant a replacement could erase evidence that an
+   older still-valid receipt had been consumed, while concurrent mutations could
+   both read one old location and overwrite each other. The implementation now
+   stores the receipt issue time, rejects non-newer receipts, locks the owned
+   Brand row inside the aggregate transaction, verifies the expected current
+   `verificationId`, and maps uniqueness/concurrency failures to explicit
+   application outcomes. Sequential-old, same-receipt, concurrent-create, and
+   concurrent-update cases are executable integration tests.
+2. **must-fix — security-proxy capability breadth (introduced).** A generic
+   pass-through `/_AMapService/[...path]` would have attached the server security
+   code to arbitrary Amap REST paths. The Route Handler now accepts only GET,
+   bounds path/URL shape, ignores browser-supplied `jscode`, and allowlists only
+   the input-tips and text-place paths used by the approved first interaction.
+3. **should-fix — obsolete second region contract (pre-existing, exposed).** The
+   first implementation left public region-option routes and Brand selection
+   helpers beside Store Location derivation. They are removed; the maintained
+   offline region tree remains an internal derivation source only. Current specs,
+   product language, and architecture now point to the single Store Location
+   owner.
+
+### Current result and residual evidence
+
+`ready with follow-up` for the fixture-first local implementation. Dependency
+direction remains Web → generated HTTP contract → Brand application → narrow
+Provider port/reference derivation → Brand aggregate transaction; GEO consumes
+only the immutable v3 projection. No generic map/provider registry, search
+session database, Redis cache, raw provider persistence, or Query-to-Brand
+reach-through was added.
+
+The real JS map/security-proxy interaction is not yet runtime-proven because the
+current worktree has no ignored `NEXT_PUBLIC_AMAP_JS_KEY`,
+`AMAP_JS_SECURITY_CODE`, or `AMAP_WEB_SERVICE_KEY`. The no-Key failure/draft path
+is browser-proven, and adapters/proxy are contract-tested. Production domain/IP
+allowlists, license activation, shared-development reset, #26 adaptation, merge,
+and release remain explicit follow-ups; this review does not claim them.

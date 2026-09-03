@@ -28,6 +28,9 @@ export function integrationTestEnvironment(
     NODE_ENV: "test",
     AI_EXECUTION_MODE: "deterministic",
     AI_TELEMETRY_MODE: "disabled",
+    STORE_LOCATION_MODE: "deterministic",
+    STORE_LOCATION_RECEIPT_SIGNING_SECRET:
+      "geoeval_test_store_location_receipt_secret_2026",
   };
 }
 

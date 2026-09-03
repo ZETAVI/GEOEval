@@ -1,6 +1,13 @@
-import type { BrandProfileFields, BrandProfileView } from "./brand.types.js";
+import type {
+  BrandProfileFields,
+  BrandProfileView,
+  BrandStoreLocationWrite,
+} from "./brand.types.js";
 
 export const BRAND_REPOSITORY = Symbol("BRAND_REPOSITORY");
+
+export class BrandConcurrentUpdateError extends Error {}
+export class BrandStoreLocationReceiptReplayError extends Error {}
 
 export interface BrandRepository {
   list(
@@ -11,14 +18,18 @@ export interface BrandRepository {
     brandId: string,
   ): Promise<BrandProfileView | undefined>;
   create(input: {
+    brandId?: string;
     accountId: string;
     fields: BrandProfileFields;
+    storeLocation: BrandStoreLocationWrite | null;
     evaluationFingerprint: string;
   }): Promise<BrandProfileView>;
   update(input: {
     accountId: string;
     brandId: string;
-    fields: Partial<BrandProfileFields>;
+    expectedLocationVerificationId: string | null;
+    fields: BrandProfileFields;
+    storeLocation: BrandStoreLocationWrite | null;
     evaluationFingerprint: string;
   }): Promise<BrandProfileView | undefined>;
   selectCurrent(

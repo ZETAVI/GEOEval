@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { AiExecutionConfig } from "../ai-execution/infrastructure/ai-execution.config.js";
+import type { StoreLocationRuntimeConfig } from "../brand/infrastructure/store-location.config.js";
 
 const localDatabaseUrl =
   "postgresql://geoeval:geoeval_local_only@127.0.0.1:55432/geoeval";
@@ -24,6 +25,27 @@ const apiSchema = commonSchema.extend({
   AUTH_CHALLENGE_MODE: z.literal("deterministic").default("deterministic"),
   AUTH_HASH_PEPPER: z.string().min(32),
   AUTH_DETERMINISTIC_CODE: z.string().regex(/^\d{6}$/),
+  STORE_LOCATION_MODE: z
+    .enum(["disabled", "deterministic", "amap"])
+    .default("disabled"),
+  STORE_LOCATION_RECEIPT_SIGNING_SECRET: z.string().default(""),
+  STORE_LOCATION_RECEIPT_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(300)
+    .max(1800)
+    .default(900),
+  STORE_LOCATION_REQUEST_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1000)
+    .max(30000)
+    .default(5000),
+  AMAP_WEB_SERVICE_BASE_URL: z
+    .string()
+    .url()
+    .default("https://restapi.amap.com"),
+  AMAP_WEB_SERVICE_KEY: z.string().default(""),
 });
 
 const workerSchema = commonSchema.extend({
@@ -82,6 +104,7 @@ export type ApiConfig = {
   authHashPepper: string;
   authDeterministicCode: string;
   authCookieSecure: boolean;
+  storeLocation: StoreLocationRuntimeConfig;
 };
 
 export type WorkerConfig = {
@@ -112,6 +135,36 @@ export function loadApiConfig(
   const parsed = apiSchema.parse(withLocalDefaults(environment));
   if (
     parsed.NODE_ENV === "production" &&
+    parsed.STORE_LOCATION_MODE === "deterministic"
+  ) {
+    throw new Error(
+      "Deterministic Store Location provider is forbidden in production",
+    );
+  }
+  if (
+    parsed.STORE_LOCATION_MODE !== "disabled" &&
+    parsed.STORE_LOCATION_RECEIPT_SIGNING_SECRET.length < 32
+  ) {
+    throw new Error(
+      "STORE_LOCATION_RECEIPT_SIGNING_SECRET must contain at least 32 characters",
+    );
+  }
+  if (
+    parsed.STORE_LOCATION_MODE === "amap" &&
+    !parsed.AMAP_WEB_SERVICE_KEY.trim()
+  ) {
+    throw new Error("AMAP_WEB_SERVICE_KEY is required in Amap mode");
+  }
+  const amapBaseUrl = new URL(parsed.AMAP_WEB_SERVICE_BASE_URL);
+  if (
+    parsed.STORE_LOCATION_MODE === "amap" &&
+    parsed.NODE_ENV !== "test" &&
+    amapBaseUrl.protocol !== "https:"
+  ) {
+    throw new Error("AMAP_WEB_SERVICE_BASE_URL must use HTTPS in Amap mode");
+  }
+  if (
+    parsed.NODE_ENV === "production" &&
     parsed.AUTH_CHALLENGE_MODE === "deterministic"
   ) {
     throw new Error(
@@ -128,6 +181,14 @@ export function loadApiConfig(
     authHashPepper: parsed.AUTH_HASH_PEPPER,
     authDeterministicCode: parsed.AUTH_DETERMINISTIC_CODE,
     authCookieSecure: parsed.NODE_ENV === "production",
+    storeLocation: {
+      mode: parsed.STORE_LOCATION_MODE,
+      receiptSigningSecret: parsed.STORE_LOCATION_RECEIPT_SIGNING_SECRET,
+      receiptTtlSeconds: parsed.STORE_LOCATION_RECEIPT_TTL_SECONDS,
+      requestTimeoutMs: parsed.STORE_LOCATION_REQUEST_TIMEOUT_MS,
+      amapBaseUrl: parsed.AMAP_WEB_SERVICE_BASE_URL.replace(/\/$/, ""),
+      amapWebServiceKey: parsed.AMAP_WEB_SERVICE_KEY,
+    },
   };
 }
 

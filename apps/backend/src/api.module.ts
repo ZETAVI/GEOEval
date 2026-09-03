@@ -1,7 +1,6 @@
 import { Module, type DynamicModule } from "@nestjs/common";
 
 import type { ApiConfig } from "./config/runtime-config.js";
-import { BrandModule } from "./brand/brand.module.js";
 import { FoundationController } from "./foundation/foundation.controller.js";
 import { FoundationModule } from "./foundation/foundation.module.js";
 import { GeoIntelligenceModule } from "./geo-intelligence/geo-intelligence.module.js";
@@ -22,8 +21,7 @@ export class ApiModule {
         PersistenceModule.register(config.databaseUrl),
         TelemetryModule.register(config.telemetryShouldFail),
         IdentityModule.register(config),
-        BrandModule,
-        GeoIntelligenceModule,
+        GeoIntelligenceModule.register(config.storeLocation),
         MediaSupplyModule,
         NotificationApiModule,
         ReadinessModule,

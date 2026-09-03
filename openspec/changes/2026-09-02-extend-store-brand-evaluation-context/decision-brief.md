@@ -61,12 +61,12 @@ account's documented service grants, Key types, quotas, and security controls.
 
 The application, separate JS/Web Service Key types, enterprise certification,
 test-scale monthly quota, and bounded Web Service success shapes are observed.
-The single-source Store Location/derived-region decision removes the last
-product ambiguity, so the current-code module blueprint is ready for explicit
-runtime implementation authorization. A technical-service license is not
-active, and production domain/IP restrictions and JS map/security-proxy behavior
-are not verified. Those production controls and any purchase remain later
-technical/operational boundaries rather than product decisions.
+The single-source Store Location/derived-region decision removed the last
+product ambiguity, and the owner explicitly authorized fixture-first runtime
+implementation on 2026-09-03. A technical-service license is not active, and
+production domain/IP restrictions plus real JS map/security-proxy behavior are
+not yet verified. Those controls and any purchase remain later operational
+boundaries rather than product decisions.
 
 #40 is the upstream v3 producer. PR #28 currently overlaps the Prisma schema,
 evaluation service, snapshot parser, OpenAPI/client, and integration tests and

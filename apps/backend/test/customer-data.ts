@@ -1,17 +1,107 @@
+import { randomUUID } from "node:crypto";
+
 import type { PrismaService } from "../src/infrastructure/prisma.service.js";
-import type { EditableBrandFields } from "../src/brand/domain/brand.types.js";
+import { StoreLocationReceiptCodec } from "../src/brand/application/store-location-receipt.js";
+import type {
+  BrandMutationInput,
+  EditableBrandFields,
+} from "../src/brand/domain/brand.types.js";
+import { BrandReferenceData } from "../src/brand/reference-data/brand-reference-data.js";
 
 export const READY_COFFEE_BRAND_FIELDS: EditableBrandFields = {
   primaryIndustryId: "IND-01",
   secondaryIndustryId: "IND-01-02",
-  characteristicOne: "安静办公",
-  characteristicTwo: "精品手冲",
-  provinceRegionId: "CN-MCA-PROVINCE-440000",
-  cityRegionId: "CN-MCA-PREFECTURE-440100",
-  terminalRegionId: "CN-MCA-COUNTY-440106",
+  flagshipProductOrService: "精品手冲咖啡",
+  characteristics: ["安静办公", "精品手冲"],
   contactName: "林先生",
   contactMobile: "+8613900000101",
 };
+
+let receiptNowMs = new Date("2026-09-03T00:00:00.000Z").getTime();
+export const TEST_STORE_LOCATION_RECEIPTS = new StoreLocationReceiptCodec(
+  "geoeval_test_store_location_receipt_secret_2026",
+  900,
+  () => new Date(receiptNowMs),
+);
+
+export function readyCoffeeBrandInput(
+  accountId: string,
+  fields: BrandMutationInput = {},
+): BrandMutationInput {
+  const targetBrandId = randomUUID();
+  const issued = issueStoreLocationReceipt({
+    accountId,
+    targetBrandId,
+    targetKind: "NEW_BRAND",
+  });
+  return {
+    ...READY_COFFEE_BRAND_FIELDS,
+    ...fields,
+    locationChange: {
+      action: "REPLACE",
+      verificationReceipt: issued,
+      localityCandidateId: "business-area-1",
+    },
+  };
+}
+
+export function replacementStoreLocationInput(
+  accountId: string,
+  brandId: string,
+  localityCandidateId = "business-area-1",
+): BrandMutationInput {
+  return {
+    locationChange: {
+      action: "REPLACE",
+      verificationReceipt: issueStoreLocationReceipt({
+        accountId,
+        targetBrandId: brandId,
+        targetKind: "EXISTING_BRAND",
+      }),
+      localityCandidateId,
+    },
+  };
+}
+
+function issueStoreLocationReceipt(input: {
+  accountId: string;
+  targetBrandId: string;
+  targetKind: "NEW_BRAND" | "EXISTING_BRAND";
+}): string {
+  receiptNowMs += 1;
+  const receiptNow = new Date(receiptNowMs);
+  return TEST_STORE_LOCATION_RECEIPTS.issue({
+    verificationId: randomUUID(),
+    ...input,
+    searchInput: "广州塔",
+    evidence: {
+      providerPlaceId: "fixture-guangzhou-tower",
+      placeName: "广州塔",
+      formattedAddress: "广东省广州市海珠区阅江西路222号",
+      coordinate: {
+        longitude: 113.324553,
+        latitude: 23.106414,
+        system: "GCJ_02",
+      },
+      provinceName: "广东省",
+      cityName: "广州市",
+      districtName: "海珠区",
+      townshipName: "赤岗街道",
+      adcode: "440105",
+      towncode: "440105001000",
+      providerContractVersion: "fixture@1",
+      verifiedAt: receiptNow.toISOString(),
+    },
+    officialRegion: new BrandReferenceData().deriveOfficialRegion({
+      adcode: "440105",
+      towncode: "440105001000",
+    }),
+    localityCandidates: [
+      { id: "business-area-1", kind: "BUSINESS_AREA", label: "赤岗" },
+      { id: "business-area-2", kind: "BUSINESS_AREA", label: "客村" },
+    ],
+  }).verificationReceipt;
+}
 
 export async function clearCustomerData(prisma: PrismaService): Promise<void> {
   await prisma.mediaCatalogAudit.deleteMany();
@@ -40,6 +130,7 @@ export async function clearCustomerData(prisma: PrismaService): Promise<void> {
   await prisma.evaluationQuestion.deleteMany();
   await prisma.evaluationDefinition.deleteMany();
   await prisma.brandContext.deleteMany();
+  await prisma.brandStoreLocation.deleteMany();
   await prisma.brandProfile.deleteMany();
   await prisma.accountSession.deleteMany();
   await prisma.account.deleteMany();

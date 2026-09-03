@@ -9,7 +9,8 @@ import { PostgresEvaluationRepository } from "../src/geo-intelligence/infrastruc
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import {
   clearCustomerData,
-  READY_COFFEE_BRAND_FIELDS,
+  readyCoffeeBrandInput,
+  TEST_STORE_LOCATION_RECEIPTS,
 } from "./customer-data.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
@@ -20,6 +21,7 @@ describe("evaluation definition and official start", () => {
   const brands = new BrandService(
     new PostgresBrandRepository(prisma),
     new BrandReferenceData(),
+    TEST_STORE_LOCATION_RECEIPTS,
   );
   const evaluations = new EvaluationService(
     brands,
@@ -92,7 +94,7 @@ describe("evaluation definition and official start", () => {
     const brand = await createReadyBrand(brands, accountId);
     const first = await evaluations.prepareDefinition(accountId, brand.id);
     await brands.update(accountId, brand.id, {
-      characteristicOne: "安静办公与小型会议",
+      characteristics: ["安静办公与小型会议", "精品手冲"],
     });
     const second = await evaluations.prepareDefinition(accountId, brand.id);
 
@@ -130,7 +132,7 @@ describe("evaluation definition and official start", () => {
     const first = await evaluations.prepareDefinition(accountId, brand.id);
     await evaluations.startRun(accountId, first.id);
     await brands.update(accountId, brand.id, {
-      characteristicTwo: "可预订的手冲体验课",
+      characteristics: ["安静办公", "可预订的手冲体验课"],
     });
     const second = await evaluations.prepareDefinition(accountId, brand.id);
 
@@ -169,9 +171,11 @@ describe("evaluation definition and official start", () => {
 });
 
 async function createReadyBrand(brands: BrandService, accountId: string) {
-  return brands.create(accountId, {
-    companyName: "星河咖啡",
-    ...READY_COFFEE_BRAND_FIELDS,
-    contactMobile: "13900000101",
-  });
+  return brands.create(
+    accountId,
+    readyCoffeeBrandInput(accountId, {
+      companyName: "星河咖啡",
+      contactMobile: "13900000101",
+    }),
+  );
 }

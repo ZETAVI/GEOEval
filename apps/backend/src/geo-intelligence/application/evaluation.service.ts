@@ -48,12 +48,19 @@ export class EvaluationService {
     if (existing) return existing;
 
     const snapshot: EvaluationBrandSnapshot = {
-      schemaVersion: "brand-evaluation-snapshot@2",
+      schemaVersion: "brand-evaluation-snapshot@3",
       companyName: brand.companyName,
       industry: brand.industry,
       region: brand.region,
-      characteristicOne: brand.characteristicOne,
-      characteristicTwo: brand.characteristicTwo,
+      storeLocation: {
+        ...brand.storeLocation,
+        source: {
+          ...brand.storeLocation.source,
+          verifiedAt: brand.storeLocation.source.verifiedAt.toISOString(),
+        },
+      },
+      flagshipProductOrService: brand.flagshipProductOrService,
+      characteristics: brand.characteristics,
     };
     const questions = await this.questionGenerator.generate(snapshot);
     assertCompleteQuestionSet(questions);

@@ -14,9 +14,9 @@
   semantic route recovery, and public report projection are owned by the
   [evaluation-evidence](../evaluation-evidence/spec.md) and
   [evaluation-report](../evaluation-report/spec.md) specifications. Controlled
-  industry and mainland-region selection, Brand readiness, fingerprint meaning,
-  and the evaluation-purpose projection are owned by the
-  [Brand Knowledge specification](../brand-knowledge/spec.md). This marker
+  industry selection, verified Store Location and derived-region meaning, Brand
+  readiness, fingerprinting, and the evaluation-purpose projection are owned by
+  the [Brand Knowledge specification](../brand-knowledge/spec.md).
   The administrator-maintained platform catalog, pricing, optional resource
   examples, revision, and audit boundary are owned by the
   [Media Supply specification](../media-supply/spec.md). This marker remains for
@@ -310,8 +310,9 @@ are outside the initial product boundary.
 #### Scenario: A customer prepares the current brand for evaluation
 
 - **WHEN** the customer wants to start AI diagnosis or evaluation
-- **THEN** the current brand satisfies the controlled industry, mainland-region,
-  `Other`, company/store name, two-characteristic, contact, and mobile readiness
+- **THEN** the current brand satisfies the controlled industry/`Other`, verified
+  Store Location and derived official-region, company/store name, flagship
+  product/service, two-to-six peer-characteristic, contact, and mobile readiness
   rules owned by the [Brand Knowledge specification](../brand-knowledge/spec.md)
 - **AND** the selected industry represents the product or service for which the
   brand most wants to be found and recommended

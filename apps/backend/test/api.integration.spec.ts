@@ -81,7 +81,7 @@ describe("customer-entry HTTP contract", () => {
     });
   });
 
-  it("serves dependent industry and three-level mainland region choices", async () => {
+  it("serves dependent industry choices without a second writable region standard", async () => {
     const cookie = await login(baseUrl, "13900000013");
     const industries = await fetch(
       `${baseUrl}/brand-reference-data/industries`,
@@ -90,46 +90,41 @@ describe("customer-entry HTTP contract", () => {
     expect(industries.status).toBe(200);
     expect((await industries.json()).primaryIndustries).toHaveLength(13);
 
-    const provinces = await fetch(
+    const legacyRegionSelector = await fetch(
       `${baseUrl}/brand-reference-data/regions/provinces`,
       { headers: { cookie } },
     );
-    const provinceBody = (await provinces.json()) as {
-      options: Array<{ id: string; label: string }>;
-    };
-    expect(provinceBody.options).toHaveLength(31);
-    const guangdong = provinceBody.options.find(
-      (option) => option.label === "广东省",
-    )!;
-
-    const cities = await fetch(
-      `${baseUrl}/brand-reference-data/regions/provinces/${guangdong.id}/cities`,
-      { headers: { cookie } },
-    );
-    const cityBody = (await cities.json()) as {
-      options: Array<{ id: string; label: string }>;
-    };
-    const dongguan = cityBody.options.find(
-      (option) => option.label === "东莞市",
-    )!;
-
-    const terminals = await fetch(
-      `${baseUrl}/brand-reference-data/regions/provinces/${guangdong.id}/cities/${dongguan.id}/terminals`,
-      { headers: { cookie } },
-    );
-    const terminalBody = (await terminals.json()) as {
-      options: Array<{ label: string; officialLevel: string }>;
-    };
-    expect(terminalBody.options).toHaveLength(32);
-    expect(terminalBody.options).toContainEqual({
-      id: "CN-MCA-TOWNSHIP-441900006",
-      label: "莞城街道",
-      officialLevel: "TOWNSHIP",
-    });
+    expect(legacyRegionSelector.status).toBe(404);
   });
 
   it("serves the fixed definition and idempotent official-start contract", async () => {
     const cookie = await login(baseUrl, "13900000004");
+    const verificationResponse = await fetch(
+      `${baseUrl}/brand-location-verifications`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie },
+        body: JSON.stringify({
+          searchInput: "广州塔",
+          providerPlaceId: "fixture-guangzhou-tower",
+        }),
+      },
+    );
+    expect(verificationResponse.status).toBe(201);
+    const verification = (await verificationResponse.json()) as {
+      verificationReceipt: string;
+      localityCandidates: Array<{ id: string; label: string }>;
+      locationPreview: {
+        officialRegion: { terminal: { label: string } };
+      };
+    };
+    expect(verification.locationPreview.officialRegion.terminal.label).toBe(
+      "海珠区",
+    );
+    expect(verification.localityCandidates.map((item) => item.label)).toEqual([
+      "赤岗",
+      "客村",
+    ]);
     const brandResponse = await fetch(`${baseUrl}/brands`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie },
@@ -137,23 +132,31 @@ describe("customer-entry HTTP contract", () => {
         companyName: "HTTP 评测测试品牌",
         primaryIndustryId: "IND-01",
         secondaryIndustryId: "IND-01-02",
-        characteristicOne: "安静办公",
-        characteristicTwo: "精品手冲",
-        provinceRegionId: "CN-MCA-PROVINCE-440000",
-        cityRegionId: "CN-MCA-PREFECTURE-440100",
-        terminalRegionId: "CN-MCA-COUNTY-440106",
+        flagshipProductOrService: "精品手冲咖啡",
+        characteristics: ["安静办公", "精品手冲"],
         contactName: "林先生",
         contactMobile: "13900000004",
+        locationChange: {
+          action: "REPLACE",
+          verificationReceipt: verification.verificationReceipt,
+          localityCandidateId: verification.localityCandidates[0]!.id,
+        },
       }),
     });
     const brand = (await brandResponse.json()) as {
       id: string;
       primaryIndustryLabel: string;
-      terminalRegionLabel: string;
+      storeLocation: {
+        officialRegion: { terminal: { label: string } };
+        queryLocality: { label: string };
+      };
     };
     expect(brand).toMatchObject({
       primaryIndustryLabel: "本地生活与门店服务",
-      terminalRegionLabel: "天河区",
+      storeLocation: {
+        officialRegion: { terminal: { label: "海珠区" } },
+        queryLocality: { label: "赤岗" },
+      },
     });
 
     const definitionResponse = await fetch(

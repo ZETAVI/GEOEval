@@ -1,20 +1,20 @@
 # Change: Extend Store Brand Evaluation Context
 
-- Status: Product, architecture, commercial/legal risk, and external API design
-  direction confirmed; enterprise certification, test-scale quota, bounded Web
-  Service success shapes, single-source Store Location/derived-region decision,
-  and the current-code module blueprint are recorded on 2026-09-03; ready for
-  explicit runtime implementation authorization
+- Status: Fixture-first runtime implementation and current-truth reconciliation
+  in progress after explicit authorization on 2026-09-03; isolated migration,
+  backend/Web tests, build, and no-Key browser draft behavior pass, while real JS
+  map/security-proxy evidence and the named development reset remain open gates
 - Class: Architectural
 - Owning Issue: [#40](https://github.com/ZETAVI/GEOEval/issues/40)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Downstream consumer: [#26 Query Generator](https://github.com/ZETAVI/GEOEval/issues/26)
 - Decision owners: Product owner and architecture owner; the commercial/legal
   risk owner has reviewed and accepted the provider-terms boundary
-- Authorization: research, proposal documents, separately approved Amap
-  application/Key preparation, and the completed bounded controlled calls only;
-  no runtime implementation, API purchase, production change, production data
-  migration, Query change, or deployment
+- Authorization: research, application/Key preparation, bounded controlled Amap
+  calls, fixture-first runtime implementation, local isolated verification, and
+  real Amap calls when credentials are explicitly supplied; no API purchase,
+  production change/deployment, Query change, evaluation Provider calls, or
+  destructive reset of the shared development database
 
 ## Why
 
@@ -216,30 +216,29 @@ may use that reset path.
 
 - `add`: this active proposal, source brief, delta, design, decision brief,
   architecture review, and tasks.
-- `update after acceptance and implementation`: Brand Knowledge current spec,
+- `updated after acceptance and implementation`: Brand Knowledge current spec,
   evaluation-definition seam, product-definition index, product vision field
   summary, glossary, and architecture overview.
-- `generate after implementation`: OpenAPI and API client.
+- `generated after implementation`: OpenAPI and API client.
 - `archive only at close`: this Change after implementation, reconciliation,
   final evidence, PR acceptance, and workspace exit.
-- No current-truth document is changed in this proposal PR.
+- Accepted implemented behavior is reconciled into the current-truth owners;
+  unproven activation and delivery detail remains in this active Change.
 
 ## Control State
 
 - Branch: `codex/issue-40-store-brand-context`
-- Base: `main@d6d490d215389ce6fb1d687eda72ffa21703a0b7`
+- Base: `main@f1b5ef47097bc50947f85808e326d88372f925ae`
 - Workspace: the current isolated #40 Codex worktree; recover its path from live
   workspace state rather than preserving a machine-local location
 - Writer: the #40 task owner; #26 remains a separate single writer for Query
-- Current phase: enterprise account/API contract preparation and current-code
-  module blueprint complete; the single-source Store Location/derived-region
-  decision closes the prior human gate. Explicit implementation authorization,
-  production credential restrictions, and technical-service activation remain
-  separate gates
-- PR relationship: documentation-only Partial PR using
+- Current phase: runtime implementation verification and reconciliation;
+  production credential restrictions, technical-service activation, #26 Query
+  adaptation, and release integration remain separate gates
+- PR relationship: implementation Partial PR using
   `Part of #40 — does not close`
-- Exit for this task: Draft PR and Issue #40 updated with the single-source
-  region revision and refreshed architecture result, then stop before code
+- Exit for this task: fixed-diff reviews, complete local evidence, and an honest
+  Draft PR/Issue state; no merge, production activation, or shared-database reset
 
 ## Approval Boundary
 
@@ -248,12 +247,8 @@ confirmed with the recorded revisions on 2026-09-02. The risk owner explicitly
 accepts proceeding from current official API documentation without a separate
 licensing/storage inquiry. That decision removes the previous external legal
 must-fix. Later explicit actions authorized creation of the application and two
-scoped Key types plus the completed bounded public-place contract calls. They do
-not authorize code implementation, a development-data reset, API purchase,
-production data, production deployment, Query/Parser/Synthesis/report changes,
-or evaluation Provider calls.
-
-Implementation still requires an explicit implementation instruction.
-Additional credential changes, API purchase, any further justified live Amap
-calls, the destructive development reset, evaluation Provider calls, and
+scoped Key types, completed bounded public-place calls, and fixture-first runtime
+implementation with real Amap calls permitted when credentials are available.
+API purchase, destructive reset of the shared development database, production
+data/deployment, #26 Query behavior, evaluation Provider calls, merge, and
 production activation retain their own later authorization boundaries.

@@ -1,5 +1,8 @@
+import { randomUUID } from "node:crypto";
+
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -8,31 +11,49 @@ import { z } from "zod";
 
 import {
   BRAND_REPOSITORY,
+  BrandConcurrentUpdateError,
+  BrandStoreLocationReceiptReplayError,
   type BrandRepository,
 } from "../domain/brand.repository.js";
 import {
+  BrandProfileValidationError,
   brandReadiness,
+  canonicalCharacteristics,
   evaluationFingerprint,
+  normalizeCharacteristics,
+  normalizeFlagshipProductOrService,
   normalizeText,
+  sameStoreLocationMeaning,
 } from "../domain/brand-profile.js";
 import type {
+  BrandMutationInput,
   BrandProfileFields,
   BrandProfileView,
+  BrandStoreLocation,
+  BrandStoreLocationWrite,
   BrandView,
   EditableBrandFields,
   EvaluationPurposeBrandView,
   EvaluationReportPurposeBrandView,
+  LocationChangeRequest,
 } from "../domain/brand.types.js";
 import {
   BrandReferenceData,
   BrandReferenceValidationError,
 } from "../reference-data/brand-reference-data.js";
+import {
+  StoreLocationReceiptCodec,
+  StoreLocationReceiptError,
+  type StoreLocationReceiptPayload,
+} from "./store-location-receipt.js";
 
 @Injectable()
 export class BrandService {
   constructor(
     @Inject(BRAND_REPOSITORY) private readonly repository: BrandRepository,
     @Inject(BrandReferenceData) private readonly references: BrandReferenceData,
+    @Inject(StoreLocationReceiptCodec)
+    private readonly receipts: StoreLocationReceiptCodec,
   ) {}
 
   async list(accountId: string): Promise<BrandView[]> {
@@ -49,23 +70,52 @@ export class BrandService {
 
   async create(
     accountId: string,
-    input: EditableBrandFields,
+    input: BrandMutationInput,
     defaultContactMobile?: string,
   ): Promise<BrandView> {
     const parsed = parseBrandMutation(input);
+    if (parsed.locationChange?.action === "REMOVE") {
+      throw new BadRequestException("新品牌没有可移除的门店");
+    }
     const fields = completeFields({
-      ...parsed,
-      contactMobile: parsed.contactMobile ?? defaultContactMobile ?? null,
+      ...parsed.fields,
+      contactMobile:
+        parsed.fields.contactMobile ?? defaultContactMobile ?? null,
     });
     if (!fields.companyName) {
       throw new BadRequestException("请填写公司或店铺名称");
     }
-    this.assertReferenceSelection(fields);
-    const created = await this.repository.create({
-      accountId,
-      fields,
-      evaluationFingerprint: this.fingerprint(fields),
-    });
+    this.assertIndustrySelection(fields);
+    const receipt = parsed.locationChange
+      ? this.verifyReceipt(accountId, parsed.locationChange, "NEW_BRAND")
+      : null;
+    if (
+      receipt &&
+      (await this.repository.find(accountId, receipt.payload.targetBrandId))
+    ) {
+      throw new BadRequestException("门店验证凭证已使用，请重新选择门店");
+    }
+    const storeLocation = receipt
+      ? locationFromReceipt(receipt.payload, receipt.candidate, randomUUID())
+      : null;
+    let created: BrandProfileView;
+    try {
+      created = await this.repository.create({
+        ...(receipt ? { brandId: receipt.payload.targetBrandId } : {}),
+        accountId,
+        fields,
+        storeLocation,
+        evaluationFingerprint: evaluationFingerprint(
+          fields,
+          asLocation(storeLocation),
+        ),
+      });
+    } catch (error) {
+      if (error instanceof BrandStoreLocationReceiptReplayError) {
+        throw new BadRequestException("门店验证凭证已使用，请重新选择门店");
+      }
+      throw error;
+    }
     const current = await this.current(accountId);
     return this.presentBrand(created, current?.id === created.id);
   }
@@ -73,27 +123,45 @@ export class BrandService {
   async update(
     accountId: string,
     brandId: string,
-    input: EditableBrandFields,
+    input: BrandMutationInput,
   ): Promise<BrandView> {
     const existing = await this.repository.find(accountId, brandId);
     if (!existing) throw new NotFoundException("未找到该品牌");
-    const patch = cleanPatch(parseBrandMutation(input));
-    const fields = completeFields({ ...existing, ...patch });
+    const parsed = parseBrandMutation(input);
+    const fields = completeFields({ ...existing, ...parsed.fields });
     if (!fields.companyName) {
       throw new BadRequestException("公司或店铺名称不能为空");
     }
-    this.assertReferenceSelection(fields);
-    const { companyName, ...otherPatch } = patch;
-    const repositoryPatch: Partial<BrandProfileFields> = {
-      ...otherPatch,
-      ...(typeof companyName === "string" ? { companyName } : {}),
-    };
-    const updated = await this.repository.update({
+    this.assertIndustrySelection(fields);
+    const storeLocation = this.nextLocation(
       accountId,
       brandId,
-      fields: repositoryPatch,
-      evaluationFingerprint: this.fingerprint(fields),
-    });
+      existing.storeLocation,
+      parsed.locationChange,
+    );
+    let updated: BrandProfileView | undefined;
+    try {
+      updated = await this.repository.update({
+        accountId,
+        brandId,
+        expectedLocationVerificationId:
+          existing.storeLocation?.verificationId ?? null,
+        fields,
+        storeLocation,
+        evaluationFingerprint: evaluationFingerprint(
+          fields,
+          asLocation(storeLocation),
+        ),
+      });
+    } catch (error) {
+      if (error instanceof BrandConcurrentUpdateError) {
+        throw new ConflictException("品牌资料已被更新，请刷新后重试");
+      }
+      if (error instanceof BrandStoreLocationReceiptReplayError) {
+        throw new BadRequestException("门店验证凭证已使用，请重新选择门店");
+      }
+      throw error;
+    }
     if (!updated) throw new NotFoundException("未找到该品牌");
     const current = await this.current(accountId);
     return this.presentBrand(updated, current?.id === updated.id);
@@ -111,25 +179,40 @@ export class BrandService {
   ): Promise<EvaluationPurposeBrandView> {
     const brand = await this.repository.find(accountId, brandId);
     if (!brand) throw new NotFoundException("未找到该品牌");
-    const resolved = this.resolveReferenceSelection(brand);
+    const resolved = this.resolveIndustrySelection(brand);
     const readiness = brandReadiness(
       brand,
       resolved.secondaryIndustry?.isOther ?? false,
+      brand.storeLocation,
     );
-    if (!readiness.readyForEvaluation) {
+    if (!readiness.readyForEvaluation || !brand.storeLocation) {
       throw new BadRequestException(
         `请先补全诊断资料：${readiness.missingFields.join("、")}`,
       );
     }
-    const projection = this.references.evaluationProjection(brand);
+    const industry = this.references.industryProjection(brand);
     return {
       accountId,
       brandId,
       inputFingerprint: brand.evaluationFingerprint,
       companyName: brand.companyName,
-      ...projection,
-      characteristicOne: brand.characteristicOne!,
-      characteristicTwo: brand.characteristicTwo!,
+      industry,
+      region: brand.storeLocation.officialRegion,
+      storeLocation: {
+        semanticFactId: brand.storeLocation.semanticFactId,
+        placeName: brand.storeLocation.placeName,
+        formattedAddress: brand.storeLocation.formattedAddress,
+        coordinate: brand.storeLocation.coordinate,
+        queryLocality: brand.storeLocation.queryLocality,
+        source: {
+          provider: brand.storeLocation.provider,
+          placeId: brand.storeLocation.providerPlaceId,
+          contractVersion: brand.storeLocation.providerContractVersion,
+          verifiedAt: brand.storeLocation.verifiedAt,
+        },
+      },
+      flagshipProductOrService: brand.flagshipProductOrService!,
+      characteristics: canonicalCharacteristics(brand.characteristics),
     };
   }
 
@@ -147,23 +230,87 @@ export class BrandService {
     };
   }
 
-  private fingerprint(fields: BrandProfileFields): string {
-    return evaluationFingerprint(
-      fields,
-      this.references.semanticRegionPath(fields),
+  private nextLocation(
+    accountId: string,
+    brandId: string,
+    current: BrandStoreLocation | null,
+    change: LocationChangeRequest | undefined,
+  ): BrandStoreLocationWrite | null {
+    if (!change) return current ? toLocationWrite(current) : null;
+    if (change.action === "REMOVE") return null;
+    const receipt = this.verifyReceipt(
+      accountId,
+      change,
+      "EXISTING_BRAND",
+      brandId,
+    );
+    if (current?.verificationId === receipt.payload.verificationId) {
+      throw new BadRequestException("门店验证凭证已使用，请重新选择门店");
+    }
+    if (
+      current &&
+      receipt.payload.issuedAt <= current.receiptIssuedAt.getTime()
+    ) {
+      throw new BadRequestException("门店验证凭证已过期，请重新选择门店");
+    }
+    const candidate = {
+      providerPlaceId: receipt.payload.evidence.providerPlaceId,
+      queryLocality: {
+        kind: receipt.candidate.kind,
+        label: receipt.candidate.label,
+      },
+    };
+    const semanticFactId = sameStoreLocationMeaning(current, candidate)
+      ? current!.semanticFactId
+      : randomUUID();
+    return locationFromReceipt(
+      receipt.payload,
+      receipt.candidate,
+      semanticFactId,
     );
   }
 
-  private assertReferenceSelection(fields: BrandProfileFields): void {
-    this.resolveReferenceSelection(fields, true);
+  private verifyReceipt(
+    accountId: string,
+    change: Extract<LocationChangeRequest, { action: "REPLACE" }>,
+    targetKind: StoreLocationReceiptPayload["targetKind"],
+    targetBrandId?: string,
+  ) {
+    let payload: StoreLocationReceiptPayload;
+    try {
+      payload = this.receipts.verify(change.verificationReceipt);
+    } catch (error) {
+      if (error instanceof StoreLocationReceiptError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
+    if (
+      payload.accountId !== accountId ||
+      payload.targetKind !== targetKind ||
+      (targetBrandId && payload.targetBrandId !== targetBrandId)
+    ) {
+      throw new BadRequestException("门店验证凭证不属于当前品牌");
+    }
+    const candidate = payload.localityCandidates.find(
+      (item) => item.id === change.localityCandidateId,
+    );
+    if (!candidate) {
+      throw new BadRequestException("请选择本次验证返回的位置范围");
+    }
+    return { payload, candidate };
   }
 
-  private resolveReferenceSelection(
+  private assertIndustrySelection(fields: BrandProfileFields): void {
+    this.resolveIndustrySelection(fields, true);
+  }
+
+  private resolveIndustrySelection(
     fields: BrandProfileFields,
     requireActive = false,
   ) {
     try {
-      return this.references.resolve(fields, requireActive);
+      return this.references.resolveIndustry(fields, requireActive);
     } catch (error) {
       if (error instanceof BrandReferenceValidationError) {
         throw new BadRequestException(error.message);
@@ -173,32 +320,72 @@ export class BrandService {
   }
 
   private presentBrand(brand: BrandProfileView, isCurrent: boolean): BrandView {
-    const resolved = this.resolveReferenceSelection(brand);
+    const resolved = this.resolveIndustrySelection(brand);
     return {
       ...brand,
-      ...brandReadiness(brand, resolved.secondaryIndustry?.isOther ?? false),
+      ...brandReadiness(
+        brand,
+        resolved.secondaryIndustry?.isOther ?? false,
+        brand.storeLocation,
+      ),
       primaryIndustryLabel: resolved.primaryIndustry?.label ?? null,
       secondaryIndustryLabel: resolved.secondaryIndustry?.label ?? null,
-      provinceRegionLabel: resolved.province?.label ?? null,
-      cityRegionLabel: resolved.city?.label ?? null,
-      terminalRegionLabel: resolved.terminalRegion?.label ?? null,
-      terminalRegionLevel:
-        resolved.terminalRegion?.officialLevel === "COUNTY" ||
-        resolved.terminalRegion?.officialLevel === "TOWNSHIP"
-          ? resolved.terminalRegion.officialLevel
-          : null,
       isCurrent,
     };
   }
 }
 
-function cleanPatch(input: EditableBrandFields): EditableBrandFields {
-  return Object.fromEntries(
-    Object.entries(input).map(([key, value]) => [
-      key,
-      typeof value === "string" ? normalizeText(value) || null : value,
-    ]),
-  ) as EditableBrandFields;
+function parseBrandMutation(input: BrandMutationInput): {
+  fields: EditableBrandFields;
+  locationChange?: LocationChangeRequest;
+} {
+  const parsed = brandMutationSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new BadRequestException("品牌资料格式不正确，请检查后重试");
+  }
+  try {
+    const fields = cleanPatch(parsed.data);
+    return {
+      fields,
+      ...(parsed.data.locationChange
+        ? { locationChange: parsed.data.locationChange }
+        : {}),
+    };
+  } catch (error) {
+    if (error instanceof BrandProfileValidationError) {
+      throw new BadRequestException(error.message);
+    }
+    throw error;
+  }
+}
+
+function cleanPatch(
+  input: z.infer<typeof brandMutationSchema>,
+): EditableBrandFields {
+  const result: EditableBrandFields = {};
+  if (input.companyName !== undefined) {
+    result.companyName = normalizeText(input.companyName) || null;
+  }
+  for (const field of [
+    "primaryIndustryId",
+    "secondaryIndustryId",
+    "otherProductOrService",
+    "contactName",
+    "contactMobile",
+  ] as const) {
+    if (input[field] !== undefined) {
+      result[field] = normalizeText(input[field]) || null;
+    }
+  }
+  if (input.flagshipProductOrService !== undefined) {
+    result.flagshipProductOrService = normalizeFlagshipProductOrService(
+      input.flagshipProductOrService,
+    );
+  }
+  if (input.characteristics !== undefined) {
+    result.characteristics = normalizeCharacteristics(input.characteristics);
+  }
+  return result;
 }
 
 const brandMutationSchema = z
@@ -207,39 +394,91 @@ const brandMutationSchema = z
     primaryIndustryId: z.string().max(100).nullable().optional(),
     secondaryIndustryId: z.string().max(100).nullable().optional(),
     otherProductOrService: z.string().max(60).nullable().optional(),
-    characteristicOne: z.string().max(500).nullable().optional(),
-    characteristicTwo: z.string().max(500).nullable().optional(),
-    provinceRegionId: z.string().max(100).nullable().optional(),
-    cityRegionId: z.string().max(100).nullable().optional(),
-    terminalRegionId: z.string().max(100).nullable().optional(),
+    flagshipProductOrService: z.string().max(80).nullable().optional(),
+    characteristics: z.array(z.string().max(120)).max(6).optional(),
     contactName: z.string().max(100).nullable().optional(),
     contactMobile: z.string().max(20).nullable().optional(),
+    locationChange: z
+      .discriminatedUnion("action", [
+        z.object({ action: z.literal("REMOVE") }).strict(),
+        z
+          .object({
+            action: z.literal("REPLACE"),
+            verificationReceipt: z.string().min(1).max(20_000),
+            localityCandidateId: z.string().min(1).max(80),
+          })
+          .strict(),
+      ])
+      .optional(),
   })
   .strict();
 
-function parseBrandMutation(input: EditableBrandFields): EditableBrandFields {
-  const parsed = brandMutationSchema.safeParse(input);
-  if (!parsed.success) {
-    throw new BadRequestException("品牌资料格式不正确，请检查后重试");
-  }
-  return Object.fromEntries(
-    Object.entries(parsed.data).filter(([, value]) => value !== undefined),
-  ) as EditableBrandFields;
+function completeFields(input: EditableBrandFields): BrandProfileFields {
+  return {
+    companyName: normalizeText(input.companyName),
+    primaryIndustryId: normalizeText(input.primaryIndustryId) || null,
+    secondaryIndustryId: normalizeText(input.secondaryIndustryId) || null,
+    otherProductOrService: normalizeText(input.otherProductOrService) || null,
+    flagshipProductOrService: normalizeFlagshipProductOrService(
+      input.flagshipProductOrService,
+    ),
+    characteristics: normalizeCharacteristics(input.characteristics ?? []),
+    contactName: normalizeText(input.contactName) || null,
+    contactMobile: normalizeText(input.contactMobile) || null,
+  };
 }
 
-function completeFields(input: EditableBrandFields): BrandProfileFields {
-  const cleaned = cleanPatch(input);
+function locationFromReceipt(
+  payload: StoreLocationReceiptPayload,
+  candidate: StoreLocationReceiptPayload["localityCandidates"][number],
+  semanticFactId: string,
+): BrandStoreLocationWrite {
   return {
-    companyName: normalizeText(cleaned.companyName),
-    primaryIndustryId: cleaned.primaryIndustryId ?? null,
-    secondaryIndustryId: cleaned.secondaryIndustryId ?? null,
-    otherProductOrService: cleaned.otherProductOrService ?? null,
-    characteristicOne: cleaned.characteristicOne ?? null,
-    characteristicTwo: cleaned.characteristicTwo ?? null,
-    provinceRegionId: cleaned.provinceRegionId ?? null,
-    cityRegionId: cleaned.cityRegionId ?? null,
-    terminalRegionId: cleaned.terminalRegionId ?? null,
-    contactName: cleaned.contactName ?? null,
-    contactMobile: cleaned.contactMobile ?? null,
+    semanticFactId,
+    verificationId: payload.verificationId,
+    receiptIssuedAt: new Date(payload.issuedAt),
+    searchInput: payload.searchInput,
+    provider: "AMAP",
+    providerPlaceId: payload.evidence.providerPlaceId,
+    providerContractVersion: payload.evidence.providerContractVersion,
+    verifiedAt: new Date(payload.evidence.verifiedAt),
+    placeName: payload.evidence.placeName,
+    formattedAddress: payload.evidence.formattedAddress,
+    provinceName: payload.evidence.provinceName,
+    cityName: payload.evidence.cityName,
+    districtName: payload.evidence.districtName,
+    townshipName: payload.evidence.townshipName,
+    providerAdcode: payload.evidence.adcode,
+    providerTowncode: payload.evidence.towncode,
+    officialRegion: payload.officialRegion,
+    coordinate: payload.evidence.coordinate,
+    queryLocality: { kind: candidate.kind, label: candidate.label },
   };
+}
+
+function toLocationWrite(
+  location: BrandStoreLocation,
+): BrandStoreLocationWrite {
+  const {
+    id: _id,
+    brandId: _brandId,
+    createdAt: _createdAt,
+    updatedAt: _updatedAt,
+    ...write
+  } = location;
+  return write;
+}
+
+function asLocation(
+  location: BrandStoreLocationWrite | null,
+): BrandStoreLocation | null {
+  return location
+    ? {
+        ...location,
+        id: "pending",
+        brandId: "pending",
+        createdAt: location.verifiedAt,
+        updatedAt: location.verifiedAt,
+      }
+    : null;
 }
