@@ -737,6 +737,16 @@
       "post": {
         "operationId": "MediaAdminController_createPlatform",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaPlatformCreateRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "",
@@ -777,6 +787,16 @@
       "patch": {
         "operationId": "MediaAdminController_updatePlatform",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaPlatformUpdateRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -796,6 +816,16 @@
       "delete": {
         "operationId": "MediaAdminController_deletePlatform",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaDeleteOwnerRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": ""
@@ -806,30 +836,9 @@
         ]
       }
     },
-    "/admin/media/platforms/{platformId}/listing": {
-      "put": {
-        "operationId": "MediaAdminController_listing",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MediaPlatformAdminResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "admin-media"
-        ]
-      }
-    },
-    "/admin/media/sources": {
+    "/admin/media/suppliers": {
       "get": {
-        "operationId": "MediaAdminController_sources",
+        "operationId": "MediaAdminController_suppliers",
         "parameters": [],
         "responses": {
           "200": {
@@ -839,7 +848,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MediaSupplySourceResponse"
+                    "$ref": "#/components/schemas/MediaSupplierResponse"
                   }
                 }
               }
@@ -851,15 +860,25 @@
         ]
       },
       "post": {
-        "operationId": "MediaAdminController_createSource",
+        "operationId": "MediaAdminController_createSupplier",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaSupplierCreateRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MediaSupplySourceResponse"
+                  "$ref": "#/components/schemas/MediaSupplierResponse"
                 }
               }
             }
@@ -870,9 +889,9 @@
         ]
       }
     },
-    "/admin/media/sources/{sourceId}": {
-      "patch": {
-        "operationId": "MediaAdminController_updateSource",
+    "/admin/media/suppliers/{supplierId}": {
+      "get": {
+        "operationId": "MediaAdminController_supplier",
         "parameters": [],
         "responses": {
           "200": {
@@ -880,7 +899,36 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MediaSupplySourceResponse"
+                  "$ref": "#/components/schemas/MediaSupplierDetailResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      },
+      "patch": {
+        "operationId": "MediaAdminController_updateSupplier",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaSupplierUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaSupplierResponse"
                 }
               }
             }
@@ -891,11 +939,55 @@
         ]
       },
       "delete": {
-        "operationId": "MediaAdminController_deleteSource",
+        "operationId": "MediaAdminController_deleteSupplier",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaDeleteOwnerRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": ""
+          }
+        },
+        "tags": [
+          "admin-media"
+        ]
+      }
+    },
+    "/admin/media/resources/status": {
+      "patch": {
+        "operationId": "MediaAdminController_batchUpdateResourceStatus",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaResourceBatchStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaResourceAdminResponse"
+                  }
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -931,6 +1023,16 @@
       "post": {
         "operationId": "MediaAdminController_createResource",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaResourceCreateRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "",
@@ -952,6 +1054,16 @@
       "patch": {
         "operationId": "MediaAdminController_updateResource",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaResourceUpdateRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -971,9 +1083,26 @@
       "delete": {
         "operationId": "MediaAdminController_deleteResource",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaResourceDeleteRequest"
+              }
+            }
+          }
+        },
         "responses": {
-          "204": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResourceDeleteResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -2411,8 +2540,7 @@
               "PORTAL_MEDIA",
               "LOCAL_MEDIA",
               "VERTICAL_MEDIA",
-              "CONTENT_PLATFORM",
-              "OVERSEAS_MEDIA"
+              "CONTENT_PLATFORM"
             ]
           },
           "label": {
@@ -2482,8 +2610,7 @@
                 "PORTAL_MEDIA",
                 "LOCAL_MEDIA",
                 "VERTICAL_MEDIA",
-                "CONTENT_PLATFORM",
-                "OVERSEAS_MEDIA"
+                "CONTENT_PLATFORM"
               ]
             }
           },
@@ -2491,7 +2618,7 @@
             "type": "number",
             "minimum": 1
           },
-          "listingRevision": {
+          "revision": {
             "type": "number",
             "minimum": 1
           },
@@ -2508,7 +2635,7 @@
           "regionScope",
           "categories",
           "pointPrice",
-          "listingRevision",
+          "revision",
           "examples"
         ]
       },
@@ -2529,41 +2656,6 @@
         },
         "required": [
           "items"
-        ]
-      },
-      "MediaListingAdminResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "ON_SHELF",
-              "PAUSED",
-              "OFF_SHELF"
-            ]
-          },
-          "pointPrice": {
-            "type": "number",
-            "nullable": true
-          },
-          "revision": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "status",
-          "revision",
-          "createdAt",
-          "updatedAt"
         ]
       },
       "MediaPlatformAdminResponse": {
@@ -2604,8 +2696,13 @@
             "type": "string",
             "enum": [
               "ACTIVE",
-              "ARCHIVED"
+              "INACTIVE"
             ]
+          },
+          "pointPrice": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1
           },
           "categories": {
             "type": "array",
@@ -2616,19 +2713,13 @@
                 "PORTAL_MEDIA",
                 "LOCAL_MEDIA",
                 "VERTICAL_MEDIA",
-                "CONTENT_PLATFORM",
-                "OVERSEAS_MEDIA"
+                "CONTENT_PLATFORM"
               ]
             }
           },
-          "listing": {
-            "nullable": true,
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MediaListingAdminResponse"
-              }
-            ]
+          "revision": {
+            "type": "number",
+            "minimum": 1
           },
           "createdAt": {
             "type": "string",
@@ -2647,18 +2738,168 @@
           "regionScope",
           "status",
           "categories",
+          "revision",
           "createdAt",
           "updatedAt"
         ]
       },
-      "MediaSupplySourceResponse": {
+      "MediaPlatformCreateRequest": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "aliases": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "regionScope": {
+            "type": "string",
+            "enum": [
+              "DOMESTIC",
+              "OVERSEAS"
+            ],
+            "default": "DOMESTIC"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ],
+            "default": "INACTIVE"
+          },
+          "pointPrice": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CENTRAL_MEDIA",
+                "PORTAL_MEDIA",
+                "LOCAL_MEDIA",
+                "VERTICAL_MEDIA",
+                "CONTENT_PLATFORM"
+              ]
+            }
+          }
+        },
+        "required": [
+          "displayName",
+          "categories"
+        ]
+      },
+      "MediaPlatformUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          },
+          "displayName": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "regionScope": {
+            "type": "string",
+            "enum": [
+              "DOMESTIC",
+              "OVERSEAS"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "pointPrice": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CENTRAL_MEDIA",
+                "PORTAL_MEDIA",
+                "LOCAL_MEDIA",
+                "VERTICAL_MEDIA",
+                "CONTENT_PLATFORM"
+              ]
+            }
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "reason",
+          "expectedRevision"
+        ]
+      },
+      "MediaDeleteOwnerRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "reason",
+          "expectedRevision"
+        ]
+      },
+      "MediaSupplierResponse": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
           },
-          "name": {
+          "normalizedName": {
+            "type": "string"
+          },
+          "displayName": {
             "type": "string"
           },
           "contactName": {
@@ -2680,6 +2921,18 @@
             "type": "string",
             "nullable": true
           },
+          "revision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "resourceCount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "platformCount": {
+            "type": "number",
+            "minimum": 0
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -2691,10 +2944,250 @@
         },
         "required": [
           "id",
-          "name",
+          "normalizedName",
+          "displayName",
           "status",
+          "revision",
+          "resourceCount",
+          "platformCount",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "MediaSupplierAssociationResponse": {
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceName": {
+            "type": "string"
+          },
+          "resourceStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "effectiveStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "RESOURCE_INACTIVE",
+              "SUPPLIER_INACTIVE"
+            ]
+          },
+          "resourceRevision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "platformDisplayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "resourceId",
+          "resourceName",
+          "resourceStatus",
+          "effectiveStatus",
+          "resourceRevision",
+          "platformId",
+          "platformDisplayName"
+        ]
+      },
+      "MediaSupplierDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "normalizedName": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "revision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "resourceCount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "platformCount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaSupplierAssociationResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "normalizedName",
+          "displayName",
+          "status",
+          "revision",
+          "resourceCount",
+          "platformCount",
+          "createdAt",
+          "updatedAt",
+          "resources"
+        ]
+      },
+      "MediaSupplierCreateRequest": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ],
+            "default": "INACTIVE"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "displayName"
+        ]
+      },
+      "MediaSupplierUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          },
+          "displayName": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "reason",
+          "expectedRevision"
+        ]
+      },
+      "MediaResourceBatchItemRequest": {
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "resourceId",
+          "expectedRevision"
+        ]
+      },
+      "MediaResourceBatchStatusRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "items": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaResourceBatchItemRequest"
+            }
+          }
+        },
+        "required": [
+          "reason",
+          "status",
+          "items"
         ]
       },
       "MediaResourceAdminResponse": {
@@ -2708,7 +3201,7 @@
             "type": "string",
             "format": "uuid"
           },
-          "supplySourceId": {
+          "supplierId": {
             "type": "string",
             "format": "uuid"
           },
@@ -2734,8 +3227,15 @@
             "type": "string",
             "enum": [
               "ACTIVE",
-              "PAUSED",
-              "ARCHIVED"
+              "INACTIVE"
+            ]
+          },
+          "effectiveStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "RESOURCE_INACTIVE",
+              "SUPPLIER_INACTIVE"
             ]
           },
           "publicVisibility": {
@@ -2758,7 +3258,7 @@
               "LOW"
             ]
           },
-          "procurementCostFen": {
+          "procurementCostYuan": {
             "type": "number",
             "nullable": true
           },
@@ -2770,8 +3270,12 @@
             "type": "string",
             "nullable": true
           },
-          "source": {
-            "$ref": "#/components/schemas/MediaSupplySourceResponse"
+          "supplier": {
+            "$ref": "#/components/schemas/MediaSupplierResponse"
+          },
+          "revision": {
+            "type": "number",
+            "minimum": 1
           },
           "createdAt": {
             "type": "string",
@@ -2785,15 +3289,228 @@
         "required": [
           "id",
           "platformId",
-          "supplySourceId",
+          "supplierId",
           "resourceName",
           "publicationMode",
           "status",
+          "effectiveStatus",
           "publicVisibility",
           "qualityTier",
-          "source",
+          "supplier",
+          "revision",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "MediaResourceCreateRequest": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supplierId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceName": {
+            "type": "string",
+            "maxLength": 240
+          },
+          "accountIdentifier": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "publicationMode": {
+            "type": "string",
+            "enum": [
+              "FIRST_PUBLISH",
+              "REPOST"
+            ],
+            "default": "FIRST_PUBLISH"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ],
+            "default": "ACTIVE"
+          },
+          "publicVisibility": {
+            "type": "string",
+            "enum": [
+              "HIDDEN",
+              "FULL",
+              "MASKED"
+            ],
+            "default": "HIDDEN"
+          },
+          "publicAlias": {
+            "type": "string",
+            "nullable": true
+          },
+          "qualityTier": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ],
+            "default": "MEDIUM"
+          },
+          "procurementCostYuan": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 0
+          },
+          "caseUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "publicationNotes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "platformId",
+          "supplierId",
+          "resourceName"
+        ]
+      },
+      "MediaResourceUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          },
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supplierId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceName": {
+            "type": "string",
+            "maxLength": 240
+          },
+          "accountIdentifier": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "publicationMode": {
+            "type": "string",
+            "enum": [
+              "FIRST_PUBLISH",
+              "REPOST"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "publicVisibility": {
+            "type": "string",
+            "enum": [
+              "HIDDEN",
+              "FULL",
+              "MASKED"
+            ]
+          },
+          "publicAlias": {
+            "type": "string",
+            "nullable": true
+          },
+          "qualityTier": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          },
+          "procurementCostYuan": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 0
+          },
+          "caseUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "publicationNotes": {
+            "type": "string",
+            "nullable": true
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "reason",
+          "expectedRevision"
+        ]
+      },
+      "MediaResourceDeleteRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "deleteUnreferencedSupplier": {
+            "type": "boolean",
+            "default": false
+          },
+          "expectedSupplierRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "reason",
+          "expectedRevision"
+        ]
+      },
+      "MediaResourceDeleteResponse": {
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supplierId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supplierDeleted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "resourceId",
+          "supplierId",
+          "supplierDeleted"
         ]
       },
       "MediaCatalogAuditResponse": {

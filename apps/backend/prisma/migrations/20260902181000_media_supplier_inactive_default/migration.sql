@@ -1,0 +1,2 @@
+ALTER TABLE "media_suppliers"
+ALTER COLUMN "status" SET DEFAULT 'INACTIVE';

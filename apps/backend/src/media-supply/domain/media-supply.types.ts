@@ -4,15 +4,15 @@ export const MEDIA_CATEGORIES = [
   "LOCAL_MEDIA",
   "VERTICAL_MEDIA",
   "CONTENT_PLATFORM",
-  "OVERSEAS_MEDIA",
 ] as const;
 
 export type MediaCategory = (typeof MEDIA_CATEGORIES)[number];
 export type MediaRegionScope = "DOMESTIC" | "OVERSEAS";
-export type MediaPlatformStatus = "ACTIVE" | "ARCHIVED";
-export type MediaListingStatus = "DRAFT" | "ON_SHELF" | "PAUSED" | "OFF_SHELF";
-export type MediaResourceStatus = "ACTIVE" | "PAUSED" | "ARCHIVED";
-export type MediaSupplySourceStatus = "ACTIVE" | "INACTIVE";
+export type MediaPlatformStatus = "ACTIVE" | "INACTIVE";
+export type MediaResourceStatus = "ACTIVE" | "INACTIVE";
+export type MediaSupplierStatus = "ACTIVE" | "INACTIVE";
+export type MediaResourceEffectiveStatus =
+  "ACTIVE" | "RESOURCE_INACTIVE" | "SUPPLIER_INACTIVE";
 export type MediaPublicationMode = "FIRST_PUBLISH" | "REPOST";
 export type MediaPublicVisibility = "HIDDEN" | "FULL" | "MASKED";
 export type MediaQualityTier = "HIGH" | "MEDIUM" | "LOW";
@@ -24,25 +24,21 @@ export interface MediaPlatformFields {
   logoUrl: string | null;
   regionScope: MediaRegionScope;
   status: MediaPlatformStatus;
+  pointPrice: number | null;
   categories: MediaCategory[];
 }
 
-export interface MediaListingFields {
-  status: MediaListingStatus;
-  pointPrice: number | null;
-}
-
-export interface MediaSupplySourceFields {
-  name: string;
+export interface MediaSupplierFields {
+  displayName: string;
   contactName: string | null;
   contactMethod: string | null;
-  status: MediaSupplySourceStatus;
+  status: MediaSupplierStatus;
   notes: string | null;
 }
 
 export interface MediaResourceFields {
   platformId: string;
-  supplySourceId: string;
+  supplierId: string;
   resourceName: string;
   accountIdentifier: string | null;
   accountUrl: string | null;
@@ -51,34 +47,48 @@ export interface MediaResourceFields {
   publicVisibility: MediaPublicVisibility;
   publicAlias: string | null;
   qualityTier: MediaQualityTier;
-  procurementCostFen: number | null;
+  procurementCostYuan: number | null;
   caseUrl: string | null;
   publicationNotes: string | null;
-}
-
-export interface MediaListingView extends MediaListingFields {
-  revision: number;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface MediaPlatformAdminView extends MediaPlatformFields {
   id: string;
   normalizedName: string;
-  listing: MediaListingView | null;
+  revision: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface MediaSupplySourceView extends MediaSupplySourceFields {
+export interface MediaSupplierView extends MediaSupplierFields {
   id: string;
+  normalizedName: string;
+  revision: number;
+  resourceCount: number;
+  platformCount: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface MediaSupplierAssociation {
+  resourceId: string;
+  resourceName: string;
+  resourceStatus: MediaResourceStatus;
+  effectiveStatus: MediaResourceEffectiveStatus;
+  resourceRevision: number;
+  platformId: string;
+  platformDisplayName: string;
+}
+
+export interface MediaSupplierDetailView extends MediaSupplierView {
+  resources: MediaSupplierAssociation[];
 }
 
 export interface MediaResourceView extends MediaResourceFields {
   id: string;
-  source: MediaSupplySourceView;
+  supplier: MediaSupplierView;
+  effectiveStatus: MediaResourceEffectiveStatus;
+  revision: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -97,7 +107,7 @@ export interface MediaPlatformCustomerView {
   regionScope: MediaRegionScope;
   categories: MediaCategory[];
   pointPrice: number;
-  listingRevision: number;
+  revision: number;
   examples: MediaResourceExample[];
 }
 
@@ -111,7 +121,7 @@ export interface MediaPlatformQuote {
   displayName: string;
   buyable: boolean;
   pointPrice: number | null;
-  listingRevision: number | null;
+  revision: number;
 }
 
 export interface MediaFulfillmentCandidate {
@@ -121,11 +131,11 @@ export interface MediaFulfillmentCandidate {
   accountUrl: string | null;
   publicationMode: MediaPublicationMode;
   qualityTier: MediaQualityTier;
-  supplySourceId: string;
-  supplySourceName: string;
+  supplierId: string;
+  supplierName: string;
   contactName: string | null;
   contactMethod: string | null;
-  procurementCostFen: number | null;
+  procurementCostYuan: number | null;
   caseUrl: string | null;
   publicationNotes: string | null;
 }
@@ -145,4 +155,21 @@ export interface MediaCatalogAuditView {
 export interface MediaMutationContext {
   actorAccountId: string;
   reason: string;
+}
+
+export interface MediaResourceBatchItem {
+  resourceId: string;
+  expectedRevision: number;
+}
+
+export interface MediaResourceDeleteOptions {
+  expectedRevision: number;
+  deleteUnreferencedSupplier: boolean;
+  expectedSupplierRevision?: number;
+}
+
+export interface MediaResourceDeleteResult {
+  resourceId: string;
+  supplierId: string;
+  supplierDeleted: boolean;
 }

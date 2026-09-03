@@ -33,7 +33,6 @@ describe("Media Supply HTTP authorization and projection", () => {
       body: JSON.stringify({
         displayName: "越权平台",
         categories: ["PORTAL_MEDIA"],
-        reason: "越权创建",
       }),
     });
     expect(denied.status).toBe(403);
@@ -76,28 +75,33 @@ describe("Media Supply HTTP authorization and projection", () => {
         displayName: "人民网",
         description: "中央重点新闻网站",
         categories: ["CENTRAL_MEDIA", "PORTAL_MEDIA"],
-        reason: "建立平台",
       }),
     });
     expect(platformResponse.status).toBe(201);
-    const platform = (await platformResponse.json()) as { id: string };
+    const platform = (await platformResponse.json()) as {
+      id: string;
+      status: string;
+      revision: number;
+    };
+    expect(platform).toMatchObject({ status: "INACTIVE", revision: 1 });
 
-    const listingResponse = await fetch(
-      `${baseUrl}/admin/media/platforms/${platform.id}/listing`,
+    const enableResponse = await fetch(
+      `${baseUrl}/admin/media/platforms/${platform.id}`,
       {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "content-type": "application/json",
           cookie: administrator.cookie,
         },
         body: JSON.stringify({
-          status: "ON_SHELF",
+          status: "ACTIVE",
           pointPrice: 500,
-          reason: "首期上架",
+          expectedRevision: platform.revision,
+          reason: "启用平台",
         }),
       },
     );
-    expect(listingResponse.status).toBe(200);
+    expect(enableResponse.status).toBe(200);
 
     const catalog = await fetch(
       `${baseUrl}/media-catalog/platforms?category=CENTRAL_MEDIA`,
@@ -117,7 +121,7 @@ describe("Media Supply HTTP authorization and projection", () => {
       nextCursor: null,
     });
     expect(JSON.stringify(body)).not.toContain("normalizedName");
-    expect(JSON.stringify(body)).not.toContain("procurementCostFen");
+    expect(JSON.stringify(body)).not.toContain("procurementCostYuan");
 
     const revision = await fetch(`${baseUrl}/media-catalog/revision`, {
       headers: { cookie: administrator.cookie },
