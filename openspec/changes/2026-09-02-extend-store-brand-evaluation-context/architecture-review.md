@@ -208,6 +208,14 @@ scope.
    offline region tree remains an internal derivation source only. Current specs,
    product language, and architecture now point to the single Store Location
    owner.
+4. **must-fix — reverse-geocode landmark replaced the exact POI address
+   (introduced).** Credentialed Chrome verification showed that reverse
+   `formatted_address` can name a nearby plaza or containing resort even when
+   v5 POI detail supplies the exact selected-store street address. The adapter
+   now preserves normalized POI detail address and uses reverse formatted text
+   only as a missing-detail fallback. A focused test failed on the former
+   behavior and passes after repair; the repeated real flow persisted the
+   Hunter Lane restaurant address and Sanya `海棠北路100号`.
 
 ### Current result and residual evidence
 
@@ -218,9 +226,11 @@ only the immutable v3 projection. No generic map/provider registry, search
 session database, Redis cache, raw provider persistence, or Query-to-Brand
 reach-through was added.
 
-The real JS map/security-proxy interaction is not yet runtime-proven because the
-current worktree has no ignored `NEXT_PUBLIC_AMAP_JS_KEY`,
-`AMAP_JS_SECURITY_CODE`, or `AMAP_WEB_SERVICE_KEY`. The no-Key failure/draft path
-is browser-proven, and adapters/proxy are contract-tested. Production domain/IP
-allowlists, license activation, shared-development reset, #26 adaptation, merge,
-and release remain explicit follow-ups; this review does not claim them.
+The real JS map, accessible candidate list, bounded security proxy, selected-POI
+server verification, sealed-receipt commit, business-area choice, and real
+address-locality fallback are desktop Chrome-proven with credentials held only
+in process memory. Ten bounded multi-store search/detail/reverse chains across
+eight cities also passed. Narrow-screen Chrome emulation, production domain/IP
+allowlists, technical-service activation, shared-development reset, #26
+adaptation, merge, and release remain explicit follow-ups; this review does not
+claim them.

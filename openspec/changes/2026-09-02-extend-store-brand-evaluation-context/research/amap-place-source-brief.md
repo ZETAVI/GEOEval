@@ -130,6 +130,63 @@ ID lifecycle stability, an SLA, timeout/error behavior, JS map/security-proxy
 behavior, a zero-candidate result after combining detail and extended reverse
 evidence, production allowlists, or technical-service activation.
 
+## Credentialed Multi-store and Chrome E2E Evidence
+
+On 2026-09-03, after explicit authorization, GEOEval read the existing
+`GEOEval Web JS` and `GEOEval Server` credentials from the authenticated Chrome
+console into process memory. No credential value was written to `.env`, Git,
+the Change, test fixtures, or raw evidence. Chrome's accessibility snapshot
+transiently surfaced the console fields in the live session; subsequent bridge
+and runtime output was redacted, the in-session variables were cleared, and no
+value was copied into a durable project artifact. The account certification
+page was rechecked in Chrome and identified the account as an
+enterprise-certified developer with the documented 3,000,000 basic-LBS,
+30,000,000 JS initialization, and 50,000 basic-search monthly tiers.
+
+The bounded Web Service pass ran serially with no retry or load test: ten text
+queries, ten selected-POI detail calls, and ten `extensions=all` reverse calls.
+All thirty calls returned HTTP 200, `status = "1"`, and `infocode = "10000"`;
+all ten selected identities were stable across search/detail, coordinates were
+valid GCJ-02 values, and detail/reverse adcodes agreed. The stores covered
+Guangzhou, Beijing, Shanghai, Dongguan, Chengdu, Hangzhou, Shenzhen, and Sanya;
+restaurant, electronics retail/service, coffee, automotive retail, home retail,
+and hotel shapes were represented.
+
+The initial Guangzhou research term was later corrected by the product owner:
+the intended store is `头家夜粥` in the Tianhe/Liede area, not `头家顺`.
+This distinction was material. A landmark query exposed `猎人坊`, `头家顺`, and
+`头家夜粥` together, while the corrected `广州天河猎德 头家夜粥` Chrome query
+returned the exact restaurant candidate and Hunter Lane address. It confirms
+that result rank is discovery evidence only and the customer must select the
+matching name plus full address.
+
+The real Chrome journey then proved:
+
+- JS API 2.0 loaded without Geolocation or a permission prompt;
+- nationwide PlaceSearch rendered the map, accessible candidate list, and POI
+  Marker path through the bounded `/_AMapService/v3/place/text` proxy;
+- selecting `头家夜粥` invoked the authenticated GEOEval verify endpoint,
+  produced three business-area choices, and persisted `猎德社区`;
+- selecting `三亚艾迪逊酒店` produced no business area and persisted the exact
+  `ADDRESS_LOCALITY` street address;
+- both Brands remained ready after reload/edit, the browser console contained no
+  runtime error, and backend operation telemetry recorded only provider,
+  success outcome, correlation ID, and duration.
+
+The first E2E pass also disproved one adapter assumption: reverse-geocode
+`formatted_address` can describe the nearby plaza or containing resort rather
+than the selected POI's exact street address. A focused red/green regression
+test now requires current POI detail address to win, with reverse formatted text
+only as a missing-detail fallback. The repaired Chrome pass and direct database
+inspection retained the Hunter Lane restaurant address and Sanya `海棠北路100号`
+while preserving coherent adcode/towncode, MCA terminal, coordinate system, and
+locality kind.
+
+This establishes actual-account desktop development behavior, not production
+readiness. Narrow-screen Chrome emulation, approved production domain/IP
+allowlists, sustained capacity, technical-service activation, and production
+deployment remain separate evidence.
+
 ## Evidence
 
 | Claim | Primary source | Version/date | Design implication |

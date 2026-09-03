@@ -282,14 +282,26 @@
       `main@f1b5ef4`, pass the complete 19-migration chain on
       `geoeval_issue40_rebased` without touching the shared `geoeval`
       development database.
-- [x] Pass focused backend/Web tests, 29-file/148-test backend regression,
+- [x] Pass focused backend/Web tests, 29-file/149-test backend regression,
       5-file/21-test Web regression, all-workspace typecheck, production build,
       framework validation, static browser-asset secret scan, and desktop no-Key
       browser inspection.
-- [ ] Supply ignored local JS/Web Service/security credentials and prove the
-      real JS map, autocomplete, candidate Markers/list, security proxy, and
-      server verification on desktop and narrow screen.
+- [x] Read the existing JS/Web Service/security credentials from authenticated
+      Chrome into process memory without writing `.env`; prove the real desktop
+      JS map, candidate Marker/list, bounded security proxy, server verification,
+      receipt commit, business-area choice, address-locality fallback, reload,
+      and two-Brand persistence.
+- [x] Run ten serial multi-store search/detail/reverse chains across eight cities
+      and multiple industries with no retry/load test; correct the target from
+      `头家顺` to `头家夜粥` and retain `头家顺` as a near-name interference case.
+- [x] Diagnose and repair the real-data address-precedence defect: exact POI
+      detail address wins over nearby reverse-geocode formatted text; pass the
+      focused red/green test and repeated Chrome/database inspection.
+- [ ] Prove the credentialed interaction at a narrow-screen Chrome viewport;
+      desktop responsive structure and component tests are not a substitute.
 - [ ] Execute the separately gated shared-development database reset only after
       an exact non-production preflight and explicit destructive authorization.
-- [ ] Complete fixed-diff code/verification review, update PR/Issue evidence,
-      and hand the stable v3 Query projection to #26 without merging #40.
+- [x] Complete fixed-diff code/verification review and prepare current PR/Issue
+      evidence without merging #40.
+- [ ] Hand the stable v3 Query projection to #26 after the #40 owner accepts the
+      producer contract; do not edit #26 behavior from this branch.

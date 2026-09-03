@@ -29,7 +29,6 @@ describe("Amap Store Location adapter contract", () => {
               {
                 id: "B001",
                 name: "广州塔",
-                address: "阅江西路222号",
                 location: "113.324553,23.106414",
                 adcode: "440105",
                 cityname: "广州市",
@@ -120,6 +119,57 @@ describe("Amap Store Location adapter contract", () => {
         providerPlaceId: "B001",
       }),
     ).rejects.toMatchObject({ code: "PROVIDER_UNAVAILABLE" });
+  });
+
+  it("preserves the selected POI detail address when reverse geocoding describes a nearby landmark", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          response({
+            status: "1",
+            infocode: "10000",
+            pois: [
+              {
+                id: "B001",
+                name: "头家夜粥",
+                address: "广州市天河区猎德大道2号西浦大街1-13栋9号",
+                location: "113.324553,23.106414",
+                pname: "广东省",
+                cityname: "广州市",
+                adname: "天河区",
+                adcode: "440106",
+              },
+            ],
+          }),
+        )
+        .mockResolvedValueOnce(
+          response({
+            status: "1",
+            infocode: "10000",
+            regeocode: {
+              formatted_address: "广东省广州市天河区猎德街道附近商业广场",
+              addressComponent: {
+                province: "广东省",
+                city: "广州市",
+                district: "天河区",
+                township: "猎德街道",
+                adcode: "440106",
+                towncode: "440106013000",
+              },
+            },
+          }),
+        ),
+    );
+
+    await expect(
+      new AmapStoreLocationProvider(config).resolveSelectedPlace({
+        providerPlaceId: "B001",
+      }),
+    ).resolves.toMatchObject({
+      formattedAddress: "广东省广州市天河区猎德大道2号西浦大街1-13栋9号",
+    });
   });
 
   it.each([

@@ -621,6 +621,15 @@ township code plus `000`. Other shapes fail closed until fixture evidence adds
 an explicit rule. The derived path is covered by the receipt and later becomes
 the Store Location's only official-region identity.
 
+The selected POI detail `address`, prefixed by the coherent normalized
+province/city/district components, is the exact Store Location display address.
+Reverse-geocode `formatted_address` may be a nearby landmark or containing AOI;
+it verifies the coordinate context and is used only when current POI detail has
+no address. A credentialed Chrome run exposed this distinction for a restaurant
+inside Guangzhou Hunter Lane and a Sanya resort; preferring reverse formatted
+text would have persisted the nearby plaza/park instead of the selected POI's
+street address.
+
 If any required fact is absent or conflicting, no verification receipt is
 issued.
 

@@ -36,6 +36,11 @@ in evaluation readiness and projection.
 - **WHEN** the customer selects one Marker or its matching list item
 - **THEN** the server resolves current provider place detail and reverse-
   geocodes its coordinate
+- **AND** treats the selected POI detail address as the exact Store Location
+  address while using reverse geocoding for administrative, township, and
+  locality coherence
+- **AND** uses a reverse-geocoded formatted address only when current POI detail
+  has no address, never to replace a more precise selected-POI address
 - **AND** checks required identity, structured address, and coordinate and maps
   provider adcode/towncode evidence to exactly one maintained MCA province/city/
   terminal path

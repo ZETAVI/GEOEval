@@ -73,18 +73,23 @@ export class AmapStoreLocationProvider implements StoreLocationProvider {
       scalar(business.business_area),
       ...reverseAreas,
     ]);
+    const provinceName = requiredScalar(component.province, "省级地址");
+    const cityName =
+      nullableScalar(component.city) || nullableScalar(detailPoi.cityname);
+    const districtName =
+      nullableScalar(component.district) || nullableScalar(detailPoi.adname);
+    const detailAddress = scalar(detailPoi.address);
+    const formattedAddress = detailAddress
+      ? joinAddressParts([provinceName, cityName, districtName, detailAddress])
+      : requiredScalar(regeocode.formatted_address, "门店地址");
     return {
       providerPlaceId,
       placeName: requiredScalar(detailPoi.name, "门店名称"),
-      formattedAddress:
-        scalar(regeocode.formatted_address) ||
-        requiredScalar(detailPoi.address, "门店地址"),
+      formattedAddress,
       coordinate: { longitude, latitude, system: "GCJ_02" },
-      provinceName: requiredScalar(component.province, "省级地址"),
-      cityName:
-        nullableScalar(component.city) || nullableScalar(detailPoi.cityname),
-      districtName:
-        nullableScalar(component.district) || nullableScalar(detailPoi.adname),
+      provinceName,
+      cityName,
+      districtName,
       townshipName: nullableScalar(component.township),
       adcode: reverseAdcode,
       towncode: nullableScalar(component.towncode),
@@ -221,4 +226,17 @@ function unique(values: string[]): string[] {
   return [
     ...new Set(values.map((value) => value.trim()).filter(Boolean)),
   ].slice(0, 10);
+}
+
+function joinAddressParts(values: Array<string | null>): string {
+  const parts = values.map((value) => value?.trim() ?? "").filter(Boolean);
+  const detailAddress = parts.pop() ?? "";
+  const administrativeParts = [...new Set(parts)];
+  for (let index = 0; index < administrativeParts.length; index += 1) {
+    const existingPrefix = administrativeParts.slice(index).join("");
+    if (detailAddress.startsWith(existingPrefix)) {
+      return `${administrativeParts.slice(0, index).join("")}${detailAddress}`;
+    }
+  }
+  return `${administrativeParts.join("")}${detailAddress}`;
 }
