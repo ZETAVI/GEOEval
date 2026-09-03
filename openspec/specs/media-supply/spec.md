@@ -25,9 +25,10 @@ non-selectable examples and operations references.
 
 - **WHEN** an administrator classifies a platform
 - **THEN** the platform may use one or more of `CENTRAL_MEDIA`, `PORTAL_MEDIA`,
-  `LOCAL_MEDIA`, `VERTICAL_MEDIA`, `CONTENT_PLATFORM`, and `OVERSEAS_MEDIA`
+  `LOCAL_MEDIA`, `VERTICAL_MEDIA`, and `CONTENT_PLATFORM`
 - **AND** its region scope is only `DOMESTIC` or `OVERSEAS`, defaulting to
   `DOMESTIC`
+- **AND** geography is never duplicated in media category membership
 - **AND** the first release does not require province, city, industry-tag, or
   platform-form sub-classification.
 
@@ -50,7 +51,7 @@ platform itself and SHALL NOT introduce a separate one-to-one Listing lifecycle.
 #### Scenario: A platform has no stored resource candidate
 
 - **GIVEN** an active platform has a valid point price
-- **WHEN** it has no active stored resource or every stored source is inactive
+- **WHEN** it has no active stored resource or every stored supplier is inactive
 - **THEN** the platform remains buyable because its active state is the
   administrator's explicit sale decision
 - **AND** the customer sees no unsupported resource example
@@ -69,7 +70,7 @@ platform itself and SHALL NOT introduce a separate one-to-one Listing lifecycle.
 ### Requirement: Simple concrete-resource records
 
 Media Supply SHALL represent a concrete platform account or publishing resource
-with one current internal supply source and no Offer, Endpoint, guarantee, or
+with one current internal supplier and no Offer, Endpoint, guarantee, or
 SLA sub-system.
 
 #### Scenario: An administrator records a known account
@@ -95,11 +96,36 @@ SLA sub-system.
   `FIRST_PUBLISH`
 - **AND** quality tier is administrator-only `HIGH`, `MEDIUM`, or `LOW`,
   defaulting to `MEDIUM`
-- **AND** the current supply source is one internal record rather than a system
+- **AND** the current supplier is one global internal record rather than a system
   role
-- **AND** optional RMB procurement cost, case link, speed, inclusion,
+- **AND** optional non-negative integer RMB-yuan procurement cost, case link, speed, inclusion,
   modification, and content constraints remain internal records or notes
 - **AND** missing procurement cost cannot block platform activation.
+
+### Requirement: Global suppliers and derived resource availability
+
+Media Supply SHALL maintain a supplier once across all platforms and SHALL
+derive a resource's effective availability from the resource's manual status
+and its current supplier's status without persisting a second effective state.
+
+#### Scenario: A supplier is reused
+
+- **WHEN** resources under one or more platforms use the same supplier
+- **THEN** each resource references that one supplier identity
+- **AND** the supplier projection derives its current resource count, platform
+  count, and association list from those references
+- **AND** normalized supplier names cannot be duplicated.
+
+#### Scenario: Supplier availability changes
+
+- **WHEN** an active resource's supplier is inactive
+- **THEN** the resource is effectively `SUPPLIER_INACTIVE`, remains visible to
+  administrators, and is excluded from customer examples and new fulfilment
+  candidates
+- **BUT WHEN** the supplier becomes active again
+- **THEN** a manually active resource becomes effectively active without a
+  resource write
+- **AND** a manually inactive resource remains `MANUAL_INACTIVE`.
 
 ### Requirement: Customer-safe resource examples
 
@@ -114,14 +140,14 @@ than reusing administrator records or implying a resource-level commitment.
 
 #### Scenario: A resource is shown completely
 
-- **WHEN** an active resource's public visibility is `FULL`
+- **WHEN** an effectively active resource's public visibility is `FULL`
 - **THEN** the customer response may show its approved resource name
-- **AND** it still omits account credentials, procurement cost, supply source,
+- **AND** it still omits account credentials, procurement cost, supplier,
   contacts, cases, and internal publication notes.
 
 #### Scenario: A resource is shown with an approved mask
 
-- **WHEN** an active resource's public visibility is `MASKED`
+- **WHEN** an effectively active resource's public visibility is `MASKED`
 - **THEN** an administrator-approved public alias or masked display value is
   returned instead of the internal resource name or account identifier
 - **AND** the API does not improvise a mask that can accidentally reveal or
@@ -144,7 +170,7 @@ mutation atomically with its audit evidence.
 #### Scenario: An administrator changes catalog data
 
 - **WHEN** an authenticated `ADMINISTRATOR` creates, edits, enables, disables,
-  or prices a media platform or maintains a resource or source
+  or prices a media platform or maintains a resource or supplier
 - **THEN** the same database transaction records the actor, time, action,
   reason, entity identity, and before-and-after values
 - **AND** a failed mutation leaves neither a partial business write nor an audit
@@ -161,20 +187,35 @@ mutation atomically with its audit evidence.
 
 #### Scenario: A record has business dependents
 
-- **WHEN** a platform, resource, or source is referenced by another
+- **WHEN** a platform, resource, or supplier is referenced by another
   durable record
 - **THEN** it cannot be removed through cascading physical deletion
-- **AND** the administrator uses inactive or archive state to
+- **AND** the administrator uses inactive state to
   stop new use while preserving historical meaning
-- **BUT WHEN** an erroneous test record has no dependents
-- **THEN** an explicit administrator delete may remove it while preserving the
-  deletion audit.
+- **AND** platform deletion requires an inactive platform with zero resources,
+  resource deletion requires a manually inactive resource, and supplier
+  deletion requires an inactive supplier with zero resources
+- **AND** every deletion requires the displayed owner revision and never
+  cascades
+- **BUT WHEN** deleting the last resource leaves an inactive supplier
+  unreferenced
+- **THEN** an administrator may explicitly request both deletions in one
+  transaction after both revisions and reference counts are rechecked.
+
+#### Scenario: An administrator changes many resource states
+
+- **WHEN** an administrator selects resources from a platform or supplier
+  association list and chooses enable or disable
+- **THEN** one batch command contains the expected revision of every resource
+- **AND** one stale or missing resource rejects the entire command without a
+  partial update
+- **AND** each accepted resource change receives its own audit record.
 
 ### Requirement: Role-specific administrator maintenance workspace
 
 Media Supply SHALL provide a Web workspace that lets an authenticated system
-administrator maintain media platforms, concrete resources, and internal
-sources through their owner-local contracts.
+administrator maintain media platforms, concrete resources, and global
+suppliers through their owner-local contracts.
 
 #### Scenario: An administrator signs in or returns to maintenance
 
@@ -182,7 +223,7 @@ sources through their owner-local contracts.
   challenge or opens `/admin/media`
 - **THEN** the Web enters the Media Supply administrator workspace without
   calling terminal-customer Brand APIs
-- **AND** the workspace loads platform, source, resource, and audit projections
+- **AND** the workspace loads platform, supplier, resource, and audit projections
   only after confirming the account role
 - **AND** the administrator can sign out through the authenticated shell.
 
@@ -203,8 +244,10 @@ sources through their owner-local contracts.
   by `ACTIVE` or `INACTIVE`
 - **AND** an empty catalog offers platform creation while a filtered-empty result
   offers filter recovery
-- **AND** selecting a platform opens clearly labeled platform-information,
-  media-resource, partner-source, and operation-history regions
+- **AND** the workspace presents separate first-level `平台与资源` and
+  `供应商管理` regions
+- **AND** a supplier detail lists current resources and platforms with navigation
+  back to the associated platform
 - **AND** the Web uses concise Chinese business language rather than exposing
   internal names such as Listing or revision
 - **AND** the Web does not expose internal names such as Listing, Draft,
@@ -216,13 +259,13 @@ sources through their owner-local contracts.
 
 #### Scenario: A create form uses the accepted defaults
 
-- **WHEN** the administrator creates a platform, resource, or source
+- **WHEN** the administrator creates a platform, resource, or supplier
 - **THEN** platform scope defaults to domestic and platform status to inactive
 - **AND** resource mode defaults to first publish, status to active, customer
   visibility to hidden, and internal quality tier to medium
-- **AND** source status defaults to active
+- **AND** supplier status defaults to inactive
 - **AND** optional procurement cost is entered as nullable whole RMB yuan in the
-  Web and converted to the existing RMB-fen persistence contract
+  Web and stored and transported as the same integer-yuan unit
 - **AND** a valid platform-icon address shows an immediate preview and the saved
   icon renders in the platform list and detail header
 - **AND** masked customer display requires an explicit approved alias.
@@ -261,11 +304,11 @@ revision.
 
 - **WHEN** an administrator commits a change that alters categories, an
   enabled platform projection, point price, platform availability, or visible
-  resource examples
+  resource examples or supplier availability changes those examples
 - **THEN** one global public-catalog revision advances in the same transaction
 - **AND** a lightweight revision or conditional catalog request can detect the
   change
-- **AND** internal-only source, procurement, contact, case, or note edits do not
+- **AND** internal-only supplier, procurement, contact, case, or note edits do not
   create unnecessary customer refreshes.
 
 #### Scenario: Two administrator pages edit the same platform revision
@@ -279,6 +322,13 @@ revision.
 - **AND** the Web explains that platform data changed elsewhere
 - **AND** the administrator must refresh to the latest revision, review the new
   price and state, and submit again before another change can succeed.
+
+#### Scenario: Two administrator pages edit a resource or supplier
+
+- **GIVEN** two pages show the same resource or supplier revision
+- **WHEN** one page accepts a change and the other submits the older revision
+- **THEN** the stale update or deletion is rejected without overwriting data
+- **AND** the administrator refreshes and reconfirms before retrying.
 
 #### Scenario: An already-open page checks for changes
 
@@ -307,7 +357,7 @@ candidates and SHALL not own actual-media selection or publication completion.
 
 - **WHEN** future Publication Delivery asks for candidates for an order platform
 - **THEN** Media Supply returns resources that belong to that platform, are
-  active, and have an active current source
+  manually active, and have an active current supplier
 - **AND** it orders them by internal quality tier and stable system order
 - **AND** customer visibility does not affect candidate eligibility.
 

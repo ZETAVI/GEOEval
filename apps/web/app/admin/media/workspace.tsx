@@ -2,17 +2,23 @@
 
 import {
   getAdminMediaPlatform,
+  getAdminMediaSupplier,
   getCurrentAccount,
+  batchUpdateAdminMediaResourceStatus,
+  deleteAdminMediaPlatform,
+  deleteAdminMediaResource,
+  deleteAdminMediaSupplier,
   listAdminMediaAudits,
   listAdminMediaPlatforms,
   listAdminMediaResources,
-  listAdminMediaSources,
+  listAdminMediaSuppliers,
   logout,
   type Account,
   type MediaCatalogAudit,
   type MediaPlatformAdmin,
   type MediaResourceAdmin,
-  type MediaSupplySource,
+  type MediaSupplier,
+  type MediaSupplierDetail,
 } from "@geoeval/api-client";
 import { useEffect, useMemo, useState } from "react";
 
@@ -20,21 +26,20 @@ import { AdminSidebar } from "./admin-sidebar.js";
 import {
   PlatformEditor,
   ResourceEditor,
-  SourceEditor,
+  SupplierEditor,
 } from "./media-editors.js";
 import {
   categoryLabels,
   filterAdminPlatforms,
   formatAuditValue,
   formatDateTime,
-  formatFenAsYuan,
   isApiStatus,
   mediaCategoryOptions,
   platformStatusLabels,
   publicationModeLabels,
   qualityLabels,
-  resourceStatusLabels,
-  sourceStatusLabels,
+  resourceEffectiveStatusLabels,
+  supplierStatusLabels,
   visibilityLabels,
   type PlatformStatusFilter,
 } from "./media-ui.js";
@@ -43,7 +48,8 @@ const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
 type WorkspaceState = "loading" | "ready" | "denied" | "error";
-type DetailTab = "OVERVIEW" | "RESOURCES" | "SOURCES" | "AUDIT";
+type DetailTab = "OVERVIEW" | "RESOURCES" | "AUDIT";
+type WorkspaceArea = "PLATFORMS" | "SUPPLIERS";
 type EditorState =
   | { kind: "platform-new" }
   | { kind: "platform-edit"; platform: MediaPlatformAdmin }
@@ -53,8 +59,8 @@ type EditorState =
       platform: MediaPlatformAdmin;
       resource: MediaResourceAdmin;
     }
-  | { kind: "source-new" }
-  | { kind: "source-edit"; source: MediaSupplySource };
+  | { kind: "supplier-new" }
+  | { kind: "supplier-edit"; supplier: MediaSupplier };
 
 const roleLabels: Record<Account["role"], string> = {
   TERMINAL_CUSTOMER: "终端客户",
@@ -67,13 +73,14 @@ const auditEntityLabels: Record<string, string> = {
   PLATFORM: "媒体平台",
   LISTING: "历史销售设置",
   RESOURCE: "媒体资源",
-  SOURCE: "合作来源",
+  SUPPLIER: "供应商",
 };
 
 const auditActionLabels: Record<string, string> = {
   CREATE: "创建",
   UPDATE: "修改",
   DELETE: "删除",
+  BATCH_STATUS_UPDATE: "批量修改状态",
 };
 
 export function AdminMediaWorkspace() {
@@ -83,7 +90,10 @@ export function AdminMediaWorkspace() {
   const [selectedPlatform, setSelectedPlatform] =
     useState<MediaPlatformAdmin>();
   const [resources, setResources] = useState<MediaResourceAdmin[]>([]);
-  const [sources, setSources] = useState<MediaSupplySource[]>([]);
+  const [suppliers, setSuppliers] = useState<MediaSupplier[]>([]);
+  const [selectedSupplier, setSelectedSupplier] =
+    useState<MediaSupplierDetail>();
+  const [area, setArea] = useState<WorkspaceArea>("PLATFORMS");
   const [audits, setAudits] = useState<MediaCatalogAudit[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -125,13 +135,23 @@ export function AdminMediaWorkspace() {
   }
 
   async function reloadAdminData(preferredPlatformId?: string) {
-    const [nextPlatforms, nextSources, nextAudits] = await Promise.all([
+    const [nextPlatforms, nextSuppliers, nextAudits] = await Promise.all([
       listAdminMediaPlatforms(apiBaseUrl),
-      listAdminMediaSources(apiBaseUrl),
+      listAdminMediaSuppliers(apiBaseUrl),
       listAdminMediaAudits(apiBaseUrl, { limit: 120 }),
     ]);
     setPlatforms(nextPlatforms);
-    setSources(nextSources);
+    setSuppliers(nextSuppliers);
+    if (selectedSupplier) {
+      const current = nextSuppliers.find(
+        (supplier) => supplier.id === selectedSupplier.id,
+      );
+      setSelectedSupplier(
+        current
+          ? await getAdminMediaSupplier(apiBaseUrl, current.id)
+          : undefined,
+      );
+    }
     setAudits(nextAudits);
     const targetId =
       preferredPlatformId ?? selectedPlatform?.id ?? nextPlatforms.at(0)?.id;
@@ -197,6 +217,117 @@ export function AdminMediaWorkspace() {
       .finally(() => setRefreshing(false));
   }
 
+  async function runBatchStatus(
+    items: Array<{ resourceId: string; expectedRevision: number }>,
+    nextStatus: MediaResourceAdmin["status"],
+    supplierId?: string,
+  ) {
+    if (items.length === 0) return;
+    setRefreshing(true);
+    setErrorMessage("");
+    try {
+      await batchUpdateAdminMediaResourceStatus(apiBaseUrl, {
+        items,
+        status: nextStatus,
+        reason:
+          nextStatus === "ACTIVE" ? "批量启用媒体资源" : "批量停用媒体资源",
+      });
+      await reloadAdminData(selectedPlatform?.id);
+      if (supplierId) {
+        setSelectedSupplier(
+          await getAdminMediaSupplier(apiBaseUrl, supplierId),
+        );
+      }
+      setToast(
+        `已批量${nextStatus === "ACTIVE" ? "启用" : "停用"} ${items.length} 个资源`,
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "批量操作未执行，请稍后重试",
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  async function removePlatform(platform: MediaPlatformAdmin) {
+    const reason = window.prompt("请填写删除平台的原因");
+    if (!reason?.trim()) return;
+    if (!window.confirm(`确认永久删除平台「${platform.displayName}」？`))
+      return;
+    setRefreshing(true);
+    try {
+      await deleteAdminMediaPlatform(apiBaseUrl, platform.id, {
+        expectedRevision: platform.revision,
+        reason: reason.trim(),
+      });
+      setSelectedPlatform(undefined);
+      await reloadAdminData();
+      setToast("平台已删除");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "平台删除失败");
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  async function removeSupplier(supplier: MediaSupplier) {
+    const reason = window.prompt("请填写删除供应商的原因");
+    if (!reason?.trim()) return;
+    if (!window.confirm(`确认永久删除供应商「${supplier.displayName}」？`))
+      return;
+    setRefreshing(true);
+    try {
+      await deleteAdminMediaSupplier(apiBaseUrl, supplier.id, {
+        expectedRevision: supplier.revision,
+        reason: reason.trim(),
+      });
+      setSelectedSupplier(undefined);
+      await reloadAdminData();
+      setToast("供应商已删除");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "供应商删除失败",
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  async function removeResource(resource: MediaResourceAdmin) {
+    const reason = window.prompt("请填写删除资源的原因");
+    if (!reason?.trim()) return;
+    if (!window.confirm(`确认永久删除资源「${resource.resourceName}」？`))
+      return;
+    const canDeleteSupplier =
+      resource.supplier.status === "INACTIVE" &&
+      resource.supplier.resourceCount === 1;
+    const deleteUnreferencedSupplier =
+      canDeleteSupplier &&
+      window.confirm(
+        `供应商「${resource.supplier.displayName}」删除该资源后将不再被引用，是否一并删除？`,
+      );
+    setRefreshing(true);
+    try {
+      await deleteAdminMediaResource(apiBaseUrl, resource.id, {
+        expectedRevision: resource.revision,
+        reason: reason.trim(),
+        deleteUnreferencedSupplier,
+        ...(deleteUnreferencedSupplier
+          ? { expectedSupplierRevision: resource.supplier.revision }
+          : {}),
+      });
+      await reloadAdminData(resource.platformId);
+      setToast(
+        deleteUnreferencedSupplier ? "资源和无引用供应商已删除" : "资源已删除",
+      );
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "资源删除失败");
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   const filteredPlatforms = useMemo(
     () =>
       filterAdminPlatforms(platforms, {
@@ -206,8 +337,8 @@ export function AdminMediaWorkspace() {
       }),
     [platforms, search, category, status],
   );
-  const activeSourceCount = sources.filter(
-    (source) => source.status === "ACTIVE",
+  const activeSupplierCount = suppliers.filter(
+    (supplier) => supplier.status === "ACTIVE",
   ).length;
   const activePlatformCount = platforms.filter(
     (platform) => platform.status === "ACTIVE",
@@ -227,7 +358,7 @@ export function AdminMediaWorkspace() {
         <span className="loading-orbit" />
         <div>
           <b>正在核验管理员身份</b>
-          <small>通过后再加载媒体平台、合作来源与操作记录</small>
+          <small>通过后再加载媒体平台、供应商与操作记录</small>
         </div>
       </main>
     );
@@ -244,7 +375,7 @@ export function AdminMediaWorkspace() {
           <h1>该账号不能进入媒体库管理</h1>
           <p>
             当前账号角色是「{roleLabels[account.role]}
-            」。平台资料、价格、合作来源、采购成本和操作记录只向系统管理员开放。
+            」。平台资料、价格、供应商、采购成本和操作记录只向系统管理员开放。
           </p>
           <div>
             {account.role === "TERMINAL_CUSTOMER" && (
@@ -298,9 +429,7 @@ export function AdminMediaWorkspace() {
           <div>
             <p className="eyebrow">管理员工作区</p>
             <h1>媒体库管理</h1>
-            <p>
-              集中维护媒体平台、价格、启停状态、媒体资源和合作来源，并保留完整操作记录。
-            </p>
+            <p>分别维护媒体平台与资源、全局供应商，并保留完整操作记录。</p>
           </div>
           <div className="workspace-header-actions">
             <button
@@ -323,9 +452,15 @@ export function AdminMediaWorkspace() {
             <button
               type="button"
               className="primary-button"
-              onClick={() => setEditor({ kind: "platform-new" })}
+              onClick={() =>
+                setEditor(
+                  area === "PLATFORMS"
+                    ? { kind: "platform-new" }
+                    : { kind: "supplier-new" },
+                )
+              }
             >
-              ＋ 创建平台
+              {area === "PLATFORMS" ? "＋ 创建平台" : "＋ 创建供应商"}
             </button>
           </div>
         </header>
@@ -344,6 +479,23 @@ export function AdminMediaWorkspace() {
           </div>
         )}
 
+        <nav className="workspace-area-switch" aria-label="媒体库管理区域">
+          <button
+            type="button"
+            className={area === "PLATFORMS" ? "active" : ""}
+            onClick={() => setArea("PLATFORMS")}
+          >
+            平台与资源
+          </button>
+          <button
+            type="button"
+            className={area === "SUPPLIERS" ? "active" : ""}
+            onClick={() => setArea("SUPPLIERS")}
+          >
+            供应商管理
+          </button>
+        </nav>
+
         <section className="admin-metric-strip" aria-label="媒体库概况">
           <article>
             <span>平台数量</span>
@@ -356,9 +508,9 @@ export function AdminMediaWorkspace() {
             <small>客户当前可以购买</small>
           </article>
           <article>
-            <span>合作来源</span>
-            <b>{activeSourceCount}</b>
-            <small>{sources.length} 个来源记录</small>
+            <span>可用供应商</span>
+            <b>{activeSupplierCount}</b>
+            <small>{suppliers.length} 个供应商</small>
           </article>
           <article>
             <span>操作记录</span>
@@ -367,239 +519,266 @@ export function AdminMediaWorkspace() {
           </article>
         </section>
 
-        <section className="admin-catalog-layout">
-          <aside className="platform-browser" aria-label="媒体平台列表">
-            <header>
-              <div>
-                <p className="step-label">平台列表</p>
-                <h2>媒体平台</h2>
-              </div>
-              <span>
-                {filteredPlatforms.length} / {platforms.length}
-              </span>
-            </header>
-            <div className="platform-filters">
-              <label className="platform-search">
-                <span>搜索平台或别名</span>
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="输入名称…"
-                />
-              </label>
-              <div className="platform-filter-row">
-                <label>
-                  <span>分类</span>
-                  <select
-                    value={category}
-                    onChange={(event) =>
-                      setCategory(event.target.value as typeof category)
-                    }
-                  >
-                    <option value="ALL">全部分类</option>
-                    {mediaCategoryOptions.map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  <span>状态</span>
-                  <select
-                    value={status}
-                    onChange={(event) =>
-                      setStatus(event.target.value as PlatformStatusFilter)
-                    }
-                  >
-                    <option value="ALL">全部状态</option>
-                    <option value="ACTIVE">启用</option>
-                    <option value="INACTIVE">停用</option>
-                  </select>
-                </label>
-              </div>
-            </div>
-            {platforms.length === 0 ? (
-              <div className="platform-list-empty">
-                <span aria-hidden="true">＋</span>
-                <h3>还没有媒体平台</h3>
-                <p>先填写平台、价格和分类；新建后默认停用。</p>
-                <button
-                  type="button"
-                  className="primary-button"
-                  onClick={() => setEditor({ kind: "platform-new" })}
-                >
-                  创建首个平台
-                </button>
-              </div>
-            ) : filteredPlatforms.length === 0 ? (
-              <div className="platform-list-empty compact">
-                <h3>没有匹配的平台</h3>
-                <p>尝试清除搜索词或恢复全部筛选。</p>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => {
-                    setSearch("");
-                    setCategory("ALL");
-                    setStatus("ALL");
-                  }}
-                >
-                  清除筛选
-                </button>
-              </div>
-            ) : (
-              <div className="platform-list">
-                {filteredPlatforms.map((platform) => {
-                  const selected = platform.id === selectedPlatform?.id;
-                  return (
-                    <button
-                      type="button"
-                      key={platform.id}
-                      className={selected ? "selected" : ""}
-                      onClick={() => void selectPlatform(platform.id)}
-                      aria-current={selected ? "true" : undefined}
-                    >
-                      <span className="platform-list-logo">
-                        {platform.logoUrl && (
-                          <img
-                            src={platform.logoUrl}
-                            alt=""
-                            onLoad={(event) => {
-                              event.currentTarget.style.display = "block";
-                            }}
-                            onError={(event) => {
-                              event.currentTarget.style.display = "none";
-                            }}
-                          />
-                        )}
-                        <b aria-hidden="true">
-                          {platform.displayName.slice(0, 1)}
-                        </b>
-                      </span>
-                      <span>
-                        <b>{platform.displayName}</b>
-                        <small>
-                          {platform.categories
-                            .slice(0, 2)
-                            .map((item) => categoryLabels[item])
-                            .join(" · ")}
-                        </small>
-                      </span>
-                      <em
-                        className={`state-pill ${platform.status.toLowerCase()}`}
-                      >
-                        {platformStatusLabels[platform.status]}
-                      </em>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </aside>
-
-          <section className="platform-detail-workspace">
-            {detailLoading ? (
-              <div className="detail-loading" role="status">
-                <span className="loading-orbit" />
-                正在加载平台资料与资源…
-              </div>
-            ) : !selectedPlatform ? (
-              <div className="detail-empty">
-                <p className="eyebrow">平台详情</p>
-                <h2>选择一个平台开始维护</h2>
-                <p>平台信息、价格、媒体资源和操作记录会集中呈现。</p>
-              </div>
-            ) : (
-              <>
-                <PlatformDetailHeader
-                  platform={selectedPlatform}
-                  resources={resources}
-                  onEdit={() =>
-                    setEditor({
-                      kind: "platform-edit",
-                      platform: selectedPlatform,
-                    })
-                  }
-                />
-                <div
-                  className="detail-tabs"
-                  role="tablist"
-                  aria-label="平台维护区域"
-                >
-                  {(
-                    [
-                      ["OVERVIEW", "平台信息"],
-                      ["RESOURCES", `媒体资源 ${resources.length}`],
-                      ["SOURCES", `合作来源 ${sources.length}`],
-                      ["AUDIT", "操作记录"],
-                    ] as const
-                  ).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      role="tab"
-                      aria-selected={tab === value}
-                      className={tab === value ? "active" : ""}
-                      onClick={() => setTab(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
+        {area === "SUPPLIERS" ? (
+          <SupplierWorkspace
+            suppliers={suppliers}
+            selected={selectedSupplier}
+            onSelect={(supplierId) => {
+              setDetailLoading(true);
+              void getAdminMediaSupplier(apiBaseUrl, supplierId)
+                .then(setSelectedSupplier)
+                .catch((error) =>
+                  setErrorMessage(
+                    error instanceof Error
+                      ? error.message
+                      : "供应商详情加载失败",
+                  ),
+                )
+                .finally(() => setDetailLoading(false));
+            }}
+            onCreate={() => setEditor({ kind: "supplier-new" })}
+            onEdit={(supplier) =>
+              setEditor({ kind: "supplier-edit", supplier })
+            }
+            onDelete={(supplier) => void removeSupplier(supplier)}
+            onJumpToPlatform={(platformId) => {
+              setArea("PLATFORMS");
+              void selectPlatform(platformId).then(() => setTab("RESOURCES"));
+            }}
+            onBatchStatus={(items, status) =>
+              runBatchStatus(items, status, selectedSupplier?.id)
+            }
+          />
+        ) : (
+          <section className="admin-catalog-layout">
+            <aside className="platform-browser" aria-label="媒体平台列表">
+              <header>
+                <div>
+                  <p className="step-label">平台列表</p>
+                  <h2>媒体平台</h2>
                 </div>
+                <span>
+                  {filteredPlatforms.length} / {platforms.length}
+                </span>
+              </header>
+              <div className="platform-filters">
+                <label className="platform-search">
+                  <span>搜索平台或别名</span>
+                  <input
+                    type="search"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="输入名称…"
+                  />
+                </label>
+                <div className="platform-filter-row">
+                  <label>
+                    <span>分类</span>
+                    <select
+                      value={category}
+                      onChange={(event) =>
+                        setCategory(event.target.value as typeof category)
+                      }
+                    >
+                      <option value="ALL">全部分类</option>
+                      {mediaCategoryOptions.map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span>状态</span>
+                    <select
+                      value={status}
+                      onChange={(event) =>
+                        setStatus(event.target.value as PlatformStatusFilter)
+                      }
+                    >
+                      <option value="ALL">全部状态</option>
+                      <option value="ACTIVE">启用</option>
+                      <option value="INACTIVE">停用</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              {platforms.length === 0 ? (
+                <div className="platform-list-empty">
+                  <span aria-hidden="true">＋</span>
+                  <h3>还没有媒体平台</h3>
+                  <p>先填写平台、价格和分类；新建后默认停用。</p>
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={() => setEditor({ kind: "platform-new" })}
+                  >
+                    创建首个平台
+                  </button>
+                </div>
+              ) : filteredPlatforms.length === 0 ? (
+                <div className="platform-list-empty compact">
+                  <h3>没有匹配的平台</h3>
+                  <p>尝试清除搜索词或恢复全部筛选。</p>
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => {
+                      setSearch("");
+                      setCategory("ALL");
+                      setStatus("ALL");
+                    }}
+                  >
+                    清除筛选
+                  </button>
+                </div>
+              ) : (
+                <div className="platform-list">
+                  {filteredPlatforms.map((platform) => {
+                    const selected = platform.id === selectedPlatform?.id;
+                    return (
+                      <button
+                        type="button"
+                        key={platform.id}
+                        className={selected ? "selected" : ""}
+                        onClick={() => void selectPlatform(platform.id)}
+                        aria-current={selected ? "true" : undefined}
+                      >
+                        <span className="platform-list-logo">
+                          {platform.logoUrl && (
+                            <img
+                              src={platform.logoUrl}
+                              alt=""
+                              onLoad={(event) => {
+                                event.currentTarget.style.display = "block";
+                              }}
+                              onError={(event) => {
+                                event.currentTarget.style.display = "none";
+                              }}
+                            />
+                          )}
+                          <b aria-hidden="true">
+                            {platform.displayName.slice(0, 1)}
+                          </b>
+                        </span>
+                        <span>
+                          <b>{platform.displayName}</b>
+                          <small>
+                            {platform.categories
+                              .slice(0, 2)
+                              .map((item) => categoryLabels[item])
+                              .join(" · ")}
+                          </small>
+                        </span>
+                        <em
+                          className={`state-pill ${platform.status.toLowerCase()}`}
+                        >
+                          {platformStatusLabels[platform.status]}
+                        </em>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </aside>
 
-                {tab === "OVERVIEW" && (
-                  <OverviewPanel
+            <section className="platform-detail-workspace">
+              {detailLoading ? (
+                <div className="detail-loading" role="status">
+                  <span className="loading-orbit" />
+                  正在加载平台资料与资源…
+                </div>
+              ) : !selectedPlatform ? (
+                <div className="detail-empty">
+                  <p className="eyebrow">平台详情</p>
+                  <h2>选择一个平台开始维护</h2>
+                  <p>平台信息、价格、媒体资源和操作记录会集中呈现。</p>
+                </div>
+              ) : (
+                <>
+                  <PlatformDetailHeader
                     platform={selectedPlatform}
-                    onEditPlatform={() =>
+                    resources={resources}
+                    onEdit={() =>
                       setEditor({
                         kind: "platform-edit",
                         platform: selectedPlatform,
                       })
                     }
+                    onDelete={() => void removePlatform(selectedPlatform)}
                   />
-                )}
-                {tab === "RESOURCES" && (
-                  <ResourcesPanel
-                    platform={selectedPlatform}
-                    resources={resources}
-                    onCreate={() =>
-                      setEditor({
-                        kind: "resource-new",
-                        platform: selectedPlatform,
-                      })
-                    }
-                    onEdit={(resource) =>
-                      setEditor({
-                        kind: "resource-edit",
-                        platform: selectedPlatform,
-                        resource,
-                      })
-                    }
-                  />
-                )}
-                {tab === "SOURCES" && (
-                  <SourcesPanel
-                    sources={sources}
-                    onCreate={() => setEditor({ kind: "source-new" })}
-                    onEdit={(source) =>
-                      setEditor({ kind: "source-edit", source })
-                    }
-                  />
-                )}
-                {tab === "AUDIT" && (
-                  <AuditPanel
-                    audits={visibleAudits}
-                    scope={auditScope}
-                    selectedName={selectedPlatform.displayName}
-                    onScopeChange={setAuditScope}
-                  />
-                )}
-              </>
-            )}
+                  <div
+                    className="detail-tabs"
+                    role="tablist"
+                    aria-label="平台维护区域"
+                  >
+                    {(
+                      [
+                        ["OVERVIEW", "平台信息"],
+                        ["RESOURCES", `媒体资源 ${resources.length}`],
+                        ["AUDIT", "操作记录"],
+                      ] as const
+                    ).map(([value, label]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        role="tab"
+                        aria-selected={tab === value}
+                        className={tab === value ? "active" : ""}
+                        onClick={() => setTab(value)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {tab === "OVERVIEW" && (
+                    <OverviewPanel
+                      platform={selectedPlatform}
+                      onEditPlatform={() =>
+                        setEditor({
+                          kind: "platform-edit",
+                          platform: selectedPlatform,
+                        })
+                      }
+                    />
+                  )}
+                  {tab === "RESOURCES" && (
+                    <ResourcesPanel
+                      platform={selectedPlatform}
+                      resources={resources}
+                      onCreate={() =>
+                        setEditor({
+                          kind: "resource-new",
+                          platform: selectedPlatform,
+                        })
+                      }
+                      onEdit={(resource) =>
+                        setEditor({
+                          kind: "resource-edit",
+                          platform: selectedPlatform,
+                          resource,
+                        })
+                      }
+                      onDelete={(resource) => void removeResource(resource)}
+                      onBatchStatus={(items, nextStatus) =>
+                        runBatchStatus(items, nextStatus)
+                      }
+                    />
+                  )}
+                  {tab === "AUDIT" && (
+                    <AuditPanel
+                      audits={visibleAudits}
+                      scope={auditScope}
+                      selectedName={selectedPlatform.displayName}
+                      onScopeChange={setAuditScope}
+                    />
+                  )}
+                </>
+              )}
+            </section>
           </section>
-        </section>
+        )}
       </main>
 
       {editor?.kind === "platform-new" && (
@@ -621,7 +800,7 @@ export function AdminMediaWorkspace() {
         <ResourceEditor
           apiBaseUrl={apiBaseUrl}
           platform={editor.platform}
-          sources={sources}
+          suppliers={suppliers}
           onClose={() => setEditor(undefined)}
           onSaved={(saved, message) =>
             acceptedMutation(message, saved.platformId)
@@ -632,7 +811,7 @@ export function AdminMediaWorkspace() {
         <ResourceEditor
           apiBaseUrl={apiBaseUrl}
           platform={editor.platform}
-          sources={sources}
+          suppliers={suppliers}
           resource={editor.resource}
           onClose={() => setEditor(undefined)}
           onSaved={(saved, message) =>
@@ -640,8 +819,8 @@ export function AdminMediaWorkspace() {
           }
         />
       )}
-      {editor?.kind === "source-new" && (
-        <SourceEditor
+      {editor?.kind === "supplier-new" && (
+        <SupplierEditor
           apiBaseUrl={apiBaseUrl}
           onClose={() => setEditor(undefined)}
           onSaved={(_saved, message) =>
@@ -649,10 +828,10 @@ export function AdminMediaWorkspace() {
           }
         />
       )}
-      {editor?.kind === "source-edit" && (
-        <SourceEditor
+      {editor?.kind === "supplier-edit" && (
+        <SupplierEditor
           apiBaseUrl={apiBaseUrl}
-          source={editor.source}
+          supplier={editor.supplier}
           onClose={() => setEditor(undefined)}
           onSaved={(_saved, message) =>
             acceptedMutation(message, selectedPlatform?.id)
@@ -667,10 +846,12 @@ function PlatformDetailHeader({
   platform,
   resources,
   onEdit,
+  onDelete,
 }: {
   platform: MediaPlatformAdmin;
   resources: MediaResourceAdmin[];
   onEdit: () => void;
+  onDelete: () => void;
 }) {
   return (
     <header className="platform-detail-header">
@@ -713,6 +894,11 @@ function PlatformDetailHeader({
         <button type="button" className="secondary-button" onClick={onEdit}>
           编辑平台
         </button>
+        {platform.status === "INACTIVE" && resources.length === 0 && (
+          <button type="button" className="danger-button" onClick={onDelete}>
+            删除平台
+          </button>
+        )}
       </div>
     </header>
   );
@@ -811,12 +997,26 @@ function ResourcesPanel({
   resources,
   onCreate,
   onEdit,
+  onDelete,
+  onBatchStatus,
 }: {
   platform: MediaPlatformAdmin;
   resources: MediaResourceAdmin[];
   onCreate: () => void;
   onEdit: (resource: MediaResourceAdmin) => void;
+  onDelete: (resource: MediaResourceAdmin) => void;
+  onBatchStatus: (
+    items: Array<{ resourceId: string; expectedRevision: number }>,
+    status: MediaResourceAdmin["status"],
+  ) => void;
 }) {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const selectedItems = resources
+    .filter((resource) => selectedIds.includes(resource.id))
+    .map((resource) => ({
+      resourceId: resource.id,
+      expectedRevision: resource.revision,
+    }));
   return (
     <section className="resource-panel">
       <header className="panel-section-header">
@@ -841,142 +1041,338 @@ function ResourcesPanel({
           </div>
         </div>
       ) : (
-        <div className="resource-grid">
-          {resources.map((resource) => (
-            <article key={resource.id} className="resource-card">
-              <header>
-                <div>
-                  <span
-                    className={`state-pill ${resource.status.toLowerCase()}`}
+        <>
+          <div className="resource-batch-bar">
+            <label>
+              <input
+                type="checkbox"
+                checked={selectedIds.length === resources.length}
+                onChange={(event) =>
+                  setSelectedIds(
+                    event.target.checked
+                      ? resources.map((item) => item.id)
+                      : [],
+                  )
+                }
+              />
+              全选当前平台资源
+            </label>
+            <span>已选 {selectedItems.length} 个</span>
+            <button
+              type="button"
+              disabled={selectedItems.length === 0}
+              onClick={() => onBatchStatus(selectedItems, "ACTIVE")}
+            >
+              批量启用
+            </button>
+            <button
+              type="button"
+              disabled={selectedItems.length === 0}
+              onClick={() => onBatchStatus(selectedItems, "INACTIVE")}
+            >
+              批量停用
+            </button>
+          </div>
+          <div className="resource-grid">
+            {resources.map((resource) => (
+              <article key={resource.id} className="resource-card">
+                <header>
+                  <div>
+                    <input
+                      type="checkbox"
+                      aria-label={`选择${resource.resourceName}`}
+                      checked={selectedIds.includes(resource.id)}
+                      onChange={(event) =>
+                        setSelectedIds((current) =>
+                          event.target.checked
+                            ? [...current, resource.id]
+                            : current.filter((id) => id !== resource.id),
+                        )
+                      }
+                    />
+                    <span
+                      className={`state-pill ${resource.effectiveStatus.toLowerCase()}`}
+                    >
+                      {resourceEffectiveStatusLabels[resource.effectiveStatus]}
+                    </span>
+                    <span className="privacy-pill">
+                      {visibilityLabels[resource.publicVisibility]}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => onEdit(resource)}
                   >
-                    {resourceStatusLabels[resource.status]}
-                  </span>
-                  <span className="privacy-pill">
-                    {visibilityLabels[resource.publicVisibility]}
-                  </span>
+                    编辑
+                  </button>
+                  {resource.status === "INACTIVE" && (
+                    <button
+                      type="button"
+                      className="danger-text-button"
+                      onClick={() => onDelete(resource)}
+                    >
+                      删除
+                    </button>
+                  )}
+                </header>
+                <h4>{resource.resourceName}</h4>
+                {resource.publicVisibility === "MASKED" &&
+                  resource.publicAlias && (
+                    <p className="public-alias">
+                      客户展示：{resource.publicAlias}
+                    </p>
+                  )}
+                <div className="resource-meta">
+                  <span>{publicationModeLabels[resource.publicationMode]}</span>
+                  <span>{qualityLabels[resource.qualityTier]}</span>
+                  <span>供应商：{resource.supplier.displayName}</span>
                 </div>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => onEdit(resource)}
-                >
-                  编辑
-                </button>
-              </header>
-              <h4>{resource.resourceName}</h4>
-              {resource.publicVisibility === "MASKED" &&
-                resource.publicAlias && (
-                  <p className="public-alias">
-                    客户展示：{resource.publicAlias}
-                  </p>
+                <dl>
+                  <div>
+                    <dt>账号名称或编号</dt>
+                    <dd>{resource.accountIdentifier || "未记录"}</dd>
+                  </div>
+                  <div>
+                    <dt>采购成本</dt>
+                    <dd>
+                      {resource.procurementCostYuan === null ||
+                      resource.procurementCostYuan === undefined
+                        ? "未记录"
+                        : `¥${resource.procurementCostYuan.toLocaleString("zh-CN")}`}
+                    </dd>
+                  </div>
+                </dl>
+                {resource.publicationNotes && (
+                  <p className="resource-note">{resource.publicationNotes}</p>
                 )}
-              <div className="resource-meta">
-                <span>{publicationModeLabels[resource.publicationMode]}</span>
-                <span>{qualityLabels[resource.qualityTier]}</span>
-                <span>合作来源：{resource.source.name}</span>
-              </div>
-              <dl>
-                <div>
-                  <dt>账号名称或编号</dt>
-                  <dd>{resource.accountIdentifier || "未记录"}</dd>
-                </div>
-                <div>
-                  <dt>采购成本</dt>
-                  <dd>
-                    {resource.procurementCostFen === null ||
-                    resource.procurementCostFen === undefined
-                      ? "未记录"
-                      : `¥${formatFenAsYuan(resource.procurementCostFen)}`}
-                  </dd>
-                </div>
-              </dl>
-              {resource.publicationNotes && (
-                <p className="resource-note">{resource.publicationNotes}</p>
-              )}
-            </article>
-          ))}
-        </div>
+              </article>
+            ))}
+          </div>
+        </>
       )}
     </section>
   );
 }
 
-function SourcesPanel({
-  sources,
+function SupplierWorkspace({
+  suppliers,
+  selected,
+  onSelect,
   onCreate,
   onEdit,
+  onDelete,
+  onJumpToPlatform,
+  onBatchStatus,
 }: {
-  sources: MediaSupplySource[];
+  suppliers: MediaSupplier[];
+  selected: MediaSupplierDetail | undefined;
+  onSelect: (supplierId: string) => void;
   onCreate: () => void;
-  onEdit: (source: MediaSupplySource) => void;
+  onEdit: (supplier: MediaSupplier) => void;
+  onDelete: (supplier: MediaSupplier) => void;
+  onJumpToPlatform: (platformId: string) => void;
+  onBatchStatus: (
+    items: Array<{ resourceId: string; expectedRevision: number }>,
+    status: MediaResourceAdmin["status"],
+  ) => void;
 }) {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const associations = selected?.resources ?? [];
+  const selectedItems = associations
+    .filter((resource) => selectedIds.includes(resource.resourceId))
+    .map((resource) => ({
+      resourceId: resource.resourceId,
+      expectedRevision: resource.resourceRevision,
+    }));
   return (
-    <section className="source-panel">
-      <header className="panel-section-header">
-        <div>
-          <p className="step-label">04 · 合作来源</p>
-          <h3>合作方与联系方式</h3>
-          <p>
-            一个合作来源可以对应多个媒体资源；停用来源不会自动改变平台状态。
-          </p>
-        </div>
-        <button type="button" className="primary-button" onClick={onCreate}>
-          ＋ 创建合作来源
-        </button>
-      </header>
-      {sources.length === 0 ? (
-        <div className="panel-empty-state">
-          <span aria-hidden="true">合</span>
+    <section className="supplier-workspace">
+      <aside className="supplier-browser">
+        <header>
           <div>
-            <h4>尚无合作来源</h4>
-            <p>创建合作来源后，才能为媒体资源记录当前合作方。</p>
+            <p className="step-label">供应商列表</p>
+            <h2>全局供应商</h2>
           </div>
-        </div>
-      ) : (
-        <div className="source-table-wrap">
-          <table className="source-table">
-            <thead>
-              <tr>
-                <th>来源</th>
-                <th>状态</th>
-                <th>联系人</th>
-                <th>联系方式</th>
-                <th>内部备注</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {sources.map((source) => (
-                <tr key={source.id}>
-                  <td>
-                    <b>{source.name}</b>
-                    <small>{formatDateTime(source.updatedAt)}</small>
-                  </td>
-                  <td>
-                    <span
-                      className={`state-pill ${source.status.toLowerCase()}`}
+          <span>{suppliers.length}</span>
+        </header>
+        {suppliers.length === 0 ? (
+          <div className="panel-empty-state">
+            <span aria-hidden="true">供</span>
+            <div>
+              <h4>尚无供应商</h4>
+              <p>供应商可被不同平台下的多个资源复用。</p>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={onCreate}
+              >
+                创建供应商
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="supplier-list">
+            {suppliers.map((supplier) => (
+              <button
+                type="button"
+                key={supplier.id}
+                className={selected?.id === supplier.id ? "selected" : ""}
+                onClick={() => {
+                  setSelectedIds([]);
+                  onSelect(supplier.id);
+                }}
+              >
+                <span>
+                  <b>{supplier.displayName}</b>
+                  <small>
+                    {supplier.resourceCount} 条资源 · {supplier.platformCount}{" "}
+                    个平台
+                  </small>
+                </span>
+                <em className={`state-pill ${supplier.status.toLowerCase()}`}>
+                  {supplierStatusLabels[supplier.status]}
+                </em>
+              </button>
+            ))}
+          </div>
+        )}
+      </aside>
+      <section className="supplier-detail">
+        {!selected ? (
+          <div className="detail-empty">
+            <p className="eyebrow">供应商详情</p>
+            <h2>选择一个供应商</h2>
+            <p>这里会展示联系方式、关联资源与涉及平台。</p>
+          </div>
+        ) : (
+          <>
+            <header className="supplier-detail-header">
+              <div>
+                <p className="eyebrow">全局供应商</p>
+                <h2>{selected.displayName}</h2>
+                <p>
+                  {selected.contactName || "未记录联系人"} ·{" "}
+                  {selected.contactMethod || "未记录联系方式"}
+                </p>
+              </div>
+              <div>
+                <span className={`state-pill ${selected.status.toLowerCase()}`}>
+                  {supplierStatusLabels[selected.status]}
+                </span>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => onEdit(selected)}
+                >
+                  编辑供应商
+                </button>
+                {selected.status === "INACTIVE" &&
+                  selected.resourceCount === 0 && (
+                    <button
+                      type="button"
+                      className="danger-button"
+                      onClick={() => onDelete(selected)}
                     >
-                      {sourceStatusLabels[source.status]}
+                      删除供应商
+                    </button>
+                  )}
+              </div>
+            </header>
+            <div className="supplier-stat-row">
+              <span>
+                <b>{selected.resourceCount}</b> 条关联资源
+              </span>
+              <span>
+                <b>{selected.platformCount}</b> 个涉及平台
+              </span>
+              <span>更新于 {formatDateTime(selected.updatedAt)}</span>
+            </div>
+            <div className="resource-batch-bar">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={
+                    associations.length > 0 &&
+                    selectedIds.length === associations.length
+                  }
+                  onChange={(event) =>
+                    setSelectedIds(
+                      event.target.checked
+                        ? associations.map((item) => item.resourceId)
+                        : [],
+                    )
+                  }
+                />
+                全选该供应商资源
+              </label>
+              <span>已选 {selectedItems.length} 个</span>
+              <button
+                type="button"
+                disabled={selectedItems.length === 0}
+                onClick={() => onBatchStatus(selectedItems, "ACTIVE")}
+              >
+                批量启用
+              </button>
+              <button
+                type="button"
+                disabled={selectedItems.length === 0}
+                onClick={() => onBatchStatus(selectedItems, "INACTIVE")}
+              >
+                批量停用
+              </button>
+            </div>
+            {associations.length === 0 ? (
+              <div className="panel-empty-state compact">
+                <span aria-hidden="true">空</span>
+                <div>
+                  <h4>暂无关联资源</h4>
+                  <p>停用后可以安全删除该供应商。</p>
+                </div>
+              </div>
+            ) : (
+              <div className="supplier-association-list">
+                {associations.map((resource) => (
+                  <article key={resource.resourceId}>
+                    <input
+                      type="checkbox"
+                      aria-label={`选择${resource.resourceName}`}
+                      checked={selectedIds.includes(resource.resourceId)}
+                      onChange={(event) =>
+                        setSelectedIds((current) =>
+                          event.target.checked
+                            ? [...current, resource.resourceId]
+                            : current.filter(
+                                (id) => id !== resource.resourceId,
+                              ),
+                        )
+                      }
+                    />
+                    <div>
+                      <b>{resource.resourceName}</b>
+                      <small>{resource.platformDisplayName}</small>
+                    </div>
+                    <span
+                      className={`state-pill ${resource.effectiveStatus.toLowerCase()}`}
+                    >
+                      {resourceEffectiveStatusLabels[resource.effectiveStatus]}
                     </span>
-                  </td>
-                  <td>{source.contactName || "—"}</td>
-                  <td>{source.contactMethod || "—"}</td>
-                  <td className="source-notes">{source.notes || "—"}</td>
-                  <td>
                     <button
                       type="button"
                       className="text-button"
-                      onClick={() => onEdit(source)}
+                      onClick={() => onJumpToPlatform(resource.platformId)}
                     >
-                      编辑
+                      查看平台
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                  </article>
+                ))}
+              </div>
+            )}
+            {selected.notes && (
+              <p className="supplier-notes">内部备注：{selected.notes}</p>
+            )}
+          </>
+        )}
+      </section>
     </section>
   );
 }

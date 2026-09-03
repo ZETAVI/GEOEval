@@ -20,7 +20,7 @@ import {
   type MediaCategory,
   type MediaPlatformFields,
   type MediaResourceFields,
-  type MediaSupplySourceFields,
+  type MediaSupplierFields,
 } from "../domain/media-supply.types.js";
 
 const CATEGORY_LABELS: Record<MediaCategory, string> = {
@@ -29,7 +29,6 @@ const CATEGORY_LABELS: Record<MediaCategory, string> = {
   LOCAL_MEDIA: "地方媒体",
   VERTICAL_MEDIA: "垂直媒体",
   CONTENT_PLATFORM: "内容平台",
-  OVERSEAS_MEDIA: "海外媒体",
 };
 
 @Injectable()
@@ -79,11 +78,10 @@ export class MediaSupplyService {
 
   createPlatform(actorAccountId: string, input: unknown) {
     const parsed = parseOrBadRequest(platformCreateSchema, input);
-    const { reason, ...fields } = parsed;
     return this.execute(() =>
       this.repository.createPlatform(
-        { actorAccountId, reason },
-        fields as MediaPlatformFields,
+        { actorAccountId, reason: "创建媒体平台" },
+        parsed as MediaPlatformFields,
       ),
     );
   }
@@ -102,43 +100,63 @@ export class MediaSupplyService {
   }
 
   deletePlatform(actorAccountId: string, platformId: string, input: unknown) {
-    const { reason } = parseOrBadRequest(reasonSchema, input);
-    return this.execute(() =>
-      this.repository.deletePlatform({ actorAccountId, reason }, platformId),
+    const { reason, expectedRevision } = parseOrBadRequest(
+      deleteOwnerSchema,
+      input,
     );
-  }
-
-  listSources() {
-    return this.repository.listSources();
-  }
-
-  createSource(actorAccountId: string, input: unknown) {
-    const parsed = parseOrBadRequest(sourceCreateSchema, input);
-    const { reason, ...fields } = parsed;
     return this.execute(() =>
-      this.repository.createSource(
+      this.repository.deletePlatform(
         { actorAccountId, reason },
-        fields as MediaSupplySourceFields,
+        platformId,
+        expectedRevision,
       ),
     );
   }
 
-  updateSource(actorAccountId: string, sourceId: string, input: unknown) {
-    const parsed = parseOrBadRequest(sourceUpdateSchema, input);
-    const { reason, ...fields } = parsed;
+  listSuppliers() {
+    return this.repository.listSuppliers();
+  }
+
+  async supplier(supplierId: string) {
+    const supplier = await this.repository.findSupplier(supplierId);
+    if (!supplier) throw new NotFoundException("未找到该供应商");
+    return supplier;
+  }
+
+  createSupplier(actorAccountId: string, input: unknown) {
+    const fields = parseOrBadRequest(supplierCreateSchema, input);
     return this.execute(() =>
-      this.repository.updateSource(
-        { actorAccountId, reason },
-        sourceId,
-        fields as Partial<MediaSupplySourceFields>,
+      this.repository.createSupplier(
+        { actorAccountId, reason: "创建供应商" },
+        fields as MediaSupplierFields,
       ),
     );
   }
 
-  deleteSource(actorAccountId: string, sourceId: string, input: unknown) {
-    const { reason } = parseOrBadRequest(reasonSchema, input);
+  updateSupplier(actorAccountId: string, supplierId: string, input: unknown) {
+    const parsed = parseOrBadRequest(supplierUpdateSchema, input);
+    const { reason, expectedRevision, ...fields } = parsed;
     return this.execute(() =>
-      this.repository.deleteSource({ actorAccountId, reason }, sourceId),
+      this.repository.updateSupplier(
+        { actorAccountId, reason },
+        supplierId,
+        fields as Partial<MediaSupplierFields>,
+        expectedRevision,
+      ),
+    );
+  }
+
+  deleteSupplier(actorAccountId: string, supplierId: string, input: unknown) {
+    const { reason, expectedRevision } = parseOrBadRequest(
+      deleteOwnerSchema,
+      input,
+    );
+    return this.execute(() =>
+      this.repository.deleteSupplier(
+        { actorAccountId, reason },
+        supplierId,
+        expectedRevision,
+      ),
     );
   }
 
@@ -147,11 +165,10 @@ export class MediaSupplyService {
   }
 
   createResource(actorAccountId: string, input: unknown) {
-    const parsed = parseOrBadRequest(resourceCreateSchema, input);
-    const { reason, ...fields } = parsed;
+    const fields = parseOrBadRequest(resourceCreateSchema, input);
     return this.execute(() =>
       this.repository.createResource(
-        { actorAccountId, reason },
+        { actorAccountId, reason: "创建媒体资源" },
         fields as MediaResourceFields,
       ),
     );
@@ -159,20 +176,43 @@ export class MediaSupplyService {
 
   updateResource(actorAccountId: string, resourceId: string, input: unknown) {
     const parsed = parseOrBadRequest(resourceUpdateSchema, input);
-    const { reason, ...fields } = parsed;
+    const { reason, expectedRevision, ...fields } = parsed;
     return this.execute(() =>
       this.repository.updateResource(
         { actorAccountId, reason },
         resourceId,
         fields as Partial<MediaResourceFields>,
+        expectedRevision,
+      ),
+    );
+  }
+
+  batchUpdateResourceStatus(actorAccountId: string, input: unknown) {
+    const parsed = parseOrBadRequest(resourceBatchStatusSchema, input);
+    return this.execute(() =>
+      this.repository.batchUpdateResourceStatus(
+        { actorAccountId, reason: parsed.reason },
+        parsed.items,
+        parsed.status,
       ),
     );
   }
 
   deleteResource(actorAccountId: string, resourceId: string, input: unknown) {
-    const { reason } = parseOrBadRequest(reasonSchema, input);
+    const parsed = parseOrBadRequest(resourceDeleteSchema, input);
+    const { reason, expectedSupplierRevision, ...requiredOptions } = parsed;
+    const options = {
+      ...requiredOptions,
+      ...(expectedSupplierRevision === undefined
+        ? {}
+        : { expectedSupplierRevision }),
+    };
     return this.execute(() =>
-      this.repository.deleteResource({ actorAccountId, reason }, resourceId),
+      this.repository.deleteResource(
+        { actorAccountId, reason },
+        resourceId,
+        options,
+      ),
     );
   }
 
@@ -234,7 +274,9 @@ const optionalUrl = z
   .transform((value) => value || null)
   .nullable();
 
-const reasonSchema = z.object({ reason }).strict();
+const deleteOwnerSchema = z
+  .object({ reason, expectedRevision: z.number().int().positive() })
+  .strict();
 const platformFields = z.object({
   displayName: z.string().trim().min(1).max(160),
   aliases: z.array(z.string().trim().min(1).max(160)).max(20),
@@ -253,7 +295,6 @@ const platformCreateSchema = platformFields
     regionScope: platformFields.shape.regionScope.default("DOMESTIC"),
     status: platformFields.shape.status.default("INACTIVE"),
     pointPrice: platformFields.shape.pointPrice.default(null),
-    reason,
   })
   .strict()
   .refine((value) => value.status !== "ACTIVE" || value.pointPrice !== null, {
@@ -271,42 +312,45 @@ const platformUpdateSchema = platformFields
     { message: "至少修改一个平台字段" },
   );
 
-const sourceFields = z.object({
-  name: z.string().trim().min(1).max(160),
+const supplierFields = z.object({
+  displayName: z.string().trim().min(1).max(160),
   contactName: nullableText(160),
   contactMethod: nullableText(320),
   status: z.enum(["ACTIVE", "INACTIVE"]),
   notes: nullableText(4000),
 });
-const sourceCreateSchema = sourceFields
+const supplierCreateSchema = supplierFields
   .extend({
-    contactName: sourceFields.shape.contactName.default(null),
-    contactMethod: sourceFields.shape.contactMethod.default(null),
-    status: sourceFields.shape.status.default("ACTIVE"),
-    notes: sourceFields.shape.notes.default(null),
-    reason,
+    contactName: supplierFields.shape.contactName.default(null),
+    contactMethod: supplierFields.shape.contactMethod.default(null),
+    status: supplierFields.shape.status.default("INACTIVE"),
+    notes: supplierFields.shape.notes.default(null),
   })
   .strict();
-const sourceUpdateSchema = sourceFields
+const supplierUpdateSchema = supplierFields
   .partial()
-  .extend({ reason })
+  .extend({ expectedRevision: z.number().int().positive(), reason })
   .strict()
-  .refine((value) => Object.keys(value).some((key) => key !== "reason"), {
-    message: "至少修改一个供给来源字段",
-  });
+  .refine(
+    (value) =>
+      Object.keys(value).some(
+        (key) => key !== "reason" && key !== "expectedRevision",
+      ),
+    { message: "至少修改一个供应商字段" },
+  );
 
 const resourceFields = z.object({
   platformId: z.string().uuid(),
-  supplySourceId: z.string().uuid(),
+  supplierId: z.string().uuid(),
   resourceName: z.string().trim().min(1).max(240),
   accountIdentifier: nullableText(240),
   accountUrl: optionalUrl,
   publicationMode: z.enum(["FIRST_PUBLISH", "REPOST"]),
-  status: z.enum(["ACTIVE", "PAUSED", "ARCHIVED"]),
+  status: z.enum(["ACTIVE", "INACTIVE"]),
   publicVisibility: z.enum(["HIDDEN", "FULL", "MASKED"]),
   publicAlias: nullableText(240),
   qualityTier: z.enum(["HIGH", "MEDIUM", "LOW"]),
-  procurementCostFen: z
+  procurementCostYuan: z
     .number()
     .int()
     .nonnegative()
@@ -325,10 +369,9 @@ const resourceCreateSchema = resourceFields
     publicVisibility: resourceFields.shape.publicVisibility.default("HIDDEN"),
     publicAlias: resourceFields.shape.publicAlias.default(null),
     qualityTier: resourceFields.shape.qualityTier.default("MEDIUM"),
-    procurementCostFen: resourceFields.shape.procurementCostFen.default(null),
+    procurementCostYuan: resourceFields.shape.procurementCostYuan.default(null),
     caseUrl: resourceFields.shape.caseUrl.default(null),
     publicationNotes: resourceFields.shape.publicationNotes.default(null),
-    reason,
   })
   .strict()
   .refine(
@@ -338,11 +381,53 @@ const resourceCreateSchema = resourceFields
   );
 const resourceUpdateSchema = resourceFields
   .partial()
-  .extend({ reason })
+  .extend({ expectedRevision: z.number().int().positive(), reason })
   .strict()
-  .refine((value) => Object.keys(value).some((key) => key !== "reason"), {
-    message: "至少修改一个资源字段",
-  });
+  .refine(
+    (value) =>
+      Object.keys(value).some(
+        (key) => key !== "reason" && key !== "expectedRevision",
+      ),
+    { message: "至少修改一个资源字段" },
+  );
+
+const resourceBatchStatusSchema = z
+  .object({
+    status: z.enum(["ACTIVE", "INACTIVE"]),
+    items: z
+      .array(
+        z
+          .object({
+            resourceId: z.string().uuid(),
+            expectedRevision: z.number().int().positive(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200)
+      .refine(
+        (items) =>
+          new Set(items.map((item) => item.resourceId)).size === items.length,
+        "不能重复选择同一资源",
+      ),
+    reason,
+  })
+  .strict();
+
+const resourceDeleteSchema = z
+  .object({
+    reason,
+    expectedRevision: z.number().int().positive(),
+    deleteUnreferencedSupplier: z.boolean().default(false),
+    expectedSupplierRevision: z.number().int().positive().optional(),
+  })
+  .strict()
+  .refine(
+    (value) =>
+      !value.deleteUnreferencedSupplier ||
+      value.expectedSupplierRevision !== undefined,
+    { message: "同时删除供应商时必须提供供应商版本" },
+  );
 
 const customerListSchema = z.object({
   category: z.enum(MEDIA_CATEGORIES).optional(),

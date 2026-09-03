@@ -9,9 +9,13 @@ import type {
   MediaPlatformPage,
   MediaPlatformQuote,
   MediaResourceFields,
+  MediaResourceBatchItem,
+  MediaResourceDeleteOptions,
+  MediaResourceDeleteResult,
   MediaResourceView,
-  MediaSupplySourceFields,
-  MediaSupplySourceView,
+  MediaSupplierDetailView,
+  MediaSupplierFields,
+  MediaSupplierView,
 } from "./media-supply.types.js";
 
 export const MEDIA_SUPPLY_REPOSITORY = Symbol("MEDIA_SUPPLY_REPOSITORY");
@@ -43,18 +47,27 @@ export interface MediaSupplyRepository {
   deletePlatform(
     context: MediaMutationContext,
     platformId: string,
+    expectedRevision: number,
   ): Promise<void>;
-  listSources(): Promise<MediaSupplySourceView[]>;
-  createSource(
+  listSuppliers(): Promise<MediaSupplierView[]>;
+  findSupplier(
+    supplierId: string,
+  ): Promise<MediaSupplierDetailView | undefined>;
+  createSupplier(
     context: MediaMutationContext,
-    fields: MediaSupplySourceFields,
-  ): Promise<MediaSupplySourceView>;
-  updateSource(
+    fields: MediaSupplierFields,
+  ): Promise<MediaSupplierView>;
+  updateSupplier(
     context: MediaMutationContext,
-    sourceId: string,
-    fields: Partial<MediaSupplySourceFields>,
-  ): Promise<MediaSupplySourceView>;
-  deleteSource(context: MediaMutationContext, sourceId: string): Promise<void>;
+    supplierId: string,
+    fields: Partial<MediaSupplierFields>,
+    expectedRevision: number,
+  ): Promise<MediaSupplierView>;
+  deleteSupplier(
+    context: MediaMutationContext,
+    supplierId: string,
+    expectedRevision: number,
+  ): Promise<void>;
   listResources(platformId: string): Promise<MediaResourceView[]>;
   createResource(
     context: MediaMutationContext,
@@ -64,11 +77,18 @@ export interface MediaSupplyRepository {
     context: MediaMutationContext,
     resourceId: string,
     fields: Partial<MediaResourceFields>,
+    expectedRevision: number,
   ): Promise<MediaResourceView>;
+  batchUpdateResourceStatus(
+    context: MediaMutationContext,
+    items: MediaResourceBatchItem[],
+    status: MediaResourceFields["status"],
+  ): Promise<MediaResourceView[]>;
   deleteResource(
     context: MediaMutationContext,
     resourceId: string,
-  ): Promise<void>;
+    options: MediaResourceDeleteOptions,
+  ): Promise<MediaResourceDeleteResult>;
   listAudits(input: {
     entityType?: string;
     entityId?: string;

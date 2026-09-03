@@ -51,54 +51,52 @@ describe("Media Supply persistence and projections", () => {
   it("separates full, masked, hidden, and administrator-only resource facts", async () => {
     const platform = await createTencentPlatform(service, administratorId);
     await activatePlatform(service, administratorId, platform);
-    const source = await service.createSource(administratorId, {
-      name: "渠道 A",
+    const supplier = await service.createSupplier(administratorId, {
+      displayName: "渠道 A",
       contactName: "张先生",
       contactMethod: "13800000000",
+      status: "ACTIVE",
       notes: "内部来源",
-      reason: "创建来源",
     });
     const fullResource = await service.createResource(administratorId, {
       platformId: platform.id,
-      supplySourceId: source.id,
+      supplierId: supplier.id,
       resourceName: "优先完整资源",
       publicVisibility: "FULL",
       qualityTier: "HIGH",
-      procurementCostFen: 12_300,
+      procurementCostYuan: 123,
       caseUrl: "https://example.com/internal-case",
       publicationNotes: "内部发文说明",
-      reason: "创建完整示例",
     });
     const updatedFullResource = await service.updateResource(
       administratorId,
       fullResource.id,
       {
         publicationNotes: "更新后的内部发文说明",
+        expectedRevision: fullResource.revision,
         reason: "更新说明",
       },
     );
     expect(updatedFullResource).toMatchObject({
       resourceName: "优先完整资源",
-      procurementCostFen: 12_300,
+      procurementCostYuan: 123,
       publicVisibility: "FULL",
       publicationNotes: "更新后的内部发文说明",
     });
     await service.createResource(administratorId, {
       platformId: platform.id,
-      supplySourceId: source.id,
+      supplierId: supplier.id,
       resourceName: "六安新周报",
       publicVisibility: "MASKED",
       publicAlias: "六安新***",
       qualityTier: "MEDIUM",
-      reason: "创建脱敏示例",
     });
     await service.createResource(administratorId, {
       platformId: platform.id,
-      supplySourceId: source.id,
+      supplierId: supplier.id,
       resourceName: "内部隐藏账号",
       publicVisibility: "HIDDEN",
       qualityTier: "LOW",
-      reason: "创建隐藏资源",
     });
 
     const customer = await service.customerPlatform(platform.id);
@@ -106,7 +104,7 @@ describe("Media Supply persistence and projections", () => {
       "优先完整资源",
       "六安新***",
     ]);
-    expect(JSON.stringify(customer)).not.toContain("12300");
+    expect(JSON.stringify(customer)).not.toContain("123");
     expect(JSON.stringify(customer)).not.toContain("张先生");
     expect(JSON.stringify(customer)).not.toContain("内部发文说明");
 
@@ -114,8 +112,8 @@ describe("Media Supply persistence and projections", () => {
     expect(candidates).toHaveLength(3);
     expect(candidates[0]).toMatchObject({
       resourceName: "优先完整资源",
-      procurementCostFen: 12_300,
-      supplySourceName: "渠道 A",
+      procurementCostYuan: 123,
+      supplierName: "渠道 A",
     });
   });
 
@@ -126,15 +124,16 @@ describe("Media Supply persistence and projections", () => {
     expect(BigInt(await service.catalogRevision())).toBeGreaterThan(
       BigInt(initialCatalog),
     );
-    const source = await service.createSource(administratorId, {
-      name: "渠道 A",
+    const supplier = await service.createSupplier(administratorId, {
+      displayName: "渠道 A",
       contactName: "张先生",
       contactMethod: "13800000000",
-      reason: "创建来源",
+      status: "ACTIVE",
     });
     const beforeInternalEdit = await service.catalogRevision();
-    await service.updateSource(administratorId, source.id, {
+    await service.updateSupplier(administratorId, supplier.id, {
       notes: "仅内部变化",
+      expectedRevision: supplier.revision,
       reason: "补充内部备注",
     });
     expect(await service.catalogRevision()).toBe(beforeInternalEdit);
@@ -173,14 +172,14 @@ describe("Media Supply persistence and projections", () => {
   it("caps customer examples at fifty in stable quality order", async () => {
     const platform = await createTencentPlatform(service, administratorId);
     await activatePlatform(service, administratorId, platform);
-    const source = await service.createSource(administratorId, {
-      name: "渠道 A",
-      reason: "创建来源",
+    const supplier = await service.createSupplier(administratorId, {
+      displayName: "渠道 A",
+      status: "ACTIVE",
     });
     await prisma.mediaResource.createMany({
       data: Array.from({ length: 51 }, (_, index) => ({
         platformId: platform.id,
-        supplySourceId: source.id,
+        supplierId: supplier.id,
         resourceName: `资源-${index.toString().padStart(2, "0")}`,
         status: "ACTIVE",
         publicVisibility: "FULL",
@@ -193,32 +192,90 @@ describe("Media Supply persistence and projections", () => {
     expect(examples[0]?.displayName).toBe("资源-50");
   });
 
-  it("filters inactive sources from optional candidates without disabling the platform", async () => {
+  it("advances catalog freshness when a visible resource changes supplier availability", async () => {
     const platform = await createTencentPlatform(service, administratorId);
     await activatePlatform(service, administratorId, platform);
-    const source = await service.createSource(administratorId, {
-      name: "渠道 A",
+    const activeSupplier = await service.createSupplier(administratorId, {
+      displayName: "可用供应商",
+      status: "ACTIVE",
+    });
+    const inactiveSupplier = await service.createSupplier(administratorId, {
+      displayName: "停用供应商",
+    });
+    const resource = await service.createResource(administratorId, {
+      platformId: platform.id,
+      supplierId: activeSupplier.id,
+      resourceName: "客户可见资源",
+      publicVisibility: "FULL",
+    });
+    const before = await service.catalogRevision();
+    const moved = await service.updateResource(administratorId, resource.id, {
+      supplierId: inactiveSupplier.id,
+      expectedRevision: resource.revision,
+      reason: "更换当前供应商",
+    });
+    expect(moved.effectiveStatus).toBe("SUPPLIER_INACTIVE");
+    expect(BigInt(await service.catalogRevision())).toBeGreaterThan(
+      BigInt(before),
+    );
+    expect((await service.customerPlatform(platform.id)).examples).toEqual([]);
+  });
+
+  it("derives supplier inactivity without disabling the platform or overriding manual state", async () => {
+    const platform = await createTencentPlatform(service, administratorId);
+    await activatePlatform(service, administratorId, platform);
+    const supplier = await service.createSupplier(administratorId, {
+      displayName: "渠道 A",
       contactName: "张先生",
       contactMethod: "13800000000",
-      reason: "创建来源",
+      status: "ACTIVE",
     });
-    await service.createResource(administratorId, {
+    const resource = await service.createResource(administratorId, {
       platformId: platform.id,
-      supplySourceId: source.id,
+      supplierId: supplier.id,
       resourceName: "候选账号",
-      reason: "创建候选",
+      publicVisibility: "FULL",
     });
     expect(await service.fulfillmentCandidates(platform.id)).toHaveLength(1);
-    await service.updateSource(administratorId, source.id, {
-      status: "INACTIVE",
-      reason: "暂停来源",
-    });
-    expect((await service.listSources())[0]).toMatchObject({
+    const stoppedSupplier = await service.updateSupplier(
+      administratorId,
+      supplier.id,
+      {
+        status: "INACTIVE",
+        expectedRevision: supplier.revision,
+        reason: "暂停来源",
+      },
+    );
+    expect((await service.listSuppliers())[0]).toMatchObject({
       status: "INACTIVE",
       contactName: "张先生",
       contactMethod: "13800000000",
     });
     expect(await service.fulfillmentCandidates(platform.id)).toEqual([]);
+    expect((await service.customerPlatform(platform.id)).examples).toEqual([]);
+    expect((await service.listResources(platform.id))[0]).toMatchObject({
+      effectiveStatus: "SUPPLIER_INACTIVE",
+      status: "ACTIVE",
+    });
+    const manuallyStopped = await service.updateResource(
+      administratorId,
+      resource.id,
+      {
+        status: "INACTIVE",
+        expectedRevision: resource.revision,
+        reason: "手动停用",
+      },
+    );
+    await service.updateSupplier(administratorId, supplier.id, {
+      status: "ACTIVE",
+      expectedRevision: stoppedSupplier.revision,
+      reason: "恢复供应商",
+    });
+    expect((await service.listResources(platform.id))[0]).toMatchObject({
+      status: "INACTIVE",
+      effectiveStatus: "MANUAL_INACTIVE",
+      revision: manuallyStopped.revision,
+    });
     expect((await service.quotePlatform(platform.id)).buyable).toBe(true);
   });
 
@@ -226,6 +283,7 @@ describe("Media Supply persistence and projections", () => {
     const platform = await createTencentPlatform(service, administratorId);
     await service.deletePlatform(administratorId, platform.id, {
       reason: "删除未使用平台",
+      expectedRevision: platform.revision,
     });
     const audits = await service.listAudits({
       entityType: "PLATFORM",
@@ -241,26 +299,144 @@ describe("Media Supply persistence and projections", () => {
     expect(audits[1]).toMatchObject({
       actorAccountId: administratorId,
       action: "CREATE",
-      reason: "建立平台",
+      reason: "创建媒体平台",
       beforeState: null,
     });
 
     const dependent = await createTencentPlatform(service, administratorId);
-    const source = await service.createSource(administratorId, {
-      name: "渠道 A",
-      reason: "创建来源",
+    const supplier = await service.createSupplier(administratorId, {
+      displayName: "渠道 A",
     });
     await service.createResource(administratorId, {
       platformId: dependent.id,
-      supplySourceId: source.id,
+      supplierId: supplier.id,
       resourceName: "依赖资源",
-      reason: "创建依赖",
     });
     await expect(
       service.deletePlatform(administratorId, dependent.id, {
         reason: "尝试删除依赖平台",
+        expectedRevision: dependent.revision,
       }),
     ).rejects.toThrow("已有业务依赖");
+  });
+
+  it("applies resource status batches atomically with one revision per resource", async () => {
+    const platform = await createTencentPlatform(service, administratorId);
+    const supplier = await service.createSupplier(administratorId, {
+      displayName: "批量供应商",
+      status: "ACTIVE",
+    });
+    const first = await service.createResource(administratorId, {
+      platformId: platform.id,
+      supplierId: supplier.id,
+      resourceName: "批量资源一",
+    });
+    const second = await service.createResource(administratorId, {
+      platformId: platform.id,
+      supplierId: supplier.id,
+      resourceName: "批量资源二",
+    });
+
+    await expect(
+      service.batchUpdateResourceStatus(administratorId, {
+        status: "INACTIVE",
+        reason: "模拟过期批量修改",
+        items: [
+          { resourceId: first.id, expectedRevision: first.revision },
+          { resourceId: second.id, expectedRevision: 99 },
+        ],
+      }),
+    ).rejects.toThrow("本次批量操作未执行");
+    expect(await service.listResources(platform.id)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: first.id,
+          status: "ACTIVE",
+          revision: 1,
+        }),
+        expect.objectContaining({
+          id: second.id,
+          status: "ACTIVE",
+          revision: 1,
+        }),
+      ]),
+    );
+
+    const changed = await service.batchUpdateResourceStatus(administratorId, {
+      status: "INACTIVE",
+      reason: "批量停用",
+      items: [
+        { resourceId: first.id, expectedRevision: first.revision },
+        { resourceId: second.id, expectedRevision: second.revision },
+      ],
+    });
+    expect(changed).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ status: "INACTIVE", revision: 2 }),
+      ]),
+    );
+    expect(
+      await prisma.mediaCatalogAudit.count({
+        where: { action: "BATCH_STATUS_UPDATE" },
+      }),
+    ).toBe(2);
+  });
+
+  it("guards deletion and can atomically remove the last inactive supplier", async () => {
+    const platform = await createTencentPlatform(service, administratorId);
+    const supplier = await service.createSupplier(administratorId, {
+      displayName: "待清理供应商",
+      status: "ACTIVE",
+    });
+    const resource = await service.createResource(administratorId, {
+      platformId: platform.id,
+      supplierId: supplier.id,
+      resourceName: "待清理资源",
+    });
+    await expect(
+      service.deleteResource(administratorId, resource.id, {
+        reason: "不应删除可用资源",
+        expectedRevision: resource.revision,
+      }),
+    ).rejects.toThrow("先手动停用资源");
+    const inactiveResource = await service.updateResource(
+      administratorId,
+      resource.id,
+      {
+        status: "INACTIVE",
+        expectedRevision: resource.revision,
+        reason: "准备清理",
+      },
+    );
+    const inactiveSupplier = await service.updateSupplier(
+      administratorId,
+      supplier.id,
+      {
+        status: "INACTIVE",
+        expectedRevision: supplier.revision,
+        reason: "准备清理",
+      },
+    );
+    const result = await service.deleteResource(administratorId, resource.id, {
+      reason: "清理无用数据",
+      expectedRevision: inactiveResource.revision,
+      deleteUnreferencedSupplier: true,
+      expectedSupplierRevision: inactiveSupplier.revision,
+    });
+    expect(result).toEqual({
+      resourceId: resource.id,
+      supplierId: supplier.id,
+      supplierDeleted: true,
+    });
+    expect(await service.listSuppliers()).toEqual([]);
+    expect(
+      await prisma.mediaCatalogAudit.count({
+        where: {
+          action: "DELETE",
+          entityType: { in: ["RESOURCE", "SUPPLIER"] },
+        },
+      }),
+    ).toBe(2);
   });
 
   it("rolls back entity and revision when the audit write fails", async () => {
@@ -294,7 +470,6 @@ function createTencentPlatform(
     description: "腾讯旗下新闻内容平台",
     logoUrl: "/media-logos/tencent-news.svg",
     categories: ["PORTAL_MEDIA", "CONTENT_PLATFORM"],
-    reason: "建立平台",
   });
 }
 

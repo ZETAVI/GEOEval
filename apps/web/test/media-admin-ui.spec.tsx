@@ -4,12 +4,12 @@ import { describe, expect, it } from "vitest";
 import {
   ApiRequestError,
   type MediaPlatformAdmin,
-  type MediaSupplySource,
+  type MediaSupplier,
 } from "@geoeval/api-client";
 import {
   PlatformEditor,
   ResourceEditor,
-  SourceEditor,
+  SupplierEditor,
 } from "../app/admin/media/media-editors.js";
 import {
   filterAdminPlatforms,
@@ -18,7 +18,6 @@ import {
   isPlatformRevisionConflict,
   isSupportedUrlReference,
   parseNullableWholeNumber,
-  parseNullableWholeYuanToFen,
   parsePlatformPointPrice,
 } from "../app/admin/media/media-ui.js";
 
@@ -84,15 +83,19 @@ describe("Media Supply administrator UI behavior", () => {
     );
   });
 
-  it("accepts whole-yuan cost input and converts it to stored fen", () => {
-    expect(parseNullableWholeYuanToFen("")).toEqual({
+  it("accepts and stores whole-yuan cost input without unit conversion", () => {
+    expect(parseNullableWholeNumber("", { allowZero: true })).toEqual({
       value: null,
     });
-    expect(parseNullableWholeYuanToFen("0")).toEqual({
+    expect(parseNullableWholeNumber("0", { allowZero: true })).toEqual({
       value: 0,
     });
-    expect(parseNullableWholeYuanToFen("125")).toEqual({ value: 12_500 });
-    expect(parseNullableWholeYuanToFen("12.5").error).toBe("请输入整数");
+    expect(parseNullableWholeNumber("125", { allowZero: true })).toEqual({
+      value: 125,
+    });
+    expect(parseNullableWholeNumber("12.5", { allowZero: true }).error).toBe(
+      "请输入整数",
+    );
   });
 
   it("matches the backend HTTPS or project-path reference boundary", () => {
@@ -104,13 +107,13 @@ describe("Media Supply administrator UI behavior", () => {
   it("presents operation-history fields and common values in business Chinese", () => {
     const value = formatAuditValue({
       status: "ACTIVE",
-      procurementCostFen: 12_500,
+      procurementCostYuan: 125,
       publicationMode: "FIRST_PUBLISH",
     });
     expect(value).toContain('"状态": "启用"');
-    expect(value).toContain('"采购成本": "125 元"');
+    expect(value).toContain('"采购成本（元）": "125 元"');
     expect(value).toContain('"发布方式": "首发"');
-    expect(value).not.toContain("procurementCostFen");
+    expect(value).not.toContain("procurementCostYuan");
   });
 
   it("classifies stale revision conflicts without treating other failures alike", () => {
@@ -131,13 +134,17 @@ describe("Media Supply administrator UI behavior", () => {
   });
 
   it("renders the confirmed platform and resource defaults", () => {
-    const source: MediaSupplySource = {
+    const supplier: MediaSupplier = {
       id: "00000000-0000-4000-8000-000000000003",
-      name: "验证来源",
+      normalizedName: "验证供应商",
+      displayName: "验证供应商",
       contactName: null,
       contactMethod: null,
       status: "ACTIVE",
       notes: null,
+      revision: 1,
+      resourceCount: 0,
+      platformCount: 0,
       createdAt: "2026-09-01T00:00:00.000Z",
       updatedAt: "2026-09-01T00:00:00.000Z",
     };
@@ -152,13 +159,13 @@ describe("Media Supply administrator UI behavior", () => {
       <ResourceEditor
         apiBaseUrl="http://127.0.0.1:3300"
         platform={platforms[0]!}
-        sources={[source]}
+        suppliers={[supplier]}
         onClose={() => undefined}
         onSaved={() => undefined}
       />,
     );
-    const sourceMarkup = renderToStaticMarkup(
-      <SourceEditor
+    const supplierMarkup = renderToStaticMarkup(
+      <SupplierEditor
         apiBaseUrl="http://127.0.0.1:3300"
         onClose={() => undefined}
         onSaved={() => undefined}
@@ -191,7 +198,7 @@ describe("Media Supply administrator UI behavior", () => {
     expect(resourceMarkup).toContain('<option value="MEDIUM" selected="">');
     expect(resourceMarkup).toContain("采购成本（元）");
     expect(resourceMarkup).not.toContain("变更原因");
-    expect(sourceMarkup).toContain('<label class="wide">来源名称');
-    expect(sourceMarkup).not.toContain("修改说明");
+    expect(supplierMarkup).toContain('<label class="wide">供应商名称');
+    expect(supplierMarkup).not.toContain("修改说明");
   });
 });

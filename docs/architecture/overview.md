@@ -66,11 +66,15 @@ flat snapshots readable without rewriting historical JSON.
 Media Supply owns the global administrator-maintained platform catalog in
 PostgreSQL: stable platform identity, fixed multi-category membership,
 one first-release availability state and whole-point price per platform,
-optional concrete resources, one current internal source per resource, public
-catalog revision, and administrator audit. Identity owns the reusable all-role
+optional concrete resources, one current internal supplier per resource, public
+catalog revision, and administrator audit. Each supplier is a globally reusable
+`MediaSupplier`; each resource stores one manual two-state decision while its
+effective availability is derived from that decision and supplier status.
+Supplier/resource association counts are queried rather than stored, and both
+owners use optimistic concurrency plus guarded non-cascading deletion. Identity owns the reusable all-role
 session and required-role guards; only administrators mutate media facts.
 Customer HTTP responses are explicit safe projections and never reuse
-administrator DTOs or expose procurement cost, source/contact data, cases, or
+administrator DTOs or expose procurement cost, supplier/contact data, cases, or
 notes.
 
 Platform state and price—not candidate-resource count—decide whether a platform

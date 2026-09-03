@@ -30,7 +30,7 @@ Store first-release availability and whole-point price directly on
 - one platform revision protects all administrator platform edits from stale
   overwrite and is returned with synchronous quotes;
 - the administrator API and Web form mutate the platform aggregate directly;
-- concrete resources and internal supply sources keep their separate ownership
+- concrete resources and internal suppliers keep their separate ownership
   because their visibility, fulfilment, procurement, and contact facts vary
   independently.
 

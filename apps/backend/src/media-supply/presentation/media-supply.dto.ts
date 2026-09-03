@@ -6,7 +6,6 @@ const CATEGORIES = [
   "LOCAL_MEDIA",
   "VERTICAL_MEDIA",
   "CONTENT_PLATFORM",
-  "OVERSEAS_MEDIA",
 ] as const;
 
 export class MediaReasonRequest {
@@ -14,7 +13,12 @@ export class MediaReasonRequest {
   reason!: string;
 }
 
-export class MediaPlatformCreateRequest extends MediaReasonRequest {
+export class MediaDeleteOwnerRequest extends MediaReasonRequest {
+  @ApiProperty({ type: Number, minimum: 1 })
+  expectedRevision!: number;
+}
+
+export class MediaPlatformCreateRequest {
   @ApiProperty({ type: String, maxLength: 160 })
   displayName!: string;
 
@@ -69,9 +73,9 @@ export class MediaPlatformUpdateRequest extends MediaReasonRequest {
   expectedRevision!: number;
 }
 
-export class MediaSupplySourceCreateRequest extends MediaReasonRequest {
+export class MediaSupplierCreateRequest {
   @ApiProperty({ type: String, maxLength: 160 })
-  name!: string;
+  displayName!: string;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   contactName?: string | null;
@@ -79,16 +83,16 @@ export class MediaSupplySourceCreateRequest extends MediaReasonRequest {
   @ApiPropertyOptional({ type: String, nullable: true })
   contactMethod?: string | null;
 
-  @ApiPropertyOptional({ enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE" })
+  @ApiPropertyOptional({ enum: ["ACTIVE", "INACTIVE"], default: "INACTIVE" })
   status?: string;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   notes?: string | null;
 }
 
-export class MediaSupplySourceUpdateRequest extends MediaReasonRequest {
+export class MediaSupplierUpdateRequest extends MediaReasonRequest {
   @ApiPropertyOptional({ type: String, maxLength: 160 })
-  name?: string;
+  displayName?: string;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   contactName?: string | null;
@@ -101,14 +105,17 @@ export class MediaSupplySourceUpdateRequest extends MediaReasonRequest {
 
   @ApiPropertyOptional({ type: String, nullable: true })
   notes?: string | null;
+
+  @ApiProperty({ type: Number, minimum: 1 })
+  expectedRevision!: number;
 }
 
-export class MediaResourceCreateRequest extends MediaReasonRequest {
+export class MediaResourceCreateRequest {
   @ApiProperty({ type: String, format: "uuid" })
   platformId!: string;
 
   @ApiProperty({ type: String, format: "uuid" })
-  supplySourceId!: string;
+  supplierId!: string;
 
   @ApiProperty({ type: String, maxLength: 240 })
   resourceName!: string;
@@ -126,7 +133,7 @@ export class MediaResourceCreateRequest extends MediaReasonRequest {
   publicationMode?: string;
 
   @ApiPropertyOptional({
-    enum: ["ACTIVE", "PAUSED", "ARCHIVED"],
+    enum: ["ACTIVE", "INACTIVE"],
     default: "ACTIVE",
   })
   status?: string;
@@ -144,7 +151,7 @@ export class MediaResourceCreateRequest extends MediaReasonRequest {
   qualityTier?: string;
 
   @ApiPropertyOptional({ type: Number, nullable: true, minimum: 0 })
-  procurementCostFen?: number | null;
+  procurementCostYuan?: number | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   caseUrl?: string | null;
@@ -158,7 +165,7 @@ export class MediaResourceUpdateRequest extends MediaReasonRequest {
   platformId?: string;
 
   @ApiPropertyOptional({ type: String, format: "uuid" })
-  supplySourceId?: string;
+  supplierId?: string;
 
   @ApiPropertyOptional({ type: String, maxLength: 240 })
   resourceName?: string;
@@ -172,7 +179,7 @@ export class MediaResourceUpdateRequest extends MediaReasonRequest {
   @ApiPropertyOptional({ enum: ["FIRST_PUBLISH", "REPOST"] })
   publicationMode?: string;
 
-  @ApiPropertyOptional({ enum: ["ACTIVE", "PAUSED", "ARCHIVED"] })
+  @ApiPropertyOptional({ enum: ["ACTIVE", "INACTIVE"] })
   status?: string;
 
   @ApiPropertyOptional({ enum: ["HIDDEN", "FULL", "MASKED"] })
@@ -185,13 +192,40 @@ export class MediaResourceUpdateRequest extends MediaReasonRequest {
   qualityTier?: string;
 
   @ApiPropertyOptional({ type: Number, nullable: true, minimum: 0 })
-  procurementCostFen?: number | null;
+  procurementCostYuan?: number | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   caseUrl?: string | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   publicationNotes?: string | null;
+
+  @ApiProperty({ type: Number, minimum: 1 })
+  expectedRevision!: number;
+}
+
+export class MediaResourceBatchItemRequest {
+  @ApiProperty({ type: String, format: "uuid" })
+  resourceId!: string;
+
+  @ApiProperty({ type: Number, minimum: 1 })
+  expectedRevision!: number;
+}
+
+export class MediaResourceBatchStatusRequest extends MediaReasonRequest {
+  @ApiProperty({ enum: ["ACTIVE", "INACTIVE"] })
+  status!: string;
+
+  @ApiProperty({ type: [MediaResourceBatchItemRequest], minItems: 1 })
+  items!: MediaResourceBatchItemRequest[];
+}
+
+export class MediaResourceDeleteRequest extends MediaDeleteOwnerRequest {
+  @ApiPropertyOptional({ type: Boolean, default: false })
+  deleteUnreferencedSupplier?: boolean;
+
+  @ApiPropertyOptional({ type: Number, minimum: 1 })
+  expectedSupplierRevision?: number;
 }
 
 export class MediaCategoryResponse {
@@ -296,12 +330,15 @@ export class MediaPlatformAdminResponse {
   updatedAt!: Date;
 }
 
-export class MediaSupplySourceResponse {
+export class MediaSupplierResponse {
   @ApiProperty({ type: String, format: "uuid" })
   id!: string;
 
   @ApiProperty({ type: String })
-  name!: string;
+  normalizedName!: string;
+
+  @ApiProperty({ type: String })
+  displayName!: string;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   contactName!: string | null;
@@ -315,11 +352,48 @@ export class MediaSupplySourceResponse {
   @ApiPropertyOptional({ type: String, nullable: true })
   notes!: string | null;
 
+  @ApiProperty({ type: Number, minimum: 1 })
+  revision!: number;
+
+  @ApiProperty({ type: Number, minimum: 0 })
+  resourceCount!: number;
+
+  @ApiProperty({ type: Number, minimum: 0 })
+  platformCount!: number;
+
   @ApiProperty({ type: String, format: "date-time" })
   createdAt!: Date;
 
   @ApiProperty({ type: String, format: "date-time" })
   updatedAt!: Date;
+}
+
+export class MediaSupplierAssociationResponse {
+  @ApiProperty({ type: String, format: "uuid" })
+  resourceId!: string;
+
+  @ApiProperty({ type: String })
+  resourceName!: string;
+
+  @ApiProperty({ enum: ["ACTIVE", "INACTIVE"] })
+  resourceStatus!: string;
+
+  @ApiProperty({ enum: ["ACTIVE", "MANUAL_INACTIVE", "SUPPLIER_INACTIVE"] })
+  effectiveStatus!: string;
+
+  @ApiProperty({ type: Number, minimum: 1 })
+  resourceRevision!: number;
+
+  @ApiProperty({ type: String, format: "uuid" })
+  platformId!: string;
+
+  @ApiProperty({ type: String })
+  platformDisplayName!: string;
+}
+
+export class MediaSupplierDetailResponse extends MediaSupplierResponse {
+  @ApiProperty({ type: [MediaSupplierAssociationResponse] })
+  resources!: MediaSupplierAssociationResponse[];
 }
 
 export class MediaResourceAdminResponse {
@@ -330,7 +404,7 @@ export class MediaResourceAdminResponse {
   platformId!: string;
 
   @ApiProperty({ type: String, format: "uuid" })
-  supplySourceId!: string;
+  supplierId!: string;
 
   @ApiProperty({ type: String })
   resourceName!: string;
@@ -344,8 +418,11 @@ export class MediaResourceAdminResponse {
   @ApiProperty({ enum: ["FIRST_PUBLISH", "REPOST"] })
   publicationMode!: string;
 
-  @ApiProperty({ enum: ["ACTIVE", "PAUSED", "ARCHIVED"] })
+  @ApiProperty({ enum: ["ACTIVE", "INACTIVE"] })
   status!: string;
+
+  @ApiProperty({ enum: ["ACTIVE", "MANUAL_INACTIVE", "SUPPLIER_INACTIVE"] })
+  effectiveStatus!: string;
 
   @ApiProperty({ enum: ["HIDDEN", "FULL", "MASKED"] })
   publicVisibility!: string;
@@ -357,7 +434,7 @@ export class MediaResourceAdminResponse {
   qualityTier!: string;
 
   @ApiPropertyOptional({ type: Number, nullable: true })
-  procurementCostFen!: number | null;
+  procurementCostYuan!: number | null;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   caseUrl!: string | null;
@@ -365,14 +442,28 @@ export class MediaResourceAdminResponse {
   @ApiPropertyOptional({ type: String, nullable: true })
   publicationNotes!: string | null;
 
-  @ApiProperty({ type: MediaSupplySourceResponse })
-  source!: MediaSupplySourceResponse;
+  @ApiProperty({ type: MediaSupplierResponse })
+  supplier!: MediaSupplierResponse;
+
+  @ApiProperty({ type: Number, minimum: 1 })
+  revision!: number;
 
   @ApiProperty({ type: String, format: "date-time" })
   createdAt!: Date;
 
   @ApiProperty({ type: String, format: "date-time" })
   updatedAt!: Date;
+}
+
+export class MediaResourceDeleteResponse {
+  @ApiProperty({ type: String, format: "uuid" })
+  resourceId!: string;
+
+  @ApiProperty({ type: String, format: "uuid" })
+  supplierId!: string;
+
+  @ApiProperty({ type: Boolean })
+  supplierDeleted!: boolean;
 }
 
 export class MediaCatalogAuditResponse {

@@ -3,34 +3,33 @@
 import {
   createAdminMediaPlatform,
   createAdminMediaResource,
-  createAdminMediaSource,
+  createAdminMediaSupplier,
   getAdminMediaPlatform,
   updateAdminMediaPlatform,
   updateAdminMediaResource,
-  updateAdminMediaSource,
+  updateAdminMediaSupplier,
   type MediaPlatformAdmin,
   type MediaPlatformCreate,
   type MediaPlatformUpdate,
   type MediaResourceAdmin,
   type MediaResourceCreate,
-  type MediaSupplySource,
-  type MediaSupplySourceCreate,
+  type MediaSupplier,
+  type MediaSupplierCreate,
 } from "@geoeval/api-client";
 import { useMemo, useState, type ReactNode } from "react";
 
 import {
   categoryLabels,
-  formatFenAsYuan,
   isPlatformRevisionConflict,
   isSupportedUrlReference,
   mediaCategoryOptions,
   parsePlatformPointPrice,
-  parseNullableWholeYuanToFen,
+  parseNullableWholeNumber,
   platformStatusLabels,
   publicationModeLabels,
   qualityLabels,
   resourceStatusLabels,
-  sourceStatusLabels,
+  supplierStatusLabels,
   visibilityLabels,
 } from "./media-ui.js";
 
@@ -209,7 +208,6 @@ export function PlatformEditor({
           } satisfies MediaPlatformUpdate)
         : await createAdminMediaPlatform(apiBaseUrl, {
             ...values,
-            reason: "创建媒体平台",
           } satisfies MediaPlatformCreate);
       await onSaved(
         saved,
@@ -439,26 +437,26 @@ export function PlatformEditor({
   );
 }
 
-export function SourceEditor({
+export function SupplierEditor({
   apiBaseUrl,
-  source,
+  supplier,
   onClose,
   onSaved,
 }: {
   apiBaseUrl: string;
-  source?: MediaSupplySource;
+  supplier?: MediaSupplier;
   onClose: () => void;
-  onSaved: SaveResult<MediaSupplySource>;
+  onSaved: SaveResult<MediaSupplier>;
 }) {
-  const [name, setName] = useState(source?.name ?? "");
-  const [contactName, setContactName] = useState(source?.contactName ?? "");
+  const [displayName, setDisplayName] = useState(supplier?.displayName ?? "");
+  const [contactName, setContactName] = useState(supplier?.contactName ?? "");
   const [contactMethod, setContactMethod] = useState(
-    source?.contactMethod ?? "",
+    supplier?.contactMethod ?? "",
   );
-  const [status, setStatus] = useState<MediaSupplySourceCreate["status"]>(
-    source?.status ?? "ACTIVE",
+  const [status, setStatus] = useState<MediaSupplierCreate["status"]>(
+    supplier?.status ?? "INACTIVE",
   );
-  const [notes, setNotes] = useState(source?.notes ?? "");
+  const [notes, setNotes] = useState(supplier?.notes ?? "");
   const [reason, setReason] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
@@ -466,31 +464,34 @@ export function SourceEditor({
 
   async function submit() {
     const nextErrors: FieldErrors = {};
-    if (!name.trim()) nextErrors.name = "请填写合作来源名称";
-    if (source && !reason.trim()) nextErrors.reason = "请填写修改说明";
+    if (!displayName.trim()) nextErrors.displayName = "请填写供应商名称";
+    if (supplier && !reason.trim()) nextErrors.reason = "请填写修改说明";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
-    const input: MediaSupplySourceCreate = {
-      name: name.trim(),
+    const input: MediaSupplierCreate = {
+      displayName: displayName.trim(),
       contactName: optionalText(contactName),
       contactMethod: optionalText(contactMethod),
       status,
       notes: optionalText(notes),
-      reason: source ? reason.trim() : "创建合作来源",
     };
     setBusy(true);
     setError("");
     try {
-      const saved = source
-        ? await updateAdminMediaSource(apiBaseUrl, source.id, input)
-        : await createAdminMediaSource(apiBaseUrl, input);
+      const saved = supplier
+        ? await updateAdminMediaSupplier(apiBaseUrl, supplier.id, {
+            ...input,
+            expectedRevision: supplier.revision,
+            reason: reason.trim(),
+          })
+        : await createAdminMediaSupplier(apiBaseUrl, input);
       await onSaved(
         saved,
-        source ? "合作来源已更新" : `已创建来源「${saved.name}」`,
+        supplier ? "供应商已更新" : `已创建供应商「${saved.displayName}」`,
       );
       onClose();
     } catch (caught) {
-      setError(messageFor(caught, "来源未保存，请稍后重试"));
+      setError(messageFor(caught, "供应商未保存，请稍后重试"));
     } finally {
       setBusy(false);
     }
@@ -498,9 +499,9 @@ export function SourceEditor({
 
   return (
     <EditorFrame
-      eyebrow="合作来源"
-      title={source ? "编辑合作来源" : "创建合作来源"}
-      description="联系人和备注只供内部使用，不会展示给客户。"
+      eyebrow="供应商"
+      title={supplier ? "编辑供应商" : "创建供应商"}
+      description="新建后默认停用；联系人和备注只供内部使用，不会展示给客户。"
       onClose={onClose}
     >
       <form
@@ -515,30 +516,28 @@ export function SourceEditor({
             <b>基本信息</b>
             <span>记录资源来自哪个合作方以及如何联系。</span>
           </div>
-          <label className={source ? undefined : "wide"}>
-            来源名称 <em>必填</em>
+          <label className={supplier ? undefined : "wide"}>
+            供应商名称 <em>必填</em>
             <input
               autoFocus
-              value={name}
+              value={displayName}
               maxLength={160}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="例如：渠道 A"
-              aria-invalid={Boolean(errors.name)}
+              onChange={(event) => setDisplayName(event.target.value)}
+              placeholder="例如：渠道甲"
+              aria-invalid={Boolean(errors.displayName)}
             />
-            <FieldError value={errors.name} />
+            <FieldError value={errors.displayName} />
           </label>
-          {source && (
+          {supplier && (
             <label>
-              来源状态
+              供应商状态
               <select
                 value={status}
                 onChange={(event) =>
-                  setStatus(
-                    event.target.value as MediaSupplySourceCreate["status"],
-                  )
+                  setStatus(event.target.value as MediaSupplierCreate["status"])
                 }
               >
-                {Object.entries(sourceStatusLabels).map(([value, label]) => (
+                {Object.entries(supplierStatusLabels).map(([value, label]) => (
                   <option key={value} value={value}>
                     {label}
                   </option>
@@ -571,7 +570,7 @@ export function SourceEditor({
               onChange={(event) => setNotes(event.target.value)}
             />
           </label>
-          {source && (
+          {supplier && (
             <label className="wide reason-field">
               修改说明 <em>必填 · 保留在操作记录中</em>
               <input
@@ -586,7 +585,7 @@ export function SourceEditor({
         </div>
         <MutationFooter
           busy={busy}
-          submitLabel={source ? "保存来源" : "创建来源"}
+          submitLabel={supplier ? "保存供应商" : "创建供应商"}
           error={error}
           onClose={onClose}
         />
@@ -598,27 +597,27 @@ export function SourceEditor({
 export function ResourceEditor({
   apiBaseUrl,
   platform,
-  sources,
+  suppliers,
   resource,
   onClose,
   onSaved,
 }: {
   apiBaseUrl: string;
   platform: MediaPlatformAdmin;
-  sources: MediaSupplySource[];
+  suppliers: MediaSupplier[];
   resource?: MediaResourceAdmin;
   onClose: () => void;
   onSaved: SaveResult<MediaResourceAdmin>;
 }) {
-  const defaultSource = useMemo(
-    () => sources.find((item) => item.status === "ACTIVE") ?? sources[0],
-    [sources],
+  const defaultSupplier = useMemo(
+    () => suppliers.find((item) => item.status === "ACTIVE") ?? suppliers[0],
+    [suppliers],
   );
   const [resourceName, setResourceName] = useState(
     resource?.resourceName ?? "",
   );
-  const [supplySourceId, setSupplySourceId] = useState(
-    resource?.supplySourceId ?? defaultSource?.id ?? "",
+  const [supplierId, setSupplierId] = useState(
+    resource?.supplierId ?? defaultSupplier?.id ?? "",
   );
   const [accountIdentifier, setAccountIdentifier] = useState(
     resource?.accountIdentifier ?? "",
@@ -638,10 +637,10 @@ export function ResourceEditor({
     MediaResourceCreate["qualityTier"]
   >(resource?.qualityTier ?? "MEDIUM");
   const [procurementCostYuan, setProcurementCostYuan] = useState(
-    resource?.procurementCostFen === null ||
-      resource?.procurementCostFen === undefined
+    resource?.procurementCostYuan === null ||
+      resource?.procurementCostYuan === undefined
       ? ""
-      : formatFenAsYuan(resource.procurementCostFen).replaceAll(",", ""),
+      : String(resource.procurementCostYuan),
   );
   const [caseUrl, setCaseUrl] = useState(resource?.caseUrl ?? "");
   const [publicationNotes, setPublicationNotes] = useState(
@@ -655,7 +654,7 @@ export function ResourceEditor({
   async function submit() {
     const nextErrors: FieldErrors = {};
     if (!resourceName.trim()) nextErrors.resourceName = "请填写资源名称";
-    if (!supplySourceId) nextErrors.supplySourceId = "请选择合作来源";
+    if (!supplierId) nextErrors.supplierId = "请选择供应商";
     if (!isSupportedUrlReference(accountUrl))
       nextErrors.accountUrl = "仅支持 HTTPS 或项目资源路径";
     if (!isSupportedUrlReference(caseUrl))
@@ -663,14 +662,16 @@ export function ResourceEditor({
     if (publicVisibility === "MASKED" && !publicAlias.trim()) {
       nextErrors.publicAlias = "脱敏展示必须填写客户展示名称";
     }
-    const cost = parseNullableWholeYuanToFen(procurementCostYuan);
-    if (cost.error) nextErrors.procurementCostFen = cost.error;
+    const cost = parseNullableWholeNumber(procurementCostYuan, {
+      allowZero: true,
+    });
+    if (cost.error) nextErrors.procurementCostYuan = cost.error;
     if (resource && !reason.trim()) nextErrors.reason = "请填写修改说明";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
     const input: MediaResourceCreate = {
       platformId: platform.id,
-      supplySourceId,
+      supplierId,
       resourceName: resourceName.trim(),
       accountIdentifier: optionalText(accountIdentifier),
       accountUrl: optionalText(accountUrl),
@@ -680,16 +681,19 @@ export function ResourceEditor({
       publicAlias:
         publicVisibility === "MASKED" ? optionalText(publicAlias) : null,
       qualityTier,
-      procurementCostFen: cost.value,
+      procurementCostYuan: cost.value,
       caseUrl: optionalText(caseUrl),
       publicationNotes: optionalText(publicationNotes),
-      reason: resource ? reason.trim() : "创建媒体资源",
     };
     setBusy(true);
     setError("");
     try {
       const saved = resource
-        ? await updateAdminMediaResource(apiBaseUrl, resource.id, input)
+        ? await updateAdminMediaResource(apiBaseUrl, resource.id, {
+            ...input,
+            expectedRevision: resource.revision,
+            reason: reason.trim(),
+          })
         : await createAdminMediaResource(apiBaseUrl, input);
       await onSaved(
         saved,
@@ -709,13 +713,13 @@ export function ResourceEditor({
       title={
         resource ? "编辑媒体资源" : `为「${platform.displayName}」添加资源`
       }
-      description="记录实际可用的媒体账号或渠道。合作来源、成本和备注只供内部使用。"
+      description="记录实际可用的媒体账号或渠道。供应商、成本和备注只供内部使用。"
       onClose={onClose}
     >
-      {sources.length === 0 ? (
+      {suppliers.length === 0 ? (
         <div className="media-editor-blocked">
-          <h3>请先建立合作来源</h3>
-          <p>每个资源必须关联一个合作来源。关闭后在“合作来源”区域创建来源。</p>
+          <h3>请先建立供应商</h3>
+          <p>每个资源必须关联一个供应商。关闭后在“供应商管理”中创建。</p>
           <button className="secondary-button" type="button" onClick={onClose}>
             返回工作区
           </button>
@@ -731,7 +735,7 @@ export function ResourceEditor({
           <div className="media-form-grid">
             <div className="wide media-form-section-label">
               <b>基本资料</b>
-              <span>先确认资源名称和当前合作来源。</span>
+              <span>先确认资源名称和当前供应商。</span>
             </div>
             <label>
               资源名称 <em>必填</em>
@@ -746,20 +750,21 @@ export function ResourceEditor({
               <FieldError value={errors.resourceName} />
             </label>
             <label>
-              合作来源 <em>内部</em>
+              供应商 <em>内部</em>
               <select
-                value={supplySourceId}
-                onChange={(event) => setSupplySourceId(event.target.value)}
-                aria-invalid={Boolean(errors.supplySourceId)}
+                value={supplierId}
+                onChange={(event) => setSupplierId(event.target.value)}
+                aria-invalid={Boolean(errors.supplierId)}
               >
-                <option value="">请选择来源</option>
-                {sources.map((source) => (
-                  <option key={source.id} value={source.id}>
-                    {source.name} · {sourceStatusLabels[source.status]}
+                <option value="">请选择供应商</option>
+                {suppliers.map((supplier) => (
+                  <option key={supplier.id} value={supplier.id}>
+                    {supplier.displayName} ·{" "}
+                    {supplierStatusLabels[supplier.status]}
                   </option>
                 ))}
               </select>
-              <FieldError value={errors.supplySourceId} />
+              <FieldError value={errors.supplierId} />
             </label>
             <div className="wide media-form-section-label">
               <b>发布与客户展示</b>
@@ -830,7 +835,7 @@ export function ResourceEditor({
               </label>
             )}
             <label>
-              资源优先级
+              资源质量
               <select
                 value={qualityTier}
                 onChange={(event) =>
@@ -857,9 +862,9 @@ export function ResourceEditor({
                 value={procurementCostYuan}
                 onChange={(event) => setProcurementCostYuan(event.target.value)}
                 placeholder="例如：125"
-                aria-invalid={Boolean(errors.procurementCostFen)}
+                aria-invalid={Boolean(errors.procurementCostYuan)}
               />
-              <FieldError value={errors.procurementCostFen} />
+              <FieldError value={errors.procurementCostYuan} />
             </label>
             <label>
               账号名称或编号

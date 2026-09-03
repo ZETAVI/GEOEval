@@ -33,7 +33,6 @@ describe("Media Supply HTTP authorization and projection", () => {
       body: JSON.stringify({
         displayName: "越权平台",
         categories: ["PORTAL_MEDIA"],
-        reason: "越权创建",
       }),
     });
     expect(denied.status).toBe(403);
@@ -76,7 +75,6 @@ describe("Media Supply HTTP authorization and projection", () => {
         displayName: "人民网",
         description: "中央重点新闻网站",
         categories: ["CENTRAL_MEDIA", "PORTAL_MEDIA"],
-        reason: "建立平台",
       }),
     });
     expect(platformResponse.status).toBe(201);
@@ -123,7 +121,7 @@ describe("Media Supply HTTP authorization and projection", () => {
       nextCursor: null,
     });
     expect(JSON.stringify(body)).not.toContain("normalizedName");
-    expect(JSON.stringify(body)).not.toContain("procurementCostFen");
+    expect(JSON.stringify(body)).not.toContain("procurementCostYuan");
 
     const revision = await fetch(`${baseUrl}/media-catalog/revision`, {
       headers: { cookie: administrator.cookie },

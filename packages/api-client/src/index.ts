@@ -26,8 +26,9 @@ export type TerminalRegionOptionList =
   components["schemas"]["TerminalRegionOptionListResponse"];
 export type MediaPlatformAdmin =
   components["schemas"]["MediaPlatformAdminResponse"];
-export type MediaSupplySource =
-  components["schemas"]["MediaSupplySourceResponse"];
+export type MediaSupplier = components["schemas"]["MediaSupplierResponse"];
+export type MediaSupplierDetail =
+  components["schemas"]["MediaSupplierDetailResponse"];
 export type MediaResourceAdmin =
   components["schemas"]["MediaResourceAdminResponse"];
 export type MediaCatalogAudit =
@@ -38,14 +39,21 @@ export type MediaPlatformCreate =
   components["schemas"]["MediaPlatformCreateRequest"];
 export type MediaPlatformUpdate =
   components["schemas"]["MediaPlatformUpdateRequest"];
-export type MediaSupplySourceCreate =
-  components["schemas"]["MediaSupplySourceCreateRequest"];
-export type MediaSupplySourceUpdate =
-  components["schemas"]["MediaSupplySourceUpdateRequest"];
+export type MediaSupplierCreate =
+  components["schemas"]["MediaSupplierCreateRequest"];
+export type MediaSupplierUpdate =
+  components["schemas"]["MediaSupplierUpdateRequest"];
 export type MediaResourceCreate =
   components["schemas"]["MediaResourceCreateRequest"];
 export type MediaResourceUpdate =
   components["schemas"]["MediaResourceUpdateRequest"];
+export type MediaResourceBatchStatus =
+  components["schemas"]["MediaResourceBatchStatusRequest"];
+export type MediaResourceDelete =
+  components["schemas"]["MediaResourceDeleteRequest"];
+export type MediaResourceDeleteResult =
+  components["schemas"]["MediaResourceDeleteResponse"];
+export type MediaDeleteOwner = components["schemas"]["MediaDeleteOwnerRequest"];
 
 export class ApiRequestError extends Error {
   constructor(
@@ -317,33 +325,68 @@ export function updateAdminMediaPlatform(
   );
 }
 
-export function listAdminMediaSources(
+export function deleteAdminMediaPlatform(
   apiBaseUrl: string,
-): Promise<MediaSupplySource[]> {
-  return apiRequest(apiBaseUrl, "/admin/media/sources", {
+  platformId: string,
+  input: MediaDeleteOwner,
+): Promise<void> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/platforms/${encodeURIComponent(platformId)}`,
+    { method: "DELETE", body: JSON.stringify(input) },
+  );
+}
+
+export function listAdminMediaSuppliers(
+  apiBaseUrl: string,
+): Promise<MediaSupplier[]> {
+  return apiRequest(apiBaseUrl, "/admin/media/suppliers", {
     cache: "no-store",
   });
 }
 
-export function createAdminMediaSource(
+export function getAdminMediaSupplier(
   apiBaseUrl: string,
-  input: MediaSupplySourceCreate,
-): Promise<MediaSupplySource> {
-  return apiRequest(apiBaseUrl, "/admin/media/sources", {
+  supplierId: string,
+): Promise<MediaSupplierDetail> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/suppliers/${encodeURIComponent(supplierId)}`,
+    { cache: "no-store" },
+  );
+}
+
+export function createAdminMediaSupplier(
+  apiBaseUrl: string,
+  input: MediaSupplierCreate,
+): Promise<MediaSupplier> {
+  return apiRequest(apiBaseUrl, "/admin/media/suppliers", {
     method: "POST",
     body: JSON.stringify(input),
   });
 }
 
-export function updateAdminMediaSource(
+export function updateAdminMediaSupplier(
   apiBaseUrl: string,
-  sourceId: string,
-  input: MediaSupplySourceUpdate,
-): Promise<MediaSupplySource> {
+  supplierId: string,
+  input: MediaSupplierUpdate,
+): Promise<MediaSupplier> {
   return apiRequest(
     apiBaseUrl,
-    `/admin/media/sources/${encodeURIComponent(sourceId)}`,
+    `/admin/media/suppliers/${encodeURIComponent(supplierId)}`,
     { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function deleteAdminMediaSupplier(
+  apiBaseUrl: string,
+  supplierId: string,
+  input: MediaDeleteOwner,
+): Promise<void> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/suppliers/${encodeURIComponent(supplierId)}`,
+    { method: "DELETE", body: JSON.stringify(input) },
   );
 }
 
@@ -377,6 +420,28 @@ export function updateAdminMediaResource(
     apiBaseUrl,
     `/admin/media/resources/${encodeURIComponent(resourceId)}`,
     { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function batchUpdateAdminMediaResourceStatus(
+  apiBaseUrl: string,
+  input: MediaResourceBatchStatus,
+): Promise<MediaResourceAdmin[]> {
+  return apiRequest(apiBaseUrl, "/admin/media/resources/status", {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteAdminMediaResource(
+  apiBaseUrl: string,
+  resourceId: string,
+  input: MediaResourceDelete,
+): Promise<MediaResourceDeleteResult> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/media/resources/${encodeURIComponent(resourceId)}`,
+    { method: "DELETE", body: JSON.stringify(input) },
   );
 }
 

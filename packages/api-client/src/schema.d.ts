@@ -484,23 +484,39 @@ export interface paths {
         patch: operations["MediaAdminController_updatePlatform"];
         trace?: never;
     };
-    "/admin/media/sources": {
+    "/admin/media/suppliers": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["MediaAdminController_sources"];
+        get: operations["MediaAdminController_suppliers"];
         put?: never;
-        post: operations["MediaAdminController_createSource"];
+        post: operations["MediaAdminController_createSupplier"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/admin/media/sources/{sourceId}": {
+    "/admin/media/suppliers/{supplierId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaAdminController_supplier"];
+        put?: never;
+        post?: never;
+        delete: operations["MediaAdminController_deleteSupplier"];
+        options?: never;
+        head?: never;
+        patch: operations["MediaAdminController_updateSupplier"];
+        trace?: never;
+    };
+    "/admin/media/resources/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -510,10 +526,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["MediaAdminController_deleteSource"];
+        delete?: never;
         options?: never;
         head?: never;
-        patch: operations["MediaAdminController_updateSource"];
+        patch: operations["MediaAdminController_batchUpdateResourceStatus"];
         trace?: never;
     };
     "/admin/media/platforms/{platformId}/resources": {
@@ -965,7 +981,7 @@ export interface components {
         };
         MediaCategoryResponse: {
             /** @enum {string} */
-            id: "CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA";
+            id: "CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM";
             label: string;
         };
         MediaResourceExampleResponse: {
@@ -983,7 +999,7 @@ export interface components {
             logoUrl?: string | null;
             /** @enum {string} */
             regionScope: "DOMESTIC" | "OVERSEAS";
-            categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
+            categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM")[];
             pointPrice: number;
             revision: number;
             examples: components["schemas"]["MediaResourceExampleResponse"][];
@@ -1006,7 +1022,7 @@ export interface components {
             /** @enum {string} */
             status: "ACTIVE" | "INACTIVE";
             pointPrice?: number | null;
-            categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
+            categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM")[];
             revision: number;
             /** Format: date-time */
             createdAt: string;
@@ -1014,7 +1030,6 @@ export interface components {
             updatedAt: string;
         };
         MediaPlatformCreateRequest: {
-            reason: string;
             displayName: string;
             /** @default [] */
             aliases: string[];
@@ -1031,7 +1046,7 @@ export interface components {
              */
             status: "ACTIVE" | "INACTIVE";
             pointPrice?: number | null;
-            categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
+            categories: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM")[];
         };
         MediaPlatformUpdateRequest: {
             reason: string;
@@ -1044,46 +1059,94 @@ export interface components {
             /** @enum {string} */
             status?: "ACTIVE" | "INACTIVE";
             pointPrice?: number | null;
-            categories?: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM" | "OVERSEAS_MEDIA")[];
+            categories?: ("CENTRAL_MEDIA" | "PORTAL_MEDIA" | "LOCAL_MEDIA" | "VERTICAL_MEDIA" | "CONTENT_PLATFORM")[];
             expectedRevision: number;
         };
-        MediaReasonRequest: {
+        MediaDeleteOwnerRequest: {
             reason: string;
+            expectedRevision: number;
         };
-        MediaSupplySourceResponse: {
+        MediaSupplierResponse: {
             /** Format: uuid */
             id: string;
-            name: string;
+            normalizedName: string;
+            displayName: string;
             contactName?: string | null;
             contactMethod?: string | null;
             /** @enum {string} */
             status: "ACTIVE" | "INACTIVE";
             notes?: string | null;
+            revision: number;
+            resourceCount: number;
+            platformCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
         };
-        MediaSupplySourceCreateRequest: {
-            reason: string;
-            name: string;
+        MediaSupplierAssociationResponse: {
+            /** Format: uuid */
+            resourceId: string;
+            resourceName: string;
+            /** @enum {string} */
+            resourceStatus: "ACTIVE" | "INACTIVE";
+            /** @enum {string} */
+            effectiveStatus: "ACTIVE" | "MANUAL_INACTIVE" | "SUPPLIER_INACTIVE";
+            resourceRevision: number;
+            /** Format: uuid */
+            platformId: string;
+            platformDisplayName: string;
+        };
+        MediaSupplierDetailResponse: {
+            /** Format: uuid */
+            id: string;
+            normalizedName: string;
+            displayName: string;
+            contactName?: string | null;
+            contactMethod?: string | null;
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+            notes?: string | null;
+            revision: number;
+            resourceCount: number;
+            platformCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            resources: components["schemas"]["MediaSupplierAssociationResponse"][];
+        };
+        MediaSupplierCreateRequest: {
+            displayName: string;
             contactName?: string | null;
             contactMethod?: string | null;
             /**
-             * @default ACTIVE
+             * @default INACTIVE
              * @enum {string}
              */
             status: "ACTIVE" | "INACTIVE";
             notes?: string | null;
         };
-        MediaSupplySourceUpdateRequest: {
+        MediaSupplierUpdateRequest: {
             reason: string;
-            name?: string;
+            displayName?: string;
             contactName?: string | null;
             contactMethod?: string | null;
             /** @enum {string} */
             status?: "ACTIVE" | "INACTIVE";
             notes?: string | null;
+            expectedRevision: number;
+        };
+        MediaResourceBatchItemRequest: {
+            /** Format: uuid */
+            resourceId: string;
+            expectedRevision: number;
+        };
+        MediaResourceBatchStatusRequest: {
+            reason: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+            items: components["schemas"]["MediaResourceBatchItemRequest"][];
         };
         MediaResourceAdminResponse: {
             /** Format: uuid */
@@ -1091,34 +1154,36 @@ export interface components {
             /** Format: uuid */
             platformId: string;
             /** Format: uuid */
-            supplySourceId: string;
+            supplierId: string;
             resourceName: string;
             accountIdentifier?: string | null;
             accountUrl?: string | null;
             /** @enum {string} */
             publicationMode: "FIRST_PUBLISH" | "REPOST";
             /** @enum {string} */
-            status: "ACTIVE" | "PAUSED" | "ARCHIVED";
+            status: "ACTIVE" | "INACTIVE";
+            /** @enum {string} */
+            effectiveStatus: "ACTIVE" | "MANUAL_INACTIVE" | "SUPPLIER_INACTIVE";
             /** @enum {string} */
             publicVisibility: "HIDDEN" | "FULL" | "MASKED";
             publicAlias?: string | null;
             /** @enum {string} */
             qualityTier: "HIGH" | "MEDIUM" | "LOW";
-            procurementCostFen?: number | null;
+            procurementCostYuan?: number | null;
             caseUrl?: string | null;
             publicationNotes?: string | null;
-            source: components["schemas"]["MediaSupplySourceResponse"];
+            supplier: components["schemas"]["MediaSupplierResponse"];
+            revision: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
         };
         MediaResourceCreateRequest: {
-            reason: string;
             /** Format: uuid */
             platformId: string;
             /** Format: uuid */
-            supplySourceId: string;
+            supplierId: string;
             resourceName: string;
             accountIdentifier?: string | null;
             accountUrl?: string | null;
@@ -1131,7 +1196,7 @@ export interface components {
              * @default ACTIVE
              * @enum {string}
              */
-            status: "ACTIVE" | "PAUSED" | "ARCHIVED";
+            status: "ACTIVE" | "INACTIVE";
             /**
              * @default HIDDEN
              * @enum {string}
@@ -1143,7 +1208,7 @@ export interface components {
              * @enum {string}
              */
             qualityTier: "HIGH" | "MEDIUM" | "LOW";
-            procurementCostFen?: number | null;
+            procurementCostYuan?: number | null;
             caseUrl?: string | null;
             publicationNotes?: string | null;
         };
@@ -1152,22 +1217,37 @@ export interface components {
             /** Format: uuid */
             platformId?: string;
             /** Format: uuid */
-            supplySourceId?: string;
+            supplierId?: string;
             resourceName?: string;
             accountIdentifier?: string | null;
             accountUrl?: string | null;
             /** @enum {string} */
             publicationMode?: "FIRST_PUBLISH" | "REPOST";
             /** @enum {string} */
-            status?: "ACTIVE" | "PAUSED" | "ARCHIVED";
+            status?: "ACTIVE" | "INACTIVE";
             /** @enum {string} */
             publicVisibility?: "HIDDEN" | "FULL" | "MASKED";
             publicAlias?: string | null;
             /** @enum {string} */
             qualityTier?: "HIGH" | "MEDIUM" | "LOW";
-            procurementCostFen?: number | null;
+            procurementCostYuan?: number | null;
             caseUrl?: string | null;
             publicationNotes?: string | null;
+            expectedRevision: number;
+        };
+        MediaResourceDeleteRequest: {
+            reason: string;
+            expectedRevision: number;
+            /** @default false */
+            deleteUnreferencedSupplier: boolean;
+            expectedSupplierRevision?: number;
+        };
+        MediaResourceDeleteResponse: {
+            /** Format: uuid */
+            resourceId: string;
+            /** Format: uuid */
+            supplierId: string;
+            supplierDeleted: boolean;
         };
         MediaCatalogAuditResponse: {
             /** Format: uuid */
@@ -1871,7 +1951,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MediaReasonRequest"];
+                "application/json": components["schemas"]["MediaDeleteOwnerRequest"];
             };
         };
         responses: {
@@ -1906,7 +1986,7 @@ export interface operations {
             };
         };
     };
-    MediaAdminController_sources: {
+    MediaAdminController_suppliers: {
         parameters: {
             query?: never;
             header?: never;
@@ -1920,12 +2000,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MediaSupplySourceResponse"][];
+                    "application/json": components["schemas"]["MediaSupplierResponse"][];
                 };
             };
         };
     };
-    MediaAdminController_createSource: {
+    MediaAdminController_createSupplier: {
         parameters: {
             query?: never;
             header?: never;
@@ -1934,7 +2014,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MediaSupplySourceCreateRequest"];
+                "application/json": components["schemas"]["MediaSupplierCreateRequest"];
             };
         };
         responses: {
@@ -1943,12 +2023,31 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MediaSupplySourceResponse"];
+                    "application/json": components["schemas"]["MediaSupplierResponse"];
                 };
             };
         };
     };
-    MediaAdminController_deleteSource: {
+    MediaAdminController_supplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaSupplierDetailResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_deleteSupplier: {
         parameters: {
             query?: never;
             header?: never;
@@ -1957,7 +2056,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MediaReasonRequest"];
+                "application/json": components["schemas"]["MediaDeleteOwnerRequest"];
             };
         };
         responses: {
@@ -1969,7 +2068,7 @@ export interface operations {
             };
         };
     };
-    MediaAdminController_updateSource: {
+    MediaAdminController_updateSupplier: {
         parameters: {
             query?: never;
             header?: never;
@@ -1978,7 +2077,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MediaSupplySourceUpdateRequest"];
+                "application/json": components["schemas"]["MediaSupplierUpdateRequest"];
             };
         };
         responses: {
@@ -1987,7 +2086,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MediaSupplySourceResponse"];
+                    "application/json": components["schemas"]["MediaSupplierResponse"];
+                };
+            };
+        };
+    };
+    MediaAdminController_batchUpdateResourceStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaResourceBatchStatusRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaResourceAdminResponse"][];
                 };
             };
         };
@@ -2043,15 +2165,17 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MediaReasonRequest"];
+                "application/json": components["schemas"]["MediaResourceDeleteRequest"];
             };
         };
         responses: {
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["MediaResourceDeleteResponse"];
+                };
             };
         };
     };

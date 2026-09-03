@@ -99,7 +99,6 @@ enum MediaCategory {
   LOCAL_MEDIA
   VERTICAL_MEDIA
   CONTENT_PLATFORM
-  OVERSEAS_MEDIA
 }
 
 enum MediaRegionScope {
@@ -109,11 +108,10 @@ enum MediaRegionScope {
 
 enum MediaResourceStatus {
   ACTIVE
-  PAUSED
-  ARCHIVED
+  INACTIVE
 }
 
-enum MediaSupplySourceStatus {
+enum MediaSupplierStatus {
   ACTIVE
   INACTIVE
 }
@@ -567,25 +565,27 @@ model MediaPlatformCategory {
   @@map("media_platform_categories")
 }
 
-model MediaSupplySource {
-  id            String                  @id @default(uuid()) @db.Uuid
-  name          String                  @db.VarChar(160)
-  contactName   String?                 @map("contact_name") @db.VarChar(160)
-  contactMethod String?                 @map("contact_method") @db.VarChar(320)
-  status        MediaSupplySourceStatus @default(ACTIVE)
-  notes         String?
-  createdAt     DateTime                @default(now()) @map("created_at")
-  updatedAt     DateTime                @updatedAt @map("updated_at")
-  resources     MediaResource[]
+model MediaSupplier {
+  id             String              @id @default(uuid()) @db.Uuid
+  normalizedName String              @unique @map("normalized_name") @db.VarChar(160)
+  displayName    String              @map("display_name") @db.VarChar(160)
+  contactName    String?             @map("contact_name") @db.VarChar(160)
+  contactMethod  String?             @map("contact_method") @db.VarChar(320)
+  status         MediaSupplierStatus @default(INACTIVE)
+  revision       Int                 @default(1)
+  notes          String?
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  resources      MediaResource[]
 
-  @@index([status, name, id])
-  @@map("media_supply_sources")
+  @@index([status, displayName, id])
+  @@map("media_suppliers")
 }
 
 model MediaResource {
   id                 String                @id @default(uuid()) @db.Uuid
   platformId         String                @map("platform_id") @db.Uuid
-  supplySourceId     String                @map("supply_source_id") @db.Uuid
+  supplierId         String                @map("supplier_id") @db.Uuid
   resourceName       String                @map("resource_name") @db.VarChar(240)
   accountIdentifier  String?               @map("account_identifier") @db.VarChar(240)
   accountUrl         String?               @map("account_url") @db.VarChar(2048)
@@ -594,16 +594,17 @@ model MediaResource {
   publicVisibility   MediaPublicVisibility @default(HIDDEN) @map("public_visibility")
   publicAlias        String?               @map("public_alias") @db.VarChar(240)
   qualityTier        MediaQualityTier      @default(MEDIUM) @map("quality_tier")
-  procurementCostFen Int?                  @map("procurement_cost_fen")
+  procurementCostYuan Int?                 @map("procurement_cost_yuan")
   caseUrl            String?               @map("case_url") @db.VarChar(2048)
   publicationNotes   String?               @map("publication_notes")
+  revision           Int                   @default(1)
   createdAt          DateTime              @default(now()) @map("created_at")
   updatedAt          DateTime              @updatedAt @map("updated_at")
   platform           MediaPlatform         @relation(fields: [platformId], references: [id], onDelete: Restrict)
-  supplySource       MediaSupplySource     @relation(fields: [supplySourceId], references: [id], onDelete: Restrict)
+  supplier           MediaSupplier         @relation(fields: [supplierId], references: [id], onDelete: Restrict)
 
   @@index([platformId, status, publicVisibility, qualityTier, id])
-  @@index([supplySourceId, status, id])
+  @@index([supplierId, status, id])
   @@map("media_resources")
 }
 

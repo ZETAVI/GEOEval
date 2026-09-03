@@ -18,7 +18,7 @@ export function AdminSidebar({ account }: { account: Account }) {
           <i>媒</i>
           <span>
             <b>媒体库管理</b>
-            <small>平台、价格与合作来源</small>
+            <small>平台、资源与供应商</small>
           </span>
         </a>
       </nav>

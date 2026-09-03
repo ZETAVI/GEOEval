@@ -6,7 +6,6 @@ export const mediaCategoryOptions = [
   ["LOCAL_MEDIA", "地方媒体"],
   ["VERTICAL_MEDIA", "垂直媒体"],
   ["CONTENT_PLATFORM", "内容平台"],
-  ["OVERSEAS_MEDIA", "海外媒体"],
 ] as const;
 
 export const categoryLabels = Object.fromEntries(
@@ -20,13 +19,18 @@ export const platformStatusLabels = {
 
 export const resourceStatusLabels = {
   ACTIVE: "可用",
-  PAUSED: "已暂停",
-  ARCHIVED: "已归档",
+  INACTIVE: "停用",
 } as const;
 
-export const sourceStatusLabels = {
-  ACTIVE: "有效",
-  INACTIVE: "已停用",
+export const supplierStatusLabels = {
+  ACTIVE: "可用",
+  INACTIVE: "停用",
+} as const;
+
+export const resourceEffectiveStatusLabels = {
+  ACTIVE: "可用",
+  MANUAL_INACTIVE: "手动停用",
+  SUPPLIER_INACTIVE: "因供应商停用",
 } as const;
 
 export const publicationModeLabels = {
@@ -41,9 +45,9 @@ export const visibilityLabels = {
 } as const;
 
 export const qualityLabels = {
-  HIGH: "优先",
+  HIGH: "优质",
   MEDIUM: "常规",
-  LOW: "补充",
+  LOW: "基础",
 } as const;
 
 export type PlatformStatusFilter = "ALL" | MediaPlatformAdmin["status"];
@@ -116,28 +120,6 @@ export function parsePlatformPointPrice(
   return price;
 }
 
-export function parseNullableWholeYuanToFen(value: string): {
-  value: number | null;
-  error?: string;
-} {
-  const yuan = parseNullableWholeNumber(value, { allowZero: true });
-  if (yuan.error || yuan.value === null) return yuan;
-  if (yuan.value > Math.floor(2_147_483_647 / 100)) {
-    return { value: null, error: "金额超出可保存范围" };
-  }
-  return { value: yuan.value * 100 };
-}
-
-export function formatFenAsYuan(value: number): string {
-  const yuan = value / 100;
-  return Number.isInteger(yuan)
-    ? yuan.toLocaleString("zh-CN")
-    : yuan.toLocaleString("zh-CN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-}
-
 export function isApiStatus(error: unknown, status: number): boolean {
   return error instanceof ApiRequestError && error.status === status;
 }
@@ -155,10 +137,10 @@ export function formatAuditValue(value: unknown): string {
   const keyLabels: Record<string, string> = {
     id: "记录编号",
     platformId: "平台编号",
-    supplySourceId: "合作来源编号",
-    source: "合作来源",
+    supplierId: "供应商编号",
+    supplier: "供应商",
     normalizedName: "标准名称",
-    displayName: "平台名称",
+    displayName: "名称",
     aliases: "别名",
     description: "平台简介",
     logoUrl: "平台图标地址",
@@ -167,7 +149,6 @@ export function formatAuditValue(value: unknown): string {
     categories: "媒体分类",
     pointPrice: "单次积分价",
     revision: "数据版本",
-    name: "名称",
     contactName: "联系人",
     contactMethod: "联系方式",
     notes: "备注",
@@ -177,8 +158,8 @@ export function formatAuditValue(value: unknown): string {
     publicationMode: "发布方式",
     publicVisibility: "客户展示方式",
     publicAlias: "客户展示名称",
-    qualityTier: "资源优先级",
-    procurementCostFen: "采购成本",
+    qualityTier: "资源质量",
+    procurementCostYuan: "采购成本（元）",
     caseUrl: "参考案例链接",
     publicationNotes: "发布说明",
     createdAt: "创建时间",
@@ -188,20 +169,19 @@ export function formatAuditValue(value: unknown): string {
     ...categoryLabels,
     ...platformStatusLabels,
     ...resourceStatusLabels,
-    ...sourceStatusLabels,
+    ...supplierStatusLabels,
+    ...resourceEffectiveStatusLabels,
     ...publicationModeLabels,
     ...visibilityLabels,
     ...qualityLabels,
     ACTIVE: "启用",
-    ARCHIVED: "已归档",
-    PAUSED: "暂停",
     INACTIVE: "已停用",
     DOMESTIC: "国内",
     OVERSEAS: "海外",
   };
   function localize(current: unknown, parentKey?: string): unknown {
-    if (parentKey === "procurementCostFen" && typeof current === "number") {
-      return `${formatFenAsYuan(current)} 元`;
+    if (parentKey === "procurementCostYuan" && typeof current === "number") {
+      return `${current.toLocaleString("zh-CN")} 元`;
     }
     if (Array.isArray(current))
       return current.map((item) => localize(item, parentKey));
