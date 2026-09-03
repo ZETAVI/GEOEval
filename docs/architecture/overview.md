@@ -54,9 +54,10 @@ than maintaining a calibration copy.
 
 Brand Knowledge owns the editable account-scoped Brand, the executable
 `industry-catalog@1.0.0` source, and a separate checked mainland administrative-
-region snapshot. Web uses dependent two-level industry selection plus one
-Amap-owned autocomplete/map/result-panel/Marker POI interaction; it requests no
-device location and exposes no separate
+region snapshot. Web uses dependent two-level industry selection plus one Amap
+map/result-panel/Marker POI interaction: the form loads a Beijing-centered map,
+typing remains local, and only the explicit action searches. It requests no
+device location or separate
 province/city/terminal mutation. Brand independently resolves selected POI
 detail and reverse-geocode evidence through its conditional server adapter,
 derives exactly one official region and one automatic Query locality, and commits

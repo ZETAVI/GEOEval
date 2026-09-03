@@ -17,7 +17,7 @@ locality, and development-reset revisions below.
 | Store cardinality | One current concrete Store Location per first-stage Brand | Meets the confirmed target market without introducing branch/store management | Product owner |
 | Flagship field | `flagshipProductOrService`, customer label `主打产品或服务`, 2-80 characters and required for v3 readiness | Adds a concrete recommendation anchor while remaining distinct from industry and a future product catalog | Product owner |
 | Characteristics | Peer collection; two fields by default; 2-6 distinct items; 2-120 characters each; presentation order has no priority and does not affect fingerprint | Gives #26 more useful angles while avoiding an unintended ranking contract | Product owner |
-| Initial place UX | Amap JS API 2.0 owns autocomplete, the `PlaceSearch` result panel, POI Markers, viewport fitting, and selection; GEOEval renders only the form shell and verified Brand summary | Keeps search interaction visually consistent with Amap while preserving a small business-authority boundary | Product and architecture owners |
+| Initial place UX | The form loads a Beijing-centered Amap map; typing is local and makes no search request; one explicit action lets `PlaceSearch` own the result panel, POI Markers, viewport fitting, and selection | Preserves an immediate visual map while avoiding per-keystroke search quota consumption | Product and architecture owners |
 | Verification | v5 POI detail plus v3 reverse geocode; server-sealed short-lived receipt; Brand commits only receipt-covered facts | Adds one verification round but prevents forged client position data and external calls inside a DB transaction | Architecture owner |
 | Administrative region | Remove customer province/city/terminal selection; derive the maintained MCA path only from the verified Store Location | Eliminates two competing inputs; a place without an exact mapping remains a draft rather than accepting manual correction | Product and architecture owners |
 | Device location | Do not load Geolocation or request browser/device/IP location by default | Avoids permission prompts and accidental proximity semantics; customers search by store name plus city/address/landmark text | Product owner |
@@ -42,9 +42,9 @@ account's documented service grants, Key types, quotas, and security controls.
 
 ## Customer-visible Behavior
 
-- The customer searches by a concrete store name plus city/address/landmark text
-  through Amap autocomplete, reviews Amap's own full-address panel and Markers,
-  and selects one POI entirely through that component.
+- The customer types a concrete store name plus city/address/landmark text
+  without a provider request, explicitly searches once, reviews Amap's own
+  full-address panel and Markers, and selects one POI through that component.
 - The form has no separate province/city/terminal controls and does not request
   device-location permission. The server displays the official region derived
   from the verified POI for confirmation rather than manual editing.

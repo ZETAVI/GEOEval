@@ -80,7 +80,8 @@ in readiness, fingerprinting, or evaluation projection.
 - **GIVEN** an authenticated customer is creating or editing a Brand
 - **WHEN** the customer submits a specific store name plus city, landmark, or
   address text
-- **THEN** Web delegates autocomplete, the full-address result panel, POI
+- **THEN** Web loads a Beijing-centered Amap map, keeps typing local until an
+  explicit search action, then delegates the full-address result panel, POI
   Markers, viewport fitting, and result selection to Amap JS API `PlaceSearch`
 - **AND** no separate province/city/terminal selector is present
 - **AND** Web does not load Geolocation, request browser/device/IP position, or

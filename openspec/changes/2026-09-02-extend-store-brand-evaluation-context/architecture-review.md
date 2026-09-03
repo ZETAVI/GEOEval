@@ -31,9 +31,9 @@ the remaining activation detail stays in this active Change.
   and evaluation projection. Separate customer-writable region fields disappear
   after the authorized development reset.
 - Web gains one Amap JavaScript API 2.0 picker with a domain-restricted JS Key,
-  server security-key proxy, and an Amap-owned autocomplete/result panel/map/
-  Marker interaction. It does not load Geolocation or ask for current position.
-  Browser facts remain untrusted.
+  server security-key proxy, local typing, and an Amap-owned explicit-search
+  result panel/map/Marker interaction. It loads neither AutoComplete nor
+  Geolocation and browser facts remain untrusted.
 - A Brand-owned infrastructure adapter maps Amap place detail/reverse-geocoding
   into typed evidence; no other module imports it.
 - Web uses generated GEOEval APIs and a server-sealed receipt; it never owns
@@ -223,6 +223,12 @@ scope.
    now subscribes to native list, Marker, and selection-change events through
    one POI-ID deduplication seam and resets that guard for each search or failed
    verification.
+6. **accepted product revision — typing consumed search quota (hands-on
+   review).** Credentialed browser logs showed `v3/assistant/inputtips` requests
+   while the customer typed. The product owner chose an explicit-search-only
+   interaction. Web now loads a Beijing-centered map for immediate context but
+   keeps focus/typing local; only the action invokes `PlaceSearch`, and the
+   security proxy rejects input-tip paths.
 
 ### Current result and residual evidence
 

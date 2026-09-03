@@ -13,9 +13,11 @@ in evaluation readiness and projection.
 - **GIVEN** an authenticated customer is creating or editing a Brand
 - **WHEN** the customer submits a specific store name plus city, landmark, or
   address text
-- **THEN** Web delegates bounded autocomplete, the full-address result panel,
+- **THEN** Web loads a Beijing-centered Amap map, keeps typing local until an
+  explicit search action, then delegates the bounded full-address result panel,
   POI Markers, viewport fitting, and selection to Amap JS API `PlaceSearch`
-  without requiring a separate province/city/terminal selection
+  without requiring a separate
+  province/city/terminal selection
 - **AND** Web does not load Geolocation, request browser/device/IP position, or
   show a current-location action by default
 - **AND** the browser receives only the domain-restricted Web(JS API) Key, never
@@ -260,8 +262,9 @@ characteristics.
 #### Scenario: A customer creates or edits a Brand
 
 - **WHEN** the shared Brand field group is shown
-- **THEN** it provides visible labels, an Amap-owned autocomplete/map/result
-  panel/Marker interaction, verified address and automatic-locality feedback,
+- **THEN** it provides visible labels, a local text input plus explicit search,
+  an Amap-owned map/result panel/Marker interaction, verified address and
+  automatic-locality feedback,
   honest loading/empty/failure states, two default characteristic rows, bounded
   add/remove actions, and a stacked narrow-screen layout
 - **AND** it has no independent province/city/terminal controls and requests no

@@ -22,7 +22,9 @@ The external seam is deliberately narrow:
 
 ```text
 Web
-  -> Amap JavaScript API 2.0 autocomplete/map/result-panel/Marker UI (selection only)
+  -> Beijing-centered Amap JavaScript API 2.0 map (initial visual context)
+  -> local text draft
+  -> explicit Amap result-panel/Marker UI (search/selection only)
   -> generated Brand API with untrusted selected POI ID
   -> Brand application
   -> Store Location verification port
@@ -70,7 +72,9 @@ Store selection is an interaction, not an independently durable workflow:
 
 ```text
 no current location
-  -> Amap autocomplete/map/result-panel/Marker search (external, untrusted)
+  -> Beijing-centered Amap map (external visual context, no place search)
+  -> local search text (no provider call)
+  -> explicit Amap result-panel/Marker search (external, untrusted)
   -> select one concrete POI
   -> server independently verifies that POI (external, read-only)
   -> sealed verification receipt (short-lived, not business truth)
@@ -103,8 +107,10 @@ current verified location
 
 ### Contracts and Dependencies
 
-- **Map selection UI:** Amap JavaScript API 2.0 renders one responsive map,
-  nationwide autocomplete/search, no more than ten candidate results, and
+- **Map selection UI:** Amap JavaScript API 2.0 renders one responsive,
+  Beijing-centered map immediately. A local text field makes no search request
+  until the explicit action, which runs nationwide search with no more than ten
+  candidate results and
   selectable POI Markers plus an accessible full-address list. Search guidance
   asks for a concrete store name plus city/address/landmark text. `AMap.Geolocation`
   is not loaded, browser/device/IP location is not requested, and a map click may
@@ -162,7 +168,7 @@ current verified location
 | Server-side Amap Web Service v5 detail plus v3 reverse geocode | Adopt | Independently verifies the browser-selected POI while keeping authoritative credentials and facts server-side; the named controlled probe confirmed the initial success shapes | Endpoint change or incompatible account/runtime evidence |
 | Existing generated REST/OpenAPI client and shared Brand form | Adopt | Already owns Web transport and registration/edit reuse | None for this change |
 | Server-sealed short-lived verification receipt | Adopt | Prevents forged client facts without a search-session database or an external call inside the Brand transaction | Replace only if receipt size/rotation evidence requires a short-lived server store |
-| Amap JS API 2.0 map and AutoComplete/PlaceSearch native panel/Markers | Adopt | Amap owns transient input assistance, result presentation, viewport fitting, and selection while the server independently verifies the selected POI | Controlled narrow-screen selection evidence or material API change |
+| Amap JS API 2.0 map and PlaceSearch native panel/Markers | Adopt | Local typing avoids per-keystroke calls; Amap owns explicit result presentation, viewport fitting, and selection while the server independently verifies the selected POI | Controlled narrow-screen selection evidence or material API change |
 | Project-local `@amap/amap-jsapi-loader` | Adopt at implementation | Amap recommends the loader for React/online v2.0 loading, plugin completeness, and duplicate-load protection; the repository currently has no map dependency | Refresh on an incompatible loader release or a supported first-party loading change |
 | Next Route Handler at `app/%5FAMapService/[...path]/route.ts` | Adopt | Amap requires the `/_AMapService` prefix while Next 16 treats literal underscore folders as private; the encoded route preserves the required public path and keeps the JS security code server-only | Replace with release reverse-proxy configuration only when equivalent secret injection and tests exist |
 | Provider search-session table or Redis cache | Reject initially | Creates transient provider-data persistence and operational cleanup without a required durable workflow | Revisit only if receipt constraints are proven inadequate |
@@ -188,9 +194,9 @@ current verified location
 - **Location permission:** do not import/load `AMap.Geolocation`, call browser
   geolocation, infer location from IP, or add a “use current location” control in
   the first release. Map initialization and search are independent of permission.
-- **Cost and capacity:** explicit search requires at least two characters and
-  returns at most ten results; Amap owns AutoComplete request timing instead of
-  a second GEOEval request layer. There is no
+- **Cost and capacity:** the form initializes one map, but typing makes no Amap
+  search request. Explicit search requires at least two characters and returns
+  at most ten results. There is no
   background refresh or load test, and metrics are by operation/outcome only.
   The enterprise-certified console shows 3,000,000 monthly basic-LBS calls,
   30,000,000 JS map initializations, and 50,000 basic-search calls. The public
@@ -584,13 +590,12 @@ implementation reconciliation updates current truth.
 
 ### 1. Map Search and Selection
 
-Web initializes one Amap JavaScript API 2.0 map without requesting current
-location, then provides nationwide AutoComplete/PlaceSearch over a concrete
-store name plus city/address/landmark text.
+Web initializes one Beijing-centered Amap JavaScript API 2.0 map without
+requesting current location. It keeps a concrete store name plus city/address/
+landmark text local until the customer explicitly runs nationwide PlaceSearch.
 
-- explicit search requires at least two characters; Amap owns AutoComplete
-  request timing and presentation;
-- an explicit search action remains available;
+- typing and focus make no PlaceSearch/input-tip request;
+- explicit search requires at least two characters;
 - neither `city` nor `citylimit` is set from a separate product field;
 - no more than ten results appear through the Amap-owned panel and matching
   Markers so the customer can distinguish same-name stores;

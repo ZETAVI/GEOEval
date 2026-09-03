@@ -3,7 +3,7 @@ import { NextResponse } from "next/server.js";
 export const dynamic = "force-dynamic";
 
 type RouteContext = { params: Promise<{ path: string[] }> };
-const allowedProxyPaths = new Set(["v3/assistant/inputtips", "v3/place/text"]);
+const allowedProxyPaths = new Set(["v3/place/text"]);
 
 export async function GET(request: Request, context: RouteContext) {
   const securityCode = process.env.AMAP_JS_SECURITY_CODE?.trim();

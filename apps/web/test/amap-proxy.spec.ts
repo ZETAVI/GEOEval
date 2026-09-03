@@ -57,6 +57,18 @@ describe("Amap JS security proxy", () => {
     process.env.AMAP_JS_SECURITY_CODE = "fixture-security-code";
     expect(
       (
+        await GET(
+          new Request("http://localhost/_AMapService/v3/assistant/inputtips"),
+          {
+            params: Promise.resolve({
+              path: ["v3", "assistant", "inputtips"],
+            }),
+          },
+        )
+      ).status,
+    ).toBe(400);
+    expect(
+      (
         await GET(new Request("http://localhost/_AMapService/test"), {
           params: Promise.resolve({ path: [".."] }),
         })

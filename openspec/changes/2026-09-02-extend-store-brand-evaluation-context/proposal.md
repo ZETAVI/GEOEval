@@ -109,8 +109,9 @@ may use that reset path.
   and may be extended to six. Presentation order is not business meaning and
   does not participate in the fingerprint. Query still produces the existing
   two characteristic question roles rather than one question per characteristic.
-- The first Web interaction delegates autocomplete, the result panel, POI
-  Markers, viewport fitting, and selection to Amap `PlaceSearch`. A free map
+- The first Web interaction loads a Beijing-centered Amap map, keeps typing
+  local, and delegates only an explicit search, the result panel, POI Markers,
+  viewport fitting, and selection to `PlaceSearch`. A free map
   click may reposition the
   search but cannot become a Store Location without selecting and verifying a
   concrete POI.
@@ -150,8 +151,9 @@ may use that reset path.
    collection. Evaluation readiness requires 2-6 non-empty, pairwise-distinct
    values; each is 2-120 characters. Presentation order is excluded from both
    meaning and fingerprint.
-3. Use Amap JavaScript API 2.0 for a responsive map and delegate autocomplete,
-   the full-address result panel, POI Markers, and selection to `PlaceSearch`.
+3. Use Amap JavaScript API 2.0 for an initially visible Beijing-centered map,
+   keep typing local, and delegate the explicit search, full-address result
+   panel, POI Markers, and selection to `PlaceSearch`.
    Use a separate
    Web(JS API) Key plus server security-key proxy; never expose the Web Service
    Key or accept arbitrary map coordinates as a Store Location. Do not load the

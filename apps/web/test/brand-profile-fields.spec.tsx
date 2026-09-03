@@ -48,6 +48,9 @@ describe("shared Brand v3 fields", () => {
     expect(source).toContain('"markerClick"');
     expect(source).toContain("autoFitView: true");
     expect(source).toContain("service.clear()");
+    expect(source).not.toContain("AMap.AutoComplete");
+    expect(source).not.toContain("initializeMap");
+    expect(source).toContain("center: [116.397428, 39.90923]");
     expect(source).not.toContain("location-candidate-list");
     expect(source).not.toContain("localityCandidateId");
     expect(source).not.toContain('type="radio"');

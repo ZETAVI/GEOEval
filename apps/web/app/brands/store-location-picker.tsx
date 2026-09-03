@@ -21,7 +21,6 @@ type AmapRuntime = {
     options: Record<string, unknown>,
   ) => AmapMap;
   PlaceSearch: new (options: Record<string, unknown>) => AmapPlaceSearch;
-  AutoComplete: new (options: Record<string, unknown>) => AmapAutoComplete;
 };
 
 type AmapMap = {
@@ -38,10 +37,6 @@ type AmapPlaceSearch = {
     event: "selectChanged" | "listElementClick" | "markerClick",
     listener: (event: { id?: unknown; data?: unknown }) => void,
   ): void;
-};
-
-type AmapAutoComplete = {
-  on(event: "select", listener: (event: { poi?: unknown }) => void): void;
 };
 
 declare global {
@@ -94,6 +89,14 @@ export function StoreLocationPicker({
     };
   }, []);
 
+  useEffect(() => {
+    if (!amapJsKey) return;
+    void ensureMap().catch((error) => {
+      if (disposed.current) return;
+      setMessage(error instanceof Error ? error.message : "地图加载暂时不可用");
+    });
+  }, []);
+
   async function ensureMap(): Promise<void> {
     if (mapReady) return;
     if (!amapJsKey) throw new Error("地图服务尚未配置，可先保存其他资料");
@@ -107,12 +110,12 @@ export function StoreLocationPicker({
       const AMap = (await load({
         key: amapJsKey,
         version: "2.0",
-        plugins: ["AMap.AutoComplete", "AMap.PlaceSearch"],
+        plugins: ["AMap.PlaceSearch"],
       })) as AmapRuntime;
       if (disposed.current || !mapContainer.current) return;
       map.current = new AMap.Map(mapContainer.current, {
-        zoom: 4,
-        center: [104.195397, 35.86166],
+        zoom: 11,
+        center: [116.397428, 39.90923],
         viewMode: "2D",
       });
       placeSearch.current = new AMap.PlaceSearch({
@@ -138,19 +141,6 @@ export function StoreLocationPicker({
       placeSearch.current.on("listElementClick", handleSelection);
       placeSearch.current.on("markerClick", handleSelection);
       placeSearch.current.on("selectChanged", handleSelection);
-      const autocomplete = new AMap.AutoComplete({
-        city: "全国",
-        citylimit: false,
-        input: inputId,
-      });
-      autocomplete.on("select", (event) => {
-        const keyword =
-          latestQuery.current.trim() || selectedPlaceName(event.poi);
-        if (!keyword) return;
-        latestQuery.current = keyword;
-        setQuery(keyword);
-        void searchPlaces(keyword);
-      });
       setMapReady(true);
     })().catch((error) => {
       map.current?.destroy();
@@ -164,14 +154,6 @@ export function StoreLocationPicker({
 
   async function search() {
     await searchPlaces(latestQuery.current);
-  }
-
-  async function initializeMap() {
-    try {
-      await ensureMap();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "地图搜索暂时不可用");
-    }
   }
 
   async function searchPlaces(rawInput: string) {
@@ -327,7 +309,6 @@ export function StoreLocationPicker({
             maxLength={200}
             autoComplete="off"
             placeholder="例如：广州 星河咖啡 珠江新城"
-            onFocus={() => void initializeMap()}
             onChange={(event) => {
               latestQuery.current = event.target.value;
               setQuery(event.target.value);
@@ -356,7 +337,7 @@ export function StoreLocationPicker({
           aria-label="高德门店地图"
         >
           {!mapReady && (
-            <span>{amapJsKey ? "输入门店后加载地图" : "地图服务尚未配置"}</span>
+            <span>{amapJsKey ? "北京地图加载中…" : "地图服务尚未配置"}</span>
           )}
         </div>
         <div

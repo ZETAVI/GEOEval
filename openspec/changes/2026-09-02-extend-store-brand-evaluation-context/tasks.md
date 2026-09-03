@@ -83,8 +83,9 @@
 
 ## Conditional Implementation
 
-- [x] Add an accessible Amap JS API 2.0 map picker with AutoComplete/PlaceSearch,
-      an Amap-owned nationwide full-address panel and Markers, explicit-search
+- [x] Add an accessible Amap JS API 2.0 map picker with local typing and explicit
+      PlaceSearch, an Amap-owned nationwide full-address panel and Markers,
+      explicit-search
       minimum/result bounds, no Geolocation/current-position permission, map
       lifecycle cleanup, domain-restricted JS Key, and server security-key proxy.
 - [x] Add the Brand-owned Store Location verification port, fixture adapter,
@@ -282,7 +283,7 @@
       `main@f1b5ef4`, pass the complete 19-migration chain on
       `geoeval_issue40_rebased` without touching the shared `geoeval`
       development database.
-- [x] Pass focused backend/Web tests, 29-file/149-test backend regression,
+- [x] Pass focused backend/Web tests, 31-file/156-test backend regression,
       5-file/22-test Web regression, all-workspace typecheck, production build,
       framework validation, static browser-asset secret scan, and desktop no-Key
       browser inspection.
@@ -297,6 +298,10 @@
 - [x] Diagnose and repair the real-data address-precedence defect: exact POI
       detail address wins over nearby reverse-geocode formatted text; pass the
       focused red/green test and repeated Chrome/database inspection.
+- [x] After product-owner hands-on review showed per-keystroke input-tip calls,
+      remove AutoComplete, keep an initially visible Beijing-centered map, run
+      PlaceSearch only after the explicit action, and remove
+      `v3/assistant/inputtips` from the security-proxy allowlist.
 - [ ] Prove the credentialed interaction at a narrow-screen Chrome viewport;
       desktop responsive structure and component tests are not a substitute.
 - [x] After exact non-production preflight and explicit destructive
