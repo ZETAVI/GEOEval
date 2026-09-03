@@ -1,56 +1,66 @@
-# Source Brief: Fixed-workbook XLSX and embedded-Logo reader
+# Source Brief: Fixed-workbook OOXML and embedded-Logo reader
 
 ## Recommendation
 
-Use project-local `exceljs@4.4.0` only inside the offline first-batch import CLI.
-It is the smallest mature library found that documents both ordinary XLSX cell
-reads and embedded-image retrieval. Gate all parsing on the exact approved input
-SHA-256, keep the library out of HTTP/request paths, pin it in the lockfile, run
-the actual workbook/Image API smoke on Node 24, and review the resolved dependency
-audit before implementation acceptance.
+Use project-local `fflate@0.8.3` plus `fast-xml-parser@5.10.1` inside the offline
+first-batch import CLI. The importer verifies the exact approved SHA-256 before
+decompression, keeps all archive entries in memory, rejects DOCTYPE/entity
+declarations, removes XML namespace prefixes, and reads only the fixed workbook,
+worksheet, relationship, drawing, and PNG paths required by this batch.
+
+Do not use ExcelJS for this input. Its documented `readFile`/image API was tested
+on Node 24 against the exact workbook and failed before returning a workbook
+model because this source uses namespace-prefixed OOXML elements. ExcelJS also
+introduced an avoidable vulnerable `uuid@8.3.2` path in the resolved audit. The
+dependency and all of its transitive packages were removed.
 
 ## Decision constraints
 
-- Must read an existing `.xlsx`, preserve numeric cell types, and retrieve the
-  40 embedded image buffers with their worksheet anchors.
-- Must run as a project-local Node dependency without global installation or a
+- Must read namespace-prefixed OOXML cell values and the 40 embedded image
+  buffers with drawing-row anchors.
+- Must run as project-local Node dependencies without global installation or a
   Codex-only runtime.
-- Must never parse user uploads or arbitrary workbook versions in this Change.
+- Must not parse any input before exact hash verification or accept arbitrary
+  sheets, columns, formulas, counts, image types, or archive relations.
 - Must allow complete removal with the one-off importer; no runtime business
   module may depend on it.
 
 ## Evidence
 
-| Claim | Primary source | Version/date | Design implication |
+| Claim | Primary source or controlled evidence | Version/date | Design implication |
 | --- | --- | --- | --- |
-| `Workbook.xlsx.readFile` reads an existing workbook; worksheets expose rows/cells | https://github.com/exceljs/exceljs#reading-xlsx | 4.4.0, accessed 2026-09-03 | Fixed parser can read the reviewed sheet without a conversion service |
-| `Worksheet.getImages()` plus `Workbook.getImage()` exposes placed image IDs, buffers, extensions, and anchors | https://github.com/exceljs/exceljs#images | 4.4.0, accessed 2026-09-03 | One parser can verify exact row-to-Logo mapping and bytes |
-| Package is MIT and declares Node `>=8.3.0` | https://github.com/exceljs/exceljs/blob/master/package.json and https://github.com/exceljs/exceljs/blob/master/LICENSE | 4.4.0, accessed 2026-09-03 | License is compatible; declared range includes Node 24 but does not substitute for a real smoke |
-| v4.4.0 is the latest stable release and added Node 20 to its test matrix | https://github.com/exceljs/exceljs/releases/tag/v4.4.0 | released 2023, accessed 2026-09-03 | Node 24 behavior is not directly proven by upstream CI and must be validated locally |
-| Maintainers have open reports about outdated/transitive dependencies | https://github.com/exceljs/exceljs/issues/2968 and https://github.com/exceljs/exceljs/issues/3055 | accessed 2026-09-03 | Restrict to exact trusted input, inspect `pnpm audit`, and do not expose parser as a service |
+| `unzipSync(Uint8Array)` returns named decompressed entries | https://github.com/101arrowz/fflate/blob/master/docs/functions/unzipSync.md | 0.8.3, accessed 2026-09-03 | The exact-hash XLSX can be read in memory without external commands or temporary extraction |
+| fflate 0.8.3 fixes a Zip64 buffer over-read and is MIT | https://github.com/101arrowz/fflate/releases/tag/v0.8.3 and https://github.com/101arrowz/fflate/blob/master/LICENSE | 0.8.3, accessed 2026-09-03 | Pin the current release and avoid an older archive-read defect |
+| `removeNSPrefix`, attribute parsing, and non-coercing value options are supported | https://github.com/NaturalIntelligence/fast-xml-parser/blob/master/_autodocs/configuration.md | 5.10.1, accessed 2026-09-03 | The parser can read `x:workbook`, `xdr:oneCellAnchor`, and relationship attributes without rewriting XML |
+| fast-xml-parser 5.10.1 is current, MIT, and includes entity/unsafe-name hardening accumulated in v5 | https://github.com/NaturalIntelligence/fast-xml-parser/releases/tag/v5.10.1 and https://github.com/NaturalIntelligence/fast-xml-parser/blob/master/CHANGELOG.md | 5.10.1, accessed 2026-09-03 | Pin the current v5 release and still reject DOCTYPE/entity input before parsing |
+| The exact workbook produced 55 ZIP entries, one expected sheet, 40 drawing anchors, 40 PNG buffers, and the expected 40/208/76/6 counts on Node 24.12.0 | Controlled local smoke on approved SHA-256 | 2026-09-03 | The selected narrow interface is proven on the actual source rather than inferred from docs |
+| ExcelJS 4.4.0 threw while parsing the exact namespace-prefixed workbook and resolved vulnerable `uuid@8.3.2` | Controlled local smoke plus `pnpm audit --prod --json` | Node 24.12.0, 2026-09-03 | Remove ExcelJS rather than normalize OOXML behind an unproven general workbook model |
 
 ## Alternatives
 
 | Option | Fit | Reason |
 | --- | --- | --- |
-| ExcelJS 4.4.0 | Adopt with controls | Documents both required cell and embedded-image read surfaces; broad age/transitive risk is bounded by exact-hash offline input and local audit |
-| Codex bundled artifact tool | Reject for repository runtime | Useful for independent workbook inspection, but it is not a project dependency or deployable application contract |
-| Custom OOXML/ZIP parser | Reject | Would create a fragile parallel spreadsheet framework for one fixed workbook and expand security/format responsibility |
-| Cell-only readers | Reject | Do not satisfy the one-to-one embedded-Logo extraction and anchor requirement from primary documentation |
+| fflate 0.8.3 + fast-xml-parser 5.10.1 | Adopt with fixed-shape controls | Current, small, documented primitives; actual workbook namespace/image path passes |
+| ExcelJS 4.4.0 | Reject | Exact source fails before model construction; old transitive dependency adds risk |
+| Codex bundled artifact tool | Reject for repository runtime | Useful for independent inspection, but not a project dependency or deployable application contract |
+| Custom ZIP/DEFLATE or XML tokenizer | Reject | Reimplementing compression or XML parsing would expand security and format responsibility |
 
 ## Unknowns and validation
 
-- Run the exact reviewed workbook through `readFile`, `getImages`, and
-  `getImage` using project Node 24 after lockfile installation.
-- Confirm 40 image anchors map to the 40 platform rows and each buffer is PNG.
-- Run `pnpm audit` for the resolved lockfile. A reachable high/critical parser
-  issue changes the decision; ordinary unsupported write/stream paths remain
-  outside the CLI boundary.
+- Run the fixed-shape parser against a generated namespace-prefixed fixture for
+  hash, formula, fractional-cost, duplicate-row, invalid-case-reference, and
+  missing-Logo behaviors.
+- Run the exact reviewed workbook on project Node 24, then run the complete
+  plan/apply/browser rehearsal against the independent review database.
+- Review the resolved production dependency audit. Existing unrelated Prisma
+  optional and Nest/qs findings remain visible; any advisory newly attributable
+  to fflate or fast-xml-parser changes this decision.
 
 ## Reuse and refresh boundary
 
-- Reusable only for the exact reviewed hash, ExcelJS 4.4.0 lockfile resolution,
-  offline CLI, and Node 24 environment proven by this Change.
+- Reusable only for the exact reviewed hash, fixed OOXML paths/schema, pinned
+  fflate/fast-xml-parser resolutions, offline CLI, and Node 24 environment proven
+  by this Change.
 - Refresh when the input hash/shape changes, the parser becomes reachable from
   an API/upload path, Node/runtime changes, the lockfile resolves different
   parser dependencies, or a relevant security advisory appears.

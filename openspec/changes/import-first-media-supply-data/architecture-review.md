@@ -1,6 +1,6 @@
 # Architecture Review: Controlled first-batch Media Supply import
 
-- Result: `not ready` for implementation; ready for the single product decision
+- Result: `ready` for bounded implementation and isolated rehearsal
 - Reviewed revision: `origin/main@f1b5ef47097bc50947f85808e326d88372f925ae`
 - Reviewed artifacts: Issue #51, current Media Supply spec/schema/service/
   repository/administrator and customer projections, ADR-0002/0003, reviewed
@@ -21,16 +21,17 @@ external-cost, destructive, merge, deployment, or activation boundary.
 
 - Backend Media Supply gains one offline CLI/import module. No HTTP controller,
   generated client, role model, order, fulfilment, or background worker changes.
-- The parser depends on a narrow ExcelJS adapter; planner depends on shared Media
-  Supply normalization; apply depends on Prisma/PostgreSQL only.
+- The parser depends on a narrow fflate/fast-xml-parser OOXML adapter; planner
+  depends on shared Media Supply normalization; apply depends on
+  Prisma/PostgreSQL only.
 - Web owns a versioned public PNG bundle. Database records store project paths;
   apply reads/verifies assets and writes no files.
 - Existing administrator projections read the inserted internal facts. Existing
   customer projection and effective-availability policies remain authoritative.
 
-## Findings
+## Findings resolved before implementation
 
-### Must-fix — approve the six overseas-platform categories
+### Must-fix — approve the six overseas-platform categories — resolved
 
 - **Artifact:** `design.md`, Overseas-category decision.
 - **Violated boundary:** product classification semantics are human-owned and
@@ -38,8 +39,8 @@ external-cost, destructive, merge, deployment, or activation boundary.
 - **Consequence:** discarding `海外` leaves five platforms with no accepted
   category. Defaulting them silently to portal or allowing zero categories would
   make materially different catalog behavior.
-- **Remediation:** product owner approves or replaces the explicit six-platform
-  mapping before parser/import implementation.
+- **Remediation:** the product owner approved the explicit six-platform mapping
+  on 2026-09-03 before parser/import implementation.
 - **Origin:** exposed by this input; not pre-existing code debt.
 
 No other `must-fix` or `should-fix` finding is open.
@@ -68,9 +69,9 @@ No other `must-fix` or `should-fix` finding is open.
 
 ## Residual validation, not a human gate
 
-- ExcelJS 4.4.0 is old and has open transitive-maintenance reports. Exact
-  workbook/image behavior on Node 24 and resolved `pnpm audit` remain mandatory
-  before acceptance. Failure changes the tool choice, not product meaning.
+- ExcelJS failed the mandatory exact-source smoke and was removed. The selected
+  fflate/fast-xml-parser adapter passes the Node 24 namespace/image smoke; its
+  resolved audit and fixed-shape failure tests remain mandatory before acceptance.
 - The 254-entity plus category/audit transaction is small by inspection but must
   be measured in the independent review database.
 - One duplicate logical resource key exists in the fixed input with differing
@@ -81,7 +82,6 @@ No other `must-fix` or `should-fix` finding is open.
 
 The module, transaction, asset, receipt, cleanup, and verification boundaries
 are the smallest coherent design and need no schema or long-term asset-owner
-decision. Implementation remains `not ready` solely until the product owner
-settles the six explicit overseas-platform category mappings. After that
-decision is recorded, the same reviewed design becomes `ready` provided no
-scope or input revision changes.
+decision. The approved six-platform mapping closes the only finding. The design
+is `ready` for bounded implementation and isolated rehearsal provided no scope
+or input revision changes.

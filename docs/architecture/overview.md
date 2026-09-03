@@ -77,6 +77,17 @@ Customer HTTP responses are explicit safe projections and never reuse
 administrator DTOs or expose procurement cost, supplier/contact data, cases, or
 notes.
 
+The reviewed first Media Supply batch enters through one offline fixed-format
+adapter rather than a migration framework or runtime upload. It verifies the
+exact workbook, versioned Web Logo bundle, administrator actor and current
+database state in a read-only plan, then recomputes the same boundary inside one
+serializable PostgreSQL apply transaction. Deterministic identities make exact
+replay idempotent; conflicts never update current facts. Logos deploy before
+apply, safe receipts are recoverable projections after commit, and every
+inserted platform/supplier/resource remains inactive with resources hidden.
+Implementation or merge never implies formal import, deployment, activation, or
+customer publication.
+
 Platform state and price—not candidate-resource count—decide whether a platform
 is buyable. A separate one-to-one Listing is intentionally absent until one
 platform needs multiple independently priced or scheduled sale variants. Future

@@ -19,6 +19,14 @@ shape.
   without logging supplier names, contacts, costs, notes or raw workbook text
 - **AND** neither database records nor asset files are changed.
 
+#### Scenario: A case-reference cell is not a valid HTTPS URL
+
+- **WHEN** an otherwise valid resource row contains non-URL case-reference text
+- **THEN** plan reports its source row through a bounded warning
+- **AND** leaves `caseUrl` null rather than copying the text into another field,
+  a log, or the receipt
+- **AND** the warning does not change the accepted 208-resource count.
+
 #### Scenario: Input validation fails
 
 - **WHEN** the workbook hash, required headers, hierarchy, count, enum mapping,
@@ -101,6 +109,6 @@ conflicts, and final status.
 ### Requirement: Platform-owned customer catalog
 
 The first-batch activation SHALL keep geography only in `regionScope`. Every
-platform still requires one or more accepted non-geographic media categories;
-the six overseas-platform category mapping remains a product-owner decision
-before implementation.
+platform SHALL receive one or more accepted non-geographic media categories,
+including the product-owner-approved six overseas-platform mapping, without
+restoring `OVERSEAS_MEDIA`.

@@ -8,6 +8,7 @@ import {
 } from "../domain/media-supply.errors.js";
 import type { MediaSupplyRepository } from "../domain/media-supply.repository.js";
 import { mediaResourceEffectiveStatus } from "../domain/media-resource-availability.js";
+import { normalizeMediaName } from "../domain/media-supply-normalization.js";
 import type {
   MediaCatalogAuditView,
   MediaCategory,
@@ -163,7 +164,7 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
       this.prisma.$transaction(async (tx) => {
         const platform = await tx.mediaPlatform.create({
           data: {
-            normalizedName: normalizePlatformName(fields.displayName),
+            normalizedName: normalizeMediaName(fields.displayName),
             displayName: fields.displayName,
             aliases: fields.aliases,
             description: fields.description,
@@ -234,7 +235,7 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
           data: {
             ...scalarFields,
             ...(fields.displayName
-              ? { normalizedName: normalizePlatformName(fields.displayName) }
+              ? { normalizedName: normalizeMediaName(fields.displayName) }
               : {}),
             revision: { increment: 1 },
           },
@@ -362,7 +363,7 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
         const supplier = await tx.mediaSupplier.create({
           data: {
             ...fields,
-            normalizedName: normalizeName(fields.displayName),
+            normalizedName: normalizeMediaName(fields.displayName),
           },
           include: {
             _count: { select: { resources: true } },
@@ -405,7 +406,7 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
           data: {
             ...fields,
             ...(fields.displayName
-              ? { normalizedName: normalizeName(fields.displayName) }
+              ? { normalizedName: normalizeMediaName(fields.displayName) }
               : {}),
             revision: { increment: 1 },
           },
@@ -917,14 +918,6 @@ function mapSupplier(supplier: SupplierRecord): MediaSupplierView {
     createdAt: supplier.createdAt,
     updatedAt: supplier.updatedAt,
   };
-}
-
-function normalizePlatformName(value: string): string {
-  return normalizeName(value);
-}
-
-function normalizeName(value: string): string {
-  return value.normalize("NFKC").trim().toLocaleLowerCase("zh-CN");
 }
 
 function orderedCategories(

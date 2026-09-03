@@ -15,42 +15,42 @@
 - [x] Define the owner-local plan/apply module, deterministic identities,
       transaction, Logo prerequisite, receipt recovery, cleanup, and tests.
 - [x] Complete the pre-implementation architecture review.
-- [ ] Product owner approves the six overseas-platform mappings into the current
+- [x] Product owner approves the six overseas-platform mappings into the current
       non-geographic Media Supply categories.
 
 ## Stage 2 — Implement
 
-- [ ] Add and lock the project-local XLSX reader; validate the exact workbook and
+- [x] Add and lock the project-local OOXML reader; validate the exact workbook and
       image APIs on Node 24 and review the resolved dependency audit.
-- [ ] Extract the 40 approved PNGs into the Web-owned versioned asset path and
+- [x] Extract the 40 approved PNGs into the Web-owned versioned asset path and
       verify exact one-to-one platform/image mapping and hashes.
-- [ ] Implement the fixed-workbook parser and safe normalized batch model without
+- [x] Implement the fixed-workbook parser and safe normalized batch model without
       exposing sensitive cell values in errors or logs.
-- [ ] Implement read-only plan and transactional idempotent apply using current
+- [x] Implement read-only plan and transactional idempotent apply using current
       Media Supply entities, normalized-name rule, deterministic resource IDs,
       administrator validation, and atomic audits.
-- [ ] Implement atomic bounded apply receipts and the post-commit recovery path.
-- [ ] Add focused parser, mapping, idempotency, conflict, rollback, asset, audit,
+- [x] Implement atomic bounded apply receipts and the post-commit recovery path.
+- [x] Add focused parser, mapping, idempotency, conflict, rollback, asset, audit,
       and receipt tests.
 
 ## Stage 3 — Verify, Reconcile, and Review
 
-- [ ] Prepare an independent review PostgreSQL database; record its explicit URL
+- [x] Prepare an independent review PostgreSQL database; record its explicit URL
       without touching formal or production data.
-- [ ] Prove plan does not change database or assets; rehearse first and repeated
+- [x] Prove plan does not change database or assets; rehearse first and repeated
       apply with exact counts and states.
-- [ ] Prove parse, source-conflict, database/audit failure, missing/corrupt Logo,
+- [x] Prove parse, source-conflict, database/audit failure, missing/corrupt Logo,
       and receipt-recovery paths.
-- [ ] Verify administrator API/UI counts, associations, 1000-point price,
+- [x] Verify administrator API/UI counts, associations, 1000-point price,
       internal fields, and all 40 Logos in a real browser.
-- [ ] Verify the customer API/page sees no imported inactive resources and does
+- [x] Verify the customer API/page sees no imported inactive resources and does
       not expose supplier, contact, procurement, case, note, audit, or source
       data.
-- [ ] Run focused tests, typecheck, full backend/Web tests, build, format check,
+- [x] Run focused tests, typecheck, full backend/Web tests, build, format check,
       framework validation, migration status, and fixed-diff review.
-- [ ] Reconcile accepted behavior into the current Media Supply owner and retain
-      its Evolution marker; no ADR unless implementation proves a cross-change
-      decision.
+- [x] Reconcile accepted behavior into the current Media Supply owner and
+      architecture overview; the product-definition Evolution marker remains
+      valid and unchanged, and no new ADR is warranted.
 - [ ] Open the final acceptance PR with `Closes #51`, isolated rehearsal
       evidence, formal-import/deployment gates, and an explicit retained-worktree
       exit state; stop at Review / Decision without merging.

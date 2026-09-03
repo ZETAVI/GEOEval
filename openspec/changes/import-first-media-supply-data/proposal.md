@@ -1,9 +1,9 @@
 # Change: Import the first reviewed Media Supply dataset
 
-- Status: Review / Decision
+- Status: Approved for bounded implementation on 2026-09-03
 - Class: Architectural data activation
 - Owning Issue: [#51](https://github.com/ZETAVI/GEOEval/issues/51)
-- Decision owner: Product owner for the unresolved overseas-platform category
+- Decision owner: Product owner for the approved overseas-platform category
   mapping; Media Supply owner for bounded implementation
 
 ## Why
@@ -41,8 +41,10 @@ fulfilment, or external call.
 - Force all 40 platforms to 1000 points and `INACTIVE`; force all 6 suppliers
   and 208 resources to `INACTIVE`; force every resource to `HIDDEN`.
 - Preserve aliases, platform description, publication mode, quality tier,
-  integer-yuan procurement cost, case link, resource account/channel, and
-  internal publication notes where the current model owns them.
+  integer-yuan procurement cost, valid HTTPS case link, resource account/channel,
+  and internal publication notes where the current model owns them. Non-URL
+  case-reference cells are skipped with row-only warnings rather than copied to
+  another field.
 - Keep optional supplier contact fields null because the reviewed workbook does
   not supply them.
 - Place the 40 reviewed PNG Logos in the Web-owned versioned public asset path
@@ -91,13 +93,15 @@ fulfilment, or external call.
    fails after commit, a repeated idempotent apply reconstructs it from the
    existing records and does not duplicate business data.
 
-## Open decision
+## Approval result
 
-The workbook's six overseas platforms are grouped by geography. Five of them
-have no token that maps to the accepted five categories after `海外` is removed.
-Implementation is blocked until the product owner approves either an explicit
-mapping into the existing categories or a separately specified category change.
-The proposed smallest mapping is recorded in [design.md](design.md).
+The product owner approved the explicit six-platform mapping recorded in
+[design.md](design.md) on 2026-09-03. Every platform therefore receives at least
+one current non-geographic category, all six retain `regionScope=OVERSEAS`, and
+`OVERSEAS_MEDIA` is not restored. This closes the only pre-implementation
+finding and authorizes the bounded implementation and isolated review-database
+rehearsal described here. It does not authorize formal import, deployment,
+activation, publication, PR merge, orders, fulfilment, or external calls.
 
 ## Impact
 

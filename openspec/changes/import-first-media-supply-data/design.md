@@ -20,7 +20,7 @@ The new code stays under the backend Media Supply owner:
 ```text
 media-supply-import-main
   -> first-batch-import command { plan, apply }
-      -> fixed workbook parser (ExcelJS adapter)
+      -> fixed OOXML parser (fflate + fast-xml-parser adapter)
       -> Logo asset verifier (filesystem read only)
       -> import planner (pure normalization/comparison)
       -> transactional import repository (Prisma/PostgreSQL)
@@ -75,7 +75,7 @@ format and one caller.
 - `status`: always `INACTIVE`; `pointPrice`: always `1000`; `revision`: `1`.
 - `categories`: direct token mapping for `央媒`, `门户`, `地方`, `垂直`, and
   `内容平台`; geography and topical descriptors are not categories. The six
-  overseas rows require the decision below.
+  overseas rows use the approved explicit mapping below.
 
 ### Supplier
 
@@ -90,8 +90,13 @@ format and one caller.
 - Each of the 208 reviewed resource rows is one input record with a deterministic
   UUID derived from importer namespace, exact input hash, and source row number.
 - Platform/supplier references resolve through normalized owner keys.
-- Reviewed resource/account, publication mode, quality, case, integer-yuan cost,
-  and internal note map to their current fields. Account URL remains null.
+- Reviewed display names, descriptions, aliases, resource identifiers, and
+  internal notes are trimmed but otherwise preserved; NFKC/case normalization
+  applies only to matching keys and logical-collision detection.
+- Reviewed resource/account, publication mode, quality, valid HTTPS case link,
+  integer-yuan cost, and internal note map to their current fields. Account URL
+  remains null. Forty non-URL case-reference cells have no compatible owner and
+  are skipped with one row-only warning rather than copied into notes or logs.
 - Status is always `INACTIVE`; public visibility is always `HIDDEN`; public
   alias is null even when the old workbook review column said masked.
 - The one repeated same-platform resource/account key is retained as two rows
@@ -106,7 +111,7 @@ old customer visibility are validation/context inputs or intentionally
 overridden accepted defaults. They do not create parallel fields or copied raw
 notes.
 
-## Overseas-category decision
+## Approved overseas-category decision
 
 Direct token mapping covers 34 domestic platforms and one overseas platform's
 `门户` token. The remaining five would have no accepted category. The proposed
@@ -122,14 +127,13 @@ smallest explicit mapping is:
 | StreetInsider | `VERTICAL_MEDIA` |
 
 This keeps `OVERSEAS` only in `regionScope`, reuses current categories, and
-avoids a schema/spec migration. It is a product classification decision, not a
-safe parser inference, so implementation remains blocked until approved or
-replaced.
+avoids a schema/spec migration. The product owner approved this exact mapping
+on 2026-09-03; it is a fixed import mapping rather than a parser inference.
 
 ## Logo assets and deployment order
 
-ExcelJS reads the 40 embedded PNG buffers and their anchored platform rows. The
-reviewed bytes are committed as versioned files under
+The fixed OOXML adapter reads the 40 embedded PNG buffers and their anchored
+platform rows. The reviewed bytes are committed as versioned files under
 `apps/web/public/media-logos/first-batch/`; filenames include the platform
 ordinal and content-hash prefix. No workbook or supplier data accompanies them.
 
@@ -177,7 +181,8 @@ costs, contacts, URLs, or notes.
 | Candidate | Decision | Evidence and limitation | Refresh trigger |
 | --- | --- | --- | --- |
 | Existing Media Supply Prisma owner and transactions | Adopt | Current model, FKs, audit and transaction boundary already own all records; no migration needed | A required fact has no current owner or the transaction exceeds measured limits |
-| ExcelJS 4.4.0 | Adopt with controls | Official API exposes cell and image reads; MIT; Node 24 not in recorded upstream matrix and transitive maintenance reports exist | Exact workbook smoke/audit fails, input becomes untrusted, Node/lockfile changes |
+| fflate 0.8.3 + fast-xml-parser 5.10.1 | Adopt with fixed-shape controls | Current MIT primitives read the exact namespace-prefixed workbook on Node 24; hash/header/count/relationship/PNG gates limit their surface | Exact smoke/audit fails, input becomes untrusted, Node/lockfile changes |
+| ExcelJS 4.4.0 | Reject | Exact workbook fails before model construction and its resolved dependency path adds an avoidable vulnerable UUID version | Reconsider only if a current version proves the exact namespace-prefixed source without the dependency risk |
 | Next public assets | Adopt | Current `logoUrl` accepts project paths and Web already renders them; versioned bundle is deployable before apply | Runtime uploads, tenant assets, or mutable media storage become a real requirement |
 | Generic importer/migration framework | Reject | One fixed input and one caller do not earn a shared abstraction | A second independently approved import format proves stable shared semantics |
 | New import-run table | Defer | Deterministic IDs, audits, and reconstructable safe receipt satisfy this one batch without migration | Multiple batches require durable query/reconciliation history inside the product |
@@ -194,6 +199,5 @@ costs, contacts, URLs, or notes.
 - **Completion evidence:** exact plan counts and no-write snapshot; first/repeat
   apply counts; forced rollback; asset mismatch; all 40 admin images; customer
   empty/non-disclosure; focused/full checks and real browser inspection.
-- **Residual risk owner:** product owner decides overseas categories. Formal
-  import, merge, deploy, activation, and production cleanup remain separate
-  human gates.
+- **Residual risk owner:** formal import, merge, deploy, activation, and
+  production cleanup remain separate human gates.
