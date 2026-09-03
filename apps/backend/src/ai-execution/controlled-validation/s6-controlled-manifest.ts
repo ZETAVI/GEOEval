@@ -88,14 +88,71 @@ export type S6PublicControlledManifest = {
 };
 
 const FICTIONAL_BRAND: EvaluationBrandSnapshot = {
+  schemaVersion: "brand-evaluation-snapshot@3",
   companyName: "星河咖啡实验店",
-  primaryIndustry: "本地生活",
-  secondaryIndustry: "咖啡饮品",
-  characteristicOne: "安静办公空间",
-  characteristicTwo: "手冲咖啡",
-  province: "广东省",
-  city: "广州市",
-  district: "天河区",
+  industry: {
+    catalogId: "industry-catalog",
+    catalogVersion: "1.0.0",
+    primary: { id: "local-life", label: "本地生活" },
+    secondary: { id: "coffee", label: "咖啡饮品" },
+    otherProductOrService: null,
+    recommendationSubject: "咖啡饮品",
+  },
+  region: {
+    sourceReleaseId: "mca-administrative-divisions@2025-12-31",
+    province: { id: "CN-MCA-PROVINCE-440000", label: "广东省" },
+    city: {
+      id: "CN-MCA-PREFECTURE-440100",
+      label: "广州市",
+      identityKind: "OFFICIAL_DIVISION",
+      officialDivisionId: "CN-MCA-PREFECTURE-440100",
+    },
+    terminal: {
+      id: "CN-MCA-COUNTY-440106",
+      label: "天河区",
+      officialCode: "440106",
+      officialLevel: "COUNTY",
+    },
+    officialPath: [
+      {
+        id: "CN-MCA-PROVINCE-440000",
+        label: "广东省",
+        officialCode: "440000",
+        officialLevel: "PROVINCE",
+      },
+      {
+        id: "CN-MCA-PREFECTURE-440100",
+        label: "广州市",
+        officialCode: "440100",
+        officialLevel: "PREFECTURE",
+      },
+      {
+        id: "CN-MCA-COUNTY-440106",
+        label: "天河区",
+        officialCode: "440106",
+        officialLevel: "COUNTY",
+      },
+    ],
+  },
+  storeLocation: {
+    semanticFactId: "00000000-0000-4000-8000-000000000101",
+    placeName: "星河咖啡实验店",
+    formattedAddress: "广东省广州市天河区测试路1号",
+    coordinate: {
+      longitude: 113.32452,
+      latitude: 23.10647,
+      system: "GCJ_02",
+    },
+    queryLocality: { kind: "BUSINESS_AREA", label: "珠江新城" },
+    source: {
+      provider: "AMAP",
+      placeId: "fixture-place-101",
+      contractVersion: "fixture@1",
+      verifiedAt: "2026-09-03T00:00:00.000Z",
+    },
+  },
+  flagshipProductOrService: "精品手冲咖啡",
+  characteristics: ["安静办公空间", "手冲咖啡"],
 };
 
 const FIXED_QUESTIONS = [

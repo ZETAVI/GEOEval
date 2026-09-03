@@ -22,11 +22,11 @@ brand facts and fingerprint meaning.
   account-owned, evaluation-ready brand
 - **THEN** GEO Intelligence stores an immutable evaluation-purpose brand
   snapshot and the Brand Knowledge fingerprint
-- **AND** the versioned snapshot freezes industry IDs and labels, catalog
-  version, applicable `Other` phrase, actual recommendation subject, all three
-  selected region IDs and labels, terminal official identity and level,
-  official semantic path, and the region source release supplied by Brand
-  Knowledge
+- **AND** `brand-evaluation-snapshot@3` freezes industry IDs and labels,
+  catalog version, applicable `Other` phrase, recommendation subject, verified
+  Store Location display/provenance/GCJ-02 coordinate, its derived official-
+  region path, final Query locality, flagship product/service, and canonical
+  peer characteristics supplied by Brand Knowledge
 - **AND** stores one ordered brand-directed question, one industry question, and
   two characteristic questions
 - **AND** stores the fixed five-platform policy, question-generator identity,
@@ -46,16 +46,14 @@ brand facts and fingerprint meaning.
 - **AND** an unstarted definition whose fingerprint is no longer current cannot
   start an official run
 
-#### Scenario: An earlier snapshot is read after Brand reference activation
+#### Scenario: Query consumes the frozen Brand context
 
-- **WHEN** an existing Definition retains the original unversioned flat Brand
-  snapshot
-- **THEN** GEO Intelligence reads it through the central legacy/new compatibility
-  decoder
-- **AND** question generation, execution, synthesis, report projection, and
-  history keep using its frozen labels
-- **AND** GEO does not re-resolve that history through current Brand reference
-  data.
+- **WHEN** Query Generator #26 prepares question wording
+- **THEN** it receives a GEO-owned narrow projection containing the final
+  locality, flagship value, recommendation subject, and peer characteristics
+- **AND** coordinates, provider provenance, and exact address remain frozen
+  evidence rather than Prompt instructions
+- **AND** Query does not import Brand or Amap contracts.
 
 ### Requirement: Atomic official start
 

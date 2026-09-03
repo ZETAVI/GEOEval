@@ -164,134 +164,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/brands": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["BrandController_list"];
-        put?: never;
-        post: operations["BrandController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/brands/current": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["BrandController_current"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/brands/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["BrandController_update"];
-        trace?: never;
-    };
-    "/brands/{id}/current": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["BrandController_selectCurrent"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/brand-reference-data/industries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["BrandReferenceController_industries"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/brand-reference-data/regions/provinces": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["BrandReferenceController_provinces"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/brand-reference-data/regions/provinces/{provinceId}/cities": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["BrandReferenceController_cities"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/brand-reference-data/regions/provinces/{provinceId}/cities/{cityId}/terminals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["BrandReferenceController_terminals"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/brands/{brandId}/evaluation-report": {
         parameters: {
             query?: never;
@@ -660,6 +532,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BrandController_list"];
+        put?: never;
+        post: operations["BrandController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brands/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BrandController_current"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brands/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["BrandController_update"];
+        trace?: never;
+    };
+    "/brands/{id}/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["BrandController_selectCurrent"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brand-reference-data/industries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BrandReferenceController_industries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brand-location-verifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["StoreLocationVerificationController_verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -703,96 +671,6 @@ export interface components {
             mobile: string;
             /** @enum {string} */
             role: "TERMINAL_CUSTOMER" | "OPERATIONS" | "ADMINISTRATOR" | "AGENT";
-        };
-        BrandResponse: {
-            companyName?: string | null;
-            primaryIndustryId?: string | null;
-            secondaryIndustryId?: string | null;
-            otherProductOrService?: string | null;
-            characteristicOne?: string | null;
-            characteristicTwo?: string | null;
-            provinceRegionId?: string | null;
-            cityRegionId?: string | null;
-            terminalRegionId?: string | null;
-            contactName?: string | null;
-            contactMobile?: string | null;
-            id: string;
-            /** @enum {string} */
-            status: "ACTIVE" | "ARCHIVED";
-            primaryIndustryLabel?: string | null;
-            secondaryIndustryLabel?: string | null;
-            provinceRegionLabel?: string | null;
-            cityRegionLabel?: string | null;
-            terminalRegionLabel?: string | null;
-            /** @enum {string|null} */
-            terminalRegionLevel?: "COUNTY" | "TOWNSHIP" | null;
-            readyForEvaluation: boolean;
-            missingFields: string[];
-            isCurrent: boolean;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        BrandMutationRequest: {
-            companyName?: string | null;
-            primaryIndustryId?: string | null;
-            secondaryIndustryId?: string | null;
-            otherProductOrService?: string | null;
-            characteristicOne?: string | null;
-            characteristicTwo?: string | null;
-            provinceRegionId?: string | null;
-            cityRegionId?: string | null;
-            terminalRegionId?: string | null;
-            contactName?: string | null;
-            contactMobile?: string | null;
-        };
-        IndustrySecondaryOptionResponse: {
-            id: string;
-            label: string;
-            isOther: boolean;
-        };
-        IndustryPrimaryOptionResponse: {
-            id: string;
-            label: string;
-            secondaryIndustries: components["schemas"]["IndustrySecondaryOptionResponse"][];
-        };
-        IndustryCatalogResponse: {
-            catalogId: string;
-            version: string;
-            contentHash: string;
-            primaryIndustries: components["schemas"]["IndustryPrimaryOptionResponse"][];
-        };
-        RegionOptionResponse: {
-            id: string;
-            label: string;
-        };
-        RegionOptionListResponse: {
-            sourceReleaseId: string;
-            contentHash: string;
-            options: components["schemas"]["RegionOptionResponse"][];
-        };
-        CityRegionOptionResponse: {
-            id: string;
-            label: string;
-            /** @enum {string} */
-            identityKind: "OFFICIAL_DIVISION" | "MUNICIPALITY_REPEAT" | "PROVINCE_DIRECT_GROUP";
-        };
-        CityRegionOptionListResponse: {
-            sourceReleaseId: string;
-            contentHash: string;
-            options: components["schemas"]["CityRegionOptionResponse"][];
-        };
-        TerminalRegionOptionResponse: {
-            id: string;
-            label: string;
-            /** @enum {string} */
-            officialLevel: "COUNTY" | "TOWNSHIP";
-        };
-        TerminalRegionOptionListResponse: {
-            sourceReleaseId: string;
-            contentHash: string;
-            options: components["schemas"]["TerminalRegionOptionResponse"][];
         };
         EvaluationBrandSnapshotResponse: {
             companyName: string;
@@ -1297,6 +1175,125 @@ export interface components {
         NotificationReadAllResponse: {
             unreadCount: number;
         };
+        StoreLocationCoordinateResponse: {
+            longitude: number;
+            latitude: number;
+            /** @enum {string} */
+            system: "GCJ_02";
+        };
+        RegionLabelResponse: {
+            id: string;
+            label: string;
+        };
+        CityRegionResponse: {
+            id: string;
+            label: string;
+            /** @enum {string} */
+            identityKind: "OFFICIAL_DIVISION" | "MUNICIPALITY_REPEAT" | "PROVINCE_DIRECT_GROUP";
+            officialDivisionId?: string | null;
+        };
+        OfficialRegionNodeResponse: {
+            id: string;
+            label: string;
+            officialCode: string;
+            /** @enum {string} */
+            officialLevel: "PROVINCE" | "PREFECTURE" | "COUNTY" | "TOWNSHIP";
+        };
+        DerivedOfficialRegionResponse: {
+            sourceReleaseId: string;
+            province: components["schemas"]["RegionLabelResponse"];
+            city: components["schemas"]["CityRegionResponse"];
+            terminal: components["schemas"]["OfficialRegionNodeResponse"];
+            officialPath: components["schemas"]["OfficialRegionNodeResponse"][];
+        };
+        QueryLocalityResponse: {
+            /** @enum {string} */
+            kind: "BUSINESS_AREA" | "ADDRESS_LOCALITY";
+            label: string;
+        };
+        BrandStoreLocationResponse: {
+            placeName: string;
+            formattedAddress: string;
+            coordinate: components["schemas"]["StoreLocationCoordinateResponse"];
+            officialRegion: components["schemas"]["DerivedOfficialRegionResponse"];
+            queryLocality: components["schemas"]["QueryLocalityResponse"];
+            /** Format: date-time */
+            verifiedAt: string;
+        };
+        BrandResponse: {
+            id: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "ARCHIVED";
+            companyName: string;
+            primaryIndustryId?: string | null;
+            secondaryIndustryId?: string | null;
+            otherProductOrService?: string | null;
+            flagshipProductOrService?: string | null;
+            characteristics: string[];
+            contactName?: string | null;
+            contactMobile?: string | null;
+            primaryIndustryLabel?: string | null;
+            secondaryIndustryLabel?: string | null;
+            storeLocation?: components["schemas"]["BrandStoreLocationResponse"] | null;
+            readyForEvaluation: boolean;
+            missingFields: string[];
+            isCurrent: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        BrandLocationChangeRequest: {
+            /** @enum {string} */
+            action: "REMOVE" | "REPLACE";
+            verificationReceipt?: string;
+        };
+        BrandMutationRequest: {
+            companyName?: string | null;
+            primaryIndustryId?: string | null;
+            secondaryIndustryId?: string | null;
+            otherProductOrService?: string | null;
+            flagshipProductOrService?: string | null;
+            characteristics?: string[];
+            contactName?: string | null;
+            contactMobile?: string | null;
+            locationChange?: components["schemas"]["BrandLocationChangeRequest"];
+        };
+        IndustrySecondaryOptionResponse: {
+            id: string;
+            label: string;
+            isOther: boolean;
+        };
+        IndustryPrimaryOptionResponse: {
+            id: string;
+            label: string;
+            secondaryIndustries: components["schemas"]["IndustrySecondaryOptionResponse"][];
+        };
+        IndustryCatalogResponse: {
+            catalogId: string;
+            version: string;
+            contentHash: string;
+            primaryIndustries: components["schemas"]["IndustryPrimaryOptionResponse"][];
+        };
+        StoreLocationVerificationRequest: {
+            brandId?: string;
+            searchInput: string;
+            providerPlaceId: string;
+        };
+        StoreLocationPreviewResponse: {
+            placeName: string;
+            formattedAddress: string;
+            coordinate: components["schemas"]["StoreLocationCoordinateResponse"];
+            officialRegion: components["schemas"]["DerivedOfficialRegionResponse"];
+        };
+        StoreLocationVerificationResponse: {
+            targetBrandId: string;
+            verificationReceipt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            locationPreview: components["schemas"]["StoreLocationPreviewResponse"];
+            queryLocality: components["schemas"]["QueryLocalityResponse"];
+        };
     };
     responses: never;
     parameters: never;
@@ -1497,185 +1494,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    BrandController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BrandResponse"][];
-                };
-            };
-        };
-    };
-    BrandController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BrandMutationRequest"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BrandResponse"];
-                };
-            };
-        };
-    };
-    BrandController_current: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BrandResponse"] | null;
-                };
-            };
-        };
-    };
-    BrandController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BrandMutationRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BrandResponse"];
-                };
-            };
-        };
-    };
-    BrandController_selectCurrent: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BrandResponse"];
-                };
-            };
-        };
-    };
-    BrandReferenceController_industries: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IndustryCatalogResponse"];
-                };
-            };
-        };
-    };
-    BrandReferenceController_provinces: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RegionOptionListResponse"];
-                };
-            };
-        };
-    };
-    BrandReferenceController_cities: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CityRegionOptionListResponse"];
-                };
-            };
-        };
-    };
-    BrandReferenceController_terminals: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TerminalRegionOptionListResponse"];
-                };
             };
         };
     };
@@ -2297,6 +2115,151 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    BrandController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandResponse"][];
+                };
+            };
+        };
+    };
+    BrandController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BrandMutationRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandResponse"];
+                };
+            };
+        };
+    };
+    BrandController_current: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandResponse"] | null;
+                };
+            };
+        };
+    };
+    BrandController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BrandMutationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandResponse"];
+                };
+            };
+        };
+    };
+    BrandController_selectCurrent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandResponse"];
+                };
+            };
+        };
+    };
+    BrandReferenceController_industries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndustryCatalogResponse"];
+                };
+            };
+        };
+    };
+    StoreLocationVerificationController_verify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreLocationVerificationRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreLocationVerificationResponse"];
+                };
             };
         };
     };

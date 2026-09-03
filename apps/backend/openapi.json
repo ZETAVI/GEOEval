@@ -221,221 +221,6 @@
         ]
       }
     },
-    "/brands": {
-      "get": {
-        "operationId": "BrandController_list",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BrandResponse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "brands"
-        ]
-      },
-      "post": {
-        "operationId": "BrandController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BrandMutationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BrandResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "brands"
-        ]
-      }
-    },
-    "/brands/current": {
-      "get": {
-        "operationId": "BrandController_current",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "nullable": true,
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/BrandResponse"
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "brands"
-        ]
-      }
-    },
-    "/brands/{id}": {
-      "patch": {
-        "operationId": "BrandController_update",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BrandMutationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BrandResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "brands"
-        ]
-      }
-    },
-    "/brands/{id}/current": {
-      "put": {
-        "operationId": "BrandController_selectCurrent",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BrandResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "brands"
-        ]
-      }
-    },
-    "/brand-reference-data/industries": {
-      "get": {
-        "operationId": "BrandReferenceController_industries",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IndustryCatalogResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "brand-reference-data"
-        ]
-      }
-    },
-    "/brand-reference-data/regions/provinces": {
-      "get": {
-        "operationId": "BrandReferenceController_provinces",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegionOptionListResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "brand-reference-data"
-        ]
-      }
-    },
-    "/brand-reference-data/regions/provinces/{provinceId}/cities": {
-      "get": {
-        "operationId": "BrandReferenceController_cities",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CityRegionOptionListResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "brand-reference-data"
-        ]
-      }
-    },
-    "/brand-reference-data/regions/provinces/{provinceId}/cities/{cityId}/terminals": {
-      "get": {
-        "operationId": "BrandReferenceController_terminals",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TerminalRegionOptionListResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "brand-reference-data"
-        ]
-      }
-    },
     "/brands/{brandId}/evaluation-report": {
       "get": {
         "operationId": "EvaluationController_currentReport",
@@ -1238,6 +1023,189 @@
           "notifications"
         ]
       }
+    },
+    "/brands": {
+      "get": {
+        "operationId": "BrandController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BrandResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      },
+      "post": {
+        "operationId": "BrandController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrandMutationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      }
+    },
+    "/brands/current": {
+      "get": {
+        "operationId": "BrandController_current",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "nullable": true,
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BrandResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      }
+    },
+    "/brands/{id}": {
+      "patch": {
+        "operationId": "BrandController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrandMutationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      }
+    },
+    "/brands/{id}/current": {
+      "put": {
+        "operationId": "BrandController_selectCurrent",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      }
+    },
+    "/brand-reference-data/industries": {
+      "get": {
+        "operationId": "BrandReferenceController_industries",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndustryCatalogResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brand-reference-data"
+        ]
+      }
+    },
+    "/brand-location-verifications": {
+      "post": {
+        "operationId": "StoreLocationVerificationController_verify",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreLocationVerificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreLocationVerificationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "brands"
+        ]
+      }
     }
   },
   "info": {
@@ -1393,368 +1361,6 @@
           "id",
           "mobile",
           "role"
-        ]
-      },
-      "BrandResponse": {
-        "type": "object",
-        "properties": {
-          "companyName": {
-            "type": "string",
-            "nullable": true
-          },
-          "primaryIndustryId": {
-            "type": "string",
-            "nullable": true
-          },
-          "secondaryIndustryId": {
-            "type": "string",
-            "nullable": true
-          },
-          "otherProductOrService": {
-            "type": "string",
-            "nullable": true,
-            "maxLength": 60
-          },
-          "characteristicOne": {
-            "type": "string",
-            "nullable": true
-          },
-          "characteristicTwo": {
-            "type": "string",
-            "nullable": true
-          },
-          "provinceRegionId": {
-            "type": "string",
-            "nullable": true
-          },
-          "cityRegionId": {
-            "type": "string",
-            "nullable": true
-          },
-          "terminalRegionId": {
-            "type": "string",
-            "nullable": true
-          },
-          "contactName": {
-            "type": "string",
-            "nullable": true
-          },
-          "contactMobile": {
-            "type": "string",
-            "nullable": true
-          },
-          "id": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "ARCHIVED"
-            ]
-          },
-          "primaryIndustryLabel": {
-            "type": "string",
-            "nullable": true
-          },
-          "secondaryIndustryLabel": {
-            "type": "string",
-            "nullable": true
-          },
-          "provinceRegionLabel": {
-            "type": "string",
-            "nullable": true
-          },
-          "cityRegionLabel": {
-            "type": "string",
-            "nullable": true
-          },
-          "terminalRegionLabel": {
-            "type": "string",
-            "nullable": true
-          },
-          "terminalRegionLevel": {
-            "type": "string",
-            "nullable": true,
-            "enum": [
-              "COUNTY",
-              "TOWNSHIP"
-            ]
-          },
-          "readyForEvaluation": {
-            "type": "boolean"
-          },
-          "missingFields": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "isCurrent": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "status",
-          "readyForEvaluation",
-          "missingFields",
-          "isCurrent",
-          "createdAt",
-          "updatedAt"
-        ]
-      },
-      "BrandMutationRequest": {
-        "type": "object",
-        "properties": {
-          "companyName": {
-            "type": "string",
-            "nullable": true
-          },
-          "primaryIndustryId": {
-            "type": "string",
-            "nullable": true
-          },
-          "secondaryIndustryId": {
-            "type": "string",
-            "nullable": true
-          },
-          "otherProductOrService": {
-            "type": "string",
-            "nullable": true,
-            "maxLength": 60
-          },
-          "characteristicOne": {
-            "type": "string",
-            "nullable": true
-          },
-          "characteristicTwo": {
-            "type": "string",
-            "nullable": true
-          },
-          "provinceRegionId": {
-            "type": "string",
-            "nullable": true
-          },
-          "cityRegionId": {
-            "type": "string",
-            "nullable": true
-          },
-          "terminalRegionId": {
-            "type": "string",
-            "nullable": true
-          },
-          "contactName": {
-            "type": "string",
-            "nullable": true
-          },
-          "contactMobile": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "IndustrySecondaryOptionResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "isOther": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "id",
-          "label",
-          "isOther"
-        ]
-      },
-      "IndustryPrimaryOptionResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "secondaryIndustries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IndustrySecondaryOptionResponse"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "label",
-          "secondaryIndustries"
-        ]
-      },
-      "IndustryCatalogResponse": {
-        "type": "object",
-        "properties": {
-          "catalogId": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          },
-          "contentHash": {
-            "type": "string"
-          },
-          "primaryIndustries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IndustryPrimaryOptionResponse"
-            }
-          }
-        },
-        "required": [
-          "catalogId",
-          "version",
-          "contentHash",
-          "primaryIndustries"
-        ]
-      },
-      "RegionOptionResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "label"
-        ]
-      },
-      "RegionOptionListResponse": {
-        "type": "object",
-        "properties": {
-          "sourceReleaseId": {
-            "type": "string"
-          },
-          "contentHash": {
-            "type": "string"
-          },
-          "options": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RegionOptionResponse"
-            }
-          }
-        },
-        "required": [
-          "sourceReleaseId",
-          "contentHash",
-          "options"
-        ]
-      },
-      "CityRegionOptionResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "identityKind": {
-            "type": "string",
-            "enum": [
-              "OFFICIAL_DIVISION",
-              "MUNICIPALITY_REPEAT",
-              "PROVINCE_DIRECT_GROUP"
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "label",
-          "identityKind"
-        ]
-      },
-      "CityRegionOptionListResponse": {
-        "type": "object",
-        "properties": {
-          "sourceReleaseId": {
-            "type": "string"
-          },
-          "contentHash": {
-            "type": "string"
-          },
-          "options": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CityRegionOptionResponse"
-            }
-          }
-        },
-        "required": [
-          "sourceReleaseId",
-          "contentHash",
-          "options"
-        ]
-      },
-      "TerminalRegionOptionResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "officialLevel": {
-            "type": "string",
-            "enum": [
-              "COUNTY",
-              "TOWNSHIP"
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "label",
-          "officialLevel"
-        ]
-      },
-      "TerminalRegionOptionListResponse": {
-        "type": "object",
-        "properties": {
-          "sourceReleaseId": {
-            "type": "string"
-          },
-          "contentHash": {
-            "type": "string"
-          },
-          "options": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TerminalRegionOptionResponse"
-            }
-          }
-        },
-        "required": [
-          "sourceReleaseId",
-          "contentHash",
-          "options"
         ]
       },
       "EvaluationBrandSnapshotResponse": {
@@ -3689,6 +3295,481 @@
         },
         "required": [
           "unreadCount"
+        ]
+      },
+      "StoreLocationCoordinateResponse": {
+        "type": "object",
+        "properties": {
+          "longitude": {
+            "type": "number"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "system": {
+            "type": "string",
+            "enum": [
+              "GCJ_02"
+            ]
+          }
+        },
+        "required": [
+          "longitude",
+          "latitude",
+          "system"
+        ]
+      },
+      "RegionLabelResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ]
+      },
+      "CityRegionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "identityKind": {
+            "type": "string",
+            "enum": [
+              "OFFICIAL_DIVISION",
+              "MUNICIPALITY_REPEAT",
+              "PROVINCE_DIRECT_GROUP"
+            ]
+          },
+          "officialDivisionId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "identityKind"
+        ]
+      },
+      "OfficialRegionNodeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "officialCode": {
+            "type": "string"
+          },
+          "officialLevel": {
+            "type": "string",
+            "enum": [
+              "PROVINCE",
+              "PREFECTURE",
+              "COUNTY",
+              "TOWNSHIP"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "officialCode",
+          "officialLevel"
+        ]
+      },
+      "DerivedOfficialRegionResponse": {
+        "type": "object",
+        "properties": {
+          "sourceReleaseId": {
+            "type": "string"
+          },
+          "province": {
+            "$ref": "#/components/schemas/RegionLabelResponse"
+          },
+          "city": {
+            "$ref": "#/components/schemas/CityRegionResponse"
+          },
+          "terminal": {
+            "$ref": "#/components/schemas/OfficialRegionNodeResponse"
+          },
+          "officialPath": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OfficialRegionNodeResponse"
+            }
+          }
+        },
+        "required": [
+          "sourceReleaseId",
+          "province",
+          "city",
+          "terminal",
+          "officialPath"
+        ]
+      },
+      "QueryLocalityResponse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "BUSINESS_AREA",
+              "ADDRESS_LOCALITY"
+            ]
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "label"
+        ]
+      },
+      "BrandStoreLocationResponse": {
+        "type": "object",
+        "properties": {
+          "placeName": {
+            "type": "string"
+          },
+          "formattedAddress": {
+            "type": "string"
+          },
+          "coordinate": {
+            "$ref": "#/components/schemas/StoreLocationCoordinateResponse"
+          },
+          "officialRegion": {
+            "$ref": "#/components/schemas/DerivedOfficialRegionResponse"
+          },
+          "queryLocality": {
+            "$ref": "#/components/schemas/QueryLocalityResponse"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "placeName",
+          "formattedAddress",
+          "coordinate",
+          "officialRegion",
+          "queryLocality",
+          "verifiedAt"
+        ]
+      },
+      "BrandResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "ARCHIVED"
+            ]
+          },
+          "companyName": {
+            "type": "string"
+          },
+          "primaryIndustryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "secondaryIndustryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "otherProductOrService": {
+            "type": "string",
+            "nullable": true
+          },
+          "flagshipProductOrService": {
+            "type": "string",
+            "nullable": true
+          },
+          "characteristics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactMobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryIndustryLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "secondaryIndustryLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "storeLocation": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BrandStoreLocationResponse"
+              }
+            ]
+          },
+          "readyForEvaluation": {
+            "type": "boolean"
+          },
+          "missingFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isCurrent": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "companyName",
+          "characteristics",
+          "readyForEvaluation",
+          "missingFields",
+          "isCurrent",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "BrandLocationChangeRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "REMOVE",
+              "REPLACE"
+            ]
+          },
+          "verificationReceipt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "BrandMutationRequest": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryIndustryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "secondaryIndustryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "otherProductOrService": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 60
+          },
+          "flagshipProductOrService": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "characteristics": {
+            "minItems": 2,
+            "maxItems": 6,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactMobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationChange": {
+            "$ref": "#/components/schemas/BrandLocationChangeRequest"
+          }
+        }
+      },
+      "IndustrySecondaryOptionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "isOther": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "isOther"
+        ]
+      },
+      "IndustryPrimaryOptionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "secondaryIndustries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IndustrySecondaryOptionResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "secondaryIndustries"
+        ]
+      },
+      "IndustryCatalogResponse": {
+        "type": "object",
+        "properties": {
+          "catalogId": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "primaryIndustries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IndustryPrimaryOptionResponse"
+            }
+          }
+        },
+        "required": [
+          "catalogId",
+          "version",
+          "contentHash",
+          "primaryIndustries"
+        ]
+      },
+      "StoreLocationVerificationRequest": {
+        "type": "object",
+        "properties": {
+          "brandId": {
+            "type": "string"
+          },
+          "searchInput": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 200
+          },
+          "providerPlaceId": {
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "searchInput",
+          "providerPlaceId"
+        ]
+      },
+      "StoreLocationPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "placeName": {
+            "type": "string"
+          },
+          "formattedAddress": {
+            "type": "string"
+          },
+          "coordinate": {
+            "$ref": "#/components/schemas/StoreLocationCoordinateResponse"
+          },
+          "officialRegion": {
+            "$ref": "#/components/schemas/DerivedOfficialRegionResponse"
+          }
+        },
+        "required": [
+          "placeName",
+          "formattedAddress",
+          "coordinate",
+          "officialRegion"
+        ]
+      },
+      "StoreLocationVerificationResponse": {
+        "type": "object",
+        "properties": {
+          "targetBrandId": {
+            "type": "string"
+          },
+          "verificationReceipt": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "locationPreview": {
+            "$ref": "#/components/schemas/StoreLocationPreviewResponse"
+          },
+          "queryLocality": {
+            "$ref": "#/components/schemas/QueryLocalityResponse"
+          }
+        },
+        "required": [
+          "targetBrandId",
+          "verificationReceipt",
+          "expiresAt",
+          "locationPreview",
+          "queryLocality"
         ]
       }
     }

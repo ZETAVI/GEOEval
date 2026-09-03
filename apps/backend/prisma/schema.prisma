@@ -30,6 +30,15 @@ enum BrandStatus {
   ARCHIVED
 }
 
+enum BrandStoreLocationProvider {
+  AMAP
+}
+
+enum BrandQueryLocalityKind {
+  BUSINESS_AREA
+  ADDRESS_LOCALITY
+}
+
 enum EvaluationQuestionKind {
   BRAND_DIRECTED
   INDUSTRY_RECOMMENDATION
@@ -182,11 +191,8 @@ model BrandProfile {
   primaryIndustryId      String?                @map("primary_industry_id") @db.VarChar(100)
   secondaryIndustryId    String?                @map("secondary_industry_id") @db.VarChar(100)
   otherProductOrService  String?                @map("other_product_or_service") @db.VarChar(60)
-  characteristicOne      String?                @map("characteristic_one")
-  characteristicTwo      String?                @map("characteristic_two")
-  provinceRegionId       String?                @map("province_region_id") @db.VarChar(100)
-  cityRegionId           String?                @map("city_region_id") @db.VarChar(100)
-  terminalRegionId       String?                @map("terminal_region_id") @db.VarChar(100)
+  flagshipProductOrService String?              @map("flagship_product_or_service") @db.VarChar(80)
+  characteristics        Json                   @default("[]")
   contactName            String?                @map("contact_name")
   contactMobile          String?                @map("contact_mobile") @db.VarChar(20)
   evaluationFingerprint  String                 @map("evaluation_fingerprint") @db.Char(64)
@@ -195,10 +201,50 @@ model BrandProfile {
   account                Account                @relation(fields: [accountId], references: [id], onDelete: Restrict)
   selectedByBrandContext BrandContext?          @relation("CurrentBrand")
   evaluationDefinitions  EvaluationDefinition[] @relation("BrandEvaluationDefinitions")
+  storeLocation          BrandStoreLocation?
 
   @@unique([id, accountId])
   @@index([accountId, status, updatedAt])
   @@map("brand_profiles")
+}
+
+model BrandStoreLocation {
+  id                            String                     @id @default(uuid()) @db.Uuid
+  brandId                       String                     @unique @map("brand_id") @db.Uuid
+  accountId                     String                     @map("account_id") @db.Uuid
+  semanticFactId                String                     @map("semantic_fact_id") @db.Uuid
+  verificationId                String                     @unique @map("verification_id") @db.Uuid
+  receiptIssuedAt               DateTime                   @map("receipt_issued_at")
+  searchInput                   String                     @map("search_input") @db.VarChar(200)
+  provider                      BrandStoreLocationProvider
+  providerPlaceId               String                     @map("provider_place_id") @db.VarChar(120)
+  providerContractVersion       String                     @map("provider_contract_version") @db.VarChar(100)
+  verifiedAt                    DateTime                   @map("verified_at")
+  placeName                     String                     @map("place_name") @db.VarChar(240)
+  formattedAddress              String                     @map("formatted_address") @db.VarChar(500)
+  provinceName                  String                     @map("province_name") @db.VarChar(100)
+  cityName                      String?                    @map("city_name") @db.VarChar(100)
+  districtName                  String?                    @map("district_name") @db.VarChar(100)
+  townshipName                  String?                    @map("township_name") @db.VarChar(100)
+  providerAdcode                String                     @map("provider_adcode") @db.VarChar(12)
+  providerTowncode              String?                    @map("provider_towncode") @db.VarChar(16)
+  officialProvinceRegionId      String                     @map("official_province_region_id") @db.VarChar(100)
+  officialCityRegionId          String                     @map("official_city_region_id") @db.VarChar(100)
+  officialTerminalRegionId      String                     @map("official_terminal_region_id") @db.VarChar(100)
+  officialRegionPath            Json                       @map("official_region_path")
+  officialRegionSourceReleaseId String                     @map("official_region_source_release_id") @db.VarChar(100)
+  longitude                     Decimal                    @db.Decimal(9, 6)
+  latitude                      Decimal                    @db.Decimal(9, 6)
+  coordinateSystem              String                     @map("coordinate_system") @db.VarChar(20)
+  queryLocalityKind             BrandQueryLocalityKind     @map("query_locality_kind")
+  queryLocalityLabel            String                     @map("query_locality_label") @db.VarChar(240)
+  createdAt                     DateTime                   @default(now()) @map("created_at")
+  updatedAt                     DateTime                   @updatedAt @map("updated_at")
+  brand                         BrandProfile               @relation(fields: [brandId, accountId], references: [id, accountId], onDelete: Cascade)
+
+  @@unique([brandId, accountId])
+  @@index([accountId])
+  @@map("brand_store_locations")
 }
 
 model BrandContext {

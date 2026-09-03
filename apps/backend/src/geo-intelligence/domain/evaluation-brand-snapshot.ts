@@ -7,8 +7,27 @@ const officialRegionSchema = z.object({
   officialLevel: z.enum(["PROVINCE", "PREFECTURE", "COUNTY", "TOWNSHIP"]),
 });
 
-export const evaluationBrandSnapshotV2Schema = z.object({
-  schemaVersion: z.literal("brand-evaluation-snapshot@2"),
+const derivedRegionSchema = z.object({
+  sourceReleaseId: z.string().min(1),
+  province: z.object({ id: z.string().min(1), label: z.string().min(1) }),
+  city: z.object({
+    id: z.string().min(1),
+    label: z.string().min(1),
+    identityKind: z.enum([
+      "OFFICIAL_DIVISION",
+      "MUNICIPALITY_REPEAT",
+      "PROVINCE_DIRECT_GROUP",
+    ]),
+    officialDivisionId: z.string().min(1).nullable(),
+  }),
+  terminal: officialRegionSchema.extend({
+    officialLevel: z.enum(["COUNTY", "TOWNSHIP"]),
+  }),
+  officialPath: z.array(officialRegionSchema).min(2).max(3),
+});
+
+export const evaluationBrandSnapshotV3Schema = z.object({
+  schemaVersion: z.literal("brand-evaluation-snapshot@3"),
   companyName: z.string().min(1),
   industry: z.object({
     catalogId: z.string().min(1),
@@ -18,47 +37,35 @@ export const evaluationBrandSnapshotV2Schema = z.object({
     otherProductOrService: z.string().min(1).nullable(),
     recommendationSubject: z.string().min(1),
   }),
-  region: z.object({
-    sourceReleaseId: z.string().min(1),
-    province: z.object({ id: z.string().min(1), label: z.string().min(1) }),
-    city: z.object({
-      id: z.string().min(1),
+  region: derivedRegionSchema,
+  storeLocation: z.object({
+    semanticFactId: z.string().uuid(),
+    placeName: z.string().min(1),
+    formattedAddress: z.string().min(1),
+    coordinate: z.object({
+      longitude: z.number().min(-180).max(180),
+      latitude: z.number().min(-90).max(90),
+      system: z.literal("GCJ_02"),
+    }),
+    queryLocality: z.object({
+      kind: z.enum(["BUSINESS_AREA", "ADDRESS_LOCALITY"]),
       label: z.string().min(1),
-      identityKind: z.enum([
-        "OFFICIAL_DIVISION",
-        "MUNICIPALITY_REPEAT",
-        "PROVINCE_DIRECT_GROUP",
-      ]),
-      officialDivisionId: z.string().min(1).nullable(),
     }),
-    terminal: officialRegionSchema.extend({
-      officialLevel: z.enum(["COUNTY", "TOWNSHIP"]),
+    source: z.object({
+      provider: z.literal("AMAP"),
+      placeId: z.string().min(1),
+      contractVersion: z.string().min(1),
+      verifiedAt: z.string().datetime(),
     }),
-    officialPath: z.array(officialRegionSchema).min(2).max(3),
   }),
-  characteristicOne: z.string().min(1),
-  characteristicTwo: z.string().min(1),
+  flagshipProductOrService: z.string().min(2).max(80),
+  characteristics: z.array(z.string().min(2).max(120)).min(2).max(6),
 });
 
-export const legacyEvaluationBrandSnapshotSchema = z.object({
-  companyName: z.string().min(1),
-  primaryIndustry: z.string(),
-  secondaryIndustry: z.string(),
-  characteristicOne: z.string(),
-  characteristicTwo: z.string(),
-  province: z.string(),
-  city: z.string(),
-  district: z.string(),
-});
-
-export type EvaluationBrandSnapshotV2 = z.infer<
-  typeof evaluationBrandSnapshotV2Schema
+export type EvaluationBrandSnapshotV3 = z.infer<
+  typeof evaluationBrandSnapshotV3Schema
 >;
-export type LegacyEvaluationBrandSnapshot = z.infer<
-  typeof legacyEvaluationBrandSnapshotSchema
->;
-export type EvaluationBrandSnapshot =
-  EvaluationBrandSnapshotV2 | LegacyEvaluationBrandSnapshot;
+export type EvaluationBrandSnapshot = EvaluationBrandSnapshotV3;
 
 export type EvaluationBrandTextContext = {
   companyName: string;
@@ -72,41 +79,51 @@ export type EvaluationBrandTextContext = {
   terminalRegion: string;
 };
 
+export type EvaluationBrandQueryContext = {
+  companyName: string;
+  recommendationSubject: string;
+  locality: { kind: "BUSINESS_AREA" | "ADDRESS_LOCALITY"; label: string };
+  flagshipProductOrService: string;
+  characteristics: string[];
+};
+
 export function parseEvaluationBrandSnapshot(
   value: unknown,
 ): EvaluationBrandSnapshot {
-  const v2 = evaluationBrandSnapshotV2Schema.safeParse(value);
-  if (v2.success) return v2.data;
-  return legacyEvaluationBrandSnapshotSchema.parse(value);
+  return evaluationBrandSnapshotV3Schema.parse(value);
 }
 
+/**
+ * Projection retained for the current Parser, Synthesis, report and pre-#26
+ * deterministic question behavior. The characteristics are peers; their
+ * canonical sort supplies stable compatibility slots without implying priority.
+ */
 export function evaluationBrandTextContext(
   snapshot: EvaluationBrandSnapshot,
 ): EvaluationBrandTextContext {
-  if ("schemaVersion" in snapshot) {
-    return {
-      companyName: snapshot.companyName,
-      primaryIndustry: snapshot.industry.primary.label,
-      secondaryIndustry: snapshot.industry.secondary.label,
-      recommendationSubject: snapshot.industry.recommendationSubject,
-      characteristicOne: snapshot.characteristicOne,
-      characteristicTwo: snapshot.characteristicTwo,
-      province: snapshot.region.province.label,
-      city: snapshot.region.city.label,
-      terminalRegion: snapshot.region.terminal.label,
-    };
-  }
   return {
     companyName: snapshot.companyName,
-    primaryIndustry: snapshot.primaryIndustry,
-    secondaryIndustry: snapshot.secondaryIndustry,
-    recommendationSubject:
-      snapshot.secondaryIndustry || snapshot.primaryIndustry,
-    characteristicOne: snapshot.characteristicOne,
-    characteristicTwo: snapshot.characteristicTwo,
-    province: snapshot.province,
-    city: snapshot.city,
-    terminalRegion: snapshot.district,
+    primaryIndustry: snapshot.industry.primary.label,
+    secondaryIndustry: snapshot.industry.secondary.label,
+    recommendationSubject: snapshot.industry.recommendationSubject,
+    characteristicOne: snapshot.characteristics[0]!,
+    characteristicTwo: snapshot.characteristics[1]!,
+    province: snapshot.region.province.label,
+    city: snapshot.region.city.label,
+    terminalRegion: snapshot.region.terminal.label,
+  };
+}
+
+/** Narrow immutable handoff owned by GEO Intelligence for Query Generator #26. */
+export function evaluationBrandQueryContext(
+  snapshot: EvaluationBrandSnapshot,
+): EvaluationBrandQueryContext {
+  return {
+    companyName: snapshot.companyName,
+    recommendationSubject: snapshot.industry.recommendationSubject,
+    locality: snapshot.storeLocation.queryLocality,
+    flagshipProductOrService: snapshot.flagshipProductOrService,
+    characteristics: [...snapshot.characteristics],
   };
 }
 

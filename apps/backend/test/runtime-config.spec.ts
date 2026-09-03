@@ -42,6 +42,46 @@ describe("process-scoped configuration", () => {
     ).toThrow("forbidden in production");
   });
 
+  it("keeps Store Location conditional and rejects unsafe activation", () => {
+    const apiBase = {
+      NODE_ENV: "test",
+      DATABASE_URL: "postgresql://example/api",
+      AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+      AUTH_DETERMINISTIC_CODE: "246810",
+      STORE_LOCATION_RECEIPT_SIGNING_SECRET:
+        "test-store-location-receipt-secret-2026",
+    };
+    expect(
+      loadApiConfig({
+        ...apiBase,
+        STORE_LOCATION_MODE: "deterministic",
+      }).storeLocation,
+    ).toMatchObject({ mode: "deterministic", receiptTtlSeconds: 900 });
+    expect(() =>
+      loadApiConfig({
+        ...apiBase,
+        STORE_LOCATION_MODE: "amap",
+        AMAP_WEB_SERVICE_KEY: "",
+      }),
+    ).toThrow("AMAP_WEB_SERVICE_KEY is required");
+    expect(() =>
+      loadApiConfig({
+        ...apiBase,
+        NODE_ENV: "production",
+        STORE_LOCATION_MODE: "deterministic",
+      }),
+    ).toThrow("Deterministic Store Location provider is forbidden");
+    expect(() =>
+      loadApiConfig({
+        ...apiBase,
+        NODE_ENV: "production",
+        STORE_LOCATION_MODE: "amap",
+        AMAP_WEB_SERVICE_KEY: "fixture-server-key",
+        AMAP_WEB_SERVICE_BASE_URL: "http://restapi.amap.test",
+      }),
+    ).toThrow("must use HTTPS");
+  });
+
   it("rejects deterministic AI execution in a production worker", () => {
     expect(() =>
       loadWorkerConfig({

@@ -22,7 +22,7 @@ import {
 import { SessionGuard } from "../../identity/presentation/session.guard.js";
 import type { AuthenticatedRequest } from "../../identity/presentation/session-http.js";
 import { BrandService } from "../application/brand.service.js";
-import type { BrandView } from "../domain/brand.types.js";
+import type { BrandMutationInput, BrandView } from "../domain/brand.types.js";
 import { BrandMutationRequest, BrandResponse } from "./brand.dto.js";
 
 @ApiTags("brands")
@@ -62,7 +62,11 @@ export class BrandController {
     @Body() input: BrandMutationRequest,
   ): Promise<BrandResponse> {
     return this.brands
-      .create(request.geoevalAccount!.id, input, request.geoevalAccount!.mobile)
+      .create(
+        request.geoevalAccount!.id,
+        input as BrandMutationInput,
+        request.geoevalAccount!.mobile,
+      )
       .then(presentBrand);
   }
 
@@ -75,7 +79,7 @@ export class BrandController {
     @Body() input: BrandMutationRequest,
   ): Promise<BrandResponse> {
     return this.brands
-      .update(request.geoevalAccount!.id, id, input)
+      .update(request.geoevalAccount!.id, id, input as BrandMutationInput)
       .then(presentBrand);
   }
 
@@ -99,19 +103,22 @@ function presentBrand(brand: BrandView): BrandResponse {
     primaryIndustryId: brand.primaryIndustryId,
     secondaryIndustryId: brand.secondaryIndustryId,
     otherProductOrService: brand.otherProductOrService,
-    characteristicOne: brand.characteristicOne,
-    characteristicTwo: brand.characteristicTwo,
-    provinceRegionId: brand.provinceRegionId,
-    cityRegionId: brand.cityRegionId,
-    terminalRegionId: brand.terminalRegionId,
+    flagshipProductOrService: brand.flagshipProductOrService,
+    characteristics: brand.characteristics,
     contactName: brand.contactName,
     contactMobile: brand.contactMobile,
     primaryIndustryLabel: brand.primaryIndustryLabel,
     secondaryIndustryLabel: brand.secondaryIndustryLabel,
-    provinceRegionLabel: brand.provinceRegionLabel,
-    cityRegionLabel: brand.cityRegionLabel,
-    terminalRegionLabel: brand.terminalRegionLabel,
-    terminalRegionLevel: brand.terminalRegionLevel,
+    storeLocation: brand.storeLocation
+      ? {
+          placeName: brand.storeLocation.placeName,
+          formattedAddress: brand.storeLocation.formattedAddress,
+          coordinate: brand.storeLocation.coordinate,
+          officialRegion: brand.storeLocation.officialRegion,
+          queryLocality: brand.storeLocation.queryLocality,
+          verifiedAt: brand.storeLocation.verifiedAt,
+        }
+      : null,
     readyForEvaluation: brand.readyForEvaluation,
     missingFields: brand.missingFields,
     isCurrent: brand.isCurrent,

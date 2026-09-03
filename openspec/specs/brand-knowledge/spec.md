@@ -3,8 +3,9 @@
 ## Purpose
 
 Define the current Brand-owned rules for editable customer facts, controlled
-industry and mainland-region selections, evaluation readiness, semantic
-fingerprints, and the immutable projection consumed by GEO Intelligence.
+industry selection, one verified Store Location, derived official-region
+meaning, readiness, semantic fingerprints, and the immutable projection
+consumed by GEO Intelligence.
 
 ## Requirements
 
@@ -12,7 +13,7 @@ fingerprints, and the immutable projection consumed by GEO Intelligence.
 
 Brand Knowledge SHALL own one executable industry source and one independently
 maintained administrative-region source. They SHALL NOT be presented as one
-generic catalog engine.
+generic catalog engine or as two customer-editable location standards.
 
 #### Scenario: The approved industry catalog is active
 
@@ -26,14 +27,14 @@ generic catalog engine.
 
 #### Scenario: A maintained region release is active
 
-- **WHEN** the application uses a reviewed official administrative-region
-  publication
+- **WHEN** the application maps verified Store Location evidence through a
+  reviewed official administrative-region publication
 - **THEN** the snapshot records its authority, effective date, access time,
   source hashes, official identities, levels, and parent relationships
 - **AND** runtime reads the checked offline snapshot rather than a government
   endpoint
-- **AND** region maintenance does not inherit industry versioning,
-  recommendation-subject, or `Other` semantics.
+- **AND** customers and Agents cannot select or override a separate official
+  province, city, or terminal path.
 
 ### Requirement: Controlled dependent industry selection
 
@@ -43,7 +44,7 @@ primary-secondary path and SHALL enforce the selected primary's `Other` rule.
 #### Scenario: A customer selects an industry
 
 - **WHEN** a primary industry is chosen
-- **THEN** the Web offers only active secondary choices under that primary
+- **THEN** Web offers only active secondary choices under that primary
 - **AND** changing the primary clears the secondary and stale `Other` phrase
 - **AND** the client submits both stable identities
 - **AND** the server verifies their parent-child relationship before one atomic
@@ -54,13 +55,11 @@ primary-secondary path and SHALL enforce the selected primary's `Other` rule.
 - **WHEN** the selected secondary is its primary's maintained `Other` node
 - **THEN** the dropdown displays the concise label `其他` while retaining the
   category's stable identity and full catalog meaning
-- **AND** the secondary field becomes one fused select-and-input control rather
-  than adding another field below it
-- **AND** a concrete product-or-service phrase of 2-60 normalized characters
-  is required before evaluation readiness
+- **AND** the secondary field becomes one fused select-and-input control
+- **AND** a concrete product-or-service phrase of 2-60 normalized characters is
+  required before evaluation readiness
 - **AND** exact generic values `其他` and `其它` are rejected
-- **AND** the normalized phrase is Brand data used by the fingerprint and new
-  evaluation snapshots
+- **AND** the normalized phrase participates in the fingerprint and v3 snapshot
 - **BUT WHEN** the selected secondary is not `Other`
 - **THEN** no stale phrase can affect readiness, fingerprint, or Query context.
 
@@ -70,160 +69,247 @@ primary-secondary path and SHALL enforce the selected primary's `Other` rule.
 - **THEN** the mutation fails with a customer-actionable selection message
 - **AND** no partial Brand selection is stored.
 
-### Requirement: Controlled three-level mainland region selection
+### Requirement: One verified Store Location
 
-Brand Knowledge SHALL let a customer select one official terminal mainland
-administrative division through a province-city-terminal interaction over the
-official variable-depth tree.
+Brand Knowledge SHALL own at most one current Store Location for a Brand and
+SHALL allow only a server-verified, customer-confirmed location to participate
+in readiness, fingerprinting, or evaluation projection.
 
-#### Scenario: A customer selects an ordinary region
+#### Scenario: A customer searches for a concrete store
 
-- **WHEN** a province contains an ordinary prefecture and county or district
-- **THEN** the Web presents province, prefecture, and terminal choices in
-  dependency order
-- **AND** Brand persists all three selected identities
-- **AND** the server validates the complete parent-child path.
+- **GIVEN** an authenticated customer is creating or editing a Brand
+- **WHEN** the customer submits a specific store name plus city, landmark, or
+  address text
+- **THEN** Web loads a Beijing-centered Amap map, keeps typing local until an
+  explicit search action, then delegates the full-address result panel, POI
+  Markers, viewport fitting, and result selection to Amap JS API `PlaceSearch`
+- **AND** no separate province/city/terminal selector is present
+- **AND** Web does not load Geolocation, request browser/device/IP position, or
+  show a current-location action by default
+- **AND** the browser receives only the domain-restricted Web(JS API) Key, never
+  the JS security key, Web Service Key, raw provider response, or authoritative
+  mutation fields
+- **AND** search text and unselected candidates do not become Brand truth.
 
-#### Scenario: The official tree skips the city tier
+#### Scenario: A customer selects a candidate
 
-- **WHEN** a municipality or province-direct county has no official prefecture
-  node
-- **THEN** the city control repeats the municipality or shows the confirmed
-  `省直辖县级行政区划` presentation group
-- **AND** Brand persists that stable display-path identity
-- **BUT** a presentation-only identity does not enter the semantic fingerprint
-  or masquerade as an official administrative division.
+- **WHEN** the customer selects one Marker or its matching list item
+- **THEN** the server resolves current provider place detail and reverse-
+  geocodes its coordinate
+- **AND** treats the selected POI detail address as the exact Store Location
+  address while using reverse geocoding for administrative, township, and
+  locality coherence
+- **AND** uses a reverse-geocoded formatted address only when current POI detail
+  has no address, never to replace a more precise selected-POI address
+- **AND** checks required identity, structured address, and coordinate
+- **AND** maps provider adcode/towncode evidence to exactly one maintained MCA
+  province/city/terminal path
+- **AND** returns a short-lived account/Brand-bound sealed verification receipt
+  plus a customer-safe preview
+- **AND** forged, altered, stale, cross-account, replayed, or unverifiable client
+  data cannot become Store Location facts.
 
-#### Scenario: A prefecture-level city has no ordinary county child
+#### Scenario: Provider evidence cannot derive one official region
 
-- **WHEN** the selected city is Dongguan, Zhongshan, Danzhou, or Jiayuguan
-- **THEN** its third control contains the maintained official township, town,
-  or street divisions
-- **AND** the terminal identity retains its official nine-digit code and
-  township level
-- **AND** no third-party six-digit projection replaces it.
+- **WHEN** verified provider detail/reverse-geocode evidence is missing,
+  contradictory, or cannot map exactly to one maintained MCA terminal
+- **THEN** no verification receipt is issued
+- **AND** the customer may search for another exact POI or contact support
+- **AND** neither the customer nor an Agent can manually override the region.
 
-#### Scenario: A parent region choice changes
+#### Scenario: A verified location is committed
 
-- **WHEN** the province or city/group changes
-- **THEN** incompatible downstream choices are cleared and disabled until the
-  new options load
-- **AND** the server rejects stale, partial, or forged paths before writing.
+- **WHEN** a valid unconsumed verification receipt is submitted with a Brand
+  mutation
+- **THEN** Brand atomically stores the minimum approved structured Store
+  Location, source provenance, receipt-consumption state, and final locality
+  with the profile update
+- **AND** records GCJ-02 explicitly for provider coordinates
+- **AND** locks and checks the current Brand aggregate before replacement so a
+  concurrent stale mutation cannot overwrite a newer location
+- **AND** no external call occurs inside the database transaction
+- **AND** an unchanged committed location remains usable without a runtime
+  provider call.
+
+#### Scenario: Store verification is unavailable
+
+- **WHEN** search, provider, authorization, quota, or verification fails
+- **THEN** the customer receives one simple corrective or later-retry action
+- **AND** may save unrelated Brand fields as a draft
+- **AND** failure does not remove an existing location or fabricate readiness.
+
+### Requirement: Honest Query locality
+
+Brand Knowledge SHALL automatically expose either one verified business area or
+one precise verified address locality and SHALL preserve the distinction.
+
+#### Scenario: Provider evidence contains business areas
+
+- **WHEN** verified place and reverse-geocode evidence contains one or more
+  bounded business-area labels
+- **THEN** Brand de-duplicates them in deterministic evidence order
+- **AND** automatically uses the selected POI detail business area first, then
+  the first reverse-geocode business area
+- **AND** the customer, browser, and Agent cannot substitute another locality.
+
+#### Scenario: Provider evidence contains no business area
+
+- **WHEN** a verified Store Location has no business-area candidate
+- **THEN** Brand automatically uses a precise verified address/place locality
+  with kind
+  `ADDRESS_LOCALITY`
+- **AND** customer and Query projections do not label it as a business area
+- **AND** Query may phrase it naturally without changing or inventing it.
+
+### Requirement: Required flagship product or service
+
+Brand Knowledge SHALL own one customer field named `主打产品或服务` whose
+evaluation meaning remains separate from industry classification.
+
+#### Scenario: A Brand describes its flagship offer
+
+- **WHEN** the customer supplies a normalized concrete product/service phrase of
+  2-80 characters
+- **THEN** Brand stores it as `flagshipProductOrService`
+- **AND** it participates in readiness, fingerprint, and the v3 projection
+- **AND** it does not replace `recommendationSubject`, conditional
+  `otherProductOrService`, or a future optimization product catalog.
+
+#### Scenario: The value is absent or generic
+
+- **WHEN** the value is absent, outside the bound, or exactly `产品`, `服务`,
+  `其他`, or `其它`
+- **THEN** the Brand may remain a draft but is not evaluation-ready
+- **AND** no Provider or Agent invents a substitute.
+
+### Requirement: Peer extensible characteristics
+
+Brand Knowledge SHALL store one peer characteristic collection, render two
+inputs by default, and bound evaluation-ready profiles to two through six
+distinct normalized values without a priority contract.
+
+#### Scenario: A customer maintains characteristics
+
+- **WHEN** the customer adds, edits, removes, or reorders characteristics
+- **THEN** Web supports keyboard-accessible add/remove behavior without priority
+  copy
+- **AND** the server accepts at most six values, each 2-120 characters
+- **AND** rejects exact normalized duplicates
+- **AND** canonicalization makes presentation order irrelevant to the
+  fingerprint.
+
+#### Scenario: Query consumes the peer collection
+
+- **WHEN** Query constructs the two existing characteristic question roles
+- **THEN** it consumes the frozen peer set from the v3 projection
+- **AND** Query owns any approved selection or composition behavior
+- **AND** Brand does not create more questions or expose its persistence.
 
 ### Requirement: Honest Brand readiness
 
-Brand Knowledge SHALL derive evaluation readiness from complete and valid
-current Brand facts.
+Brand Knowledge SHALL derive readiness from all accepted current facts.
 
-#### Scenario: A Brand becomes evaluation-ready
+#### Scenario: A Store Brand becomes evaluation-ready
 
-- **WHEN** company name, valid industry path, applicable `Other` phrase, valid
-  terminal region, two characteristics, contact name, and contact mobile satisfy
-  their current rules
-- **THEN** the Brand is ready for evaluation
+- **WHEN** company name, valid industry/`Other`, one verified Store Location
+  with an exactly derived official region, concrete flagship product/service,
+  two through six valid peer characteristics, contact name, and contact mobile
+  satisfy their rules
+- **THEN** the Brand is ready for a v3 evaluation
 - **AND** registration, Brand management, and diagnosis observe the same result.
 
-### Requirement: Semantic evaluation fingerprint
+### Requirement: Semantic evaluation fingerprint v3
 
-Brand Knowledge SHALL compute the evaluation fingerprint from normalized
-business meaning and stable official identities while excluding representation
-and contact maintenance.
+Brand Knowledge SHALL compute evaluation revisions through the single
+`brand-evaluation-input@3` scheme.
 
-#### Scenario: Evaluation-relevant meaning changes
+#### Scenario: Evaluation meaning changes
 
-- **WHEN** company name, either industry identity, applicable `Other` phrase,
-  either characteristic, or an official region identity changes
-- **THEN** the fingerprint changes
+- **WHEN** company name, industry identity, applicable `Other` phrase, selected
+  Store Location or Query locality, flagship value, or any characteristic value
+  changes
+- **THEN** the v3 fingerprint changes
 - **AND** the ordinary new evaluation-input revision rule applies.
 
-#### Scenario: Only representation or contact changes
+#### Scenario: Representation or contact changes
 
-- **WHEN** a label, order, source/catalog version, alias, presentation group,
-  non-semantic recommendation subject, contact name, or contact mobile changes
+- **WHEN** only characteristic presentation order, contact, verification time,
+  provider contract/address/coordinate representation, labels, source versions,
+  or another excluded display fact changes for the same semantic Store Location
+  and Query locality
 - **THEN** the fingerprint remains unchanged
-- **AND** the change alone cannot create a new Definition, question set, report-
-  changed notice, or free-evaluation opportunity.
+- **AND** the change creates no Definition, question set, changed-data notice,
+  or official-evaluation opportunity.
 
-#### Scenario: An official region is renamed without an identity change
+### Requirement: Stable evaluation-purpose snapshot v3
 
-- **WHEN** a later accepted snapshot changes only a node label
-- **THEN** the current Brand may display the new label without a fingerprint
-  change
-- **AND** earlier Definitions and reports retain their frozen labels.
+Brand Knowledge SHALL expose one complete v3 projection and GEO Intelligence
+SHALL freeze it without reading Brand persistence or the Amap adapter.
 
-### Requirement: Stable evaluation-purpose projection
+#### Scenario: GEO prepares a v3 Definition
 
-Brand Knowledge SHALL expose one projection that freezes the resolved identity
-and display meaning consumed by GEO Intelligence.
+- **WHEN** an active account-owned Brand satisfies current readiness
+- **THEN** Brand returns its v3 fingerprint, frozen industry meaning, Store
+  Location-derived official region, structured Store Location display and
+  provenance, GCJ-02 coordinate, final Query locality, flagship value, and
+  canonical peer characteristics
+- **AND** GEO stores `brand-evaluation-snapshot@3`
+- **AND** Query consumes only a GEO-owned projection over that snapshot
+- **AND** neither GEO nor Query calls Amap, reads Brand tables, trusts browser
+  facts, or re-resolves later display data.
 
-#### Scenario: GEO prepares a Definition
+#### Scenario: Current Brand facts change later
 
-- **WHEN** GEO requests an active, account-owned, evaluation-ready Brand
-- **THEN** Brand Knowledge returns the fingerprint, normalized company and
-  characteristics, industry IDs and labels, catalog version, applicable `Other`
-  phrase, actual recommendation subject, all three region selections and
-  labels, official terminal identity and level, official semantic path, and
-  region source release
-- **AND** `Other` uses the normalized customer phrase as the actual
-  recommendation subject
-- **AND** GEO freezes this projection in the versioned snapshot
-- **AND** GEO does not import reference sources, re-resolve future labels, or
-  read Brand persistence directly.
+- **WHEN** Brand, provider representation, or reference data changes after a v3
+  Definition exists
+- **THEN** that Definition, its questions, Run, retry, report, and history retain
+  the exact frozen v3 projection actually used.
 
-#### Scenario: Reference data changes after a Definition exists
+### Requirement: Development reset activates one v3 contract
 
-- **WHEN** a later release changes excluded representation data
-- **THEN** the existing Definition returns its frozen projection
-- **AND** unchanged Brand fingerprint preparation returns that same Definition.
+Activation SHALL recreate only an explicitly authorized, proven development
+database from empty and SHALL keep no v1/v2/legacy runtime compatibility.
 
-### Requirement: Migration preserves history and opportunity meaning
+#### Scenario: The development database is prepared for v3
 
-Activation SHALL classify legacy data before writing, preserve immutable
-snapshot JSON, and prevent representation-only conversion from changing an
-evaluation opportunity.
+- **GIVEN** the exact target is proven to be the authorized development database
+  and not production
+- **WHEN** the destructive reset is separately executed
+- **THEN** the database is recreated from empty and the migration chain is
+  replayed
+- **AND** every new Brand, Definition, Run, and report uses v3
+- **AND** no old development Brand, question, opportunity, Run, or report is
+  migrated or restored.
 
-#### Scenario: Legacy data maps exactly
+#### Scenario: The target cannot be proven safe
 
-- **WHEN** old industry and region text resolve to one stable selection without
-  a fingerprint collision
-- **THEN** migration assigns stable identities and synchronizes Brand,
-  Definition, and Run fingerprint keys atomically
-- **AND** it adds, removes, merges, or resets no Definition, question, Run,
-  sample, report, or completed-evaluation count
-- **AND** Definition eligibility remains unchanged.
+- **WHEN** the target is production, contains a production marker, or cannot be
+  proven to be the authorized development database
+- **THEN** reset fails before deletion
+- **AND** this specification grants no authority to clear or migrate that data.
 
-#### Scenario: Development data cannot map exactly
+### Requirement: One responsive Brand form
 
-- **WHEN** a value is unknown, ambiguous, partial, missing a required legacy
-  `Other` phrase, or would collapse two Definitions
-- **THEN** migration aborts before any new columns or constraints commit
-- **AND** the unexpected development data is resolved explicitly before replay
-- **AND** the product adds no legacy-review UI or mixed old/new write path.
+Registration and Brand management SHALL reuse the generated Brand contract and
+one accessible field group for industry, Store Location, flagship value,
+characteristics, and contact facts.
 
-#### Scenario: A legacy immutable snapshot is read
+#### Scenario: A customer creates or edits a Brand
 
-- **WHEN** a Definition or Run contains the original unversioned snapshot
-- **THEN** the central compatibility decoder treats it as the legacy schema
-- **AND** processing, retry, synthesis, reporting, and history use its frozen
-  labels without requiring later stable IDs
-- **AND** migration does not rewrite the snapshot JSON.
+- **WHEN** the shared field group is shown
+- **THEN** it provides visible labels, address feedback, map/list candidate
+  equivalence, honest loading/empty/failure states, two default characteristic
+  rows, bounded add/remove actions, and a stacked narrow-screen layout
+- **AND** it has no independent province/city/terminal controls and requests no
+  browser location permission
+- **AND** registration and editing use the same rules
+- **AND** the customer can save an incomplete draft
+- **AND** all required facts are necessary before diagnosis.
 
-### Requirement: One responsive Brand reference form
+#### Scenario: A provider interaction fails
 
-Registration and Brand management SHALL reuse one responsive controlled field
-group and the generated API contract.
-
-#### Scenario: A customer creates the first Brand during registration
-
-- **WHEN** the customer chooses not to skip Brand creation
-- **THEN** registration uses the same complete industry, region, `Other`, and
-  readiness rules as later Brand creation and editing.
-
-#### Scenario: A customer uses a narrow screen or keyboard
-
-- **WHEN** the shared field group is narrow or operated without a pointer
-- **THEN** controls retain visible labels, native selection behavior, truthful
-  loading/disabled states, and a stacked responsive layout
-- **AND** selected values, placeholders, and the complete `Other` hint remain
-  readable without horizontal overflow
-- **AND** the full region tree is not bundled into the initial client route.
+- **WHEN** the customer uses a narrow screen or keyboard, or receives no map or
+  provider result
+- **THEN** focus, status, error, retry, and candidate selection remain operable
+- **AND** the UI does not fabricate map success, address, region, locality, or
+  readiness.

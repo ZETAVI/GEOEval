@@ -2,14 +2,8 @@
 
 import {
   getIndustryCatalog,
-  listCityRegions,
-  listProvinceRegions,
-  listTerminalRegions,
   type BrandMutation,
-  type CityRegionOptionList,
   type IndustryCatalog,
-  type RegionOptionList,
-  type TerminalRegionOptionList,
 } from "@geoeval/api-client";
 import { useEffect, useId, useMemo, useState } from "react";
 
@@ -23,73 +17,21 @@ export function BrandReferenceFields({ apiBaseUrl, value, onChange }: Props) {
   const secondaryLabelId = useId();
   const otherHelpId = useId();
   const [industries, setIndustries] = useState<IndustryCatalog>();
-  const [provinces, setProvinces] = useState<RegionOptionList>();
-  const [cities, setCities] = useState<CityRegionOptionList>();
-  const [terminals, setTerminals] = useState<TerminalRegionOptionList>();
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     let active = true;
-    void Promise.all([
-      getIndustryCatalog(apiBaseUrl),
-      listProvinceRegions(apiBaseUrl),
-    ])
-      .then(([nextIndustries, nextProvinces]) => {
+    void getIndustryCatalog(apiBaseUrl)
+      .then((result) => {
         if (!active) return;
-        setIndustries(nextIndustries);
-        setProvinces(nextProvinces);
+        setIndustries(result);
+        setMessage("");
       })
-      .catch(
-        () => active && setMessage("暂时无法加载行业或地区选项，请稍后重试"),
-      );
+      .catch(() => active && setMessage("暂时无法加载行业选项，请稍后重试"));
     return () => {
       active = false;
     };
   }, [apiBaseUrl]);
-
-  useEffect(() => {
-    if (!value.provinceRegionId) {
-      setCities(undefined);
-      return;
-    }
-    let active = true;
-    setCities(undefined);
-    setMessage("");
-    void listCityRegions(apiBaseUrl, value.provinceRegionId)
-      .then((result) => {
-        if (!active) return;
-        setCities(result);
-        setMessage("");
-      })
-      .catch(() => active && setMessage("暂时无法加载城市选项"));
-    return () => {
-      active = false;
-    };
-  }, [apiBaseUrl, value.provinceRegionId]);
-
-  useEffect(() => {
-    if (!value.provinceRegionId || !value.cityRegionId) {
-      setTerminals(undefined);
-      return;
-    }
-    let active = true;
-    setTerminals(undefined);
-    setMessage("");
-    void listTerminalRegions(
-      apiBaseUrl,
-      value.provinceRegionId,
-      value.cityRegionId,
-    )
-      .then((result) => {
-        if (!active) return;
-        setTerminals(result);
-        setMessage("");
-      })
-      .catch(() => active && setMessage("暂时无法加载终端地区选项"));
-    return () => {
-      active = false;
-    };
-  }, [apiBaseUrl, value.provinceRegionId, value.cityRegionId]);
 
   const primary = industries?.primaryIndustries.find(
     (candidate) => candidate.id === value.primaryIndustryId,
@@ -196,79 +138,6 @@ export function BrandReferenceFields({ apiBaseUrl, value, onChange }: Props) {
           </small>
         )}
       </div>
-      <fieldset className="wide">
-        <legend>所在地区 *</legend>
-        <div className="triple-fields">
-          <label>
-            省级地区
-            <select
-              aria-label="省级地区"
-              value={value.provinceRegionId ?? ""}
-              onChange={(event) =>
-                update({
-                  provinceRegionId: event.target.value || null,
-                  cityRegionId: null,
-                  terminalRegionId: null,
-                })
-              }
-            >
-              <option value="">请选择省级地区</option>
-              {provinces?.options.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            城市
-            <select
-              aria-label="城市"
-              value={value.cityRegionId ?? ""}
-              disabled={!value.provinceRegionId || !cities}
-              onChange={(event) =>
-                update({
-                  cityRegionId: event.target.value || null,
-                  terminalRegionId: null,
-                })
-              }
-            >
-              <option value="">
-                {value.provinceRegionId && !cities
-                  ? "正在加载城市…"
-                  : "请选择城市"}
-              </option>
-              {cities?.options.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            终端地区
-            <select
-              aria-label="终端地区"
-              value={value.terminalRegionId ?? ""}
-              disabled={!value.cityRegionId || !terminals}
-              onChange={(event) =>
-                update({ terminalRegionId: event.target.value || null })
-              }
-            >
-              <option value="">
-                {value.cityRegionId && !terminals
-                  ? "正在加载区县／镇街…"
-                  : "请选择区县／镇街"}
-              </option>
-              {terminals?.options.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </fieldset>
       {message && (
         <p className="reference-load-error wide" role="alert">
           {message}

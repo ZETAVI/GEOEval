@@ -1,0 +1,317 @@
+# Tasks
+
+## Explore, Align, and Propose
+
+- [x] Read AGENTS, product vision/glossary, product-definition, process and
+      design-knowledge rules, Brand/evaluation current specs, and architecture
+      overview.
+- [x] Verify live #39/#40 scope, owner, Project status, priority, parent and #26
+      dependency; verify no existing #40 PR or branch owns this write.
+- [x] Read the archived #27 proposal, design, delta, decision brief, migration,
+      architecture review, current implementation evidence, and #26 handoff.
+- [x] Inspect current Prisma Brand/Definition/Run schema, Brand domain/application/
+      repository/API, generated client, registration/Brand Web fields, central
+      snapshot decoder, deterministic Query seam, and live #26/PR #28 state.
+- [x] Research current official Amap place search/detail, input tips, reverse
+      geocoding, business areas, coordinates, JS selection, Key/security,
+      quotas, error codes, commercial authorization, and storage restrictions.
+- [x] Recheck current Amap JavaScript API 2.0 map, AutoComplete, PlaceSearch,
+      Marker, map-click, geocoder, lifecycle, and security-proxy documentation
+      after the product owner requested map-assisted selection.
+- [x] Define Store Location, Official Region, Query Locality, flagship product/
+      service, peer characteristics, and their single owners.
+- [x] Compare hybrid JS map plus server verification versus a server-only list,
+      free-form mutation versus a
+      sealed verification receipt, Brand columns versus an owned Store Location
+      value, and characteristic rows versus a peer JSON collection.
+- [x] Define Snapshot/Fingerprint v3, explicit development-database reset,
+      empty-database activation, rollback, and #26 seam.
+- [x] Complete a pre-implementation architecture review of this proposal.
+
+## Product, Architecture, and Risk Acceptance Gate
+
+- [x] Product owner confirms the 2-80 flagship bound, two-to-six peer
+      characteristic count, 2-120 item bound, exact-distinct rule, no priority/
+      reorder semantics, map-assisted selection, and verified-address locality
+      fallback that #26 may phrase naturally.
+- [x] Product owner authorizes an implementation-stage reset of the explicitly
+      named development database instead of v1/v2 data compatibility; the
+      later exact preflight and destructive authorization execute that decision.
+- [x] Architecture direction is confirmed for hybrid JS map plus Brand-owned
+      server verification, sealed receipt, one-to-one Store Location, peer JSON
+      collection, v3 fingerprint/snapshot, development reset, rollback, and #26
+      dependency direction.
+- [x] Product owner acknowledges the Amap platform-service boundary and states
+      willingness to support paid API capacity if later required.
+- [x] Commercial/legal risk owner reviews the provider-terms boundary, accepts
+      the proposed minimum-field use, and directs #40 not to require a separate
+      licensing/storage work order as an engineering Gate.
+- [x] Keep Key creation, purchase, controlled calls, runtime implementation, and
+      production activation as separate action boundaries; the product owner
+      later authorized application/Key preparation and the bounded controlled
+      calls, but not the remaining boundaries.
+
+## Account-specific Controlled Contract Validation
+
+- [x] Create the `GEOEval` Amap application plus separate `GEOEval Web JS`
+      (`Web端(JS API)`) and `GEOEval Server` (`Web服务`) credentials after
+      explicit action-time authorization, without recording either credential
+      value.
+- [x] Confirm from the current official billing table that unverified accounts
+      have zero monthly quota and zero QPS for the required service groups;
+      defer live calls and speculative recharge while identity review is pending.
+- [x] After enterprise certification, observe the actual account type and monthly
+      quota table: 3,000,000 shared basic-LBS, 30,000,000 JS map initialization,
+      and 50,000 shared basic-search calls; confirm that no technical-service
+      license is active and no traffic-package purchase is needed for fixtures.
+- [x] Recheck current public QPS/pricing and the account's key/QPS pages. Record
+      30/100/30 QPS as documented tier limits while treating actual runtime
+      capacity as unobserved because the account has no usage rows.
+- [ ] Before production activation, verify or replace the Web JS/Web Service
+      Keys with the approved release domain, server-side JS security proxy, and
+      fixed outbound-IP allowlist without revealing credentials.
+- [x] Validate one approved non-customer ordinary district, municipality, and
+      special no-county city across v5 text search, v5 ID detail, and v3 reverse
+      geocoding; do not pressure/load test.
+- [x] Record the required string/empty-array normalization, documented GCJ-02
+      contract, detail/regeo adcode coherence, present/absent detail business
+      area, multiple reverse business areas, and exact fixture Amap-to-MCA
+      adcode/towncode behavior; revise the reverse contract to `extensions=all`.
+- [x] During adapter implementation, prove named timeout/error mapping and a
+      zero-combined-business-area address-locality fallback with fixtures before
+      any further controlled failure call is justified.
+
+## Conditional Implementation
+
+- [x] Add an accessible Amap JS API 2.0 map picker with local typing and explicit
+      PlaceSearch, an Amap-owned nationwide full-address panel and Markers,
+      explicit-search
+      minimum/result bounds, no Geolocation/current-position permission, map
+      lifecycle cleanup, domain-restricted JS Key, and server security-key proxy.
+- [x] Add the Brand-owned Store Location verification port, fixture adapter,
+      conditional Web Service adapter/config, typed outcomes, deadlines,
+      redaction, and operation metrics.
+- [x] Add an authenticated verify endpoint and account/Brand-bound sealed
+      receipts; prove arbitrary coordinates, altered, expired, replayed, and
+      cross-account receipts fail.
+- [x] Add Store Location with its derived MCA official-region path, flagship,
+      peer characteristics, v3 fingerprint, readiness, v3 canonical hash vectors,
+      atomic Brand write, and response projections; remove separate writable
+      province/city/terminal fields after the authorized reset.
+- [x] Add the single `brand-evaluation-snapshot@3` contract and separate
+      historical/report and #26 Query projections without changing Query/Parser/
+      Synthesis/report behavior in #40.
+- [x] Recreate only the explicitly named development database from empty after a
+      preflight proves the target is non-production; remove v1/v2 compatibility
+      requirements and prove the reset cannot address a production database.
+- [x] Reuse one responsive form in registration and Brand management with
+      map/Marker/address/derived-region feedback, no region selector or location
+      permission, automatic locality, two default peer characteristics,
+      max-six add/remove, narrow-screen, keyboard, and failure behavior.
+- [x] Regenerate OpenAPI/client and add focused domain, adapter-contract, HTTP,
+      migration, snapshot, API, component, and browser tests.
+
+## Conditional Verification and Reconciliation
+
+- [x] Run focused static/domain/contract checks before any authorized external
+      probe; then run typecheck, tests, build, OpenAPI generation, framework
+      validation, isolated empty-database rebuild rehearsal, `git diff --check`,
+      and browser inspection. The later authorized shared-development reset and
+      credentialed browser path are recorded below.
+- [x] Prove the Web Service Key and JS security key never enter browser assets,
+      OpenAPI, generated client, logs, traces, snapshots, or fixtures; the
+      domain-restricted JS Key is the only intentionally browser-loaded key.
+- [x] Perform fixed-diff architecture, code, and verification reviews; resolve
+      every must-fix/should-fix finding within #40.
+- [x] Reconcile accepted behavior into Brand Knowledge and evaluation-definition
+      current specs, product/glossary/vision index-level owners, architecture
+      overview, executable schemas/tests, and evolution-marker state.
+- [x] Hand the stable v3 Query projection to #26; do not edit its Prompt, Model
+      Contract, Parser, Synthesis, or report from #40.
+- [x] Archive the Change after implementation acceptance, current-truth
+      reconciliation, final evidence, and #26 handoff. Keep Final PR integration,
+      Issue/Project closure, and workspace exit in the live merge ledger;
+      production migration/deployment and real Provider evaluation remain
+      separate authorization gates.
+
+## Historical Documents-only Exit
+
+- [x] Commit this proposal revision on the #40 branch.
+- [x] Push the branch, open a Draft Partial PR with
+      `Part of #40 — does not close`, and verify the remote head/base/check state.
+- [x] Update #40 with the Source Brief, architecture review, decision request,
+      Draft PR, and then-current `Review / Decision` status.
+- [x] At that revision, stop at the documents-only authorization boundary; do
+      not begin account validation or implementation until later authorization.
+
+## 2026-09-02 Product Decision Revision
+
+- [x] Reconcile the confirmed map, peer-characteristic, address-locality, and
+      development-reset decisions across every active Change artifact.
+- [x] Rerun architecture review and document verification for the revised Diff.
+- [x] Commit and push the revision to Draft PR #46.
+- [x] Update PR #46 and Issue #40 with the confirmed decisions, then stop without
+      implementation.
+
+## 2026-09-02 Commercial and Legal Risk Acceptance Revision
+
+- [x] Reconcile the human risk-acceptance decision across the active proposal,
+      Source Brief, design, decision brief, architecture review, and tasks.
+- [x] Rerun the architecture review and document verification with the prior
+      licensing/storage must-fix removed.
+- [x] Commit and push the revision to Draft PR #46.
+- [x] Update PR #46 and Issue #40 to show `ready with follow-up`, then stop before
+      implementation, Key creation, purchase, controlled calls, or database reset.
+
+## 2026-09-02 Amap Account and API Contract Preparation
+
+- [x] Create the approved Amap application and two scoped Key types; do not copy
+      credential values into Git, Issue/PR text, or design artifacts.
+- [x] Re-read the current official JS API 2.0, Web Service Key, POI detail,
+      reverse-geocoding, error, billing, and service-upgrade documentation.
+- [x] Record the exact initial endpoints, parameters, minimum-field mapping,
+      retry classes, local-only empty allowlists, and production hardening
+      boundary in the Source Brief.
+- [x] Record that pending identity verification currently means zero published
+      quota/QPS and that recharge does not replace certification.
+- [x] After identity approval, inspect actual console entitlement without
+      retaining credential or enterprise-identity values.
+- [x] Run only the named bounded non-customer contract fixtures after separate
+      live-call authorization; do not pressure/load test.
+- [x] Do not begin #40 implementation until the product owner explicitly
+      authorizes the fixed design package.
+
+## 2026-09-03 Enterprise Account and Implementation Planning
+
+- [x] Observe enterprise certification and account-level monthly quotas directly
+      in the user's Chrome Amap console without retaining business identity or
+      credential values.
+- [x] Confirm the account has no technical-service license and distinguish
+      eligible short-term/small-volume tests from production activation.
+- [x] Recheck official Amap loader/security/API/billing guidance and current
+      Next 16 underscore-route behavior relevant to `/_AMapService`.
+- [x] Refresh `origin/main`, #40/PR #46, the Delivery Project, and open PR overlap;
+      confirm #40 is P0/Ready, PR #46 is clean with required checks passed, and
+      the branch contains current main.
+- [x] Record #40-before-#26 ordering because PR #28 is merge-conflicted and
+      overlaps Prisma, evaluation preparation, snapshot, OpenAPI/client, and
+      integration tests.
+- [x] Map the implementation into controlled probe, Brand/persistence,
+      verification adapter/API, shared Web map, snapshot/handoff, and activation/
+      reconciliation packages with explicit evidence for each.
+- [x] Obtain separate authorization before reading credentials into an execution
+      environment or making the three named controlled Amap request chains.
+- [x] Obtain explicit implementation authorization before changing runtime code,
+      dependencies, Prisma, OpenAPI/client, or Web behavior.
+
+## 2026-09-03 Controlled Web Service Contract Validation
+
+- [x] Use only public non-customer landmarks, concurrency one, no retry, and no
+      pressure/capacity test; complete nine base-contract calls plus one
+      three-call `extensions=all` comparison.
+- [x] Keep the Web Service Key in process memory and retain no credential value,
+      request URL, raw response, provider place ID, or unrelated provider field.
+- [x] Record only normalized outcome/type/latency and official-region coherence
+      evidence in the Source Brief.
+- [x] Reconcile the observed municipality `city = []`, special-city
+      `district = []`, exact Dongguan township-code mapping, and plural business-
+      area requirement into the adapter design and architecture review.
+- [x] Stop before runtime implementation, dependency changes, Prisma/OpenAPI,
+      JS map/security-proxy configuration, purchase, or database reset without
+      their own authorization/evidence gates.
+
+## 2026-09-03 Module Implementation Blueprint
+
+- [x] Map the proposed Store Location capability onto the current Brand domain,
+      application, repository, controller, runtime-config, Web form, generated
+      client, and central Snapshot owners without adding a generic location
+      service or provider registry.
+- [x] Fix the small internal interfaces: provider resolution returns minimum
+      typed evidence; Brand application owns official-region derivation,
+      locality, readiness, fingerprint, receipt consumption, and the aggregate.
+- [x] Define disabled-by-default runtime configuration, Amap fail-fast config,
+      server-only credentials, fixture injection, deadlines/retry classes, and
+      the 15-minute account/exact-target-Brand/region-bound receipt.
+- [x] Define the explicit public `PRESERVE`/`REMOVE`/`REPLACE` semantics, unique
+      `verificationId`, replay behavior, and one atomic Brand/Store Location/
+      fingerprint repository transaction.
+- [x] Remove business-area candidates from both durable persistence and the
+      public receipt; seal and persist only the automatically derived Query locality.
+- [x] Map one shared registration/edit field group, isolated map lifecycle,
+      generated verification API use, and package-specific verification matrix.
+- [x] Product owner removes the separate official-region edit path: the verified
+      Store Location is the only source, and replacing/removing it atomically
+      replaces/removes the derived region.
+- [x] Rerun the affected architecture-review dimensions and keep the explicit
+      runtime-implementation authorization gate closed.
+
+## 2026-09-03 Single-source Store Location Revision
+
+- [x] Verify from current official JS API 2.0 documentation that AutoComplete
+      supports nationwide search, city is an optional constraint, map center is
+      configurable, and Geolocation is a separate plugin/capability.
+- [x] Remove the customer-maintained province/city/terminal input from the
+      proposed v3 Brand mutation, shared form, receipt request, and persistence.
+- [x] Make verified POI detail/reverse-geocode evidence the sole derivation
+      source for one exact maintained MCA official-region path; fail closed when
+      no exact mapping exists.
+- [x] Specify nationwide store-name plus city/address/landmark search, full-
+      address disambiguation, and no browser/device/IP location permission.
+- [x] Reconcile proposal, decision brief, Source Brief, design, Brand delta,
+      architecture review, and task plan; close the prior region-edit must-fix.
+- [x] At that revision, restore Issue #40 Project Status to Ready after document
+      verification; runtime implementation remained separately unauthorized
+      until the later fixture-first decision.
+
+## 2026-09-03 Fixture-first Runtime Implementation
+
+- [x] Record explicit fixture-first runtime authorization and move Issue #40 to
+      `In Progress`; retain separate merge, purchase, production, and #26
+      behavior gates.
+- [x] Add v3 Prisma persistence, atomic Brand/Store Location writes, monotonic
+      receipt consumption, aggregate-row serialization, exact MCA derivation,
+      v3 fingerprint vectors, and concurrent replay/lost-update tests.
+- [x] Add disabled/deterministic/Amap Provider modes, v5 detail plus v3 reverse-
+      geocode adapter, typed failure outcomes, timeout/redaction, safe operation
+      telemetry, sealed receipts, and authenticated verification HTTP contract.
+- [x] Remove public province/city/terminal routes and legacy Brand selection
+      helpers; regenerate OpenAPI/client and activate only the v3 snapshot plus a
+      narrow GEO-owned Query projection.
+- [x] Add the official loader, bounded Next `/_AMapService` proxy, shared
+      registration/edit field group, peer-characteristic controls, no-device-
+      location copy, and map-unavailable draft behavior.
+- [x] Rebuild isolated #40 databases from empty; after rebasing onto
+      `main@f1b5ef4`, pass the complete 19-migration chain on
+      `geoeval_issue40_rebased` without touching the shared `geoeval`
+      development database.
+- [x] Pass focused backend/Web tests, 31-file/156-test backend regression,
+      5-file/22-test Web regression, all-workspace typecheck, production build,
+      framework validation, static browser-asset secret scan, and desktop no-Key
+      browser inspection.
+- [x] Read the existing JS/Web Service/security credentials from authenticated
+      Chrome into process memory without writing `.env`; prove the real desktop
+      JS map, Amap-owned Marker/panel, bounded security proxy, server verification,
+      receipt commit, automatic locality, address-locality fallback, reload,
+      and two-Brand persistence.
+- [x] Run ten serial multi-store search/detail/reverse chains across eight cities
+      and multiple industries with no retry/load test; correct the target from
+      `头家顺` to `头家夜粥` and retain `头家顺` as a near-name interference case.
+- [x] Diagnose and repair the real-data address-precedence defect: exact POI
+      detail address wins over nearby reverse-geocode formatted text; pass the
+      focused red/green test and repeated Chrome/database inspection.
+- [x] After product-owner hands-on review showed per-keystroke input-tip calls,
+      remove AutoComplete, keep an initially visible Beijing-centered map, run
+      PlaceSearch only after the explicit action, and remove
+      `v3/assistant/inputtips` from the security-proxy allowlist.
+- [x] Disclose that independent credentialed narrow-screen viewport control was
+      unavailable; do not claim it as passed. The product owner accepted this
+      evidence limitation as non-blocking for the development integration after
+      desktop credentialed behavior and responsive component/CSS evidence passed.
+- [x] After exact non-production preflight and explicit destructive
+      authorization, rebuild the shared `geoeval` development database from
+      empty; apply all 19 migrations and confirm Brand/Definition/Run counts are
+      zero.
+- [x] Complete fixed-diff code/verification review and prepare current PR/Issue
+      evidence without merging #40.
+- [x] Hand the stable v3 Query projection to #26 after the #40 owner accepts the
+      producer contract; do not edit #26 behavior from this branch.

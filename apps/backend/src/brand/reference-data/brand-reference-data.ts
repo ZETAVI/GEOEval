@@ -3,6 +3,8 @@ import { createHash } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import { z } from "zod";
 
+import type { DerivedOfficialRegion } from "../domain/brand.types.js";
+
 import administrativeRegionsDocument from "./administrative-regions.json" with { type: "json" };
 import industryCatalogDocument from "./industry-catalog.json" with { type: "json" };
 
@@ -127,55 +129,16 @@ export type TerminalRegion = z.infer<typeof terminalRegionSchema>;
 export type CityRegion = z.infer<typeof cityRegionSchema>;
 export type ProvinceRegion = z.infer<typeof provinceRegionSchema>;
 
-export type BrandReferenceSelection = {
+export type IndustryReferenceSelection = {
   primaryIndustryId: string | null;
   secondaryIndustryId: string | null;
   otherProductOrService: string | null;
-  provinceRegionId: string | null;
-  cityRegionId: string | null;
-  terminalRegionId: string | null;
 };
 
-export type ResolvedBrandReferenceSelection = {
+export type ResolvedIndustryReferenceSelection = {
   primaryIndustry: IndustryPrimary | null;
   secondaryIndustry: IndustrySecondary | null;
   otherProductOrService: string | null;
-  province: ProvinceRegion | null;
-  city: CityRegion | null;
-  terminalRegion: TerminalRegion | null;
-};
-
-export type EvaluationReferenceProjection = {
-  industry: {
-    catalogId: string;
-    catalogVersion: string;
-    primary: { id: string; label: string };
-    secondary: { id: string; label: string };
-    otherProductOrService: string | null;
-    recommendationSubject: string;
-  };
-  region: {
-    sourceReleaseId: string;
-    province: { id: string; label: string };
-    city: {
-      id: string;
-      label: string;
-      identityKind: CityRegion["identityKind"];
-      officialDivisionId: string | null;
-    };
-    terminal: {
-      id: string;
-      label: string;
-      officialCode: string;
-      officialLevel: TerminalRegion["officialLevel"];
-    };
-    officialPath: Array<{
-      id: string;
-      label: string;
-      officialCode: string;
-      officialLevel: OfficialRegion["officialLevel"];
-    }>;
-  };
 };
 
 export class BrandReferenceValidationError extends Error {}
@@ -191,70 +154,17 @@ export class BrandReferenceData {
     return industryCatalog;
   }
 
-  regionSourceView(): { sourceReleaseId: string; contentHash: string } {
-    return {
-      sourceReleaseId: administrativeRegions.source.id,
-      contentHash: administrativeRegions.contentHash,
-    };
-  }
-
-  provinceOptions(): ProvinceRegion[] {
-    return administrativeRegions.provinces.filter(
-      (province) => province.status === "ACTIVE",
-    );
-  }
-
-  cityOptions(provinceRegionId: string): CityRegion[] {
-    const province = this.findProvince(provinceRegionId);
-    if (!province || province.status !== "ACTIVE")
-      throw new BrandReferenceValidationError("请选择有效的省级地区");
-    return province.cities.filter((city) => isCityActive(city));
-  }
-
-  terminalOptions(
-    provinceRegionId: string,
-    cityRegionId: string,
-  ): OfficialRegion[] {
-    const province = this.findProvince(provinceRegionId);
-    const city = province?.cities.find(
-      (candidate) => candidate.id === cityRegionId,
-    );
-    if (
-      !province ||
-      province.status !== "ACTIVE" ||
-      !city ||
-      !isCityActive(city)
-    ) {
-      throw new BrandReferenceValidationError("请选择有效的城市");
-    }
-    return city.terminalRegions.filter(
-      (terminal) => terminal.status === "ACTIVE",
-    );
-  }
-
-  resolve(
-    selection: BrandReferenceSelection,
+  resolveIndustry(
+    selection: IndustryReferenceSelection,
     requireActive = false,
-  ): ResolvedBrandReferenceSelection {
-    const industrySelectionCount = [
+  ): ResolvedIndustryReferenceSelection {
+    const selectionCount = [
       selection.primaryIndustryId,
       selection.secondaryIndustryId,
     ].filter(Boolean).length;
-    if (industrySelectionCount === 1) {
+    if (selectionCount === 1) {
       throw new BrandReferenceValidationError("请完整选择一级行业和二级行业");
     }
-
-    const regionSelectionCount = [
-      selection.provinceRegionId,
-      selection.cityRegionId,
-      selection.terminalRegionId,
-    ].filter(Boolean).length;
-    if (regionSelectionCount > 0 && regionSelectionCount < 3) {
-      throw new BrandReferenceValidationError(
-        "请完整选择省级地区、城市和终端地区",
-      );
-    }
-
     const primaryIndustry = selection.primaryIndustryId
       ? industryCatalog.primaryIndustries.find(
           (candidate) => candidate.id === selection.primaryIndustryId,
@@ -263,7 +173,6 @@ export class BrandReferenceData {
     if (selection.primaryIndustryId && !primaryIndustry) {
       throw new BrandReferenceValidationError("请选择有效的一级行业");
     }
-
     const secondaryIndustry = selection.secondaryIndustryId
       ? primaryIndustry?.secondaryIndustries.find(
           (candidate) => candidate.id === selection.secondaryIndustryId,
@@ -279,7 +188,6 @@ export class BrandReferenceData {
     ) {
       throw new BrandReferenceValidationError("所选二级行业已不可用于新资料");
     }
-
     const otherProductOrService = normalizeOptionalText(
       selection.otherProductOrService,
     );
@@ -299,132 +207,73 @@ export class BrandReferenceData {
         "只有选择“其他”二级行业时才能填写具体产品或服务",
       );
     }
-
-    const province = selection.provinceRegionId
-      ? this.findProvince(selection.provinceRegionId)
-      : null;
-    if (selection.provinceRegionId && !province) {
-      throw new BrandReferenceValidationError("请选择有效的省级地区");
-    }
-    if (requireActive && province && province.status !== "ACTIVE") {
-      throw new BrandReferenceValidationError("所选省级地区已不可用于新资料");
-    }
-    const city = selection.cityRegionId
-      ? province?.cities.find(
-          (candidate) => candidate.id === selection.cityRegionId,
-        )
-      : null;
-    if (selection.cityRegionId && !city) {
-      throw new BrandReferenceValidationError("请选择当前省级地区下的城市");
-    }
-    if (requireActive && city && !isCityActive(city)) {
-      throw new BrandReferenceValidationError("所选城市已不可用于新资料");
-    }
-    const terminalRegion = selection.terminalRegionId
-      ? city?.terminalRegions.find(
-          (candidate) => candidate.id === selection.terminalRegionId,
-        )
-      : null;
-    if (selection.terminalRegionId && !terminalRegion) {
-      throw new BrandReferenceValidationError("请选择当前城市下的终端地区");
-    }
-    if (requireActive && terminalRegion && terminalRegion.status !== "ACTIVE") {
-      throw new BrandReferenceValidationError("所选终端地区已不可用于新资料");
-    }
-
     return {
       primaryIndustry: primaryIndustry ?? null,
       secondaryIndustry: secondaryIndustry ?? null,
       otherProductOrService: secondaryIndustry?.isOther
         ? otherProductOrService
         : null,
-      province: province ?? null,
-      city: city ?? null,
-      terminalRegion: terminalRegion ?? null,
     };
   }
 
-  evaluationProjection(
-    selection: BrandReferenceSelection,
-  ): EvaluationReferenceProjection {
-    const resolved = this.resolve(selection, true);
-    const {
-      primaryIndustry,
-      secondaryIndustry,
-      province,
-      city,
-      terminalRegion,
-    } = resolved;
+  industryProjection(selection: IndustryReferenceSelection) {
+    const resolved = this.resolveIndustry(selection, true);
+    const { primaryIndustry, secondaryIndustry } = resolved;
     if (
       !primaryIndustry ||
       !secondaryIndustry ||
-      (secondaryIndustry.isOther && !resolved.otherProductOrService) ||
-      !province ||
-      !city ||
-      !terminalRegion
+      (secondaryIndustry.isOther && !resolved.otherProductOrService)
     ) {
-      throw new BrandReferenceValidationError("品牌行业或地区资料尚未完整");
+      throw new BrandReferenceValidationError("品牌行业资料尚未完整");
     }
-
-    const officialCity = city.officialDivisionId
-      ? this.findOfficialRegion(city.officialDivisionId)
-      : undefined;
-    const officialPath = [province, officialCity, terminalRegion]
-      .filter((value): value is ProvinceRegion | OfficialRegion =>
-        Boolean(value),
-      )
-      .filter(
-        (value, index, values) =>
-          values.findIndex((item) => item.id === value.id) === index,
-      )
-      .map(publicOfficialRegion);
-
     return {
-      industry: {
-        catalogId: industryCatalog.catalogId,
-        catalogVersion: industryCatalog.version,
-        primary: { id: primaryIndustry.id, label: primaryIndustry.label },
-        secondary: { id: secondaryIndustry.id, label: secondaryIndustry.label },
-        otherProductOrService: resolved.otherProductOrService,
-        recommendationSubject: secondaryIndustry.isOther
-          ? resolved.otherProductOrService!
-          : secondaryIndustry.recommendationSubject,
-      },
-      region: {
-        sourceReleaseId: administrativeRegions.source.id,
-        province: { id: province.id, label: province.label },
-        city: {
-          id: city.id,
-          label: city.label,
-          identityKind: city.identityKind,
-          officialDivisionId: city.officialDivisionId ?? null,
-        },
-        terminal: publicOfficialRegion(terminalRegion),
-        officialPath,
-      },
+      catalogId: industryCatalog.catalogId,
+      catalogVersion: industryCatalog.version,
+      primary: { id: primaryIndustry.id, label: primaryIndustry.label },
+      secondary: { id: secondaryIndustry.id, label: secondaryIndustry.label },
+      otherProductOrService: resolved.otherProductOrService,
+      recommendationSubject: secondaryIndustry.isOther
+        ? resolved.otherProductOrService!
+        : secondaryIndustry.recommendationSubject,
     };
   }
 
-  semanticRegionPath(selection: BrandReferenceSelection): string[] {
-    const resolved = this.resolve(selection);
-    const officialCity = resolved.city?.officialDivisionId
-      ? this.findOfficialRegion(resolved.city.officialDivisionId)
-      : undefined;
-    return [resolved.province, officialCity, resolved.terminalRegion]
-      .filter((value): value is ProvinceRegion | OfficialRegion =>
-        Boolean(value),
-      )
-      .filter(
-        (value, index, values) =>
-          values.findIndex((item) => item.id === value.id) === index,
-      )
-      .map((region) => region.id);
-  }
-
-  private findProvince(id: string): ProvinceRegion | undefined {
-    return administrativeRegions.provinces.find(
-      (candidate) => candidate.id === id,
-    );
+  deriveOfficialRegion(input: {
+    adcode: string;
+    towncode: string | null;
+  }): DerivedOfficialRegion {
+    const matches: Array<{
+      province: ProvinceRegion;
+      city: CityRegion;
+      terminal: TerminalRegion;
+    }> = [];
+    for (const province of administrativeRegions.provinces.filter(
+      (candidate) => candidate.status === "ACTIVE",
+    )) {
+      for (const city of province.cities.filter(isCityActive)) {
+        for (const terminal of city.terminalRegions.filter(
+          (candidate) => candidate.status === "ACTIVE",
+        )) {
+          const countyMatch =
+            terminal.officialLevel === "COUNTY" &&
+            terminal.officialCode === input.adcode;
+          const townshipMatch =
+            terminal.officialLevel === "TOWNSHIP" &&
+            city.officialDivision?.officialCode === input.adcode &&
+            Boolean(input.towncode) &&
+            input.towncode === `${terminal.officialCode}000`;
+          if (countyMatch || townshipMatch) {
+            matches.push({ province, city, terminal });
+          }
+        }
+      }
+    }
+    if (matches.length !== 1) {
+      throw new BrandReferenceValidationError(
+        "该门店暂时无法映射到唯一的行政地区，请重新选择具体门店",
+      );
+    }
+    return this.regionProjection(matches[0]!);
   }
 
   private findOfficialRegion(id: string): OfficialRegion | undefined {
@@ -439,6 +288,40 @@ export class BrandReferenceData {
       }
     }
     return undefined;
+  }
+
+  private regionProjection(input: {
+    province: ProvinceRegion;
+    city: CityRegion;
+    terminal: TerminalRegion;
+  }): DerivedOfficialRegion {
+    const officialCity = input.city.officialDivisionId
+      ? this.findOfficialRegion(input.city.officialDivisionId)
+      : undefined;
+    const officialPath = [input.province, officialCity, input.terminal]
+      .filter((value): value is ProvinceRegion | OfficialRegion =>
+        Boolean(value),
+      )
+      .filter(
+        (value, index, values) =>
+          values.findIndex((item) => item.id === value.id) === index,
+      )
+      .map(publicOfficialRegion);
+    return {
+      sourceReleaseId: administrativeRegions.source.id,
+      province: { id: input.province.id, label: input.province.label },
+      city: {
+        id: input.city.id,
+        label: input.city.label,
+        identityKind: input.city.identityKind,
+        officialDivisionId: input.city.officialDivisionId ?? null,
+      },
+      terminal: {
+        ...publicOfficialRegion(input.terminal),
+        officialLevel: input.terminal.officialLevel,
+      },
+      officialPath,
+    };
   }
 }
 

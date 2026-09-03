@@ -313,9 +313,10 @@ The required basic brand profile contains:
 | Primary industry | Selected from the approved GEOEval-owned [industry catalog](industry-catalog.md) according to the product or service for which the brand most wants to be found and recommended |
 | Secondary industry | One dependent option under the selected primary industry that fixes the current recommendation context |
 | Other industry description | Required only when the selected secondary industry is `Other`; it names the concrete product or service and participates in question generation |
-| Brand characteristics | Two free-text fields for the brand's main differentiating points |
+| Verified store location | One concrete customer-selected POI verified by the server; it derives the official region and one customer-confirmed business area or honestly labelled address locality without device/IP positioning or a second region selector |
+| Flagship product or service | One concrete 2–80 character offer that the brand most wants customers to find and recommend |
+| Brand characteristics | Two to six distinct peer free-text values; two inputs are shown by default and presentation order does not imply priority |
 | Company or store name | The business, brand, company, or storefront being evaluated |
-| Region | Province, city, and district or town |
 | Contact person | Customer contact name |
 | Mobile number | Initially copied from the registration mobile number and editable |
 
@@ -1379,7 +1380,8 @@ work therefore proceeds through product-design, controlled-validation, and
 architecture gates without reopening these decisions as implementation detail.
 
 Several items are launch-owned inputs rather than recurring product workshops:
-the industry catalog and regional choices, actual media catalog and prices,
+the industry catalog and maintained administrative-region source used to derive
+verified Store Location paths, actual media catalog and prices,
 support contacts, agent rate, withdrawal minimum and bank template, invoice-
 operator validation, writer Skills, and post-delivery link-feedback period.
 Provider, parser, payment, writing, pilot, frontend-design, security, and

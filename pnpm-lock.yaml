@@ -83,6 +83,9 @@ importers:
 
   apps/web:
     dependencies:
+      "@amap/amap-jsapi-loader":
+        specifier: 1.0.1
+        version: 1.0.1
       "@geoeval/api-client":
         specifier: workspace:*
         version: link:../../packages/api-client
@@ -131,6 +134,12 @@ importers:
         version: 5.9.3
 
 packages:
+  "@amap/amap-jsapi-loader@1.0.1":
+    resolution:
+      {
+        integrity: sha512-nPyLKt7Ow/ThHLkSvn2etQlUzqxmTVgK7bIgwdBRTg2HK5668oN7xVxkaiRe3YZEzGzfV2XgH5Jmu2T73ljejw==,
+      }
+
   "@babel/code-frame@7.29.7":
     resolution:
       {
@@ -4982,6 +4991,8 @@ packages:
       }
 
 snapshots:
+  "@amap/amap-jsapi-loader@1.0.1": {}
+
   "@babel/code-frame@7.29.7":
     dependencies:
       "@babel/helper-validator-identifier": 7.29.7

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { evaluationFingerprint } from "../src/brand/domain/brand-profile.js";
+import {
+  canonicalCharacteristics,
+  evaluationFingerprint,
+} from "../src/brand/domain/brand-profile.js";
+import type { BrandStoreLocation } from "../src/brand/domain/brand.types.js";
 import {
   BrandReferenceData,
   BrandReferenceValidationError,
@@ -24,47 +28,39 @@ describe("Brand Knowledge executable reference data", () => {
     }
   });
 
-  it("validates complete industry and region parent-child paths", () => {
-    const resolved = references.resolve({
+  it("validates complete industry parent-child paths", () => {
+    const resolved = references.resolveIndustry({
       ...selection(),
       secondaryIndustryId: "IND-01-02",
     });
     expect(resolved.primaryIndustry?.label).toBe("本地生活与门店服务");
     expect(resolved.secondaryIndustry?.label).toBe("饮品甜品");
-    expect(resolved.terminalRegion?.label).toBe("天河区");
 
     expect(() =>
-      references.resolve({
+      references.resolveIndustry({
         ...selection(),
         secondaryIndustryId: "IND-07-01",
       }),
     ).toThrow(BrandReferenceValidationError);
 
     expect(() =>
-      references.resolve({
+      references.resolveIndustry({
         ...selection(),
         secondaryIndustryId: null,
       }),
     ).toThrow("请完整选择一级行业和二级行业");
-
-    expect(() =>
-      references.resolve({
-        ...selection(),
-        terminalRegionId: null,
-      }),
-    ).toThrow("请完整选择省级地区、城市和终端地区");
   });
 
   it("accepts a bounded concrete Other phrase and rejects a generic value", () => {
-    const other = references.evaluationProjection({
+    const other = references.industryProjection({
       ...selection(),
       secondaryIndustryId: "IND-01-99",
       otherProductOrService: "商用咖啡机租赁服务",
     });
-    expect(other.industry.recommendationSubject).toBe("商用咖啡机租赁服务");
+    expect(other.recommendationSubject).toBe("商用咖啡机租赁服务");
 
     expect(() =>
-      references.resolve({
+      references.resolveIndustry({
         ...selection(),
         secondaryIndustryId: "IND-01-99",
         otherProductOrService: "其他",
@@ -72,83 +68,80 @@ describe("Brand Knowledge executable reference data", () => {
     ).toThrow("不能只填写“其他”");
   });
 
-  it("keeps three controls for municipalities, direct counties, and special cities", () => {
-    const beijingProvince = references
-      .provinceOptions()
-      .find((item) => item.label === "北京市")!;
-    const beijingCity = references.cityOptions(beijingProvince.id)[0]!;
-    expect(beijingCity).toMatchObject({
-      label: "北京市",
-      identityKind: "MUNICIPALITY_REPEAT",
+  it("derives variable-depth municipality and province-direct paths without customer selectors", () => {
+    expect(
+      references.deriveOfficialRegion({ adcode: "110105", towncode: null }),
+    ).toMatchObject({
+      province: { label: "北京市" },
+      city: {
+        label: "北京市",
+        identityKind: "MUNICIPALITY_REPEAT",
+      },
+      terminal: { label: "朝阳区", officialLevel: "COUNTY" },
     });
     expect(
-      references
-        .terminalOptions(beijingProvince.id, beijingCity.id)
-        .some((item) => item.label === "朝阳区"),
-    ).toBe(true);
-
-    const hainan = references
-      .provinceOptions()
-      .find((item) => item.label === "海南省")!;
-    expect(references.cityOptions(hainan.id)).toContainEqual(
-      expect.objectContaining({
+      references.deriveOfficialRegion({ adcode: "469001", towncode: null }),
+    ).toMatchObject({
+      province: { label: "海南省" },
+      city: {
         label: "省直辖县级行政区划",
         identityKind: "PROVINCE_DIRECT_GROUP",
-      }),
-    );
-
-    const guangdong = references
-      .provinceOptions()
-      .find((item) => item.label === "广东省")!;
-    const dongguan = references
-      .cityOptions(guangdong.id)
-      .find((item) => item.label === "东莞市")!;
-    expect(guangdong).toMatchObject({
-      parentId: null,
-      status: "ACTIVE",
-      sourceReleaseId: "mca-administrative-divisions@2025-12-31",
+      },
+      terminal: { label: "五指山市", officialLevel: "COUNTY" },
     });
-    expect(dongguan.officialDivision).toMatchObject({
-      officialCode: "441900",
-      parentId: guangdong.id,
-      status: "ACTIVE",
-    });
-    const dongguanTerminals = references.terminalOptions(
-      guangdong.id,
-      dongguan.id,
-    );
-    expect(dongguanTerminals).toHaveLength(32);
-    expect(dongguanTerminals).toContainEqual(
-      expect.objectContaining({
-        label: "莞城街道",
-        officialLevel: "TOWNSHIP",
-        parentId: dongguan.id,
-        sourceReleaseId: "mca-administrative-divisions@2025-12-31",
-      }),
-    );
   });
 
-  it("fingerprints stable identities but excludes display and source versions", () => {
+  it("derives an exact official path from verified provider codes", () => {
+    expect(
+      references.deriveOfficialRegion({ adcode: "440106", towncode: null }),
+    ).toMatchObject({
+      province: { id: "CN-MCA-PROVINCE-440000", label: "广东省" },
+      city: { id: "CN-MCA-PREFECTURE-440100", label: "广州市" },
+      terminal: {
+        id: "CN-MCA-COUNTY-440106",
+        label: "天河区",
+        officialLevel: "COUNTY",
+      },
+    });
+    expect(
+      references.deriveOfficialRegion({
+        adcode: "441900",
+        towncode: "441900006000",
+      }),
+    ).toMatchObject({
+      city: { id: "CN-MCA-PREFECTURE-441900", label: "东莞市" },
+      terminal: { label: "莞城街道", officialLevel: "TOWNSHIP" },
+    });
+    expect(() =>
+      references.deriveOfficialRegion({ adcode: "000000", towncode: null }),
+    ).toThrow("无法映射到唯一的行政地区");
+  });
+
+  it("fingerprints stable semantic identities without characteristic priority", () => {
     const fields = {
       companyName: "星河咖啡",
       primaryIndustryId: "IND-01",
       secondaryIndustryId: "IND-01-02",
       otherProductOrService: null,
-      characteristicOne: "安静办公",
-      characteristicTwo: "精品手冲",
-      provinceRegionId: "CN-MCA-PROVINCE-440000",
-      cityRegionId: "CN-MCA-PREFECTURE-440100",
-      terminalRegionId: "CN-MCA-COUNTY-440106",
+      flagshipProductOrService: "精品手冲咖啡",
+      characteristics: ["安静办公", "精品手冲"],
       contactName: "林先生",
       contactMobile: "+8613900000101",
     };
-    const path = references.semanticRegionPath(fields);
-    const first = evaluationFingerprint(fields, path);
+    const storeLocation = location();
+    const first = evaluationFingerprint(fields, storeLocation);
     expect(first).toBe(
-      "fd5dde70fd57277b22a0be405ec5e9db56f6a277dcb740bfbe78f6fb19f16997",
+      "c1eed39e527b9fe0a8d4a2ff88bac42b821fdfbb09c3c6ce12c2dddd6d56ef22",
     );
-    const second = evaluationFingerprint(fields, [...path]);
+    const second = evaluationFingerprint(
+      { ...fields, characteristics: [...fields.characteristics].reverse() },
+      storeLocation,
+    );
     expect(second).toBe(first);
+    expect(canonicalCharacteristics(fields.characteristics)).toEqual([
+      "安静办公",
+      "精品手冲",
+    ]);
     expect(
       evaluationFingerprint(
         {
@@ -156,35 +149,33 @@ describe("Brand Knowledge executable reference data", () => {
           contactName: "另一位联系人",
           contactMobile: "13900000000",
         },
-        path,
+        storeLocation,
       ),
     ).toBe(first);
     expect(
       evaluationFingerprint(
         { ...fields, secondaryIndustryId: "IND-01-01" },
-        path,
+        storeLocation,
       ),
-    ).not.toBe(first);
-    expect(
-      evaluationFingerprint({ ...fields, companyName: "星河咖啡二店" }, path),
     ).not.toBe(first);
     expect(
       evaluationFingerprint(
-        { ...fields, characteristicOne: "适合朋友聚会" },
-        path,
+        { ...fields, companyName: "星河咖啡二店" },
+        storeLocation,
       ),
     ).not.toBe(first);
-
-    const beijingPath = references.semanticRegionPath({
-      ...selection(),
-      provinceRegionId: "CN-MCA-PROVINCE-110000",
-      cityRegionId: "CN-MCA-VIEW-MUNICIPALITY-110000",
-      terminalRegionId: "CN-MCA-COUNTY-110105",
-    });
-    expect(beijingPath).toEqual([
-      "CN-MCA-PROVINCE-110000",
-      "CN-MCA-COUNTY-110105",
-    ]);
+    expect(
+      evaluationFingerprint(
+        { ...fields, characteristics: ["适合朋友聚会", "精品手冲"] },
+        storeLocation,
+      ),
+    ).not.toBe(first);
+    expect(
+      evaluationFingerprint(fields, {
+        ...storeLocation,
+        semanticFactId: "00000000-0000-4000-8000-000000000202",
+      }),
+    ).not.toBe(first);
   });
 });
 
@@ -193,8 +184,37 @@ function selection() {
     primaryIndustryId: "IND-01",
     secondaryIndustryId: "IND-01-02",
     otherProductOrService: null,
-    provinceRegionId: "CN-MCA-PROVINCE-440000",
-    cityRegionId: "CN-MCA-PREFECTURE-440100",
-    terminalRegionId: "CN-MCA-COUNTY-440106",
+  };
+}
+
+function location(): BrandStoreLocation {
+  const now = new Date("2026-09-03T00:00:00.000Z");
+  return {
+    id: "00000000-0000-4000-8000-000000000001",
+    brandId: "00000000-0000-4000-8000-000000000002",
+    semanticFactId: "00000000-0000-4000-8000-000000000201",
+    verificationId: "00000000-0000-4000-8000-000000000203",
+    receiptIssuedAt: now,
+    searchInput: "星河咖啡",
+    provider: "AMAP",
+    providerPlaceId: "fixture-guangzhou-tower",
+    providerContractVersion: "fixture@1",
+    verifiedAt: now,
+    placeName: "星河咖啡",
+    formattedAddress: "广东省广州市天河区测试路1号",
+    provinceName: "广东省",
+    cityName: "广州市",
+    districtName: "天河区",
+    townshipName: null,
+    providerAdcode: "440106",
+    providerTowncode: null,
+    officialRegion: references.deriveOfficialRegion({
+      adcode: "440106",
+      towncode: null,
+    }),
+    coordinate: { longitude: 113.32452, latitude: 23.10647, system: "GCJ_02" },
+    queryLocality: { kind: "BUSINESS_AREA", label: "珠江新城" },
+    createdAt: now,
+    updatedAt: now,
   };
 }

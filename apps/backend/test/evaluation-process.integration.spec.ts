@@ -42,7 +42,8 @@ import { PostgresNotificationRepository } from "../src/notification/infrastructu
 import { WorkerModule } from "../src/worker.module.js";
 import {
   clearCustomerData,
-  READY_COFFEE_BRAND_FIELDS,
+  readyCoffeeBrandInput,
+  TEST_STORE_LOCATION_RECEIPTS,
 } from "./customer-data.js";
 import {
   loadIntegrationApiConfig,
@@ -57,6 +58,7 @@ describe("resumable evaluation evidence", () => {
   const brands = new BrandService(
     new PostgresBrandRepository(prisma),
     new BrandReferenceData(),
+    TEST_STORE_LOCATION_RECEIPTS,
   );
   const evaluations = new EvaluationService(
     brands,
@@ -231,7 +233,7 @@ describe("resumable evaluation evidence", () => {
     }
 
     await brands.update(accountId, brandId, {
-      characteristicOne: "适合会议",
+      characteristics: ["适合会议", "精品手冲"],
     });
     expect(await reports.current(accountId, brandId)).toMatchObject({
       id: currentReport?.id,
@@ -498,7 +500,7 @@ describe("resumable evaluation evidence", () => {
     ).toHaveLength(0);
 
     await brands.update(accountId, first.brandId, {
-      characteristicTwo: "适合商务交流",
+      characteristics: ["安静办公", "适合商务交流"],
     });
     const nextDefinition = await evaluations.prepareDefinition(
       accountId,
@@ -1036,11 +1038,13 @@ describe("resumable evaluation evidence", () => {
     adapterOverride?: AiAttemptAdapter,
     ambiguityTimeoutMs = 210_000,
   ) {
-    const brand = await brands.create(accountId, {
-      companyName: "星河咖啡",
-      ...READY_COFFEE_BRAND_FIELDS,
-      contactMobile: "+8613900000301",
-    });
+    const brand = await brands.create(
+      accountId,
+      readyCoffeeBrandInput(accountId, {
+        companyName: "星河咖啡",
+        contactMobile: "+8613900000301",
+      }),
+    );
     const definition = await evaluations.prepareDefinition(accountId, brand.id);
     const run = await evaluations.startRun(accountId, definition.id);
     const processRepository = new PostgresEvaluationProcessRepository(prisma);

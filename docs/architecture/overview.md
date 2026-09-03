@@ -54,14 +54,27 @@ than maintaining a calibration copy.
 
 Brand Knowledge owns the editable account-scoped Brand, the executable
 `industry-catalog@1.0.0` source, and a separate checked mainland administrative-
-region snapshot. Web and API use dependent two-level industry and three-level
-region selections; the server validates complete paths and resolves display
-labels. Brand fingerprints contain stable industry and official region
-identities but exclude contact, catalog/source version, labels, and
-presentation-only city groups. GEO Intelligence receives one versioned,
-immutable evaluation-purpose projection and never imports either reference
-source or reads Brand persistence directly. A central decoder keeps original
-flat snapshots readable without rewriting historical JSON.
+region snapshot. Web uses dependent two-level industry selection plus one Amap
+map/result-panel/Marker POI interaction: the form loads a Beijing-centered map,
+typing remains local, and only the explicit action searches. It requests no
+device location or separate
+province/city/terminal mutation. Brand independently resolves selected POI
+detail and reverse-geocode evidence through its conditional server adapter,
+derives exactly one official region and one automatic Query locality, and commits
+only an account/Brand-bound short-lived receipt. The Store Location, flagship
+product/service, and two-to-six peer
+characteristics belong to the Brand aggregate and participate in
+`brand-evaluation-input@3`; characteristic order, contact, and provider
+representation do not. GEO Intelligence freezes one
+`brand-evaluation-snapshot@3` projection and exposes a narrower Query handoff;
+it never imports Brand/Amap contracts or re-resolves frozen evidence. Development
+activation uses one empty v3 database rather than a legacy snapshot decoder.
+
+The Web receives only the domain-restricted Amap JS Key. Next owns the bounded
+`/_AMapService` security proxy, while the JS security code and Web Service Key
+remain in separate server runtimes. The Brand API completes provider calls before
+the aggregate transaction, stores no raw provider response, serializes Brand
+writes, and rejects expired, replayed, cross-account, or stale receipts.
 
 Media Supply owns the global administrator-maintained platform catalog in
 PostgreSQL: stable platform identity, fixed multi-category membership,
