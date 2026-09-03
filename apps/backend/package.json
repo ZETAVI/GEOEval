@@ -15,7 +15,8 @@
     "s6:execute": "GEOEVAL_LOCAL_DEFAULTS=1 AI_EXECUTION_MODE=real node --env-file=../../.env --import tsx src/controlled-provider-validation-main.ts execute",
     "db:generate": "GEOEVAL_LOCAL_DEFAULTS=1 prisma generate --config prisma.config.ts",
     "db:migrate": "GEOEVAL_LOCAL_DEFAULTS=1 prisma migrate deploy --config prisma.config.ts",
-    "openapi:generate": "GEOEVAL_LOCAL_DEFAULTS=1 node --import tsx src/generate-openapi.ts"
+    "openapi:generate": "GEOEVAL_LOCAL_DEFAULTS=1 node --import tsx src/generate-openapi.ts",
+    "media-supply:first-batch": "node --import tsx src/media-supply-import-main.ts"
   },
   "dependencies": {
     "@langfuse/otel": "5.11.0",
@@ -28,6 +29,8 @@
     "@prisma/adapter-pg": "7.9.1",
     "@prisma/client": "7.9.1",
     "bullmq": "6.2.1",
+    "fast-xml-parser": "5.10.1",
+    "fflate": "0.8.3",
     "pg": "8.23.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",

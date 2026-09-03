@@ -304,6 +304,70 @@ suppliers through their owner-local contracts.
 - **AND** dense regions stack in a stable reading order
 - **AND** the page does not become the terminal-customer media presentation.
 
+### Requirement: Controlled first-batch import
+
+Media Supply SHALL provide one offline, fixed-format `plan` / `apply` boundary
+for the reviewed first batch without making its workbook a runtime or checked-in
+data source.
+
+#### Scenario: An operator plans the reviewed first batch
+
+- **GIVEN** the input has the approved SHA-256, fixed sheet/header/count shape,
+  40 row-anchored PNG Logos, valid mappings, and whole RMB-yuan costs
+- **WHEN** an administrator actor runs `plan` against an explicitly selected
+  database and Web public-asset root
+- **THEN** it reports deterministic new, existing, conflict, skipped, warning,
+  input, asset-bundle, database-target, and confirmation facts
+- **AND** it does not write database records, audits, receipts, or asset files
+- **AND** errors and warnings contain only bounded codes, row numbers, and
+  hashes rather than workbook cell content or supplier/internal facts.
+
+#### Scenario: The reviewed first batch is applied
+
+- **GIVEN** the plan is ready and its confirmation still matches inside a
+  serializable transaction
+- **WHEN** the operator explicitly runs `apply`
+- **THEN** exact existing records are reused, missing records are inserted, and
+  any differing platform, supplier, resource, identity, asset, or actor blocks
+  the operation without automatic update
+- **AND** all newly inserted platforms have 1000 points and are inactive
+- **AND** all newly inserted suppliers and resources are inactive and every
+  resource is hidden from customers
+- **AND** entity, category, relation, and `IMPORT_CREATE` audit writes commit in
+  one PostgreSQL transaction or all roll back
+- **AND** repeating the same valid apply creates no duplicate entity, category,
+  relation, or audit.
+
+#### Scenario: Logo assets and the apply receipt use separate durable owners
+
+- **WHEN** the first-batch command verifies deployment readiness
+- **THEN** the 40 approved Logos already exist as exact versioned Web public
+  assets and apply performs no file write
+- **AND** a missing, changed, extra, corrupt, or wrongly anchored Logo blocks
+  apply before the database transaction
+- **AND** a post-commit safe receipt records hashes, versions, counts, bounded
+  warnings/conflicts, and final status without supplier names, contacts,
+  procurement values, cases, notes, or raw cells
+- **AND** if receipt finalization fails after commit, idempotent replay can
+  recreate it without another business or audit write.
+
+#### Scenario: Workbook-only text has no compatible Media Supply field
+
+- **WHEN** a case-reference cell is not a valid HTTPS URL
+- **THEN** its source row is reported as a warning and `caseUrl` remains null
+- **AND** the text is not copied into another business field, log, or receipt
+- **AND** display names, descriptions, aliases, resource identifiers, and
+  internal notes otherwise preserve reviewed text while only matching keys use
+  deterministic normalization.
+
+#### Scenario: Implementation acceptance does not activate the batch
+
+- **WHEN** the import implementation and isolated review-database rehearsal are
+  accepted or merged
+- **THEN** no formal database write, deployment, activation, customer
+  publication, order, fulfilment, or external supplier call is implied
+- **AND** each later gate requires its own explicit authority and evidence.
+
 ### Requirement: Durable catalog and commercial revisions
 
 Media Supply SHALL use PostgreSQL as the only durable catalog source and SHALL
