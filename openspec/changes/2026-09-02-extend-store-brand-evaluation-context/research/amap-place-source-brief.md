@@ -9,7 +9,8 @@
   guidance, and a normalized 2026-09-03 controlled Web Service probe; the
   platform service agreement is retained as reviewed context.
 - Disqualifier: the official interfaces or actual account cannot support the
-  required map, verification, minimum-field, credential, or region-coherence
+  required map, verification, minimum-field, credential, or exact region-
+  derivation
   boundary without trusting browser facts or inventing location meaning.
 
 ## Recommendation
@@ -20,6 +21,13 @@ list; a separate server-side Web Service adapter independently resolves the
 selected POI and reverse-geocodes its coordinate before Brand can persist it.
 The map improves selection confidence but never becomes the authority for a
 Brand write.
+
+The 2026-09-03 product revision removes the separate customer-maintained three-
+level region selection. AutoComplete/PlaceSearch operate without a product city
+constraint; the customer searches with a concrete store name plus city/address/
+landmark text. The server maps verified adcode/towncode evidence to exactly one
+maintained MCA path. The Web does not load `AMap.Geolocation`, call browser
+geolocation, infer location from IP, or request current-position permission.
 
 The platform agreement context remains recorded below. On 2026-09-02, the human
 commercial/legal risk owner stated that they had reviewed the use, found no
@@ -45,6 +53,9 @@ credential boundaries remain unchanged.
 - Browser-submitted place facts are untrusted. A server call must resolve the
   selected POI and reverse-geocode its coordinate before Brand can commit an
   evaluation-relevant store location.
+- Province/city/terminal are not parallel customer inputs. The verified place is
+  the only derivation source; an exact maintained MCA mapping is required before
+  Brand can commit the Store Location.
 - Amap fields are provider evidence, not stable product identity. The official
   docs call a POI ID unique for a current result but do not promise lifecycle
   stability across provider data updates.
@@ -52,8 +63,8 @@ credential boundaries remain unchanged.
   explicitly; callers must not reinterpret the numbers as WGS84.
 - Search, detail, and reverse-geocode output can be incomplete or inconsistent
   with reality. The customer confirms the selected storefront, while the
-  server verifies structure and region coherence; neither the Agent nor the
-  client may invent a place or business area.
+  server verifies structure and derives one exact maintained region path;
+  neither the Agent nor the client may invent a place, region, or business area.
 - Search and input-tip quotas are materially lower than geocoding quotas in the
   current official table. Autocomplete therefore starts only after a minimum
   input length, is debounced, and never loads unbounded pages; an explicit
@@ -127,6 +138,8 @@ evidence, production allowlists, or technical-service activation.
 | Place results expose POI ID, name, address, coordinate, province/city/district names and codes; `business.business_area` is optional through `show_fields` | [Amap Place Search 2.0](https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch) | Updated 2026-07-15 | Request only the minimum fields; model absence as normal and never require provider rating, phone, photos, or commercial metadata |
 | Reverse geocoding returns structured address components and, with extended output, business-area, POI, AOI, road, and neighborhood information | [Amap geocoding and reverse geocoding](https://lbs.amap.com/api/webservice/guide/api/georegeo) | Updated 2026-02-02 | Reverify the selected coordinate server-side; derive bounded business-area candidates and a precise address fallback without copying the raw response |
 | JS API 2.0 provides `AMap.AutoComplete` and `AMap.PlaceSearch`; `PlaceSearch` can draw results on an `AMap.Map`, populate a panel, constrain a city, and auto-fit markers | [Amap JS API input tips and POI search](https://lbs.amap.com/api/javascript-api-v2/guide/services/autocomplete), [Amap map POI search](https://lbs.amap.com/api/javascript-api-v2/tutorails/search-poi) | Updated 2026-07-15 and 2024-07-12 | Adopt a responsive map plus accessible candidate list; cap results at ten and treat every browser result as untrusted until server verification |
+| `AutoComplete.city` and `PlaceSearch.city` default to nationwide search, while `PlaceSearch.citylimit` defaults to `false` | [Amap JS API input tips and POI search](https://lbs.amap.com/api/javascript-api-v2/guide/services/autocomplete), [Amap PlaceSearch reference](https://lbs.amap.com/api/maps-javascript-api/reference/search/placesearch), [Amap map POI search](https://lbs.amap.com/api/javascript-api-v2/tutorails/search-poi) | Updated 2026-07-15, 2026-07-02, and 2024-07-12; accessed 2026-09-03 | Do not require a separate region selector; guide the customer to include city/address/landmark text and show full addresses for disambiguation |
+| `AMap.Map`, AutoComplete/PlaceSearch, and `AMap.Geolocation` are separate capabilities/plugins; map center is optional configuration | [Amap JS API 2.0 reference](https://lbs.amap.com/api/javascript-api-v2/documentation), [Amap geolocation plugin](https://lbs.amap.com/api/javascript-api-v2/guide/services/geolocation) | Updated 2025-09-12; accessed 2026-09-03 | Do not load Geolocation or request browser/device/IP position; initialize a neutral map and fit the view after search results |
 | `AMap.Marker` supports displayed coordinates and click events, while map click events expose a selected longitude/latitude | [Amap Marker](https://lbs.amap.com/api/javascript-api-v2/guide/amap-marker/default-marker), [Amap map lifecycle](https://lbs.amap.com/api/javascript-api-v2/guide/map/lifecycle) | Updated 2024-07-12 and 2023-12-12 | Candidate Marker clicks select POIs; a free map click may reposition or search nearby but cannot directly commit a Store Location |
 | JS API geocoding supports converting a map-selected coordinate to an address | [Amap JS API geocoding](https://lbs.amap.com/api/javascript-api-v2/guide/services/geocoder) | Updated 2024-07-19 | Use it for immediate preview only; server Web Service detail/reverse-geocode remains authoritative |
 | Amap requires a separate Web(JS API) Key and security key and recommends keeping the security key on the server through a proxy; plaintext browser configuration is not recommended for production | [Amap JS API security-key guidance](https://lbs.amap.com/api/javascript-api-v2/guide/abc/jscode) | Updated 2025-06-18 | Use an approved-domain JS Key plus server `/_AMapService` proxy; never reuse or expose the Web Service Key |
@@ -151,9 +164,13 @@ evidence, production allowlists, or technical-service activation.
   set `window._AMapSecurityConfig.serviceHost = '/_AMapService'` before loading
   the JS API script.
 - Use `AMap.Map`, `AMap.AutoComplete`, `AMap.PlaceSearch`, and `AMap.Marker`.
-  Constrain both suggestion/search to the Brand-selected city; set strict city
-  limiting, `pageSize: 10`, `pageIndex: 1`, the current `map`, an accessible
-  result `panel`, and `autoFitView: true`.
+  Do not set a city/city-limit from a product field. Set `pageSize: 10`,
+  `pageIndex: 1`, the current `map`, an accessible result `panel`, and
+  `autoFitView: true`; require keyword guidance and full-address result display
+  to disambiguate same-name stores.
+- Do not load `AMap.Geolocation`, call `navigator.geolocation`, infer position
+  from IP, or render a current-location control. Search and map interaction must
+  work without a permission prompt.
 - A selected candidate contributes only its POI ID to the GEOEval verify
   command. Name, address, coordinate, business area, and result order from the
   browser remain preview data and cannot be committed as facts.
@@ -210,13 +227,14 @@ evidence, production allowlists, or technical-service activation.
 The source evidence supports the following minimum browser/server boundary:
 
 ```text
-browserMapSearch(region, normalizedKeyword, limit <= 10)
+browserMapSearch(normalizedKeyword, limit <= 10)
   -> browser candidate markers and accessible list
   -> untrusted selected providerPlaceId
 
 serverVerifyStoreSelection(providerPlaceId)
   -> verified place detail
   -> reverse-geocoded structured address at the returned coordinate
+  -> exactly one derived maintained MCA official-region path
   -> normalized business-area candidates
   -> provider outcome and verification timestamp
 ```
@@ -225,14 +243,15 @@ The JavaScript boundary owns only transient interaction. The server adapter
 returns typed normalized values and provider error categories and does not
 expose the Web Service Key, raw response, request URL, provider rating, phone,
 photos, reviews, or unrelated POI metadata. Brand application logic—not either
-provider client—checks the account, selected official region, customer-confirmed
-locality, readiness, and fingerprint consequences.
+provider client—checks the account, exact provider-to-MCA derivation, customer-
+confirmed locality, readiness, and fingerprint consequences.
 
 ## Alternatives
 
 | Option | Fit | Reason |
 | --- | --- | --- |
 | Hybrid JS map selection plus server Web Service verification | Adopt | Gives the user map confidence while keeping every persisted fact behind account-bound server verification; requires separate JS and Web Service credential boundaries |
+| Separate three-level region selector plus map search | Reject after 2026-09-03 revision | Creates two customer-visible location standards that can disagree; the verified place already supplies the evidence needed to derive the maintained region identity |
 | Server-only candidate list without a map | Defer as fallback | Smaller credential surface but does not meet the confirmed map-selection preference; retain only as graceful fallback if the map cannot load after entitlement is established |
 | Browser calls Web Service API directly | Reject | Exposes the server credential, defeats IP allowlisting, and lets client-controlled provider data approach Brand persistence |
 | Arbitrary map click commits a location | Reject | A coordinate is not proof of a concrete storefront; map clicks may move the search center but the customer must still select a POI that the server can resolve |
@@ -246,7 +265,7 @@ Enterprise certification, documented test-scale quota, current success behavior
 for the named Web Service endpoints, response-type variation, plural
 business-area evidence, and one direct-admin township mapping are now
 established. They are sufficient to fix the initial adapter parsing and
-official-region coherence contract.
+provider-to-MCA derivation contract.
 
 Implementation must still use fixtures to prove timeout and documented
 `infocode` classification, and must add a controlled zero-combined-business-area
@@ -256,6 +275,10 @@ map/Marker/accessible-list selection on desktop and mobile. Production remains
 blocked on approved domain and fixed-egress restrictions, technical-service
 activation, and runtime evidence in the release environment. POI-ID lifecycle
 stability and an SLA remain unknown rather than assumed.
+
+The nationwide JS search path and proof that no location permission is requested
+remain browser-implementation evidence; the existing Web Service success probe
+is not presented as proof of that UI path.
 
 ## Reuse and Refresh Boundary
 

@@ -10,11 +10,14 @@ in evaluation readiness and projection.
 
 #### Scenario: A customer searches for a concrete store
 
-- **GIVEN** an authenticated customer has selected a valid Brand-owned official
-  region path
-- **WHEN** the customer submits a specific store name, landmark, or address
+- **GIVEN** an authenticated customer is creating or editing a Brand
+- **WHEN** the customer submits a specific store name plus city, landmark, or
+  address text
 - **THEN** Web presents an Amap JS API map, bounded autocomplete/search,
-  selectable POI Markers, and an accessible address list within that region
+  selectable POI Markers, and an accessible full-address list without requiring
+  a separate province/city/terminal selection
+- **AND** Web does not load Geolocation, request browser/device/IP position, or
+  show a current-location action by default
 - **AND** the browser receives only the domain-restricted Web(JS API) Key, never
   the JS security key, Web Service Key, raw provider response, or authoritative
   mutation fields
@@ -33,12 +36,21 @@ in evaluation readiness and projection.
 - **WHEN** the customer selects one Marker or its matching list item
 - **THEN** the server resolves current provider place detail and reverse-
   geocodes its coordinate
-- **AND** checks required identity, structured address, coordinate, and official-
-  region coherence
+- **AND** checks required identity, structured address, and coordinate and maps
+  provider adcode/towncode evidence to exactly one maintained MCA province/city/
+  terminal path
 - **AND** returns a short-lived account/Brand-bound sealed verification receipt
   plus a customer-safe preview
 - **AND** forged, altered, stale, cross-account, or unverifiable client data
   cannot become Store Location facts.
+
+#### Scenario: Provider evidence cannot derive one official region
+
+- **WHEN** verified provider detail/reverse-geocode evidence is missing,
+  contradictory, or cannot map exactly to one maintained MCA terminal
+- **THEN** no verification receipt is issued
+- **AND** the customer may search for another exact POI or contact support
+- **AND** neither the customer nor an Agent can manually override the region.
 
 #### Scenario: A verified location is committed
 
@@ -176,8 +188,9 @@ SHALL freeze it without reading Brand persistence or the Store Location adapter.
 - **WHEN** an active account-owned Brand has a verified Store Location, concrete
   flagship product/service, two through six valid characteristics, and all
   existing readiness facts
-- **THEN** Brand returns its v3 fingerprint, existing frozen industry/official-
-  region meaning, structured Store Location display and provenance, explicit
+- **THEN** Brand returns its v3 fingerprint, existing frozen industry meaning,
+  Store Location-derived official-region meaning, structured Store Location
+  display and provenance, explicit
   coordinate system, final Query locality, flagship value, and peer
   characteristics
 - **AND** GEO stores `brand-evaluation-snapshot@3`
@@ -216,18 +229,38 @@ v1/v2/legacy data.
 - **THEN** reset fails before deletion
 - **AND** #40 grants no authority to clear or migrate that data.
 
-### Requirement: One responsive Store Brand form
+## MODIFIED Requirements
+
+### Requirement: Honest Brand readiness
+
+Brand Knowledge SHALL derive readiness from all accepted current facts.
+
+#### Scenario: A Store Brand becomes evaluation-ready
+
+- **WHEN** company name, valid industry/`Other`, one verified Store Location
+  with an exactly derived official region, concrete flagship
+  product/service, two through six valid peer characteristics, contact name,
+  and contact mobile satisfy their rules
+- **THEN** the Brand is ready for a new v3 evaluation
+- **AND** registration, Brand management, and diagnosis observe the same result.
+
+### Requirement: One responsive Brand reference form
 
 Registration and Brand management SHALL reuse the generated Brand contract and
-one accessible field group for location, flagship value, and characteristics.
+one accessible field group for industry, Store Location, flagship value, and
+characteristics.
 
 #### Scenario: A customer creates or edits a Brand
 
-- **WHEN** the Store Brand field group is shown
+- **WHEN** the shared Brand field group is shown
 - **THEN** it provides visible labels, address feedback before confirmation,
   an Amap map with matching accessible candidate list, honest loading/empty/
   failure states, two default characteristic rows, bounded add/remove actions,
   and a stacked narrow-screen layout
+- **AND** it has no independent province/city/terminal controls and requests no
+  browser location permission
+- **AND** registration and later editing use the same industry, `Other`, Store
+  Location, flagship, characteristic, and readiness rules
 - **AND** the customer can save an incomplete draft
 - **AND** all required fields and one verified Store Location are necessary
   before entering the new v3 evaluation path.
@@ -237,20 +270,5 @@ one accessible field group for location, flagship value, and characteristics.
 - **WHEN** the customer is on a narrow screen, uses only a keyboard, or receives
   no provider result
 - **THEN** focus, status, error, retry, and candidate selection remain operable
-- **AND** the UI does not fabricate a map success, address, locality, or
-  evaluation-ready state.
-
-## MODIFIED Requirements
-
-### Requirement: Honest Brand readiness
-
-Brand Knowledge SHALL derive readiness from all accepted current facts.
-
-#### Scenario: A Store Brand becomes evaluation-ready
-
-- **WHEN** company name, valid industry/`Other`, valid official region, one
-  verified Store Location coherent with that region, concrete flagship
-  product/service, two through six valid peer characteristics, contact name,
-  and contact mobile satisfy their rules
-- **THEN** the Brand is ready for a new v3 evaluation
-- **AND** registration, Brand management, and diagnosis observe the same result.
+- **AND** the UI does not fabricate a map success, address, derived region,
+  locality, or evaluation-ready state.

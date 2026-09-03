@@ -2,9 +2,9 @@
 
 - Status: Product, architecture, commercial/legal risk, and external API design
   direction confirmed; enterprise certification, test-scale quota, bounded Web
-  Service success shapes, and the current-code module blueprint are recorded on
-  2026-09-03; one official-region-edit decision remains in Review / Decision
-  before explicit runtime implementation authorization
+  Service success shapes, single-source Store Location/derived-region decision,
+  and the current-code module blueprint are recorded on 2026-09-03; ready for
+  explicit runtime implementation authorization
 - Class: Architectural
 - Owning Issue: [#40](https://github.com/ZETAVI/GEOEval/issues/40)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -18,12 +18,13 @@
 
 ## Why
 
-Current Brand Knowledge freezes a controlled industry subject, one official
-province-city-terminal path, and exactly two characteristics. That proves broad
-regional and category meaning but cannot identify the customer's real store,
-its useful local recommendation area, or the concrete product or service that
-should anchor discovery. #26 consequently generated a broad restaurant question
-for the `头家顺` evidence and admitted unrelated categories into the evaluation.
+Current Brand Knowledge asks the customer to maintain a controlled industry,
+one separate province-city-terminal path, and exactly two characteristics. The
+separate region path proves broad regional meaning but cannot identify the real
+store and can disagree with a later map-selected POI. It also leaves the useful
+local recommendation area and concrete flagship offer unspecified. #26
+consequently generated a broad restaurant question for the `头家顺` evidence and
+admitted unrelated categories into the evaluation.
 
 All first-stage target brands are now confirmed to have one concrete store.
 Brand Knowledge therefore needs a store-owned evaluation context before #26 can
@@ -37,8 +38,9 @@ One Brand can save a draft or become evaluation-ready with:
 
 - one server-verified concrete storefront;
 - the customer's search input, a structured display address, explicit GCJ-02
-  coordinate, official region coherence, bounded business-area candidates, and
-  one customer-confirmed Query locality;
+  coordinate, one MCA official-region identity derived from that verified
+  storefront, bounded business-area candidates, and one customer-confirmed Query
+  locality;
 - one required `主打产品或服务` value independent of industry classification;
 - a peer collection of two to six customer characteristics, with two fields
   shown by default and accessible add/remove behavior but no priority ordering;
@@ -63,8 +65,11 @@ may use that reset path.
   server-side Store Location verification adapter, server-sealed receipt, typed
   provider outcomes, and customer-actionable failure fallback.
 - Brand-owned current store-location value, structured address, source
-  identity/provenance, chosen Query locality, `flagshipProductOrService`, and
-  peer `characteristics` collection.
+  identity/provenance, derived MCA official region, chosen Query locality,
+  `flagshipProductOrService`, and peer `characteristics` collection.
+- Removal of customer-maintained province/city/terminal inputs from the v3
+  Store Brand form and persistence; the verified Store Location becomes their
+  only derivation source.
 - Web/API mutation and response boundaries that never accept client-provided
   coordinates, address components, provider IDs, or business areas as facts.
 - Brand readiness, `brand-evaluation-input@3` fingerprint, evaluation-purpose
@@ -82,6 +87,8 @@ may use that reset path.
 - A generic map platform, reusable geospatial framework, customer location
   history, several stores per Brand, bulk POI database, live place refresh,
   route planning, navigation, distance scoring, or monitoring.
+- Browser/device/IP geolocation, automatic current-position lookup, location-
+  permission prompts, or proximity-based store selection.
 - Direct browser use of a Web Service Key or JS security key, browser-trusted
   place facts, arbitrary map-click persistence, raw Amap response storage, or
   Agent-invented location.
@@ -107,6 +114,12 @@ may use that reset path.
   list, and selectable candidate Markers. A free map click may reposition the
   search but cannot become a Store Location without selecting and verifying a
   concrete POI.
+- The customer no longer selects a separate three-level administrative region.
+  Search starts from store name plus city/address/landmark text; the browser does
+  not load `AMap.Geolocation` or request device-location permission.
+- The server derives one MCA official-region path from verified detail/reverse-
+  geocode adcode/towncode evidence. An exact mapping is required for readiness;
+  the customer and Agent cannot override it.
 - Amap may provide address and position facts only. Agent output cannot create
   an address or business area.
 - If Amap provides no business area, Brand freezes an honest verified
@@ -140,13 +153,14 @@ may use that reset path.
 3. Use Amap JavaScript API 2.0 for a responsive map, autocomplete/search,
    accessible candidate list, and selectable POI Markers. Use a separate
    Web(JS API) Key plus server security-key proxy; never expose the Web Service
-   Key or accept arbitrary map coordinates as a Store Location.
+   Key or accept arbitrary map coordinates as a Store Location. Do not load the
+   Geolocation plugin or request browser/device location by default; do not
+   require a city selector before search.
 4. The server independently verifies the selected POI through Web Service v5 ID
-   detail plus v3 reverse geocoding,
-   reconciles the result with the Brand-owned official region, and issues a
-   short-lived, account/Brand-bound sealed receipt. Brand commits only fields
-   covered by that receipt and the customer's choice from its bounded locality
-   candidates.
+   detail plus v3 reverse geocoding, maps the result exactly to the maintained
+   MCA province/city/terminal path, and issues a short-lived, account/Brand-bound
+   sealed receipt. Brand commits only fields covered by that receipt and the
+   customer's choice from its bounded locality candidates.
 5. Prefer a customer-selected Amap business-area candidate. If none exists,
    freeze a precise verified `ADDRESS_LOCALITY` label and never display or
    describe it as a business area. #26 may turn that fact into a natural
@@ -168,8 +182,9 @@ may use that reset path.
 ## Impact
 
 - **Brand Knowledge:** owns the current Store Location, official-region
-  coherence, flagship product/service, peer characteristics, readiness, the v3
-  fingerprint, and the only evaluation-purpose projection.
+  derivation, flagship product/service, peer characteristics, readiness, the v3
+  fingerprint, and the only evaluation-purpose projection. It has no second
+  customer-writable region source.
 - **Store Location adapter:** is Brand infrastructure. It owns external
   protocol mapping, timeout/error normalization, minimum-field requests, and
   credential redaction, but not readiness, customer choice, fingerprint, or
@@ -177,10 +192,11 @@ may use that reset path.
 - **GEO Intelligence:** owns immutable v3 Definition snapshots. It receives one
   complete Brand projection and never reads Brand or provider persistence. #26
   owns the later Query consumer.
-- **Web/API:** reuse registration and Brand editing. The browser sees safe
-  Amap map and untrusted candidate markers, then submits a selected POI for
-  server verification and an opaque receipt plus one locality choice; it never
-  submits authoritative provider fields.
+- **Web/API:** reuse registration and Brand editing without the three-level
+  region controls. The browser sees a safe Amap map and untrusted candidate
+  markers, then submits a selected POI for server verification and a signed
+  receipt plus one locality choice; it never submits authoritative provider
+  fields or device location.
 - **Data:** add Store Location and v3 field persistence on a recreated empty
   development database. Characteristics become one peer collection; no v1/v2
   data conversion or runtime compatibility owner remains.
@@ -216,13 +232,14 @@ may use that reset path.
   workspace state rather than preserving a machine-local location
 - Writer: the #40 task owner; #26 remains a separate single writer for Query
 - Current phase: enterprise account/API contract preparation and current-code
-  module blueprint complete; one official-region-edit decision is in Review /
-  Decision before explicit implementation authorization. Production credential
-  restrictions and technical-service activation remain separate gates
+  module blueprint complete; the single-source Store Location/derived-region
+  decision closes the prior human gate. Explicit implementation authorization,
+  production credential restrictions, and technical-service activation remain
+  separate gates
 - PR relationship: documentation-only Partial PR using
   `Part of #40 — does not close`
-- Exit for this task: Draft PR and Issue #40 updated with the module blueprint,
-  architecture finding, and one bounded product question, then stop before code
+- Exit for this task: Draft PR and Issue #40 updated with the single-source
+  region revision and refreshed architecture result, then stop before code
 
 ## Approval Boundary
 

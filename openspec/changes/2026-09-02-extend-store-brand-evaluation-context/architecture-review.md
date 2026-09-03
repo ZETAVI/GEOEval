@@ -19,16 +19,21 @@ without making Amap or Query a second data owner. It must allow map-assisted
 selection while keeping server verification authoritative, treat characteristics
 as peers, activate one v3 contract through a development-only reset, keep
 external calls outside the Brand transaction, prevent forged browser facts,
-minimize credentials/provider data, and give #26 one frozen v3 projection.
-Current truth remains unchanged until implementation.
+derive one maintained official-region identity from the verified place rather
+than a second customer input, avoid browser/device location permission, minimize
+credentials/provider data, and give #26 one frozen v3 projection. Current truth
+remains unchanged until implementation.
 
 ## Affected Slice
 
 - Brand Knowledge gains one owned Store Location value, flagship product/service,
-  peer characteristics, v3 readiness/fingerprint, and evaluation projection.
+  derived MCA official region, peer characteristics, v3 readiness/fingerprint,
+  and evaluation projection. Separate customer-writable region fields disappear
+  after the authorized development reset.
 - Web gains one Amap JavaScript API 2.0 map picker with a domain-restricted JS
-  Key, server security-key proxy, candidate list, and POI Markers. Browser facts
-  remain untrusted.
+  Key, server security-key proxy, nationwide candidate list, and POI Markers.
+  It does not load Geolocation or ask for current position. Browser facts remain
+  untrusted.
 - A Brand-owned infrastructure adapter maps Amap place detail/reverse-geocoding
   into typed evidence; no other module imports it.
 - Web uses generated GEOEval APIs and a server-sealed receipt; it never owns
@@ -40,22 +45,18 @@ Current truth remains unchanged until implementation.
 
 ## Findings
 
-### Must-fix before runtime mutation implementation: official-region edits lack a confirmed Store Location action
+### Resolved product decision: Store Location is the only region source
 
-- **Affected artifact:** design `Aggregate Write and Transaction`; public Brand
-  mutation contract and shared Web form.
-- **Boundary:** Brand aggregate consistency and customer-visible data loss.
-- **Consequence:** preserving the old Store Location after an official-region
-  edit can commit contradictory Brand facts. Automatically deleting it can
-  silently discard a customer-confirmed evaluation fact. Requiring immediate
-  reselection can prevent the customer from saving an otherwise valid draft.
-- **Narrow remediation:** the product owner chooses one explicit region-change
-  rule. The recommended option requires the same save to contain either a newly
-  verified `REPLACE` or an explicit `REMOVE`; omission is rejected with clear
-  copy. This preserves consistency without silent deletion while retaining a
-  deliberate draft path.
-- **Origin:** ambiguity exposed by deepening #40 against the current create/edit
-  form and aggregate transaction.
+- **Affected artifact:** design `Derived Official Region`, public Brand mutation,
+  shared Web form, v3 fingerprint/snapshot, and Brand delta.
+- **Boundary:** one owner for administrative identity and Store Location.
+- **Decision and consequence:** the product owner removed the separate three-
+  level region selection on 2026-09-03. The server derives one exact MCA path
+  from verified POI detail/reverse-geocode evidence and stores it inside the
+  owned Store Location. Replacing/removing the location atomically replaces/
+  removes the derived region, so contradictory inputs and silent region-driven
+  deletion are no longer reachable.
+- **Origin:** user-confirmed simplification resolving the prior #40 ambiguity.
 
 ### Resolved follow-up: endpoint and special-city success contracts
 
@@ -78,11 +79,12 @@ Current truth remains unchanged until implementation.
 - **Boundary:** credential containment, customer failure behavior, and release
   operability.
 - **Consequence:** the Web Service success path is now evidenced, but the JS
-  map/security proxy, approved-domain restriction, fixed-egress allowlist,
+  map/security proxy, nationwide full-address search, proof that no location
+  permission is requested, approved-domain restriction, fixed-egress allowlist,
   timeout/error mapping, and zero-combined-business-area fallback have not run
   through implementation. Activating production without them could expose a
-  credential, misclassify an operator fault as a customer retry, or offer no
-  honest locality fallback.
+  credential, misclassify an operator fault as a customer retry, request an
+  unintended permission, or offer no honest locality fallback.
 - **Narrow remediation:** implement the existing fixture-first port and proxy,
   prove named failure/zero-locality cases without further real calls by default,
   then validate the browser path and release restrictions in their approved
@@ -106,7 +108,8 @@ Current truth remains unchanged until implementation.
   and raw-field mutations are rejected for concrete integrity consequences.
 - **Data integrity:** one Store Location value, bounded peer JSON collection,
   external-call-free transaction, explicit coordinate system, locality kind,
-  order-independent fingerprint, and no raw responses keep ownership reviewable.
+  provider-to-MCA derived region, order-independent fingerprint, and no raw
+  responses keep ownership reviewable. There is no second region write path.
 - **Implementation locality:** the current Brand domain/service/repository and
   one Brand-local verification service absorb the change. The provider port has
   one resolve method; Amap protocol, config, and receipt details are not exported
@@ -119,7 +122,7 @@ Current truth remains unchanged until implementation.
   rebuild removes v1/v2 migration complexity. The destructive path is explicitly
   unavailable once production/customer data exists.
 - **Failure/recovery:** transient provider failure leaves drafts or an existing
-  verified location intact; provider drift, region mismatch, missing business
+  verified location intact; provider drift, unmappable region, missing business
   areas, quota/auth faults, and database rollback have distinct owners/actions.
 - **Simplicity:** one JS map component, one server verification port, one
   one-to-one value, one sealed receipt, and one peer array are justified by real
@@ -153,20 +156,20 @@ Current truth remains unchanged until implementation.
 
 ## Review Result
 
-`not ready`.
+`ready with follow-up`.
 
 The deepened module, port, receipt, persistence-minimization, configuration, and
-verification-package boundaries are coherent. The previous external license/
-storage must-fix is closed by explicit human risk acceptance, and the previous
-endpoint/special-city follow-up is closed by controlled evidence. The one
-official-region edit rule is a reachable product/data-integrity decision and
-must be confirmed before runtime mutation implementation. JS/browser security,
+verification-package boundaries are coherent. The single-source Store Location/
+derived-region decision closes the prior product/data-integrity finding. The
+previous external license/storage must-fix is closed by explicit human risk
+acceptance, and the endpoint/special-city follow-up is closed by controlled
+evidence. JS map/security-proxy behavior without Geolocation, nationwide search,
 named failure/zero-locality behavior, and production credential/license controls
-remain later follow-ups. No ADR is required; stable accepted behavior should
-later reconcile into Brand Knowledge, the GEO snapshot seam, executable schemas/
-tests, and architecture overview.
+remain follow-ups. No ADR is required; stable accepted behavior should later
+reconcile into Brand Knowledge, the GEO snapshot seam, executable schemas/tests,
+and architecture overview.
 
-The Draft documentation PR may proceed as a decision-ready design artifact. The
-architecture returns to `ready with follow-up` only after the region-edit answer
-is reconciled and this affected review dimension is rerun. It must not be
-presented as runtime implementation, production readiness, or #40 completion.
+The Draft documentation PR may proceed as a Ready design artifact, and the
+architecture is ready for explicit fixture-first runtime implementation
+authorization. It must not be presented as runtime implementation, production
+readiness, or #40 completion.

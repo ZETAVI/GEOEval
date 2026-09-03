@@ -19,6 +19,8 @@ locality, and development-reset revisions below.
 | Characteristics | Peer collection; two fields by default; 2-6 distinct items; 2-120 characters each; presentation order has no priority and does not affect fingerprint | Gives #26 more useful angles while avoiding an unintended ranking contract | Product owner |
 | Initial place UX | Amap JS API 2.0 map, autocomplete/search, accessible result list, and selectable POI Markers; arbitrary map coordinates cannot be committed | Better selection confidence; requires a separate Web(JS API) Key and server security-key proxy | Product and architecture owners |
 | Verification | v5 POI detail plus v3 reverse geocode; server-sealed short-lived receipt; Brand commits only receipt-covered facts | Adds one verification round but prevents forged client position data and external calls inside a DB transaction | Architecture owner |
+| Administrative region | Remove customer province/city/terminal selection; derive the maintained MCA path only from the verified Store Location | Eliminates two competing inputs; a place without an exact mapping remains a draft rather than accepting manual correction | Product and architecture owners |
+| Device location | Do not load Geolocation or request browser/device/IP location by default | Avoids permission prompts and accidental proximity semantics; customers search by store name plus city/address/landmark text | Product owner |
 | Query locality | Customer selects a verified business-area candidate; if none exists, freeze an honestly labelled verified address locality that #26 may phrase naturally | Avoids invented business areas while keeping every verified store usable | Product owner |
 | Provider data | Amap is a conditional runtime adapter; retain only the minimum verified facts and never raw responses | Keeps provider replaceable and data minimized; commercial/legal risk is accepted by its human owner | Architecture and commercial/legal risk owners |
 | Fingerprint | v3 includes Brand-owned Store Location semantic identity, flagship value, and the normalized characteristic set; excludes characteristic presentation order and provider representation/provenance | Correct evaluation meaning without treating field order or provider refresh as a new opportunity | Product and architecture owners |
@@ -40,9 +42,12 @@ account's documented service grants, Key types, quotas, and security controls.
 
 ## Customer-visible Behavior
 
-- The customer chooses the official region, searches on an Amap map, reviews
-  candidate Markers plus an accessible address list, selects one POI, and then
-  chooses a business area when candidates exist.
+- The customer searches by a concrete store name plus city/address/landmark text
+  on an Amap map, reviews candidate Markers plus an accessible full-address list,
+  selects one POI, and then chooses a business area when candidates exist.
+- The form has no separate province/city/terminal controls and does not request
+  device-location permission. The server displays the official region derived
+  from the verified POI for confirmation rather than manual editing.
 - If no business area exists, the form shows a precise address locality without
   calling it a business area.
 - Two characteristic inputs appear by default; the customer may add up to six.
@@ -54,18 +59,14 @@ account's documented service grants, Key types, quotas, and security controls.
 
 ## Next Gate
 
-One product decision remains before explicit implementation authorization: when
-the customer changes the official region of a Brand that already has a verified
-Store Location, the mutation must either require an explicit location action or
-apply a confirmed automatic rule. The server may never commit the new region
-with an incoherent old Store Location.
-
 The application, separate JS/Web Service Key types, enterprise certification,
 test-scale monthly quota, and bounded Web Service success shapes are observed.
-The current-code module blueprint is otherwise ready. A technical-service
-license is not active, and production domain/IP restrictions and JS map/security-
-proxy behavior are not verified. Those production controls and any purchase
-remain later technical/operational boundaries rather than product decisions.
+The single-source Store Location/derived-region decision removes the last
+product ambiguity, so the current-code module blueprint is ready for explicit
+runtime implementation authorization. A technical-service license is not
+active, and production domain/IP restrictions and JS map/security-proxy behavior
+are not verified. Those production controls and any purchase remain later
+technical/operational boundaries rather than product decisions.
 
 #40 is the upstream v3 producer. PR #28 currently overlaps the Prisma schema,
 evaluation service, snapshot parser, OpenAPI/client, and integration tests and

@@ -84,7 +84,8 @@
 ## Conditional Implementation
 
 - [ ] Add an accessible Amap JS API 2.0 map picker with AutoComplete/PlaceSearch,
-      a candidate list and Markers, minimum-input/debounce/result bounds, map
+      a nationwide full-address candidate list and Markers, minimum-input/
+      debounce/result bounds, no Geolocation/current-position permission, map
       lifecycle cleanup, domain-restricted JS Key, and server security-key proxy.
 - [ ] Add the Brand-owned Store Location verification port, fixture adapter,
       conditional Web Service adapter/config, typed outcomes, deadlines,
@@ -92,9 +93,10 @@
 - [ ] Add an authenticated verify endpoint and account/Brand-bound sealed
       receipts; prove arbitrary coordinates, altered, expired, replayed, and
       cross-account receipts fail.
-- [ ] Add Store Location, flagship, peer characteristics, v3 fingerprint,
-      readiness, v3 canonical hash vectors, atomic Brand write, and response
-      projections.
+- [ ] Add Store Location with its derived MCA official-region path, flagship,
+      peer characteristics, v3 fingerprint, readiness, v3 canonical hash vectors,
+      atomic Brand write, and response projections; remove separate writable
+      province/city/terminal fields after the authorized reset.
 - [ ] Add the single `brand-evaluation-snapshot@3` contract and separate
       historical/report and #26 Query projections without changing Query/Parser/
       Synthesis/report behavior in #40.
@@ -102,9 +104,9 @@
       preflight proves the target is non-production; remove v1/v2 compatibility
       requirements and prove the reset cannot address a production database.
 - [ ] Reuse one responsive form in registration and Brand management with
-      map/Marker/address feedback, candidate/locality selection, two default
-      peer characteristics, max-six add/remove, narrow-screen, keyboard, and
-      failure behavior.
+      map/Marker/address/derived-region feedback, no region selector or location
+      permission, candidate/locality selection, two default peer characteristics,
+      max-six add/remove, narrow-screen, keyboard, and failure behavior.
 - [ ] Regenerate OpenAPI/client and add focused domain, adapter-contract, HTTP,
       migration, snapshot, API, component, and browser tests.
 
@@ -222,7 +224,7 @@
       client, and central Snapshot owners without adding a generic location
       service or provider registry.
 - [x] Fix the small internal interfaces: provider resolution returns minimum
-      typed evidence; Brand application owns official-region coherence,
+      typed evidence; Brand application owns official-region derivation,
       locality, readiness, fingerprint, receipt consumption, and the aggregate.
 - [x] Define disabled-by-default runtime configuration, Amap fail-fast config,
       server-only credentials, fixture injection, deadlines/retry classes, and
@@ -234,7 +236,25 @@
       short-lived receipt and persist only the customer-confirmed Query locality.
 - [x] Map one shared registration/edit field group, isolated map lifecycle,
       generated verification API use, and package-specific verification matrix.
-- [ ] Product owner decides how an official-region edit interacts with an
-      existing verified Store Location before the mutation contract is fixed.
-- [ ] After that decision, rerun the affected architecture-review dimensions and
-      keep the explicit runtime-implementation authorization gate closed.
+- [x] Product owner removes the separate official-region edit path: the verified
+      Store Location is the only source, and replacing/removing it atomically
+      replaces/removes the derived region.
+- [x] Rerun the affected architecture-review dimensions and keep the explicit
+      runtime-implementation authorization gate closed.
+
+## 2026-09-03 Single-source Store Location Revision
+
+- [x] Verify from current official JS API 2.0 documentation that AutoComplete
+      supports nationwide search, city is an optional constraint, map center is
+      configurable, and Geolocation is a separate plugin/capability.
+- [x] Remove the customer-maintained province/city/terminal input from the
+      proposed v3 Brand mutation, shared form, receipt request, and persistence.
+- [x] Make verified POI detail/reverse-geocode evidence the sole derivation
+      source for one exact maintained MCA official-region path; fail closed when
+      no exact mapping exists.
+- [x] Specify nationwide store-name plus city/address/landmark search, full-
+      address disambiguation, and no browser/device/IP location permission.
+- [x] Reconcile proposal, decision brief, Source Brief, design, Brand delta,
+      architecture review, and task plan; close the prior region-edit must-fix.
+- [x] Restore Issue #40 Project Status to Ready after document verification;
+      runtime implementation remains separately unauthorized.

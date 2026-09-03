@@ -1,22 +1,22 @@
 # Design: Store Brand Evaluation Context and Amap Selection
 
-- Product/architecture direction: Confirmed with revisions on 2026-09-02
+- Product/architecture direction: Confirmed with revisions on 2026-09-02 and
+  single-source Store Location/derived-region revision on 2026-09-03
 - Commercial/legal risk: reviewed and accepted by its human owner on 2026-09-02
 - Remaining activation follow-up: JS map/security-proxy evidence, named failure
   and zero-locality fixtures, production allowlists/license, and release runtime
 - Current authorization: documents, completed application/Key preparation, and
   completed controlled Web Service calls; no runtime code, purchase,
   production activation, or development-data reset
-- Open product decision: how an official-region edit handles an existing
-  verified Store Location; runtime mutation design remains gated on that answer
 
 ## Design Position
 
 Store Location is a deeper Brand Knowledge value, not a generic map service and
 not a Query-owned enrichment step. Brand already owns current customer facts,
-controlled official region identity, evaluation readiness, semantic fingerprint,
-and the evaluation-purpose projection. It therefore also owns whether one
-customer-selected storefront is coherent enough to become an evaluation fact.
+evaluation readiness, semantic fingerprint, and the evaluation-purpose
+projection. The customer-selected, server-verified Store Location now becomes
+the single source from which Brand derives its maintained MCA official-region
+identity; there is no second customer-written region fact.
 
 The external seam is deliberately narrow:
 
@@ -48,8 +48,8 @@ tables.
   storefront, one required flagship product/service, and two to six peer
   characteristics; it exposes one stable v3 projection for evaluation.
 - **In:** store search/selection, server verification, structured display
-  map and Marker interaction, address, GCJ-02 coordinate, official-region
-  coherence, locality candidates, customer-confirmed Query locality, flagship
+  map and Marker interaction, address, GCJ-02 coordinate, provider-to-MCA
+  official-region derivation, locality candidates, customer-confirmed Query locality, flagship
   product/service, characteristics, readiness, fingerprint, development reset,
   and snapshot projection.
 - **Out:** a reusable map platform, navigation, distance ranking, multi-store Brand,
@@ -83,7 +83,8 @@ current verified location
 ```
 
 - A Brand draft may omit Store Location, flagship product/service, or enough
-  characteristics. It remains saveable but not evaluation-ready.
+  characteristics. It remains saveable but not evaluation-ready and has no
+  independently maintained official region.
 - Search text, map clicks, and candidates remain transient until the customer
   selects a concrete POI and the server verifies it. There is no database of
   searches, and an arbitrary coordinate is never a Store Location.
@@ -103,19 +104,22 @@ current verified location
 ### Contracts and Dependencies
 
 - **Map selection UI:** Amap JavaScript API 2.0 renders one responsive map,
-  region-scoped autocomplete/search, no more than ten candidate results, and
-  selectable POI Markers plus an accessible list. A map click may recenter or
-  start a nearby search but does not produce an authoritative Brand mutation.
+  nationwide autocomplete/search, no more than ten candidate results, and
+  selectable POI Markers plus an accessible full-address list. Search guidance
+  asks for a concrete store name plus city/address/landmark text. `AMap.Geolocation`
+  is not loaded, browser/device/IP location is not requested, and a map click may
+  recenter but does not produce an authoritative Brand mutation.
 - **Public verification command:** accepts one untrusted provider POI ID; the
-  server resolves current POI detail and reverse geocoding, checks region
-  coherence, and returns a short-lived sealed receipt plus a safe structured
-  preview and locality candidates.
+  server resolves current POI detail and reverse geocoding, derives one exact
+  maintained MCA official-region path, and returns a short-lived signed receipt
+  plus a safe structured preview, derived region, and locality candidates.
 - **Brand mutation:** accepts ordinary Brand fields plus the sealed receipt and
   one candidate identifier. It never accepts an authoritative provider ID,
   coordinate, address component, adcode, or free-form business area.
-- **Brand response:** exposes only customer-useful stored location fields,
-  explicit coordinate system when coordinate is shown, final locality, and
-  readiness; it never exposes credentials or raw provider envelopes.
+- **Brand response:** exposes only customer-useful stored location fields, the
+  derived official region, explicit coordinate system when coordinate is shown,
+  final locality, and readiness; it never exposes credentials or raw provider
+  envelopes.
 - **Internal evaluation query:** returns one complete v3 value object only after
   readiness succeeds. GEO maps it into its own versioned snapshot.
 - **Dependency direction:** Web -> Amap JS UI for temporary display/selection;
@@ -135,13 +139,12 @@ current verified location
 | --- | --- | --- | --- | --- |
 | Search keyword missing or too short | Input correction | Ask for a more specific store name/address | Web/Brand validation; no provider call | None |
 | Map script, tile, domain, or JS security-proxy load fails | Client/external configuration failure | Show a retryable map-unavailable state and allow unrelated draft fields to save | Web/operator | None |
-| No candidate in the selected region | Valid empty result | Change keyword or region and search again | Customer | None |
+| No candidate for the search text | Valid empty result | Add city/address/landmark detail and search again | Customer | None |
 | Customer clicks a coordinate with no selected concrete POI | Incomplete interaction | Recenter/search nearby and choose a Marker/list item | Web/customer | None |
 | Client submits a forged or unknown provider POI ID | Untrusted-input failure | Search and select again | Brand application/server adapter | None |
 | POI detail no longer exists | Provider-data drift | Explain that the candidate changed and re-search | Customer after adapter result | None |
 | POI detail and reverse-geocode coordinate/address disagree materially | Data-integrity failure | Do not offer confirmation; re-search or support | Brand application/operator evidence | None |
-| Provider adcode conflicts with Brand official terminal region | Business validation | Ask the customer to choose the correct region/store | Brand application | None |
-| Special-city `towncode` does not match the maintained terminal through the explicit 12-digit Amap to 9-digit MCA normalization | Region-integrity failure | Do not guess or mark ready | Brand application/operator evidence | None |
+| Provider adcode/towncode cannot map exactly to one maintained MCA path | Region-derivation failure | Ask the customer to choose another exact POI or contact support; do not offer manual region correction | Brand application/operator evidence | None |
 | Several business areas exist | Normal ambiguity | Customer chooses one ordered candidate | Customer through Brand UI | Selected locality committed only after verification |
 | No business area exists | Normal absence | Show precise verified address locality and label it as address, not business area | Brand projection rule | `ADDRESS_LOCALITY` may be committed |
 | Provider timeout, network failure, or documented busy response | Transient external failure | Simple “位置服务暂不可用” with later retry | Adapter uses one bounded retry only when configured evidence supports it | Existing location unchanged; incomplete Brand remains draft |
@@ -182,6 +185,9 @@ current verified location
   binds receipt/account/Brand. Search may occur before a Brand exists during
   registration, so verification allocates and binds a future server-generated
   Brand ID that only that account's create mutation may use.
+- **Location permission:** do not import/load `AMap.Geolocation`, call browser
+  geolocation, infer location from IP, or add a “use current location” control in
+  the first release. Map initialization and search are independent of permission.
 - **Cost and capacity:** autocomplete starts only after a minimum input length
   and is debounced; search returns at most ten candidates. There is no
   background refresh or load test, and metrics are by operation/outcome only.
@@ -244,7 +250,7 @@ current verified location
 This design deepens the existing Brand capability instead of introducing a
 parallel location service. The deletion test is explicit: removing the proposed
 Brand-local verification seam would force Amap parsing, credential handling,
-region coherence, receipt integrity, and failure mapping into `BrandService`,
+region derivation, receipt integrity, and failure mapping into `BrandService`,
 controllers, and Web callers. Keeping that seam inside `BrandModule` removes
 that leakage while preserving one business owner.
 
@@ -252,11 +258,11 @@ that leakage while preserving one business owner.
 
 | Current owner | Planned responsibility | Boundary kept internal |
 | --- | --- | --- |
-| `brand/domain/brand-profile.ts` | v3 normalization, readiness, semantic-fact comparison, and canonical fingerprint | no provider protocol, DTO, Prisma, or Web state |
+| `brand/domain/brand-profile.ts` | v3 normalization, readiness, semantic-fact comparison, derived-region validation, and canonical fingerprint | no provider protocol, DTO, Prisma, or Web state |
 | `brand/domain/brand.types.ts` | Brand aggregate, Store Location value, locality, and evaluation-purpose projection types | no Amap envelope or receipt serialization |
 | `brand/domain/brand.repository.ts` plus `postgres-brand.repository.ts` | load and atomically write Brand plus its owned Store Location | no external call and no receipt signature logic |
 | `brand/application/brand.service.ts` | create/update Brand, preserve/remove/replace location, and compute the final aggregate | consumes verified receipt facts; never calls Amap |
-| new Brand-local `StoreLocationVerificationService` | orchestrate provider resolution, official-region checks, locality candidates, and receipt issuance | no database write and no Brand mutation |
+| new Brand-local `StoreLocationVerificationService` | orchestrate provider resolution, official-region derivation, locality candidates, and receipt issuance | no database write and no Brand mutation |
 | new Brand-local `StoreLocationProvider` port | resolve one selected provider place into minimum typed evidence | one method; no generic provider registry or search API |
 | new Amap adapter in Brand infrastructure | v5 ID detail, v3 `extensions=all` reverse geocode, timeout/error normalization, and redaction | Web Service Key and Amap response shapes never escape the adapter |
 | `config/runtime-config.ts` and `ApiModule.register` | validate disabled/Amap mode and pass sanitized configuration into `BrandModule.register` | adapters do not read ambient environment variables directly |
@@ -284,11 +290,11 @@ StoreLocationProvider.resolveSelectedPlace({ providerPlaceId })
        | PROVIDER_CONFIGURATION | PROVIDER_CAPACITY
 ```
 
-The provider does not accept Brand official-region IDs and cannot decide
-readiness or locality. `StoreLocationVerificationService` resolves the submitted
-MCA IDs through `BrandReferenceData`, calls the port, applies the explicit
-county/municipality/direct-admin coherence rules, creates de-duplicated locality
-candidates, and issues the receipt.
+The provider does not know MCA reference identities and cannot decide readiness
+or locality. `StoreLocationVerificationService` calls the port, maps normalized
+adcode/towncode evidence through `BrandReferenceData`, applies the explicit
+county/municipality/direct-admin derivation rules, creates de-duplicated locality
+candidates, and issues the receipt. No customer region IDs are accepted.
 
 The verification service adds Brand-owned validation outcomes without widening
 the provider port:
@@ -342,7 +348,8 @@ Brand UUID and covers it; Brand creation uses that server-generated ID. A retry
 therefore cannot create a second Brand from the same receipt without adding a
 receipt-consumption table.
 
-The browser receives the signed receipt, expiry, safe preview, and candidate IDs
+`officialRegionIds` are server-derived facts, not request values. The browser
+receives the signed receipt, expiry, safe preview, derived region, and candidate IDs
 but cannot alter the covered facts. A mutation verifies signature, version,
 expiry, account, target Brand, official region, and selected candidate before
 building the aggregate. `verificationId` is persisted as a unique idempotency/
@@ -380,21 +387,22 @@ repository one atomic write. The repository transaction owns Brand fields,
 Store Location insert/update/delete, verification identity, and final fingerprint
 together. It never receives a Key, raw response, or signed receipt.
 
-The rule for changing official region while a verified Store Location exists is
-the only remaining product decision at this layer. No implementation may allow
-the region and Store Location to commit incoherently.
+There is no separate official-region mutation. Replacing or removing the Store
+Location atomically replaces or removes its derived region, locality, and
+fingerprint meaning, so the two cannot diverge.
 
 ### Web Component Boundary
 
 - A shared Brand profile field group replaces duplicated registration/edit
   inputs and owns form-level draft state.
-- The Store Location picker activates only after a complete official region,
-  lazy-loads JS API 2.0, and caps accessible list/Marker candidates at ten.
+- The Store Location picker lazy-loads JS API 2.0 when the customer enters a
+  search, uses nationwide suggestions/results, and caps accessible list/Marker
+  candidates at ten.
 - The map child owns loader/map/plugin lifecycle and calls `destroy()` on
   cleanup. It never receives the Web Service Key or JS security code.
-- Selecting a list item or Marker submits only POI ID, proposed official-region
-  IDs, normalized search input, and optional target Brand ID to the generated
-  verification API. The safe preview/locality choice becomes `locationChange`.
+- Selecting a list item or Marker submits only POI ID, normalized search input,
+  and optional target Brand ID to the generated verification API. The server-
+  derived region plus safe preview/locality choice becomes `locationChange`.
 - A map/API failure retains unrelated form fields. Existing stored location is
   visually distinct from an uncommitted candidate; closing/cancelling the form
   cannot mutate either Brand or Store Location.
@@ -405,7 +413,7 @@ the region and Store Location to commit incoherently.
 | --- | --- |
 | Brand domain/persistence | v3 canonical vectors, order-independent characteristic properties, semantic-fact preservation/replacement tests, empty-database migration, unique receipt/replay and atomic write integration tests |
 | Verification API/adapter | synthetic minimal response shapes for ordinary/municipality/direct-admin/zero/multiple area, deadline/error mapping, receipt tamper/expiry/account/Brand/region/candidate/replay tests, HTTP contract tests; no real call required by default |
-| Shared Web interaction | loader/map mocks, list/Marker equivalence, keyboard and narrow-screen component tests, region-change behavior after the product decision, then controlled desktop/mobile browser evidence |
+| Shared Web interaction | loader/map mocks, nationwide input/list/Marker equivalence, proof that no location permission is requested, keyboard and narrow-screen component tests, then controlled desktop/mobile browser evidence |
 | Snapshot v3/handoff | one v3 parser, canonical frozen vectors, public/report/Query projection tests, OpenAPI/client regeneration, and PR #28 rebase proof |
 | Activation | named development-target preflight, authorized empty rebuild rehearsal, full CI/build, secret scans, browser evidence, current-spec reconciliation, and production controls kept outside the claim |
 
@@ -417,12 +425,13 @@ One customer-confirmed, server-verified physical storefront for the current
 Brand. It is not the broad `Region`, not a list of branches, not a provider POI
 record, and not a historical address version.
 
-### Official Region
+### Derived Official Region
 
-The existing Brand-owned MCA province-city-terminal identity. It constrains
-search and is the durable official administrative meaning in the fingerprint.
-Amap `adcode`/`towncode` is evidence used to check coherence, not a replacement
-identity source.
+The one Brand-owned MCA province-city-terminal identity derived during server
+verification from Amap `adcode`/`towncode` evidence and the maintained reference
+data. It is durable administrative meaning in the fingerprint/snapshot, but it
+is neither customer-entered nor an independently editable Brand field. If one
+exact path cannot be derived, the Store Location cannot be committed.
 
 ### Query Locality
 
@@ -470,9 +479,6 @@ companyName
 primaryIndustryId
 secondaryIndustryId
 otherProductOrService?
-provinceRegionId
-cityRegionId
-terminalRegionId
 storeLocation?                 -> one BrandStoreLocation
 flagshipProductOrService?
 characteristics[]              -> bounded JSON array, 0..6 in a draft
@@ -516,6 +522,11 @@ districtName?
 townshipName?
 providerAdcode
 providerTowncode?
+officialProvinceRegionId       derived, stable MCA identity
+officialCityRegionId           derived, stable MCA identity
+officialTerminalRegionId       derived, stable MCA identity
+officialRegionPath             derived stable IDs
+officialRegionSourceReleaseId  maintained MCA release used for derivation
 longitude                  decimal, six places
 latitude                   decimal, six places
 coordinateSystem           GCJ_02
@@ -566,16 +577,15 @@ implementation reconciliation updates current truth.
 
 ### 1. Map Search and Selection
 
-The customer first chooses the existing Brand official region. Web initializes
-one Amap JavaScript API 2.0 map centered on that region, then provides
-AutoComplete/PlaceSearch over a specific store name, landmark, or address.
+Web initializes one Amap JavaScript API 2.0 map without requesting current
+location, then provides nationwide AutoComplete/PlaceSearch over a concrete
+store name plus city/address/landmark text.
 
 - autocomplete starts after a minimum input length and is debounced;
 - an explicit search action remains available;
-- `citylimit=true` scopes the result where the provider supports the selected
-  region;
+- neither `city` nor `citylimit` is set from a separate product field;
 - no more than ten results appear as both clickable Markers and an accessible
-  address list;
+  full-address list so the customer can distinguish same-name stores;
 - selecting either representation selects the same provider POI ID;
 - clicking empty map space only recenters or starts a nearby search and cannot
   confirm a Store Location.
@@ -594,7 +604,7 @@ Key. Brand then checks:
 2. selected POI identity and coordinate presence;
 3. coordinate longitude/latitude ranges and explicit GCJ-02 system;
 4. detail versus reverse-geocode adcode/address coherence;
-5. Amap administrative evidence versus the Brand-owned official region path;
+5. exact derivation of one maintained MCA province/city/terminal path;
 6. exact special-city terminal mapping when required;
 7. bounded, normalized, de-duplicated business-area candidates.
 
@@ -605,7 +615,8 @@ reverse city is allowed only when province and terminal still agree. For the
 controlled direct-admin township shape, the city adcode must agree with the MCA
 prefecture and the Amap 12-digit `towncode` must equal the maintained nine-digit
 township code plus `000`. Other shapes fail closed until fixture evidence adds
-an explicit rule.
+an explicit rule. The derived path is covered by the receipt and later becomes
+the Store Location's only official-region identity.
 
 If any required fact is absent or conflicting, no verification receipt is
 issued.
@@ -644,7 +655,7 @@ Exact URI naming is reversible; the semantic surface is:
 
 ```text
 POST /brand-location-verifications
-  { brandId?, officialRegionIds, searchInput, providerPlaceId }
+  { brandId?, searchInput, providerPlaceId }
   -> {
        verificationReceipt,
        expiresAt,
@@ -666,7 +677,8 @@ POST/PATCH /brands
 Updating unrelated fields omits `locationChange` and preserves the current
 verified location. Explicit removal is allowed only as one named action that
 makes the Brand incomplete; setting arbitrary location fields to null or partial
-values is rejected.
+values is rejected. Province/city/terminal IDs are absent from public Brand
+mutation fields and cannot be edited independently.
 
 Provider credentials, provider request URLs, raw responses, response digests,
 fingerprint, fingerprint scheme, and reset diagnostics remain internal.
@@ -726,7 +738,7 @@ industry:
   recommendationSubject
 region:
   sourceReleaseId
-  province, city, terminal, officialPath        # existing official semantics
+  province, city, terminal, officialPath        # Store Location-derived semantics
 storeLocation:
   semanticFactId
   placeName
@@ -745,7 +757,7 @@ GEO maps it without re-resolution to:
 schemaVersion: brand-evaluation-snapshot@3
 companyName
 industry                     # existing frozen industry semantics
-region                       # existing frozen official-region semantics
+region                       # frozen Store Location-derived official-region semantics
 storeLocation                # frozen display, coordinate, locality, provenance
 flagshipProductOrService
 characteristics[]
