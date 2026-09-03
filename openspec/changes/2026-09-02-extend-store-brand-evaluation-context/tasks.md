@@ -59,8 +59,15 @@
 - [x] Confirm from the current official billing table that unverified accounts
       have zero monthly quota and zero QPS for the required service groups;
       defer live calls and speculative recharge while identity review is pending.
-- [ ] After certification, inspect actual service grants, monthly quota/QPS,
-      pricing, the approved release-domain restriction, JS security proxy, and
+- [x] After enterprise certification, observe the actual account type and monthly
+      quota table: 3,000,000 shared basic-LBS, 30,000,000 JS map initialization,
+      and 50,000 shared basic-search calls; confirm that no technical-service
+      license is active and no traffic-package purchase is needed for fixtures.
+- [x] Recheck current public QPS/pricing and the account's key/QPS pages. Record
+      30/100/30 QPS as documented tier limits while treating actual runtime
+      capacity as unobserved because the account has no usage rows.
+- [ ] Before production activation, verify or replace the Web JS/Web Service
+      Keys with the approved release domain, server-side JS security proxy, and
       fixed outbound-IP allowlist without revealing credentials.
 - [ ] Validate one approved non-customer ordinary district, municipality, and
       special no-county city across v5 text search, v5 ID detail, and v3 reverse
@@ -157,8 +164,32 @@
       boundary in the Source Brief.
 - [x] Record that pending identity verification currently means zero published
       quota/QPS and that recharge does not replace certification.
-- [ ] After identity approval, inspect actual console entitlement and run only
-      the named bounded non-customer contract fixtures after separate live-call
-      authorization; do not pressure/load test.
+- [x] After identity approval, inspect actual console entitlement without
+      retaining credential or enterprise-identity values.
+- [ ] Run only the named bounded non-customer contract fixtures after separate
+      live-call authorization; do not pressure/load test.
 - [ ] Do not begin #40 implementation until the product owner explicitly
       authorizes the fixed design package.
+
+## 2026-09-03 Enterprise Account and Implementation Planning
+
+- [x] Observe enterprise certification and account-level monthly quotas directly
+      in the user's Chrome Amap console without retaining business identity or
+      credential values.
+- [x] Confirm the account has no technical-service license and distinguish
+      eligible short-term/small-volume tests from production activation.
+- [x] Recheck official Amap loader/security/API/billing guidance and current
+      Next 16 underscore-route behavior relevant to `/_AMapService`.
+- [x] Refresh `origin/main`, #40/PR #46, the Delivery Project, and open PR overlap;
+      confirm #40 is P0/Ready, PR #46 is clean with required checks passed, and
+      the branch contains current main.
+- [x] Record #40-before-#26 ordering because PR #28 is merge-conflicted and
+      overlaps Prisma, evaluation preparation, snapshot, OpenAPI/client, and
+      integration tests.
+- [x] Map the implementation into controlled probe, Brand/persistence,
+      verification adapter/API, shared Web map, snapshot/handoff, and activation/
+      reconciliation packages with explicit evidence for each.
+- [ ] Obtain separate authorization before reading credentials into an execution
+      environment or making the three named controlled Amap request chains.
+- [ ] Obtain explicit implementation authorization before changing runtime code,
+      dependencies, Prisma, OpenAPI/client, or Web behavior.

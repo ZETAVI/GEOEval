@@ -2,8 +2,8 @@
 
 - Product/architecture direction: Confirmed with revisions on 2026-09-02
 - Commercial/legal risk: reviewed and accepted by its human owner on 2026-09-02
-- Remaining live-adapter follow-up: certified account entitlement, production
-  allowlists/security proxy, and controlled contract evidence
+- Remaining live-adapter follow-up: controlled endpoint evidence, production
+  allowlists/security proxy/license, and special-city mapping
 - Current authorization: documents plus completed application/Key preparation;
   no code, purchase, live call, or development-data reset
 
@@ -53,9 +53,10 @@ tables.
   Query Prompt/Agent lifecycle, Parser, Synthesis, report, Provider evaluation,
   production activation, and raw provider-data warehousing.
 - **Upstream prerequisites:** accepted industry and MCA reference sources. The
-  separate Web(JS API) and Web Service Key types exist; identity approval,
-  release-domain/security-proxy configuration, fixed outbound-IP allowlisting,
-  and actual entitlement evidence remain prerequisites for live activation.
+  separate Web(JS API) and Web Service Key types plus enterprise certification
+  exist; controlled endpoint evidence, release-domain/security-proxy
+  configuration, fixed outbound-IP allowlisting, and technical-service
+  activation remain prerequisites for production activation.
 - **Downstream consumers:** registration and Brand management use the public
   field group; GEO freezes the internal projection; #26 uses the final locality,
   flagship value, and peer characteristics.
@@ -156,6 +157,8 @@ current verified location
 | Existing generated REST/OpenAPI client and shared Brand form | Adopt | Already owns Web transport and registration/edit reuse | None for this change |
 | Server-sealed short-lived verification receipt | Adopt | Prevents forged client facts without a search-session database or an external call inside the Brand transaction | Replace only if receipt size/rotation evidence requires a short-lived server store |
 | Amap JS API 2.0 map, AutoComplete/PlaceSearch, and candidate Markers | Adopt | Meets the confirmed map-selection preference; result list and Marker selection remain accessible while the server independently verifies the selected POI | Key configuration, controlled mobile/desktop selection evidence, or material quota change |
+| Project-local `@amap/amap-jsapi-loader` | Adopt at implementation | Amap recommends the loader for React/online v2.0 loading, plugin completeness, and duplicate-load protection; the repository currently has no map dependency | Refresh on an incompatible loader release or a supported first-party loading change |
+| Next Route Handler at `app/%5FAMapService/[...path]/route.ts` | Adopt | Amap requires the `/_AMapService` prefix while Next 16 treats literal underscore folders as private; the encoded route preserves the required public path and keeps the JS security code server-only | Replace with release reverse-proxy configuration only when equivalent secret injection and tests exist |
 | Provider search-session table or Redis cache | Reject initially | Creates transient provider-data persistence and operational cleanup without a required durable workflow | Revisit only if receipt constraints are proven inadequate |
 | Generic location platform/provider registry/factory | Reject | One bounded external owner and no proven second provider; would widen the interface without removing complexity | A separately approved second provider with the same stable Brand semantics |
 | Raw provider-response persistence | Reject | Violates minimization and binds business data to a volatile vendor schema without adding Brand meaning | Revisit only through a new explicit product and architecture decision |
@@ -168,6 +171,10 @@ current verified location
   secret with an egress-IP allowlist. Key-bearing URLs are never logged. Search
   text and exact address are customer data and are omitted or purposefully
   redacted from ordinary logs/traces.
+  The intentionally public value is `NEXT_PUBLIC_AMAP_JS_KEY`; the Next server
+  alone reads `AMAP_JS_SECURITY_CODE`, while the Nest API alone reads
+  `AMAP_WEB_SERVICE_KEY` and the receipt-signing secret. All stay in the
+  repository-ignored `.env` or release secret store, never committed fixtures.
 - **Authorization:** every endpoint requires a terminal-customer session and
   binds receipt/account/Brand. Search may occur before a Brand exists during
   registration, so the receipt binds to account plus a server nonce and may be
@@ -175,10 +182,11 @@ current verified location
 - **Cost and capacity:** autocomplete starts only after a minimum input length
   and is debounced; search returns at most ten candidates. There is no
   background refresh or load test, and metrics are by operation/outcome only.
-  The unverified published tier currently grants zero quota/QPS, so no live
-  validation occurs before certification. Actual certified JS/Web Service quota
-  and QPS are checked before validation; purchase is considered only after that
-  evidence, never as a substitute for identity approval.
+  The enterprise-certified console shows 3,000,000 monthly basic-LBS calls,
+  30,000,000 JS map initializations, and 50,000 basic-search calls. The public
+  table maps that tier to 30/100/30 QPS, but the account QPS page has no observed
+  usage rows. Controlled validation is serial; purchase is considered only from
+  measured product demand, never from a capacity test.
 - **Observability:** record operation name, normalized outcome/`infocode`,
   latency bucket, retry count, and a request correlation ID. Never record Key,
   full request URL, raw response, sealed receipt, complete input address, or
@@ -189,11 +197,45 @@ current verified location
   click rejection, one ordinary district, one municipality, one special no-
   county city, one no-business-area result, one multiple-area result, and named
   failure responses. No evaluation Provider call and no production data.
-- **Account-contract residual:** the correct JS/Web Service Key types are
-  observed, but pending identity review means callable entitlement is not yet
-  established. Official documentation also does not prove response variability
-  or special-city mapping. Those are follow-ups before live adapter activation,
-  not blockers to fixture-first implementation.
+- **Account-contract residual:** enterprise certification, correct Key types,
+  and test-scale quotas are observed. Successful endpoint behavior, settings
+  readback, response variability, special-city mapping, production restrictions,
+  and technical-service activation remain unverified. They do not block fixture-
+  first implementation, but they block live/production activation.
+
+## Implementation Package Sequence
+
+1. **Controlled Web Service contract probe — separately authorized, no product
+   data.** Put only the Web Service Key in the ignored local environment. Run
+   one serial text-search/detail/reverse-geocode chain for an ordinary district,
+   a municipality, and a special no-county city. Record normalized shapes,
+   outcome codes, locality multiplicity, region coherence, latency, and call
+   counts only. This evidence may revise field normalization or special-city
+   readiness before the adapter is fixed. Add the JS Key/security code only in
+   package 4 when the browser proxy exists to validate them.
+2. **Brand domain and persistence — fixture first.** Replace the two legacy
+   characteristic columns with the peer collection, add one owned Store
+   Location value plus flagship field, implement v3 readiness/fingerprint and
+   canonical vectors, and add the empty-development-database migration/reset
+   preflight without executing the destructive reset.
+3. **Verification API and adapter.** Add the small Brand-owned
+   `StoreLocationProvider` port, fixture adapter, conditional Amap adapter,
+   typed failures/deadlines/redaction, receipt signing/expiry/account binding,
+   and one authenticated verification endpoint that also supports registration
+   before a Brand ID exists. External calls finish before the Brand transaction.
+4. **Shared Web interaction.** Add the official loader dependency, encoded
+   `/_AMapService` Route Handler, map/list/Marker picker, locality confirmation,
+   reusable profile field group, cleanup, keyboard/narrow-screen behavior, and
+   graceful draft saving when the map is unavailable.
+5. **Snapshot v3 and downstream handoff.** Make v3 the single central parser and
+   Definition snapshot, expose a narrow Query projection, regenerate OpenAPI/
+   client, and keep #40 out of Query Prompt/Model Contract/report behavior.
+   Then rebase PR #28 and adapt #26 to the stable projection.
+6. **Activation and reconciliation.** With separate destructive authorization,
+   prove the exact development target and rebuild it empty; run focused tests,
+   full CI/build, browser/accessibility checks, secret scans, architecture/code
+   reviews, current-spec reconciliation, and only then convert Draft PR #46 from
+   Partial to the final #40 closing PR.
 
 ## Domain Vocabulary and Ownership
 

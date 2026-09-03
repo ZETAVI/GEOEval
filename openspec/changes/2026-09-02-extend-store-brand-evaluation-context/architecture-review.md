@@ -5,11 +5,11 @@
 - Current authority: `main@d6d490d`, current Brand/product/evaluation specs,
   current Prisma/Nest/Web/central-snapshot implementation, archived #27 design,
   and live #26/PR #28 dependency state.
-- Review type: revised pre-implementation architectural gate after product-owner
-  confirmation on 2026-09-02.
+- Review type: revised pre-implementation architectural gate after enterprise
+  account evidence and implementation-package planning on 2026-09-03.
 - Non-goals: implementation review, Query/Parser/Synthesis/report redesign,
-  Amap account/Key/license action, live provider calls, production migration, or
-  deployment.
+  Amap account/Key mutation, purchase, live provider calls, production migration,
+  or deployment.
 
 ## Review Contract
 
@@ -39,21 +39,20 @@ Current truth remains unchanged until implementation.
 
 ## Findings
 
-### Should-fix before adapter activation: certified account and special-city contracts need controlled evidence
+### Should-fix before adapter activation: endpoint and special-city contracts need controlled evidence
 
 - **Affected artifact:** Source Brief `Unknowns and Validation`; design `Verify`.
 - **Boundary:** provider interface correctness and official-region integrity.
-- **Consequence:** separate GEOEval JS/Web Service Key types now exist, but the
-  pending identity review and published zero unverified quota/QPS do not prove
-  callable entitlement. Release-domain/security-proxy configuration,
-  outbound-IP allowlisting, POI-ID lifecycle, latency, and exact Amap `towncode`
-  compatibility with the checked MCA township identities used by special
-  cities remain unverified. Assuming those facts could make the map unavailable,
-  reject valid stores, accept a wrong terminal, or make retry/capacity behavior
-  misleading.
-- **Narrow remediation:** after identity approval and separate call approval,
-  inspect actual console grants and restrictions, run the named bounded
-  fixtures, and block unsupported special-city readiness rather than guessing.
+- **Consequence:** enterprise certification, test-scale quota, and separate Key
+  types are now observed, but no endpoint response has been controlled. Release-
+  domain/security-proxy configuration, outbound-IP allowlisting, POI-ID
+  lifecycle, latency, response type variation, and exact Amap `towncode`
+  compatibility with checked MCA township identities remain unverified.
+  Assuming those facts could reject valid stores, accept a wrong terminal, or
+  make retry/capacity behavior misleading.
+- **Narrow remediation:** after separate call approval, run the serial named
+  fixtures, record only normalized evidence, and block unsupported special-city
+  readiness rather than guessing. Reverify or replace both Keys before release.
 - **Origin:** external uncertainty exposed by #40.
 
 ## Supported Boundaries
@@ -84,6 +83,10 @@ Current truth remains unchanged until implementation.
   interaction/external/trust boundaries. No workflow engine, search database,
   Redis cache, reusable map platform, multi-store model, generic catalog, or
   speculative second provider is introduced.
+- **Delivery ordering:** #40 remains the single writer for the v3 producer and
+  central snapshot contract. The current merge-conflicted PR #28 overlaps those
+  files, so it rebases and adapts only after #40 stabilizes the projection; #40
+  does not absorb Query Prompt, Model Contract, or execution behavior.
 - **Design knowledge:** all candidate decisions remain in this active Change.
   Current specs/glossary/architecture are intentionally not edited before
   approval; reconciliation targets are explicit.
@@ -112,9 +115,9 @@ Current truth remains unchanged until implementation.
 The revised module/data/reset boundaries are coherent, and the product,
 architecture, and commercial/legal risk direction is confirmed. The previous
 external license/storage must-fix is closed by explicit human risk acceptance.
-The certified account entitlement, production credential restrictions, and
-special-city contract evidence remain should-fix items before live adapter
-activation. No ADR is
+The endpoint response, production credential restrictions/license, and special-
+city contract evidence remain should-fix items before live adapter activation.
+No ADR is
 required; stable accepted behavior should later reconcile into Brand Knowledge,
 the GEO snapshot seam, executable schemas/tests, and architecture overview.
 

@@ -1,8 +1,9 @@
 # Change: Extend Store Brand Evaluation Context
 
 - Status: Product, architecture, commercial/legal risk, and external API design
-  direction confirmed on 2026-09-02; ready for explicit implementation
-  authorization, while live activation still requires account follow-up
+  direction confirmed; enterprise certification and test-scale quota observed
+  on 2026-09-03; ready for explicit implementation authorization while controlled
+  calls and production activation retain separate gates
 - Class: Architectural
 - Owning Issue: [#40](https://github.com/ZETAVI/GEOEval/issues/40)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -54,8 +55,8 @@ may use that reset path.
   area, coordinate, Key, quota, error, security, and account guidance research;
   provider terms are retained as context rather than an engineering Gate.
 - Non-secret account-contract preparation: observed JS/Web Service Key types,
-  pending identity entitlement, published zero unverified quota/QPS, exact
-  endpoint/parameter mapping, and post-certification validation plan.
+  enterprise certification, documented monthly quota/QPS tier, exact endpoint/
+  parameter mapping, and a bounded controlled-validation plan.
 - A conditional Amap JavaScript API 2.0 map/search interaction, a separate
   server-side Store Location verification adapter, server-sealed receipt, typed
   provider outcomes, and customer-actionable failure fallback.
@@ -116,9 +117,11 @@ may use that reset path.
   separate licensing work order in #40. Paid API capacity may be supported if
   account evidence later shows it is needed; purchase remains a separate action.
 - The approved `GEOEval` application now has separate JS and Web Service Key
-  types. The identity review remains pending, so the published account tier has
-  zero quota/QPS and no live call is attempted. Recharge is deferred until a
-  certified account's actual quota proves insufficient.
+  types. The account is now enterprise-certified and exposes 3,000,000 shared
+  basic-LBS calls, 30,000,000 JS map initializations, and 50,000 shared search
+  calls per month. No live call has yet been made, and the account does not have
+  a technical-service license; bounded tests and production activation remain
+  distinct.
 
 ## Confirmed Decisions
 
@@ -184,7 +187,9 @@ may use that reset path.
 - **Delivery:** #40 is a Partial child of #39 and the upstream interface owner
   for #26. #39 cannot release the revised evaluation journey until both #40 and
   the rebased #26 consumer pass their own acceptance and the final integration
-  gate.
+  gate. PR #28 currently overlaps Prisma, evaluation preparation, snapshot,
+  OpenAPI/client, and integration tests and is merge-conflicted; #40 stabilizes
+  the v3 producer first, then #26 rebases and adapts without importing Brand/Amap.
 
 ## Documentation Impact
 
@@ -205,13 +210,15 @@ may use that reset path.
 - Workspace: the current isolated #40 Codex worktree; recover its path from live
   workspace state rather than preserving a machine-local location
 - Writer: the #40 task owner; #26 remains a separate single writer for Query
-- Current phase: API contract preparation complete; ready for explicit
-  implementation authorization, while live-adapter validation waits for
-  identity approval and actual account entitlement
+- Current phase: enterprise account and API contract preparation complete;
+  ready for explicit implementation authorization, while controlled calls,
+  production credential restrictions, and technical-service activation remain
+  separate gates
 - PR relationship: documentation-only Partial PR using
   `Part of #40 — does not close`
-- Exit for this task: Draft PR and Issue #40 updated with the non-secret Amap
-  account/API contract evidence, then stop before implementation and live calls
+- Exit for this task: Draft PR and Issue #40 updated with the enterprise account,
+  dependency-order, and implementation-package plan, then stop before code and
+  live calls
 
 ## Approval Boundary
 
