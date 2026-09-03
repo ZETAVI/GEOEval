@@ -1,18 +1,19 @@
 # Change: Extend Store Brand Evaluation Context
 
 - Status: Product, architecture, commercial/legal risk, and external API design
-  direction confirmed; enterprise certification and test-scale quota observed
-  on 2026-09-03; ready for explicit implementation authorization while controlled
-  calls and production activation retain separate gates
+  direction confirmed; enterprise certification, test-scale quota, and bounded
+  Web Service success shapes observed on 2026-09-03; ready for explicit runtime
+  implementation authorization while production activation retains a separate gate
 - Class: Architectural
 - Owning Issue: [#40](https://github.com/ZETAVI/GEOEval/issues/40)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Downstream consumer: [#26 Query Generator](https://github.com/ZETAVI/GEOEval/issues/26)
 - Decision owners: Product owner and architecture owner; the commercial/legal
   risk owner has reviewed and accepted the provider-terms boundary
-- Authorization: research, proposal documents, and separately approved Amap
-  application/Key preparation only; no implementation, API purchase, live call,
-  production change, production data migration, Query change, or deployment
+- Authorization: research, proposal documents, separately approved Amap
+  application/Key preparation, and the completed bounded controlled calls only;
+  no runtime implementation, API purchase, production change, production data
+  migration, Query change, or deployment
 
 ## Why
 
@@ -56,7 +57,7 @@ may use that reset path.
   provider terms are retained as context rather than an engineering Gate.
 - Non-secret account-contract preparation: observed JS/Web Service Key types,
   enterprise certification, documented monthly quota/QPS tier, exact endpoint/
-  parameter mapping, and a bounded controlled-validation plan.
+  parameter mapping, and normalized bounded controlled-validation evidence.
 - A conditional Amap JavaScript API 2.0 map/search interaction, a separate
   server-side Store Location verification adapter, server-sealed receipt, typed
   provider outcomes, and customer-actionable failure fallback.
@@ -86,8 +87,9 @@ may use that reset path.
 - Automatic choice of a business area from provider ranking; a missing business
   area is represented honestly by a verified address locality fallback.
 - Additional Amap credentials, account-type changes, license/traffic purchase,
-  work-order submission, controlled call, production migration, or production
-  deployment without their separate authorization.
+  work-order submission, further live calls beyond a justified bounded
+  validation, production migration, or production deployment without their
+  separate authorization.
 - Executing the approved development reset, changing current product truth, or
   implementing behavior in this documentation revision.
 
@@ -119,9 +121,11 @@ may use that reset path.
 - The approved `GEOEval` application now has separate JS and Web Service Key
   types. The account is now enterprise-certified and exposes 3,000,000 shared
   basic-LBS calls, 30,000,000 JS map initializations, and 50,000 shared search
-  calls per month. No live call has yet been made, and the account does not have
-  a technical-service license; bounded tests and production activation remain
-  distinct.
+  calls per month. The bounded public-landmark probe confirmed current text
+  search, ID detail, reverse geocoding, response-type variation, plural business
+  areas, and one direct-admin township mapping. The account does not have a
+  technical-service license; controlled evidence and production activation
+  remain distinct.
 
 ## Confirmed Decisions
 

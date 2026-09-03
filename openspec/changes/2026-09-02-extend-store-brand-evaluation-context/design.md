@@ -2,10 +2,11 @@
 
 - Product/architecture direction: Confirmed with revisions on 2026-09-02
 - Commercial/legal risk: reviewed and accepted by its human owner on 2026-09-02
-- Remaining live-adapter follow-up: controlled endpoint evidence, production
-  allowlists/security proxy/license, and special-city mapping
-- Current authorization: documents plus completed application/Key preparation;
-  no code, purchase, live call, or development-data reset
+- Remaining activation follow-up: JS map/security-proxy evidence, named failure
+  and zero-locality fixtures, production allowlists/license, and release runtime
+- Current authorization: documents, completed application/Key preparation, and
+  completed controlled Web Service calls; no runtime code, purchase,
+  production activation, or development-data reset
 
 ## Design Position
 
@@ -54,9 +55,9 @@ tables.
   production activation, and raw provider-data warehousing.
 - **Upstream prerequisites:** accepted industry and MCA reference sources. The
   separate Web(JS API) and Web Service Key types plus enterprise certification
-  exist; controlled endpoint evidence, release-domain/security-proxy
-  configuration, fixed outbound-IP allowlisting, and technical-service
-  activation remain prerequisites for production activation.
+  exist, and the named Web Service contract probe succeeded. Release-domain/
+  security-proxy configuration, fixed outbound-IP allowlisting, and technical-
+  service activation remain prerequisites for production activation.
 - **Downstream consumers:** registration and Brand management use the public
   field group; GEO freezes the internal projection; #26 uses the final locality,
   flagship value, and peer characteristics.
@@ -138,7 +139,7 @@ current verified location
 | POI detail no longer exists | Provider-data drift | Explain that the candidate changed and re-search | Customer after adapter result | None |
 | POI detail and reverse-geocode coordinate/address disagree materially | Data-integrity failure | Do not offer confirmation; re-search or support | Brand application/operator evidence | None |
 | Provider adcode conflicts with Brand official terminal region | Business validation | Ask the customer to choose the correct region/store | Brand application | None |
-| Special-city `towncode` cannot map exactly to the maintained terminal identity | Unverified contract | Do not guess or mark ready | Architecture/source-validation owner | None |
+| Special-city `towncode` does not match the maintained terminal through the explicit 12-digit Amap to 9-digit MCA normalization | Region-integrity failure | Do not guess or mark ready | Brand application/operator evidence | None |
 | Several business areas exist | Normal ambiguity | Customer chooses one ordered candidate | Customer through Brand UI | Selected locality committed only after verification |
 | No business area exists | Normal absence | Show precise verified address locality and label it as address, not business area | Brand projection rule | `ADDRESS_LOCALITY` may be committed |
 | Provider timeout, network failure, or documented busy response | Transient external failure | Simple “位置服务暂不可用” with later retry | Adapter uses one bounded retry only when configured evidence supports it | Existing location unchanged; incomplete Brand remains draft |
@@ -153,7 +154,7 @@ current verified location
 | Candidate | Adopt, defer, or reject | Reason | Exit or refresh trigger |
 | --- | --- | --- | --- |
 | Existing Nest module plus a Brand-owned `StoreLocationProvider` port | Adopt | External protocol variability and fixture substitution are real seams; Brand business rules remain local | Revisit only if another approved provider must be supported |
-| Server-side Amap Web Service v5 detail plus v3 reverse geocode | Adopt | Independently verifies the browser-selected POI while keeping authoritative credentials and facts server-side | Controlled contract validation, endpoint change, or incompatible account evidence |
+| Server-side Amap Web Service v5 detail plus v3 reverse geocode | Adopt | Independently verifies the browser-selected POI while keeping authoritative credentials and facts server-side; the named controlled probe confirmed the initial success shapes | Endpoint change or incompatible account/runtime evidence |
 | Existing generated REST/OpenAPI client and shared Brand form | Adopt | Already owns Web transport and registration/edit reuse | None for this change |
 | Server-sealed short-lived verification receipt | Adopt | Prevents forged client facts without a search-session database or an external call inside the Brand transaction | Replace only if receipt size/rotation evidence requires a short-lived server store |
 | Amap JS API 2.0 map, AutoComplete/PlaceSearch, and candidate Markers | Adopt | Meets the confirmed map-selection preference; result list and Marker selection remain accessible while the server independently verifies the selected POI | Key configuration, controlled mobile/desktop selection evidence, or material quota change |
@@ -191,28 +192,27 @@ current verified location
   latency bucket, retry count, and a request correlation ID. Never record Key,
   full request URL, raw response, sealed receipt, complete input address, or
   provider content in general telemetry.
-- **Verification:** fixtures first; then, only after separate controlled-call
-  authorization,
-  desktop/mobile map load, keyboard list selection, Marker selection, arbitrary
-  click rejection, one ordinary district, one municipality, one special no-
-  county city, one no-business-area result, one multiple-area result, and named
-  failure responses. No evaluation Provider call and no production data.
+- **Verification:** the separately authorized ordinary-district, municipality,
+  special no-county city, and multi-business-area Web Service probes are
+  complete. Implementation still proves desktop/mobile map load, keyboard list
+  selection, Marker selection, arbitrary-click rejection, one zero-combined-
+  business-area fallback, and named failure responses. No evaluation Provider
+  call and no production data.
 - **Account-contract residual:** enterprise certification, correct Key types,
-  and test-scale quotas are observed. Successful endpoint behavior, settings
-  readback, response variability, special-city mapping, production restrictions,
-  and technical-service activation remain unverified. They do not block fixture-
-  first implementation, but they block live/production activation.
+  test-scale quotas, bounded endpoint success, response variability, plural
+  business areas, and one special-city mapping are observed. Settings readback,
+  JS map/security-proxy behavior, named failure/timeout paths, production
+  restrictions, and technical-service activation remain unverified. They do not
+  block fixture-first implementation, but they block production activation.
 
 ## Implementation Package Sequence
 
-1. **Controlled Web Service contract probe — separately authorized, no product
-   data.** Put only the Web Service Key in the ignored local environment. Run
-   one serial text-search/detail/reverse-geocode chain for an ordinary district,
-   a municipality, and a special no-county city. Record normalized shapes,
-   outcome codes, locality multiplicity, region coherence, latency, and call
-   counts only. This evidence may revise field normalization or special-city
-   readiness before the adapter is fixed. Add the JS Key/security code only in
-   package 4 when the browser proxy exists to validate them.
+1. **Controlled Web Service contract probe — completed 2026-09-03, no product
+   data.** The serial ordinary-district, municipality, special no-county city,
+   and `extensions=all` comparison chains established normalized success shapes,
+   locality multiplicity, region coherence, and the direct-admin towncode rule.
+   Add the JS Key/security code only in package 4 when the browser proxy exists
+   to validate them.
 2. **Brand domain and persistence — fixture first.** Replace the two legacy
    characteristic columns with the peer collection, add one owned Store
    Location value plus flagship field, implement v3 readiness/fingerprint and
@@ -339,7 +339,7 @@ placeName
 formattedAddress
 provinceName
 cityName?
-districtName
+districtName?
 townshipName?
 providerAdcode
 providerTowncode?
@@ -425,6 +425,15 @@ Key. Brand then checks:
 6. exact special-city terminal mapping when required;
 7. bounded, normalized, de-duplicated business-area candidates.
 
+The adapter normalizes `city` and `district` as optional scalar values rather
+than exposing provider `string | []` unions. For an MCA county terminal, detail
+and reverse adcode must agree with its six-digit code; a municipality's empty
+reverse city is allowed only when province and terminal still agree. For the
+controlled direct-admin township shape, the city adcode must agree with the MCA
+prefecture and the Amap 12-digit `towncode` must equal the maintained nine-digit
+township code plus `000`. Other shapes fail closed until fixture evidence adds
+an explicit rule.
+
 If any required fact is absent or conflicting, no verification receipt is
 issued.
 
@@ -433,7 +442,7 @@ issued.
 Candidate order is deterministic within the verified result:
 
 1. exact POI `business.business_area` when present;
-2. reverse-geocode `businessAreas` in provider order;
+2. reverse-geocode `businessAreas` from `extensions=all` in provider order;
 3. de-duplicate by normalized label while retaining first provenance.
 
 Provider order is presentation only; the customer chooses the final candidate.

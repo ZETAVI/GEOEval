@@ -6,10 +6,11 @@
   current Prisma/Nest/Web/central-snapshot implementation, archived #27 design,
   and live #26/PR #28 dependency state.
 - Review type: revised pre-implementation architectural gate after enterprise
-  account evidence and implementation-package planning on 2026-09-03.
+  account evidence, controlled Web Service contract validation, and
+  implementation-package planning on 2026-09-03.
 - Non-goals: implementation review, Query/Parser/Synthesis/report redesign,
-  Amap account/Key mutation, purchase, live provider calls, production migration,
-  or deployment.
+  further Amap account/Key mutation, purchase, runtime implementation,
+  production migration, or deployment.
 
 ## Review Contract
 
@@ -39,21 +40,38 @@ Current truth remains unchanged until implementation.
 
 ## Findings
 
-### Should-fix before adapter activation: endpoint and special-city contracts need controlled evidence
+### Resolved follow-up: endpoint and special-city success contracts
 
-- **Affected artifact:** Source Brief `Unknowns and Validation`; design `Verify`.
+- **Affected artifact:** Source Brief `Controlled Web Service Contract Evidence`;
+  design `Verify` and `Choose Query Locality`.
 - **Boundary:** provider interface correctness and official-region integrity.
-- **Consequence:** enterprise certification, test-scale quota, and separate Key
-  types are now observed, but no endpoint response has been controlled. Release-
-  domain/security-proxy configuration, outbound-IP allowlisting, POI-ID
-  lifecycle, latency, response type variation, and exact Amap `towncode`
-  compatibility with checked MCA township identities remain unverified.
-  Assuming those facts could reject valid stores, accept a wrong terminal, or
-  make retry/capacity behavior misleading.
-- **Narrow remediation:** after separate call approval, run the serial named
-  fixtures, record only normalized evidence, and block unsupported special-city
-  readiness rather than guessing. Reverify or replace both Keys before release.
-- **Origin:** external uncertainty exposed by #40.
+- **Evidence and changed action:** twelve serial public-place calls established
+  current success outcomes, `string | []` response variation, detail/reverse
+  adcode agreement, present/absent detail business area, three extended reverse
+  business-area candidates, and exact Dongguan towncode-to-MCA mapping. The
+  adapter contract now uses `extensions=all`, normalizes optional scalar
+  components, discards unrelated extended fields, and fails closed on
+  unsupported terminal shapes.
+- **Origin:** external uncertainty exposed and resolved within #40.
+
+### Should-fix before production activation: browser security and failure contracts remain unobserved
+
+- **Affected artifact:** design `Operational and Verification Boundary`; tasks
+  `Conditional Verification and Reconciliation`.
+- **Boundary:** credential containment, customer failure behavior, and release
+  operability.
+- **Consequence:** the Web Service success path is now evidenced, but the JS
+  map/security proxy, approved-domain restriction, fixed-egress allowlist,
+  timeout/error mapping, and zero-combined-business-area fallback have not run
+  through implementation. Activating production without them could expose a
+  credential, misclassify an operator fault as a customer retry, or offer no
+  honest locality fallback.
+- **Narrow remediation:** implement the existing fixture-first port and proxy,
+  prove named failure/zero-locality cases without further real calls by default,
+  then validate the browser path and release restrictions in their approved
+  environments before production activation.
+- **Origin:** external and release uncertainty exposed by #40; it does not block
+  fixture-first runtime implementation.
 
 ## Supported Boundaries
 
@@ -113,14 +131,16 @@ Current truth remains unchanged until implementation.
 `ready with follow-up`.
 
 The revised module/data/reset boundaries are coherent, and the product,
-architecture, and commercial/legal risk direction is confirmed. The previous
-external license/storage must-fix is closed by explicit human risk acceptance.
-The endpoint response, production credential restrictions/license, and special-
-city contract evidence remain should-fix items before live adapter activation.
-No ADR is
-required; stable accepted behavior should later reconcile into Brand Knowledge,
-the GEO snapshot seam, executable schemas/tests, and architecture overview.
+architecture, commercial/legal risk, endpoint success, and special-city
+direction is confirmed. The previous external license/storage must-fix is closed
+by explicit human risk acceptance, and the previous endpoint/special-city
+follow-up is closed by the controlled evidence. JS/browser security, named
+failure/zero-locality behavior, and production credential/license controls
+remain follow-ups before production activation. No ADR is required; stable
+accepted behavior should later reconcile into Brand Knowledge, the GEO snapshot
+seam, executable schemas/tests, and architecture overview.
 
-The Draft documentation PR may proceed as a Ready design artifact. It must not
-be presented as implementation authorization, observed provider capability,
-production readiness, or #40 completion.
+The Draft documentation PR may proceed as a Ready design artifact, and the
+architecture is ready for explicit fixture-first runtime implementation
+authorization. It must not be presented as runtime implementation, production
+readiness, or #40 completion.

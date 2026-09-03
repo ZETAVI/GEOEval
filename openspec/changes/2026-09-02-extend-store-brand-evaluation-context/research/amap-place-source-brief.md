@@ -5,8 +5,9 @@
   location facts needed by Brand Knowledge and an immutable evaluation snapshot.
 - Affected Change: Issue #40, `extend-store-brand-evaluation-context`.
 - Access date: 2026-09-03.
-- Evidence level: official Amap API references and official account/security
-  guidance; the platform service agreement is retained as reviewed context.
+- Evidence level: official Amap API references, official account/security
+  guidance, and a normalized 2026-09-03 controlled Web Service probe; the
+  platform service agreement is retained as reviewed context.
 - Disqualifier: the official interfaces or actual account cannot support the
   required map, verification, minimum-field, credential, or region-coherence
   boundary without trusting browser facts or inventing location meaning.
@@ -27,9 +28,11 @@ Brief therefore treats that risk as accepted and uses current official API
 documentation plus later controlled account evidence as the engineering basis.
 
 Application and Key creation were separately authorized and completed on
-2026-09-02. This decision still does not authorize implementation, purchase, or
-live calls. It allows the design to proceed while retaining minimum-field
-persistence, no raw-response storage, and the existing security boundaries.
+2026-09-02. On 2026-09-03, the product owner separately authorized controlled
+real calls, and the bounded public-place probe described below completed. These
+actions do not authorize runtime implementation, purchase, production
+activation, or development-data reset. The minimum-field, no-raw-response, and
+credential boundaries remain unchanged.
 
 ## Decision Constraints
 
@@ -75,8 +78,8 @@ persistence, no raw-response storage, and the existing security boundaries.
   developer and states that enterprise service permissions are active. Its
   certification page shows monthly quotas of 3,000,000 for the shared basic-LBS
   group, 30,000,000 JS map initializations, and 50,000 for the shared basic-search
-  group. These are account observations, not proof that any particular endpoint
-  response or security configuration works.
+  group. These account observations are distinct from the bounded endpoint
+  evidence below and do not prove production security configuration.
 - The current public billing table associates the same quota tier with 30 QPS
   for basic LBS, 100 QPS for JS map initialization, and 30 QPS for basic search.
   The account's key-specific quota and QPS pages currently show no usage rows,
@@ -87,6 +90,34 @@ persistence, no raw-response storage, and the existing security boundaries.
   used for short-term, small-volume tests, while production/business operation
   remains a separate purchase/activation boundary. No traffic-package recharge
   is needed for the planned bounded fixtures.
+
+## Controlled Web Service Contract Evidence
+
+On 2026-09-03, the product owner authorized real calls. GEOEval used the
+existing `Web服务` Key only in process memory, at concurrency one, against public
+non-customer landmarks. No Key value, request URL, provider place ID, raw
+response, phone, rating, hours, photo, or exact coordinate was retained. The
+probe made nine base-contract calls plus one three-call `extensions=all`
+comparison, with no retry and no load/capacity test.
+
+All twelve calls returned HTTP 200, `status = "1"`, and
+`infocode = "10000"`. The observed latencies below are single-sample contract
+evidence, not an SLA or capacity claim.
+
+| Fixture | Search/detail/reverse latency | Normalized evidence | Official-region implication |
+| --- | --- | --- | --- |
+| Guangzhou Tower, ordinary district | 220 / 100 / 78 ms | detail `business_area` was a present string; reverse `city`, `district`, `township`, and `towncode` were strings | detail and reverse adcode `440105` agreed and exactly matched the maintained MCA county terminal |
+| Palace Museum, municipality | 153 / 86 / 62 ms | detail `business_area` was absent; reverse `city` was an empty array while `district`, `township`, and `towncode` were strings | detail and reverse adcode `110101` agreed and exactly matched the maintained MCA county terminal; an empty reverse city is not a mismatch when province and terminal agree |
+| Dongguan Citizen Service Center, city without county-level divisions | 186 / 98 / 86 ms | detail `business_area` was a present string; reverse `district` was an empty array while `city`, `township`, and `towncode` were strings | detail/reverse adcode `441900` agreed; observed towncode `441900004000` maps exactly to maintained terminal `CN-MCA-TOWNSHIP-441900004` after the explicit Amap 12-digit-to-MCA 9-digit normalization, with the same `南城街道` label |
+| Guangzhou Tower, `extensions=all` comparison | 215 / 86 / 76 ms | reverse `businessAreas` was an array containing three candidates | the accepted multi-candidate locality behavior requires `extensions=all`; the adapter must immediately discard every unrelated extended field |
+
+The probe establishes successful current text-search, ID-detail, and
+reverse-geocode behavior for the named shapes; string/empty-array variation;
+detail/reverse adcode coherence; present, absent, and multiple business-area
+shapes; and one exact direct-admin township mapping. It does not establish POI
+ID lifecycle stability, an SLA, timeout/error behavior, JS map/security-proxy
+behavior, a zero-candidate result after combining detail and extended reverse
+evidence, production allowlists, or technical-service activation.
 
 ## Evidence
 
@@ -102,7 +133,7 @@ persistence, no raw-response storage, and the existing security boundaries.
 | Amap coordinates in mainland use GCJ-02; non-Amap coordinates must be converted before use with Amap | [Amap coordinate conversion](https://lbs.amap.com/api/javascript-api-v2/guide/transform/convertfrom) | Updated 2024-07-29 | Persist `GCJ-02` explicitly and keep longitude/latitude to the documented six-decimal request precision |
 | Responses use `status`, `info`, and `infocode`; documented failures include invalid/expired Key, unavailable service, quota exhaustion, frequency limit, IP/domain/signature mismatch, busy service, and exhausted paid balance | [Amap error-code reference](https://lbs.amap.com/api/webservice/guide/tools/info) | Updated 2022-10-12 | Normalize provider outcomes at the adapter; retry only bounded transient/busy failures and never retry auth, permission, quota, or invalid-input outcomes blindly |
 | Production Web Service Keys should use the server outbound-IP allowlist | [Amap Web Service IP allowlist FAQ](https://lbs.amap.com/faq/webservice/webservice-api/basic-configuration/43238) | Accessed 2026-09-02 | Key remains in server configuration and calls originate from known release egress; `10005` is a configuration fault, not a customer retry |
-| The actual GEOEval account is enterprise-certified and its certification page shows 3,000,000 monthly basic-LBS calls, 30,000,000 JS map initializations, and 50,000 basic-search calls | [Amap account certification console](https://console.amap.com/dev/user/permission) | Observed 2026-09-03 | Certification and a test-scale monthly allowance are established; live endpoint behavior and production readiness are not |
+| The actual GEOEval account is enterprise-certified and its certification page shows 3,000,000 monthly basic-LBS calls, 30,000,000 JS map initializations, and 50,000 basic-search calls | [Amap account certification console](https://console.amap.com/dev/user/permission) | Observed 2026-09-03 | Certification and a test-scale monthly allowance are established; the later controlled probe establishes only bounded current endpoint behavior, not production readiness |
 | The current public billing table associates the 3,000,000 / 30,000,000 / 50,000 quota tier with 30 / 100 / 30 QPS respectively | [Amap base-service billing](https://lbs.amap.com/pages/base_service_price) | Accessed 2026-09-03 | Use the values only as documented ceilings; ordinary validation remains serial and never attempts a capacity test |
 | Requests consume monthly quota first; only quota above the granted amount requires a paid traffic package, and the published base price is 30 CNY per 10,000 basic-LBS/search calls and 3 CNY per 10,000 map-initialization calls | [Amap service upgrade and pricing](https://lbs.amap.com/upgrade#price) | Accessed 2026-09-02 | Do not recharge speculatively. Reassess capacity only after certification and a normal development usage estimate |
 | Official setup uses a `Web端(JS API)` Key plus security key for JS API 2.0 and a separate `Web服务` Key for Web Service APIs | [Amap JS API prerequisites](https://lbs.amap.com/api/javascript-api-v2/prerequisites), [Amap Web Service Key setup](https://lbs.amap.com/api/webservice/create-project-and-key) | Updated 2024-04-09 and 2026-03-30; accessed 2026-09-02 | The two observed GEOEval Key types match the documented split; their values remain outside version control and product contracts |
@@ -144,16 +175,26 @@ persistence, no raw-response storage, and the existing security boundaries.
 
 - Call `GET https://restapi.amap.com/v3/geocode/regeo` with the server-only Key,
   `location=<longitude>,<latitude>` in longitude-first order at no more than six
-  decimal places, `extensions=base`, and JSON output.
+  decimal places, `extensions=all`, and JSON output. Controlled evidence showed
+  that `base` cannot implement the accepted multi-business-area candidate
+  branch, while `all` returned a bounded candidate array. Parse only the
+  required components and `businessAreas`; discard all unrelated extended
+  content immediately.
 - Use reverse geocoding to verify formatted address and administrative
   components (`province`, `city`, `district`, `adcode`, `township`, and
-  `towncode`). Do not request nearby POIs, roads, or intersections merely to
-  strengthen confidence. If controlled evidence later proves `extensions=all`
-  necessary for an accepted business-area requirement, revise this contract
-  explicitly rather than widening it silently.
-- A municipality or province-direct county may return an empty city field.
-  Empty values and provider array/string variation are normalized before Brand
-  performs MCA region-coherence checks.
+  `towncode`) plus the bounded `businessAreas` labels needed by the accepted
+  locality choice. Do not persist or expose nearby POIs, roads, intersections,
+  AOIs, or other extended output.
+- Normalize provider empty arrays before Brand performs MCA region-coherence
+  checks. The controlled municipality returned `city = []`; the controlled
+  city without county-level divisions returned `district = []`.
+- For an MCA county terminal, require the six-digit detail and reverse adcode to
+  agree with the terminal code; a municipality's empty reverse city is not a
+  mismatch when province and terminal agree. For the controlled direct-admin
+  township shape, require the detail/reverse city adcode to agree with the
+  maintained prefecture and require the 12-digit Amap towncode to equal the
+  maintained nine-digit MCA township code plus `000`. Unsupported shapes fail
+  closed rather than guessing.
 
 ### Result and error classification
 
@@ -199,37 +240,22 @@ locality, readiness, and fingerprint consequences.
 | Manual address as an evaluation-ready fallback | Reject | Cannot prove a concrete store or business area and would allow forged client data to become evaluation truth; manual input may remain a transient search draft only |
 | No external provider; retain province-city-terminal only | Reject for #40 outcome | Preserves current behavior but cannot distinguish a specific storefront or stable local recommendation context |
 
-## Unknowns and Validation
+## Completed Validation and Remaining Unknowns
 
-Enterprise certification and documented test-scale quota are now established.
-After separate controlled-call authorization, the smallest validation is:
+Enterprise certification, documented test-scale quota, current success behavior
+for the named Web Service endpoints, response-type variation, plural
+business-area evidence, and one direct-admin township mapping are now
+established. They are sufficient to fix the initial adapter parsing and
+official-region coherence contract.
 
-1. place only the server-side Web Service Key in the repository-ignored local
-   environment for this Web Service probe; do not copy it into code, evidence,
-   commands, logs, or chat. Add the JS Key/security code only when the map proxy
-   is implemented and its browser path is ready to validate;
-2. use one approved non-customer storefront and fixtures for an ordinary
-   district, municipality, and one special no-county city to test v5 text
-   search, v5 ID detail, and v3 reverse geocoding;
-3. confirm POI detail and reverse-geocode address/adcode agreement, absence and
-   multiplicity of business areas, `towncode` compatibility with the checked
-   MCA terminal identity, response types that sometimes vary between string and
-   array, timeout behavior, and documented `infocode` normalization;
-4. after implementation package 4 creates the security proxy, add the JS
-   Key/security code only to the ignored environment and validate map/Marker/
-   accessible-list selection on desktop and mobile;
-5. record only normalized field/type/outcome evidence, latency, and consumed
-   call counts; stop if authentication, entitlement, quota, or provider data is
-   inconsistent rather than repeating requests;
-6. stop live adapter activation if the account does not expose the required
-   services/security controls or if special-city identity cannot be checked
-   without guessing.
-
-The official docs and console now establish enterprise certification, Key types,
-and documented test-scale quotas. They do not establish successful endpoint
-behavior, POI-ID lifecycle stability, latency/SLA, exact MCA-to-Amap township-
-code compatibility, or production allowlists/license. Those facts remain
-unknown rather than assumed.
+Implementation must still use fixtures to prove timeout and documented
+`infocode` classification, and must add a controlled zero-combined-business-area
+case for the address-locality fallback. After package 4 creates the security
+proxy, add the JS Key/security code only to the ignored environment and validate
+map/Marker/accessible-list selection on desktop and mobile. Production remains
+blocked on approved domain and fixed-egress restrictions, technical-service
+activation, and runtime evidence in the release environment. POI-ID lifecycle
+stability and an SLA remain unknown rather than assumed.
 
 ## Reuse and Refresh Boundary
 

@@ -46,9 +46,10 @@
 - [x] Commercial/legal risk owner reviews the provider-terms boundary, accepts
       the proposed minimum-field use, and directs #40 not to require a separate
       licensing/storage work order as an engineering Gate.
-- [x] Keep Key creation, purchase, controlled calls, and production activation
-      as separate action boundaries; the product owner later authorized only
-      the application/Key preparation boundary.
+- [x] Keep Key creation, purchase, controlled calls, runtime implementation, and
+      production activation as separate action boundaries; the product owner
+      later authorized application/Key preparation and the bounded controlled
+      calls, but not the remaining boundaries.
 
 ## Account-specific Controlled Contract Validation
 
@@ -69,12 +70,16 @@
 - [ ] Before production activation, verify or replace the Web JS/Web Service
       Keys with the approved release domain, server-side JS security proxy, and
       fixed outbound-IP allowlist without revealing credentials.
-- [ ] Validate one approved non-customer ordinary district, municipality, and
+- [x] Validate one approved non-customer ordinary district, municipality, and
       special no-county city across v5 text search, v5 ID detail, and v3 reverse
       geocoding; do not pressure/load test.
-- [ ] Prove required response-type normalization, GCJ-02 handling, detail/regeo
-      coherence, empty/multiple business areas, documented error mapping, and
-      exact Amap-to-MCA adcode/towncode behavior; revise rather than guess.
+- [x] Record the required string/empty-array normalization, documented GCJ-02
+      contract, detail/regeo adcode coherence, present/absent detail business
+      area, multiple reverse business areas, and exact fixture Amap-to-MCA
+      adcode/towncode behavior; revise the reverse contract to `extensions=all`.
+- [ ] During adapter implementation, prove named timeout/error mapping and a
+      zero-combined-business-area address-locality fallback with fixtures before
+      any further controlled failure call is justified.
 
 ## Conditional Implementation
 
@@ -166,7 +171,7 @@
       quota/QPS and that recharge does not replace certification.
 - [x] After identity approval, inspect actual console entitlement without
       retaining credential or enterprise-identity values.
-- [ ] Run only the named bounded non-customer contract fixtures after separate
+- [x] Run only the named bounded non-customer contract fixtures after separate
       live-call authorization; do not pressure/load test.
 - [ ] Do not begin #40 implementation until the product owner explicitly
       authorizes the fixed design package.
@@ -189,7 +194,23 @@
 - [x] Map the implementation into controlled probe, Brand/persistence,
       verification adapter/API, shared Web map, snapshot/handoff, and activation/
       reconciliation packages with explicit evidence for each.
-- [ ] Obtain separate authorization before reading credentials into an execution
+- [x] Obtain separate authorization before reading credentials into an execution
       environment or making the three named controlled Amap request chains.
 - [ ] Obtain explicit implementation authorization before changing runtime code,
       dependencies, Prisma, OpenAPI/client, or Web behavior.
+
+## 2026-09-03 Controlled Web Service Contract Validation
+
+- [x] Use only public non-customer landmarks, concurrency one, no retry, and no
+      pressure/capacity test; complete nine base-contract calls plus one
+      three-call `extensions=all` comparison.
+- [x] Keep the Web Service Key in process memory and retain no credential value,
+      request URL, raw response, provider place ID, or unrelated provider field.
+- [x] Record only normalized outcome/type/latency and official-region coherence
+      evidence in the Source Brief.
+- [x] Reconcile the observed municipality `city = []`, special-city
+      `district = []`, exact Dongguan township-code mapping, and plural business-
+      area requirement into the adapter design and architecture review.
+- [x] Stop before runtime implementation, dependency changes, Prisma/OpenAPI,
+      JS map/security-proxy configuration, purchase, or database reset without
+      their own authorization/evidence gates.

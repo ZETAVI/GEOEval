@@ -56,9 +56,11 @@ account's documented service grants, Key types, quotas, and security controls.
 
 The design is ready for explicit implementation authorization. The application,
 separate JS/Web Service Key types, enterprise certification, and test-scale
-monthly quota are observed. A technical-service license is not active, the
-production domain/IP restrictions are not verified, and no endpoint behavior
-has been observed. Bounded controlled calls, production credential restrictions,
+monthly quota are observed. The bounded public-landmark probe also confirmed the
+current Web Service success shapes, municipality/special-city empty-array
+variation, plural business areas, and one exact direct-admin township mapping.
+A technical-service license is not active, and production domain/IP restrictions
+and JS map/security-proxy behavior are not verified. Those production controls
 and any purchase remain technical/operational follow-ups with their own action
 boundaries; they are not a remaining product decision.
 
@@ -67,7 +69,8 @@ evaluation service, snapshot parser, OpenAPI/client, and integration tests and
 is merge-conflicted. The delivery order is therefore #40 producer first, then a
 #26 rebase/adaptation to the stable v3 Query projection.
 
-Not authorized by this confirmation: implementation, development-data reset,
-additional credential changes, purchase, live Amap call,
+Not authorized by this confirmation: runtime implementation, development-data
+reset, additional credential changes, purchase, further live Amap calls beyond
+a separately justified bounded validation,
 Query/Parser/Synthesis/report change, real evaluation Provider call, production
 migration, deployment, or Issue/PR merge.
