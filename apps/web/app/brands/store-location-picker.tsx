@@ -35,7 +35,7 @@ type AmapPlaceSearch = {
     callback: (status: string, result: unknown) => void,
   ): void;
   on(
-    event: "selectChanged",
+    event: "selectChanged" | "listElementClick" | "markerClick",
     listener: (event: { id?: unknown; data?: unknown }) => void,
   ): void;
 };
@@ -70,6 +70,7 @@ export function StoreLocationPicker({
   const latestBrandId = useRef(brand?.id);
   const latestQuery = useRef("");
   const activeSearchInput = useRef("");
+  const selectedPlaceId = useRef("");
   const verificationSequence = useRef(0);
   const [query, setQuery] = useState("");
   const [verification, setVerification] = useState<StoreLocationVerification>();
@@ -124,14 +125,19 @@ export function StoreLocationPicker({
         panel: panelId,
         autoFitView: true,
       });
-      placeSearch.current.on("selectChanged", (event) => {
-        const providerPlaceId = selectedPlaceId(event);
-        if (!providerPlaceId) return;
+      const handleSelection = (event: { id?: unknown; data?: unknown }) => {
+        const providerPlaceId = providerPlaceIdFromEvent(event);
+        if (!providerPlaceId || providerPlaceId === selectedPlaceId.current)
+          return;
+        selectedPlaceId.current = providerPlaceId;
         void verifySelectedPlace(
           providerPlaceId,
           selectedPlaceName(event.data),
         );
-      });
+      };
+      placeSearch.current.on("listElementClick", handleSelection);
+      placeSearch.current.on("markerClick", handleSelection);
+      placeSearch.current.on("selectChanged", handleSelection);
       const autocomplete = new AMap.AutoComplete({
         city: "全国",
         citylimit: false,
@@ -184,6 +190,7 @@ export function StoreLocationPicker({
       const service = placeSearch.current;
       if (!service) throw new Error("地图搜索尚未准备好");
       activeSearchInput.current = searchInput;
+      selectedPlaceId.current = "";
       service.clear();
       const status = await new Promise<"complete" | "no_data">(
         (resolve, reject) => {
@@ -235,6 +242,7 @@ export function StoreLocationPicker({
       setMessage("门店已复核，评测位置范围已根据高德地址自动确定");
     } catch (error) {
       if (sequence !== verificationSequence.current) return;
+      selectedPlaceId.current = "";
       setMessage(error instanceof Error ? error.message : "门店复核失败");
     } finally {
       if (sequence === verificationSequence.current) setBusy(false);
@@ -386,7 +394,10 @@ export function StoreLocationPicker({
   );
 }
 
-function selectedPlaceId(event: { id?: unknown; data?: unknown }): string {
+function providerPlaceIdFromEvent(event: {
+  id?: unknown;
+  data?: unknown;
+}): string {
   if (typeof event.id === "string") return event.id.trim();
   if (!isRecord(event.data)) return "";
   return typeof event.data.id === "string" ? event.data.id.trim() : "";

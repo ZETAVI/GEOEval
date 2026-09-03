@@ -1,9 +1,9 @@
 # Change: Extend Store Brand Evaluation Context
 
-- Status: Fixture-first runtime implementation and current-truth reconciliation
-  in progress after explicit authorization on 2026-09-03; isolated migration,
-  backend/Web tests, build, and no-Key browser draft behavior pass, while real JS
-  map/security-proxy evidence and the named development reset remain open gates
+- Status: Runtime implementation and current-truth reconciliation complete;
+  isolated/full test evidence, real Amap native panel/Marker verification, and
+  the explicitly authorized empty development reset pass. Product-owner
+  hands-on acceptance and final PR/Issue closure remain open.
 - Class: Architectural
 - Owning Issue: [#40](https://github.com/ZETAVI/GEOEval/issues/40)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -12,9 +12,9 @@
   risk owner has reviewed and accepted the provider-terms boundary
 - Authorization: research, application/Key preparation, bounded controlled Amap
   calls, fixture-first runtime implementation, local isolated verification, and
-  real Amap calls when credentials are explicitly supplied; no API purchase,
-  production change/deployment, Query change, evaluation Provider calls, or
-  destructive reset of the shared development database
+  real Amap calls when credentials are explicitly supplied, and the exact
+  shared-development reset completed on 2026-09-03; no API purchase, production
+  change/deployment, Query change, or evaluation Provider calls
 
 ## Why
 
@@ -238,8 +238,8 @@ may use that reset path.
   adaptation, and release integration remain separate gates
 - PR relationship: implementation Partial PR using
   `Part of #40 — does not close`
-- Exit for this task: fixed-diff reviews, complete local evidence, and an honest
-  Draft PR/Issue state; no merge, production activation, or shared-database reset
+- Exit for this task: fixed-diff reviews, complete local/real-browser evidence,
+  owner acceptance, and an honest Final PR/Issue state; no production activation
 
 ## Approval Boundary
 
@@ -250,6 +250,7 @@ licensing/storage inquiry. That decision removes the previous external legal
 must-fix. Later explicit actions authorized creation of the application and two
 scoped Key types, completed bounded public-place calls, and fixture-first runtime
 implementation with real Amap calls permitted when credentials are available.
-API purchase, destructive reset of the shared development database, production
-data/deployment, #26 Query behavior, evaluation Provider calls, merge, and
-production activation retain their own later authorization boundaries.
+The exact shared-development reset was later explicitly authorized and
+completed from empty. API purchase, production data/deployment, #26 Query
+behavior, evaluation Provider calls, merge, and production activation retain
+their own later authorization boundaries.

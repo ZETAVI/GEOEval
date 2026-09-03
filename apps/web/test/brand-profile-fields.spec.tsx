@@ -44,6 +44,8 @@ describe("shared Brand v3 fields", () => {
     );
     expect(source).toContain("panel: panelId");
     expect(source).toContain('event: "selectChanged"');
+    expect(source).toContain('"listElementClick"');
+    expect(source).toContain('"markerClick"');
     expect(source).toContain("autoFitView: true");
     expect(source).toContain("service.clear()");
     expect(source).not.toContain("location-candidate-list");

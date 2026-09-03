@@ -216,6 +216,13 @@ scope.
    only as a missing-detail fallback. A focused test failed on the former
    behavior and passes after repair; the repeated real flow persisted the
    Hunter Lane restaurant address and Sanya `海棠北路100号`.
+5. **must-fix — native result click did not reach verification (introduced).**
+   Credentialed Chrome after the Amap-owned panel revision showed that the
+   actual result interaction emitted `listElementClick` without the expected
+   `selectChanged`, so clicking a valid POI left the form unverified. The Web
+   now subscribes to native list, Marker, and selection-change events through
+   one POI-ID deduplication seam and resets that guard for each search or failed
+   verification.
 
 ### Current result and residual evidence
 
@@ -226,14 +233,12 @@ only the immutable v3 projection. No generic map/provider registry, search
 session database, Redis cache, raw provider persistence, or Query-to-Brand
 reach-through was added.
 
-The prior real JS map, Amap candidate search, bounded security proxy,
-selected-POI server verification, sealed-receipt commit, and real address-
-locality fallback are desktop Chrome-proven with credentials held only in
-process memory. The fixed diff now delegates the result panel/Markers to Amap
-and removes the second business-area choice; focused contract/component tests
-cover that new boundary. Ten bounded multi-store search/detail/reverse chains
-across eight cities also passed. Credentialed narrow-screen Chrome validation,
-production domain/IP
-allowlists, technical-service activation, shared-development reset, #26
-adaptation, merge, and release remain explicit follow-ups; this review does not
-claim them.
+The real JS map, Amap-owned result panel and Marker, bounded security proxy,
+selected-POI server verification, sealed receipt, automatic `猎德社区` locality,
+and exact Hunter Lane address are desktop Chrome-proven with credentials held
+only in process memory. Both native list selection and Marker selection now
+reach the same verified Brand preview after the event-seam repair. Ten bounded
+multi-store search/detail/reverse chains across eight cities also passed. The
+shared development database has been rebuilt from empty through all 19
+migrations. Credentialed narrow-screen Chrome validation, #26 adaptation,
+merge, and release remain explicit follow-ups; this review does not claim them.

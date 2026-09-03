@@ -35,8 +35,8 @@
       reorder semantics, map-assisted selection, and verified-address locality
       fallback that #26 may phrase naturally.
 - [x] Product owner authorizes an implementation-stage reset of the explicitly
-      named development database instead of v1/v2 data compatibility. This task
-      does not execute that destructive action.
+      named development database instead of v1/v2 data compatibility; the
+      later exact preflight and destructive authorization execute that decision.
 - [x] Architecture direction is confirmed for hybrid JS map plus Brand-owned
       server verification, sealed receipt, one-to-one Store Location, peer JSON
       collection, v3 fingerprint/snapshot, development reset, rollback, and #26
@@ -100,7 +100,7 @@
 - [x] Add the single `brand-evaluation-snapshot@3` contract and separate
       historical/report and #26 Query projections without changing Query/Parser/
       Synthesis/report behavior in #40.
-- [ ] Recreate only the explicitly named development database from empty after a
+- [x] Recreate only the explicitly named development database from empty after a
       preflight proves the target is non-production; remove v1/v2 compatibility
       requirements and prove the reset cannot address a production database.
 - [x] Reuse one responsive form in registration and Brand management with
@@ -115,8 +115,8 @@
 - [x] Run focused static/domain/contract checks before any authorized external
       probe; then run typecheck, tests, build, OpenAPI generation, framework
       validation, isolated empty-database rebuild rehearsal, `git diff --check`,
-      and browser inspection. The separately gated shared-development reset and
-      credentialed browser path remain open below.
+      and browser inspection. The later authorized shared-development reset and
+      credentialed browser path are recorded below.
 - [x] Prove the Web Service Key and JS security key never enter browser assets,
       OpenAPI, generated client, logs, traces, snapshots, or fixtures; the
       domain-restricted JS Key is the only intentionally browser-loaded key.
@@ -264,8 +264,8 @@
 ## 2026-09-03 Fixture-first Runtime Implementation
 
 - [x] Record explicit fixture-first runtime authorization and move Issue #40 to
-      `In Progress`; retain separate merge, shared-development reset, purchase,
-      production, and #26 behavior gates.
+      `In Progress`; retain separate merge, purchase, production, and #26
+      behavior gates.
 - [x] Add v3 Prisma persistence, atomic Brand/Store Location writes, monotonic
       receipt consumption, aggregate-row serialization, exact MCA derivation,
       v3 fingerprint vectors, and concurrent replay/lost-update tests.
@@ -283,7 +283,7 @@
       `geoeval_issue40_rebased` without touching the shared `geoeval`
       development database.
 - [x] Pass focused backend/Web tests, 29-file/149-test backend regression,
-      5-file/21-test Web regression, all-workspace typecheck, production build,
+      5-file/22-test Web regression, all-workspace typecheck, production build,
       framework validation, static browser-asset secret scan, and desktop no-Key
       browser inspection.
 - [x] Read the existing JS/Web Service/security credentials from authenticated
@@ -299,8 +299,10 @@
       focused red/green test and repeated Chrome/database inspection.
 - [ ] Prove the credentialed interaction at a narrow-screen Chrome viewport;
       desktop responsive structure and component tests are not a substitute.
-- [ ] Execute the separately gated shared-development database reset only after
-      an exact non-production preflight and explicit destructive authorization.
+- [x] After exact non-production preflight and explicit destructive
+      authorization, rebuild the shared `geoeval` development database from
+      empty; apply all 19 migrations and confirm Brand/Definition/Run counts are
+      zero.
 - [x] Complete fixed-diff code/verification review and prepare current PR/Issue
       evidence without merging #40.
 - [ ] Hand the stable v3 Query projection to #26 after the #40 owner accepts the

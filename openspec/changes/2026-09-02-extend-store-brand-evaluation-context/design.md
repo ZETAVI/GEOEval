@@ -5,9 +5,9 @@
 - Commercial/legal risk: reviewed and accepted by its human owner on 2026-09-02
 - Remaining activation follow-up: narrow-screen native-panel evidence,
   production allowlists/license, and release runtime
-- Current authorization: fixture-first runtime implementation, isolated local
-  verification, and real Amap calls when credentials are supplied; no purchase,
-  shared-development reset, production activation, merge, or #26 Query change
+- Current authorization: runtime implementation, isolated/local verification,
+  real Amap calls, and the completed exact shared-development reset; no purchase,
+  production activation, merge, or #26 Query change
 
 ## Design Position
 
@@ -594,8 +594,9 @@ store name plus city/address/landmark text.
 - neither `city` nor `citylimit` is set from a separate product field;
 - no more than ten results appear through the Amap-owned panel and matching
   Markers so the customer can distinguish same-name stores;
-- Amap `selectChanged` makes panel and Marker selection emit the same provider
-  POI ID; GEOEval does not parse and rerender its own candidate list;
+- Amap native list, Marker, and selection-change events feed one deduplicated
+  provider POI-ID handler; GEOEval does not parse and rerender its own candidate
+  list;
 - clicking empty map space only recenters or starts a nearby search and cannot
   confirm a Store Location.
 
