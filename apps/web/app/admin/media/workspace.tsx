@@ -34,6 +34,7 @@ import {
   filterAdminPlatforms,
   formatAuditValue,
   formatDateTime,
+  groupAdminPlatformsByStatus,
   isApiStatus,
   mediaCategoryOptions,
   platformStatusLabels,
@@ -338,6 +339,10 @@ export function AdminMediaWorkspace() {
       }),
     [platforms, search, category, status],
   );
+  const platformGroups = useMemo(
+    () => groupAdminPlatformsByStatus(filteredPlatforms),
+    [filteredPlatforms],
+  );
   const activeSupplierCount = suppliers.filter(
     (supplier) => supplier.status === "ACTIVE",
   ).length;
@@ -634,51 +639,91 @@ export function AdminMediaWorkspace() {
                   </button>
                 </div>
               ) : (
-                <div className="platform-list">
-                  {filteredPlatforms.map((platform) => {
-                    const selected = platform.id === selectedPlatform?.id;
-                    return (
-                      <button
-                        type="button"
-                        key={platform.id}
-                        className={selected ? "selected" : ""}
-                        onClick={() => void selectPlatform(platform.id)}
-                        aria-current={selected ? "true" : undefined}
-                      >
-                        <span className="platform-list-logo">
-                          {platform.logoUrl && (
-                            <img
-                              src={platform.logoUrl}
-                              alt=""
-                              onLoad={(event) => {
-                                event.currentTarget.style.display = "block";
-                              }}
-                              onError={(event) => {
-                                event.currentTarget.style.display = "none";
-                              }}
-                            />
-                          )}
-                          <b aria-hidden="true">
-                            {platform.displayName.slice(0, 1)}
+                <div className="admin-platform-list">
+                  {platformGroups.map((group) => (
+                    <section
+                      className="platform-list-group"
+                      key={group.status}
+                      aria-label={
+                        group.status === "ACTIVE" ? "启用平台" : "停用平台"
+                      }
+                    >
+                      <header>
+                        <span>
+                          <i
+                            className={`platform-group-dot ${group.status.toLowerCase()}`}
+                            aria-hidden="true"
+                          />
+                          <b>
+                            {group.status === "ACTIVE"
+                              ? "启用平台"
+                              : "停用平台"}
                           </b>
                         </span>
-                        <span>
-                          <b>{platform.displayName}</b>
-                          <small>
-                            {platform.categories
-                              .slice(0, 2)
-                              .map((item) => categoryLabels[item])
-                              .join(" · ")}
-                          </small>
-                        </span>
-                        <em
-                          className={`state-pill ${platform.status.toLowerCase()}`}
-                        >
-                          {platformStatusLabels[platform.status]}
-                        </em>
-                      </button>
-                    );
-                  })}
+                        <em>{group.platforms.length}</em>
+                      </header>
+                      <div className="platform-list-items">
+                        {group.platforms.map((platform) => {
+                          const selected = platform.id === selectedPlatform?.id;
+                          return (
+                            <button
+                              type="button"
+                              key={platform.id}
+                              className={selected ? "selected" : ""}
+                              onClick={() => void selectPlatform(platform.id)}
+                              aria-current={selected ? "true" : undefined}
+                            >
+                              <span className="platform-list-logo">
+                                {platform.logoUrl && (
+                                  <img
+                                    src={platform.logoUrl}
+                                    alt=""
+                                    onLoad={(event) => {
+                                      event.currentTarget.style.display =
+                                        "block";
+                                    }}
+                                    onError={(event) => {
+                                      event.currentTarget.style.display =
+                                        "none";
+                                    }}
+                                  />
+                                )}
+                                <b aria-hidden="true">
+                                  {platform.displayName.slice(0, 1)}
+                                </b>
+                              </span>
+                              <span className="platform-list-copy">
+                                <b>{platform.displayName}</b>
+                                <small className="platform-list-category">
+                                  {platform.categories
+                                    .slice(0, 2)
+                                    .map((item) => categoryLabels[item])
+                                    .join(" · ")}
+                                </small>
+                                <small className="platform-list-details">
+                                  <span>
+                                    {platform.regionScope === "DOMESTIC"
+                                      ? "国内"
+                                      : "海外"}
+                                  </span>
+                                  <span>
+                                    {typeof platform.pointPrice === "number"
+                                      ? `${platform.pointPrice.toLocaleString("zh-CN")} 积分/次`
+                                      : "未设置积分价"}
+                                  </span>
+                                </small>
+                              </span>
+                              <em
+                                className={`state-pill ${platform.status.toLowerCase()}`}
+                              >
+                                {platformStatusLabels[platform.status]}
+                              </em>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  ))}
                 </div>
               )}
             </aside>

@@ -77,6 +77,20 @@ export function filterAdminPlatforms(
   });
 }
 
+export function groupAdminPlatformsByStatus(
+  platforms: MediaPlatformAdmin[],
+): Array<{
+  status: MediaPlatformAdmin["status"];
+  platforms: MediaPlatformAdmin[];
+}> {
+  return (["ACTIVE", "INACTIVE"] as const)
+    .map((status) => ({
+      status,
+      platforms: platforms.filter((platform) => platform.status === status),
+    }))
+    .filter((group) => group.platforms.length > 0);
+}
+
 export function isSupportedUrlReference(value: string): boolean {
   const normalized = value.trim();
   return (

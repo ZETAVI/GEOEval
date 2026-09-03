@@ -15,6 +15,7 @@ import {
 import {
   filterAdminPlatforms,
   formatAuditValue,
+  groupAdminPlatformsByStatus,
   isApiStatus,
   isPlatformRevisionConflict,
   isSupportedUrlReference,
@@ -71,6 +72,19 @@ describe("Media Supply administrator UI behavior", () => {
         status: "INACTIVE",
       }).map((platform) => platform.displayName),
     ).toEqual(["百家号"]);
+  });
+
+  it("groups filtered platforms once by their operational state", () => {
+    const groups = groupAdminPlatformsByStatus(platforms);
+    expect(
+      groups.map((group) => [group.status, group.platforms.length]),
+    ).toEqual([
+      ["ACTIVE", 1],
+      ["INACTIVE", 1],
+    ]);
+    expect(
+      groups.flatMap((group) => group.platforms.map((platform) => platform.id)),
+    ).toEqual(platforms.map((platform) => platform.id));
   });
 
   it("requires a positive whole point price only when the platform is enabled", () => {

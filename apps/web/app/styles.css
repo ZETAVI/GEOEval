@@ -2464,32 +2464,82 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
-.platform-list {
+.admin-platform-list {
   min-height: 0;
   display: grid;
-  gap: 5px;
-  padding: 9px;
+  align-content: start;
+  gap: 12px;
+  padding: 12px;
   overflow: auto;
+  background: #f8faf8;
 }
-.platform-list > button {
+.platform-list-group {
+  display: grid;
+  gap: 7px;
+}
+.platform-list-group > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3px;
+  color: #607068;
+}
+.platform-list-group > header > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.platform-list-group > header b {
+  font-size: 0.63rem;
+  letter-spacing: 0.02em;
+}
+.platform-list-group > header em {
+  min-width: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #e8eeea;
+  color: #6e7e75;
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 800;
+  text-align: center;
+}
+.platform-group-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #aa8c55;
+  box-shadow: 0 0 0 3px #f2eadb;
+}
+.platform-group-dot.active {
+  background: #3f9d6b;
+  box-shadow: 0 0 0 3px #dfeee5;
+}
+.platform-list-items {
+  display: grid;
+  gap: 7px;
+}
+.platform-list-items > button {
   width: 100%;
   min-width: 0;
   display: grid;
   grid-template-columns: 38px minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
-  padding: 11px;
-  border: 1px solid transparent;
+  padding: 11px 10px;
+  border: 1px solid #e2e9e4;
   border-radius: 13px;
-  background: transparent;
+  background: white;
   color: inherit;
   text-align: left;
+  box-shadow: 0 3px 10px rgba(27, 62, 43, 0.025);
 }
-.platform-list > button:hover {
-  background: #f6f9f7;
+.platform-list-items > button:hover {
+  border-color: #c8d9cf;
+  background: #fbfdfb;
 }
-.platform-list > button.selected {
-  border-color: #a8c7b5;
+.platform-list-items > button.selected {
+  border-color: #91bda4;
   background: #edf5f0;
   box-shadow: inset 3px 0 #2c825a;
 }
@@ -2515,23 +2565,35 @@ a {
   object-fit: contain;
   background: white;
 }
-.platform-list > button > span:nth-child(2) {
+.platform-list-copy {
   min-width: 0;
   display: grid;
-  gap: 4px;
+  gap: 3px;
 }
-.platform-list > button b,
-.platform-list > button small {
+.platform-list-copy > b,
+.platform-list-copy > small {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.platform-list > button b {
+.platform-list-copy > b {
   font-size: 0.78rem;
 }
-.platform-list > button small {
+.platform-list-category {
   color: #7b887f;
   font-size: 0.62rem;
+}
+.platform-list-details {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: #87938c;
+  font-size: 0.56rem;
+}
+.platform-list-details span + span::before {
+  margin-right: 6px;
+  color: #bec8c1;
+  content: "·";
 }
 .state-pill,
 .privacy-pill {
@@ -3829,7 +3891,7 @@ a {
     position: static;
     max-height: none;
   }
-  .platform-list {
+  .admin-platform-list {
     max-height: 390px;
   }
   .detail-loading,
