@@ -105,8 +105,10 @@ SLA sub-system.
 ### Requirement: Global suppliers and derived resource availability
 
 Media Supply SHALL maintain a supplier once across all platforms and SHALL
-derive a resource's effective availability from the resource's manual status
+derive a resource's effective availability from the resource's own status
 and its current supplier's status without persisting a second effective state.
+The administrator projection SHALL use `ACTIVE`, `RESOURCE_INACTIVE`, and
+`SUPPLIER_INACTIVE`, displayed as `可用`, `停用`, and `因供应商停用`.
 
 #### Scenario: A supplier is reused
 
@@ -123,9 +125,9 @@ and its current supplier's status without persisting a second effective state.
   administrators, and is excluded from customer examples and new fulfilment
   candidates
 - **BUT WHEN** the supplier becomes active again
-- **THEN** a manually active resource becomes effectively active without a
+- **THEN** an active resource becomes effectively active without a
   resource write
-- **AND** a manually inactive resource remains `MANUAL_INACTIVE`.
+- **AND** an inactive resource remains `RESOURCE_INACTIVE`.
 
 ### Requirement: Customer-safe resource examples
 
@@ -193,14 +195,18 @@ mutation atomically with its audit evidence.
 - **AND** the administrator uses inactive state to
   stop new use while preserving historical meaning
 - **AND** platform deletion requires an inactive platform with zero resources,
-  resource deletion requires a manually inactive resource, and supplier
+  resource deletion requires an inactive resource, and supplier
   deletion requires an inactive supplier with zero resources
 - **AND** every deletion requires the displayed owner revision and never
   cascades
+- **AND** the administrator Web keeps the delete action visible, disables it
+  while these prerequisites are unmet, and explains the next required action
 - **BUT WHEN** deleting the last resource leaves an inactive supplier
   unreferenced
 - **THEN** an administrator may explicitly request both deletions in one
-  transaction after both revisions and reference counts are rechecked.
+  transaction after both revisions and reference counts are rechecked
+- **AND** an eligible deletion uses an explicit in-product confirmation with a
+  required reason rather than a browser-native prompt.
 
 #### Scenario: An administrator changes many resource states
 
@@ -248,6 +254,10 @@ suppliers through their owner-local contracts.
   `供应商管理` regions
 - **AND** a supplier detail lists current resources and platforms with navigation
   back to the associated platform
+- **AND** record actions share one neutral/destructive visual hierarchy instead
+  of isolated browser-default buttons
+- **AND** batch actions remain grouped with their selection count and form field
+  hints share the field-heading row so paired controls align
 - **AND** the Web uses concise Chinese business language rather than exposing
   internal names such as Listing or revision
 - **AND** the Web does not expose internal names such as Listing, Draft,
@@ -357,7 +367,7 @@ candidates and SHALL not own actual-media selection or publication completion.
 
 - **WHEN** future Publication Delivery asks for candidates for an order platform
 - **THEN** Media Supply returns resources that belong to that platform, are
-  manually active, and have an active current supplier
+  active, and have an active current supplier
 - **AND** it orders them by internal quality tier and stable system order
 - **AND** customer visibility does not affect candidate eligibility.
 

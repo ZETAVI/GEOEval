@@ -29,7 +29,7 @@ export const supplierStatusLabels = {
 
 export const resourceEffectiveStatusLabels = {
   ACTIVE: "可用",
-  MANUAL_INACTIVE: "手动停用",
+  RESOURCE_INACTIVE: "停用",
   SUPPLIER_INACTIVE: "因供应商停用",
 } as const;
 
@@ -139,6 +139,13 @@ export function formatAuditValue(value: unknown): string {
     platformId: "平台编号",
     supplierId: "供应商编号",
     supplier: "供应商",
+    effectiveStatus: "当前状态",
+    resourceStatus: "资源状态",
+    resourceRevision: "资源版本",
+    resourceCount: "关联资源数",
+    platformCount: "涉及平台数",
+    resources: "关联资源",
+    _count: "关联数量",
     normalizedName: "标准名称",
     displayName: "名称",
     aliases: "别名",
@@ -153,6 +160,7 @@ export function formatAuditValue(value: unknown): string {
     contactMethod: "联系方式",
     notes: "备注",
     resourceName: "资源名称",
+    platformDisplayName: "平台名称",
     accountIdentifier: "账号名称或编号",
     accountUrl: "账号链接",
     publicationMode: "发布方式",

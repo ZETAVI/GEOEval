@@ -221,7 +221,7 @@ describe("Media Supply persistence and projections", () => {
     expect((await service.customerPlatform(platform.id)).examples).toEqual([]);
   });
 
-  it("derives supplier inactivity without disabling the platform or overriding manual state", async () => {
+  it("derives supplier inactivity without disabling the platform or overriding resource state", async () => {
     const platform = await createTencentPlatform(service, administratorId);
     await activatePlatform(service, administratorId, platform);
     const supplier = await service.createSupplier(administratorId, {
@@ -257,13 +257,13 @@ describe("Media Supply persistence and projections", () => {
       effectiveStatus: "SUPPLIER_INACTIVE",
       status: "ACTIVE",
     });
-    const manuallyStopped = await service.updateResource(
+    const stoppedResource = await service.updateResource(
       administratorId,
       resource.id,
       {
         status: "INACTIVE",
         expectedRevision: resource.revision,
-        reason: "手动停用",
+        reason: "停用资源",
       },
     );
     await service.updateSupplier(administratorId, supplier.id, {
@@ -273,8 +273,8 @@ describe("Media Supply persistence and projections", () => {
     });
     expect((await service.listResources(platform.id))[0]).toMatchObject({
       status: "INACTIVE",
-      effectiveStatus: "MANUAL_INACTIVE",
-      revision: manuallyStopped.revision,
+      effectiveStatus: "RESOURCE_INACTIVE",
+      revision: stoppedResource.revision,
     });
     expect((await service.quotePlatform(platform.id)).buyable).toBe(true);
   });
@@ -398,7 +398,7 @@ describe("Media Supply persistence and projections", () => {
         reason: "不应删除可用资源",
         expectedRevision: resource.revision,
       }),
-    ).rejects.toThrow("先手动停用资源");
+    ).rejects.toThrow("先停用资源");
     const inactiveResource = await service.updateResource(
       administratorId,
       resource.id,

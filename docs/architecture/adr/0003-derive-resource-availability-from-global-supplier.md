@@ -12,18 +12,18 @@ platform-local or globally reusable, and no single contract explained whether a
 resource disabled by its partner should be rewritten or restored later.
 
 The confirmed first-release rules are simpler: a supplier can support resources
-across platforms; one resource has one current supplier; administrators can
-manually enable or disable a resource; supplier downtime must temporarily block
-use without erasing that manual decision.
+across platforms; one resource has one current supplier and its own enabled or
+disabled state; supplier downtime must temporarily block use without erasing
+that resource state.
 
 ## Decision
 
 - Replace `MediaSupplySource` with globally reusable `MediaSupplier` and enforce
   normalized-name uniqueness.
 - Store one supplier reference on each resource.
-- Store only `ACTIVE` or `INACTIVE` as the resource's manual status.
+- Store only `ACTIVE` or `INACTIVE` as the resource's own status.
 - Derive effective status as `ACTIVE`, `SUPPLIER_INACTIVE`, or
-  `MANUAL_INACTIVE`; manual inactivity takes precedence.
+  `RESOURCE_INACTIVE`; resource inactivity takes precedence.
 - Do not store effective status or association counters.
 - Use owner revisions for suppliers and resources. Batch resource status changes
   are one atomic command with an expected revision per resource.
@@ -34,7 +34,7 @@ use without erasing that manual decision.
 
 ## Consequences
 
-- Supplier recovery automatically restores only manually active resources.
+- Supplier recovery automatically restores only resources whose own state is active.
 - Customer examples and new fulfilment candidates use the same effective-status
   policy; inactive records remain visible to administrators.
 - Platform sale state remains an independent administrator decision.
@@ -47,7 +47,7 @@ use without erasing that manual decision.
 
 - Persist effective status and rewrite resources when supplier status changes:
   rejected because it duplicates source facts, creates fan-out writes, and
-  cannot safely distinguish manual from inherited inactivity.
+  cannot safely distinguish resource-owned from supplier-caused inactivity.
 - Keep suppliers nested under a platform: rejected because the same commercial
   partner is already reusable across platform resources.
 - Cascade delete resources with a supplier: rejected because temporary

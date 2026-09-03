@@ -2975,7 +2975,7 @@
             "type": "string",
             "enum": [
               "ACTIVE",
-              "MANUAL_INACTIVE",
+              "RESOURCE_INACTIVE",
               "SUPPLIER_INACTIVE"
             ]
           },
@@ -3234,7 +3234,7 @@
             "type": "string",
             "enum": [
               "ACTIVE",
-              "MANUAL_INACTIVE",
+              "RESOURCE_INACTIVE",
               "SUPPLIER_INACTIVE"
             ]
           },

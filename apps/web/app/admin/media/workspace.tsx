@@ -24,6 +24,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AdminSidebar } from "./admin-sidebar.js";
 import {
+  DeleteConfirmDialog,
   PlatformEditor,
   ResourceEditor,
   SupplierEditor,
@@ -61,6 +62,10 @@ type EditorState =
     }
   | { kind: "supplier-new" }
   | { kind: "supplier-edit"; supplier: MediaSupplier };
+type DeleteTarget =
+  | { kind: "platform"; platform: MediaPlatformAdmin }
+  | { kind: "resource"; resource: MediaResourceAdmin }
+  | { kind: "supplier"; supplier: MediaSupplier };
 
 const roleLabels: Record<Account["role"], string> = {
   TERMINAL_CUSTOMER: "终端客户",
@@ -107,6 +112,9 @@ export function AdminMediaWorkspace() {
   const [tab, setTab] = useState<DetailTab>("OVERVIEW");
   const [auditScope, setAuditScope] = useState<"SELECTED" | "ALL">("SELECTED");
   const [editor, setEditor] = useState<EditorState>();
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>();
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   async function bootstrap() {
     setState("loading");
@@ -250,82 +258,75 @@ export function AdminMediaWorkspace() {
     }
   }
 
-  async function removePlatform(platform: MediaPlatformAdmin) {
-    const reason = window.prompt("请填写删除平台的原因");
-    if (!reason?.trim()) return;
-    if (!window.confirm(`确认永久删除平台「${platform.displayName}」？`))
-      return;
-    setRefreshing(true);
+  async function removePlatform(platform: MediaPlatformAdmin, reason: string) {
+    setDeleteBusy(true);
+    setDeleteError("");
     try {
       await deleteAdminMediaPlatform(apiBaseUrl, platform.id, {
         expectedRevision: platform.revision,
-        reason: reason.trim(),
+        reason,
       });
+      setDeleteTarget(undefined);
       setSelectedPlatform(undefined);
       await reloadAdminData();
       setToast("平台已删除");
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "平台删除失败");
+      setDeleteError(error instanceof Error ? error.message : "平台删除失败");
     } finally {
-      setRefreshing(false);
+      setDeleteBusy(false);
     }
   }
 
-  async function removeSupplier(supplier: MediaSupplier) {
-    const reason = window.prompt("请填写删除供应商的原因");
-    if (!reason?.trim()) return;
-    if (!window.confirm(`确认永久删除供应商「${supplier.displayName}」？`))
-      return;
-    setRefreshing(true);
+  async function removeSupplier(supplier: MediaSupplier, reason: string) {
+    setDeleteBusy(true);
+    setDeleteError("");
     try {
       await deleteAdminMediaSupplier(apiBaseUrl, supplier.id, {
         expectedRevision: supplier.revision,
-        reason: reason.trim(),
+        reason,
       });
+      setDeleteTarget(undefined);
       setSelectedSupplier(undefined);
       await reloadAdminData();
       setToast("供应商已删除");
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "供应商删除失败",
-      );
+      setDeleteError(error instanceof Error ? error.message : "供应商删除失败");
     } finally {
-      setRefreshing(false);
+      setDeleteBusy(false);
     }
   }
 
-  async function removeResource(resource: MediaResourceAdmin) {
-    const reason = window.prompt("请填写删除资源的原因");
-    if (!reason?.trim()) return;
-    if (!window.confirm(`确认永久删除资源「${resource.resourceName}」？`))
-      return;
-    const canDeleteSupplier =
-      resource.supplier.status === "INACTIVE" &&
-      resource.supplier.resourceCount === 1;
-    const deleteUnreferencedSupplier =
-      canDeleteSupplier &&
-      window.confirm(
-        `供应商「${resource.supplier.displayName}」删除该资源后将不再被引用，是否一并删除？`,
-      );
-    setRefreshing(true);
+  async function removeResource(
+    resource: MediaResourceAdmin,
+    reason: string,
+    deleteUnreferencedSupplier: boolean,
+  ) {
+    setDeleteBusy(true);
+    setDeleteError("");
     try {
       await deleteAdminMediaResource(apiBaseUrl, resource.id, {
         expectedRevision: resource.revision,
-        reason: reason.trim(),
+        reason,
         deleteUnreferencedSupplier,
         ...(deleteUnreferencedSupplier
           ? { expectedSupplierRevision: resource.supplier.revision }
           : {}),
       });
+      setDeleteTarget(undefined);
       await reloadAdminData(resource.platformId);
       setToast(
         deleteUnreferencedSupplier ? "资源和无引用供应商已删除" : "资源已删除",
       );
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "资源删除失败");
+      setDeleteError(error instanceof Error ? error.message : "资源删除失败");
     } finally {
-      setRefreshing(false);
+      setDeleteBusy(false);
     }
+  }
+
+  function openDelete(target: DeleteTarget) {
+    setDeleteError("");
+    setDeleteTarget(target);
   }
 
   const filteredPlatforms = useMemo(
@@ -540,7 +541,7 @@ export function AdminMediaWorkspace() {
             onEdit={(supplier) =>
               setEditor({ kind: "supplier-edit", supplier })
             }
-            onDelete={(supplier) => void removeSupplier(supplier)}
+            onDelete={(supplier) => openDelete({ kind: "supplier", supplier })}
             onJumpToPlatform={(platformId) => {
               setArea("PLATFORMS");
               void selectPlatform(platformId).then(() => setTab("RESOURCES"));
@@ -705,7 +706,12 @@ export function AdminMediaWorkspace() {
                         platform: selectedPlatform,
                       })
                     }
-                    onDelete={() => void removePlatform(selectedPlatform)}
+                    onDelete={() =>
+                      openDelete({
+                        kind: "platform",
+                        platform: selectedPlatform,
+                      })
+                    }
                   />
                   <div
                     className="detail-tabs"
@@ -760,7 +766,9 @@ export function AdminMediaWorkspace() {
                           resource,
                         })
                       }
-                      onDelete={(resource) => void removeResource(resource)}
+                      onDelete={(resource) =>
+                        openDelete({ kind: "resource", resource })
+                      }
                       onBatchStatus={(items, nextStatus) =>
                         runBatchStatus(items, nextStatus)
                       }
@@ -838,6 +846,51 @@ export function AdminMediaWorkspace() {
           }
         />
       )}
+      {deleteTarget && (
+        <DeleteConfirmDialog
+          kindLabel={
+            deleteTarget.kind === "platform"
+              ? "平台"
+              : deleteTarget.kind === "supplier"
+                ? "供应商"
+                : "资源"
+          }
+          name={
+            deleteTarget.kind === "platform"
+              ? deleteTarget.platform.displayName
+              : deleteTarget.kind === "supplier"
+                ? deleteTarget.supplier.displayName
+                : deleteTarget.resource.resourceName
+          }
+          {...(deleteTarget.kind === "resource" &&
+          deleteTarget.resource.supplier.status === "INACTIVE" &&
+          deleteTarget.resource.supplier.resourceCount === 1
+            ? {
+                cleanupSupplierName: deleteTarget.resource.supplier.displayName,
+              }
+            : {})}
+          busy={deleteBusy}
+          error={deleteError}
+          onClose={() => {
+            if (deleteBusy) return;
+            setDeleteTarget(undefined);
+            setDeleteError("");
+          }}
+          onConfirm={(reason, deleteSupplier) => {
+            if (deleteTarget.kind === "platform") {
+              void removePlatform(deleteTarget.platform, reason);
+            } else if (deleteTarget.kind === "supplier") {
+              void removeSupplier(deleteTarget.supplier, reason);
+            } else {
+              void removeResource(
+                deleteTarget.resource,
+                reason,
+                deleteSupplier,
+              );
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -891,14 +944,28 @@ function PlatformDetailHeader({
           {resources.length} 个资源 ·{" "}
           {platform.regionScope === "DOMESTIC" ? "国内" : "海外"}
         </span>
-        <button type="button" className="secondary-button" onClick={onEdit}>
-          编辑平台
-        </button>
-        {platform.status === "INACTIVE" && resources.length === 0 && (
-          <button type="button" className="danger-button" onClick={onDelete}>
+        <div className="record-actions">
+          <button type="button" className="secondary-button" onClick={onEdit}>
+            编辑平台
+          </button>
+          <button
+            type="button"
+            className="danger-action-button"
+            onClick={onDelete}
+            disabled={platform.status === "ACTIVE" || resources.length > 0}
+          >
             删除平台
           </button>
-        )}
+        </div>
+        <small className="record-action-hint">
+          {platform.status === "ACTIVE"
+            ? resources.length > 0
+              ? `请先停用平台，并处理 ${resources.length} 条关联资源`
+              : "停用平台后才可删除"
+            : resources.length > 0
+              ? `仍有 ${resources.length} 条资源，请先处理关联资源`
+              : "当前没有关联资源，可以删除"}
+        </small>
       </div>
     </header>
   );
@@ -962,16 +1029,16 @@ function OverviewPanel({
           </div>
         </dl>
       </article>
-      <article className="detail-card listing-card">
+      <article className="detail-card availability-card">
         <header>
           <div>
             <p className="step-label">02 · 使用说明</p>
             <h3>接单规则</h3>
           </div>
         </header>
-        <div className="listing-summary">
+        <div className="availability-summary">
           <span
-            className={`listing-state-orb ${platform.status.toLowerCase()}`}
+            className={`availability-state-orb ${platform.status.toLowerCase()}`}
             aria-hidden="true"
           />
           <div>
@@ -1043,7 +1110,7 @@ function ResourcesPanel({
       ) : (
         <>
           <div className="resource-batch-bar">
-            <label>
+            <label className="batch-select-all">
               <input
                 type="checkbox"
                 checked={selectedIds.length === resources.length}
@@ -1055,23 +1122,28 @@ function ResourcesPanel({
                   )
                 }
               />
-              全选当前平台资源
+              全选
             </label>
-            <span>已选 {selectedItems.length} 个</span>
-            <button
-              type="button"
-              disabled={selectedItems.length === 0}
-              onClick={() => onBatchStatus(selectedItems, "ACTIVE")}
-            >
-              批量启用
-            </button>
-            <button
-              type="button"
-              disabled={selectedItems.length === 0}
-              onClick={() => onBatchStatus(selectedItems, "INACTIVE")}
-            >
-              批量停用
-            </button>
+            <div className="batch-selection-summary">
+              <b>批量操作</b>
+              <span>已选择 {selectedItems.length} 条资源</span>
+            </div>
+            <div className="resource-batch-actions">
+              <button
+                type="button"
+                disabled={selectedItems.length === 0}
+                onClick={() => onBatchStatus(selectedItems, "ACTIVE")}
+              >
+                启用所选
+              </button>
+              <button
+                type="button"
+                disabled={selectedItems.length === 0}
+                onClick={() => onBatchStatus(selectedItems, "INACTIVE")}
+              >
+                停用所选
+              </button>
+            </div>
           </div>
           <div className="resource-grid">
             {resources.map((resource) => (
@@ -1099,22 +1171,30 @@ function ResourcesPanel({
                       {visibilityLabels[resource.publicVisibility]}
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => onEdit(resource)}
-                  >
-                    编辑
-                  </button>
-                  {resource.status === "INACTIVE" && (
-                    <button
-                      type="button"
-                      className="danger-text-button"
-                      onClick={() => onDelete(resource)}
-                    >
-                      删除
-                    </button>
-                  )}
+                  <div className="record-action-column">
+                    <div className="record-actions compact">
+                      <button
+                        type="button"
+                        className="card-action-button"
+                        onClick={() => onEdit(resource)}
+                      >
+                        编辑
+                      </button>
+                      <button
+                        type="button"
+                        className="danger-card-action"
+                        onClick={() => onDelete(resource)}
+                        disabled={resource.status === "ACTIVE"}
+                      >
+                        删除
+                      </button>
+                    </div>
+                    {resource.status === "ACTIVE" && (
+                      <small className="record-action-hint">
+                        停用资源后才可删除
+                      </small>
+                    )}
+                  </div>
                 </header>
                 <h4>{resource.resourceName}</h4>
                 {resource.publicVisibility === "MASKED" &&
@@ -1255,27 +1335,38 @@ function SupplierWorkspace({
                   {selected.contactMethod || "未记录联系方式"}
                 </p>
               </div>
-              <div>
+              <div className="supplier-heading-actions">
                 <span className={`state-pill ${selected.status.toLowerCase()}`}>
                   {supplierStatusLabels[selected.status]}
                 </span>
-                <button
-                  type="button"
-                  className="secondary-button"
-                  onClick={() => onEdit(selected)}
-                >
-                  编辑供应商
-                </button>
-                {selected.status === "INACTIVE" &&
-                  selected.resourceCount === 0 && (
-                    <button
-                      type="button"
-                      className="danger-button"
-                      onClick={() => onDelete(selected)}
-                    >
-                      删除供应商
-                    </button>
-                  )}
+                <div className="record-actions">
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => onEdit(selected)}
+                  >
+                    编辑供应商
+                  </button>
+                  <button
+                    type="button"
+                    className="danger-action-button"
+                    onClick={() => onDelete(selected)}
+                    disabled={
+                      selected.status === "ACTIVE" || selected.resourceCount > 0
+                    }
+                  >
+                    删除供应商
+                  </button>
+                </div>
+                <small className="record-action-hint">
+                  {selected.status === "ACTIVE"
+                    ? selected.resourceCount > 0
+                      ? `请先停用供应商，并处理 ${selected.resourceCount} 条关联资源`
+                      : "停用供应商后才可删除"
+                    : selected.resourceCount > 0
+                      ? `仍关联 ${selected.resourceCount} 条资源，请先处理关联资源`
+                      : "当前没有关联资源，可以删除"}
+                </small>
               </div>
             </header>
             <div className="supplier-stat-row">
@@ -1288,7 +1379,7 @@ function SupplierWorkspace({
               <span>更新于 {formatDateTime(selected.updatedAt)}</span>
             </div>
             <div className="resource-batch-bar">
-              <label>
+              <label className="batch-select-all">
                 <input
                   type="checkbox"
                   checked={
@@ -1303,23 +1394,28 @@ function SupplierWorkspace({
                     )
                   }
                 />
-                全选该供应商资源
+                全选
               </label>
-              <span>已选 {selectedItems.length} 个</span>
-              <button
-                type="button"
-                disabled={selectedItems.length === 0}
-                onClick={() => onBatchStatus(selectedItems, "ACTIVE")}
-              >
-                批量启用
-              </button>
-              <button
-                type="button"
-                disabled={selectedItems.length === 0}
-                onClick={() => onBatchStatus(selectedItems, "INACTIVE")}
-              >
-                批量停用
-              </button>
+              <div className="batch-selection-summary">
+                <b>批量操作</b>
+                <span>已选择 {selectedItems.length} 条资源</span>
+              </div>
+              <div className="resource-batch-actions">
+                <button
+                  type="button"
+                  disabled={selectedItems.length === 0}
+                  onClick={() => onBatchStatus(selectedItems, "ACTIVE")}
+                >
+                  启用所选
+                </button>
+                <button
+                  type="button"
+                  disabled={selectedItems.length === 0}
+                  onClick={() => onBatchStatus(selectedItems, "INACTIVE")}
+                >
+                  停用所选
+                </button>
+              </div>
             </div>
             {associations.length === 0 ? (
               <div className="panel-empty-state compact">

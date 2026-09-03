@@ -7,6 +7,7 @@ import {
   type MediaSupplier,
 } from "@geoeval/api-client";
 import {
+  DeleteConfirmDialog,
   PlatformEditor,
   ResourceEditor,
   SupplierEditor,
@@ -107,10 +108,14 @@ describe("Media Supply administrator UI behavior", () => {
   it("presents operation-history fields and common values in business Chinese", () => {
     const value = formatAuditValue({
       status: "ACTIVE",
+      effectiveStatus: "RESOURCE_INACTIVE",
       procurementCostYuan: 125,
       publicationMode: "FIRST_PUBLISH",
     });
     expect(value).toContain('"状态": "启用"');
+    expect(value).toContain('"当前状态": "停用"');
+    expect(value).not.toContain("effectiveStatus");
+    expect(value).not.toContain("手动停用");
     expect(value).toContain('"采购成本（元）": "125 元"');
     expect(value).toContain('"发布方式": "首发"');
     expect(value).not.toContain("procurementCostYuan");
@@ -198,7 +203,28 @@ describe("Media Supply administrator UI behavior", () => {
     expect(resourceMarkup).toContain('<option value="MEDIUM" selected="">');
     expect(resourceMarkup).toContain("采购成本（元）");
     expect(resourceMarkup).not.toContain("变更原因");
-    expect(supplierMarkup).toContain('<label class="wide">供应商名称');
+    expect(supplierMarkup).toContain(
+      '<label class="wide"><span class="field-heading"><span>供应商名称</span>',
+    );
     expect(supplierMarkup).not.toContain("修改说明");
+  });
+
+  it("renders one styled deletion confirmation with optional supplier cleanup", () => {
+    const markup = renderToStaticMarkup(
+      <DeleteConfirmDialog
+        kindLabel="资源"
+        name="样例资源"
+        cleanupSupplierName="样例供应商"
+        busy={false}
+        error=""
+        onClose={() => undefined}
+        onConfirm={() => undefined}
+      />,
+    );
+    expect(markup).toContain("删除后无法恢复");
+    expect(markup).toContain("同时删除无引用供应商");
+    expect(markup).toContain("删除原因");
+    expect(markup).toContain("确认删除资源");
+    expect(markup).not.toContain("window.confirm");
   });
 });

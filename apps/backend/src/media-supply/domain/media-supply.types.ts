@@ -12,7 +12,7 @@ export type MediaPlatformStatus = "ACTIVE" | "INACTIVE";
 export type MediaResourceStatus = "ACTIVE" | "INACTIVE";
 export type MediaSupplierStatus = "ACTIVE" | "INACTIVE";
 export type MediaResourceEffectiveStatus =
-  "ACTIVE" | "MANUAL_INACTIVE" | "SUPPLIER_INACTIVE";
+  "ACTIVE" | "RESOURCE_INACTIVE" | "SUPPLIER_INACTIVE";
 export type MediaPublicationMode = "FIRST_PUBLISH" | "REPOST";
 export type MediaPublicVisibility = "HIDDEN" | "FULL" | "MASKED";
 export type MediaQualityTier = "HIGH" | "MEDIUM" | "LOW";

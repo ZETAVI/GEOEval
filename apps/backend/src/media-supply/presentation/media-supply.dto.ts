@@ -378,7 +378,7 @@ export class MediaSupplierAssociationResponse {
   @ApiProperty({ enum: ["ACTIVE", "INACTIVE"] })
   resourceStatus!: string;
 
-  @ApiProperty({ enum: ["ACTIVE", "MANUAL_INACTIVE", "SUPPLIER_INACTIVE"] })
+  @ApiProperty({ enum: ["ACTIVE", "RESOURCE_INACTIVE", "SUPPLIER_INACTIVE"] })
   effectiveStatus!: string;
 
   @ApiProperty({ type: Number, minimum: 1 })
@@ -421,7 +421,7 @@ export class MediaResourceAdminResponse {
   @ApiProperty({ enum: ["ACTIVE", "INACTIVE"] })
   status!: string;
 
-  @ApiProperty({ enum: ["ACTIVE", "MANUAL_INACTIVE", "SUPPLIER_INACTIVE"] })
+  @ApiProperty({ enum: ["ACTIVE", "RESOURCE_INACTIVE", "SUPPLIER_INACTIVE"] })
   effectiveStatus!: string;
 
   @ApiProperty({ enum: ["HIDDEN", "FULL", "MASKED"] })

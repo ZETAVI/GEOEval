@@ -36,6 +36,21 @@ import {
 type SaveResult<T> = (value: T, message: string) => Promise<void> | void;
 type FieldErrors = Record<string, string>;
 
+function FieldHeading({
+  children,
+  hint,
+}: {
+  children: ReactNode;
+  hint?: string;
+}) {
+  return (
+    <span className="field-heading">
+      <span>{children}</span>
+      {hint && <em>{hint}</em>}
+    </span>
+  );
+}
+
 function optionalText(value: string): string | null {
   const normalized = value.trim();
   return normalized || null;
@@ -88,6 +103,127 @@ function EditorFrame({
           </button>
         </header>
         {children}
+      </section>
+    </div>
+  );
+}
+
+export function DeleteConfirmDialog({
+  kindLabel,
+  name,
+  cleanupSupplierName,
+  busy,
+  error,
+  onClose,
+  onConfirm,
+}: {
+  kindLabel: string;
+  name: string;
+  cleanupSupplierName?: string;
+  busy: boolean;
+  error: string;
+  onClose: () => void;
+  onConfirm: (reason: string, deleteSupplier: boolean) => void;
+}) {
+  const [reason, setReason] = useState("");
+  const [deleteSupplier, setDeleteSupplier] = useState(false);
+  const [reasonError, setReasonError] = useState("");
+
+  function submit() {
+    if (!reason.trim()) {
+      setReasonError("请填写删除原因");
+      return;
+    }
+    onConfirm(reason.trim(), deleteSupplier);
+  }
+
+  return (
+    <div className="editor-backdrop" role="presentation">
+      <section
+        className="media-editor delete-confirm-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-dialog-title"
+      >
+        <header className="media-editor-header">
+          <div>
+            <p className="eyebrow">删除确认</p>
+            <h2 id="delete-dialog-title">删除{kindLabel}</h2>
+            <p>
+              将永久删除「{name}
+              」。系统会再次检查当前状态和关联数据，不满足条件时不会执行。
+            </p>
+          </div>
+          <button
+            className="editor-close"
+            type="button"
+            onClick={onClose}
+            aria-label="关闭删除确认"
+            disabled={busy}
+          >
+            ×
+          </button>
+        </header>
+        <div className="delete-confirm-body">
+          <div className="delete-warning">
+            <b>删除后无法恢复</b>
+            <span>操作记录仍会保留，用于追溯本次删除。</span>
+          </div>
+          {cleanupSupplierName && (
+            <label className="delete-cleanup-option">
+              <input
+                type="checkbox"
+                checked={deleteSupplier}
+                onChange={(event) => setDeleteSupplier(event.target.checked)}
+              />
+              <span>
+                <b>同时删除无引用供应商</b>
+                <small>
+                  「{cleanupSupplierName}
+                  」已停用，删除该资源后将不再关联其他资源。
+                </small>
+              </span>
+            </label>
+          )}
+          <label className="delete-reason-field">
+            <FieldHeading hint="必填 · 记录在操作历史中">删除原因</FieldHeading>
+            <textarea
+              autoFocus
+              value={reason}
+              maxLength={320}
+              onChange={(event) => {
+                setReason(event.target.value);
+                setReasonError("");
+              }}
+              placeholder="例如：测试数据清理、重复记录"
+              aria-invalid={Boolean(reasonError)}
+            />
+            <FieldError value={reasonError} />
+          </label>
+          {error && (
+            <p className="form-error media-form-error" role="alert">
+              {error}
+            </p>
+          )}
+        </div>
+        <footer className="media-editor-actions delete-confirm-footer">
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={onClose}
+            disabled={busy}
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            className="danger-button"
+            onClick={submit}
+            disabled={busy}
+          >
+            {busy ? "删除中…" : `确认删除${kindLabel}`}
+          </button>
+        </footer>
       </section>
     </div>
   );
@@ -274,7 +410,7 @@ export function PlatformEditor({
             <span>用于平台列表、搜索和客户展示。</span>
           </div>
           <label>
-            平台名称 <em>必填</em>
+            <FieldHeading hint="必填">平台名称</FieldHeading>
             <input
               autoFocus
               value={displayName}
@@ -399,7 +535,9 @@ export function PlatformEditor({
           </label>
           {platform && (
             <label className="wide reason-field">
-              修改说明 <em>必填 · 保留在操作记录中</em>
+              <FieldHeading hint="必填 · 保留在操作记录中">
+                修改说明
+              </FieldHeading>
               <input
                 value={reason}
                 maxLength={320}
@@ -517,7 +655,7 @@ export function SupplierEditor({
             <span>记录资源来自哪个合作方以及如何联系。</span>
           </div>
           <label className={supplier ? undefined : "wide"}>
-            供应商名称 <em>必填</em>
+            <FieldHeading hint="必填">供应商名称</FieldHeading>
             <input
               autoFocus
               value={displayName}
@@ -572,7 +710,9 @@ export function SupplierEditor({
           </label>
           {supplier && (
             <label className="wide reason-field">
-              修改说明 <em>必填 · 保留在操作记录中</em>
+              <FieldHeading hint="必填 · 保留在操作记录中">
+                修改说明
+              </FieldHeading>
               <input
                 value={reason}
                 maxLength={320}
@@ -738,7 +878,7 @@ export function ResourceEditor({
               <span>先确认资源名称和当前供应商。</span>
             </div>
             <label>
-              资源名称 <em>必填</em>
+              <FieldHeading hint="必填">资源名称</FieldHeading>
               <input
                 autoFocus
                 value={resourceName}
@@ -750,7 +890,7 @@ export function ResourceEditor({
               <FieldError value={errors.resourceName} />
             </label>
             <label>
-              供应商 <em>内部</em>
+              <FieldHeading hint="内部">供应商</FieldHeading>
               <select
                 value={supplierId}
                 onChange={(event) => setSupplierId(event.target.value)}
@@ -823,7 +963,7 @@ export function ResourceEditor({
             </label>
             {publicVisibility === "MASKED" && (
               <label>
-                客户展示名称 <em>必填</em>
+                <FieldHeading hint="必填">客户展示名称</FieldHeading>
                 <input
                   value={publicAlias}
                   maxLength={240}
@@ -856,7 +996,7 @@ export function ResourceEditor({
               <span>以下内容不会展示给客户。</span>
             </div>
             <label>
-              采购成本（元） <em>可空 · 填整数</em>
+              <FieldHeading hint="选填 · 只填整数">采购成本（元）</FieldHeading>
               <input
                 inputMode="numeric"
                 value={procurementCostYuan}
@@ -885,7 +1025,7 @@ export function ResourceEditor({
               <FieldError value={errors.accountUrl} />
             </label>
             <label>
-              参考案例链接 <em>内部</em>
+              <FieldHeading hint="内部">参考案例链接</FieldHeading>
               <input
                 value={caseUrl}
                 onChange={(event) => setCaseUrl(event.target.value)}
@@ -895,7 +1035,7 @@ export function ResourceEditor({
               <FieldError value={errors.caseUrl} />
             </label>
             <label className="wide">
-              发布说明 <em>内部</em>
+              <FieldHeading hint="内部">发布说明</FieldHeading>
               <textarea
                 value={publicationNotes}
                 maxLength={8000}
@@ -905,7 +1045,9 @@ export function ResourceEditor({
             </label>
             {resource && (
               <label className="wide reason-field">
-                修改说明 <em>必填 · 保留在操作记录中</em>
+                <FieldHeading hint="必填 · 保留在操作记录中">
+                  修改说明
+                </FieldHeading>
                 <input
                   value={reason}
                   maxLength={320}

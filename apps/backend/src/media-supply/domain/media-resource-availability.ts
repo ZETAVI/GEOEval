@@ -8,7 +8,7 @@ export function mediaResourceEffectiveStatus(
   resourceStatus: MediaResourceStatus,
   supplierStatus: MediaSupplierStatus,
 ): MediaResourceEffectiveStatus {
-  if (resourceStatus === "INACTIVE") return "MANUAL_INACTIVE";
+  if (resourceStatus === "INACTIVE") return "RESOURCE_INACTIVE";
   if (supplierStatus === "INACTIVE") return "SUPPLIER_INACTIVE";
   return "ACTIVE";
 }

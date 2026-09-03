@@ -1091,7 +1091,7 @@ export interface components {
             /** @enum {string} */
             resourceStatus: "ACTIVE" | "INACTIVE";
             /** @enum {string} */
-            effectiveStatus: "ACTIVE" | "MANUAL_INACTIVE" | "SUPPLIER_INACTIVE";
+            effectiveStatus: "ACTIVE" | "RESOURCE_INACTIVE" | "SUPPLIER_INACTIVE";
             resourceRevision: number;
             /** Format: uuid */
             platformId: string;
@@ -1163,7 +1163,7 @@ export interface components {
             /** @enum {string} */
             status: "ACTIVE" | "INACTIVE";
             /** @enum {string} */
-            effectiveStatus: "ACTIVE" | "MANUAL_INACTIVE" | "SUPPLIER_INACTIVE";
+            effectiveStatus: "ACTIVE" | "RESOURCE_INACTIVE" | "SUPPLIER_INACTIVE";
             /** @enum {string} */
             publicVisibility: "HIDDEN" | "FULL" | "MASKED";
             publicAlias?: string | null;

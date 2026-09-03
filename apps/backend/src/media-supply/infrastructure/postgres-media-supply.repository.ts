@@ -683,7 +683,7 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
         });
         if (!before) throw new MediaSupplyNotFoundError("未找到该媒体资源");
         if (before.status !== "INACTIVE") {
-          throw new MediaSupplyConflictError("请先手动停用资源再删除");
+          throw new MediaSupplyConflictError("请先停用资源再删除");
         }
         if (before.revision !== options.expectedRevision) {
           throw new MediaSupplyConflictError("资源资料已经变化，请刷新后重试");

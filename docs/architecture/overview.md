@@ -68,7 +68,7 @@ PostgreSQL: stable platform identity, fixed multi-category membership,
 one first-release availability state and whole-point price per platform,
 optional concrete resources, one current internal supplier per resource, public
 catalog revision, and administrator audit. Each supplier is a globally reusable
-`MediaSupplier`; each resource stores one manual two-state decision while its
+`MediaSupplier`; each resource stores one resource-owned two-state decision while its
 effective availability is derived from that decision and supplier status.
 Supplier/resource association counts are queried rather than stored, and both
 owners use optimistic concurrency plus guarded non-cascading deletion. Identity owns the reusable all-role
