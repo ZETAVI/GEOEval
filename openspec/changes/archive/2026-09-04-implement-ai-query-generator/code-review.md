@@ -80,13 +80,12 @@ The implementation matches the approved boundary:
 
 ## Remaining gates
 
-- Publish the reviewed refinement and pass required CI on the final revision.
-- Query quality is accepted and current specs and architecture are reconciled.
-  Archive this Change before the final integration gate.
-- Explicit integration authorization remains pending.
+- Query quality is accepted, current specs and architecture are reconciled,
+  required CI passed on the final revision, and the Change is ready to archive.
+- Explicit integration authorization was granted on 2026-09-04.
 - A representative 4 x 5 evaluation belongs to #39 and requires separate
   authorization after Query acceptance.
 
 ## Result
 
-`ready for integration after required CI`
+`ready for integration`

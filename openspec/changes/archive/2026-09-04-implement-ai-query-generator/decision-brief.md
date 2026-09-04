@@ -36,10 +36,10 @@
 
 - Assumption: 已验证的 Product Outbox、BullMQ、AI Execution 和准备状态机继续复用。
 - Assumption: 确定性生成仅用于离线测试，不是客户路径的静默回退。
-- Open: 真实调用前重新核验 Qwen3.8 主路与 Hy3 回退配置；这不改变产品语义。
+- Resolved: 真实调用前已重新核验 Qwen3.8 主路与 Hy3 回退配置，并完成受控 Query-only 调用；这不改变产品语义。
 
 ## Confirmation and Next Gate
 
-- Confirmation: Confirmed by product owner on 2026-09-04.
-- Next action: Rebase 到最新 `main`，统一更新活动 Change、Prompt、Schema、实现与验证。
-- Confirmation required before: 真实 Provider 调用、最终 4×5、Merge、生产启用或部署。
+- Confirmation: Product meaning confirmed on 2026-09-04; final Merge authorized on 2026-09-04.
+- Next action: Archive this stable Change, promote PR #28 to the Final closing transaction, then complete post-integration reconciliation.
+- Confirmation required before: 最终 4×5、生产启用或部署；这些授权不包含在本次 Merge 中。

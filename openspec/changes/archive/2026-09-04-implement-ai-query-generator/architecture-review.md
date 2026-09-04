@@ -66,7 +66,9 @@
 
 ## Residual risks and follow-ups
 
-- `should-fix`: PR #35 for #32 is stacked on the old #26 history. Notify its owner after the new #26 head is published; do not modify #32 from this Worktree.
+- `handoff`: PR #35 for #32 remains stacked on the final #26 head. Retain the
+  remote #26 branch only until that consumer rebases onto merged `main`; do not
+  modify #32 from this Worktree.
 - `consider`: Provider entitlement, model identifier, latency, and cost can drift. Recheck the route immediately before real calls; none of these facts changes the durable business contract.
 
 The earlier current-truth and Prompt-quality findings are resolved. The current
@@ -78,5 +80,6 @@ representative inputs, with a final Qwen target-name replay and Hy3 fallback.
 
 `ready`
 
-The architecture and current truth are ready for integration. Required CI,
-explicit Merge authorization, final 4×5, and production remain separate gates.
+The architecture and current truth are ready for integration. Required CI and
+explicit Merge authorization passed on 2026-09-04. The final 4×5 and production
+remain separate gates.

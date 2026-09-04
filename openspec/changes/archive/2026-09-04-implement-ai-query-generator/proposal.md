@@ -3,7 +3,7 @@
 
 ## Status
 
-- Phase: Review / Decision; save-time background preparation verified locally
+- Phase: Accepted; ready for integration
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owner: Product owner
@@ -67,5 +67,6 @@ review bypassed Brand/Amap preparation and used a manually assigned Interaction
 Pie locality, so its acceptance was withdrawn. The reopened Gate has now passed
 with verified Amap selections for three Brands, a complete browser preparation,
 real Qwen calls across the three frozen projections, and an explicit Hy3
-fallback replay. Final representative 4×5, Merge, production customer data, and
-deployment remain separate explicit gates.
+fallback replay. The product owner authorized final reconciliation and Merge on
+2026-09-04. The representative 4×5, production customer data, production
+activation, and deployment remain separate explicit gates.

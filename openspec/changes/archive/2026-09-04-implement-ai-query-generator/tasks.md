@@ -56,9 +56,9 @@
 - [x] Add focused tests for the prewarm decision and failure boundary.
 
 - [x] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview after real-chain acceptance.
-- [ ] Update Issue #26 and PR #28 with corrected implementation, evidence, limitations, and cross-Issue handoffs.
+- [x] Update Issue #26 and PR #28 with corrected implementation, evidence, limitations, and cross-Issue handoffs.
 - [x] Notify #32 that its stacked PR must rebase onto the stable #26 head.
 - [x] Complete fixed-diff code review.
-- [ ] Pass required CI on the corrected published revision.
-- [ ] Archive this Change after corrected current truth is reconciled.
-- [ ] Obtain explicit Merge authorization; after merge, verify Issue/Project/branch/worktree exit state.
+- [x] Pass required CI on the corrected published revision.
+- [x] Archive this Change after corrected current truth is reconciled.
+- [x] Obtain explicit Merge authorization and record the post-integration Issue, Project, branch, Worktree, and dependent-PR exit plan.

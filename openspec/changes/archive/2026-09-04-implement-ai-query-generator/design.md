@@ -178,7 +178,9 @@ The first implementation reuses the existing three-attempt posture: Qwen3.8 Flas
 
 ## Cross-Issue ownership
 
-- #32 owns direct-question parser projection tolerance. Its PR is currently stacked on #26 and must be rebased after #26 publishes a stable head.
+- #32 owns direct-question parser projection tolerance. Its PR remains stacked
+  on the final #26 head and must rebase onto merged `main`; the remote #26
+  branch is retained only until that consumer handoff completes.
 - #41 owns overall synthesis language and brand grouping. The old #26 synthesis commit is deliberately not replayed.
 - #42 owns evaluation task-graph latency and cost budgeting after Parser/Synthesis contracts stabilize.
 - #49 owns repository-to-Langfuse Prompt mirroring, not runtime Prompt content.

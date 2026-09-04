@@ -11,7 +11,7 @@
 - Completed change: [`integrate-real-evaluation-providers`](../../openspec/changes/archive/2026-09-01-integrate-real-evaluation-providers/proposal.md),
   coordinated by [Issue #4](https://github.com/ZETAVI/GEOEval/issues/4) and
   [PR #20](https://github.com/ZETAVI/GEOEval/pull/20)
-- Active change: [`implement-ai-query-generator`](../../openspec/changes/implement-ai-query-generator/proposal.md),
+- Completed change: [`implement-ai-query-generator`](../../openspec/changes/archive/2026-09-04-implement-ai-query-generator/proposal.md),
   coordinated by [Issue #26](https://github.com/ZETAVI/GEOEval/issues/26) and
   [PR #28](https://github.com/ZETAVI/GEOEval/pull/28)
 
