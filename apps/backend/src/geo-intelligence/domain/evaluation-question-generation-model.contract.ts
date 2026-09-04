@@ -6,7 +6,7 @@ import type {
 } from "./evaluation.types.js";
 
 export const EVALUATION_QUESTION_GENERATION_MODEL_CONTRACT_VERSION =
-  "evaluation.question-generation-model@3";
+  "evaluation.question-generation-model@4";
 export const EVALUATION_QUESTION_SET_CONTRACT_VERSION =
   "evaluation.question-set@1";
 
@@ -32,7 +32,7 @@ export const evaluationQuestionGenerationModelOutputSchema = z
       .min(2)
       .max(120)
       .describe(
-        "针对性问题使用的自然品牌称呼，必须是 companyName 本身或其中连续出现的有效简称。",
+        "直接问题使用的自然品牌称呼。优先选择普通用户更可能使用、仍有辨识度且在 companyName 中连续出现的简称；没有合适简称时才使用完整 companyName。",
       ),
     brandDirected: questionText.describe(
       "明确写出 queryTargetName、用于了解该品牌业务与整体表现的问题。",

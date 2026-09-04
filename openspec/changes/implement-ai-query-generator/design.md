@@ -110,7 +110,7 @@ Only boundaries that change evaluation meaning are explicit prohibitions: no web
 
 ## Model output and deterministic projection
 
-Model contract `evaluation.question-generation-model@3` contains only:
+Model contract `evaluation.question-generation-model@4` contains only:
 
 ```json
 {

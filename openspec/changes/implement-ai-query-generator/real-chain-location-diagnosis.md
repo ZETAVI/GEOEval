@@ -81,6 +81,10 @@ follow-up was therefore closed without implementation.
 No real-chain run produced `天河路`. The runtime reference example and Query
 contract fixture now use the verified Interaction Pie locality rather than the
 manual placeholder. The final browser replay froze Prompt
-`2.4.0+2.0.0` and model contract
+`2.4.0+2.1.0` and model contract
 `evaluation.question-generation-model@3`, then accepted four questions from
-Qwen3.8 Flash on the first attempt in 17.1 seconds.
+Qwen3.8 Flash on the first attempt in 14.6 seconds. That run exposed occasional
+use of the full legal company name; the final contract `@4` changed only the
+local target-name description and passed a real Qwen replay over the same
+frozen Query projection in 14.6 seconds. Brand, Amap, Snapshot, lifecycle, and
+Web boundaries were unchanged, so their browser evidence remains applicable.

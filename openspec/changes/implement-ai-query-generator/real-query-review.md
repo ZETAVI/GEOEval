@@ -10,8 +10,8 @@
 ## Review contract
 
 - Date: 2026-09-04
-- Final Prompt: `evaluation.question-generation.profile@2.4.0+2.0.0`
-- Final model contract: `evaluation.question-generation-model@3`
+- Final Prompt: `evaluation.question-generation.profile@2.4.0+2.1.0`
+- Final model contract: `evaluation.question-generation-model@4`
 - Primary route: Model Studio `qwen3.8-flash`, `medium` reasoning
 - Fallback route: TokenHub `hy3`
 - Scope: Query-only content generation for three representative store types;
@@ -34,7 +34,8 @@ written to this review.
 | 2.2.0 | Enterprise service succeeded in 7.3 s | The model selected `互动派` but used the full legal name in the direct question and repeated detailed characteristics there | Make `queryTargetName` the actual displayed brand expression and keep the direct question broad; reserve characteristics for the two need scenarios |
 | 2.3.0 | Restaurant, enterprise service, and consumer electronics primary calls succeeded; restaurant fallback succeeded | The Prompt improved semantics, but the enterprise locality came from an unverified manual fixture | Withdraw acceptance and replay the real Brand/Amap path |
 | 2.4.0 | The real path for Interaction Pie, a law firm, and a restaurant removed the false locality and exposed two remaining wording gaps | Some characteristic questions weakened the flagship demand; one question lacked a complete interrogative intent | Clarify the shared location-plus-flagship demand line and align JSON Schema field descriptions |
-| 2.4.0 + model contract 3 | Three parallel Qwen calls and one Hy3 fallback call succeeded over the verified frozen projections; a final Interaction Pie browser run also succeeded | Every open question retained location and flagship meaning, the characteristic questions remained complementary, and all questions were complete | Accept the final Prompt and model contract for reconciliation |
+| 2.4.0 + model contract 3 | Three parallel Qwen calls and one Hy3 fallback call succeeded over the verified frozen projections; a complete browser run exposed occasional use of the full legal company name | Every open question retained location and flagship meaning, but natural target-name selection was not yet stable | Strengthen the local target-name field description without adding a program rejection rule |
+| 2.4.0 + model contract 4 | A final Interaction Pie Qwen call kept the same question semantics and selected `互动派` | The compact model contract now aligns target-name guidance with the approved ordinary-user behavior | Accept the final Prompt and model contract for reconciliation |
 
 ## Historical Prompt 2.3 outputs
 
@@ -89,14 +90,20 @@ fallback rather than the primary Query route.
 
 ### Complete browser replay: Interaction Pie
 
-The final API froze the verified `猎德社区` Brand locality, Prompt
-`2.4.0+2.0.0`, and model contract `@3`. Qwen3.8 Flash succeeded on attempt one
-in 17.1 seconds, and Web displayed:
+The final browser path selected the real Amap POI, stored `猎德社区`, froze
+Prompt `2.4.0+2.1.0` and model contract `@3`, completed the durable preparation
+on the first Qwen attempt in 14.6 seconds, and displayed all four questions.
+The output retained location and flagship meaning but selected the full legal
+company name, which motivated the final target-name description change.
 
-1. 广州天河猎德的互动派这家数字营销公司怎么样，主要提供哪些业务和服务，市场口碑如何？
-2. 想在广州天河猎德找一家提供抖音和小红书广告代理服务的公司，有哪些值得了解和比较？
-3. 想在广州天河猎德找一家能提供从策划到投放一站式服务的抖音和小红书广告代理公司，有哪些值得了解？
-4. 准备在广州天河猎德合作抖音和小红书推广，有哪些具备双平台官方广告代理资质的营销策划公司值得比较？
+Contract `@4` changed only that local JSON Schema description. A real Qwen call
+over the same frozen Query projection succeeded in 14.6 seconds, selected
+`互动派`, and returned:
+
+1. 广州天河猎德社区的互动派这家公司怎么样，主要提供哪些服务，整体口碑如何？
+2. 想找能做抖音和小红书广告代理的营销策划公司，广州天河猎德社区附近有哪些值得比较？
+3. 需要抖音和小红书的官方广告代理资质，广州天河猎德社区有哪些营销策划或广告代理公司符合要求？
+4. 希望从策划到投放由一家公司一站式搞定，广州天河猎德社区有哪些能做抖音和小红书广告代理的服务商？
 
 ### Final Qwen3.8 Flash projection replay
 

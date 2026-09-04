@@ -23,7 +23,7 @@ describe("evaluation question generation contract", () => {
       location: {
         cityLabel: "广州市",
         terminalRegionLabel: "天河区",
-        locality: { kind: "BUSINESS_AREA", label: "猎德" },
+        locality: { kind: "BUSINESS_AREA", label: "猎德社区" },
       },
       flagshipProductOrService: "抖音和小红书广告代理服务",
       characteristics: ["双平台官方广告代理", "从策划到投放的一站式服务"],
@@ -36,13 +36,16 @@ describe("evaluation question generation contract", () => {
       location: {
         cityLabel: "广州市",
         terminalRegionLabel: "天河区",
-        locality: { kind: "BUSINESS_AREA", label: "猎德" },
+        locality: { kind: "BUSINESS_AREA", label: "猎德社区" },
       },
       flagshipProductOrService: "抖音和小红书广告代理服务",
       characteristics: ["双平台官方广告代理", "从策划到投放的一站式服务"],
     });
     expect(task.outputContract.version).toBe(
       EVALUATION_QUESTION_GENERATION_MODEL_CONTRACT_VERSION,
+    );
+    expect(task.outputContract.version).toBe(
+      "evaluation.question-generation-model@4",
     );
     expect(task.outputContract.jsonSchema).toMatchObject({
       $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -71,7 +74,7 @@ describe("evaluation question generation contract", () => {
     const instruction = evaluationQuestionGenerationInstructionSnapshot();
     expect(instruction).toMatchObject({
       id: "evaluation.question-generation.profile",
-      version: "2.4.0+2.0.0",
+      version: "2.4.0+2.1.0",
     });
     expect(instruction.contentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(instruction.content).toContain(
@@ -90,7 +93,7 @@ describe("evaluation question generation contract", () => {
       location: {
         cityLabel: "广州市",
         terminalRegionLabel: "天河区",
-        locality: { kind: "BUSINESS_AREA", label: "猎德" },
+        locality: { kind: "BUSINESS_AREA", label: "猎德社区" },
       },
       flagshipProductOrService: "抖音和小红书广告代理服务",
       characteristics: [
@@ -244,11 +247,11 @@ function snapshot(): EvaluationBrandSnapshot {
       formattedAddress:
         "广东省广州市天河区天盈广场西塔15楼(猎德地铁站A口步行390米)",
       coordinate: {
-        longitude: 113.32,
-        latitude: 23.13,
+        longitude: 113.330866,
+        latitude: 23.115896,
         system: "GCJ_02",
       },
-      queryLocality: { kind: "BUSINESS_AREA", label: "猎德" },
+      queryLocality: { kind: "BUSINESS_AREA", label: "猎德社区" },
       source: {
         provider: "AMAP",
         placeId: "fixture-interaction-pie",
