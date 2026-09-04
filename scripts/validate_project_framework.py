@@ -326,9 +326,12 @@ def validate_tracking_templates(errors: list[str]) -> None:
             "## Tests & Specs（测试与当前态影响）",
             "## Lifecycle（生命周期）",
             "## Merge Checklist",
+            "Merge target / topology",
             "Closes #<owning-issue>",
             "Part of #<owning-issue> — does not close",
             "Review Gate #<issue>",
+            "合并到默认分支后应立即关闭",
+            "Base / stack 变化",
             "已请求的 Review 已完成",
         ):
             if marker not in body:

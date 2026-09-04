@@ -8,11 +8,16 @@
 
 - 本次包含：
 - 本次不包含：
+- Merge target / topology：`main-direct | stack:<base> | integration:<branch>`
 - Owning relationship（只保留一项）：
-  - Final PR：`Closes #<owning-issue>`
+  - Final PR：`Closes #<owning-issue>`（合并到默认分支后应立即关闭）
   - Partial PR：`Part of #<owning-issue> — does not close`
   - Review Gate：`Review Gate #<issue>`（普通引用；不要求独立 PR）
 - 关联 Sub-Issue / Change：
+
+如果 Issue 在本 PR 合并后仍需继续，必须使用 Partial 或普通引用，不要
+为了填充 `Development` 手动建立 closing relationship。非默认 base 的 PR 在
+retarget 到默认分支前，必须重新检查关系选择。
 
 ## Implementation（实现说明）
 
@@ -52,6 +57,7 @@
 - Issue Owner：<Assignee>
 - Project Status：<before → after>
 - Dependency / blocked state：<links or `none`>
+- Base / stack 变化：`none | <变化以及重新验证的 Diff、Review、CI 与 closing relationship>`
 - 文档影响：`none | update | add | move | split | merge | delete | generate | supersede`
 - 正式权威或演进标记：<路径与对账方式，或 `none`>
 - 发布影响：`release:skip | release:candidate` <适用时补充说明或链接>
@@ -64,6 +70,7 @@
 ## Merge Checklist
 
 - [ ] 已选择 Final / Partial / Review Gate 关系；Final PR 的 `Development` 显示 owning Issue
+- [ ] Merge target / topology 正确；Base / stack 变化后已重新检查 Diff、Review、CI 和关闭关系
 - [ ] Issue、当前态文档、实现与测试证据彼此一致
 - [ ] 实现说明覆盖关键边界，但没有复制 Diff 或完整规范
 - [ ] 已更新、重构或删除因行为变化而过时、重复或误导的测试

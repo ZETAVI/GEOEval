@@ -3,9 +3,9 @@
 ## Mission and current phase
 
 Build the GEO optimization product from its approved foundation through small,
-verifiable releases. The current `main` baseline contains the accepted
-deterministic S1-S5 evaluation journey. Real-provider S6 work remains an
-unmerged integration candidate until its own acceptance and integration gate.
+verifiable releases. Treat the current protected `main` as accepted engineering
+truth, and read live Issue, pull-request, and `GEOEval Delivery` state before
+describing the active phase; do not pin a changing milestone in this file.
 Preserve confirmed product meaning while retiring completed changes and opening
 later outcomes at their own decision boundary. F0 runtime code remains
 non-product validation code.
@@ -25,9 +25,11 @@ and deliver changes to protected `main` through a pull request.
 5. `docs/process/core-workflow.md` before standard or architectural module work
 6. `docs/process/change-tracking.md` when creating or changing Issues, pull
    requests, commits, or branch exit state
-7. `docs/process/design-knowledge.md` when creating or changing durable design
-8. The nearest relevant active change, architecture, spec, contract, or ADR
-9. `GEO-Eval-Prompts.md` only when historical context is needed
+7. `docs/process/human-agent-collaboration.md` when work crosses agents,
+   branches, Worktrees, Stacked PRs, or an Integration Branch
+8. `docs/process/design-knowledge.md` when creating or changing durable design
+9. The nearest relevant active change, architecture, spec, contract, or ADR
+10. `GEO-Eval-Prompts.md` only when historical context is needed
 
 Keep always-loaded guidance short. Load detailed process documents and Skill references only when the task needs them.
 
@@ -139,6 +141,10 @@ a normal stop. No command above authorizes E0 provider calls or product work.
 - Reconcile accepted design into its canonical or executable owner and remove obsolete active explanations before closing a change.
 - Follow `docs/process/change-tracking.md`; do not keep appending later outcomes
   to a completed Issue or active change.
+- When discussing an Issue or pull request with the human owner, use its current
+  title with the number on first mention, for example
+  `Issue #<number>《<current title>》` or `PR #<number>《<current title>》`;
+  abbreviate to the number only after the context is clear.
 - Keep at most one primary product-delivery parent Issue in progress and one
   non-conflicting research or maintenance Issue; a verified urgent Bug may
   preempt them. Project Status is the planning authority: Backlog Issues do not
@@ -154,10 +160,12 @@ a normal stop. No command above authorizes E0 provider calls or product work.
 - Research external technology from current primary sources and record uncertainty.
 - Match each completion claim to task-appropriate evidence and disclose skipped checks.
 - Keep one writer for shared specs, public contracts, design primitives, ADRs, and release records.
-- Reuse the current Issue branch for the same outcome. Name a new branch
-  `codex/issue-<number>-<slug>` and create a separate worktree only for an
-  independently mergeable concurrent write after interfaces and ownership are
-  fixed; record the workspace exit state at handoff or close.
+- Reuse the current Issue branch for the same outcome. Direct-to-`main` is the
+  default; use a linear Stacked PR or a parent-scoped Integration Branch only
+  under the topology rules in `docs/process/human-agent-collaboration.md`.
+  Name a new branch `codex/issue-<number>-<slug>` and create a separate worktree
+  only for an independently mergeable concurrent write after interfaces and
+  ownership are fixed; record the workspace exit state at handoff or close.
 
 ## Human decision boundaries
 
