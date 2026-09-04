@@ -83,7 +83,7 @@ describe("real AI attempt adapters", () => {
   it("uses strict structured output for Model Studio primary and Hy3 fallback", async () => {
     const routes = [
       {
-        routePolicyId: "evaluation.interpretation.qwen-primary@1",
+        routePolicyId: "evaluation.interpretation.qwen-primary@2",
         model: "qwen3.8-flash",
       },
       {
@@ -126,13 +126,16 @@ describe("real AI attempt adapters", () => {
       });
       expect(JSON.stringify(request.body)).not.toContain("web_search");
     }
-    for (const request of structured.filter((observed) =>
+    const modelStudioRequests = structured.filter((observed) =>
       observed.path.startsWith("/model-studio"),
-    )) {
+    );
+    expect(
+      modelStudioRequests.map((request) => request.body.reasoning_effort),
+    ).toEqual(["low", "medium"]);
+    for (const request of modelStudioRequests) {
       expect(request.path).toBe("/model-studio/chat/completions");
       expect(request.body).toMatchObject({
         enable_thinking: true,
-        reasoning_effort: "medium",
         response_format: {
           type: "json_schema",
           json_schema: {
@@ -261,7 +264,7 @@ describe("real AI attempt adapters", () => {
   it("rejects structurally invalid successful output for a later purpose retry", async () => {
     fixture.invalidStructuredOutput = true;
     const request = structuredRequest({
-      routePolicyId: "evaluation.interpretation.qwen-primary@1",
+      routePolicyId: "evaluation.interpretation.qwen-primary@2",
       model: "qwen3.8-flash",
     });
     const result = await adapter.execute({

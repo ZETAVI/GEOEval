@@ -64,7 +64,16 @@ describe("S6 controlled provider validation", () => {
     expect(semantic.calls.filter((call) => call.ordinal > 6)).toHaveLength(3);
     expect(
       semantic.calls
-        .filter((call) => call.providerKey === "alibaba-model-studio")
+        .filter((call) =>
+          call.routePolicyId.startsWith("evaluation.interpretation.qwen"),
+        )
+        .every((call) => call.structuredReasoningEffort === "low"),
+    ).toBe(true);
+    expect(
+      semantic.calls
+        .filter((call) =>
+          call.routePolicyId.startsWith("evaluation.overall-synthesis.qwen"),
+        )
         .every((call) => call.structuredReasoningEffort === "medium"),
     ).toBe(true);
     expect(

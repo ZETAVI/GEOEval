@@ -138,8 +138,31 @@ telemetry exporter.
 - **AND** acquisition retries the same platform route
 - **AND** interpretation uses Model Studio Qwen3.8 Flash for attempts one and
   two and TokenHub Hy3 for attempt three
+- **AND** Qwen interpretation uses low reasoning effort while independently
+  owned Query generation and overall synthesis retain medium reasoning effort
 - **AND** a structured response affects accepted interpretation only after GEO's
   deterministic projection and canonical semantic validation succeed
+- **AND** deterministic projection may remove unsupported optional observations
+  or other-brand records, deduplicate other brands, bound observation groups,
+  and normalize incomplete optional positions to no position
+- **BUT** it never invents target forms, fuzzy evidence, or an open-query
+  position, and missing metric-critical evidence still rejects the attempt
+
+#### Scenario: A parser proposal contains unreadable customer card copy
+
+- **WHEN** a structurally valid proposal supplies a `cardInterpretation` with no
+  customer-readable letter or numeral
+- **THEN** the versioned Parser Prompt and output description remain the primary
+  controls for concise, formal, customer-readable prose
+- **AND** the deterministic model-to-domain projector replaces only that field
+  with a statement derived from the accepted mention and open-position facts
+- **AND** a non-mention becomes `该回答未提及当前品牌。`
+- **AND** readable model prose passes through unchanged without content scoring
+  or rewriting
+- **AND** no Critic Agent, human review, resampling, or extra Provider attempt is
+  added
+- **AND** canonical evidence, persistence, readiness, and report-projection
+  semantics remain unchanged.
 
 ### Requirement: Protected and non-blocking execution observability
 
@@ -236,10 +259,16 @@ the customer understand the current outcome.
 
 ## Current environment boundary
 
-The business contract remains reproducible with deterministic adapters. One
-complete fictional real 4-by-5 Worker run accepted all twenty platform answers
-on their first acquisition attempts and completed through the reviewed
-Qwen3.8-primary/Hy3-fallback interpretation policy. This proves route and
-recovery compatibility only. Provider-console cost reconciliation, production
-pacing and quota evidence, commercial data approval, and production Redis high
-availability remain later gates.
+The business contract remains reproducible with deterministic adapters. Two
+authorized local 4-by-5 runs acquired all forty platform answers and exposed
+recoverable optional-detail failures. An earlier protected-output replay showed
+that narrowing optional-detail rejection could materially reduce attempts, but
+its broader target-position recovery is not evidence for the final projector.
+The final boundary retains only literal target-mention recovery and still
+rejects an open rank without resolvable position evidence. Four Parser-only real
+calls using the shortened Prompt and low reasoning were accepted in one attempt
+each on the earlier model contract, with an average observed latency of about
+nineteen seconds. The latest contract is verified locally but its final 4-by-5
+Provider behavior remains an Issue #39 Gate. Provider-console cost
+reconciliation, production pacing and quota evidence, commercial data approval,
+and production Redis high availability remain later gates.

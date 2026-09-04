@@ -287,10 +287,10 @@ function samplingSmokeBatch(): S6ControlledBatch {
 
 function semanticProbeBatch(): S6ControlledBatch {
   const cases = [
-    parserCase("P01", "evaluation.interpretation.qwen-primary@1", 1),
-    parserCase("P03", "evaluation.interpretation.qwen-primary@1", 1),
-    parserCase("P05", "evaluation.interpretation.qwen-primary@1", 1),
-    parserCase("P07", "evaluation.interpretation.qwen-primary@1", 1),
+    parserCase("P01", "evaluation.interpretation.qwen-primary@2", 1),
+    parserCase("P03", "evaluation.interpretation.qwen-primary@2", 1),
+    parserCase("P05", "evaluation.interpretation.qwen-primary@2", 1),
+    parserCase("P07", "evaluation.interpretation.qwen-primary@2", 1),
     parserCase("P03", "evaluation.interpretation.hy3-fallback@1", 3),
     parserCase("P07", "evaluation.interpretation.hy3-fallback@1", 3),
     synthesisCase("Y02", "evaluation.overall-synthesis.qwen-primary@1", 1),
