@@ -78,6 +78,15 @@ authority, status, role, and expiry are resolved from server-owned records.
 - **AND** enforces both absolute and idle expiry on the server
 - **AND** returns one current authenticated principal for authorization.
 
+#### Scenario: A known session can no longer authenticate
+
+- **WHEN** a presented known Session belongs to an inactive account, has been
+  revoked, or has exceeded its idle or absolute expiry
+- **THEN** Identity returns the corresponding bounded machine-readable failure
+  state so the Web can present an honest recovery action
+- **AND** missing, unknown, or already-cleaned credentials remain the same
+  generic authentication-required result.
+
 #### Scenario: An account uses several devices
 
 - **WHEN** the same active account authenticates in several browsers or devices

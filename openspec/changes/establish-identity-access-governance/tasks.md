@@ -73,7 +73,7 @@
 - [x] Build the administrator `账号与访问` workspace with list/search/filter,
       create, role/status/revoke-all, confirmation/reason, audit, and explicit
       stale/self/last-admin/error states.
-- [ ] Build honest operations/agent shells and shared unauthenticated,
+- [x] Build honest operations/agent shells and shared unauthenticated,
       access-denied, inactive, revoked, expired, loading, and retry states without
       implementing future business modules.
 
@@ -262,6 +262,10 @@
   pass. The existing 35-file / 187-test backend result and concurrent-last-admin
   integration evidence remain applicable because backend code/config/schema did
   not change in this checkpoint.
-- Still open: the shared unauthenticated/inactive/revoked/expired role-shell
-  matrix, the broader Stage 4 security/concurrency matrix, rollback rehearsal,
-  design reconciliation, PR review, and integration.
+- The shared role-session checkpoint now distinguishes unauthenticated,
+  inactive, revoked, and expired server states, preserves wrong-role denial,
+  and reserves retry for temporary failures across the fixed role homes and
+  administrator modules. The `/brands` home now verifies the current role before
+  requesting customer business data.
+- Still open: the broader Stage 4 security/concurrency matrix, rollback
+  rehearsal, design reconciliation, PR review, and integration.

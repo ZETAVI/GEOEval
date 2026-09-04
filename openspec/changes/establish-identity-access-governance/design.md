@@ -270,11 +270,14 @@ AGENT             -> /agent
 ```
 
 The mapping consumes the `/identity/me` projection and never grants access.
-Each route independently handles unauthenticated, wrong-role, session-expired,
-loading, empty, and temporary-failure states. The administrator shell links
-Identity account governance and Media Supply as separate modules. Operations
-and Agent receive honest role shells and capability-owned empty states, not
-customer APIs or fabricated dashboards.
+Each route independently handles unauthenticated, wrong-role, inactive-account,
+revoked-Session, expired-Session, loading, empty, and temporary-failure states.
+Known credentials receive only those bounded machine-readable lifecycle codes;
+missing, unknown, or already-cleaned credentials remain the same generic
+authentication-required result. The administrator shell links Identity account
+governance and Media Supply as separate modules. Operations and Agent receive
+honest role shells and capability-owned empty states, not customer APIs or
+fabricated dashboards.
 
 ## Bootstrap and exceptional-lockout boundary
 
