@@ -113,25 +113,25 @@ merge, and production delivery are different states.
 
 ## 8. Reconcile and close
 
-After approval and verification:
+Follow the [closure contract](change-tracking.md#closure-contract). For a
+review-backed change:
 
-1. merge accepted behavior into `openspec/specs/`;
-2. add or supersede ADRs for durable tradeoffs;
-3. update the canonical glossary, contract, component, or design-system owner once;
-4. resolve, update, or explicitly retain each touched document's progressive
-   decomposition marker;
-5. remove, move, merge, regenerate, or supersede obsolete design material;
-6. put user-visible release value in `CHANGELOG.md` through the release workflow;
-7. archive the change record after its delta is reconciled, even when a later
-   stage remains behind a different decision or activation gate;
-8. ensure unresolved work has an owner and durable location;
-9. record the branch or worktree exit state and clean it only after integration
-   and recovery checks make removal safe.
-10. close the Issue only when its original acceptance boundary is met; reopen it
-    for premature closure or regression, and create a linked follow-up Issue for
-    a later requirement or independently valuable adjustment.
-11. move the Project item to `Done`, clear obsolete blocked relationships, and
-    leave independent later work in its own Project item.
+1. Before integration, reconcile the accepted slice into current specs and
+   canonical owners, resolve touched evolution markers, record evidence and
+   residual work, and archive only a stable final Change.
+2. Mark the result `Ready for Integration` only when the review, Required
+   Checks, relationship choice, recovery, and intended workspace exit are
+   explicit. This is a gate, not a Project Status.
+3. Integrate only with human authorization.
+4. After integration, confirm the target revision, Issue/PR relationship,
+   current truth, Change state, invalidated evidence, and branch or Worktree
+   exit. A retained workspace needs an owner, purpose, recovery boundary, and
+   removal trigger.
+5. Move the Project item to `Done` only after that closeout. A Final PR may have
+   already closed its Issue; keep the Project item non-`Done` until closeout is
+   complete, and reopen only when original acceptance failed.
+6. Clear obsolete blocked relationships, keep later work in its own Issue, and
+   route user-visible release value through the release workflow.
 
 Use `$task-handoff` only when work crosses an agent, session, worktree, branch, or owner boundary. The handoff is a compact current snapshot; it is not a permanent session diary.
 

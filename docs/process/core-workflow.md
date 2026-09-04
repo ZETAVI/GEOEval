@@ -127,27 +127,55 @@ approved outcome has the smallest discriminating evidence it needs.
 
 ### 7. Reconcile
 
-- Merge accepted behavior into current specs.
+For a review-backed delivery, reconciliation spans both sides of the integration
+transaction:
+
+```text
+Verify → Pre-integration Reconcile → Ready for Integration
+       → Human-authorized Integrate → Post-integration Reconcile → Close
+```
+
+`Ready for Integration` is a checkable gate, not a new Project Status. A
+non-code decision or operation omits the integration transaction but keeps the
+same evidence and closeout boundary.
+
+Before integration:
+
+- Reconcile accepted behavior into current specs and executable owners in the
+  review transaction.
 - Add or supersede ADRs when a durable decision changed.
 - Update generated or canonical references at their owner.
 - Review every touched current owner for an `Evolution marker`; execute, update,
   or explicitly retain its progressive split trigger.
-- Archive a stable change when remaining work has a different decision or
-  activation boundary.
-- Add a release-note candidate only for user-visible or operator-visible change.
-- Promote durable knowledge from the handoff; discard transient narration.
+- Archive a stable final Change when remaining work has a different decision or
+  activation boundary; keep a Partial outcome active with an accurate exit.
+- Record residual work, skipped checks, risk, recovery, and the intended branch
+  or Worktree exit.
+
+After integration:
+
+- Confirm the accepted revision on the target branch, applicable checks, and
+  actual Issue/PR closing relationship.
+- Re-run only evidence invalidated by the integration result or environment.
+- Confirm current truth and Change state, then execute or explicitly retain the
+  workspace exit with an owner and removal trigger.
+- Add a release-note candidate only for user-visible or operator-visible change
+  and promote durable handoff knowledge without retaining transient narration.
 
 ### 8. Close
 
-- Ensure the PR explains scope, evidence, risks, and skipped checks.
+- Ensure the PR explains scope, evidence, risks, skipped checks, and the owner
+  of post-integration closeout.
 - Ensure unresolved work has an owner and a durable tracking location.
 - Use the PR summary as the completed handoff.
 - Update `CHANGELOG.md` through the release workflow, not through every agent session.
-- Record whether the branch or worktree is retained, ready for integration,
-  blocked with a handoff, or safe to remove after merge.
-- Close the Issue only under the change-tracking closure contract. Reopen it for
-  a failed original acceptance boundary; create a linked follow-up Issue for a
-  later requirement or independently valuable adjustment.
+- Record and execute whether the branch or worktree is retained, blocked with a
+  handoff, removed after merge, or already removed.
+- Move the Project item to `Done` only after post-integration reconciliation and
+  workspace exit. Issue closure may already have occurred through the Final PR.
+- Reopen an Issue for a failed original acceptance boundary, not for closeout-
+  only work; create a linked follow-up Issue for a later requirement or
+  independently valuable adjustment.
 
 ## Completion contract
 
@@ -158,5 +186,7 @@ A change is complete only when:
 3. current truth is reconciled;
 4. important risks and limitations are explicit;
 5. continuation state is unnecessary or clear;
-6. the result is located in the expected branch, PR, or release artifact.
-7. the workspace has an explicit exit state.
+6. for review-backed delivery, the accepted revision is integrated into its
+   intended target; non-code outcomes have accepted durable evidence;
+7. the workspace exit is executed or deliberately retained with an owner,
+   recovery boundary, and removal trigger.
