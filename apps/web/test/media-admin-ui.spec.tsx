@@ -171,6 +171,7 @@ describe("Media Supply administrator UI behavior", () => {
       <PlatformEditor
         apiBaseUrl="http://127.0.0.1:3300"
         onClose={() => undefined}
+        onAccessFailure={() => false}
         onSaved={() => undefined}
       />,
     );
@@ -180,6 +181,7 @@ describe("Media Supply administrator UI behavior", () => {
         platform={platforms[0]!}
         suppliers={[supplier]}
         onClose={() => undefined}
+        onAccessFailure={() => false}
         onSaved={() => undefined}
       />,
     );
@@ -187,6 +189,7 @@ describe("Media Supply administrator UI behavior", () => {
       <SupplierEditor
         apiBaseUrl="http://127.0.0.1:3300"
         onClose={() => undefined}
+        onAccessFailure={() => false}
         onSaved={() => undefined}
       />,
     );
@@ -195,6 +198,7 @@ describe("Media Supply administrator UI behavior", () => {
         apiBaseUrl="http://127.0.0.1:3300"
         platform={{ ...platforms[0]!, logoUrl: "/media/logo.svg" }}
         onClose={() => undefined}
+        onAccessFailure={() => false}
         onSaved={() => undefined}
       />,
     );

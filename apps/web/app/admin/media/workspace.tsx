@@ -803,6 +803,7 @@ export function AdminMediaWorkspace() {
         <PlatformEditor
           apiBaseUrl={apiBaseUrl}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(saved, message) => acceptedMutation(message, saved.id)}
         />
       )}
@@ -811,6 +812,7 @@ export function AdminMediaWorkspace() {
           apiBaseUrl={apiBaseUrl}
           platform={editor.platform}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(saved, message) => acceptedMutation(message, saved.id)}
         />
       )}
@@ -820,6 +822,7 @@ export function AdminMediaWorkspace() {
           platform={editor.platform}
           suppliers={suppliers}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(saved, message) =>
             acceptedMutation(message, saved.platformId)
           }
@@ -832,6 +835,7 @@ export function AdminMediaWorkspace() {
           suppliers={suppliers}
           resource={editor.resource}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(saved, message) =>
             acceptedMutation(message, saved.platformId)
           }
@@ -841,6 +845,7 @@ export function AdminMediaWorkspace() {
         <SupplierEditor
           apiBaseUrl={apiBaseUrl}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(_saved, message) =>
             acceptedMutation(message, selectedPlatform?.id)
           }
@@ -851,6 +856,7 @@ export function AdminMediaWorkspace() {
           apiBaseUrl={apiBaseUrl}
           supplier={editor.supplier}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(_saved, message) =>
             acceptedMutation(message, selectedPlatform?.id)
           }

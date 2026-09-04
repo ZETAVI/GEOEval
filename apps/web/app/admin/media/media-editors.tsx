@@ -272,11 +272,13 @@ export function PlatformEditor({
   apiBaseUrl,
   platform,
   onClose,
+  onAccessFailure,
   onSaved,
 }: {
   apiBaseUrl: string;
   platform?: MediaPlatformAdmin;
   onClose: () => void;
+  onAccessFailure: (error: unknown) => boolean;
   onSaved: SaveResult<MediaPlatformAdmin>;
 }) {
   const [current, setCurrent] = useState(platform);
@@ -351,6 +353,7 @@ export function PlatformEditor({
       );
       onClose();
     } catch (caught) {
+      if (onAccessFailure(caught)) return;
       if (isPlatformRevisionConflict(caught)) {
         setConflict(true);
         setError(
@@ -384,6 +387,7 @@ export function PlatformEditor({
       setNotice("已获取最新平台内容，请重新确认后保存。");
       setErrors({});
     } catch (caught) {
+      if (onAccessFailure(caught)) return;
       setError(messageFor(caught, "暂时无法刷新平台内容"));
     } finally {
       setBusy(false);
@@ -579,11 +583,13 @@ export function SupplierEditor({
   apiBaseUrl,
   supplier,
   onClose,
+  onAccessFailure,
   onSaved,
 }: {
   apiBaseUrl: string;
   supplier?: MediaSupplier;
   onClose: () => void;
+  onAccessFailure: (error: unknown) => boolean;
   onSaved: SaveResult<MediaSupplier>;
 }) {
   const [displayName, setDisplayName] = useState(supplier?.displayName ?? "");
@@ -629,6 +635,7 @@ export function SupplierEditor({
       );
       onClose();
     } catch (caught) {
+      if (onAccessFailure(caught)) return;
       setError(messageFor(caught, "供应商未保存，请稍后重试"));
     } finally {
       setBusy(false);
@@ -740,6 +747,7 @@ export function ResourceEditor({
   suppliers,
   resource,
   onClose,
+  onAccessFailure,
   onSaved,
 }: {
   apiBaseUrl: string;
@@ -747,6 +755,7 @@ export function ResourceEditor({
   suppliers: MediaSupplier[];
   resource?: MediaResourceAdmin;
   onClose: () => void;
+  onAccessFailure: (error: unknown) => boolean;
   onSaved: SaveResult<MediaResourceAdmin>;
 }) {
   const defaultSupplier = useMemo(
@@ -841,6 +850,7 @@ export function ResourceEditor({
       );
       onClose();
     } catch (caught) {
+      if (onAccessFailure(caught)) return;
       setError(messageFor(caught, "资源未保存，请稍后重试"));
     } finally {
       setBusy(false);

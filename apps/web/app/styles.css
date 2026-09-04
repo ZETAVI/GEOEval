@@ -2549,14 +2549,6 @@ a {
   background: #e3f2e8;
   color: #236342;
 }
-.role-card-status.read_only {
-  background: #e5eef8;
-  color: #2f5f88;
-}
-.role-card-status.foundation_ready {
-  background: #fff3d8;
-  color: #7a5a1d;
-}
 .role-overview-card h2 {
   margin: 28px 0 12px;
   font-size: 1.25rem;

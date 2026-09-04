@@ -31,8 +31,7 @@ type RoleWorkspaceConfig = {
   cards: Array<{
     title: string;
     description: string;
-    status:
-      "AVAILABLE" | "READ_ONLY" | "FOUNDATION_READY" | "FUTURE_CAPABILITY";
+    status: "AVAILABLE" | "FUTURE_CAPABILITY";
     href?: string;
   }>;
 };
@@ -42,8 +41,6 @@ const statusLabels: Record<
   string
 > = {
   AVAILABLE: "已开放",
-  READ_ONLY: "只读视图已开放",
-  FOUNDATION_READY: "基础已就绪",
   FUTURE_CAPABILITY: "业务模块待接入",
 };
 
