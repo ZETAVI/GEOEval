@@ -10,6 +10,14 @@ export type IdentityGovernanceAudit =
   components["schemas"]["IdentityGovernanceAuditResponse"];
 export type IdentityGovernanceAuditList =
   components["schemas"]["IdentityGovernanceAuditListResponse"];
+export type CreateInternalAccount =
+  components["schemas"]["CreateInternalAccountRequest"];
+export type ChangeAccountStatus =
+  components["schemas"]["ChangeAccountStatusRequest"];
+export type ChangeAccountRole =
+  components["schemas"]["ChangeAccountRoleRequest"];
+export type GovernedAccountMutation =
+  components["schemas"]["GovernedAccountMutationRequest"];
 export type Brand = components["schemas"]["BrandResponse"];
 export type EvaluationDefinition =
   components["schemas"]["EvaluationDefinitionResponse"];
@@ -63,6 +71,7 @@ export class ApiRequestError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    readonly code?: string,
   ) {
     super(message);
     this.name = "ApiRequestError";
@@ -91,13 +100,14 @@ async function apiRequest<T>(
   });
   if (!response.ok) {
     const body = (await response.json().catch(() => undefined)) as
-      { message?: string | string[] } | undefined;
+      { code?: string; message?: string | string[] } | undefined;
     const message = Array.isArray(body?.message)
       ? body.message.join("；")
       : body?.message;
     throw new ApiRequestError(
       message ?? `请求失败（${response.status}）`,
       response.status,
+      body?.code,
     );
   }
   if (response.status === 204) return undefined as T;
@@ -168,6 +178,52 @@ export function listIdentityGovernanceAudits(
   return apiRequest(apiBaseUrl, `/admin/accounts/audits${suffix}`, {
     cache: "no-store",
   });
+}
+
+export function createAdminInternalAccount(
+  apiBaseUrl: string,
+  input: CreateInternalAccount,
+): Promise<Account> {
+  return apiRequest(apiBaseUrl, "/admin/accounts", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function changeAdminAccountStatus(
+  apiBaseUrl: string,
+  accountId: string,
+  input: ChangeAccountStatus,
+): Promise<Account> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/accounts/${encodeURIComponent(accountId)}/status`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function changeAdminAccountRole(
+  apiBaseUrl: string,
+  accountId: string,
+  input: ChangeAccountRole,
+): Promise<Account> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/accounts/${encodeURIComponent(accountId)}/role`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function revokeAdminAccountSessions(
+  apiBaseUrl: string,
+  accountId: string,
+  input: GovernedAccountMutation,
+): Promise<Account> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/accounts/${encodeURIComponent(accountId)}/sessions`,
+    { method: "DELETE", body: JSON.stringify(input) },
+  );
 }
 
 export function listBrands(apiBaseUrl: string): Promise<Brand[]> {
