@@ -22,6 +22,12 @@ export type AuthenticatedPrincipal = {
   sessionId: string;
 };
 
+export type SessionAuthenticationFailureCode =
+  | "AUTHENTICATION_REQUIRED"
+  | "ACCOUNT_INACTIVE"
+  | "SESSION_REVOKED"
+  | "SESSION_EXPIRED";
+
 export type MobileChallengeView = {
   id: string;
   mobile: string;

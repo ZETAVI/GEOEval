@@ -761,6 +761,11 @@ export interface components {
             /** Format: date-time */
             lastAuthenticatedAt?: string | null;
         };
+        SessionAuthenticationErrorResponse: {
+            /** @enum {string} */
+            code: "AUTHENTICATION_REQUIRED" | "ACCOUNT_INACTIVE" | "SESSION_REVOKED" | "SESSION_EXPIRED";
+            message: string;
+        };
         AccountSummaryResponse: {
             id: string;
             mobile: string;
@@ -1647,6 +1652,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AccountResponse"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionAuthenticationErrorResponse"];
                 };
             };
         };

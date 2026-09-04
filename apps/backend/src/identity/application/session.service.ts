@@ -9,6 +9,7 @@ import {
 import type {
   AccountView,
   AuthenticatedPrincipal,
+  SessionAuthenticationFailureCode,
 } from "../domain/identity.types.js";
 import { IDENTITY_CONFIG } from "./identity.config.js";
 
@@ -16,12 +17,6 @@ export type AuthenticatedContext = {
   account: AccountView;
   principal: AuthenticatedPrincipal;
 };
-
-export type SessionAuthenticationFailureCode =
-  | "AUTHENTICATION_REQUIRED"
-  | "ACCOUNT_INACTIVE"
-  | "SESSION_REVOKED"
-  | "SESSION_EXPIRED";
 
 @Injectable()
 export class SessionService {

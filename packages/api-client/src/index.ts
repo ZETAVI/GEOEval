@@ -4,6 +4,10 @@ export type FoundationRecord =
   components["schemas"]["FoundationRecordResponse"];
 export type Challenge = components["schemas"]["ChallengeResponse"];
 export type Account = components["schemas"]["AccountResponse"];
+export type SessionAuthenticationError =
+  components["schemas"]["SessionAuthenticationErrorResponse"];
+export type SessionAuthenticationFailureCode =
+  SessionAuthenticationError["code"];
 export type AccountSummary = components["schemas"]["AccountSummaryResponse"];
 export type AccountList = components["schemas"]["AccountListResponse"];
 export type IdentityGovernanceAudit =

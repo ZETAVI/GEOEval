@@ -212,6 +212,16 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionAuthenticationErrorResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1628,6 +1638,27 @@
           "role",
           "status",
           "revision"
+        ]
+      },
+      "SessionAuthenticationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "AUTHENTICATION_REQUIRED",
+              "ACCOUNT_INACTIVE",
+              "SESSION_REVOKED",
+              "SESSION_EXPIRED"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
         ]
       },
       "AccountSummaryResponse": {

@@ -15,6 +15,7 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
 import type { ApiConfig } from "../../config/runtime-config.js";
@@ -38,6 +39,7 @@ import {
   ChallengeResponse,
   CompleteSessionRequest,
   RequestChallengeRequest,
+  SessionAuthenticationErrorResponse,
 } from "./identity.dto.js";
 
 @ApiTags("identity")
@@ -83,6 +85,7 @@ export class IdentityController {
 
   @Get("me")
   @ApiOkResponse({ type: AccountResponse })
+  @ApiUnauthorizedResponse({ type: SessionAuthenticationErrorResponse })
   me(@Req() request: IdentityHttpRequest): AccountResponse {
     return request.geoevalAccount!;
   }

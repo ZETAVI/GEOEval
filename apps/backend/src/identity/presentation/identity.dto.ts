@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
+import type { SessionAuthenticationFailureCode } from "../domain/identity.types.js";
+
 export class RequestChallengeRequest {
   @ApiProperty({ type: String, example: "13800138000" })
   mobile!: string;
@@ -58,6 +60,22 @@ export class AccountResponse {
     nullable: true,
   })
   lastAuthenticatedAt?: Date | null;
+}
+
+export class SessionAuthenticationErrorResponse {
+  @ApiProperty({
+    type: String,
+    enum: [
+      "AUTHENTICATION_REQUIRED",
+      "ACCOUNT_INACTIVE",
+      "SESSION_REVOKED",
+      "SESSION_EXPIRED",
+    ],
+  })
+  code!: SessionAuthenticationFailureCode;
+
+  @ApiProperty({ type: String })
+  message!: string;
 }
 
 export class CreateInternalAccountRequest {

@@ -5,6 +5,7 @@ import {
   getCurrentAccount,
   logout,
   type Account,
+  type SessionAuthenticationFailureCode,
 } from "@geoeval/api-client";
 
 import { roleHomePath } from "./enter/post-login-route.js";
@@ -25,6 +26,13 @@ export const accountRoleLabels: Record<Account["role"], string> = {
   ADMINISTRATOR: "系统管理员",
   AGENT: "代理商",
 };
+
+const sessionFailureKinds = {
+  AUTHENTICATION_REQUIRED: "unauthenticated",
+  ACCOUNT_INACTIVE: "inactive",
+  SESSION_REVOKED: "revoked",
+  SESSION_EXPIRED: "expired",
+} satisfies Record<SessionAuthenticationFailureCode, SessionAccessFailureKind>;
 
 const sessionFailureContent: Record<
   SessionAccessFailureKind,
@@ -84,10 +92,13 @@ export function sessionFailureState(
   if (!(error instanceof ApiRequestError) || error.status !== 401) {
     return undefined;
   }
-  if (error.code === "ACCOUNT_INACTIVE") return { kind: "inactive" };
-  if (error.code === "SESSION_REVOKED") return { kind: "revoked" };
-  if (error.code === "SESSION_EXPIRED") return { kind: "expired" };
-  return { kind: "unauthenticated" };
+  const code = error.code;
+  return {
+    kind:
+      code && Object.hasOwn(sessionFailureKinds, code)
+        ? sessionFailureKinds[code as SessionAuthenticationFailureCode]
+        : "unauthenticated",
+  };
 }
 
 export function WorkspaceAccessPanel({
