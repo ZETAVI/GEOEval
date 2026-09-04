@@ -148,6 +148,10 @@ export function logout(apiBaseUrl: string): Promise<void> {
   return apiRequest(apiBaseUrl, "/identity/session", { method: "DELETE" });
 }
 
+export function logoutAllSessions(apiBaseUrl: string): Promise<void> {
+  return apiRequest(apiBaseUrl, "/identity/sessions", { method: "DELETE" });
+}
+
 export function listAdminAccounts(
   apiBaseUrl: string,
   options: {

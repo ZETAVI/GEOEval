@@ -1,10 +1,11 @@
 "use client";
 
-import { logout, type Account } from "@geoeval/api-client";
+import type { Account } from "@geoeval/api-client";
 import { useEffect, useState } from "react";
 
 import { AdminSidebar } from "./admin/admin-sidebar.js";
 import { roleHomePath } from "./enter/post-login-route.js";
+import { SessionExitActions } from "./session-exit-actions.js";
 import {
   accountRoleLabels,
   loadRoleSession,
@@ -120,14 +121,7 @@ export function SupportingRoleWorkspace({ role }: { role: SupportingRole }) {
               <b>{accountRoleLabels[role]}</b>
               <small>{account.mobile}</small>
             </div>
-            <button
-              type="button"
-              onClick={() =>
-                void logout(apiBaseUrl).then(() => window.location.assign("/"))
-              }
-            >
-              退出
-            </button>
+            <SessionExitActions apiBaseUrl={apiBaseUrl} />
           </div>
         </aside>
       )}

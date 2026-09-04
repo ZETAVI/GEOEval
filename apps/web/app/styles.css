@@ -624,6 +624,18 @@ a {
   color: #91ad9f;
   font-size: 0.68rem;
 }
+.session-exit-actions {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+}
+.session-exit-actions button {
+  cursor: pointer;
+  white-space: nowrap;
+}
+.session-exit-actions .all-sessions {
+  color: #dfbd79;
+}
 .workspace {
   width: min(1260px, 100%);
   margin: 0 auto;
@@ -2309,6 +2321,7 @@ a {
     display: none;
   }
   .sidebar-account {
+    display: flex;
     margin-left: auto;
     padding: 0;
     border: 0;
@@ -4728,6 +4741,7 @@ a {
     display: none;
   }
   .admin-sidebar .sidebar-account {
+    display: flex;
     margin-left: auto;
     padding: 0;
     border: 0;

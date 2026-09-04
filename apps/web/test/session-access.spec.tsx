@@ -1,4 +1,8 @@
-import { ApiRequestError, type Account } from "@geoeval/api-client";
+import {
+  ApiRequestError,
+  logoutAllSessions,
+  type Account,
+} from "@geoeval/api-client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -8,6 +12,7 @@ import {
   WorkspaceAccessPanel,
   type RoleSessionState,
 } from "../app/session-access.js";
+import { SessionExitActions } from "../app/session-exit-actions.js";
 
 const operationsAccount: Account = {
   id: "operations-account",
@@ -107,6 +112,29 @@ describe("shared role-session states", () => {
     expect(markup).toContain("媒体库管理没有加载完成");
     expect(markup).toContain("服务暂时不可用");
     expect(markup).toContain("重新加载");
+  });
+
+  it("exposes and sends an explicit logout-all command", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const markup = renderToStaticMarkup(
+      <SessionExitActions apiBaseUrl="http://api.test" />,
+    );
+    expect(markup).toContain("退出全部设备");
+
+    await logoutAllSessions("http://api.test");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://api.test/identity/sessions",
+      expect.objectContaining({
+        method: "DELETE",
+        credentials: "include",
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+          "x-geoeval-request": "1",
+        }),
+      }),
+    );
   });
 });
 

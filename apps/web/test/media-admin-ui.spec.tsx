@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   ApiRequestError,
@@ -10,6 +10,7 @@ import {
   DeleteConfirmDialog,
   PlatformEditor,
   ResourceEditor,
+  routeMediaEditorFailure,
   SupplierEditor,
 } from "../app/admin/media/media-editors.js";
 import {
@@ -150,6 +151,21 @@ describe("Media Supply administrator UI behavior", () => {
     expect(isApiStatus(new ApiRequestError("服务暂不可用", 503), 409)).toBe(
       false,
     );
+  });
+
+  it("routes editor authentication failures to the shared Session boundary", () => {
+    const failure = new ApiRequestError(
+      "此登录会话已结束",
+      401,
+      "SESSION_REVOKED",
+    );
+    const onAccessFailure = vi.fn(() => true);
+    const onLocalFailure = vi.fn();
+
+    routeMediaEditorFailure(failure, onAccessFailure, onLocalFailure);
+
+    expect(onAccessFailure).toHaveBeenCalledWith(failure);
+    expect(onLocalFailure).not.toHaveBeenCalled();
   });
 
   it("renders the confirmed platform and resource defaults", () => {

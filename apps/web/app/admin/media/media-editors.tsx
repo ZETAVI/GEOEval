@@ -66,6 +66,15 @@ function messageFor(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
+export function routeMediaEditorFailure(
+  error: unknown,
+  onAccessFailure: (error: unknown) => boolean,
+  onLocalFailure: () => void,
+): void {
+  if (onAccessFailure(error)) return;
+  onLocalFailure();
+}
+
 function EditorFrame({
   eyebrow,
   title,
@@ -353,15 +362,16 @@ export function PlatformEditor({
       );
       onClose();
     } catch (caught) {
-      if (onAccessFailure(caught)) return;
-      if (isPlatformRevisionConflict(caught)) {
-        setConflict(true);
-        setError(
-          "平台已在其他页面发生变化。请刷新最新内容，重新核对后再保存。",
-        );
-      } else {
-        setError(messageFor(caught, "平台未保存，请稍后重试"));
-      }
+      routeMediaEditorFailure(caught, onAccessFailure, () => {
+        if (isPlatformRevisionConflict(caught)) {
+          setConflict(true);
+          setError(
+            "平台已在其他页面发生变化。请刷新最新内容，重新核对后再保存。",
+          );
+        } else {
+          setError(messageFor(caught, "平台未保存，请稍后重试"));
+        }
+      });
     } finally {
       setBusy(false);
     }
@@ -387,8 +397,9 @@ export function PlatformEditor({
       setNotice("已获取最新平台内容，请重新确认后保存。");
       setErrors({});
     } catch (caught) {
-      if (onAccessFailure(caught)) return;
-      setError(messageFor(caught, "暂时无法刷新平台内容"));
+      routeMediaEditorFailure(caught, onAccessFailure, () =>
+        setError(messageFor(caught, "暂时无法刷新平台内容")),
+      );
     } finally {
       setBusy(false);
     }
@@ -635,8 +646,9 @@ export function SupplierEditor({
       );
       onClose();
     } catch (caught) {
-      if (onAccessFailure(caught)) return;
-      setError(messageFor(caught, "供应商未保存，请稍后重试"));
+      routeMediaEditorFailure(caught, onAccessFailure, () =>
+        setError(messageFor(caught, "供应商未保存，请稍后重试")),
+      );
     } finally {
       setBusy(false);
     }
@@ -850,8 +862,9 @@ export function ResourceEditor({
       );
       onClose();
     } catch (caught) {
-      if (onAccessFailure(caught)) return;
-      setError(messageFor(caught, "资源未保存，请稍后重试"));
+      routeMediaEditorFailure(caught, onAccessFailure, () =>
+        setError(messageFor(caught, "资源未保存，请稍后重试")),
+      );
     } finally {
       setBusy(false);
     }
