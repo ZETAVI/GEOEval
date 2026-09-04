@@ -1,7 +1,6 @@
 # Design: Identity and Access governance foundation
 
-- Status: Proposed; not ready for implementation until offline recovery is
-  confirmed and the architecture-review finding is closed
+- Status: Approved for bounded implementation on 2026-09-04
 - Owning Issue: [#50](https://github.com/ZETAVI/GEOEval/issues/50)
 - Reviewed current base: `main@82f70564889698d501129b5188f4046a1a20dfa9`
 
@@ -255,7 +254,7 @@ Identity account governance and Media Supply as separate modules. Operations
 and Agent receive honest role shells and capability-owned empty states, not
 customer APIs or fabricated dashboards.
 
-## Bootstrap and unresolved recovery
+## Bootstrap and bounded recovery
 
 The first-administrator CLI reads the target mobile explicitly and reads the
 Bootstrap secret from protected input rather than a command-line value. The
@@ -268,21 +267,21 @@ administrator, and an unused mobile. A matching replay returns deterministic
 no-change only when the control record and resulting active administrator still
 match; every different target/key or existing active administrator is a conflict.
 
-Ordinary Bootstrap never reopens. The remaining decision is whether a distinct
-break-glass CLI may replace the sole active but inaccessible administrator. The
-recommended design is a separate command with a distinct recovery secret that:
+Ordinary Bootstrap never reopens. The first release does not add a distinct
+Recovery Secret, break-glass command, implicit second Bootstrap, mobile rewrite,
+or HTTP recovery surface. After Bootstrap, the operating runbook directs the
+company to create and verify a second active administrator through normal
+Governance before production depends on administrator-only work. The database
+continues to require at least one, not two, active administrators so a small
+team is not forced into a quorum model.
 
-- is allowed only when exactly one active administrator exists;
-- explicitly identifies that inaccessible administrator, a new unused mobile,
-  and a required reason;
-- creates the replacement, deactivates the inaccessible account, revokes all
-  old sessions, and appends both changes in one locked transaction;
-- rejects when another active administrator exists, because normal Governance
-  can then recover access;
-- never edits the existing mobile, never reuses Bootstrap, and never exposes
-  HTTP.
-
-This recommendation remains unapproved and blocks implementation.
+If the only active administrator truly becomes inaccessible, the application
+fails closed. The company pauses administrator-only work, preserves and backs up
+the current database, opens a separately authorized production incident, and
+decides the exact exceptional repair against the then-current environment.
+Neither this Change nor Bootstrap pre-authorizes direct data editing. A real
+incident, a compliance requirement, or material team growth is the trigger for
+a later recovery-security Change with stronger secret custody and approval.
 
 ## Failure and Recovery
 
@@ -296,7 +295,7 @@ This recommendation remains unapproved and blocks implementation.
 | Session exceeds idle or absolute limit | Normal expiry | User authenticates again | Controlled clock tests and server-side rejection |
 | CSRF header/Origin missing or mismatched | Security rejection | Web/config owner corrects request or origin | HTTP matrix proves no mutation |
 | Bootstrap replay or conflicting target/key | Deterministic replay or permanent conflict | Deployment operator inspects control/audit | First/repeat/conflict tests; one administrator and one audit only |
-| Sole administrator loses mobile access | Recovery decision, currently unresolved | Product/deployment owner | No implementation until break-glass contract is confirmed |
+| Sole administrator loses mobile access | Rare production incident outside automated first-release recovery | Product/deployment owner pauses work and opens an explicitly authorized incident | Bootstrap stays closed; current backup and account/audit state are preserved before a later repair decision |
 | Real SMS unavailable | External dependency outside this Change | Later release owner | Deterministic/local tests only; production remains disabled |
 
 ## Tool and Framework Decision
@@ -342,6 +341,7 @@ deployment, real account, or production migration remains a separate human Gate.
   transaction rollback/concurrency, Bootstrap replay, Session expiry/revocation,
   controller role inventory, CSRF HTTP matrix, OpenAPI/client build, and browser
   allowed/denied/expired flows.
-- **Residual risk owner:** product owner decides break-glass recovery and any
-  later change to session UX risk; deployment owner separately controls real
-  SMS, production migration, administrator creation, and release.
+- **Residual risk owner:** product owner accepts the small probability of a
+  sole-administrator lockout without a dormant recovery authority; deployment
+  owner separately controls real SMS, production migration, administrator
+  creation, readiness of a second administrator, and release.

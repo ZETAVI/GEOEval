@@ -1,6 +1,6 @@
 # Change: Establish Identity and Access governance
 
-- Status: Proposed; waiting for the offline recovery decision
+- Status: Approved for bounded implementation on 2026-09-04
 - Class: Architectural / critical identity and security boundary
 - Owning Issue: [#50](https://github.com/ZETAVI/GEOEval/issues/50)
 - Base: `main@82f70564889698d501129b5188f4046a1a20dfa9`
@@ -49,7 +49,7 @@ change can immediately and atomically revoke its sessions.
   deactivate, internal-role change, revoke-all, dangerous-action confirmation,
   reason, audit, self-operation constraints, and last-administrator protection.
 - Add one deployment-only first-administrator CLI with replay protection and no
-  HTTP entrypoint. Finalize its separate recovery boundary before implementation.
+  HTTP entrypoint. Do not add a separate automated recovery authority.
 - Route the four fixed roles to `/brands`, `/admin`, `/operations`, and `/agent`,
   and provide role-appropriate shells without implementing their future business
   modules.
@@ -93,13 +93,16 @@ change can immediately and atomically revoke its sessions.
 8. Account/status/role/revision change, associated revoke-all, and governance
    audit commit as one PostgreSQL transaction.
 
-## Remaining Human Decision
+## Approval Result
 
-The first-administrator Bootstrap is one-time and cannot double as an
-unrestricted recovery command. Before implementation, the product owner must
-choose whether a separate offline break-glass command may replace the sole
-active but inaccessible administrator, including its secret, operator, target,
-audit, and failure boundary. Until then the Change remains `Review / Decision`.
+The product owner confirmed on 2026-09-04 that the first release does not need a
+separate Recovery Secret or break-glass CLI. Bootstrap remains one-time and
+never reopens while an administrator exists. The small-team operating path is
+to establish another active administrator through normal governance before
+production depends on administrator-only work. A true sole-administrator
+lockout is a separately authorized production incident, not a dormant product
+backdoor. Repeated incidents, compliance requirements, or material team growth
+may trigger a later recovery-security Change.
 
 ## Delivery and Topology
 

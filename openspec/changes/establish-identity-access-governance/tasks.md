@@ -22,9 +22,10 @@
       shells, migration, rollback, and verification boundaries.
 - [x] Complete the pre-implementation architecture review and record the one
       remaining recovery finding.
-- [ ] Product owner decides the offline break-glass administrator recovery
-      boundary; reconcile the decision into Issue #50, decision brief, delta,
-      design, and architecture review.
+- [x] Product owner confirms that the first release has no separate Recovery
+      Secret or automated break-glass CLI; use normal second-administrator
+      readiness and route a true sole-admin lockout to a separately authorized
+      incident/follow-up rather than extending Bootstrap.
 
 ## Stage 2 — Implement Account, Session, and Access foundation
 
@@ -58,9 +59,9 @@
 - [ ] Enforce no customer/internal conversion, immutable mobile, no account
       deletion, no administrator self-governance, and no last-administrator loss
       inside the locked Governance transaction.
-- [ ] Implement first-administrator Bootstrap replay/conflict behavior and only
-      the separately approved recovery command; expose neither through HTTP and
-      create no real administrator.
+- [ ] Implement first-administrator Bootstrap replay/conflict behavior without
+      an automated recovery command; expose no Bootstrap or recovery HTTP route
+      and create no real administrator.
 - [ ] Generate OpenAPI/client contracts for accounts, governance, audit,
       logout-all, and authenticated principal responses.
 - [ ] Replace the post-login Media Supply special case with fixed `/brands`,
@@ -80,8 +81,9 @@
 - [ ] Test current logout, self logout-all, administrator revoke-all, multiple
       sessions, idle/absolute expiry, permission-change invalidation, revocation
       reasons, cleanup, and new authentication after change.
-- [ ] Test Bootstrap first run/replay/conflicts and the approved recovery path;
-      prove no public HTTP entry and no secret/plaintext Token in output or audit.
+- [ ] Test Bootstrap first run/replay/conflicts and prove no recovery/public HTTP
+      entry and no secret/plaintext Token in output or audit; verify the normal
+      second-administrator readiness path through Governance.
 - [ ] Force stale revision, self-operation, last-administrator, concurrent
       demotion, session-revoke failure, and audit failure; prove each transaction
       is all-or-nothing.

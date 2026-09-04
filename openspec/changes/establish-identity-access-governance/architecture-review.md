@@ -1,7 +1,6 @@
 # Architecture Review: Identity and Access governance foundation
 
-- Result: `not ready` for implementation; one consequential recovery finding is
-  open
+- Result: `ready` for bounded implementation
 - Reviewed base: `main@82f70564889698d501129b5188f4046a1a20dfa9`
 - Reviewed artifacts: Issue #50, Product Vision/Glossary/Product Definition,
   Architecture Overview, current Identity schema/service/repository/HTTP Guards,
@@ -85,22 +84,22 @@ security transaction; business modules declare roles and consume a principal.
   attach below the shell and never grant backend authority.
 - **Origin:** pre-existing incremental-delivery shortcut.
 
-## Open finding
+## Final finding disposition
 
-### Must-fix — offline recovery could become a second Bootstrap backdoor
+### Must-fix — offline recovery could become a second Bootstrap backdoor — resolved by deferral
 
-- **Artifact:** `design.md`, Bootstrap and unresolved recovery.
+- **Artifact:** `design.md`, Bootstrap and bounded recovery.
 - **Violated boundary:** recovery authority, secret ownership, target selection,
   last-administrator preservation, and audit need one explicit human-approved
   contract.
 - **Consequence:** reusing Bootstrap or accepting any deployment secret while an
   active administrator exists could silently create a second administrator; no
   recovery path could instead leave the company permanently locked out.
-- **Narrow remediation:** decide whether to adopt the proposed separate
-  break-glass replacement command, with a distinct recovery secret, exactly-one-
-  active-administrator precondition, explicit old/new targets, atomic replace/
-  revoke/audit, and refusal while another active administrator can recover
-  normally. Update Issue, decision brief, delta, design, and this review.
+- **Remediation:** the product owner decided not to build a separate Recovery
+  Secret or automated break-glass command in the first release. Bootstrap stays
+  closed. The normal runbook establishes another active administrator; a true
+  sole-admin lockout fails closed and requires a separately authorized incident
+  and later recovery-security decision.
 - **Origin:** exposed by the required Bootstrap/recovery boundary; not a current
   runtime regression.
 
@@ -141,8 +140,9 @@ security transaction; business modules declare roles and consume a principal.
 ## Close
 
 The proposed bounded context, access contract, account/session data, governance
-transaction, Cookie/CSRF boundary, and Web role shells are coherent and
-proportionate. Implementation remains `not ready` only because the sole-
-administrator offline recovery authority is a consequential human decision.
-No PR, migration, real account, SMS call, deployment, or production action is
-authorized by this review.
+transaction, Cookie/CSRF boundary, Bootstrap boundary, and Web role shells are
+coherent and proportionate. The product owner's explicit decision not to add a
+dormant automated recovery authority closes the final finding. The Change is
+`ready` for bounded implementation and isolated verification. No PR merge, real
+account, SMS call, deployment, production migration, activation, or exceptional
+recovery operation is authorized by this review.

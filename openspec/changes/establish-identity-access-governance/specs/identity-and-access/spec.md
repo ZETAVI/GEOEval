@@ -290,8 +290,21 @@ offline deployment command with explicit target and secret boundaries.
 - **WHEN** Bootstrap has completed but the remaining active administrator is no
   longer reachable by the company
 - **THEN** ordinary Bootstrap remains closed
-- **AND** any recovery must use the separately approved offline recovery
-  contract rather than an implicit second Bootstrap or public backdoor.
+- **AND** the first release exposes no Recovery Secret, automatic break-glass
+  command, implicit second Bootstrap, mobile rewrite, or public backdoor
+- **AND** the event requires a separately authorized production incident and a
+  new recovery-security decision before any exceptional data operation.
+
+#### Scenario: The small team prepares ordinary administrator recovery
+
+- **WHEN** the first administrator has entered the normal governance workspace
+- **THEN** the operating runbook directs the company to establish and verify a
+  second active administrator before production depends on administrator-only
+  work
+- **AND** ordinary loss of one administrator is resolved by the other active
+  administrator through normal governance
+- **AND** this readiness recommendation does not change the database invariant
+  from at least one active administrator to a mandatory quorum of two.
 
 ### Requirement: Fixed role-specific signed-in entry
 

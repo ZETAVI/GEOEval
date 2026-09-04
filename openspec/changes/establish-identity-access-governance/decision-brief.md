@@ -1,8 +1,8 @@
 # Decision Brief: Identity and Access governance foundation
 
 - Owning Issue: [#50](https://github.com/ZETAVI/GEOEval/issues/50)
-- Confirmation state: Partially confirmed through 2026-09-04
-- Next gate: confirm offline administrator recovery before implementation
+- Confirmation state: Confirmed for bounded implementation on 2026-09-04
+- Next gate: implement and verify without creating an automated break-glass path
 
 ## Outcome
 
@@ -36,6 +36,7 @@ existing session and leave attributable audit evidence.
 | Last administrator | No mutation may remove the last active administrator; concurrent governance writes serialize around this invariant | A check outside the write transaction can allow two simultaneous demotions | Product owner, confirmed; engineering owns transaction |
 | Audit meaning | Server derives actor and time; accepted governance changes append actor, target, before/after, reason, and time in the same transaction | Client-supplied identity cannot forge the audit; cryptographic external-ledger tamper evidence is not implied | Product owner accepted direction; engineering owns storage |
 | First administrator | A one-time offline deployment CLI uses an explicit mobile and deployment-managed secret; no HTTP Bootstrap exists | A new environment needs a recoverable initial authority without a public backdoor | Product owner, confirmed at boundary level |
+| Sole-administrator loss | Do not build a separate Recovery Secret or break-glass CLI in the first release; establish another administrator through normal governance and treat a true sole-admin lockout as a separately authorized production incident | A dormant recovery authority is not justified for the current small application; real recurrence or compliance needs can open a stronger follow-up | Product owner, confirmed |
 
 ## Acceptance Boundaries
 
@@ -60,17 +61,21 @@ existing session and leave attributable audit evidence.
 - Assumption: `immediate revocation` means no request authenticated after the
   governance transaction commits can use an old session. It does not attempt to
   cancel a request already admitted before that commit.
-- Open: when exactly one active administrator still exists in data but the
-  company has lost that administrator's mobile access, should a separate
-  break-glass CLI replace that administrator under a distinct recovery secret,
-  or must recovery remain a database-restoration/manual operation? Product owner
-  must decide before implementation.
+- Assumption: operational readiness establishes a second active administrator
+  through the normal workspace before production depends on administrator-only
+  work. This is a runbook warning rather than a second-admin database invariant.
+- Deferred trigger: if a real sole-administrator lockout occurs, compliance
+  requires formal break-glass access, or the operator team grows beyond the
+  current small-team boundary, open a separate recovery-security Change rather
+  than extending Bootstrap in place.
 
 ## Confirmation and Next Gate
 
 - Confirmation: role, account-conversion, session architecture, access-contract,
-  administrator self-operation, and last-administrator boundaries are confirmed.
-- Next action: decide the offline break-glass recovery boundary, update the
-  architecture review to `ready`, then begin the first compatible vertical
-  implementation slice.
-- Confirmation required before: implementation.
+  administrator self-operation, last-administrator, and bounded recovery
+  boundaries are confirmed.
+- Next action: begin the first compatible implementation slice using isolated
+  PostgreSQL and Redis targets.
+- Confirmation required before: real SMS, real administrator creation,
+  production migration, deployment, activation, PR merge, or a future
+  break-glass capability.
