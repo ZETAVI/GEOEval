@@ -6,6 +6,8 @@
       settings, Issue #50, and completed Issue #37 / PR #38.
 - [x] Distinguish direct-to-main, true linear Stacked PR, and exceptional
       Integration Branch without introducing a permanent `dev`.
+- [x] Clarify that Issue #50 and future Media Supply series evaluate topology
+      independently rather than sharing one Integration Branch.
 - [x] Add non-default-base, retarget, closing, and human-readable reference
       rules to existing canonical owners.
 
@@ -24,5 +26,5 @@
 - [x] Open final PR #54 as `Closes #53`; keep merge, cloud branch changes,
       `gh stack` installation, #50 implementation, and other Worktree cleanup
       outside this Change.
-- [ ] Reconcile current owners, archive this Change after acceptance, and record
-      the Issue/Project/Worktree exit.
+- [x] Reconcile current owners, archive this Change after acceptance, and record
+      Issue/Project closure plus Worktree removal as merge-triggered exits.

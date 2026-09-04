@@ -1,10 +1,11 @@
 # Change: Calibrate Branch Topology and Human-Readable Tracking
 
-- Status: Review / Decision in PR #54
+- Status: Accepted and archived for integration through PR #54
 - Class: Standard project-governance change
 - Issue: [#53](https://github.com/ZETAVI/GEOEval/issues/53)
 - Decision owner: Project owner
 - Approval: 2026-09-03 discussion and annotations
+- Merge authorization: 2026-09-03
 
 ## Why
 
@@ -46,13 +47,13 @@ evidence, and make Agent discussion name an Issue or PR on first reference.
 
 ## Current Application
 
-- Issue #50 is still `Review / Decision`; its shared Identity Schema, Session
-  lifecycle, Access Contract, Governance, and consumer migration first require
-  an approved architecture and are more likely to form ordered slices than
-  parallel writes to one shared contract.
-- Issue #37 and PR #38 are already accepted on `main`; Media Supply is an
-  existing Identity consumer and regression boundary, not a future sibling
-  branch under #50.
+- Issue #50 is still `Review / Decision`. Its own Identity and Access series
+  shall evaluate direct-to-main slices, a true linear stack, or a short cutover
+  Integration Branch only after its architecture is approved.
+- Issue #37 and PR #38 are already accepted on `main`. Future Media Supply
+  series shall make their own topology decision under their own parent outcome.
+  Identity's consumer relationship with Media Supply does not combine the two
+  series into one Integration Branch.
 - Current M4 remains on its approved dependency-wave and final-parent-Gate
   route. This Change does not restructure it.
 
@@ -69,10 +70,12 @@ evidence, and make Agent discussion name an Issue or PR on first reference.
 
 ## Control State
 
-- Project: Issue #53 in `GEOEval Delivery`, Status `In Progress`, Priority `P1`.
+- Project: Issue #53 in `GEOEval Delivery`, Status `Review / Decision`, Priority
+  `P1`.
 - Branch: `codex/issue-53-branch-topology` from protected `main@fbc45ec`.
-- Exit: reviewed PR, current-owner reconciliation, Change archive, Issue/Project
-  closure, and Worktree removal after merge.
+- Exit: PR #54 is authorized for squash merge; its native closing relationship
+  closes Issue #53, Project automation moves it to `Done`, and the Worktree is
+  removed only after `main` contains the verified result.
 
 ## Approval Boundary
 
@@ -80,3 +83,17 @@ The repository workflow documents, template, static validator, Issue, commits,
 push, and PR are approved. Creating an Integration Branch, installing tooling,
 changing cloud branch protection, retargeting another PR, merging, or modifying
 #50/M4/product behavior remains a separate action.
+
+## Final Disposition
+
+- The accepted topology contract is reconciled into Human-Agent Collaboration,
+  Change Tracking, Project Governance, AGENTS, and the PR template.
+- Direct-to-main remains the default; Stacked PR means a linear dependency; an
+  Integration Branch is parent-scoped, short-lived, and exceptional.
+- Each large series evaluates topology independently. Issue #50 and future
+  Media Supply work are not treated as one shared Integration Branch.
+- PR #54 has a fixed-Diff review with no remaining must-fix, both Required
+  Checks pass, and GitHub resolves its bare `Closes #53` relationship.
+- No product behavior, Schema, dependency, deployment, cloud branch setting,
+  existing PR base, or other task Worktree changed. Release remains
+  `release:skip`.

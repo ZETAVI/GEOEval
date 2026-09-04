@@ -69,6 +69,10 @@ size or agent count:
    `main` independently and one combined acceptance or rollback boundary is
    required. Do not create a permanent shared `dev` branch.
 
+Evaluate each parent outcome or product series independently. A consumer
+relationship, shared role, or sequencing dependency between two series does not
+combine them into one Integration Branch.
+
 Use this smallest decision sequence:
 
 - If the slice can stand safely on `main`, merge it through the normal PR path.

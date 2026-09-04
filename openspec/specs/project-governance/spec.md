@@ -144,6 +144,8 @@ accepted independently.
   integration owner, fixed interfaces, main-equivalent checks and review,
   current-main synchronization, a final combined gate, and delete-after-merge
   exit
+- **AND** separate parent outcomes SHALL evaluate their topology independently;
+  a consumer or sequencing dependency alone SHALL NOT combine them
 - **AND** the project SHALL NOT maintain a permanent shared `dev` branch
 
 ### Requirement: Concurrent Worktree tests own isolated resources

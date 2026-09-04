@@ -19,6 +19,8 @@ one combined acceptance or rollback boundary.
 - **THEN** they MAY use one short-lived Integration Branch with a parent Issue,
   integration owner, fixed interfaces, main-equivalent checks and review,
   current-main synchronization, final Gate, and delete-after-merge exit
+- **AND** separate parent outcomes SHALL evaluate topology independently; a
+  consumer or sequencing dependency alone SHALL NOT combine them
 - **AND** the project SHALL NOT maintain a permanent shared `dev` branch
 
 ### Requirement: Base changes invalidate affected integration evidence
