@@ -1,5 +1,13 @@
 import type { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vitest";
 
 import { createApiApp } from "../src/api-app.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
@@ -37,6 +45,7 @@ describe("Identity HTTP Session lifecycle", () => {
     await prisma.$disconnect();
   });
   beforeEach(async () => clearCustomerData(prisma));
+  afterEach(async () => clearCustomerData(prisma));
 
   it("separates current logout from self logout-all across parallel Sessions", async () => {
     const first = await login(baseUrl, "13900005101");

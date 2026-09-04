@@ -1,5 +1,13 @@
 import type { INestApplication } from "@nestjs/common";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vitest";
 
 import { createApiApp } from "../src/api-app.js";
 import { sessionDigest } from "../src/identity/domain/identity.crypto.js";
@@ -38,6 +46,7 @@ describe("Identity HTTP role and forgery boundary", () => {
     await prisma.$disconnect();
   });
   beforeEach(async () => clearCustomerData(prisma));
+  afterEach(async () => clearCustomerData(prisma));
 
   it("keeps public signup and every pre-provisioned internal login on one fixed role", async () => {
     const customer = await login(baseUrl, "13900005001", {
