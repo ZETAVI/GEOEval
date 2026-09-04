@@ -1,109 +1,63 @@
-# Change: Implement the AI Evaluation Query Generator
+# Change Proposal: Implement AI Evaluation Query Generator
 
-- Status: Approved and in implementation on the accepted Brand Knowledge
-  reference-data baseline
-- Class: Architectural implementation
+## Status
+
+- Phase: Implement
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
-- Decision owners: Product owner and architecture owner
-- Architecture direction: Confirmed by the product owner on 2026-09-01
-- Implementation authorization: The isolated Query instruction, model-output
-  contract, deterministic projector, and fixtures are complete as #26a. Brand
-  Knowledge reference data merged through #27 / PR #31, so durable preparation
-  and deterministic API/Web integration may proceed. Real calls remain a
-  separate explicit gate.
+- Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
+- Decision owner: Product owner
+- Decision brief: [decision-brief.md](decision-brief.md)
 
 ## Why
 
-The accepted evaluation journey currently creates its four questions from a
-deterministic text template. That implementation proved definition ownership,
-immutable snapshots, and the four-by-five execution path, but it cannot produce
-the natural, brand-specific questions needed for a useful real evaluation.
+GEO Intelligence 已经拥有同一品牌资料版本一套不可变四问、问题确认后才能开始评测、以及评测运行期间冻结问题等产品生命周期。旧实现曾把 AI Query Generator 建立在 v2 品牌上下文和模板式语义上，并因一次成功演示而过早归档；M4 的真实门店评测随后证明行业问题过宽、位置不具体、主打品类和可扩展特点没有得到充分利用。
 
-Replacing the template with an external model is not a local adapter swap. The
-request can take seconds, fail after the browser leaves, or be delivered twice;
-a synchronous call could therefore duplicate cost or lose the preparation
-state. This change introduces the smallest durable preparation lifecycle that
-preserves the accepted one-definition-per-brand-revision behavior.
+Snapshot v3 现已由 Brand Knowledge 提供经过验证的门店位置、主打产品或服务和 2～6 个同级特点。#26 需要在不改变正式评测生命周期的前提下，重新实现一套自然、具体、面向普通需求者的 AI 问题生成能力。
 
-## Desired outcome
+## Outcome
 
-One Agent uses the current evaluation-ready brand snapshot to produce several
-candidate angles and select one coherent four-question set. The customer sees
-only the final four read-only questions, expressed in natural Chinese close to
-how ordinary people ask for information or recommendations. The generation can
-resume after delivery or process failure without creating another question set
-for the same brand revision.
+一个版本化 Query Agent 使用一次结构化调用，根据冻结 Snapshot v3 生成最终四问：
 
-## Scope
+1. 一个明确品牌的直接问题；
+2. 一个不出现目标品牌、围绕具体位置和主打品类的行业推荐问题；
+3. 两个不出现目标品牌、基于全部特点形成互补需求场景的问题。
 
-- Replace customer-path template generation with one versioned structured
-  Query Agent call that proposes candidate angles and selects the final four
-  questions together.
-- Preserve the accepted question roles: one brand-specific current-state
-  question, one industry-recommendation question, and two recommendation
-  questions shaped by the brand's two characteristics.
-- Consume the accepted Brand Knowledge evaluation-purpose projection, which
-  owns both the approved industry selection and the
-  province-city-terminal-region selection while exposing stable identities and
-  display meaning to Query generation.
-- Persist an idempotent preparation state before any provider call and reuse the
-  existing Product Outbox, BullMQ worker, provider adapters, structured-output
-  transport, and telemetry boundary.
-- Use Qwen3.8 Flash as the primary generation route with one same-route retry,
-  then Hy3 as the provider-distinct fallback; Query generation does not use web
-  search.
-- Show concise `preparing`, `ready`, and `please retry` behavior in the existing
-  diagnosis page without exposing candidates, prompts, models, attempts, traces,
-  or internal errors.
-- Validate the Agent first with controlled Query-only profiles, including the
-  explicitly authorized 互动派科技股份有限公司 profile. After product review of
-  the four questions, run one authorized four-by-five evaluation through the
-  existing S6 pipeline.
+客户只看到最终四问并决定是否开始评测。候选、Prompt、模型、路线、尝试和内部失败保持受保护。
 
-## Non-goals
+## In Scope
 
-- Customer editing, refreshing, choosing, or scoring individual questions.
-- A second Critic Agent, programmatic style scorer, unconstrained alias
-  expansion, keyword quality rules, or other subjective semantic gate. Program
-  checks the structural contract plus one metric-protecting invariant: the
-  brand-directed question contains a natural target name validated as the full
-  company/store name or a continuous substring, while the three open questions
-  contain neither that target name nor the full name.
-- Query-Agent web search, automatic enrichment of brand facts, or factual brand
-  investigation.
-- Changes to five-platform sampling meaning, parser or overall-synthesis
-  semantics, report metrics, optimization writing, publishing, payments, or
-  production release.
-- Silent fallback to the deterministic template in a real customer path.
+- 扩展 GEO-owned Query 窄投影，使其包含城市、区县和有类型的最终 Query locality；
+- 重写版本化 Query Prompt 和跨行业参考示例；
+- 将模型输出收缩为自然品牌称呼和四个最终问题；
+- 复用现有持久准备、Product Outbox/BullMQ、AI Execution、有限重试和回退；
+- 保留一个正式 Definition、重复和并发准备幂等、失败后显式重试；
+- 更新迁移顺序、契约测试、集成测试和客户页面状态；
+- 先做确定性验证，再经单独授权做真实 Query-only 产品审查；
+- 在最终接受前对账 Current Spec、Architecture、PR 和 Worktree 状态。
+
+## Out of Scope
+
+- 客户编辑、刷新、选择候选问题或查看问题生成历史；
+- 候选列表、选择理由、Critic/Judge Agent、自然度评分器或模板回退；
+- 联网搜索、品牌事实补全或现实信息核验；
+- 修改五个平台、采样、解析、综合报告、推荐指数或报告视觉；
+- 合并 #32 或 #41 的 owner-local 变化；
+- 真实商业客户数据、生产启用、部署或自动执行最终 4×5。
 
 ## Impact
 
-- **Brand Knowledge:** is the accepted upstream owner of executable industry
-  data, authoritative administrative-region data, both dependent selectors,
-  persistence, readiness, fingerprint continuity, and the evaluation-purpose
-  projection.
-- **GEO Intelligence:** owns question-preparation state, Prompt meaning,
-  structured-output acceptance, and the immutable accepted definition.
-- **AI Execution:** gains a question-generation purpose and durable technical
-  attempts while retaining provider, route, envelope, and ambiguity ownership.
-- **Background Work:** dispatches one additional GEO-owned product event through
-  the existing Outbox/BullMQ runtime; no new queue framework is introduced.
-- **Public API and Web:** preparation becomes an asynchronous stateful contract
-  before the existing definition review and official-start behavior.
-- **Data:** additive preparation and question-generation attempt persistence.
-  Brand industry persistence changes are outside this change.
+- GEO Intelligence owns the Query projection, preparation lifecycle, model-to-domain projection, and immutable question definition.
+- Brand Knowledge remains the only owner of editable brand facts, Store Location verification, industry reference data, and fingerprint meaning.
+- AI Execution owns provider translation and append-oriented attempt evidence; it does not decide whether a question is good business output.
+- Background Work continues to own durable delivery and reconciliation; Redis remains delivery infrastructure rather than business truth.
+- The Web gains no question editor or candidate UI and continues to render only durable public state.
 
-## Control State
+## Change Classification
 
-- Documentation: this active change owns uncertain Query-generation design.
-  Accepted behavior will be reconciled into the evaluation-definition current
-  spec and architecture overview. #27 already reconciled the product catalog's
-  `move-on-activation` and region-source maintenance boundary.
-- Workspace: `codex/issue-26-query-generator` at
-  `main@3f8d815486755082f6334f4adac9480d982155d1` after the accepted #27
-  integration, owned by the primary Codex agent, merge destination protected
-  `main`, exit after verified PR merge and branch cleanup.
-- Verification boundary: deterministic lifecycle and recovery evidence,
-  migration replay, generated contracts, builds, browser behavior, one
-  controlled real Query-only review, and only then one separately authorized
-  four-by-five evaluation. Neither step proves production capacity or release.
+- Lane: feature
+- Class: architectural
+- Reason: AI boundary, durable preparation lifecycle, persistence, asynchronous delivery, external cost, and immutable history.
+
+## Approval and External Gates
+
+The product decision brief was confirmed on 2026-09-04. Implementation may proceed in the Issue-owned Worktree. Real Provider calls, final representative 4×5, Merge, production customer data, and deployment remain separate explicit gates.

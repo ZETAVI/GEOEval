@@ -1,120 +1,85 @@
-# Evaluation Definition Delta
+# Evaluation Definition Delta Specification
 
 ## MODIFIED Requirements
 
-### Requirement: Durable definition preparation
+### Requirement: Stable definition ownership
 
-GEO Intelligence SHALL prepare one immutable Agent-generated definition for
-each evaluation-ready brand fingerprint without requiring an external call to
-finish inside the initiating HTTP request.
+GEO Intelligence SHALL own one immutable Definition for each Brand evaluation fingerprint and SHALL prepare AI-generated questions through a durable, idempotent lifecycle before an official evaluation may start.
 
-#### Scenario: A ready brand enters diagnosis
+#### Scenario: A ready Brand enters diagnosis without a Definition
 
-- **WHEN** an authenticated terminal customer first prepares diagnosis for an
-  active, account-owned, evaluation-ready brand
-- **THEN** the system atomically stores one evaluation-purpose brand snapshot,
-  one idempotent preparation identity, and one reliable generation fact before
-  returning
-- **AND** repeated or concurrent preparation of the unchanged fingerprint
-  returns that same preparation or its accepted definition
-- **AND** duplicate delivery cannot send a second provider request for the same
-  numbered generation attempt
-- **AND** the customer may leave and later reopen the diagnosis page without
-  losing accepted preparation state.
+- **WHEN** an authenticated terminal customer prepares diagnosis for an active, account-owned, evaluation-ready Brand
+- **THEN** GEO freezes the current `brand-evaluation-snapshot@3`
+- **AND** creates or returns one `PREPARING` question preparation for the Brand and fingerprint
+- **AND** freezes the Query Prompt and model-output contract used by that preparation
+- **AND** commits one durable preparation-requested Outbox fact in the same transaction
+- **AND** repeated or concurrent requests return the same preparation without another business identity.
 
-#### Scenario: The Query Agent produces a complete question set
+#### Scenario: Query receives its frozen input
 
-- **WHEN** one accepted structured Agent response contains the selected
-  brand-directed, industry-recommendation, characteristic-one, and
-  characteristic-two questions
-- **THEN** the system atomically creates one immutable definition and its four
-  ordered questions from that selected set
-- **AND** only those four questions become business truth
-- **AND** candidate alternatives and selection notes remain protected technical
-  evidence rather than customer-visible questions.
+- **WHEN** the Query Agent prepares the four questions
+- **THEN** it receives only a GEO-owned projection containing company name, broader recommendation subject, city label, terminal-region label, typed Query locality, flagship product or service, and all two through six peer characteristics
+- **AND** it does not receive coordinates, exact address, Provider provenance, Brand persistence, or live Amap contracts
+- **AND** `ADDRESS_LOCALITY` remains an address locality rather than being relabelled as a business area.
 
-#### Scenario: Generation does not produce an acceptable structure
+#### Scenario: One Agent returns the final four questions
 
-- **WHEN** the primary route and its retry fail or return an invalid structural
-  contract
-- **THEN** the system uses the approved provider-distinct fallback as a new
-  recorded attempt
-- **BUT WHEN** the bounded route sequence is exhausted
-- **THEN** the preparation becomes `please retry` without consuming an official
-  evaluation opportunity
-- **AND** one explicit retry resumes the same brand-fingerprint preparation in
-  a new internal cycle rather than creating a second accepted definition.
+- **WHEN** Query generation succeeds
+- **THEN** the model returns one natural target-brand name and exactly one final string for each of the four question roles
+- **AND** the brand-directed question contains the natural target-brand name
+- **AND** the three open questions contain neither the natural target-brand name nor the full company name
+- **AND** the three open questions use the concrete location and flagship product or service as their discovery context
+- **AND** the two characteristic questions use the complete peer set to form two complementary user-need scenarios without requiring full characteristic coverage
+- **AND** GEO assigns the existing fixed kinds and ordinals and atomically accepts one immutable Definition.
 
-#### Scenario: The brand changes during preparation
+#### Scenario: The Agent chooses a natural brand name
 
-- **WHEN** an evaluation-relevant brand field changes while an earlier
-  fingerprint is preparing
-- **THEN** the earlier preparation and any accepted definition remain an
-  immutable record of their snapshot
-- **AND** the current diagnosis journey prepares the new fingerprint
-- **AND** the existing stale-definition rule prevents the earlier definition
-  from starting an official run.
+- **WHEN** the legal company or store name is less natural than a consumer-recognizable short form
+- **THEN** the Agent may use the full name or a meaningful continuous substring of it
+- **AND** program validation rejects an invented alias or a direct question that omits the chosen name
+- **AND** naturalness and brand distinctiveness remain Prompt and product-review responsibilities rather than a generic word blacklist.
 
-### Requirement: Natural complete question-set meaning
+#### Scenario: Query generation cannot produce a complete accepted result
 
-The Query Agent SHALL produce the four questions as one coherent set from the
-same frozen brand and industry context.
+- **WHEN** a Provider attempt fails or its structured output violates the accepted model or brand-name boundary
+- **THEN** the failed attempt remains append-oriented evidence
+- **AND** the bounded route policy may schedule the next attempt without resampling or creating a Definition
+- **BUT WHEN** all attempts are exhausted
+- **THEN** the preparation becomes `PLEASE_RETRY`
+- **AND** the customer may explicitly start one new sequence for the same fingerprint
+- **AND** no official evaluation opportunity is consumed.
 
-#### Scenario: The Agent constructs candidate angles
+#### Scenario: An earlier sequence completes late
 
-- **WHEN** the Agent receives the brand name, region, approved industry
-  category and recommendation subject, and two brand characteristics
-- **THEN** it may propose multiple candidate phrasings or angles for the four
-  required roles and select the best complete set in the same response
-- **AND** it may use the full company or store name, or a natural continuous
-  substring of that name, in the brand-directed question
-- **AND** the selected questions use concise, natural Chinese similar to an
-  ordinary customer, consumer, or demander's real information or recommendation
-  request, including direct search, need-first, decision, project, or pain-point
-  phrasing
-- **AND** the complete set avoids repeating one sentence pattern across all
-  four questions
-- **AND** they are specific enough to the brand context without sounding like a
-  rigid field template or exposing internal question-role terminology.
+- **WHEN** a stale sequence produces a late success after another explicit retry has advanced the preparation
+- **THEN** conditional acceptance rejects the stale result
+- **AND** it cannot replace the current sequence or create a second Definition.
 
-#### Scenario: The application accepts Agent output
+#### Scenario: An existing Definition already owns the fingerprint
 
-- **WHEN** the structured response is projected into the durable question set
-- **THEN** program logic verifies only the required four roles, order,
-  non-empty bounded content, candidate membership, structural schema, and the
-  target-name invariant
-- **AND** the selected target name is the full company/store name or a continuous
-  substring of it and appears in the brand-directed question
-- **AND** the three open questions contain neither that selected target name nor
-  the full company/store name
-- **AND** it does not replace product judgment with subjective keyword rules,
-  unconstrained alias expansion, style scoring, or a second automatic reviewer.
+- **WHEN** a deterministic or Agent-generated Definition already exists for the same Brand and fingerprint
+- **THEN** diagnosis returns that Definition
+- **AND** creates no preparation, Provider attempt, or replacement question set.
 
-### Requirement: Honest preparation presentation
+### Requirement: Honest diagnosis entry
 
-The Web SHALL distinguish question preparation from evaluation execution while
-keeping both inside the existing diagnosis journey.
+The Web SHALL expose only durable customer states for question preparation and SHALL not reveal internal AI execution.
 
-#### Scenario: Questions are still being prepared
+#### Scenario: Questions are being prepared
 
-- **WHEN** the current brand's preparation has not reached a terminal state
-- **THEN** the diagnosis page shows a concise question-preparation state and
-  refreshes from durable server state
-- **AND** it does not show fabricated questions, model details, retry counts,
-  queue state, or technical errors.
+- **WHEN** the current fingerprint has a `PREPARING` preparation and no Definition
+- **THEN** the page shows a concise preparing state
+- **AND** the customer may leave and later return without losing progress
+- **AND** Prompt, Provider, model, route, attempt, queue, trace, candidate, and internal failure details remain hidden.
 
-#### Scenario: Questions are ready or need a retry
+#### Scenario: Questions are ready
 
-- **WHEN** preparation is ready
-- **THEN** the existing four-question review and explicit official-start action
-  are shown
-- **BUT WHEN** preparation is exhausted
-- **THEN** the page shows a concise retry action that does not imply an
-  evaluation was consumed.
+- **WHEN** one accepted Definition exists
+- **THEN** the page shows only the final four read-only questions, five platform labels, and the explicit start action
+- **AND** exposes no edit, refresh, candidate-selection, or question-history capability.
 
-## Accepted dependency
+#### Scenario: Question preparation requires retry
 
-Brand Knowledge is the executable industry owner and maintained
-province-city-terminal-region source after #27 / PR #31. This delta consumes its
-stable evaluation-purpose projection and does not redefine industry or region
-selection, persistence, fingerprint, migration, or legacy-snapshot meaning.
+- **WHEN** the current preparation is `PLEASE_RETRY`
+- **THEN** the page shows the short customer state `请重试`
+- **AND** one explicit action starts the next durable preparation sequence.

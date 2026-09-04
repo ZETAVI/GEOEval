@@ -1,59 +1,44 @@
-# Decision Brief: AI Evaluation Query Generator
+# Decision Brief: Snapshot v3 上的 AI 评测问题生成
 
 ## Outcome
 
-Replace deterministic question templates with one coherent Agent-generated
-four-question set while preserving the accepted one-brand-revision,
-one-definition, and explicit-start journey.
+普通中小商户在开始免费评测前，看到一组基于当前冻结门店资料生成的自然、具体、接近真实需求者口吻的四个问题；同一资料指纹只接受一套正式问题。
 
-## Material decisions
+## Scope
 
-| Decision                           | Proposed choice                                                                                                                                                                                                      | Main tradeoff                                                                                                                                  | Owner                           |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| Generation shape                   | One Agent call proposes several angles and selects the final four questions together                                                                                                                                 | Better coherence and fewer moving parts than four independent calls; one failure affects the whole set                                         | Product owner                   |
-| Question quality                   | Natural, concise Chinese from a potential customer, consumer, or demander perspective; the Agent receives brand, region, industry recommendation subject, both characteristics, and reviewed diverse examples        | Relies on Prompt candidates and product review instead of one repeated sentence template                                                       | Product owner                   |
-| Natural target name                | The Agent selects the full name or a natural continuous substring such as `互动派`, then uses it in the brand-directed question                                                                                      | Avoids legal-name phrasing while rejecting invented translations or unrelated aliases                                                          | Product and architecture owners |
-| Application validation             | Validate the output schema, four required roles and order, bounded content, candidate membership, and the target-name invariant; the three open questions contain neither the selected target name nor the full name | Protects recommendation-index meaning without quality scoring or a Critic                                                                      | Product and architecture owners |
-| External research                  | No web search or automatic brand enrichment inside Query generation                                                                                                                                                  | Lower latency and less factual drift; brand-profile quality remains the input boundary                                                         | Product owner                   |
-| Request lifecycle                  | Persist a preparation and Outbox fact, run generation asynchronously, then atomically accept the final definition                                                                                                    | Adds one small lifecycle and public preparation state but avoids synchronous timeout, duplicate cost, and lost failure state                   | Architecture owner              |
-| Route sequence                     | Qwen3.8 Flash, one same-route retry, then Hy3 fallback                                                                                                                                                               | Reuses S6-proven structured routes; no silent template fallback in the real path                                                               | Product and architecture owners |
-| Candidate storage                  | Store only selected questions as business records; retain full candidate output in protected attempt evidence                                                                                                        | Keeps the product model small while preserving diagnosis evidence                                                                              | Architecture owner              |
-| Brand reference-data dependency    | Deliver industry and administrative-region activation as one independently mergeable Brand Knowledge change, then rebase #26 and consume its stable projection                                                       | Both selectors share the brand form, readiness, fingerprint, snapshot, and migration boundary; their data semantics remain separate            | Product and architecture owners |
-| Existing deterministic definitions | Preserve every existing definition as the accepted question set for its original brand fingerprint; Agent preparation starts only for a fingerprint with no definition                                                        | Avoids destructive migration and preserves both used and unstarted evaluation opportunities; old fingerprints keep their historical template result | Product and architecture owners |
-| Validation sequence                | Query-only review across representative profiles, then one authorized 互动派 four-by-five run                                                                                                                        | Finds question-quality problems before paying for and interpreting twenty platform samples                                                     | Product owner                   |
+- In: Snapshot v3 Query 窄投影、版本化 Prompt、最小模型输出、持久准备、有限重试与回退、不可变正式问题集和 Query-only 产品审查。
+- Out: 客户编辑或刷新问题、候选选择、自然度评分器、Critic/Judge、模板回退、联网品牌调查、生产启用与未单独授权的 4×5 调用。
 
-## Customer-visible behavior
+## Decisions
 
-- Entering diagnosis may show “正在准备评测问题”.
-- When ready, the customer reviews the same four read-only questions and starts
-  the same twenty-sample evaluation.
-- If bounded generation fails, the customer sees a short retry action; no
-  evaluation opportunity has been used.
-- The customer never sees candidate questions, Prompt, model, attempts, queue,
-  traces, or internal error classifications.
+| Decision | Choice | Rationale | Owner |
+| --- | --- | --- | --- |
+| 品牌称呼 | Agent 可选完整名称或 `companyName` 中自然、可辨识的连续子串 | 比法定全称更接近普通用户提问，同时不发明别名 | Product owner |
+| 位置语境 | Query 接收城市、区县和有类型的商圈或地址位置 | 能自然形成“广州天河猎德”，但不暴露地图技术事实 | Product owner |
+| 主打与行业 | 三个开放问题以主打产品或服务为核心；行业推荐主题只辅助理解类别 | 避免问题过宽，也不丢失“私房菜”等关键区分信息 | Product owner |
+| 特点使用 | Agent 理解全部 2～6 个同级特点，为两个问题自由选择或组合互补需求 | 不按数组顺序、不强求覆盖、不堆成长句 | Product owner |
+| 模型输出 | 一次调用只返回自然品牌称呼和四个最终问题 | 删除候选、选择序号、重复文本和无消费者说明 | Product owner |
+| Prompt 方法 | 正向定义目标、读者、输入职责、四问关系、处理顺序和完成标准，并提供少量跨行业示例 | 从任务语义提高质量，不积累症状式禁令 | Engineering owner |
+| 程序校验 | 只校验结构、长度、品牌简称连续子串和品牌出现边界 | 保护评测含义，不让静态规则冒充自然度判断 | Engineering owner |
+| 失败路径 | 有限重试和回退全部失败后显示“请重试”，不创建残缺 Definition | 保持旅程可恢复且不消耗正式评测机会 | Product owner |
 
-## Confirmed test profile
+## Acceptance Boundaries
 
-- Company: 互动派科技股份有限公司
-- Region: 广东省广州市天河区
-- Industry: `IND-06 / IND-06-07 营销策划与广告代理`
-- Recommendation subject: 营销策划或广告代理公司
-- Characteristic one: 抖音、小红书双平台官方授权一级广告代理
-- Characteristic two: 从策划到落地执行的一站式数字营销服务
+- 一个调用返回严格四问，程序赋予固定角色和顺序。
+- 品牌直接问题使用自然、可识别的目标名称；三个开放问题不包含目标品牌。
+- 三个开放问题都有明确位置和主打产品或服务语境；两个特点问题自然且互补。
+- 同一资料指纹的重复或并发准备不重复调用或创建多个正式问题集。
+- 客户只看到准备、最终四问或“请重试”，看不到 Prompt、模型、路线、Attempt 或内部错误。
+- 确定性证据先证明契约和生命周期；真实 Query-only 审查再判断自然度和针对性。
 
-The second characteristic is a concise inference from the company's official
-description of full-process service and is test input, not a permanent platform
-claim. The source boundary is recorded in `research/interaction-pie-test-profile-source-brief.md`.
+## Assumptions and Open Questions
+
+- Assumption: 已验证的 Product Outbox、BullMQ、AI Execution 和准备状态机继续复用。
+- Assumption: 确定性生成仅用于离线测试，不是客户路径的静默回退。
+- Open: 真实调用前重新核验 Qwen3.8 主路与 Hy3 回退配置；这不改变产品语义。
 
 ## Confirmation and Next Gate
 
-- Confirmation: `Confirmed` by the product owner on 2026-09-01 for one Agent,
-  multiple candidate angles, four selected questions, natural ordinary wording,
-  no refresh/edit, the validated natural-name metric invariant, the durable
-  asynchronous preparation boundary, the Qwen3.8-primary/Hy3-fallback route,
-  the additive compatibility rule, and the two-change delivery sequence.
-- Next action: review the deterministic durable-preparation slice on the
-  accepted #27 / PR #31 Brand Knowledge baseline, then run the separately
-  authorized Query-only quality batch if the fixed Diff is accepted.
-- Confirmation required before: the first controlled paid Query-only batch;
-  the later four-by-five real evaluation; PR merge; or production activation.
+- Confirmation: Confirmed by product owner on 2026-09-04.
+- Next action: Rebase 到最新 `main`，统一更新活动 Change、Prompt、Schema、实现与验证。
+- Confirmation required before: 真实 Provider 调用、最终 4×5、Merge、生产启用或部署。

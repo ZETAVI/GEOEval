@@ -1,98 +1,58 @@
-# Tasks
+# Tasks: Implement AI Evaluation Query Generator
 
-## Proposal and architecture gate
+## 1. Alignment and branch recovery
 
-- [x] Reconcile S6 and the approved industry catalog into `main`, then create
-      the independent Query Generator Issue and branch.
-- [x] Inspect the current synchronous definition path, immutable snapshot
-      contract, Product Outbox/BullMQ runtime, AI Execution attempt model, Web
-      preparation behavior, and industry-catalog evolution marker.
-- [x] Record the proposed product boundary, architecture card, failure matrix,
-      controlled test profile, and documentation impact.
-- [x] Obtain explicit product and architecture approval of the two-change
-      sequence, validated natural-name invariant, and durable preparation
-      lifecycle.
+- [x] Reopen the failed Query-quality acceptance boundary under Issue #26.
+- [x] Confirm Snapshot v3 Query semantics and the compact single-result model output.
+- [x] Record the confirmed Decision Brief and move #26 to `In Progress / P0`.
+- [x] Rebase the Issue branch onto `main@82f7056`, dropping the crossed #41 synthesis commit and premature archive commit.
+- [x] Restore the active OpenSpec Change.
 
-## Upstream brand reference-data activation
+## 2. Architecture and contracts
 
-- [x] Open an independently mergeable Brand Knowledge Issue and Change for the
-      executable industry catalog, province-city-terminal-region source,
-      dependent API/Web selectors, stable identities, `Other` phrase,
-      Readiness, evaluation-purpose projection, fingerprint continuity, and
-      `move-on-activation` reconciliation.
-- [x] Research the current authoritative administrative-region source and
-      maintained frontend data/component options from primary sources; keep the
-      region dataset distinct from the GEOEval-owned industry catalog rather
-      than inventing one universal catalog abstraction.
-- [x] Merge the verified brand reference-data activation through its own PR,
-      then rebase #26 and confirm the stable projection contract before Query
-      implementation.
+- [x] Review module ownership, lifecycle reuse, migration order, failure recovery, and cross-Issue boundaries.
+- [x] Replace the v2 text context with the Snapshot v3 Query projection.
+- [x] Add structured city, terminal-region, and typed locality context without exposing Amap evidence.
+- [x] Reduce model output to `queryTargetName` and four final question strings.
+- [x] Keep deterministic validation to the brand-name and four-role invariants.
+- [x] Re-run architecture review against the implemented revision and resolve all material findings.
 
-## Deterministic vertical slice
+## 3. Prompt and deterministic evidence
 
-- [x] Add additive question-preparation, generation-attempt, and accepted-
-      definition integrity constraints with a clean migration replay.
-- [x] Add the versioned Query Agent instruction, compact model-output schema,
-      deterministic projector, and deterministic candidate fixtures; accept
-      only one structurally complete selected four-question set whose direct
-      question contains a validated natural target name and whose open questions
-      omit both that target name and the full company/store name.
-- [x] Extend the existing Product Outbox/BullMQ coordinator and AI Execution
-      route boundary for idempotent preparation, bounded retry, ambiguity
-      recovery, exhaustion, and explicit customer retry.
-- [x] Update the authenticated API client and diagnosis page for preparing,
-      ready, and please-retry states without exposing technical details.
+- [x] Rewrite the Prompt around task outcome, reader, input responsibilities, planning order, and completion standard.
+- [x] Add a small restaurant and enterprise-service example set without turning examples into templates.
+- [x] Preserve flagship meaning, structured locality, complete peer-characteristic consideration, and complementary question roles.
+- [x] Keep the deterministic adapter as an offline fixture rather than a customer fallback.
+- [x] Pass focused Prompt identity, JSON Schema, projection, and semantic-boundary tests.
 
-## Verification and controlled validation
+## 4. Durable preparation implementation
 
-- [x] Verify unchanged-fingerprint and concurrent preparation reuse, changed-
-      fingerprint isolation, stale-definition start rejection, duplicate event
-      delivery, process interruption, route retry/fallback, exhaustion, and
-      explicit retry without duplicate accepted definitions.
-- [x] Verify that an earlier sequence's late success cannot accept a Definition
-      and concurrent explicit retries create exactly one new sequence plus one
-      first-attempt Outbox fact.
-- [x] Replay the additive migration over a database containing both used and
-      unstarted deterministic definitions, and prove both remain unchanged and
-      are observed as ready for their existing fingerprints.
-- [x] Verify the stable upstream industry-and-region projection, exact snapshot
-      semantics, cross-account denial, generated OpenAPI types, full tests,
-      builds, and a browser journey.
-- [x] Run architecture and fixed-diff code reviews; resolve every must-fix
-      finding before real calls.
-- [ ] After separate authorization, run a bounded Query-only batch across
-      representative profiles, including 互动派科技股份有限公司, and obtain product
-      review of the exact four selected questions.
-- [ ] After Query acceptance and separate authorization, run one four-by-five
-      evaluation and inspect Query, platform answers, parsing recovery, and the
-      final report without treating it as production evidence.
+- [x] Reuse Product Outbox/BullMQ, AI Execution, append-only attempts, and the existing preparation state machine.
+- [x] Reconcile the rebased Prisma schema with Snapshot v3 and current main modules.
+- [x] Rename and replay the Query preparation migration after the current migration sequence.
+- [x] Prove duplicate prepare/delivery, finite retry/fallback, exhaustion, explicit retry, stale-sequence rejection, and existing Definition reuse.
+- [x] Regenerate Prisma, OpenAPI, and the API client from source.
 
-## Reconciliation and exit
+## 5. Local verification
 
-- [ ] Reconcile accepted Query behavior into current specs and architecture,
-      review every touched evolution marker, and archive this change when
-      remaining work has a different decision boundary.
-- [ ] Record PR evidence, skipped checks, residual risks, merge decision, and
-      workspace exit state; close Issue #26 only after the merged acceptance
-      boundary is satisfied.
+- [x] Pass focused Query contract and lifecycle tests.
+- [ ] Pass backend tests, workspace typecheck, formatting, build, framework validation, Markdown links, and diff checks.
+- [ ] Replay all migrations on an isolated empty database and verify a second deploy has no pending work.
+- [x] Verify the browser journey for preparing, leave/return, ready four questions, and start; retain the focused automated `PLEASE_RETRY` evidence.
 
-## Current local evidence
+## 6. Controlled real validation
 
-- The focused Query contract suite passes eight tests covering the no-search
-  task, instruction identity and content hash, stable Brand Knowledge text
-  projection, one complete 互动派 four-question set, natural target-name
-  validation, target-name inclusion/exclusion, candidate membership, and role
-  ordering.
-- The durable preparation suite covers concurrent initiation, duplicate event
-  delivery, Qwen retry and Hy3 fallback, sequence exhaustion, concurrent
-  explicit retry, stale-sequence rejection, ambiguous-interruption recovery,
-  and direct reuse of existing deterministic definitions.
-- A migration replay on an isolated database preserved one used and one
-  unstarted four-question deterministic definition without creating synthetic
-  preparations or attempts.
-- The full backend suite, generated OpenAPI client, backend/Web type checks,
-  complete build, and browser journey pass with deterministic Provider mode.
-  Browser evidence includes the visible `preparing` state followed by one
-  ready 互动派 four-question set with no console warnings or errors.
-- No real Provider call, real four-by-five run, production activation, or
-  production-data migration was performed.
+- [ ] Recheck current Qwen3.8 and Hy3 route/model configuration without exposing credentials.
+- [ ] Obtain explicit authorization for a bounded Query-only real call batch.
+- [ ] Review exact outputs for a small restaurant, enterprise service, and another representative store; stop on the first material quality failure.
+- [ ] Iterate Prompt versions from observed outputs without adding symptom-by-symptom prohibitions.
+- [ ] After Query acceptance, obtain separate authorization for one representative 4×5 run under #39.
+
+## 7. Reconciliation and exit
+
+- [ ] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview.
+- [ ] Update Issue #26 and PR #28 with implementation, evidence, limitations, and cross-Issue handoffs.
+- [ ] Notify #32 that its stacked PR must rebase onto the stable #26 head.
+- [ ] Complete fixed-diff code review and required CI.
+- [ ] Archive this Change only after current truth is reconciled.
+- [ ] Obtain explicit Merge authorization; after merge, verify Issue/Project/branch/worktree exit state.
