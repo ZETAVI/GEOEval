@@ -255,41 +255,27 @@ function deterministicQuestionGeneration(
   userContext: Record<string, unknown>,
 ): Record<string, unknown> {
   const companyName = requiredString(userContext, "companyName");
-  const region = requiredString(userContext, "regionLabel");
+  const location = requiredRecord(userContext, "location");
+  const locality = requiredRecord(location, "locality");
+  requiredString(locality, "kind");
+  const region = [
+    requiredString(location, "cityLabel"),
+    requiredString(location, "terminalRegionLabel"),
+    requiredString(locality, "label"),
+  ]
+    .filter((value, index, values) => values.indexOf(value) === index)
+    .join("");
   const subject = requiredString(userContext, "recommendationSubject");
-  const characteristicOne = requiredString(userContext, "characteristicOne");
-  const characteristicTwo = requiredString(userContext, "characteristicTwo");
-  const selected = [
-    {
-      kind: "BRAND_DIRECTED",
-      content: `${region}${companyName}这家${subject}怎么样，主要提供哪些业务和服务，市场口碑如何？`,
-    },
-    {
-      kind: "INDUSTRY_RECOMMENDATION",
-      content: `我们准备找${subject}，${region}有哪些公司值得了解和比较？`,
-    },
-    {
-      kind: "CHARACTERISTIC_ONE",
-      content: `我们比较看重${characteristicOne}，${region}有哪些${subject}比较合适？`,
-    },
-    {
-      kind: "CHARACTERISTIC_TWO",
-      content: `想找一家在${characteristicTwo}方面有经验的${subject}，${region}有哪些选择？`,
-    },
-  ];
+  const flagship = requiredString(userContext, "flagshipProductOrService");
+  const characteristics = requiredStringArray(userContext, "characteristics");
+  const characteristicOne = characteristics[0]!;
+  const characteristicTwo = characteristics[1]!;
   return {
     queryTargetName: companyName,
-    candidateGroups: selected.map((question) => ({
-      kind: question.kind,
-      candidates: [
-        question.content,
-        question.kind === "BRAND_DIRECTED"
-          ? `${companyName}主要做什么，在${region}的整体表现怎么样？`
-          : `${region}有哪些${subject}可以满足这类需求，选择时应重点了解什么？`,
-      ],
-    })),
-    selectedQuestions: selected,
-    selectionNote: "四个问题分别覆盖品牌了解、行业选择与两个特色需求场景。",
+    brandDirected: `${region}${companyName}这家${subject}怎么样，主要提供哪些产品或服务，整体表现如何？`,
+    industryRecommendation: `想在${region}找${flagship}，有哪些${subject}值得了解和比较？`,
+    characteristicAngleOne: `想在${region}找${flagship}，比较看重${characteristicOne}，有哪些选择？`,
+    characteristicAngleTwo: `${region}附近有哪些在${characteristicTwo}方面有特点的${flagship}商家？`,
   };
 }
 
@@ -548,6 +534,20 @@ function requiredArray(input: Record<string, unknown>, key: string): unknown[] {
     throw new Error(`Deterministic AI input is missing ${key}`);
   }
   return value;
+}
+
+function requiredStringArray(
+  input: Record<string, unknown>,
+  key: string,
+): string[] {
+  const values = requiredArray(input, key);
+  if (
+    values.length < 2 ||
+    values.some((value) => typeof value !== "string" || value.length === 0)
+  ) {
+    throw new Error(`Deterministic AI input is missing ${key}`);
+  }
+  return values as string[];
 }
 
 function optionalArray(input: Record<string, unknown>, key: string): unknown[] {

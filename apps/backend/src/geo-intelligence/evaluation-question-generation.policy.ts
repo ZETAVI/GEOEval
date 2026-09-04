@@ -8,7 +8,10 @@ import {
   evaluationQuestionGenerationModelJsonSchema,
 } from "./domain/evaluation-question-generation-model.contract.js";
 import type { EvaluationBrandSnapshot } from "./domain/evaluation.types.js";
-import { evaluationBrandTextContext } from "./domain/evaluation-brand-snapshot.js";
+import {
+  evaluationBrandQueryContext,
+  type EvaluationBrandQueryContext,
+} from "./domain/evaluation-brand-snapshot.js";
 
 const assetSchema = z
   .object({
@@ -18,29 +21,13 @@ const assetSchema = z
   })
   .strict();
 
-export type EvaluationQuestionGenerationTaskContext = {
-  companyName: string;
-  regionLabel: string;
-  primaryIndustryLabel: string;
-  secondaryIndustryLabel: string;
-  recommendationSubject: string;
-  characteristicOne: string;
-  characteristicTwo: string;
-};
+export type EvaluationQuestionGenerationTaskContext =
+  EvaluationBrandQueryContext;
 
 export function evaluationQuestionGenerationTaskContext(
   snapshot: EvaluationBrandSnapshot,
 ): EvaluationQuestionGenerationTaskContext {
-  const context = evaluationBrandTextContext(snapshot);
-  return {
-    companyName: context.companyName,
-    regionLabel: context.regionLabel,
-    primaryIndustryLabel: context.primaryIndustry,
-    secondaryIndustryLabel: context.secondaryIndustry,
-    recommendationSubject: context.recommendationSubject,
-    characteristicOne: context.characteristicOne,
-    characteristicTwo: context.characteristicTwo,
-  };
+  return evaluationBrandQueryContext(snapshot);
 }
 
 const common = loadAsset("common.json");

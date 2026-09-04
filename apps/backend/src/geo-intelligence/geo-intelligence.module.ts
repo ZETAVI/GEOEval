@@ -21,6 +21,7 @@ export class GeoIntelligenceModule {
       controllers: [EvaluationController],
       providers: [
         PostgresEvaluationRepository,
+        PostgresEvaluationQuestionPreparationRepository,
         PostgresEvaluationReportRepository,
         {
           provide: EVALUATION_REPOSITORY,

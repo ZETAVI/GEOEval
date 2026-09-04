@@ -11,26 +11,35 @@ import {
   evaluationQuestionGenerationInstructionSnapshot,
   evaluationQuestionGenerationTaskContext,
 } from "../src/geo-intelligence/evaluation-question-generation.policy.js";
+import type { EvaluationBrandSnapshot } from "../src/geo-intelligence/domain/evaluation-brand-snapshot.js";
 
 const companyName = "互动派科技股份有限公司";
 
 describe("evaluation question generation contract", () => {
-  it("builds one no-search structured task from resolved brand meaning", () => {
+  it("builds one no-search structured task from the narrow Snapshot v3 Query projection", () => {
     const task = buildEvaluationQuestionGenerationTask({
       companyName,
-      regionLabel: "广东省广州市天河区",
-      primaryIndustryLabel: "企业服务与专业服务",
-      secondaryIndustryLabel: "营销策划与广告代理",
       recommendationSubject: "营销策划或广告代理公司",
-      characteristicOne: "抖音、小红书双平台官方授权一级广告代理",
-      characteristicTwo: "从策划到落地执行的一站式数字营销服务",
+      location: {
+        cityLabel: "广州市",
+        terminalRegionLabel: "天河区",
+        locality: { kind: "BUSINESS_AREA", label: "天河路" },
+      },
+      flagshipProductOrService: "抖音和小红书广告代理服务",
+      characteristics: ["双平台官方广告代理", "从策划到投放的一站式服务"],
     });
 
-    expect(task.userContext).toMatchObject({
+    expect(task.userContext).toEqual({
       capabilities: { publicSearch: false },
       companyName,
-      regionLabel: "广东省广州市天河区",
       recommendationSubject: "营销策划或广告代理公司",
+      location: {
+        cityLabel: "广州市",
+        terminalRegionLabel: "天河区",
+        locality: { kind: "BUSINESS_AREA", label: "天河路" },
+      },
+      flagshipProductOrService: "抖音和小红书广告代理服务",
+      characteristics: ["双平台官方广告代理", "从策划到投放的一站式服务"],
     });
     expect(task.outputContract.version).toBe(
       EVALUATION_QUESTION_GENERATION_MODEL_CONTRACT_VERSION,
@@ -39,11 +48,22 @@ describe("evaluation question generation contract", () => {
       $schema: "https://json-schema.org/draft/2020-12/schema",
       properties: {
         queryTargetName: {},
-        candidateGroups: {},
-        selectedQuestions: {},
-        selectionNote: {},
+        brandDirected: {},
+        industryRecommendation: {},
+        characteristicAngleOne: {},
+        characteristicAngleTwo: {},
       },
+      required: [
+        "queryTargetName",
+        "brandDirected",
+        "industryRecommendation",
+        "characteristicAngleOne",
+        "characteristicAngleTwo",
+      ],
     });
+    expect(task.outputContract.jsonSchema).not.toHaveProperty(
+      "properties.candidateGroups",
+    );
     expect(evaluationQuestionGenerationModelJsonSchema).not.toHaveProperty(
       "oneOf",
     );
@@ -51,81 +71,34 @@ describe("evaluation question generation contract", () => {
     const instruction = evaluationQuestionGenerationInstructionSnapshot();
     expect(instruction).toMatchObject({
       id: "evaluation.question-generation.profile",
-      version: "1.2.0+1.2.0",
+      version: "2.0.0+2.0.0",
     });
     expect(instruction.contentHash).toMatch(/^[a-f0-9]{64}$/);
+    expect(instruction.content).toContain("三个开放问题最重要");
     expect(instruction.content).toContain("不联网");
+    expect(instruction.content).not.toContain("candidateGroups");
+    expect(instruction.content).not.toContain("selectionNote");
   });
 
-  it("uses the accepted official path for V2 and retains legacy text compatibility", () => {
-    expect(
-      evaluationQuestionGenerationTaskContext({
-        schemaVersion: "brand-evaluation-snapshot@2",
-        companyName,
-        industry: {
-          catalogId: "industry-catalog",
-          catalogVersion: "1.0.0",
-          primary: { id: "IND-06", label: "企业服务与专业服务" },
-          secondary: { id: "IND-06-07", label: "营销策划与广告代理" },
-          otherProductOrService: null,
-          recommendationSubject: "营销策划或广告代理公司",
-        },
-        region: {
-          sourceReleaseId: "mca-administrative-divisions@2025-12-31",
-          province: { id: "beijing", label: "北京市" },
-          city: {
-            id: "beijing-repeat",
-            label: "北京市",
-            identityKind: "MUNICIPALITY_REPEAT",
-            officialDivisionId: null,
-          },
-          terminal: {
-            id: "chaoyang",
-            label: "朝阳区",
-            officialCode: "110105",
-            officialLevel: "COUNTY",
-          },
-          officialPath: [
-            {
-              id: "beijing",
-              label: "北京市",
-              officialCode: "110000",
-              officialLevel: "PROVINCE",
-            },
-            {
-              id: "chaoyang",
-              label: "朝阳区",
-              officialCode: "110105",
-              officialLevel: "COUNTY",
-            },
-          ],
-        },
-        characteristicOne: "品牌策略",
-        characteristicTwo: "内容与投放执行",
-      }),
-    ).toMatchObject({
-      regionLabel: "北京市朝阳区",
+  it("projects only the frozen v3 location, flagship, recommendation subject, and peer characteristics", () => {
+    expect(evaluationQuestionGenerationTaskContext(snapshot())).toEqual({
+      companyName,
       recommendationSubject: "营销策划或广告代理公司",
-    });
-
-    expect(
-      evaluationQuestionGenerationTaskContext({
-        companyName: "星河咖啡",
-        primaryIndustry: "本地生活",
-        secondaryIndustry: "咖啡店",
-        characteristicOne: "安静办公",
-        characteristicTwo: "手冲咖啡",
-        province: "广东省",
-        city: "广州市",
-        district: "天河区",
-      }),
-    ).toMatchObject({
-      regionLabel: "广东省广州市天河区",
-      recommendationSubject: "咖啡店",
+      location: {
+        cityLabel: "广州市",
+        terminalRegionLabel: "天河区",
+        locality: { kind: "BUSINESS_AREA", label: "天河路" },
+      },
+      flagshipProductOrService: "抖音和小红书广告代理服务",
+      characteristics: [
+        "双平台官方广告代理",
+        "从策划到投放的一站式服务",
+        "本地项目执行团队",
+      ],
     });
   });
 
-  it("projects one coherent selected four-question set", () => {
+  it("projects the four final strings into the fixed business roles", () => {
     expect(
       parseAndProjectEvaluationQuestionModelOutput(validOutput(), {
         companyName,
@@ -141,27 +114,26 @@ describe("evaluation question generation contract", () => {
         kind: "INDUSTRY_RECOMMENDATION",
         ordinal: 2,
         content:
-          "广州有哪些值得考虑的营销策划或广告代理公司，选择时可以重点看哪些方面？",
+          "我们准备做抖音和小红书推广，广州天河路附近有哪些广告代理公司值得了解？",
       },
       {
         kind: "CHARACTERISTIC_ONE",
         ordinal: 3,
         content:
-          "广州有哪些同时熟悉抖音和小红书广告投放的服务商，各自适合什么需求？",
+          "想把抖音和小红书广告交给同一家服务商，广州天河路附近有哪些选择？",
       },
       {
         kind: "CHARACTERISTIC_TWO",
         ordinal: 4,
         content:
-          "广州有哪些能从营销策划到内容制作和投放执行提供一站式服务的公司？",
+          "一个品牌项目需要从策划到投放完整执行，广州天河路附近有哪些公司可以承接？",
       },
     ]);
   });
 
   it("rejects a direct question that omits the chosen target name", () => {
     const output = validOutput();
-    output.candidateGroups[0]!.candidates[0] = "这家公司的数字营销服务怎么样？";
-    output.selectedQuestions[0]!.content = "这家公司的数字营销服务怎么样？";
+    output.brandDirected = "广州这家数字营销公司主要提供哪些服务？";
 
     expect(() =>
       parseAndProjectEvaluationQuestionModelOutput(output, { companyName }),
@@ -170,9 +142,7 @@ describe("evaluation question generation contract", () => {
 
   it("rejects an open question that forces the target brand name", () => {
     const output = validOutput();
-    output.candidateGroups[1]!.candidates[0] =
-      "互动派科技股份有限公司在广州的广告代理公司中值得推荐吗？";
-    output.selectedQuestions[1]!.content =
+    output.industryRecommendation =
       "互动派科技股份有限公司在广州的广告代理公司中值得推荐吗？";
 
     expect(() =>
@@ -189,87 +159,104 @@ describe("evaluation question generation contract", () => {
     ).toThrowError(/queryTargetName is not contained in companyName/);
   });
 
-  it("rejects a selection that is not one of its candidates", () => {
-    const output = validOutput();
-    output.selectedQuestions[2]!.content =
-      "广州有哪些适合品牌长期合作的双平台广告服务商？";
-
+  it("rejects candidate and explanation fields removed from model contract v2", () => {
     expect(() =>
-      parseAndProjectEvaluationQuestionModelOutput(output, { companyName }),
-    ).toThrowError(/CHARACTERISTIC_ONE selected content is not a candidate/);
-  });
-
-  it("rejects missing or reordered question roles", () => {
-    const output = validOutput();
-    [output.selectedQuestions[1], output.selectedQuestions[2]] = [
-      output.selectedQuestions[2]!,
-      output.selectedQuestions[1]!,
-    ];
-
-    expect(() =>
-      parseAndProjectEvaluationQuestionModelOutput(output, { companyName }),
-    ).toThrowError(
-      /selectedQuestions does not contain the required ordered roles/,
-    );
+      parseAndProjectEvaluationQuestionModelOutput(
+        {
+          ...validOutput(),
+          candidateGroups: [],
+          selectionNote: "不应再输出",
+        },
+        { companyName },
+      ),
+    ).toThrow();
   });
 });
 
 function validOutput() {
   return {
     queryTargetName: "互动派",
-    candidateGroups: [
-      {
-        kind: "BRAND_DIRECTED" as const,
-        candidates: [
-          "广州互动派这家数字营销公司怎么样，主要提供哪些业务和服务，市场口碑如何？",
-          "广州互动派主要提供哪些数字营销服务，整体表现怎么样？",
-        ],
+    brandDirected:
+      "广州互动派这家数字营销公司怎么样，主要提供哪些业务和服务，市场口碑如何？",
+    industryRecommendation:
+      "我们准备做抖音和小红书推广，广州天河路附近有哪些广告代理公司值得了解？",
+    characteristicAngleOne:
+      "想把抖音和小红书广告交给同一家服务商，广州天河路附近有哪些选择？",
+    characteristicAngleTwo:
+      "一个品牌项目需要从策划到投放完整执行，广州天河路附近有哪些公司可以承接？",
+  };
+}
+
+function snapshot(): EvaluationBrandSnapshot {
+  return {
+    schemaVersion: "brand-evaluation-snapshot@3",
+    companyName,
+    industry: {
+      catalogId: "industry-catalog",
+      catalogVersion: "1.0.0",
+      primary: { id: "IND-06", label: "企业服务与专业服务" },
+      secondary: { id: "IND-06-07", label: "营销策划与广告代理" },
+      otherProductOrService: null,
+      recommendationSubject: "营销策划或广告代理公司",
+    },
+    region: {
+      sourceReleaseId: "mca-administrative-divisions@2025-12-31",
+      province: { id: "guangdong", label: "广东省" },
+      city: {
+        id: "guangzhou",
+        label: "广州市",
+        identityKind: "OFFICIAL_DIVISION",
+        officialDivisionId: "guangzhou",
       },
-      {
-        kind: "INDUSTRY_RECOMMENDATION" as const,
-        candidates: [
-          "广州有哪些值得考虑的营销策划或广告代理公司，选择时可以重点看哪些方面？",
-          "在广州选择数字营销服务商时，有哪些公司值得了解？",
-        ],
+      terminal: {
+        id: "tianhe",
+        label: "天河区",
+        officialCode: "440106",
+        officialLevel: "COUNTY",
       },
-      {
-        kind: "CHARACTERISTIC_ONE" as const,
-        candidates: [
-          "广州有哪些同时熟悉抖音和小红书广告投放的服务商，各自适合什么需求？",
-          "想同时做抖音和小红书推广，广州有哪些广告服务商值得考虑？",
-        ],
+      officialPath: [
+        {
+          id: "guangdong",
+          label: "广东省",
+          officialCode: "440000",
+          officialLevel: "PROVINCE",
+        },
+        {
+          id: "guangzhou",
+          label: "广州市",
+          officialCode: "440100",
+          officialLevel: "PREFECTURE",
+        },
+        {
+          id: "tianhe",
+          label: "天河区",
+          officialCode: "440106",
+          officialLevel: "COUNTY",
+        },
+      ],
+    },
+    storeLocation: {
+      semanticFactId: "00000000-0000-4000-8000-000000000026",
+      placeName: "天河路项目中心",
+      formattedAddress: "广东省广州市天河区天河路123号",
+      coordinate: {
+        longitude: 113.32,
+        latitude: 23.13,
+        system: "GCJ_02",
       },
-      {
-        kind: "CHARACTERISTIC_TWO" as const,
-        candidates: [
-          "广州有哪些能从营销策划到内容制作和投放执行提供一站式服务的公司？",
-          "需要完整数字营销方案时，广州有哪些公司可以提供策划和落地执行？",
-        ],
+      queryLocality: { kind: "BUSINESS_AREA", label: "天河路" },
+      source: {
+        provider: "AMAP",
+        placeId: "fixture-interaction-pie",
+        contractVersion: "fixture@1",
+        verifiedAt: "2026-09-04T00:00:00.000Z",
       },
+    },
+    flagshipProductOrService: "抖音和小红书广告代理服务",
+    characteristics: [
+      "双平台官方广告代理",
+      "从策划到投放的一站式服务",
+      "本地项目执行团队",
     ],
-    selectedQuestions: [
-      {
-        kind: "BRAND_DIRECTED" as const,
-        content:
-          "广州互动派这家数字营销公司怎么样，主要提供哪些业务和服务，市场口碑如何？",
-      },
-      {
-        kind: "INDUSTRY_RECOMMENDATION" as const,
-        content:
-          "广州有哪些值得考虑的营销策划或广告代理公司，选择时可以重点看哪些方面？",
-      },
-      {
-        kind: "CHARACTERISTIC_ONE" as const,
-        content:
-          "广州有哪些同时熟悉抖音和小红书广告投放的服务商，各自适合什么需求？",
-      },
-      {
-        kind: "CHARACTERISTIC_TWO" as const,
-        content:
-          "广州有哪些能从营销策划到内容制作和投放执行提供一站式服务的公司？",
-      },
-    ],
-    selectionNote:
-      "四问分别覆盖品牌现状、行业选择、双平台投放需求和一站式执行需求。",
   };
 }

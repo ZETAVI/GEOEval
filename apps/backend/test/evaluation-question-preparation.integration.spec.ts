@@ -14,7 +14,8 @@ import { PostgresEvaluationRepository } from "../src/geo-intelligence/infrastruc
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import {
   clearCustomerData,
-  READY_COFFEE_BRAND_FIELDS,
+  readyCoffeeBrandInput,
+  TEST_STORE_LOCATION_RECEIPTS,
 } from "./customer-data.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
@@ -25,6 +26,7 @@ describe("durable evaluation question preparation", () => {
   const brands = new BrandService(
     new PostgresBrandRepository(prisma),
     new BrandReferenceData(),
+    TEST_STORE_LOCATION_RECEIPTS,
   );
   let accountId: string;
 
@@ -189,12 +191,19 @@ describe("durable evaluation question preparation", () => {
       brandId: brand.id,
       inputFingerprint: purpose.inputFingerprint,
       brandSnapshot: {
-        schemaVersion: "brand-evaluation-snapshot@2",
+        schemaVersion: "brand-evaluation-snapshot@3",
         companyName: purpose.companyName,
         industry: purpose.industry,
         region: purpose.region,
-        characteristicOne: purpose.characteristicOne,
-        characteristicTwo: purpose.characteristicTwo,
+        storeLocation: {
+          ...purpose.storeLocation,
+          source: {
+            ...purpose.storeLocation.source,
+            verifiedAt: purpose.storeLocation.source.verifiedAt.toISOString(),
+          },
+        },
+        flagshipProductOrService: purpose.flagshipProductOrService,
+        characteristics: purpose.characteristics,
       },
       questionGenerator: {
         id: "evaluation.question-generation",
@@ -306,11 +315,13 @@ describe("durable evaluation question preparation", () => {
   }
 
   async function createReadyBrand() {
-    return brands.create(accountId, {
-      companyName: "互动派科技股份有限公司",
-      ...READY_COFFEE_BRAND_FIELDS,
-      contactMobile: "+8613900000261",
-    });
+    return brands.create(
+      accountId,
+      readyCoffeeBrandInput(accountId, {
+        companyName: "互动派科技股份有限公司",
+        contactMobile: "+8613900000261",
+      }),
+    );
   }
 });
 

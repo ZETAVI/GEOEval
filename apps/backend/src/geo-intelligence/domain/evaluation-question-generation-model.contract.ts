@@ -6,7 +6,7 @@ import type {
 } from "./evaluation.types.js";
 
 export const EVALUATION_QUESTION_GENERATION_MODEL_CONTRACT_VERSION =
-  "evaluation.question-generation-model@1";
+  "evaluation.question-generation-model@2";
 export const EVALUATION_QUESTION_SET_CONTRACT_VERSION =
   "evaluation.question-set@1";
 
@@ -17,31 +17,12 @@ const QUESTION_KINDS = [
   "CHARACTERISTIC_TWO",
 ] as const satisfies readonly EvaluationQuestionKind[];
 
-const questionKindSchema = z.enum(QUESTION_KINDS);
 const questionText = z
   .string()
   .trim()
   .min(1)
   .max(240)
   .describe("自然、完整的中文问题，不包含答案或内部说明。");
-
-const candidateGroupSchema = z
-  .object({
-    kind: questionKindSchema,
-    candidates: z
-      .array(questionText)
-      .min(2)
-      .max(3)
-      .describe("该问题角色的不同自然提问角度。"),
-  })
-  .strict();
-
-const selectedQuestionSchema = z
-  .object({
-    kind: questionKindSchema,
-    content: questionText.describe("从对应 candidates 中逐字选择的问题。"),
-  })
-  .strict();
 
 export const evaluationQuestionGenerationModelOutputSchema = z
   .object({
@@ -53,20 +34,18 @@ export const evaluationQuestionGenerationModelOutputSchema = z
       .describe(
         "针对性问题使用的自然品牌称呼，必须是 companyName 本身或其中连续出现的有效简称。",
       ),
-    candidateGroups: z
-      .array(candidateGroupSchema)
-      .length(4)
-      .describe("按固定角色顺序排列的四组候选问题。"),
-    selectedQuestions: z
-      .array(selectedQuestionSchema)
-      .length(4)
-      .describe("按固定角色顺序排列的最终四问。"),
-    selectionNote: z
-      .string()
-      .trim()
-      .min(1)
-      .max(300)
-      .describe("仅供内部理解候选取舍的简短说明。"),
+    brandDirected: questionText.describe(
+      "明确写出 queryTargetName、用于了解该品牌业务与整体表现的问题。",
+    ),
+    industryRecommendation: questionText.describe(
+      "不写目标品牌、围绕具体位置和主打产品或服务的行业发现问题。",
+    ),
+    characteristicAngleOne: questionText.describe(
+      "不写目标品牌、结合特点形成的第一个自然需求场景。",
+    ),
+    characteristicAngleTwo: questionText.describe(
+      "不写目标品牌、与第一个场景互补的第二个自然需求场景。",
+    ),
   })
   .strict();
 
@@ -92,26 +71,12 @@ export function parseAndProjectEvaluationQuestionModelOutput(
 ): GeneratedEvaluationQuestion[] {
   const output = evaluationQuestionGenerationModelOutputSchema.parse(input);
   const issues: string[] = [];
-  assertOrderedKinds(
-    output.candidateGroups.map((group) => group.kind),
-    "candidateGroups",
-    issues,
-  );
-  assertOrderedKinds(
-    output.selectedQuestions.map((question) => question.kind),
-    "selectedQuestions",
-    issues,
-  );
-
-  for (const [index, selected] of output.selectedQuestions.entries()) {
-    const group = output.candidateGroups[index];
-    if (
-      group?.kind === selected.kind &&
-      !group.candidates.includes(selected.content)
-    ) {
-      issues.push(`${selected.kind} selected content is not a candidate`);
-    }
-  }
+  const questions = [
+    output.brandDirected,
+    output.industryRecommendation,
+    output.characteristicAngleOne,
+    output.characteristicAngleTwo,
+  ];
 
   const normalizedCompanyName = normalizeExactName(context.companyName);
   const normalizedQueryTargetName = normalizeExactName(output.queryTargetName);
@@ -120,22 +85,23 @@ export function parseAndProjectEvaluationQuestionModelOutput(
   } else if (!normalizedCompanyName.includes(normalizedQueryTargetName)) {
     issues.push("queryTargetName is not contained in companyName");
   } else {
-    for (const selected of output.selectedQuestions) {
-      const normalizedContent = normalizeExactName(selected.content);
+    for (const [index, question] of questions.entries()) {
+      const normalizedContent = normalizeExactName(question);
       const containsQueryTargetName = normalizedContent.includes(
         normalizedQueryTargetName,
       );
       const containsFullCompanyName = normalizedContent.includes(
         normalizedCompanyName,
       );
-      if (selected.kind === "BRAND_DIRECTED" && !containsQueryTargetName) {
+      const kind = QUESTION_KINDS[index]!;
+      if (kind === "BRAND_DIRECTED" && !containsQueryTargetName) {
         issues.push("BRAND_DIRECTED does not contain queryTargetName");
       }
       if (
-        selected.kind !== "BRAND_DIRECTED" &&
+        kind !== "BRAND_DIRECTED" &&
         (containsQueryTargetName || containsFullCompanyName)
       ) {
-        issues.push(`${selected.kind} contains the target brand name`);
+        issues.push(`${kind} contains the target brand name`);
       }
     }
   }
@@ -144,24 +110,11 @@ export function parseAndProjectEvaluationQuestionModelOutput(
     throw new EvaluationQuestionGenerationSemanticError(issues);
   }
 
-  return output.selectedQuestions.map((question, index) => ({
-    kind: question.kind,
+  return questions.map((content, index) => ({
+    kind: QUESTION_KINDS[index]!,
     ordinal: index + 1,
-    content: question.content,
+    content,
   }));
-}
-
-function assertOrderedKinds(
-  actual: EvaluationQuestionKind[],
-  field: string,
-  issues: string[],
-): void {
-  if (
-    actual.length !== QUESTION_KINDS.length ||
-    actual.some((kind, index) => kind !== QUESTION_KINDS[index])
-  ) {
-    issues.push(`${field} does not contain the required ordered roles`);
-  }
 }
 
 function normalizeExactName(value: string): string {
