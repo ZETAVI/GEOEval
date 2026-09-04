@@ -71,10 +71,10 @@ describe("evaluation question generation contract", () => {
     const instruction = evaluationQuestionGenerationInstructionSnapshot();
     expect(instruction).toMatchObject({
       id: "evaluation.question-generation.profile",
-      version: "2.0.0+2.0.0",
+      version: "2.3.0+2.0.0",
     });
     expect(instruction.contentHash).toMatch(/^[a-f0-9]{64}$/);
-    expect(instruction.content).toContain("三个开放问题最重要");
+    expect(instruction.content).toContain("共同限定三个开放问题");
     expect(instruction.content).toContain("不联网");
     expect(instruction.content).not.toContain("candidateGroups");
     expect(instruction.content).not.toContain("selectionNote");

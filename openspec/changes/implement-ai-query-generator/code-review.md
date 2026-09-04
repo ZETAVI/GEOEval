@@ -50,13 +50,18 @@ The implementation matches the approved boundary:
   confirmed that Model Studio exposes `qwen3.8-flash` and TokenHub exposes
   `hy3`; no content generation was performed.
 
+## Post-review real-model evidence
+
+- The bounded Query-only batch accepted Prompt 2.3.0 after observed-output
+  iterations across restaurant, enterprise-service, and consumer-electronics
+  stores. One Qwen timeout recovered through its same route; one Hy3 fallback
+  output also passed the model and product review. See
+  [real-query-review.md](real-query-review.md).
+
 ## Remaining gates
 
-- Real-model Query quality is not established by deterministic evidence. A
-  separately authorized, bounded Query-only batch must review exact outputs and
-  may revise the Prompt from observed behavior.
-- The rebased branch has not yet been published, so CI has not evaluated this
-  revision and #32 has not yet been handed its stable base.
+- The rebased branch is published and #32 / PR #35 have received the stable-base
+  handoff. Required CI must pass again on the final Prompt revision.
 - Accepted current specs and architecture remain unchanged until Query quality
   is accepted; reconciliation and Change archival are intentionally pending.
 - A representative 4 x 5 evaluation belongs to #39 and requires separate
@@ -64,4 +69,4 @@ The implementation matches the approved boundary:
 
 ## Result
 
-`ready for controlled real Query validation`
+`ready for reconciliation after final revision verification`

@@ -43,16 +43,16 @@
 ## 6. Controlled real validation
 
 - [x] Recheck current Qwen3.8 and Hy3 route/model configuration without exposing credentials.
-- [ ] Obtain explicit authorization for a bounded Query-only real call batch.
-- [ ] Review exact outputs for a small restaurant, enterprise service, and another representative store; stop on the first material quality failure.
-- [ ] Iterate Prompt versions from observed outputs without adding symptom-by-symptom prohibitions.
+- [x] Obtain explicit authorization for a bounded Query-only real call batch.
+- [x] Review exact outputs for a small restaurant, enterprise service, and another representative store; stop on the first material quality failure.
+- [x] Iterate Prompt versions from observed outputs without adding symptom-by-symptom prohibitions.
 - [ ] After Query acceptance, obtain separate authorization for one representative 4×5 run under #39.
 
 ## 7. Reconciliation and exit
 
-- [ ] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview.
+- [x] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview.
 - [ ] Update Issue #26 and PR #28 with implementation, evidence, limitations, and cross-Issue handoffs.
-- [ ] Notify #32 that its stacked PR must rebase onto the stable #26 head.
+- [x] Notify #32 that its stacked PR must rebase onto the stable #26 head.
 - [x] Complete fixed-diff code review.
 - [ ] Pass required CI on the published revision.
 - [ ] Archive this Change only after current truth is reconciled.
