@@ -5,7 +5,7 @@
 - Owning Issue: [#32](https://github.com/ZETAVI/GEOEval/issues/32)
 - Parent result: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Integration base: `main@18b69d0`
-- Prior boundary: [`simplify-sample-parser-projection`](../archive/2026-09-01-simplify-sample-parser-projection/proposal.md)
+- Prior boundary: [`simplify-sample-parser-projection`](../2026-09-01-simplify-sample-parser-projection/proposal.md)
 
 ## Why
 

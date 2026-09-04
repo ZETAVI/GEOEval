@@ -30,9 +30,11 @@
       remove known provider constants without defect evidence.
 - [x] Make the model-facing 8/10/2 limits authoritative and remove the fallback
       that treated a literal brand name as open-position evidence.
-- [ ] Re-run focused and full evidence on the corrected latest-main Diff, archive
-      this Change, publish the rewritten PR branch and complete integration
-      closeout.
+- [x] Re-run focused and full evidence on the corrected latest-main Diff and
+      complete the final intent, architecture, code and evidence review without
+      a remaining material finding.
+- [x] Reconcile the accepted behavior into the current spec and architecture
+      owner, then archive this stable Change in the final PR transaction.
 
 ## Verification evidence
 
