@@ -36,8 +36,8 @@
 ## 5. Local verification
 
 - [x] Pass focused Query contract and lifecycle tests.
-- [ ] Pass backend tests, workspace typecheck, formatting, build, framework validation, Markdown links, and diff checks.
-- [ ] Replay all migrations on an isolated empty database and verify a second deploy has no pending work.
+- [x] Pass backend tests, workspace typecheck, formatting, build, framework validation, Markdown links, and diff checks.
+- [x] Replay all migrations on an isolated empty database and verify a second deploy has no pending work.
 - [x] Verify the browser journey for preparing, leave/return, ready four questions, and start; retain the focused automated `PLEASE_RETRY` evidence.
 
 ## 6. Controlled real validation
@@ -53,6 +53,7 @@
 - [ ] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview.
 - [ ] Update Issue #26 and PR #28 with implementation, evidence, limitations, and cross-Issue handoffs.
 - [ ] Notify #32 that its stacked PR must rebase onto the stable #26 head.
-- [ ] Complete fixed-diff code review and required CI.
+- [x] Complete fixed-diff code review.
+- [ ] Pass required CI on the published revision.
 - [ ] Archive this Change only after current truth is reconciled.
 - [ ] Obtain explicit Merge authorization; after merge, verify Issue/Project/branch/worktree exit state.
