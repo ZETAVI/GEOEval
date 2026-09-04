@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+
+import { Client } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { AccountGovernanceService } from "../src/identity/application/account-governance.service.js";
@@ -10,9 +13,8 @@ const config = loadIntegrationApiConfig();
 
 describe("administrator account governance", () => {
   const prisma = new PrismaService(config.databaseUrl);
-  const governance = new AccountGovernanceService(
-    new PostgresIdentityRepository(prisma),
-  );
+  const repository = new PostgresIdentityRepository(prisma);
+  const governance = new AccountGovernanceService(repository);
 
   beforeAll(async () => prisma.$connect());
   afterAll(async () => prisma.$disconnect());
@@ -179,6 +181,112 @@ describe("administrator account governance", () => {
         mutation: { kind: "STATUS", status: "INACTIVE" },
       }),
     ).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("serializes Session creation behind account deactivation", async () => {
+    const administrator = await createAdministrator(prisma, 11);
+    const target = await prisma.account.create({
+      data: { mobile: "+8613800138212", role: "OPERATIONS" },
+    });
+    const challengeId = randomUUID();
+    const now = new Date();
+    await prisma.mobileChallenge.create({
+      data: {
+        id: challengeId,
+        mobile: target.mobile,
+        codeDigest: "1".repeat(64),
+        expiresAt: new Date(now.getTime() + 60_000),
+      },
+    });
+
+    const advisoryKey = 500_050;
+    const blocker = new Client({ connectionString: config.databaseUrl });
+    const observer = new Client({ connectionString: config.databaseUrl });
+    let released = false;
+    let deactivation: Promise<unknown> | undefined;
+    let completion: Promise<unknown> | undefined;
+    await Promise.all([blocker.connect(), observer.connect()]);
+    try {
+      await installGovernanceAuditHold(prisma, advisoryKey);
+      await blocker.query("SELECT pg_advisory_lock($1)", [advisoryKey]);
+      deactivation = governance.changeAccount({
+        actorAccountId: administrator.id,
+        targetAccountId: target.id,
+        expectedRevision: 1,
+        reason: "HOLD_AUTH_DEACTIVATION",
+        mutation: { kind: "STATUS", status: "INACTIVE" },
+      });
+      await waitForDatabaseWait(observer, "advisory");
+
+      completion = repository.completeChallenge({
+        challengeId,
+        mobile: target.mobile,
+        sessionDigest: "2".repeat(64),
+        customerAbsoluteMs: 60_000,
+        customerIdleMs: 60_000,
+        internalAbsoluteMs: 60_000,
+        internalIdleMs: 60_000,
+        maximumFailedAttempts: 5,
+        now,
+      });
+      await waitForDatabaseWait(observer, "account");
+
+      await blocker.query("SELECT pg_advisory_unlock($1)", [advisoryKey]);
+      released = true;
+      await expect(deactivation).resolves.toMatchObject({
+        status: "INACTIVE",
+        revision: 2,
+      });
+      await expect(completion).resolves.toBeUndefined();
+    } finally {
+      if (!released) {
+        await blocker.query("SELECT pg_advisory_unlock($1)", [advisoryKey]);
+      }
+      await Promise.allSettled(
+        [deactivation, completion].filter(
+          (operation): operation is Promise<unknown> => Boolean(operation),
+        ),
+      );
+      await removeGovernanceAuditHold(prisma);
+      await Promise.all([blocker.end(), observer.end()]);
+    }
+
+    expect(
+      await prisma.account.findUniqueOrThrow({ where: { id: target.id } }),
+    ).toMatchObject({ status: "INACTIVE", revision: 2 });
+    expect(
+      await prisma.accountSession.count({ where: { accountId: target.id } }),
+    ).toBe(0);
+  });
+
+  it("fails closed when the Governance control row is missing", async () => {
+    const administrator = await createAdministrator(prisma, 12);
+    const target = await prisma.account.create({
+      data: { mobile: "+8613800138213", role: "OPERATIONS" },
+    });
+    await prisma.identityGovernanceControl.delete({ where: { id: "GLOBAL" } });
+    try {
+      await expect(
+        governance.changeAccount({
+          actorAccountId: administrator.id,
+          targetAccountId: target.id,
+          expectedRevision: 1,
+          reason: "控制状态缺失时拒绝治理",
+          mutation: { kind: "STATUS", status: "INACTIVE" },
+        }),
+      ).rejects.toMatchObject({
+        response: { code: "GOVERNANCE_CONTROL_UNAVAILABLE" },
+      });
+    } finally {
+      await prisma.identityGovernanceControl.create({
+        data: { id: "GLOBAL" },
+      });
+    }
+
+    expect(
+      await prisma.account.findUniqueOrThrow({ where: { id: target.id } }),
+    ).toMatchObject({ status: "ACTIVE", revision: 1 });
+    expect(await prisma.identityGovernanceAudit.count()).toBe(0);
   });
 
   it("serializes competing demotions and always retains one active administrator", async () => {
@@ -387,4 +495,61 @@ async function removeGovernanceAuditFailure(
   await prisma.$executeRawUnsafe(
     "DROP FUNCTION IF EXISTS geoeval_test_fail_governance_audit()",
   );
+}
+
+async function installGovernanceAuditHold(
+  prisma: PrismaService,
+  advisoryKey: number,
+): Promise<void> {
+  await removeGovernanceAuditHold(prisma);
+  await prisma.$executeRawUnsafe(`
+    CREATE FUNCTION geoeval_test_hold_governance_audit()
+    RETURNS trigger AS $$
+    BEGIN
+      IF NEW.reason = 'HOLD_AUTH_DEACTIVATION' THEN
+        PERFORM pg_advisory_xact_lock(${advisoryKey});
+      END IF;
+      RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql
+  `);
+  await prisma.$executeRawUnsafe(`
+    CREATE TRIGGER geoeval_test_hold_governance_audit
+    BEFORE INSERT ON identity_governance_audits
+    FOR EACH ROW EXECUTE FUNCTION geoeval_test_hold_governance_audit()
+  `);
+}
+
+async function removeGovernanceAuditHold(prisma: PrismaService): Promise<void> {
+  await prisma.$executeRawUnsafe(`
+    DROP TRIGGER IF EXISTS geoeval_test_hold_governance_audit
+    ON identity_governance_audits
+  `);
+  await prisma.$executeRawUnsafe(
+    "DROP FUNCTION IF EXISTS geoeval_test_hold_governance_audit()",
+  );
+}
+
+async function waitForDatabaseWait(
+  observer: Client,
+  kind: "advisory" | "account",
+): Promise<void> {
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    const result = await observer.query<{ count: string }>(
+      kind === "advisory"
+        ? `SELECT count(*)::text AS count
+           FROM pg_stat_activity
+           WHERE datname = current_database()
+             AND wait_event = 'advisory'`
+        : `SELECT count(*)::text AS count
+           FROM pg_stat_activity
+           WHERE datname = current_database()
+             AND wait_event_type = 'Lock'
+             AND wait_event <> 'advisory'
+             AND query ILIKE '%accounts%'`,
+    );
+    if (Number(result.rows[0]?.count ?? 0) > 0) return;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`Timed out waiting for ${kind} database lock`);
 }

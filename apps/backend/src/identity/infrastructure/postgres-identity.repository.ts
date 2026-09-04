@@ -350,10 +350,14 @@ export class PostgresIdentityRepository implements IdentityRepository {
       });
       if (consumed.count !== 1) return undefined;
 
-      const account = await transaction.account.upsert({
+      const candidate = await transaction.account.upsert({
         where: { mobile: input.mobile },
         create: { mobile: input.mobile, lastAuthenticatedAt: input.now },
         update: {},
+      });
+      await lockAccount(transaction, candidate.id);
+      const account = await transaction.account.findUniqueOrThrow({
+        where: { id: candidate.id },
       });
       if (account.status !== "ACTIVE") return undefined;
 
@@ -766,12 +770,33 @@ function auditState(account: Account): Prisma.InputJsonObject {
 async function lockGovernance(
   transaction: GovernanceTransaction,
 ): Promise<void> {
-  await transaction.$queryRaw`
+  const controls = await transaction.$queryRaw<Array<{ id: string }>>`
     SELECT id
     FROM identity_governance_controls
     WHERE id = 'GLOBAL'
     FOR UPDATE
   `;
+  if (controls.length !== 1) {
+    throw new IdentityGovernanceError(
+      "GOVERNANCE_CONTROL_UNAVAILABLE",
+      "账号治理控制状态不可用",
+    );
+  }
+}
+
+async function lockAccount(
+  transaction: GovernanceTransaction,
+  accountId: string,
+): Promise<void> {
+  const accounts = await transaction.$queryRaw<Array<{ id: string }>>`
+    SELECT id
+    FROM accounts
+    WHERE id = ${accountId}::uuid
+    FOR UPDATE
+  `;
+  if (accounts.length !== 1) {
+    throw new IdentityGovernanceError("ACCOUNT_NOT_FOUND", "账号不存在");
+  }
 }
 
 async function requireActiveAdministrator(

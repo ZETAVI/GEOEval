@@ -270,6 +270,14 @@ describe("Identity HTTP role and forgery boundary", () => {
       },
     );
     expect(nullStatus.status).toBe(400);
+    const repeatedSearch = await fetch(
+      `${baseUrl}/admin/accounts?search=139&search=138`,
+      { headers: { cookie: administrator.cookie } },
+    );
+    expect(repeatedSearch.status).toBe(400);
+    expect(await repeatedSearch.json()).toMatchObject({
+      message: "search 必须是单个字符串",
+    });
     expect(await prisma.identityGovernanceAudit.count()).toBe(0);
   });
 });

@@ -43,11 +43,6 @@ export class IdentityModule {
         { provide: APP_GUARD, useExisting: CsrfGuard },
         { provide: APP_GUARD, useExisting: AccessGuard },
       ],
-      exports: [
-        AuthenticationService,
-        SessionService,
-        AccountGovernanceService,
-      ],
     };
   }
 }

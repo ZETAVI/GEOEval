@@ -43,35 +43,42 @@ export class AccountGovernanceService {
   ) {}
 
   listAccounts(input: {
-    search?: string;
-    role?: string;
-    status?: string;
-    cursor?: string;
-    limit?: string;
+    search?: unknown;
+    role?: unknown;
+    status?: unknown;
+    cursor?: unknown;
+    limit?: unknown;
   }): Promise<AccountListPage> {
+    const search = parseOptionalSearch(input.search);
     return this.repository.listAccounts({
-      ...(input.search?.trim() ? { search: input.search.trim() } : {}),
-      ...(input.role ? { role: parseRole(input.role) } : {}),
-      ...(input.status ? { status: parseStatus(input.status) } : {}),
-      ...(input.cursor ? { cursor: parseCursor(input.cursor) } : {}),
+      ...(search ? { search } : {}),
+      ...(input.role !== undefined ? { role: parseRole(input.role) } : {}),
+      ...(input.status !== undefined
+        ? { status: parseStatus(input.status) }
+        : {}),
+      ...(input.cursor !== undefined
+        ? { cursor: parseCursor(input.cursor) }
+        : {}),
       limit: parseLimit(input.limit),
       now: new Date(),
     });
   }
 
   listAudits(input: {
-    targetAccountId?: string;
-    cursor?: string;
-    limit?: string;
+    targetAccountId?: unknown;
+    cursor?: unknown;
+    limit?: unknown;
   }): Promise<{
     items: IdentityGovernanceAuditView[];
     nextCursor: string | null;
   }> {
     return this.repository.listGovernanceAudits({
-      ...(input.targetAccountId
+      ...(input.targetAccountId !== undefined
         ? { targetAccountId: parseAccountId(input.targetAccountId) }
         : {}),
-      ...(input.cursor ? { cursor: parseCursor(input.cursor) } : {}),
+      ...(input.cursor !== undefined
+        ? { cursor: parseCursor(input.cursor) }
+        : {}),
       limit: parseLimit(input.limit),
     });
   }
@@ -178,8 +185,24 @@ function parseReason(value: unknown): string {
   return reason;
 }
 
-function parseLimit(value: string | undefined): number {
+function parseOptionalSearch(value: unknown): string | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string") {
+    throw new BadRequestException("search 必须是单个字符串");
+  }
+  const search = value.trim();
+  if (!search) return undefined;
+  if (search.length > 20) {
+    throw new BadRequestException("search 长度不能超过 20 个字符");
+  }
+  return search;
+}
+
+function parseLimit(value: unknown): number {
   if (value === undefined) return 20;
+  if (typeof value !== "string") {
+    throw new BadRequestException("limit 必须是单个整数");
+  }
   const limit = Number(value);
   if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
     throw new BadRequestException("limit 必须是 1 到 100 的整数");
@@ -187,8 +210,9 @@ function parseLimit(value: string | undefined): number {
   return limit;
 }
 
-function parseCursor(value: string): string {
+function parseCursor(value: unknown): string {
   if (
+    typeof value === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
       value,
     )
@@ -198,7 +222,7 @@ function parseCursor(value: string): string {
   throw new BadRequestException("cursor 格式不正确");
 }
 
-function parseAccountId(value: string): string {
+function parseAccountId(value: unknown): string {
   try {
     return parseCursor(value);
   } catch {
