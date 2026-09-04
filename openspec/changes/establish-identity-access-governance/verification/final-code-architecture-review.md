@@ -2,9 +2,10 @@
 
 Date: 2026-09-04
 
-- Fixed comparison base: `82f70564889698d501129b5188f4046a1a20dfa9`.
-- Reviewed head before reconciliation: `a267115`.
-- Reviewed scope: 121 files, 12,360 additions, and 727 deletions across the
+- Fixed comparison base:
+  `origin/main@18b69d0bdd97752d1f2fde8504564062beb8a62f`.
+- Reviewed head after current-truth reconciliation and main sync: `727d431`.
+- Reviewed scope: 128 files, 13,256 additions, and 800 deletions across the
   approved Issue #50 Identity, authenticated-access, generated-contract, role-
   entry, administrator-workspace, migration, test, and evidence boundary.
 - Review method: approved proposal/spec/task trace, architecture-boundary
@@ -55,6 +56,14 @@ before this verdict.
 | Should fix | The rollback evidence could be read as authorization for old code after new status/idle-expiry semantics activate | `a267115` limits the proof to pre-activation rollback and requires a separate human-approved post-activation invalidation plan |
 | Improve | A remaining test filename described the retired `RoleGuard` | `b4abe59` renames it to the current access contract |
 
+After the initial review, Issue #26 Query Generator entered `main`. Four textual
+conflicts and the automatically merged shared surfaces were reviewed by owner,
+not by choosing one side wholesale. The merged schema retains both Account
+relation families, all new Query endpoints consume `CurrentPrincipal`, the HTTP
+test keeps both the Query harness and CSRF headers, generated contracts contain
+both APIs, and Architecture Overview retains both current boundaries. The
+post-merge complete regression is the final evidence.
+
 No unresolved must-fix or should-fix code finding remains in the reviewed diff.
 
 ## Architecture qualities
@@ -82,7 +91,7 @@ No unresolved must-fix or should-fix code finding remains in the reviewed diff.
 
 ## Evidence continuity and residual gates
 
-The aggregate result is 39 backend files / 207 tests and 10 Web files / 52
+The aggregate result is 41 backend files / 219 tests and 11 Web files / 56
 tests, plus typecheck, production build, formatting, framework, migration,
 generated-contract, Diff, rollback, and browser evidence. The evidence files
 record their exact targets and cleanup rather than relying on this review as a

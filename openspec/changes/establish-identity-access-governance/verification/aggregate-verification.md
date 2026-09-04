@@ -4,11 +4,13 @@ Date: 2026-09-04
 
 ## Scope and isolation
 
-- Verified revision: `a267115` on
+- Verified revision: `727d431` on
   `codex/issue-50-identity-access-governance`.
-- Comparison base: `82f70564889698d501129b5188f4046a1a20dfa9`.
+- Current PR comparison base:
+  `origin/main@18b69d0bdd97752d1f2fde8504564062beb8a62f`.
 - PostgreSQL target:
-  `geoeval_issue50_final_verify_20260904`, created empty only for this pass.
+  `geoeval_issue50_final_merged_20260904`, created empty only for the
+  authoritative post-main-merge pass.
 - Redis target: DB 2, confirmed empty before this pass. The shared DB 0 was not
   selected.
 - No provider call, real SMS, real account, production database, deployment, or
@@ -18,10 +20,10 @@ Date: 2026-09-04
 
 | Claim | Evidence | Result |
 | --- | --- | --- |
-| All database changes deploy from empty | `pnpm db:migrate` against the dedicated database | 21/21 migrations applied |
+| All database changes deploy from empty | `pnpm db:migrate` against the dedicated database | 22/22 migrations applied |
 | Migration owner is current | Prisma migration status against the dedicated database | Schema up to date |
-| Complete backend behavior is preserved | `DATABASE_URL=<dedicated> REDIS_URL=.../2 pnpm test` | 39 files / 207 tests passed |
-| Complete Web behavior is preserved | `pnpm --filter @geoeval/web test` | 10 files / 52 tests passed |
+| Complete backend behavior is preserved | `DATABASE_URL=<dedicated> REDIS_URL=.../2 pnpm test` | 41 files / 219 tests passed |
+| Complete Web behavior is preserved | `pnpm --filter @geoeval/web test` | 11 files / 56 tests passed |
 | Workspace contracts typecheck | `pnpm typecheck` | Backend, generated client, and Web passed |
 | Production artifacts compile | `pnpm build` | Prisma/OpenAPI generation, backend, client, and 12 Web routes passed |
 | Checked source formatting is current | `pnpm format:check` | Passed |
@@ -44,15 +46,20 @@ failure.
   narrow layout, dangerous-dialog behavior, and session states. Later Web code
   only routes embedded Media editor authentication failures through the same
   shared state and removes unused presentation constants; its failure handling
-  is covered by the 52-test Web regression.
+  is covered by the 56-test Web regression.
+- The latest `main` adds the accepted Issue #26 Query Generator. The semantic
+  merge keeps its Account relation, migration, generated API, Web prewarm, and
+  definition-observe/prepare/retry behavior while moving all new authenticated
+  controller paths through `CurrentPrincipal`. The post-merge aggregate run is
+  authoritative over the earlier 21-migration result.
 - The migration/application rollback rehearsal remains the compatibility proof.
   It is explicitly bounded to pre-activation rollback and does not authorize old
   code after new account/Session security semantics become active.
 
 ## Cleanup
 
-The aggregate test process left one synthetic Account, two Sessions, one
-Challenge, one Challenge-rate row, one Identity audit, and one Redis DB 2 key in
+The authoritative aggregate test process left one synthetic Account, two
+Sessions, no Query preparation, one Identity audit, and one Redis DB 2 key in
 the dedicated targets. These were not shared records: the complete temporary
 PostgreSQL database was dropped and the pre-confirmed-empty Redis DB 2 was
 flushed. Final checks returned zero matching databases and zero DB 2 keys;

@@ -387,10 +387,11 @@
 ## Aggregate review and reconciliation checkpoint — 2026-09-04
 
 - Repeated the complete backend and Web regressions together on a fresh,
-  dedicated PostgreSQL database and pre-confirmed-empty Redis DB 2: 39 backend
-  files / 207 tests and 10 Web files / 52 tests passed. Typecheck, production
-  build, formatting, framework validation, 21-migration status, generated-
-  contract drift, and Diff checks passed.
+  dedicated PostgreSQL database and pre-confirmed-empty Redis DB 2. After the
+  latest `main` added Issue #26 Query Generator, the authoritative merged result
+  is 41 backend files / 219 tests and 11 Web files / 56 tests passed. Typecheck,
+  production build, formatting, framework validation, 22-migration status,
+  generated-contract drift, and Diff checks passed.
 - The fixed-diff code/architecture review resolved malformed Cookie/body 500s,
   embedded Media editor Session-state divergence, an unbounded audit-action API
   type, misleading post-activation rollback interpretation, and a stale test
@@ -403,6 +404,10 @@
 - Removed the obsolete current Media Supply Guard explanation. The active Change
   remains only until the review PR is opened and its final task/relationship can
   be recorded before archival.
+- Merged `origin/main@18b69d0` and reviewed every shared surface. The Account
+  schema retains Query preparation and Identity governance relations, Query's
+  authenticated endpoints use `CurrentPrincipal`, and the generated contracts,
+  Web prewarm, tests, and Architecture Overview retain both accepted outcomes.
 - No production database, real account, provider, SMS, Bootstrap, deployment,
   activation, or PR merge was used. The remaining Issue task is opening the
   reviewable final PR; integration remains a later human Gate.
