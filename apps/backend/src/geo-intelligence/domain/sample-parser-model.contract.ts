@@ -10,7 +10,11 @@ import {
 } from "./sample-parser.contract.js";
 
 export const SAMPLE_PARSER_MODEL_CONTRACT_VERSION =
-  "evaluation.sample-parser-model@2";
+  "evaluation.sample-parser-model@5";
+
+const MODEL_MAX_TARGET_OBSERVATIONS = 8;
+const MODEL_MAX_OTHER_BRANDS = 10;
+const MODEL_MAX_EVIDENCE_SPANS = 2;
 
 const boundedText = (maximum: number) => z.string().trim().min(1).max(maximum);
 
@@ -35,7 +39,7 @@ const observationBaseShape = {
   evidence: z
     .array(evidenceSpanSchema)
     .min(1)
-    .max(8)
+    .max(MODEL_MAX_EVIDENCE_SPANS)
     .describe("直接支持该观察的原文证据。"),
 };
 
@@ -84,7 +88,7 @@ const otherBrandSchema = z
     evidence: z
       .array(evidenceSpanSchema)
       .min(1)
-      .max(8)
+      .max(MODEL_MAX_EVIDENCE_SPANS)
       .describe("必须包含该品牌展示名或 observedForms 中的名称。"),
   })
   .strict();
@@ -106,10 +110,12 @@ const sharedSemanticShape = {
     .describe("当前品牌在原回答中实际出现的名称，不得添加装饰符号。"),
   targetMentionEvidence: z
     .array(evidenceSpanSchema)
-    .max(12)
+    .max(MODEL_MAX_EVIDENCE_SPANS)
     .describe("判定当前品牌被提及的直接原文证据。"),
-  otherBrands: z.array(otherBrandSchema).max(30),
-  cardInterpretation: boundedText(500),
+  otherBrands: z.array(otherBrandSchema).max(MODEL_MAX_OTHER_BRANDS),
+  cardInterpretation: boundedText(500).describe(
+    "面向客户的一至两句简洁正式说明：说明原回答是否提及当前品牌以及如何呈现，只写原回答支持的结论。不得填写 JSON 符号、字段名、枚举、ID 或结构说明；未提及时写“该回答未提及当前品牌。”",
+  ),
   limitations: z.array(boundedText(300)).max(8),
 };
 
@@ -122,14 +128,18 @@ const brandDirectedModelOutputSchema = z
       .object({
         profile: z.literal("BRAND_DIRECTED"),
         ...sharedSemanticShape,
-        targetObservations: z.array(directedObservationSchema).max(20),
+        targetObservations: z
+          .array(directedObservationSchema)
+          .max(MODEL_MAX_TARGET_OBSERVATIONS),
         contextualTargetPosition: z
           .number()
           .int()
           .positive()
           .max(100)
           .nullable(),
-        contextualPositionEvidence: z.array(evidenceSpanSchema).max(12),
+        contextualPositionEvidence: z
+          .array(evidenceSpanSchema)
+          .max(MODEL_MAX_EVIDENCE_SPANS),
       })
       .strict(),
   })
@@ -157,8 +167,12 @@ const openDiscoveryModelOutputSchema = z
           "MENTIONED_ONLY",
           "NOT_MENTIONED",
         ]),
-        targetPositionEvidence: z.array(evidenceSpanSchema).max(12),
-        targetObservations: z.array(openObservationSchema).max(20),
+        targetPositionEvidence: z
+          .array(evidenceSpanSchema)
+          .max(MODEL_MAX_EVIDENCE_SPANS),
+        targetObservations: z
+          .array(openObservationSchema)
+          .max(MODEL_MAX_TARGET_OBSERVATIONS),
       })
       .strict(),
   })
@@ -197,7 +211,10 @@ export function parseAndProjectSampleParserModelOutput(
     return parseSampleParserOutput(acceptedDomainOutput.data, context);
   }
   const modelOutput = sampleParserModelOutputSchema.parse(input);
-  return parseSampleParserOutput(projectModelOutput(modelOutput), context);
+  return parseSampleParserOutput(
+    projectModelOutput(modelOutput, context),
+    context,
+  );
 }
 
 type EvidencePurpose =
@@ -209,50 +226,90 @@ type ModelObservation =
 
 function projectModelOutput(
   input: SampleParserModelOutput,
+  context: SampleParserAcceptanceContext,
 ): SampleParserOutput {
-  const anchors = new EvidenceAnchorRegistry();
+  const anchors = new EvidenceAnchorRegistry(context.originalAnswer);
+  const targetDisplayedForms = input.mentioned
+    ? uniqueStrings([
+        ...input.semantic.targetDisplayedForms.filter((form) =>
+          context.originalAnswer.includes(form),
+        ),
+        ...(context.originalAnswer.includes(context.companyName)
+          ? [context.companyName]
+          : []),
+      ]).slice(0, 12)
+    : [];
+  let targetMentionAnchorIds = input.mentioned
+    ? anchors.references(
+        input.semantic.targetMentionEvidence.filter((span) =>
+          targetDisplayedForms.some((form) => span.exactText.includes(form)),
+        ),
+        "TARGET_MENTION",
+      )
+    : [];
+  if (
+    input.mentioned &&
+    targetMentionAnchorIds.length === 0 &&
+    targetDisplayedForms[0]
+  ) {
+    targetMentionAnchorIds = anchors.references(
+      [{ exactText: targetDisplayedForms[0], occurrence: 1 }],
+      "TARGET_MENTION",
+    );
+  }
+
   let observationOrdinal = 0;
-  const observation = (value: ModelObservation) => ({
-    observationId: `o${++observationOrdinal}`,
-    label: value.label,
-    detail: value.detail,
-    polarity: value.polarity,
-    evidenceAnchorIds: anchors.references(
+  const observation = (value: ModelObservation) => {
+    const evidenceAnchorIds = anchors.references(
       value.evidence,
       value.category === "CHARACTERISTIC" ? "CHARACTERISTIC" : "DESCRIPTION",
-    ),
-  });
-  const otherBrands = input.semantic.otherBrands.map((brand, index) => ({
-    brandMentionId: `b${index + 1}`,
-    displayName: brand.displayName,
-    observedForms: brand.observedForms,
-    role: brand.role,
-    relativePosition: brand.relativePosition,
-    positionKind: brand.positionKind,
-    evidenceAnchorIds: anchors.references(brand.evidence, "OTHER_BRAND"),
-  }));
-  anchors.references(input.semantic.targetMentionEvidence, "TARGET_MENTION");
+    );
+    if (evidenceAnchorIds.length === 0) return undefined;
+    return {
+      observationId: `o${++observationOrdinal}`,
+      label: value.label,
+      detail: value.detail,
+      polarity: value.polarity,
+      evidenceAnchorIds,
+    };
+  };
+  type ProjectedObservation = NonNullable<ReturnType<typeof observation>>;
 
   if (input.family === "BRAND_DIRECTED") {
     const groups = {
-      statedIdentity: [] as ReturnType<typeof observation>[],
-      positioning: [] as ReturnType<typeof observation>[],
-      offerings: [] as ReturnType<typeof observation>[],
-      audiences: [] as ReturnType<typeof observation>[],
-      targetObservations: [] as ReturnType<typeof observation>[],
+      statedIdentity: [] as ProjectedObservation[],
+      positioning: [] as ProjectedObservation[],
+      offerings: [] as ProjectedObservation[],
+      audiences: [] as ProjectedObservation[],
+      targetObservations: [] as ProjectedObservation[],
     };
     for (const value of input.semantic.targetObservations) {
+      const group =
+        value.category === "IDENTITY"
+          ? groups.statedIdentity
+          : value.category === "POSITIONING"
+            ? groups.positioning
+            : value.category === "OFFERING"
+              ? groups.offerings
+              : value.category === "AUDIENCE"
+                ? groups.audiences
+                : groups.targetObservations;
       const projected = observation(value);
-      if (value.category === "IDENTITY") groups.statedIdentity.push(projected);
-      else if (value.category === "POSITIONING")
-        groups.positioning.push(projected);
-      else if (value.category === "OFFERING") groups.offerings.push(projected);
-      else if (value.category === "AUDIENCE") groups.audiences.push(projected);
-      else groups.targetObservations.push(projected);
+      if (projected) group.push(projected);
     }
     const contextualPositionEvidenceAnchorIds = anchors.references(
       input.semantic.contextualPositionEvidence,
       "TARGET_POSITION",
+    );
+    const hasContextualPosition =
+      input.mentioned &&
+      input.semantic.contextualTargetPosition !== null &&
+      contextualPositionEvidenceAnchorIds.length > 0;
+    const otherBrands = projectOtherBrands(
+      input,
+      context,
+      anchors,
+      targetDisplayedForms,
     );
     return {
       family: "BRAND_DIRECTED",
@@ -261,57 +318,160 @@ function projectModelOutput(
       semantic: {
         profile: "BRAND_DIRECTED",
         answerStructure: input.semantic.answerStructure,
-        targetDisplayedForms: input.semantic.targetDisplayedForms,
+        targetDisplayedForms,
         targetObservations: groups.targetObservations,
         otherBrands,
         evidenceAnchors: anchors.values(),
-        cardInterpretation: input.semantic.cardInterpretation,
+        cardInterpretation: projectCardInterpretation(
+          input.semantic.cardInterpretation,
+          input.mentioned,
+          null,
+        ),
         limitations: input.semantic.limitations,
         statedIdentity: groups.statedIdentity,
         positioning: groups.positioning,
         offerings: groups.offerings,
         audiences: groups.audiences,
-        contextualTargetPosition: input.semantic.contextualTargetPosition,
-        contextualPositionEvidenceAnchorIds,
+        contextualTargetPosition: hasContextualPosition
+          ? input.semantic.contextualTargetPosition
+          : null,
+        contextualPositionEvidenceAnchorIds: hasContextualPosition
+          ? contextualPositionEvidenceAnchorIds
+          : [],
       },
     };
   }
 
-  anchors.references(input.semantic.targetPositionEvidence, "TARGET_POSITION");
+  const targetPositionEvidenceAnchorIds = input.mentioned
+    ? anchors.references(
+        input.semantic.targetPositionEvidence,
+        "TARGET_POSITION",
+      )
+    : [];
   const groups = {
-    recommendationReasons: [] as ReturnType<typeof observation>[],
-    conditions: [] as ReturnType<typeof observation>[],
-    queryFit: [] as ReturnType<typeof observation>[],
-    targetObservations: [] as ReturnType<typeof observation>[],
+    recommendationReasons: [] as ProjectedObservation[],
+    conditions: [] as ProjectedObservation[],
+    queryFit: [] as ProjectedObservation[],
+    targetObservations: [] as ProjectedObservation[],
   };
   for (const value of input.semantic.targetObservations) {
+    const group =
+      value.category === "RECOMMENDATION_REASON"
+        ? groups.recommendationReasons
+        : value.category === "CONDITION"
+          ? groups.conditions
+          : value.category === "QUERY_FIT"
+            ? groups.queryFit
+            : groups.targetObservations;
     const projected = observation(value);
-    if (value.category === "RECOMMENDATION_REASON")
-      groups.recommendationReasons.push(projected);
-    else if (value.category === "CONDITION") groups.conditions.push(projected);
-    else if (value.category === "QUERY_FIT") groups.queryFit.push(projected);
-    else groups.targetObservations.push(projected);
+    if (projected) group.push(projected);
   }
+  const otherBrands = projectOtherBrands(
+    input,
+    context,
+    anchors,
+    targetDisplayedForms,
+  );
   return {
     family: "OPEN_DISCOVERY",
     questionKind: input.questionKind,
     mentioned: input.mentioned,
-    position: input.position,
+    position: input.mentioned ? input.position : null,
     semantic: {
       profile: "OPEN_DISCOVERY",
       answerStructure: input.semantic.answerStructure,
-      targetDisplayedForms: input.semantic.targetDisplayedForms,
+      targetDisplayedForms,
       targetObservations: groups.targetObservations,
       otherBrands,
       evidenceAnchors: anchors.values(),
-      cardInterpretation: input.semantic.cardInterpretation,
+      cardInterpretation: projectCardInterpretation(
+        input.semantic.cardInterpretation,
+        input.mentioned,
+        input.position,
+      ),
       limitations: input.semantic.limitations,
-      targetRole: input.semantic.targetRole,
+      targetRole: input.mentioned
+        ? input.semantic.targetRole === "NOT_MENTIONED"
+          ? "MENTIONED_ONLY"
+          : input.semantic.targetRole
+        : "NOT_MENTIONED",
       recommendationReasons: groups.recommendationReasons,
       conditions: groups.conditions,
       queryFit: groups.queryFit,
     },
   };
+}
+
+function projectOtherBrands(
+  input: SampleParserModelOutput,
+  context: SampleParserAcceptanceContext,
+  anchors: EvidenceAnchorRegistry,
+  targetDisplayedForms: string[],
+) {
+  const targetNames = new Set(
+    [context.companyName, ...targetDisplayedForms]
+      .map(normalizeName)
+      .filter(Boolean),
+  );
+  const seenNames = new Set<string>();
+  const otherBrands: Array<{
+    brandMentionId: string;
+    displayName: string;
+    observedForms: string[];
+    role: SampleParserModelOutput["semantic"]["otherBrands"][number]["role"];
+    relativePosition: number | null;
+    positionKind: "RECOMMENDATION" | "CONTEXTUAL" | null;
+    evidenceAnchorIds: string[];
+  }> = [];
+  for (const brand of input.semantic.otherBrands) {
+    const observedForms = uniqueStrings(
+      [brand.displayName, ...brand.observedForms].filter((form) =>
+        context.originalAnswer.includes(form),
+      ),
+    ).slice(0, 12);
+    const normalizedForms = observedForms.map(normalizeName).filter(Boolean);
+    const normalizedDisplayName = normalizeName(brand.displayName);
+    const identityNames = uniqueStrings([
+      normalizedDisplayName,
+      ...normalizedForms,
+    ]).filter(Boolean);
+    if (
+      !normalizedDisplayName ||
+      observedForms.length === 0 ||
+      identityNames.some((name) => targetNames.has(name) || seenNames.has(name))
+    ) {
+      continue;
+    }
+    let evidenceAnchorIds = anchors.references(
+      brand.evidence.filter((span) =>
+        observedForms.some((form) => span.exactText.includes(form)),
+      ),
+      "OTHER_BRAND",
+    );
+    const hasResolvedModelEvidence = evidenceAnchorIds.length > 0;
+    if (evidenceAnchorIds.length === 0) {
+      evidenceAnchorIds = anchors.references(
+        [{ exactText: observedForms[0]!, occurrence: 1 }],
+        "OTHER_BRAND",
+      );
+    }
+    if (evidenceAnchorIds.length === 0) continue;
+    identityNames.forEach((name) => seenNames.add(name));
+    const hasCompletePosition =
+      hasResolvedModelEvidence &&
+      brand.relativePosition !== null &&
+      brand.positionKind !== null;
+    otherBrands.push({
+      brandMentionId: `b${otherBrands.length + 1}`,
+      displayName: brand.displayName,
+      observedForms,
+      role: brand.role,
+      relativePosition: hasCompletePosition ? brand.relativePosition : null,
+      positionKind: hasCompletePosition ? brand.positionKind : null,
+      evidenceAnchorIds,
+    });
+  }
+  return otherBrands;
 }
 
 class EvidenceAnchorRegistry {
@@ -323,16 +483,22 @@ class EvidenceAnchorRegistry {
   }> = [];
   private readonly bySpan = new Map<string, number>();
 
+  constructor(private readonly originalAnswer: string) {}
+
   references(spans: EvidenceSpan[], purpose: EvidencePurpose): string[] {
-    return spans.map((span) => {
+    const references: string[] = [];
+    for (const span of spans) {
+      if (!hasOccurrence(this.originalAnswer, span)) continue;
       const key = `${span.occurrence}\u0000${span.exactText}`;
       const existingIndex = this.bySpan.get(key);
       if (existingIndex !== undefined) {
         const existing = this.anchors[existingIndex]!;
         if (!existing.purposes.includes(purpose))
           existing.purposes.push(purpose);
-        return existing.anchorId;
+        references.push(existing.anchorId);
+        continue;
       }
+      if (this.anchors.length >= 40) continue;
       const anchorId = `e${this.anchors.length + 1}`;
       this.bySpan.set(key, this.anchors.length);
       this.anchors.push({
@@ -341,11 +507,48 @@ class EvidenceAnchorRegistry {
         occurrence: span.occurrence,
         purposes: [purpose],
       });
-      return anchorId;
-    });
+      references.push(anchorId);
+    }
+    return uniqueStrings(references);
   }
 
   values(): SampleParserSemantic["evidenceAnchors"] {
     return this.anchors.map((anchor) => ({ ...anchor }));
   }
+}
+
+function hasOccurrence(answer: string, span: EvidenceSpan): boolean {
+  let offset = 0;
+  let found = 0;
+  while (offset <= answer.length - span.exactText.length) {
+    const index = answer.indexOf(span.exactText, offset);
+    if (index < 0) return false;
+    found += 1;
+    if (found === span.occurrence) return true;
+    offset = index + Math.max(1, span.exactText.length);
+  }
+  return false;
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values)];
+}
+
+function normalizeName(value: string): string {
+  return value
+    .normalize("NFKC")
+    .toLocaleLowerCase("zh-CN")
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function projectCardInterpretation(
+  value: string,
+  mentioned: boolean,
+  position: number | null,
+): string {
+  if (/[\p{L}\p{N}]/u.test(value)) return value;
+  if (!mentioned) return "该回答未提及当前品牌。";
+  return position === null
+    ? "该回答提及了当前品牌。"
+    : `该回答提及了当前品牌，位于第${position}个候选位置。`;
 }

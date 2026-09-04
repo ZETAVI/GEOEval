@@ -12,30 +12,35 @@ cross-module database access is outside this design.
 
 ```mermaid
 flowchart LR
-  I40["#40 Brand store context"] --> I26["#26 Query Generator"]
-  I32["#32 Sample parser projection"] --> I42["#42 Analysis task graph and budget"]
-  I41["#41 Synthesis copy and brand grouping"] --> I42
-  I42 --> I43["#43 Customer waiting experience"]
+  I40["#40 Brand store context - done"] --> I26["#26 Query Generator - done"]
+  I32["#32 Sample parser projection"] --> I42A["#42 architecture checkpoint"]
+  I42A --> I41["#41 Synthesis copy and brand grouping"]
+  I41 --> I42B["#42 runtime, budget and progress"]
+  I42B --> I43["#43 Customer waiting experience"]
   I44["#44 Local/test Langfuse diagnostics"] --> G["#39 Integration Gate"]
   I26 --> G
   I32 --> G
   I41 --> G
-  I42 --> G
+  I42B --> G
   I43 --> G
 ```
 
-This mirrors the live GitHub relationships on 2026-09-02:
+The initial native relationships were recorded on 2026-09-02. The 2026-09-04
+execution reconciliation keeps only dependencies that block the next Issue-level
+action:
 
 - #39 has native Sub-Issues #26, #32 and #40–#44;
-- #40 blocks #26;
-- #32 and #41 block #42;
+- #40 and #26 are complete, so their stale native blocker is removed;
+- #32 blocks #42 activation;
+- #41 is not a native blocker of #42 because its accepted task interface depends
+  on #42's first architecture checkpoint;
 - #42 blocks #43;
-- #44 has no child dependency and may advance independently within its local/
-  test-only boundary.
+- #44 is complete and has no child dependency.
 
 Parent/Sub-Issue represents one M4 outcome. Native Dependency represents the
-ordering above; this Change does not infer additional blockers merely because
-one consumer reads another owner's public contract.
+next Issue-level block, not every phase exchange inside an open architectural
+Issue. #42 therefore remains one Issue with two independently reviewable PR
+slices rather than creating another Issue or two opposing blockers.
 
 ## Cross-task interface registry
 
@@ -84,24 +89,26 @@ safe rollback or compatible forward path.
 
 ## Integration sequence
 
-1. **Parent approval — completed 2026-09-02:** approve the decision brief,
-   interfaces, dependencies and Gate. This authorizes no child implementation
-   by itself.
-2. **Independent producer work:** #40, #32, #41 and #44 may continue or complete
-   only inside their separately approved Issue-level boundaries. #32/#41 keep
-   disjoint per-sample versus cross-sample ownership.
-3. **Query activation:** after #40 reaches protected `main`, #26 rebases from
-   current `main`, consumes Snapshot v3 only, refreshes its active Change state,
-   and repeats Query-only product review. Existing Draft PR #28 is not integrated
-   from its old Snapshot or conflicting base.
-4. **Performance activation:** after #32 and #41 contracts reach stable revisions,
-   #42 selects and validates the smallest task graph and exposes the
-   customer-safe progress contract.
-5. **Waiting activation:** #43 starts its write only after #42's public progress
+1. **Parent and completed producers:** parent approval completed on 2026-09-02;
+   #40, #26 and #44 are integrated and reconciled on protected `main`.
+2. **Parser stabilization:** #32 is rebuilt from current `main` using only its
+   owner-local work, then proves strict metric evidence, recoverable optional
+   detail and customer-readable card copy as one parser acceptance boundary.
+3. **#42 architecture checkpoint:** after #32 is stable, #42 compares the current
+   single synthesis, semantic-task split and analysis-then-writing alternatives.
+   A Partial PR records the selected interface, budgets and rollback boundary;
+   it does not claim runtime improvement or close #42.
+4. **Synthesis acceptance:** #41 consumes the selected interface, keeps report
+   semantics and brand decisions in GEO Intelligence, and reaches its own real
+   customer-quality acceptance without taking queue or metric ownership.
+5. **#42 runtime completion:** #42 resumes on the accepted #41 contract and
+   implements the smallest task topology, timing/budget evidence and durable
+   customer-safe progress projection.
+6. **Waiting activation:** #43 starts its write only after #42's public progress
    contract is stable, then verifies the same generated contract across desktop,
    narrow viewport, refresh, leave/return, multi-brand and partial-unavailable
    states.
-6. **Final parent Gate:** every child PR is rebased/merged through current
+7. **Final parent Gate:** every child PR is rebased/merged through current
    protected `main`; one separately authorized representative-store run proves
    the integrated customer and operational outcome. Parent current-spec
    reconciliation and archive happen only after this Gate.
