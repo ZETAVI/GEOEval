@@ -91,7 +91,7 @@
 - [x] Force stale revision, self-operation, last-administrator, concurrent
       demotion, session-revoke failure, and audit failure; prove each transaction
       is all-or-nothing.
-- [ ] Test the complete route classification and CSRF header/Origin/content-type
+- [x] Test the complete route classification and CSRF header/Origin/content-type
       matrix, including login and logout boundaries.
 - [ ] Rehearse migration and application rollback in the explicit isolated
       database; prove shared PostgreSQL/Redis remain unchanged.
@@ -317,3 +317,22 @@
 - Still open: complete CSRF/route classification, isolated rollback rehearsal,
   full desktop/narrow browser pass, aggregate verification/review,
   reconciliation, PR, and integration.
+
+## Route policy and CSRF checkpoint — 2026-09-04
+
+- Added Nest metadata discovery across all 11 registered product controllers.
+  Every route is checked against its Public, authenticated-any-role,
+  terminal-customer, administrator, or explicit F0 CSRF-exemption family; an
+  unregistered future controller now fails the inventory test.
+- Proved the public Challenge and Session writes require JSON content type,
+  `x-geoeval-request: 1`, and the exact configured Origin. Missing/wrong values
+  reject before Challenge consumption, Account creation, or Session creation.
+- Proved safe authenticated reads need no CSRF headers, while current logout and
+  self logout-all reject missing content type, header, or Origin without
+  revoking a Session, then succeed with the complete boundary.
+- Exact configured CORS preflight returns that Origin and credential support;
+  an attacker-suffixed Origin receives no allow-origin header.
+- Focused verification: route inventory + CSRF HTTP are 2 files / 6 tests;
+  backend typecheck, formatting, and Diff check passed.
+- Still open: isolated rollback rehearsal, full desktop/narrow browser pass,
+  aggregate verification/review, reconciliation, PR, and integration.

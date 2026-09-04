@@ -1,13 +1,18 @@
 # Authenticated route access inventory
 
 - Status: Implementation checkpoint evidence
-- Checked against: generated OpenAPI and backend controllers on 2026-09-04
+- Checked against: generated OpenAPI, backend controllers, and executable Nest
+  metadata discovery on 2026-09-04
 - Owning Change: `establish-identity-access-governance`
 
 The application-scoped access guard is fail-closed. A route without
 `PublicAccess` requires a valid active-account Session; role metadata further
 narrows that authenticated set. This inventory covers every registered HTTP
 controller in `ApiModule` and its imported modules.
+
+`access-policy-inventory.spec.ts` discovers every registered controller and
+route handler. A controller outside the 11 known policy families, a public route
+with role metadata, or a new non-exempt public mutation fails verification.
 
 | Controller surface | Authentication | Fixed roles | Unsafe-request boundary |
 | --- | --- | --- | --- |
