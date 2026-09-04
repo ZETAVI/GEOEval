@@ -98,7 +98,7 @@
 - [x] Inspect real browser desktop and narrow states for each role, administrator
       account governance, allowed/denied access, session expiry/revocation, and
       dangerous-action confirmation.
-- [ ] Run focused tests, typecheck, full backend/Web tests, build, formatting,
+- [x] Run focused tests, typecheck, full backend/Web tests, build, formatting,
       framework validation, migration status, OpenAPI drift check, and fixed-diff
       code/architecture review.
 - [ ] Reconcile accepted behavior into a new current Identity and Access spec,
