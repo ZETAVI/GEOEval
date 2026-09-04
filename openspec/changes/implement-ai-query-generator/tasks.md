@@ -51,7 +51,7 @@
 
 ## 7. Reconciliation and exit
 
-- [ ] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview after real-chain acceptance.
+- [x] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview after real-chain acceptance.
 - [ ] Update Issue #26 and PR #28 with corrected implementation, evidence, limitations, and cross-Issue handoffs.
 - [x] Notify #32 that its stacked PR must rebase onto the stable #26 head.
 - [x] Complete fixed-diff code review.

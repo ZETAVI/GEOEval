@@ -51,13 +51,17 @@
 
 ## Residual risks and follow-ups
 
-- `should-fix`: current evaluation-definition spec and architecture overview still describe deterministic Query as current behavior. Update them only after the revised implementation and Query quality gate are accepted, before final close.
 - `should-fix`: PR #35 for #32 is stacked on the old #26 history. Notify its owner after the new #26 head is published; do not modify #32 from this Worktree.
-- `consider`: Prompt quality is not proven by schema or deterministic tests. Use a small authorized Query-only batch and stop on the first material semantic failure.
 - `consider`: Provider entitlement, model identifier, latency, and cost can drift. Recheck the route immediately before real calls; none of these facts changes the durable business contract.
+
+The earlier current-truth and Prompt-quality findings are resolved. The current
+evaluation-definition spec and architecture overview now describe the accepted
+AI Query behavior. Real Amap/browser and Provider evidence covers the three
+representative inputs, with a final Qwen target-name replay and Hy3 fallback.
 
 ## Result
 
-`ready with follow-up`
+`ready`
 
-The architecture is ready for bounded implementation and local verification. Real Provider calls, final 4×5, current-truth reconciliation, Merge, and production remain later gates.
+The architecture and current truth are ready for integration. Required CI,
+explicit Merge authorization, final 4×5, and production remain separate gates.

@@ -3,7 +3,7 @@
 
 ## Status
 
-- Phase: Verify; real-chain acceptance reopened
+- Phase: Reconcile; real-chain acceptance passed
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owner: Product owner
@@ -63,7 +63,8 @@ Snapshot v3 现已由 Brand Knowledge 提供经过验证的门店位置、主打
 
 The product decision brief was confirmed on 2026-09-04. The first Query-only
 review bypassed Brand/Amap preparation and used a manually assigned Interaction
-Pie locality, so its final acceptance was withdrawn. The reopened Gate must use
-the real browser-to-Amap-to-Brand-to-Snapshot-to-Query path before
-reconciliation. Final representative 4×5, Merge, production customer data, and
+Pie locality, so its acceptance was withdrawn. The reopened Gate has now passed
+with verified Amap selections for three Brands, a complete browser preparation,
+real Qwen calls across the three frozen projections, and an explicit Hy3
+fallback replay. Final representative 4×5, Merge, production customer data, and
 deployment remain separate explicit gates.
