@@ -4,7 +4,7 @@
 ## Review contract
 
 - Baseline: `main@82f70564889698d501129b5188f4046a1a20dfa9`
-- Reviewed revision: `0fed3e9af1069af38824436e8866b443aa597f77`
+- Reviewed implementation revision: `961a71de4e332ab436b131f518700a3f88ee4417`
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Approved intent: [decision-brief.md](decision-brief.md)
 - Reviewed scope: Snapshot v3 Query projection, Prompt and model contract,

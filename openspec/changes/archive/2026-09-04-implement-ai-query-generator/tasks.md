@@ -52,7 +52,7 @@
 ## 7. Reconciliation and exit
 
 - [x] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview.
-- [ ] Update Issue #26 and PR #28 with implementation, evidence, limitations, and cross-Issue handoffs.
+- [x] Update Issue #26 and PR #28 with implementation, evidence, limitations, and cross-Issue handoffs.
 - [x] Notify #32 that its stacked PR must rebase onto the stable #26 head.
 - [x] Complete fixed-diff code review.
 - [ ] Pass required CI on the published revision.
