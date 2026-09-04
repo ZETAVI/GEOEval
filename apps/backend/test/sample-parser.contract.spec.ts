@@ -34,7 +34,7 @@ describe("sample parser semantic contract", () => {
   it("exports one strict JSON-representable structural contract", () => {
     expect(SAMPLE_PARSER_CONTRACT_VERSION).toBe("1.0.0");
     expect(SAMPLE_PARSER_MODEL_CONTRACT_VERSION).toBe(
-      "evaluation.sample-parser-model@4",
+      "evaluation.sample-parser-model@5",
     );
     expect(sampleParserJsonSchema).toMatchObject({
       $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -88,6 +88,19 @@ describe("sample parser semantic contract", () => {
         family: { const: "BRAND_DIRECTED" },
         semantic: {
           properties: {
+            targetMentionEvidence: { maxItems: 2 },
+            targetObservations: {
+              maxItems: 8,
+              items: {
+                properties: { evidence: { maxItems: 2 } },
+              },
+            },
+            otherBrands: {
+              maxItems: 10,
+              items: {
+                properties: { evidence: { maxItems: 2 } },
+              },
+            },
             cardInterpretation: {
               description: expect.stringContaining("面向客户"),
             },
@@ -261,7 +274,9 @@ describe("sample parser semantic contract", () => {
       "1. 星河咖啡值得关注。\n2. 晨光咖啡也可比较。\nA品牌与B品牌也可比较。";
     const input = validOpenModel(answer);
     input.semantic.targetMentionEvidence = [];
-    input.semantic.targetPositionEvidence = [];
+    input.semantic.targetPositionEvidence = [
+      { exactText: "星河咖啡值得关注。", occurrence: 1 },
+    ];
     input.semantic.targetObservations = [
       {
         category: "QUERY_FIT",
@@ -284,8 +299,8 @@ describe("sample parser semantic contract", () => {
         observedForms: ["晨光咖啡"],
         role: "COMPARED",
         relativePosition: 2,
-        positionKind: null,
-        evidence: [{ exactText: "晨光咖啡也可比较。", occurrence: 1 }],
+        positionKind: "RECOMMENDATION",
+        evidence: [{ exactText: "不存在的品牌位置证据", occurrence: 1 }],
       },
       {
         displayName: "晨光咖啡",
@@ -342,10 +357,30 @@ describe("sample parser semantic contract", () => {
       output.semantic.evidenceAnchors.some(
         (anchor) =>
           anchor.exactText === "星河咖啡" &&
-          anchor.purposes.includes("TARGET_MENTION") &&
+          anchor.purposes.includes("TARGET_MENTION"),
+      ),
+    ).toBe(true);
+    expect(
+      output.semantic.evidenceAnchors.some(
+        (anchor) =>
+          anchor.exactText === "星河咖啡值得关注。" &&
           anchor.purposes.includes("TARGET_POSITION"),
       ),
     ).toBe(true);
+  });
+
+  it("rejects an open position without resolvable position evidence", () => {
+    const answer = "1. 星河咖啡值得关注。";
+    const input = validOpenModel(answer);
+    input.semantic.targetPositionEvidence = [];
+
+    expect(() =>
+      parseAndProjectSampleParserModelOutput(input, {
+        questionKind: "CHARACTERISTIC_ONE",
+        companyName: "星河咖啡",
+        originalAnswer: answer,
+      }),
+    ).toThrow(SampleParserSemanticError);
   });
 
   it("still rejects a claimed mention without a literal target form", () => {
@@ -368,7 +403,7 @@ describe("sample parser semantic contract", () => {
     ).toThrow();
   });
 
-  it("bounds directed observations per canonical category", () => {
+  it("maps the bounded model observations into their canonical category", () => {
     const answer = "星河咖啡是一家咖啡品牌。";
     const evidence = { exactText: answer, occurrence: 1 };
     const input: SampleParserModelOutput = {
@@ -381,7 +416,7 @@ describe("sample parser semantic contract", () => {
         targetDisplayedForms: ["星河咖啡"],
         targetMentionEvidence: [evidence],
         otherBrands: [],
-        targetObservations: Array.from({ length: 20 }, (_, index) => ({
+        targetObservations: Array.from({ length: 8 }, (_, index) => ({
           category: "IDENTITY" as const,
           label: `品牌身份 ${index + 1}`,
           detail: "回答介绍了品牌身份。",
@@ -401,7 +436,7 @@ describe("sample parser semantic contract", () => {
       originalAnswer: answer,
     });
     if (output.family !== "BRAND_DIRECTED") throw new Error("wrong family");
-    expect(output.semantic.statedIdentity).toHaveLength(12);
+    expect(output.semantic.statedIdentity).toHaveLength(8);
   });
 
   it.each([

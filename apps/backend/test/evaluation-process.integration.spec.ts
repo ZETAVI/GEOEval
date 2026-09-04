@@ -720,7 +720,7 @@ describe("resumable evaluation evidence", () => {
         semanticDisposition: {
           kind: "REJECTED",
           failureClass: "SEMANTIC_CONTRACT_REJECTED",
-          modelContractVersion: "evaluation.sample-parser-model@4",
+          modelContractVersion: "evaluation.sample-parser-model@5",
           domainContractVersion: "1.0.0",
         },
       },

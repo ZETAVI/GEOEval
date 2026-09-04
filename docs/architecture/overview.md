@@ -220,14 +220,15 @@ with the earlier recovered timeout, this supports the existing recovery order
 and Prompt semantics, not production latency or capacity.
 
 Direct-question parser projection tolerance is owned by
-[#32](https://github.com/ZETAVI/GEOEval/issues/32). Two
-authorized runs originally used seventy-seven interpretation attempts for forty
-samples; protected-output replay with the simplified projector needs forty-two,
-accepts every sample, preserves the first run's zero open mentions, and restores
-one literal-evidence Starbucks mention discarded by the old optional-detail
-failure. Four low-reasoning Parser-only real calls were accepted on their first
-attempt at about nineteen seconds average latency. The 17/20 report boundary
-remains unchanged.
+[#32](https://github.com/ZETAVI/GEOEval/issues/32). Its projector may discard
+unsupported optional observations, other-brand records and optional positions,
+but an open rank without resolvable position evidence remains rejected. Earlier
+protected-output replay demonstrated the value of optional-detail cleanup but
+used a broader target-position recovery path and is not reused as an exact
+acceptance count for the final projector. Four low-reasoning Parser-only real
+calls on the earlier model contract were accepted on their first attempt at
+about nineteen seconds average latency; the latest contract and final integrated
+4-by-5 remain separately unverified. The 17/20 report boundary is unchanged.
 
 ## Architecture qualities
 

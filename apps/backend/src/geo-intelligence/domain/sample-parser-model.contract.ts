@@ -10,7 +10,11 @@ import {
 } from "./sample-parser.contract.js";
 
 export const SAMPLE_PARSER_MODEL_CONTRACT_VERSION =
-  "evaluation.sample-parser-model@4";
+  "evaluation.sample-parser-model@5";
+
+const MODEL_MAX_TARGET_OBSERVATIONS = 8;
+const MODEL_MAX_OTHER_BRANDS = 10;
+const MODEL_MAX_EVIDENCE_SPANS = 2;
 
 const boundedText = (maximum: number) => z.string().trim().min(1).max(maximum);
 
@@ -35,7 +39,7 @@ const observationBaseShape = {
   evidence: z
     .array(evidenceSpanSchema)
     .min(1)
-    .max(8)
+    .max(MODEL_MAX_EVIDENCE_SPANS)
     .describe("直接支持该观察的原文证据。"),
 };
 
@@ -84,7 +88,7 @@ const otherBrandSchema = z
     evidence: z
       .array(evidenceSpanSchema)
       .min(1)
-      .max(8)
+      .max(MODEL_MAX_EVIDENCE_SPANS)
       .describe("必须包含该品牌展示名或 observedForms 中的名称。"),
   })
   .strict();
@@ -106,9 +110,9 @@ const sharedSemanticShape = {
     .describe("当前品牌在原回答中实际出现的名称，不得添加装饰符号。"),
   targetMentionEvidence: z
     .array(evidenceSpanSchema)
-    .max(12)
+    .max(MODEL_MAX_EVIDENCE_SPANS)
     .describe("判定当前品牌被提及的直接原文证据。"),
-  otherBrands: z.array(otherBrandSchema).max(30),
+  otherBrands: z.array(otherBrandSchema).max(MODEL_MAX_OTHER_BRANDS),
   cardInterpretation: boundedText(500).describe(
     "面向客户的一至两句简洁正式说明：说明原回答是否提及当前品牌以及如何呈现，只写原回答支持的结论。不得填写 JSON 符号、字段名、枚举、ID 或结构说明；未提及时写“该回答未提及当前品牌。”",
   ),
@@ -124,14 +128,18 @@ const brandDirectedModelOutputSchema = z
       .object({
         profile: z.literal("BRAND_DIRECTED"),
         ...sharedSemanticShape,
-        targetObservations: z.array(directedObservationSchema).max(20),
+        targetObservations: z
+          .array(directedObservationSchema)
+          .max(MODEL_MAX_TARGET_OBSERVATIONS),
         contextualTargetPosition: z
           .number()
           .int()
           .positive()
           .max(100)
           .nullable(),
-        contextualPositionEvidence: z.array(evidenceSpanSchema).max(12),
+        contextualPositionEvidence: z
+          .array(evidenceSpanSchema)
+          .max(MODEL_MAX_EVIDENCE_SPANS),
       })
       .strict(),
   })
@@ -159,8 +167,12 @@ const openDiscoveryModelOutputSchema = z
           "MENTIONED_ONLY",
           "NOT_MENTIONED",
         ]),
-        targetPositionEvidence: z.array(evidenceSpanSchema).max(12),
-        targetObservations: z.array(openObservationSchema).max(20),
+        targetPositionEvidence: z
+          .array(evidenceSpanSchema)
+          .max(MODEL_MAX_EVIDENCE_SPANS),
+        targetObservations: z
+          .array(openObservationSchema)
+          .max(MODEL_MAX_TARGET_OBSERVATIONS),
       })
       .strict(),
   })
@@ -331,23 +343,12 @@ function projectModelOutput(
     };
   }
 
-  let targetPositionEvidenceAnchorIds = input.mentioned
+  const targetPositionEvidenceAnchorIds = input.mentioned
     ? anchors.references(
         input.semantic.targetPositionEvidence,
         "TARGET_POSITION",
       )
     : [];
-  if (
-    input.mentioned &&
-    input.position !== null &&
-    targetPositionEvidenceAnchorIds.length === 0 &&
-    targetDisplayedForms[0]
-  ) {
-    targetPositionEvidenceAnchorIds = anchors.references(
-      [{ exactText: targetDisplayedForms[0], occurrence: 1 }],
-      "TARGET_POSITION",
-    );
-  }
   const groups = {
     recommendationReasons: [] as ProjectedObservation[],
     conditions: [] as ProjectedObservation[],
@@ -425,7 +426,6 @@ function projectOtherBrands(
     evidenceAnchorIds: string[];
   }> = [];
   for (const brand of input.semantic.otherBrands) {
-    if (otherBrands.length >= 15) break;
     const observedForms = uniqueStrings(
       [brand.displayName, ...brand.observedForms].filter((form) =>
         context.originalAnswer.includes(form),
@@ -450,6 +450,7 @@ function projectOtherBrands(
       ),
       "OTHER_BRAND",
     );
+    const hasResolvedModelEvidence = evidenceAnchorIds.length > 0;
     if (evidenceAnchorIds.length === 0) {
       evidenceAnchorIds = anchors.references(
         [{ exactText: observedForms[0]!, occurrence: 1 }],
@@ -459,7 +460,9 @@ function projectOtherBrands(
     if (evidenceAnchorIds.length === 0) continue;
     identityNames.forEach((name) => seenNames.add(name));
     const hasCompletePosition =
-      brand.relativePosition !== null && brand.positionKind !== null;
+      hasResolvedModelEvidence &&
+      brand.relativePosition !== null &&
+      brand.positionKind !== null;
     otherBrands.push({
       brandMentionId: `b${otherBrands.length + 1}`,
       displayName: brand.displayName,

@@ -260,13 +260,15 @@ the customer understand the current outcome.
 ## Current environment boundary
 
 The business contract remains reproducible with deterministic adapters. Two
-authorized local 4-by-5 runs acquired all forty platform answers but originally
-used seventy-seven interpretation attempts. Protected-output replay with the
-current projector would accept all forty samples with forty-two attempts while
-preserving the first run's zero open mentions and grounding one previously
-discarded Starbucks mention in literal answer evidence. Four Parser-only real
+authorized local 4-by-5 runs acquired all forty platform answers and exposed
+recoverable optional-detail failures. An earlier protected-output replay showed
+that narrowing optional-detail rejection could materially reduce attempts, but
+its broader target-position recovery is not evidence for the final projector.
+The final boundary retains only literal target-mention recovery and still
+rejects an open rank without resolvable position evidence. Four Parser-only real
 calls using the shortened Prompt and low reasoning were accepted in one attempt
-each, with an average observed latency of about nineteen seconds. These results
-prove local parser/recovery compatibility only. Provider-console cost
+each on the earlier model contract, with an average observed latency of about
+nineteen seconds. The latest contract is verified locally but its final 4-by-5
+Provider behavior remains an Issue #39 Gate. Provider-console cost
 reconciliation, production pacing and quota evidence, commercial data approval,
 and production Redis high availability remain later gates.

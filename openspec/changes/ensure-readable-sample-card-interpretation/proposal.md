@@ -4,7 +4,7 @@
 - Class: Standard Bug fix
 - Owning Issue: [#32](https://github.com/ZETAVI/GEOEval/issues/32)
 - Parent result: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
-- Stacked base: `codex/issue-26-query-generator`
+- Integration base: `main@18b69d0`
 - Prior boundary: [`simplify-sample-parser-projection`](../archive/2026-09-01-simplify-sample-parser-projection/proposal.md)
 
 ## Why
@@ -54,3 +54,29 @@ behavior owner. The canonical stored contract remains `1.0.0`; no migration is
 required, and reports continue to project accepted card text without a second
 presentation rule. Rollback restores the prior Prompt/model versions and removes
 the narrow projection fallback; previously accepted records remain readable.
+
+## Final Issue-boundary refinement
+
+The 2026-09-04 main replay keeps #32 as one coherent Parser outcome rather than
+splitting evidence tolerance and card prose into new Issues. The model-facing
+Schema now matches the Prompt's one output budget: eight target observations,
+ten other brands and two evidence spans per fact. The larger canonical stored
+contract remains unchanged for history compatibility.
+
+The projector may recover a literal target mention from the current brand name,
+but it may not turn that name alone into open-position evidence. An asserted
+open rank with no resolvable position span still fails semantic acceptance.
+Likewise, an other-brand mention recovered from a literal name loses any model-
+claimed optional position unless the model supplied resolvable evidence.
+
+Known family/profile/question-kind constants remain in the existing provider
+shape. Removing them is not required by the observed defect and would broaden
+the external model contract after the retained real evidence; #32 does not take
+that speculative cleanup.
+
+The earlier protected replay's exact 40/42 recovery count is retained only in
+its archived evidence because that revision could synthesize open-position
+support from a literal brand form. The corrected projector deliberately removes
+that path. Its exact protected-output recovery count is therefore not reused as
+evidence for this revision; the current acceptance claim is limited to the
+contract and lifecycle cases exercised after the replay onto main.
