@@ -10,6 +10,9 @@ Use this mode when the product question or problem is still open.
 - Use `$requirement-grill` for ambiguity that could produce materially different products.
 - Ask one to three root questions per round.
 - Record decisions, non-goals, assumptions, and open owners—not the transcript.
+- Use a material Issue/PR checkpoint when a confirmed decision, Gate, or
+  handoff changes another session's or agent's next action; keep the body
+  current and follow the [comment contract](change-tracking.md#comment-and-checkpoint-contract).
 - Do not create implementation code or choose architecture during product discovery.
 
 The product foundation and application foundation are approved. For the current
@@ -88,7 +91,11 @@ data boundary, external dependency, deployment boundary, migration strategy, or
 rollback risk. Reversible owner-local implementation choices stay with code,
 tests, and normal review.
 
-Use multi-agent work first for independent research, code mapping, testing, and review. Parallel writes require fixed interfaces, disjoint files, and one lead agent responsible for reconciliation.
+Use multi-agent work first for independent research, code mapping, testing, and
+review. Parallel writes require fixed interfaces, disjoint files, and one lead
+agent responsible for reconciliation. A producer publishes one canonical
+coordination checkpoint when its result changes a consumer's next action; the
+consumer links it instead of copying the contract.
 
 ## 6. Review architecture and behavior
 
@@ -133,7 +140,10 @@ review-backed change:
 6. Clear obsolete blocked relationships, keep later work in its own Issue, and
    route user-visible release value through the release workflow.
 
-Use `$task-handoff` only when work crosses an agent, session, worktree, branch, or owner boundary. The handoff is a compact current snapshot; it is not a permanent session diary.
+Use `$task-handoff` only when work crosses an agent, session, worktree, branch,
+or owner boundary and the Issue, pull request, material checkpoint, and live
+workspace still cannot make continuation unambiguous. The handoff is a compact
+current snapshot; it is not a permanent session diary.
 
 ## Suggested prompt patterns
 
