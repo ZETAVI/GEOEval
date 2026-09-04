@@ -5,7 +5,6 @@ import {
   changeAdminAccountRole,
   changeAdminAccountStatus,
   createAdminInternalAccount,
-  getCurrentAccount,
   listAdminAccounts,
   listIdentityGovernanceAudits,
   revokeAdminAccountSessions,
@@ -16,7 +15,12 @@ import {
 } from "@geoeval/api-client";
 import { useEffect, useRef, useState } from "react";
 
-import { roleHomePath } from "../../enter/post-login-route.js";
+import {
+  loadRoleSession,
+  type RoleSessionState,
+  sessionFailureState,
+  WorkspaceAccessPanel,
+} from "../../session-access.js";
 import { AdminSidebar } from "../admin-sidebar.js";
 import {
   accountRoleLabels,
@@ -40,7 +44,7 @@ const apiBaseUrl =
 const accountPageSize = 20;
 const auditPageSize = 20;
 
-type AuthenticationState = "loading" | "ready" | "denied" | "error";
+type AuthenticationState = RoleSessionState["kind"];
 type DataState = "loading" | "ready" | "error";
 type AccountFilters = {
   search: string;
@@ -87,25 +91,26 @@ export function AdminAccountsWorkspace() {
   async function authenticate() {
     setAuthenticationState("loading");
     setAuthenticationError("");
-    try {
-      const current = await getCurrentAccount(apiBaseUrl);
-      setAccount(current);
-      if (current.role !== "ADMINISTRATOR") {
-        setAuthenticationState("denied");
-        return;
-      }
-      setAuthenticationState("ready");
-      await loadAccountPage(emptyFilters);
-    } catch (error) {
-      if (error instanceof ApiRequestError && error.status === 401) {
-        window.location.assign("/enter");
-        return;
-      }
-      setAuthenticationError(
-        error instanceof Error ? error.message : "管理员身份暂时无法核验",
-      );
-      setAuthenticationState("error");
+    const session = await loadRoleSession(apiBaseUrl, "ADMINISTRATOR");
+    if (session.kind === "ready" || session.kind === "denied") {
+      setAccount(session.account);
     }
+    if (session.kind === "error") {
+      setAuthenticationError(session.message);
+    }
+    setAuthenticationState(session.kind);
+    if (session.kind === "ready") {
+      await loadAccountPage(emptyFilters);
+    }
+  }
+
+  function handleSessionFailure(error: unknown): boolean {
+    const failure = sessionFailureState(error);
+    if (failure) {
+      setAuthenticationState(failure.kind);
+      return true;
+    }
+    return false;
   }
 
   async function loadAccountPage(
@@ -144,10 +149,7 @@ export function AdminAccountsWorkspace() {
       }
     } catch (error) {
       if (requestId !== accountRequest.current) return;
-      if (error instanceof ApiRequestError && error.status === 401) {
-        window.location.assign("/enter");
-        return;
-      }
+      if (handleSessionFailure(error)) return;
       if (error instanceof ApiRequestError && error.status === 403) {
         setAuthenticationState("denied");
         return;
@@ -182,10 +184,7 @@ export function AdminAccountsWorkspace() {
       setAuditState("ready");
     } catch (error) {
       if (requestId !== auditRequest.current) return;
-      if (error instanceof ApiRequestError && error.status === 401) {
-        window.location.assign("/enter");
-        return;
-      }
+      if (handleSessionFailure(error)) return;
       if (error instanceof ApiRequestError && error.status === 403) {
         setAuthenticationState("denied");
         return;
@@ -276,10 +275,7 @@ export function AdminAccountsWorkspace() {
       setCursorHistory([]);
       await loadAccountPage(emptyFilters, undefined, created.id);
     } catch (error) {
-      if (error instanceof ApiRequestError && error.status === 401) {
-        window.location.assign("/enter");
-        return;
-      }
+      if (handleSessionFailure(error)) return;
       setMutationError(governanceErrorView(error));
     } finally {
       setMutationBusy(false);
@@ -316,65 +312,31 @@ export function AdminAccountsWorkspace() {
       setToast(governanceSuccessMessage(action, updated));
       await loadAccountPage(activeFilters, currentCursor, action.target.id);
     } catch (error) {
-      if (error instanceof ApiRequestError && error.status === 401) {
-        window.location.assign("/enter");
-        return;
-      }
+      if (handleSessionFailure(error)) return;
       setMutationError(governanceErrorView(error));
     } finally {
       setMutationBusy(false);
     }
   }
 
-  if (authenticationState === "loading") {
+  if (authenticationState !== "ready") {
+    const accessState: Exclude<RoleSessionState, { kind: "ready" }> =
+      authenticationState === "denied" && account
+        ? { kind: "denied", account }
+        : authenticationState === "error"
+          ? { kind: "error", message: authenticationError }
+          : authenticationState === "denied"
+            ? { kind: "error", message: "当前账号角色暂时无法读取" }
+            : { kind: authenticationState };
     return (
-      <main className="loading-page admin-loading-page">
-        <span className="loading-orbit" />
-        <div>
-          <b>正在核验管理员身份</b>
-          <small>通过后再读取账号与治理记录</small>
-        </div>
-      </main>
-    );
-  }
-
-  if (authenticationState === "denied" && account) {
-    return (
-      <main className="admin-denied-page">
-        <section>
-          <span className="denied-mark" aria-hidden="true">
-            403
-          </span>
-          <p className="eyebrow">权限边界</p>
-          <h1>该账号不能进入账号与访问管理</h1>
-          <p>
-            当前账号是「{accountRoleLabels[account.role]}
-            」，账号治理与审计只向系统管理员开放。
-          </p>
-          <a className="primary-button" href={roleHomePath(account.role)}>
-            返回我的工作区
-          </a>
-        </section>
-      </main>
-    );
-  }
-
-  if (authenticationState === "error") {
-    return (
-      <main className="admin-error-page">
-        <section>
-          <p className="eyebrow">暂时无法进入管理台</p>
-          <h1>管理员身份没有核验完成</h1>
-          <p>{authenticationError}</p>
-          <button
-            className="primary-button"
-            type="button"
-            onClick={() => void authenticate()}
-          >
-            重新加载
-          </button>
-        </section>
-      </main>
+      <WorkspaceAccessPanel
+        state={accessState}
+        expectedRole="ADMINISTRATOR"
+        workspaceName="账号与访问管理"
+        loadingDetail="通过后再读取账号与治理记录"
+        apiBaseUrl={apiBaseUrl}
+        onRetry={() => void authenticate()}
+      />
     );
   }
 

@@ -1,21 +1,21 @@
 "use client";
 
-import {
-  ApiRequestError,
-  getCurrentAccount,
-  logout,
-  type Account,
-} from "@geoeval/api-client";
+import { logout, type Account } from "@geoeval/api-client";
 import { useEffect, useState } from "react";
 
 import { AdminSidebar } from "./admin/admin-sidebar.js";
 import { roleHomePath } from "./enter/post-login-route.js";
+import {
+  accountRoleLabels,
+  loadRoleSession,
+  type RoleSessionState,
+  WorkspaceAccessPanel,
+} from "./session-access.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
 type SupportingRole = Exclude<Account["role"], "TERMINAL_CUSTOMER">;
-type WorkspaceState = "loading" | "ready" | "denied" | "error";
 
 type RoleWorkspaceConfig = {
   eyebrow: string;
@@ -37,13 +37,6 @@ type RoleWorkspaceConfig = {
   }>;
 };
 
-const roleLabels: Record<Account["role"], string> = {
-  TERMINAL_CUSTOMER: "终端客户",
-  OPERATIONS: "运营人员",
-  ADMINISTRATOR: "系统管理员",
-  AGENT: "代理商",
-};
-
 const statusLabels: Record<
   RoleWorkspaceConfig["cards"][number]["status"],
   string
@@ -56,97 +49,31 @@ const statusLabels: Record<
 
 export function SupportingRoleWorkspace({ role }: { role: SupportingRole }) {
   const config = supportingRoleConfig(role);
-  const [state, setState] = useState<WorkspaceState>("loading");
-  const [account, setAccount] = useState<Account>();
-  const [message, setMessage] = useState("");
+  const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
 
   async function load() {
-    setState("loading");
-    setMessage("");
-    try {
-      const current = await getCurrentAccount(apiBaseUrl);
-      setAccount(current);
-      setState(current.role === role ? "ready" : "denied");
-    } catch (error) {
-      if (error instanceof ApiRequestError && error.status === 401) {
-        window.location.assign("/enter");
-        return;
-      }
-      setMessage(error instanceof Error ? error.message : "工作区暂时无法加载");
-      setState("error");
-    }
+    setSession({ kind: "loading" });
+    setSession(await loadRoleSession(apiBaseUrl, role));
   }
 
   useEffect(() => {
     void load();
   }, []);
 
-  if (state === "loading") {
+  if (session.kind !== "ready") {
     return (
-      <main className="loading-page admin-loading-page">
-        <span className="loading-orbit" />
-        <div>
-          <b>正在核验{roleLabels[role]}身份</b>
-          <small>角色确认后再加载对应工作区</small>
-        </div>
-      </main>
+      <WorkspaceAccessPanel
+        state={session}
+        expectedRole={role}
+        workspaceName={`${accountRoleLabels[role]}工作区`}
+        loadingDetail="角色确认后再加载对应工作区"
+        apiBaseUrl={apiBaseUrl}
+        onRetry={() => void load()}
+      />
     );
   }
 
-  if (state === "denied" && account) {
-    return (
-      <main className="admin-denied-page">
-        <section>
-          <span className="denied-mark" aria-hidden="true">
-            403
-          </span>
-          <p className="eyebrow">固定角色边界</p>
-          <h1>该账号不能进入{roleLabels[role]}工作区</h1>
-          <p>
-            当前账号是「{roleLabels[account.role]}
-            」，系统不会合并角色权限或提供角色切换。
-          </p>
-          <div>
-            <a className="primary-button" href={roleHomePath(account.role)}>
-              返回我的工作区
-            </a>
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={() =>
-                void logout(apiBaseUrl).then(() =>
-                  window.location.assign("/enter"),
-                )
-              }
-            >
-              退出并更换账号
-            </button>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
-  if (state === "error") {
-    return (
-      <main className="admin-error-page">
-        <section>
-          <p className="eyebrow">暂时无法进入工作区</p>
-          <h1>{roleLabels[role]}工作区没有加载完成</h1>
-          <p>{message}</p>
-          <button
-            className="primary-button"
-            type="button"
-            onClick={() => void load()}
-          >
-            重新加载
-          </button>
-        </section>
-      </main>
-    );
-  }
-
-  if (!account) return null;
+  const { account } = session;
 
   return (
     <div className="app-shell admin-app-shell supporting-app-shell">
@@ -159,7 +86,7 @@ export function SupportingRoleWorkspace({ role }: { role: SupportingRole }) {
             <strong>GEO 优化</strong>
           </a>
           <div className="admin-area-label">{config.eyebrow}</div>
-          <nav aria-label={`${roleLabels[role]}功能`}>
+          <nav aria-label={`${accountRoleLabels[role]}功能`}>
             {config.navigation?.map((item, index) =>
               item.href ? (
                 <a
@@ -193,7 +120,7 @@ export function SupportingRoleWorkspace({ role }: { role: SupportingRole }) {
           <div className="sidebar-account">
             <span>{account.mobile.slice(-4)}</span>
             <div>
-              <b>{roleLabels[role]}</b>
+              <b>{accountRoleLabels[role]}</b>
               <small>{account.mobile}</small>
             </div>
             <button
@@ -272,8 +199,8 @@ export function supportingRoleConfig(
         {
           title: "账号与访问",
           description:
-            "查看账号、固定角色、状态、活跃会话与身份治理审计。治理操作仍在完善。",
-          status: "READ_ONLY",
+            "查看账号、固定角色、状态、活跃会话与治理审计，并执行受控账号治理。",
+          status: "AVAILABLE",
           href: "/admin/accounts",
         },
         {

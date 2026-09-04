@@ -4303,6 +4303,11 @@ a {
   font-weight: 900;
   letter-spacing: 0.08em;
 }
+.session-interruption-page .session-state-mark {
+  padding: 0 14px;
+  background: #fff1d8;
+  color: #84601f;
+}
 .admin-denied-page h1,
 .admin-error-page h1 {
   margin: 0;

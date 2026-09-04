@@ -22,7 +22,7 @@ describe("administrator account read model", () => {
   it("starts with identity verification before protected account data", () => {
     const markup = renderToStaticMarkup(<AdminAccountsWorkspace />);
 
-    expect(markup).toContain("正在核验管理员身份");
+    expect(markup).toContain("正在核验系统管理员身份");
     expect(markup).not.toContain("创建内部账号");
     expect(markup).not.toContain("停用账号");
   });
