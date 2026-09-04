@@ -88,7 +88,7 @@
 - [x] Test Bootstrap first run/replay/conflicts and prove no recovery/public HTTP
       entry and no secret/plaintext Token in output or audit; verify the normal
       second-administrator readiness path through Governance.
-- [ ] Force stale revision, self-operation, last-administrator, concurrent
+- [x] Force stale revision, self-operation, last-administrator, concurrent
       demotion, session-revoke failure, and audit failure; prove each transaction
       is all-or-nothing.
 - [ ] Test the complete route classification and CSRF header/Origin/content-type
@@ -297,3 +297,23 @@
   CSRF/route classification, isolated rollback rehearsal, full desktop/narrow
   browser pass, aggregate verification/review, reconciliation, PR, and
   integration.
+
+## Governance atomicity checkpoint — 2026-09-04
+
+- Kept the approved self-governance rule while making the sole-administrator
+  response actionable: self-demotion/deactivation first reports that another
+  active administrator is required; after one exists, the command remains
+  forbidden as self-governance.
+- Strengthened concurrent crossed-demotion evidence to prove exactly one target
+  changes role, exactly one Session is revoked, exactly one Session stays active,
+  one administrator remains, and only one audit commits.
+- PostgreSQL test triggers forced Session-revocation failure after the Account
+  update and forced audit-insert failure after the Account/Session updates. Both
+  cases rolled Account, revision, Session, revocation reason, and audit back to
+  the original state.
+- Every trigger/function is static, test-namespaced, removed in `finally`, and
+  pre-cleaned before installation. Focused Governance integration passed 9/9;
+  backend typecheck, formatting, and Diff check passed.
+- Still open: complete CSRF/route classification, isolated rollback rehearsal,
+  full desktop/narrow browser pass, aggregate verification/review,
+  reconciliation, PR, and integration.

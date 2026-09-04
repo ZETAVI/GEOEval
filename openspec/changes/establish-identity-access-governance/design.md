@@ -258,6 +258,12 @@ credential, or role-switch action is present. An administrator can use ordinary
 logout and self logout-all, but cannot target their own account through a
 Governance command.
 
+If the sole active administrator attempts a self-demotion or self-deactivation,
+the command first returns the more actionable last-administrator result. After a
+second active administrator exists, the same self-target still returns the
+self-governance prohibition and must be performed by that other administrator.
+Neither rejection changes Account, Session, or audit state.
+
 ## Fixed Web role shells
 
 Replace the current post-login special case with one role-home mapping:

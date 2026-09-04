@@ -230,6 +230,16 @@ administrator governance and SHALL preserve at least one active administrator.
 - **AND** another active administrator must perform a permitted governance
   change to that account.
 
+#### Scenario: The sole administrator attempts self-demotion
+
+- **WHEN** the only active administrator targets their own active status or
+  administrator role with a change that would remove the last administrator
+- **THEN** Identity first returns the last-administrator safety result requiring
+  another active administrator
+- **AND** after another active administrator exists, the same self-target is
+  still rejected as self-governance
+- **AND** neither rejection changes Account, Session, revision, or audit state.
+
 #### Scenario: An administrator creates another administrator
 
 - **WHEN** an active administrator creates or promotes another internal account
