@@ -5,7 +5,15 @@ import { logout, type Account } from "@geoeval/api-client";
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
-export function AdminSidebar({ account }: { account: Account }) {
+type AdminSection = "overview" | "accounts" | "media";
+
+export function AdminSidebar({
+  account,
+  active,
+}: {
+  account: Account;
+  active: AdminSection;
+}) {
   return (
     <aside className="sidebar admin-sidebar">
       <a className="brand-mark inverse" href="/admin">
@@ -14,22 +22,33 @@ export function AdminSidebar({ account }: { account: Account }) {
       </a>
       <div className="admin-area-label">管理员工作区</div>
       <nav aria-label="管理员功能">
-        <a className="side-link" href="/admin">
+        <a
+          className={active === "overview" ? "side-link active" : "side-link"}
+          href="/admin"
+          aria-current={active === "overview" ? "page" : undefined}
+        >
           <i>总</i>
           <span>
             <b>管理总览</b>
             <small>权限与系统模块</small>
           </span>
         </a>
-        <span className="side-link unavailable">
+        <a
+          className={active === "accounts" ? "side-link active" : "side-link"}
+          href="/admin/accounts"
+          aria-current={active === "accounts" ? "page" : undefined}
+        >
           <i>权</i>
           <span>
             <b>账号与访问</b>
             <small>账号、角色与会话</small>
           </span>
-          <em>待接入</em>
-        </span>
-        <a className="side-link active" href="/admin/media" aria-current="page">
+        </a>
+        <a
+          className={active === "media" ? "side-link active" : "side-link"}
+          href="/admin/media"
+          aria-current={active === "media" ? "page" : undefined}
+        >
           <i>媒</i>
           <span>
             <b>媒体库管理</b>
@@ -39,7 +58,7 @@ export function AdminSidebar({ account }: { account: Account }) {
       </nav>
       <div className="admin-boundary-note">
         <b>职责说明</b>
-        <p>管理员维护媒体平台、价格和资源；实际发布由运营人员负责。</p>
+        <p>管理员治理账号、访问与平台级资料，不代替运营履约或客户内容管理。</p>
       </div>
       <div className="sidebar-account">
         <span>{account.mobile.slice(-4)}</span>

@@ -4,6 +4,12 @@ export type FoundationRecord =
   components["schemas"]["FoundationRecordResponse"];
 export type Challenge = components["schemas"]["ChallengeResponse"];
 export type Account = components["schemas"]["AccountResponse"];
+export type AccountSummary = components["schemas"]["AccountSummaryResponse"];
+export type AccountList = components["schemas"]["AccountListResponse"];
+export type IdentityGovernanceAudit =
+  components["schemas"]["IdentityGovernanceAuditResponse"];
+export type IdentityGovernanceAuditList =
+  components["schemas"]["IdentityGovernanceAuditListResponse"];
 export type Brand = components["schemas"]["BrandResponse"];
 export type EvaluationDefinition =
   components["schemas"]["EvaluationDefinitionResponse"];
@@ -124,6 +130,44 @@ export function getCurrentAccount(apiBaseUrl: string): Promise<Account> {
 
 export function logout(apiBaseUrl: string): Promise<void> {
   return apiRequest(apiBaseUrl, "/identity/session", { method: "DELETE" });
+}
+
+export function listAdminAccounts(
+  apiBaseUrl: string,
+  options: {
+    search?: string;
+    role?: Account["role"];
+    status?: Account["status"];
+    cursor?: string;
+    limit?: number;
+  } = {},
+): Promise<AccountList> {
+  const query = new URLSearchParams();
+  if (options.search) query.set("search", options.search);
+  if (options.role) query.set("role", options.role);
+  if (options.status) query.set("status", options.status);
+  if (options.cursor) query.set("cursor", options.cursor);
+  if (options.limit !== undefined) query.set("limit", String(options.limit));
+  const suffix = query.size ? `?${query.toString()}` : "";
+  return apiRequest(apiBaseUrl, `/admin/accounts${suffix}`, {
+    cache: "no-store",
+  });
+}
+
+export function listIdentityGovernanceAudits(
+  apiBaseUrl: string,
+  options: { targetAccountId?: string; cursor?: string; limit?: number } = {},
+): Promise<IdentityGovernanceAuditList> {
+  const query = new URLSearchParams();
+  if (options.targetAccountId) {
+    query.set("targetAccountId", options.targetAccountId);
+  }
+  if (options.cursor) query.set("cursor", options.cursor);
+  if (options.limit !== undefined) query.set("limit", String(options.limit));
+  const suffix = query.size ? `?${query.toString()}` : "";
+  return apiRequest(apiBaseUrl, `/admin/accounts/audits${suffix}`, {
+    cache: "no-store",
+  });
 }
 
 export function listBrands(apiBaseUrl: string): Promise<Brand[]> {

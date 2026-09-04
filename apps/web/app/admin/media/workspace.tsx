@@ -23,7 +23,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { roleHomePath } from "../../enter/post-login-route.js";
-import { AdminSidebar } from "./admin-sidebar.js";
+import { AdminSidebar } from "../admin-sidebar.js";
 import {
   DeleteConfirmDialog,
   PlatformEditor,
@@ -428,7 +428,7 @@ export function AdminMediaWorkspace() {
 
   return (
     <div className="app-shell admin-app-shell">
-      <AdminSidebar account={account} />
+      <AdminSidebar account={account} active="media" />
       <main className="workspace admin-media-workspace" id="media-catalog">
         <header className="workspace-header admin-workspace-header">
           <div>
