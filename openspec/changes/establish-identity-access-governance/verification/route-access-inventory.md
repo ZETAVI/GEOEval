@@ -29,8 +29,11 @@ Identity-owned request object. They consume `CurrentPrincipal.accountId`.
 
 ## Expected denial semantics
 
-- missing, revoked, idle-expired, absolute-expired, or inactive-account Session:
-  `401`;
+- missing, unknown, or already-cleaned credential: `401` with
+  `AUTHENTICATION_REQUIRED`;
+- retained revoked Session: `401` with `SESSION_REVOKED`;
+- retained idle- or absolute-expired Session: `401` with `SESSION_EXPIRED`;
+- retained Session for an inactive account: `401` with `ACCOUNT_INACTIVE`;
 - active authenticated account outside declared fixed roles: `403` with
   `ACCOUNT_ROLE_FORBIDDEN`;
 - untrusted/missing Origin or application header on a state mutation: `403`;

@@ -79,10 +79,10 @@
 
 ## Stage 4 — Verify, reconcile, and review
 
-- [ ] Test public registration, pre-provisioned internal login, inactive login,
+- [x] Test public registration, pre-provisioned internal login, inactive login,
       customer/internal conflicts, complete role allow/deny matrix, and forged
       route/body/Cookie attempts.
-- [ ] Test current logout, self logout-all, administrator revoke-all, multiple
+- [x] Test current logout, self logout-all, administrator revoke-all, multiple
       sessions, idle/absolute expiry, permission-change invalidation, revocation
       reasons, cleanup, and new authentication after change.
 - [x] Test Bootstrap first run/replay/conflicts and prove no recovery/public HTTP
@@ -262,6 +262,9 @@
   pass. The existing 35-file / 187-test backend result and concurrent-last-admin
   integration evidence remain applicable because backend code/config/schema did
   not change in this checkpoint.
+
+## Role Session-state checkpoint — 2026-09-04
+
 - The shared role-session checkpoint now distinguishes unauthenticated,
   inactive, revoked, and expired server states, preserves wrong-role denial,
   and reserves retry for temporary failures across the fixed role homes and
@@ -269,3 +272,28 @@
   requesting customer business data.
 - Still open: the broader Stage 4 security/concurrency matrix, rollback
   rehearsal, design reconciliation, PR review, and integration.
+
+## Identity HTTP security and lifecycle checkpoint — 2026-09-04
+
+- Added an HTTP matrix for public customer signup, all three pre-provisioned
+  internal roles, inactive-account login rejection, and representative
+  any-role/customer-only/administrator-only resources across all four roles.
+- Proved client-supplied role, status, revision, account ID, and actor fields do
+  not redefine server-owned account or governance identity. Random opaque
+  values, a stored digest used as if it were a credential, and the wrong Cookie
+  name all remain generic authentication-required results.
+- Proved current logout affects one Session, self logout-all affects all
+  remaining Sessions, administrator revoke-all keeps identity revision stable,
+  idle and absolute expiry share the bounded expiry result, role change revokes
+  the next Session, and deactivation/reactivation never restores an old Session.
+- Verified `USER_LOGOUT`, `USER_LOGOUT_ALL`, `ADMIN_REVOKE_ALL`,
+  `ROLE_CHANGED`, and `ACCOUNT_DEACTIVATED` storage reasons, plus fresh
+  authentication after role/status changes. The existing maintenance test
+  remains the cleanup evidence.
+- Focused verification: 2 HTTP integration files / 8 tests passed; backend
+  typecheck, formatting, and Diff check passed. Full regression and build are
+  repeated at the next aggregate verification checkpoint.
+- Still open: forced governance transaction failure/concurrency, complete
+  CSRF/route classification, isolated rollback rehearsal, full desktop/narrow
+  browser pass, aggregate verification/review, reconciliation, PR, and
+  integration.
