@@ -95,7 +95,7 @@
       matrix, including login and logout boundaries.
 - [x] Rehearse migration and application rollback in the explicit isolated
       database; prove shared PostgreSQL/Redis remain unchanged.
-- [ ] Inspect real browser desktop and narrow states for each role, administrator
+- [x] Inspect real browser desktop and narrow states for each role, administrator
       account governance, allowed/denied access, session expiry/revocation, and
       dangerous-action confirmation.
 - [ ] Run focused tests, typecheck, full backend/Web tests, build, formatting,
@@ -359,3 +359,27 @@
   rechecked.
 - Still open: full desktop/narrow browser pass, aggregate verification/review,
   reconciliation, PR, and integration.
+
+## Complete browser acceptance checkpoint — 2026-09-04
+
+- Reused unchanged desktop evidence for all role homes, administrator account
+  governance, cross-role denial, and Session expired/revoked/inactive states;
+  intervening commits changed only backend error precedence, tests, and evidence.
+- On the latest branch, verified 390×844 Chrome layouts for customer brand empty
+  state, administrator overview/account governance, operations, agent, and
+  cross-role denial. Every page reported document width 390 with no horizontal
+  overflow; the viewport override was reset to default at exit.
+- The dangerous account dialog remained a single native modal, focused the
+  reason textarea, kept confirmation disabled initially, fit the narrow viewport,
+  and closed on Escape without submitting.
+- Operations and Agent each showed three explicit future-capability cards and no
+  fabricated counts or records. Browser warning/error logs were empty.
+- A first fixture prefix omitted one zero and produced two unintended test
+  customers; the Session was normally logged out and all six affected accounts,
+  two Challenges, and two rate rows were immediately removed before restarting
+  the authoritative pass with the correct prefix.
+- Final correct-prefix cleanup removed four accounts, three Sessions, three
+  Challenges, and three rate rows; account/Session/Challenge/rate/audit selectors
+  all returned zero. API/Web processes and browser tabs were stopped.
+- Still open: aggregate verification/fixed-diff review, reconciliation, PR, and
+  integration.
