@@ -16,6 +16,7 @@
     "db:generate": "GEOEVAL_LOCAL_DEFAULTS=1 prisma generate --config prisma.config.ts",
     "db:migrate": "GEOEVAL_LOCAL_DEFAULTS=1 prisma migrate deploy --config prisma.config.ts",
     "openapi:generate": "GEOEVAL_LOCAL_DEFAULTS=1 node --import tsx src/generate-openapi.ts",
+    "identity:cleanup": "node --import tsx src/identity-maintenance-main.ts cleanup",
     "media-supply:first-batch": "node --import tsx src/media-supply-import-main.ts"
   },
   "dependencies": {

@@ -11,6 +11,24 @@ const localAuthHashPepper = "geoeval_local_auth_hash_pepper_2026";
 const commonSchema = z.object({
   DATABASE_URL: z.string().min(1),
   GEOEVAL_TELEMETRY_FAIL: z.enum(["0", "1"]).default("0"),
+  AUTH_SESSION_RETENTION_DAYS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(180)
+    .default(30),
+  AUTH_CHALLENGE_RETENTION_HOURS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(168)
+    .default(24),
+  AUTH_IDENTITY_CLEANUP_BATCH_SIZE: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(5000)
+    .default(500),
 });
 
 const apiSchema = commonSchema.extend({
@@ -25,6 +43,36 @@ const apiSchema = commonSchema.extend({
   AUTH_CHALLENGE_MODE: z.literal("deterministic").default("deterministic"),
   AUTH_HASH_PEPPER: z.string().min(32),
   AUTH_DETERMINISTIC_CODE: z.string().regex(/^\d{6}$/),
+  AUTH_CHALLENGE_LIFETIME_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(60)
+    .max(900)
+    .default(300),
+  AUTH_CHALLENGE_RESEND_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(10)
+    .max(300)
+    .default(60),
+  AUTH_CHALLENGE_WINDOW_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(60)
+    .max(3600)
+    .default(900),
+  AUTH_CHALLENGE_MAX_REQUESTS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(20)
+    .default(5),
+  AUTH_CHALLENGE_MAX_FAILED_ATTEMPTS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(10)
+    .default(5),
   AUTH_CUSTOMER_SESSION_ABSOLUTE_SECONDS: z.coerce
     .number()
     .int()
@@ -134,6 +182,14 @@ export type ApiConfig = {
   authHashPepper: string;
   authDeterministicCode: string;
   authCookieSecure: boolean;
+  authChallengePolicy: {
+    lifetimeMs: number;
+    resendIntervalMs: number;
+    windowMs: number;
+    maximumRequestsPerWindow: number;
+    maximumFailedAttempts: number;
+  };
+  authCleanupPolicy: IdentityCleanupPolicy;
   authSessionPolicy: {
     customerAbsoluteMs: number;
     customerIdleMs: number;
@@ -142,6 +198,17 @@ export type ApiConfig = {
     touchIntervalMs: number;
   };
   storeLocation: StoreLocationRuntimeConfig;
+};
+
+export type IdentityCleanupPolicy = {
+  sessionRetentionMs: number;
+  challengeRetentionMs: number;
+  batchSize: number;
+};
+
+export type IdentityMaintenanceConfig = {
+  databaseUrl: string;
+  authCleanupPolicy: IdentityCleanupPolicy;
 };
 
 export type WorkerConfig = {
@@ -218,6 +285,13 @@ export function loadApiConfig(
       "Authentication Session idle timeout must not exceed its absolute timeout",
     );
   }
+  if (
+    parsed.AUTH_CHALLENGE_RESEND_SECONDS > parsed.AUTH_CHALLENGE_WINDOW_SECONDS
+  ) {
+    throw new Error(
+      "AUTH_CHALLENGE_RESEND_SECONDS must not exceed AUTH_CHALLENGE_WINDOW_SECONDS",
+    );
+  }
   return {
     databaseUrl: parsed.DATABASE_URL,
     port: parsed.PORT,
@@ -228,6 +302,14 @@ export function loadApiConfig(
     authHashPepper: parsed.AUTH_HASH_PEPPER,
     authDeterministicCode: parsed.AUTH_DETERMINISTIC_CODE,
     authCookieSecure: parsed.NODE_ENV === "production",
+    authChallengePolicy: {
+      lifetimeMs: parsed.AUTH_CHALLENGE_LIFETIME_SECONDS * 1000,
+      resendIntervalMs: parsed.AUTH_CHALLENGE_RESEND_SECONDS * 1000,
+      windowMs: parsed.AUTH_CHALLENGE_WINDOW_SECONDS * 1000,
+      maximumRequestsPerWindow: parsed.AUTH_CHALLENGE_MAX_REQUESTS,
+      maximumFailedAttempts: parsed.AUTH_CHALLENGE_MAX_FAILED_ATTEMPTS,
+    },
+    authCleanupPolicy: cleanupPolicy(parsed),
     authSessionPolicy: {
       customerAbsoluteMs: parsed.AUTH_CUSTOMER_SESSION_ABSOLUTE_SECONDS * 1000,
       customerIdleMs: parsed.AUTH_CUSTOMER_SESSION_IDLE_SECONDS * 1000,
@@ -243,6 +325,16 @@ export function loadApiConfig(
       amapBaseUrl: parsed.AMAP_WEB_SERVICE_BASE_URL.replace(/\/$/, ""),
       amapWebServiceKey: parsed.AMAP_WEB_SERVICE_KEY,
     },
+  };
+}
+
+export function loadIdentityMaintenanceConfig(
+  environment: NodeJS.ProcessEnv = process.env,
+): IdentityMaintenanceConfig {
+  const parsed = commonSchema.parse(withLocalDefaults(environment));
+  return {
+    databaseUrl: parsed.DATABASE_URL,
+    authCleanupPolicy: cleanupPolicy(parsed),
   };
 }
 
@@ -334,6 +426,18 @@ function aiTelemetryConfig(
     environment: parsed.LANGFUSE_TRACING_ENVIRONMENT,
     contentMode: parsed.AI_TELEMETRY_CONTENT_MODE,
     ...(parsed.LANGFUSE_RELEASE ? { release: parsed.LANGFUSE_RELEASE } : {}),
+  };
+}
+
+function cleanupPolicy(
+  parsed: z.infer<typeof commonSchema>,
+): IdentityCleanupPolicy {
+  return {
+    sessionRetentionMs:
+      parsed.AUTH_SESSION_RETENTION_DAYS * 24 * 60 * 60 * 1000,
+    challengeRetentionMs:
+      parsed.AUTH_CHALLENGE_RETENTION_HOURS * 60 * 60 * 1000,
+    batchSize: parsed.AUTH_IDENTITY_CLEANUP_BATCH_SIZE,
   };
 }
 

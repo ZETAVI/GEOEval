@@ -41,10 +41,10 @@
 - [ ] Split the current all-purpose Identity service into cohesive Account,
       Authentication, Session, Access, Governance, Audit, and Bootstrap
       responsibilities without creating another deployable service.
-- [ ] Preserve opaque credential/digest handling and implement server-owned
+- [x] Preserve opaque credential/digest handling and implement server-owned
       idle/absolute expiry, current logout, self logout-all, administrator
       revoke-all, revocation reasons, and bounded cleanup.
-- [ ] Add the Challenge-delivery port plus shared expiry, single-use, supersession,
+- [x] Add the Challenge-delivery port plus shared expiry, single-use, supersession,
       failure-attempt and request-rate policies; keep deterministic delivery
       local/test only and do not call real SMS.
 - [x] Implement host-only production Cookie serialization and the shared JSON
@@ -114,12 +114,36 @@
 - Isolated targets: PostgreSQL database `geoeval_issue50` and Redis database
   `10`; the default `geoeval` database and Redis database `0` are not test
   targets.
-- Migration: all 20 migrations replayed from an empty Issue-owned database;
+- Migration at this checkpoint: all 20 migrations replayed from an empty
+  Issue-owned database;
   additive Session defaults preserve old-writer insertion after migration.
 - Verification: 32 backend test files / 165 tests passed, root typecheck passed,
   production build passed, generated OpenAPI/client contracts are current,
   formatting and project-framework validation passed.
 - Route proof: [authenticated route access inventory](verification/route-access-inventory.md).
-- Still open: Challenge delivery/rate lifecycle, bounded cleanup, Bootstrap,
+- Still open at this checkpoint: Challenge delivery/rate lifecycle, bounded
+  cleanup, Bootstrap,
   role shells and administrator UI, complete failure/concurrency matrix,
   browser inspection, rollback rehearsal, reconciliation, and PR review.
+
+## Challenge and cleanup checkpoint — 2026-09-04
+
+- Added one delivery port with a deterministic local/test adapter. Identity,
+  not the adapter, owns Challenge digest, expiry, single-use, supersession,
+  attempt limit, and per-mobile request policy.
+- Added PostgreSQL-serialized 60-second resend and five-per-15-minute defaults,
+  five-minute expiry, five failed attempts, and explicit supersession of an
+  earlier usable Challenge. Redis, IP address, and device identity are not
+  authority for this policy.
+- Added `identity:cleanup` with configurable 30-day Session and 24-hour
+  Challenge/rate-state retention, at most 500 deletes per record kind per run,
+  terminal-predicate rechecks, and no Governance-audit deletion.
+- Migration: all 21 migrations replayed from an empty temporary database; the
+  Challenge table, rate-limit table, and new column were inspected before the
+  temporary database was removed.
+- Verification: Challenge/cleanup/config/HTTP focused tests passed; complete
+  backend regression is 33 files / 173 tests; typecheck, production build,
+  generated contracts, formatting, Diff check, and framework validation pass.
+- Still open: remaining internal service split, Bootstrap, role shells,
+  administrator UI, complete failure/security/browser/rollback evidence,
+  reconciliation, PR review, and integration.

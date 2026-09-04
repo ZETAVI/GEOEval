@@ -29,6 +29,13 @@ export type MobileChallengeView = {
   failedAttempts: number;
   expiresAt: Date;
   consumedAt: Date | null;
+  supersededAt: Date | null;
+};
+
+export type IdentityLifecycleCleanupResult = {
+  deletedSessions: number;
+  deletedChallenges: number;
+  deletedChallengeRateLimits: number;
 };
 
 export type AuthenticatedSession = {

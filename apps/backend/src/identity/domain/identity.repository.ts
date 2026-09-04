@@ -5,6 +5,7 @@ import type {
   AccountView,
   AuthenticatedSession,
   IdentityGovernanceAuditView,
+  IdentityLifecycleCleanupResult,
   InternalAccountRole,
   MobileChallengeView,
   SessionRevocationReason,
@@ -13,14 +14,27 @@ import type {
 export const IDENTITY_REPOSITORY = Symbol("IDENTITY_REPOSITORY");
 
 export interface IdentityRepository {
-  createChallenge(input: {
+  issueChallenge(input: {
     id: string;
     mobile: string;
     codeDigest: string;
     expiresAt: Date;
+    now: Date;
+    resendIntervalMs: number;
+    windowMs: number;
+    maximumRequestsPerWindow: number;
   }): Promise<void>;
   findChallenge(id: string): Promise<MobileChallengeView | undefined>;
-  incrementFailedAttempts(id: string): Promise<void>;
+  incrementFailedAttempts(input: {
+    id: string;
+    maximumFailedAttempts: number;
+  }): Promise<void>;
+  cleanupIdentityLifecycle(input: {
+    now: Date;
+    sessionRetentionMs: number;
+    challengeRetentionMs: number;
+    batchSize: number;
+  }): Promise<IdentityLifecycleCleanupResult>;
   completeChallenge(input: {
     challengeId: string;
     mobile: string;
@@ -29,6 +43,7 @@ export interface IdentityRepository {
     customerIdleMs: number;
     internalAbsoluteMs: number;
     internalIdleMs: number;
+    maximumFailedAttempts: number;
     now: Date;
   }): Promise<
     { account: AccountView; expiresAt: Date; idleExpiresAt: Date } | undefined

@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   UnauthorizedException,
@@ -8,19 +10,21 @@ import { randomBytes, randomUUID } from "node:crypto";
 
 import type { ApiConfig } from "../../config/runtime-config.js";
 import {
+  CHALLENGE_DELIVERY,
+  type ChallengeDeliveryPort,
+} from "../domain/challenge-delivery.port.js";
+import {
   challengeDigest,
   digestsMatch,
   sessionDigest,
 } from "../domain/identity.crypto.js";
+import { ChallengeRateLimitError } from "../domain/identity.errors.js";
 import {
   IDENTITY_REPOSITORY,
   type IdentityRepository,
 } from "../domain/identity.repository.js";
 import type { AccountView } from "../domain/identity.types.js";
 import { IDENTITY_CONFIG } from "./identity.config.js";
-
-const challengeLifetimeMs = 5 * 60 * 1000;
-const maximumFailedAttempts = 5;
 
 export type ChallengeDelivery = {
   challengeId: string;
@@ -40,25 +44,58 @@ export class AuthenticationService {
     @Inject(IDENTITY_REPOSITORY)
     private readonly repository: IdentityRepository,
     @Inject(IDENTITY_CONFIG) private readonly config: ApiConfig,
+    @Inject(CHALLENGE_DELIVERY)
+    private readonly delivery: ChallengeDeliveryPort,
   ) {}
 
   async requestChallenge(rawMobile: string): Promise<ChallengeDelivery> {
     const mobile = normalizeMobile(rawMobile);
     const id = randomUUID();
-    const expiresAt = new Date(Date.now() + challengeLifetimeMs);
+    const now = new Date();
+    const expiresAt = new Date(
+      now.getTime() + this.config.authChallengePolicy.lifetimeMs,
+    );
     const code = this.config.authDeterministicCode;
-    await this.repository.createChallenge({
-      id,
+    try {
+      await this.repository.issueChallenge({
+        id,
+        mobile,
+        codeDigest: challengeDigest(
+          this.config.authHashPepper,
+          id,
+          mobile,
+          code,
+        ),
+        expiresAt,
+        now,
+        resendIntervalMs: this.config.authChallengePolicy.resendIntervalMs,
+        windowMs: this.config.authChallengePolicy.windowMs,
+        maximumRequestsPerWindow:
+          this.config.authChallengePolicy.maximumRequestsPerWindow,
+      });
+    } catch (error) {
+      if (error instanceof ChallengeRateLimitError) {
+        throw new HttpException(
+          {
+            code: "CHALLENGE_RATE_LIMITED",
+            message: error.message,
+            retryAfterSeconds: error.retryAfterSeconds,
+          },
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+      throw error;
+    }
+    const delivery = await this.delivery.deliver({
+      challengeId: id,
       mobile,
-      codeDigest: challengeDigest(this.config.authHashPepper, id, mobile, code),
+      code,
       expiresAt,
     });
     return {
       challengeId: id,
       expiresAt: expiresAt.toISOString(),
-      ...(this.config.runtimeEnvironment === "production"
-        ? {}
-        : { developmentCode: code }),
+      ...delivery,
     };
   }
 
@@ -78,8 +115,10 @@ export class AuthenticationService {
       !challenge ||
       challenge.mobile !== mobile ||
       challenge.consumedAt ||
+      challenge.supersededAt ||
       challenge.expiresAt <= now ||
-      challenge.failedAttempts >= maximumFailedAttempts
+      challenge.failedAttempts >=
+        this.config.authChallengePolicy.maximumFailedAttempts
     ) {
       throw new UnauthorizedException("验证码无效或已过期，请重新获取");
     }
@@ -91,7 +130,11 @@ export class AuthenticationService {
       input.code,
     );
     if (!digestsMatch(challenge.codeDigest, providedDigest)) {
-      await this.repository.incrementFailedAttempts(challenge.id);
+      await this.repository.incrementFailedAttempts({
+        id: challenge.id,
+        maximumFailedAttempts:
+          this.config.authChallengePolicy.maximumFailedAttempts,
+      });
       throw new UnauthorizedException("验证码不正确");
     }
 
@@ -100,7 +143,12 @@ export class AuthenticationService {
       challengeId: challenge.id,
       mobile,
       sessionDigest: sessionDigest(token),
-      ...this.config.authSessionPolicy,
+      customerAbsoluteMs: this.config.authSessionPolicy.customerAbsoluteMs,
+      customerIdleMs: this.config.authSessionPolicy.customerIdleMs,
+      internalAbsoluteMs: this.config.authSessionPolicy.internalAbsoluteMs,
+      internalIdleMs: this.config.authSessionPolicy.internalIdleMs,
+      maximumFailedAttempts:
+        this.config.authChallengePolicy.maximumFailedAttempts,
       now,
     });
     if (!completed) {

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   loadApiConfig,
+  loadIdentityMaintenanceConfig,
   loadWorkerConfig,
 } from "../src/config/runtime-config.js";
 
@@ -40,6 +41,48 @@ describe("process-scoped configuration", () => {
         AUTH_DETERMINISTIC_CODE: "246810",
       }),
     ).toThrow("forbidden in production");
+  });
+
+  it("bounds Challenge abuse and lifecycle cleanup configuration", () => {
+    const base = {
+      DATABASE_URL: "postgresql://example/api",
+      AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+      AUTH_DETERMINISTIC_CODE: "246810",
+    };
+    expect(loadApiConfig(base)).toMatchObject({
+      authChallengePolicy: {
+        lifetimeMs: 300_000,
+        resendIntervalMs: 60_000,
+        windowMs: 900_000,
+        maximumRequestsPerWindow: 5,
+        maximumFailedAttempts: 5,
+      },
+      authCleanupPolicy: {
+        sessionRetentionMs: 30 * 24 * 60 * 60 * 1000,
+        challengeRetentionMs: 24 * 60 * 60 * 1000,
+        batchSize: 500,
+      },
+    });
+    expect(() =>
+      loadApiConfig({
+        ...base,
+        AUTH_CHALLENGE_RESEND_SECONDS: "120",
+        AUTH_CHALLENGE_WINDOW_SECONDS: "60",
+      }),
+    ).toThrow("must not exceed");
+    expect(
+      loadIdentityMaintenanceConfig({
+        DATABASE_URL: "postgresql://example/maintenance",
+        AUTH_IDENTITY_CLEANUP_BATCH_SIZE: "25",
+      }),
+    ).toEqual({
+      databaseUrl: "postgresql://example/maintenance",
+      authCleanupPolicy: {
+        sessionRetentionMs: 30 * 24 * 60 * 60 * 1000,
+        challengeRetentionMs: 24 * 60 * 60 * 1000,
+        batchSize: 25,
+      },
+    });
   });
 
   it("keeps Store Location conditional and rejects unsafe activation", () => {

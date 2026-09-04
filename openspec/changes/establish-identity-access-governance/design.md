@@ -120,8 +120,9 @@ deletion API in the first release.
 
 Keep `id`, `accountId`, `tokenDigest`, `createdAt`, `expiresAt`, and `revokedAt`.
 Add `lastSeenAt`, a bounded idle expiry or policy snapshot, revocation reason,
-and optional revoking actor when an administrator command owns the revocation.
-Expired state is derived from time and is not stored as a competing enum.
+and no competing stored expiry-status enum. An administrator revocation's actor
+belongs to the atomic Governance audit; Session rows retain the machine-readable
+reason without duplicating actor truth.
 
 Recommended initial policy defaults are:
 
@@ -141,12 +142,14 @@ Privilege changes never retain or rotate an old credential; the user
 reauthenticates and receives a new session.
 
 Expired or revoked Session rows remain available for 30 days after their
-terminal time for bounded security correlation, then a scheduled or explicit
-owner-local cleanup deletes them in limited batches. Consumed or expired
-Challenge rows use a shorter 24-hour retention. These are initial operational
-defaults, not product history. Governance audit is never part of either cleanup
-path, and the cleanup predicate can never select an active Session or usable
-Challenge.
+terminal time for bounded security correlation, then the explicit owner-local
+`identity:cleanup` command deletes them in batches of at most 500 per record
+kind. Consumed, superseded, or expired Challenge rows and stale per-mobile rate
+rows use a shorter 24-hour retention. These are configurable initial
+operational defaults, not product history. No scheduler or workflow framework
+is introduced until an operational cadence exists. Governance audit is never
+part of cleanup, and every delete rechecks its terminal predicate so the command
+cannot select an active Session, usable Challenge, or newly refreshed rate row.
 
 ### Governance control and audit
 
@@ -200,11 +203,23 @@ superseded Challenges, and request/verification rate policy. Delivery receives
 only the target and generated code plus correlation metadata; it does not own
 Account or Session.
 
+The initial per-normalized-mobile policy is configuration: five-minute expiry,
+at least 60 seconds between issuances, at most five issuances in a rolling
+15-minute window, and at most five failed verification attempts. A successful
+new issuance atomically supersedes every earlier usable Challenge for that
+mobile. One PostgreSQL rate row serializes concurrent requests; Redis, client
+state, IP addresses, and device fingerprints are not Challenge authority. The
+policy intentionally limits targeted abuse without adding privacy-sensitive
+network identity in this Change.
+
 Public responses remain enumeration-resistant: Challenge request and invalid
 account-state failures do not reveal whether a mobile is pre-provisioned or
 internal. Production still rejects deterministic delivery. Real SMS provider,
 templates, credentials, commercial limits, and live validation stay behind a
-later external-dependency and release Gate.
+later external-dependency and release Gate. The deterministic adapter cannot
+produce a transport ambiguity; a real adapter must define delivery-failure,
+retry, and provider-idempotency behavior at that later Gate rather than
+silently expanding the current database transaction around an external call.
 
 ## Cookie and CSRF boundary
 

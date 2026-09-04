@@ -2,18 +2,30 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { AuthenticationService } from "../src/identity/application/authentication.service.js";
 import { SessionService } from "../src/identity/application/session.service.js";
+import { DeterministicChallengeDelivery } from "../src/identity/infrastructure/deterministic-challenge-delivery.js";
 import { PostgresIdentityRepository } from "../src/identity/infrastructure/postgres-identity.repository.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { clearCustomerData } from "./customer-data.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
 const config = loadIntegrationApiConfig();
+const identityTestConfig = {
+  ...config,
+  authChallengePolicy: {
+    ...config.authChallengePolicy,
+    resendIntervalMs: 0,
+  },
+};
 
 describe("terminal-customer passwordless entry", () => {
   const prisma = new PrismaService(config.databaseUrl);
   const repository = new PostgresIdentityRepository(prisma);
-  const authentication = new AuthenticationService(repository, config);
-  const sessions = new SessionService(repository, config);
+  const authentication = new AuthenticationService(
+    repository,
+    identityTestConfig,
+    new DeterministicChallengeDelivery(),
+  );
+  const sessions = new SessionService(repository, identityTestConfig);
 
   beforeAll(async () => prisma.$connect());
   afterAll(async () => prisma.$disconnect());
@@ -157,6 +169,169 @@ describe("terminal-customer passwordless entry", () => {
         code: challenge.developmentCode!,
       }),
     ).rejects.toThrow("账号不可用");
+    expect(await prisma.accountSession.count()).toBe(0);
+  });
+
+  it("supersedes the earlier unconsumed challenge for the same mobile", async () => {
+    const first = await authentication.requestChallenge("13800138007");
+    const second = await authentication.requestChallenge("13800138007");
+
+    await expect(
+      authentication.completeChallenge({
+        challengeId: first.challengeId,
+        mobile: "13800138007",
+        code: first.developmentCode!,
+      }),
+    ).rejects.toThrow("验证码无效或已过期");
+    await expect(
+      authentication.completeChallenge({
+        challengeId: second.challengeId,
+        mobile: "13800138007",
+        code: second.developmentCode!,
+      }),
+    ).resolves.toMatchObject({
+      account: { mobile: "+8613800138007" },
+    });
+    expect(
+      (
+        await prisma.mobileChallenge.findUniqueOrThrow({
+          where: { id: first.challengeId },
+        })
+      ).supersededAt,
+    ).toBeInstanceOf(Date);
+  });
+
+  it("enforces the configured Challenge request window without creating extra rows", async () => {
+    const limited = new AuthenticationService(
+      repository,
+      {
+        ...identityTestConfig,
+        authChallengePolicy: {
+          ...identityTestConfig.authChallengePolicy,
+          maximumRequestsPerWindow: 2,
+        },
+      },
+      new DeterministicChallengeDelivery(),
+    );
+
+    await limited.requestChallenge("13800138008");
+    await limited.requestChallenge("13800138008");
+    await expect(limited.requestChallenge("13800138008")).rejects.toMatchObject(
+      {
+        status: 429,
+        response: {
+          code: "CHALLENGE_RATE_LIMITED",
+          retryAfterSeconds: expect.any(Number),
+        },
+      },
+    );
+    expect(await prisma.mobileChallenge.count()).toBe(2);
+    expect(
+      (
+        await prisma.mobileChallengeRateLimit.findUniqueOrThrow({
+          where: { mobile: "+8613800138008" },
+        })
+      ).requestCount,
+    ).toBe(2);
+  });
+
+  it("serializes concurrent Challenge requests at the configured limit", async () => {
+    const limited = new AuthenticationService(
+      repository,
+      {
+        ...identityTestConfig,
+        authChallengePolicy: {
+          ...identityTestConfig.authChallengePolicy,
+          maximumRequestsPerWindow: 1,
+        },
+      },
+      new DeterministicChallengeDelivery(),
+    );
+
+    const results = await Promise.allSettled([
+      limited.requestChallenge("13800138009"),
+      limited.requestChallenge("13800138009"),
+    ]);
+
+    expect(results.filter(({ status }) => status === "fulfilled")).toHaveLength(
+      1,
+    );
+    const rejection = results.find(({ status }) => status === "rejected");
+    expect(rejection).toMatchObject({
+      status: "rejected",
+      reason: {
+        status: 429,
+        response: { code: "CHALLENGE_RATE_LIMITED" },
+      },
+    });
+    expect(await prisma.mobileChallenge.count()).toBe(1);
+  });
+
+  it("enforces the resend interval without superseding the usable Challenge", async () => {
+    const resendProtected = new AuthenticationService(
+      repository,
+      config,
+      new DeterministicChallengeDelivery(),
+    );
+    const first = await resendProtected.requestChallenge("13800138010");
+
+    await expect(
+      resendProtected.requestChallenge("13800138010"),
+    ).rejects.toMatchObject({
+      status: 429,
+      response: {
+        code: "CHALLENGE_RATE_LIMITED",
+        retryAfterSeconds: expect.any(Number),
+      },
+    });
+    expect(await prisma.mobileChallenge.count()).toBe(1);
+    expect(
+      (
+        await prisma.mobileChallenge.findUniqueOrThrow({
+          where: { id: first.challengeId },
+        })
+      ).supersededAt,
+    ).toBeNull();
+  });
+
+  it("caps failed verification attempts before a correct code can create a session", async () => {
+    const twoAttempts = new AuthenticationService(
+      repository,
+      {
+        ...identityTestConfig,
+        authChallengePolicy: {
+          ...identityTestConfig.authChallengePolicy,
+          maximumFailedAttempts: 2,
+        },
+      },
+      new DeterministicChallengeDelivery(),
+    );
+    const challenge = await twoAttempts.requestChallenge("13800138011");
+    const wrong = {
+      challengeId: challenge.challengeId,
+      mobile: "13800138011",
+      code: "000000",
+    };
+
+    await expect(twoAttempts.completeChallenge(wrong)).rejects.toThrow(
+      "验证码不正确",
+    );
+    await expect(twoAttempts.completeChallenge(wrong)).rejects.toThrow(
+      "验证码不正确",
+    );
+    await expect(
+      twoAttempts.completeChallenge({
+        ...wrong,
+        code: challenge.developmentCode!,
+      }),
+    ).rejects.toThrow("验证码无效或已过期");
+    expect(
+      (
+        await prisma.mobileChallenge.findUniqueOrThrow({
+          where: { id: challenge.challengeId },
+        })
+      ).failedAttempts,
+    ).toBe(2);
     expect(await prisma.accountSession.count()).toBe(0);
   });
 });

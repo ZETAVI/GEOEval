@@ -18,3 +18,10 @@ export class IdentityGovernanceError extends Error {
     this.name = "IdentityGovernanceError";
   }
 }
+
+export class ChallengeRateLimitError extends Error {
+  constructor(readonly retryAfterSeconds: number) {
+    super("验证码请求过于频繁，请稍后重试");
+    this.name = "ChallengeRateLimitError";
+  }
+}

@@ -6,7 +6,10 @@ import {
   type IdentityGovernanceAudit,
 } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
-import { IdentityGovernanceError } from "../domain/identity.errors.js";
+import {
+  ChallengeRateLimitError,
+  IdentityGovernanceError,
+} from "../domain/identity.errors.js";
 import type { IdentityRepository } from "../domain/identity.repository.js";
 import type {
   AccountListPage,
@@ -16,6 +19,7 @@ import type {
   AuthenticatedSession,
   IdentityGovernanceAction,
   IdentityGovernanceAuditView,
+  IdentityLifecycleCleanupResult,
   InternalAccountRole,
   MobileChallengeView,
   SessionRevocationReason,
@@ -27,13 +31,96 @@ type GovernanceTransaction = Prisma.TransactionClient;
 export class PostgresIdentityRepository implements IdentityRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async createChallenge(input: {
+  async issueChallenge(input: {
     id: string;
     mobile: string;
     codeDigest: string;
     expiresAt: Date;
+    now: Date;
+    resendIntervalMs: number;
+    windowMs: number;
+    maximumRequestsPerWindow: number;
   }): Promise<void> {
-    await this.prisma.mobileChallenge.create({ data: input });
+    await this.prisma.$transaction(async (transaction) => {
+      await transaction.$executeRaw`
+          INSERT INTO mobile_challenge_rate_limits (
+            mobile,
+            window_started_at,
+            request_count,
+            last_issued_at,
+            updated_at
+          ) VALUES (
+            ${input.mobile},
+            ${input.now},
+            0,
+            ${new Date(0)},
+            ${input.now}
+          )
+          ON CONFLICT (mobile) DO NOTHING
+        `;
+      const [rate] = await transaction.$queryRaw<
+        Array<{
+          window_started_at: Date;
+          request_count: number;
+          last_issued_at: Date;
+        }>
+      >`
+          SELECT window_started_at, request_count, last_issued_at
+          FROM mobile_challenge_rate_limits
+          WHERE mobile = ${input.mobile}
+          FOR UPDATE
+        `;
+      if (!rate) throw new Error("Challenge rate state is unavailable");
+
+      const windowExpired =
+        input.now.getTime() - rate.window_started_at.getTime() >=
+        input.windowMs;
+      const windowStartedAt = windowExpired
+        ? input.now
+        : rate.window_started_at;
+      const requestCount = windowExpired ? 0 : rate.request_count;
+      if (requestCount >= input.maximumRequestsPerWindow) {
+        throw new ChallengeRateLimitError(
+          retryAfterSeconds(
+            windowStartedAt.getTime() + input.windowMs - input.now.getTime(),
+          ),
+        );
+      }
+      const sinceLastIssueMs =
+        input.now.getTime() - rate.last_issued_at.getTime();
+      if (sinceLastIssueMs < input.resendIntervalMs) {
+        throw new ChallengeRateLimitError(
+          retryAfterSeconds(input.resendIntervalMs - sinceLastIssueMs),
+        );
+      }
+
+      await transaction.mobileChallenge.updateMany({
+        where: {
+          mobile: input.mobile,
+          consumedAt: null,
+          supersededAt: null,
+          expiresAt: { gt: input.now },
+        },
+        data: { supersededAt: input.now },
+      });
+      await transaction.mobileChallenge.create({
+        data: {
+          id: input.id,
+          mobile: input.mobile,
+          codeDigest: input.codeDigest,
+          expiresAt: input.expiresAt,
+          createdAt: input.now,
+        },
+      });
+      await transaction.mobileChallengeRateLimit.update({
+        where: { mobile: input.mobile },
+        data: {
+          windowStartedAt,
+          requestCount: requestCount + 1,
+          lastIssuedAt: input.now,
+        },
+      });
+    });
   }
 
   async findChallenge(id: string): Promise<MobileChallengeView | undefined> {
@@ -43,10 +130,85 @@ export class PostgresIdentityRepository implements IdentityRepository {
     );
   }
 
-  async incrementFailedAttempts(id: string): Promise<void> {
+  async incrementFailedAttempts(input: {
+    id: string;
+    maximumFailedAttempts: number;
+  }): Promise<void> {
     await this.prisma.mobileChallenge.updateMany({
-      where: { id, consumedAt: null },
+      where: {
+        id: input.id,
+        consumedAt: null,
+        supersededAt: null,
+        failedAttempts: { lt: input.maximumFailedAttempts },
+      },
       data: { failedAttempts: { increment: 1 } },
+    });
+  }
+
+  async cleanupIdentityLifecycle(input: {
+    now: Date;
+    sessionRetentionMs: number;
+    challengeRetentionMs: number;
+    batchSize: number;
+  }): Promise<IdentityLifecycleCleanupResult> {
+    const sessionCutoff = new Date(
+      input.now.getTime() - input.sessionRetentionMs,
+    );
+    const challengeCutoff = new Date(
+      input.now.getTime() - input.challengeRetentionMs,
+    );
+    return this.prisma.$transaction(async (transaction) => {
+      const sessionWhere = inactiveSessionWhere(sessionCutoff);
+      const sessionIds = await transaction.accountSession.findMany({
+        where: sessionWhere,
+        select: { id: true },
+        orderBy: { id: "asc" },
+        take: input.batchSize,
+      });
+      const challengeWhere = inactiveChallengeWhere(challengeCutoff);
+      const challengeIds = await transaction.mobileChallenge.findMany({
+        where: challengeWhere,
+        select: { id: true },
+        orderBy: { id: "asc" },
+        take: input.batchSize,
+      });
+      const rateLimits = await transaction.mobileChallengeRateLimit.findMany({
+        where: { lastIssuedAt: { lte: challengeCutoff } },
+        select: { mobile: true },
+        orderBy: { mobile: "asc" },
+        take: input.batchSize,
+      });
+
+      const sessions = sessionIds.length
+        ? await transaction.accountSession.deleteMany({
+            where: {
+              id: { in: sessionIds.map(({ id }) => id) },
+              ...sessionWhere,
+            },
+          })
+        : { count: 0 };
+      const challenges = challengeIds.length
+        ? await transaction.mobileChallenge.deleteMany({
+            where: {
+              id: { in: challengeIds.map(({ id }) => id) },
+              ...challengeWhere,
+            },
+          })
+        : { count: 0 };
+      const deletedRateLimits = rateLimits.length
+        ? await transaction.mobileChallengeRateLimit.deleteMany({
+            where: {
+              mobile: { in: rateLimits.map(({ mobile }) => mobile) },
+              lastIssuedAt: { lte: challengeCutoff },
+            },
+          })
+        : { count: 0 };
+
+      return {
+        deletedSessions: sessions.count,
+        deletedChallenges: challenges.count,
+        deletedChallengeRateLimits: deletedRateLimits.count,
+      };
     });
   }
 
@@ -58,6 +220,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
     customerIdleMs: number;
     internalAbsoluteMs: number;
     internalIdleMs: number;
+    maximumFailedAttempts: number;
     now: Date;
   }): Promise<
     { account: AccountView; expiresAt: Date; idleExpiresAt: Date } | undefined
@@ -68,8 +231,9 @@ export class PostgresIdentityRepository implements IdentityRepository {
           id: input.challengeId,
           mobile: input.mobile,
           consumedAt: null,
+          supersededAt: null,
           expiresAt: { gt: input.now },
-          failedAttempts: { lt: 5 },
+          failedAttempts: { lt: input.maximumFailedAttempts },
         },
         data: { consumedAt: input.now },
       });
@@ -418,6 +582,32 @@ export class PostgresIdentityRepository implements IdentityRepository {
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
   }
+}
+
+function retryAfterSeconds(milliseconds: number): number {
+  return Math.max(1, Math.ceil(milliseconds / 1000));
+}
+
+function inactiveSessionWhere(cutoff: Date): Prisma.AccountSessionWhereInput {
+  return {
+    OR: [
+      { revokedAt: { lte: cutoff } },
+      { expiresAt: { lte: cutoff } },
+      { idleExpiresAt: { lte: cutoff } },
+    ],
+  };
+}
+
+function inactiveChallengeWhere(
+  cutoff: Date,
+): Prisma.MobileChallengeWhereInput {
+  return {
+    OR: [
+      { consumedAt: { lte: cutoff } },
+      { supersededAt: { lte: cutoff } },
+      { expiresAt: { lte: cutoff } },
+    ],
+  };
 }
 
 function presentAccount(account: Account): AccountView {

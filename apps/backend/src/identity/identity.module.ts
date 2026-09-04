@@ -7,8 +7,12 @@ import { CsrfGuard } from "./access/csrf.guard.js";
 import { AccountGovernanceService } from "./application/account-governance.service.js";
 import { AuthenticationService } from "./application/authentication.service.js";
 import { IDENTITY_CONFIG } from "./application/identity.config.js";
+import { IDENTITY_MAINTENANCE_CONFIG } from "./application/identity.config.js";
+import { IdentityMaintenanceService } from "./application/identity-maintenance.service.js";
 import { SessionService } from "./application/session.service.js";
+import { CHALLENGE_DELIVERY } from "./domain/challenge-delivery.port.js";
 import { IDENTITY_REPOSITORY } from "./domain/identity.repository.js";
+import { DeterministicChallengeDelivery } from "./infrastructure/deterministic-challenge-delivery.js";
 import { PostgresIdentityRepository } from "./infrastructure/postgres-identity.repository.js";
 import { AccountGovernanceController } from "./presentation/account-governance.controller.js";
 import { IdentityController } from "./presentation/identity.controller.js";
@@ -23,14 +27,24 @@ export class IdentityModule {
       controllers: [IdentityController, AccountGovernanceController],
       providers: [
         { provide: IDENTITY_CONFIG, useValue: config },
+        {
+          provide: IDENTITY_MAINTENANCE_CONFIG,
+          useValue: config.authCleanupPolicy,
+        },
         PostgresIdentityRepository,
         {
           provide: IDENTITY_REPOSITORY,
           useExisting: PostgresIdentityRepository,
         },
         AuthenticationService,
+        DeterministicChallengeDelivery,
+        {
+          provide: CHALLENGE_DELIVERY,
+          useExisting: DeterministicChallengeDelivery,
+        },
         SessionService,
         AccountGovernanceService,
+        IdentityMaintenanceService,
         CsrfGuard,
         AccessGuard,
         { provide: APP_GUARD, useExisting: CsrfGuard },
@@ -40,6 +54,7 @@ export class IdentityModule {
         AuthenticationService,
         SessionService,
         AccountGovernanceService,
+        IdentityMaintenanceService,
       ],
     };
   }

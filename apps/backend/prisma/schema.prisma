@@ -199,10 +199,22 @@ model MobileChallenge {
   failedAttempts Int       @default(0) @map("failed_attempts")
   expiresAt      DateTime  @map("expires_at")
   consumedAt     DateTime? @map("consumed_at")
+  supersededAt   DateTime? @map("superseded_at")
   createdAt      DateTime  @default(now()) @map("created_at")
 
   @@index([mobile, createdAt])
   @@map("mobile_challenges")
+}
+
+model MobileChallengeRateLimit {
+  mobile          String   @id @db.VarChar(20)
+  windowStartedAt DateTime @map("window_started_at")
+  requestCount    Int      @default(0) @map("request_count")
+  lastIssuedAt    DateTime @map("last_issued_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([lastIssuedAt])
+  @@map("mobile_challenge_rate_limits")
 }
 
 model AccountSession {

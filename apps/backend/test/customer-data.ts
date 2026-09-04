@@ -146,4 +146,5 @@ export async function clearCustomerData(prisma: PrismaService): Promise<void> {
   await prisma.accountSession.deleteMany();
   await prisma.account.deleteMany();
   await prisma.mobileChallenge.deleteMany();
+  await prisma.mobileChallengeRateLimit.deleteMany();
 }
