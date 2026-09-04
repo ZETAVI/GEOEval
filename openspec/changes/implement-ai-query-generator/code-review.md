@@ -4,12 +4,12 @@
 ## Review contract
 
 - Baseline: `main@82f70564889698d501129b5188f4046a1a20dfa9`
-- Reviewed implementation revision: `71063ff9cf569144be5b016af15083d9fa5f9aba`
+- Reviewed implementation revision: `1022c086bdc46d6276bf01ccc431557c7e7d9d03`
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Approved intent: [decision-brief.md](decision-brief.md)
 - Reviewed scope: Snapshot v3 Query projection, Prompt and model contract,
   preparation lifecycle, AI Execution integration, migration, generated HTTP
-  contract, and diagnosis-page states.
+  contract, save-time prewarm, and diagnosis-page states.
 
 ## Findings
 
@@ -31,6 +31,11 @@ The implementation matches the approved boundary:
   limited to the test adapter and is not a customer fallback.
 - Web exposes only preparing, ready, and retry states plus the four read-only
   questions. Provider, Prompt, route, attempt, and queue details remain internal.
+- Save and current-Brand selection opportunistically ensure the same durable
+  preparation only for a current evaluation-ready Brand. The save flow waits
+  for the short persistence request but never the Provider result; diagnosis
+  remains the idempotent fallback. No Brand backend dependency or second
+  lifecycle owner was added.
 - Default Langfuse telemetry remains metadata-only. Query input and output are
   emitted only in the existing local-diagnostic mode and pass through the
   established masking projection.
@@ -42,7 +47,8 @@ The implementation matches the approved boundary:
 - Durable preparation integration: 4 passing tests.
 - Evaluation, process, and API integrations: 32 passing tests.
 - Full backend suite: 33 files and 168 tests passed.
-- Web suite: 5 files and 23 tests passed.
+- Web suite: 6 files and 27 tests passed, including current/ready eligibility
+  and prewarm-failure isolation.
 - Workspace typecheck, formatting, framework validation, diff check, and full
   build passed.
 - All 20 migrations replayed on isolated database
@@ -67,11 +73,14 @@ The implementation matches the approved boundary:
   four question roles in 14.6 seconds.
 - The restaurant projection succeeded through the Hy3 fallback in 49.4
   seconds. See [real-query-review.md](real-query-review.md).
+- A fresh browser registration saved Interaction Pie while remaining on
+  `/brands`; without visiting `/diagnosis`, the isolated database recorded the
+  durable preparation, one successful Qwen3.8 Flash attempt in 11.2 seconds,
+  and all four final questions under Prompt `2.4.0+2.1.0` and contract `@4`.
 
 ## Remaining gates
 
-- Publish the reviewed revision, notify #32 / PR #35 of the new stable head,
-  and pass required CI on the final Prompt revision.
+- Publish the reviewed refinement and pass required CI on the final revision.
 - Query quality is accepted and current specs and architecture are reconciled.
   Archive this Change before the final integration gate.
 - Explicit integration authorization remains pending.

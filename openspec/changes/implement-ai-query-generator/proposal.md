@@ -3,7 +3,7 @@
 
 ## Status
 
-- Phase: Implement; save-time background preparation refinement
+- Phase: Review / Decision; save-time background preparation verified locally
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owner: Product owner

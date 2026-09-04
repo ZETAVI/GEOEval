@@ -7,7 +7,9 @@
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Reviewed design: [design.md](design.md)
 - Confirmed product boundary: [decision-brief.md](decision-brief.md)
-- Review scope: Snapshot v3 Query projection, durable preparation, AI Execution boundary, model contract, migration, recovery, and cross-Issue ownership.
+- Review scope: Snapshot v3 Query projection, durable preparation, save-time
+  prewarm, AI Execution boundary, model contract, migration, recovery, and
+  cross-Issue ownership.
 
 ## Change map
 
@@ -15,7 +17,9 @@
 - GEO Intelligence owns the narrow Query projection, preparation lifecycle, final four-question projection, immutable Definition, and customer-visible state.
 - AI Execution owns Provider-neutral execution and append-oriented Query attempt evidence.
 - Background Work owns Outbox relay, BullMQ delivery, and reconciliation; neither Redis nor telemetry is business truth.
-- Web consumes only the public preparation/Definition contract.
+- Web consumes only the public preparation/Definition contract. After a
+  successful current ready Brand mutation, it may opportunistically ensure that
+  preparation without becoming a lifecycle owner.
 
 ## Findings resolved in this revision
 
@@ -40,6 +44,14 @@
 7. **must-fix — deterministic fallback ambiguity**
    Deterministic question output remains only inside the test adapter. Real Agent exhaustion becomes `PLEASE_RETRY`; the customer path does not silently return a template Definition.
 
+8. **resolved — late preparation start added avoidable customer waiting**
+   Preparation previously started only after diagnosis-page entry. Web now
+   ensures the existing durable preparation after a successful save or selection
+   of a current evaluation-ready Brand. It waits only for preparation and Outbox
+   persistence; Provider work remains in the Worker. Diagnosis keeps the same
+   idempotent ensure-and-observe path, so closed browsers and failed opportunistic
+   requests remain recoverable.
+
 ## Architectural quality assessment
 
 - Cohesion: `EvaluationQuestionPreparation` and its repository own one complete lifecycle; no partial state leaks into Web or AI Execution.
@@ -47,7 +59,10 @@
 - Data integrity: unique Brand/fingerprint preparation, sequence/attempt identity, accepted-attempt links, and conditional transitions protect concurrent and late outcomes.
 - Failure ownership: Provider and telemetry failures stay in AI Execution; retry sequencing and Definition acceptance stay in GEO; delivery recovery stays in Background Work.
 - Reuse: Product Outbox, BullMQ, Provider adapters, attempt envelope, and telemetry seams are reused for their existing semantics.
-- Proportionality: no new workflow framework, generic Agent abstraction, candidate store, scoring layer, Critic/Judge, or ADR is required.
+- Proportionality: save-time prewarm is Web coordination over the existing GEO
+  command. It adds no Brand event, Brand-to-GEO backend dependency, workflow
+  framework, generic Agent abstraction, candidate store, scoring layer,
+  Critic/Judge, or ADR.
 
 ## Residual risks and follow-ups
 
