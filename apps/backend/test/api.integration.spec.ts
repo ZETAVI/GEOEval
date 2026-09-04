@@ -7,11 +7,14 @@ import { createApiApp } from "../src/api-app.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { clearCustomerData } from "./customer-data.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
+import { createEvaluationQuestionPreparationHarness } from "./evaluation-question-preparation-harness.js";
 
 const config = loadIntegrationApiConfig();
 
 describe("customer-entry HTTP contract", () => {
   const prisma = new PrismaService(config.databaseUrl);
+  const questionPreparation =
+    createEvaluationQuestionPreparationHarness(prisma);
   let app: INestApplication;
   let baseUrl: string;
 
@@ -163,12 +166,34 @@ describe("customer-entry HTTP contract", () => {
       { method: "PUT", headers: { cookie } },
     );
     expect(definitionResponse.status).toBe(200);
-    const definition = (await definitionResponse.json()) as {
-      id: string;
-      questions: unknown[];
-      platforms: Array<Record<string, unknown>>;
-      objectivityProfile?: unknown;
+    const preparing = (await definitionResponse.json()) as {
+      status: string;
+      preparationId: string;
+      definition: null;
     };
+    expect(preparing).toMatchObject({ status: "PREPARING", definition: null });
+    await questionPreparation.processPreparation(preparing.preparationId);
+
+    const readyResponse = await fetch(
+      `${baseUrl}/brands/${brand.id}/evaluation-definition`,
+      { headers: { cookie } },
+    );
+    const readyEnvelope = (await readyResponse.json()) as {
+      preparation: {
+        status: string;
+        preparationId: string;
+        definition: {
+          id: string;
+          questions: unknown[];
+          platforms: Array<Record<string, unknown>>;
+          objectivityProfile?: unknown;
+          inputFingerprint?: unknown;
+        };
+      };
+    };
+    const ready = readyEnvelope.preparation;
+    expect(ready.status).toBe("READY");
+    const definition = ready.definition;
     expect(definition.questions).toHaveLength(4);
     expect(definition.platforms).toHaveLength(5);
     expect(definition.platforms[0]).toEqual({

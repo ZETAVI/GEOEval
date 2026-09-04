@@ -35,8 +35,12 @@ export class LangfuseAiAttemptTelemetry implements AiAttemptTelemetry {
         ...(input === undefined ? {} : { input }),
         metadata: {
           correlationId: request.correlationId,
-          runId: request.runId,
-          cycleId: request.cycleId,
+          ...(request.purpose === "EVALUATION_QUESTION_GENERATION"
+            ? {
+                preparationId: request.preparationId,
+                sequence: request.sequence,
+              }
+            : { runId: request.runId, cycleId: request.cycleId }),
           ...("sampleId" in request ? { sampleId: request.sampleId } : {}),
           purpose: request.purpose,
           routePolicyId: request.routePolicyId,
@@ -194,5 +198,7 @@ function observationName(purpose: ResolvedAiAttemptRequest["purpose"]) {
       return "ai.evaluation.interpretation";
     case "OVERALL_SYNTHESIS":
       return "ai.evaluation.overall-synthesis";
+    case "EVALUATION_QUESTION_GENERATION":
+      return "ai.evaluation.question-generation";
   }
 }

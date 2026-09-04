@@ -2,15 +2,18 @@
 
 import {
   getCurrentAccount,
+  getEvaluationDefinitionPreparation,
   getCurrentEvaluationReport,
   listEvaluationReportHistory,
   listBrands,
   prepareEvaluationDefinition,
+  retryEvaluationDefinitionPreparation,
   startEvaluationRun,
   retryEvaluationRun,
   type Account,
   type Brand,
   type EvaluationDefinition,
+  type EvaluationDefinitionPreparation,
   type EvaluationReport,
   type EvaluationReportSummary,
 } from "@geoeval/api-client";
@@ -31,7 +34,8 @@ const questionLabels: Record<string, string> = {
 export function DiagnosisWorkspace() {
   const [account, setAccount] = useState<Account>();
   const [current, setCurrent] = useState<Brand>();
-  const [definition, setDefinition] = useState<EvaluationDefinition>();
+  const [preparation, setPreparation] =
+    useState<EvaluationDefinitionPreparation>();
   const [report, setReport] = useState<EvaluationReport | null>(null);
   const [history, setHistory] = useState<EvaluationReportSummary[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -46,16 +50,23 @@ export function DiagnosisWorkspace() {
         const selected = brands.find((brand) => brand.isCurrent);
         setCurrent(selected);
         if (selected) {
-          const [currentReport, nextDefinition, reportHistory] =
+          const [currentReport, nextPreparation, reportHistory] =
             await Promise.all([
               getCurrentEvaluationReport(apiBaseUrl, selected.id),
               selected.readyForEvaluation
-                ? prepareEvaluationDefinition(apiBaseUrl, selected.id)
+                ? getEvaluationDefinitionPreparation(
+                    apiBaseUrl,
+                    selected.id,
+                  ).then(
+                    (observed) =>
+                      observed ??
+                      prepareEvaluationDefinition(apiBaseUrl, selected.id),
+                  )
                 : Promise.resolve(undefined),
               listEvaluationReportHistory(apiBaseUrl, selected.id),
             ]);
           setReport(currentReport);
-          setDefinition(nextDefinition);
+          setPreparation(nextPreparation);
           setHistory(reportHistory.items);
         }
       })
@@ -69,13 +80,23 @@ export function DiagnosisWorkspace() {
       .finally(() => setLoading(false));
   }, []);
 
+  const definition = preparation?.definition ?? undefined;
+
   useEffect(() => {
-    if (!current || definition?.run?.status !== "EVALUATING") return;
+    if (
+      !current ||
+      (preparation?.status !== "PREPARING" &&
+        definition?.run?.status !== "EVALUATING" &&
+        definition?.run?.status !== "COMPLETED")
+    ) {
+      return;
+    }
     const timer = window.setInterval(() => {
-      void prepareEvaluationDefinition(apiBaseUrl, current.id)
-        .then(async (nextDefinition) => {
-          setDefinition(nextDefinition);
-          if (nextDefinition.run?.status === "COMPLETED") {
+      void getEvaluationDefinitionPreparation(apiBaseUrl, current.id)
+        .then(async (nextPreparation) => {
+          if (!nextPreparation) return;
+          setPreparation(nextPreparation);
+          if (nextPreparation.definition?.run?.status === "COMPLETED") {
             const [nextReport, reportHistory] = await Promise.all([
               getCurrentEvaluationReport(apiBaseUrl, current.id),
               listEvaluationReportHistory(apiBaseUrl, current.id),
@@ -88,7 +109,7 @@ export function DiagnosisWorkspace() {
         .catch(() => undefined);
     }, 3_000);
     return () => window.clearInterval(timer);
-  }, [current, definition?.run?.status]);
+  }, [current, definition?.run?.status, preparation?.status]);
 
   async function start() {
     if (!definition) return;
@@ -97,7 +118,14 @@ export function DiagnosisWorkspace() {
     try {
       const run = await startEvaluationRun(apiBaseUrl, definition.id);
       setReport(null);
-      setDefinition({ ...definition, run });
+      setPreparation((currentPreparation) =>
+        currentPreparation
+          ? {
+              ...currentPreparation,
+              definition: { ...definition, run },
+            }
+          : currentPreparation,
+      );
       if (current) {
         setHistory(
           (await listEvaluationReportHistory(apiBaseUrl, current.id)).items,
@@ -117,8 +145,34 @@ export function DiagnosisWorkspace() {
     setMessage("");
     try {
       const run = await retryEvaluationRun(apiBaseUrl, definition.run.id);
-      setDefinition({ ...definition, run });
+      setPreparation((currentPreparation) =>
+        currentPreparation
+          ? {
+              ...currentPreparation,
+              definition: { ...definition, run },
+            }
+          : currentPreparation,
+      );
       setMessage("已重新开始处理未完成的评测内容");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "重试失败");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function retryQuestionPreparation() {
+    if (!preparation?.preparationId) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      setPreparation(
+        await retryEvaluationDefinitionPreparation(
+          apiBaseUrl,
+          preparation.preparationId,
+        ),
+      );
+      setMessage("已重新准备评测问题");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "重试失败");
     } finally {
@@ -194,6 +248,35 @@ export function DiagnosisWorkspace() {
             title="诊断资料还不完整"
             detail={`还需补充：${current.missingFields.join("、")}`}
           />
+        ) : preparation?.status === "PREPARING" ? (
+          <section className="evaluation-running">
+            <span className="loading-orbit" aria-hidden="true" />
+            <p className="step-label">准备中</p>
+            <h2>正在准备本次评测问题</h2>
+            <p>系统正在根据当前品牌资料准备四个问题，你可以离开此页面。</p>
+            <a className="secondary-button" href="/brands">
+              返回我的品牌
+            </a>
+          </section>
+        ) : preparation?.status === "PLEASE_RETRY" ? (
+          <section className="evaluation-running">
+            <p className="step-label">请重试</p>
+            <h2>评测问题暂未准备完成</h2>
+            <p>本次准备未能完成，重新尝试不会消耗评测机会。</p>
+            <div className="evaluation-actions">
+              <button
+                className="primary-button"
+                type="button"
+                disabled={busy}
+                onClick={() => void retryQuestionPreparation()}
+              >
+                {busy ? "正在重试…" : "重新准备"}
+              </button>
+              <a className="secondary-button" href="/brands">
+                返回我的品牌
+              </a>
+            </div>
+          </section>
         ) : definition ? (
           definition.run?.status === "PLEASE_RETRY" ? (
             <section className="evaluation-running">

@@ -9,6 +9,7 @@ const routeSchema = z.object({
   purpose: z.enum([
     "EVALUATION_ACQUISITION",
     "EVALUATION_INTERPRETATION",
+    "EVALUATION_QUESTION_GENERATION",
     "OVERALL_SYNTHESIS",
   ]),
   providerKey: z.enum([
@@ -24,8 +25,8 @@ const routeSchema = z.object({
 });
 
 const catalogSchema = z.object({
-  version: z.literal("evaluation-real-routes@1"),
-  routes: z.array(routeSchema).min(9),
+  version: z.literal("evaluation-real-routes@2"),
+  routes: z.array(routeSchema).min(11),
 });
 
 const catalog = catalogSchema.parse(

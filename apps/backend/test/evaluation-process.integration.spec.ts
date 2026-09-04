@@ -28,7 +28,6 @@ import { EvaluationReportService } from "../src/geo-intelligence/application/eva
 import { EvaluationSynthesisCoordinator } from "../src/geo-intelligence/application/evaluation-synthesis.coordinator.js";
 import { EvaluationService } from "../src/geo-intelligence/application/evaluation.service.js";
 import { OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
-import { DeterministicEvaluationQuestionGenerator } from "../src/geo-intelligence/domain/question-generator.js";
 import { parseStoredSampleSemantic } from "../src/geo-intelligence/domain/sample-parser.contract.js";
 import { SAMPLE_PARSER_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/sample-parser-model.contract.js";
 import { PostgresEvaluationProcessRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation-process.repository.js";
@@ -49,6 +48,7 @@ import {
   loadIntegrationApiConfig,
   loadIntegrationWorkerConfig,
 } from "./integration-test-config.js";
+import { createEvaluationQuestionPreparationHarness } from "./evaluation-question-preparation-harness.js";
 
 const config = loadIntegrationApiConfig();
 const workerConfig = loadIntegrationWorkerConfig();
@@ -60,10 +60,12 @@ describe("resumable evaluation evidence", () => {
     new BrandReferenceData(),
     TEST_STORE_LOCATION_RECEIPTS,
   );
+  const questionPreparation =
+    createEvaluationQuestionPreparationHarness(prisma);
   const evaluations = new EvaluationService(
     brands,
     new PostgresEvaluationRepository(prisma),
-    new DeterministicEvaluationQuestionGenerator(),
+    questionPreparation.repository,
   );
   const reports = new EvaluationReportService(
     brands,
@@ -239,7 +241,8 @@ describe("resumable evaluation evidence", () => {
       id: currentReport?.id,
       brandInformationChanged: true,
     });
-    const nextDefinition = await evaluations.prepareDefinition(
+    const nextDefinition = await questionPreparation.prepareReadyDefinition(
+      evaluations,
       accountId,
       brandId,
     );
@@ -502,7 +505,8 @@ describe("resumable evaluation evidence", () => {
     await brands.update(accountId, first.brandId, {
       characteristics: ["安静办公", "适合商务交流"],
     });
-    const nextDefinition = await evaluations.prepareDefinition(
+    const nextDefinition = await questionPreparation.prepareReadyDefinition(
+      evaluations,
       accountId,
       first.brandId,
     );
@@ -1045,7 +1049,11 @@ describe("resumable evaluation evidence", () => {
         contactMobile: "+8613900000301",
       }),
     );
-    const definition = await evaluations.prepareDefinition(accountId, brand.id);
+    const definition = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
     const run = await evaluations.startRun(accountId, definition.id);
     const processRepository = new PostgresEvaluationProcessRepository(prisma);
     const adapter =
@@ -1086,6 +1094,7 @@ describe("resumable evaluation evidence", () => {
       processor: new ProductWorkProcessor(
         outbox,
         coordinator,
+        questionPreparation.coordinator,
         new NotificationEventHandler(
           new PostgresNotificationRepository(prisma),
         ),

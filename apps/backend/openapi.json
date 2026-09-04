@@ -338,16 +338,83 @@
       }
     },
     "/brands/{brandId}/evaluation-definition": {
-      "put": {
-        "operationId": "EvaluationController_prepareDefinition",
-        "parameters": [],
+      "get": {
+        "operationId": "EvaluationController_observeDefinition",
+        "parameters": [
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EvaluationDefinitionResponse"
+                  "$ref": "#/components/schemas/CurrentEvaluationDefinitionPreparationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      },
+      "put": {
+        "operationId": "EvaluationController_prepareDefinition",
+        "parameters": [
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationDefinitionPreparationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/evaluation-question-preparations/{preparationId}/retries": {
+      "post": {
+        "operationId": "EvaluationController_retryDefinitionPreparation",
+        "parameters": [
+          {
+            "name": "preparationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationDefinitionPreparationResponse"
                 }
               }
             }
@@ -1545,6 +1612,54 @@
           "questions",
           "platforms",
           "createdAt"
+        ]
+      },
+      "EvaluationDefinitionPreparationResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PREPARING",
+              "READY",
+              "PLEASE_RETRY"
+            ]
+          },
+          "preparationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "definition": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationDefinitionResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "preparationId",
+          "definition"
+        ]
+      },
+      "CurrentEvaluationDefinitionPreparationResponse": {
+        "type": "object",
+        "properties": {
+          "preparation": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationDefinitionPreparationResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "preparation"
         ]
       },
       "EvaluationRecommendationIndexResponse": {
