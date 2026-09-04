@@ -3,7 +3,7 @@ import type {
   AccountRole,
   AccountStatus,
   AccountView,
-  AuthenticatedSession,
+  SessionAuthenticationRecord,
   IdentityGovernanceAuditView,
   IdentityBootstrapResult,
   IdentityLifecycleCleanupResult,
@@ -57,8 +57,7 @@ export interface IdentityRepository {
   >;
   findSession(
     tokenDigest: string,
-    now: Date,
-  ): Promise<AuthenticatedSession | undefined>;
+  ): Promise<SessionAuthenticationRecord | undefined>;
   touchSession(input: {
     sessionId: string;
     lastSeenAt: Date;

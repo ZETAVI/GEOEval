@@ -33,6 +33,17 @@ describe("terminal-customer passwordless entry", () => {
     await clearCustomerData(prisma);
   });
 
+  it("keeps missing and unknown credentials on the same authentication-required boundary", async () => {
+    await expect(sessions.authenticate(undefined)).rejects.toMatchObject({
+      response: { code: "AUTHENTICATION_REQUIRED", message: "请先登录" },
+    });
+    await expect(
+      sessions.authenticate("unknown-session-credential"),
+    ).rejects.toMatchObject({
+      response: { code: "AUTHENTICATION_REQUIRED", message: "请先登录" },
+    });
+  });
+
   it("creates a terminal customer and authenticates an opaque session", async () => {
     const challenge = await authentication.requestChallenge("138 0013 8000");
     const completed = await authentication.completeChallenge({
@@ -98,9 +109,9 @@ describe("terminal-customer passwordless entry", () => {
     const completed = await authentication.completeChallenge(input);
     await expect(authentication.completeChallenge(input)).rejects.toThrow();
     await sessions.logoutCurrent(completed.token);
-    await expect(sessions.authenticate(completed.token)).rejects.toThrow(
-      "登录状态已失效",
-    );
+    await expect(sessions.authenticate(completed.token)).rejects.toMatchObject({
+      response: { code: "SESSION_REVOKED" },
+    });
     expect((await prisma.accountSession.findFirstOrThrow()).revokedReason).toBe(
       "USER_LOGOUT",
     );
@@ -123,12 +134,12 @@ describe("terminal-customer passwordless entry", () => {
 
     await sessions.logoutAll(first.account.id);
 
-    await expect(sessions.authenticate(first.token)).rejects.toThrow(
-      "登录状态已失效",
-    );
-    await expect(sessions.authenticate(second.token)).rejects.toThrow(
-      "登录状态已失效",
-    );
+    await expect(sessions.authenticate(first.token)).rejects.toMatchObject({
+      response: { code: "SESSION_REVOKED" },
+    });
+    await expect(sessions.authenticate(second.token)).rejects.toMatchObject({
+      response: { code: "SESSION_REVOKED" },
+    });
     expect(
       await prisma.accountSession.count({
         where: { revokedReason: "USER_LOGOUT_ALL" },
@@ -136,7 +147,7 @@ describe("terminal-customer passwordless entry", () => {
     ).toBe(2);
   });
 
-  it("rejects an idle-expired credential from server state", async () => {
+  it("classifies idle and absolute expiry from server state", async () => {
     const challenge = await authentication.requestChallenge("13800138005");
     const completed = await authentication.completeChallenge({
       challengeId: challenge.challengeId,
@@ -147,9 +158,36 @@ describe("terminal-customer passwordless entry", () => {
       data: { idleExpiresAt: new Date(Date.now() - 1) },
     });
 
-    await expect(sessions.authenticate(completed.token)).rejects.toThrow(
-      "登录状态已失效",
-    );
+    await expect(sessions.authenticate(completed.token)).rejects.toMatchObject({
+      response: { code: "SESSION_EXPIRED" },
+    });
+
+    await prisma.accountSession.updateMany({
+      data: {
+        idleExpiresAt: new Date(Date.now() + 60_000),
+        expiresAt: new Date(Date.now() - 1),
+      },
+    });
+    await expect(sessions.authenticate(completed.token)).rejects.toMatchObject({
+      response: { code: "SESSION_EXPIRED" },
+    });
+  });
+
+  it("classifies a known credential for an inactive account", async () => {
+    const challenge = await authentication.requestChallenge("13800138015");
+    const completed = await authentication.completeChallenge({
+      challengeId: challenge.challengeId,
+      mobile: "13800138015",
+      code: challenge.developmentCode!,
+    });
+    await prisma.account.update({
+      where: { id: completed.account.id },
+      data: { status: "INACTIVE" },
+    });
+
+    await expect(sessions.authenticate(completed.token)).rejects.toMatchObject({
+      response: { code: "ACCOUNT_INACTIVE" },
+    });
   });
 
   it("does not issue a session for an inactive pre-provisioned account", async () => {

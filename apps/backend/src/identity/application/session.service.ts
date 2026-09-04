@@ -17,6 +17,12 @@ export type AuthenticatedContext = {
   principal: AuthenticatedPrincipal;
 };
 
+export type SessionAuthenticationFailureCode =
+  | "AUTHENTICATION_REQUIRED"
+  | "ACCOUNT_INACTIVE"
+  | "SESSION_REVOKED"
+  | "SESSION_EXPIRED";
+
 @Injectable()
 export class SessionService {
   constructor(
@@ -26,14 +32,22 @@ export class SessionService {
   ) {}
 
   async authenticate(token: string | undefined): Promise<AuthenticatedContext> {
-    if (!token) throw new UnauthorizedException("请先登录");
+    if (!token) {
+      rejectAuthentication("AUTHENTICATION_REQUIRED", "请先登录");
+    }
     const now = new Date();
-    const session = await this.repository.findSession(
-      sessionDigest(token),
-      now,
-    );
+    const session = await this.repository.findSession(sessionDigest(token));
     if (!session) {
-      throw new UnauthorizedException("登录状态已失效，请重新登录");
+      rejectAuthentication("AUTHENTICATION_REQUIRED", "请先登录");
+    }
+    if (session.account.status !== "ACTIVE") {
+      rejectAuthentication("ACCOUNT_INACTIVE", "账号当前不可用，请联系管理员");
+    }
+    if (session.revokedAt) {
+      rejectAuthentication("SESSION_REVOKED", "此登录会话已结束，请重新登录");
+    }
+    if (session.expiresAt <= now || session.idleExpiresAt <= now) {
+      rejectAuthentication("SESSION_EXPIRED", "登录状态已过期，请重新登录");
     }
 
     if (
@@ -79,4 +93,11 @@ export class SessionService {
       reason: "USER_LOGOUT_ALL",
     });
   }
+}
+
+function rejectAuthentication(
+  code: SessionAuthenticationFailureCode,
+  message: string,
+): never {
+  throw new UnauthorizedException({ code, message });
 }

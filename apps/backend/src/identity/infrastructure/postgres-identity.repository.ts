@@ -17,7 +17,7 @@ import type {
   AccountRole,
   AccountStatus,
   AccountView,
-  AuthenticatedSession,
+  SessionAuthenticationRecord,
   IdentityGovernanceAction,
   IdentityGovernanceAuditView,
   IdentityBootstrapResult,
@@ -393,16 +393,9 @@ export class PostgresIdentityRepository implements IdentityRepository {
 
   async findSession(
     tokenDigest: string,
-    now: Date,
-  ): Promise<AuthenticatedSession | undefined> {
-    const session = await this.prisma.accountSession.findFirst({
-      where: {
-        tokenDigest,
-        revokedAt: null,
-        expiresAt: { gt: now },
-        idleExpiresAt: { gt: now },
-        account: { status: "ACTIVE" },
-      },
+  ): Promise<SessionAuthenticationRecord | undefined> {
+    const session = await this.prisma.accountSession.findUnique({
+      where: { tokenDigest },
       include: { account: true },
     });
     if (!session) return undefined;
@@ -411,6 +404,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
       expiresAt: session.expiresAt,
       idleExpiresAt: session.idleExpiresAt,
       lastSeenAt: session.lastSeenAt,
+      revokedAt: session.revokedAt,
       account: presentAccount(session.account),
     };
   }

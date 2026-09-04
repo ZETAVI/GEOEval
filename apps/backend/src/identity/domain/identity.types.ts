@@ -45,11 +45,12 @@ export type IdentityBootstrapResult = {
   keyId: string;
 };
 
-export type AuthenticatedSession = {
+export type SessionAuthenticationRecord = {
   id: string;
   expiresAt: Date;
   idleExpiresAt: Date;
   lastSeenAt: Date;
+  revokedAt: Date | null;
   account: AccountView;
 };
 
