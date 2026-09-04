@@ -1,5 +1,10 @@
 # Real Query Review
-<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
+<!-- Reopened on 2026-09-04 after the real-chain location acceptance failed. -->
+
+> **Acceptance withdrawn:** this review called the real Query Provider but
+> bypassed the Brand and Amap path. The Interaction Pie fixture manually set
+> `天河路`, which the source brief never established. The outputs below remain
+> Prompt-iteration history only and are not real-chain acceptance evidence.
 
 ## Review contract
 
@@ -79,7 +84,7 @@ fallback rather than the primary Query route.
 
 ## Decision and limitations
 
-`Accepted for Query Generator reconciliation.`
+`Withdrawn pending real-chain revalidation.`
 
 - The final outputs are natural enough for the first commercial version and
   preserve the confirmed four-role product meaning without a Critic, candidate

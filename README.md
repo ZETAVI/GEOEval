@@ -21,9 +21,9 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
   [Issue #21](https://github.com/ZETAVI/GEOEval/issues/21).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
 - Active product changes: deterministic S1-S5 and real-provider S6 are retired
-  as completed Changes; AI question generation is accepted and remains in
-  integration review under Issue #26; M4 quality convergence remains coordinated
-  by Issue #39, while frontend presentation remains Issue #13
+  as completed Changes; AI question generation is undergoing real-chain
+  revalidation under Issue #26; M4 quality convergence remains coordinated by
+  Issue #39, while frontend presentation remains Issue #13
 - Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,
   Redis/BullMQ, Prisma, and generated OpenAPI client
 - Runtime code: deterministic and real-provider evaluation modes are

@@ -1,5 +1,5 @@
 # Source Brief: 互动派 Query Generator Test Profile
-<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
+<!-- Reopened on 2026-09-04 after the real-chain location acceptance failed. -->
 
 - Checked: 2026-09-01
 - Purpose: derive one authorized, realistic brand profile for Query-only and
@@ -27,6 +27,9 @@
 
 ## Limits and refresh trigger
 
+- This source established only the district-level region. It did not establish
+  `天河路`, and no manually selected business area is valid evidence for this
+  profile.
 - The Query Agent itself receives this approved profile and does not browse or
   enrich it.
 - Controlled evaluation observes how the five AI platforms answer these

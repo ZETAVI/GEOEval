@@ -1,5 +1,5 @@
 # Tasks: Implement AI Evaluation Query Generator
-<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
+<!-- Reopened on 2026-09-04 after the real-chain location acceptance failed. -->
 
 ## 1. Alignment and branch recovery
 
@@ -45,16 +45,16 @@
 
 - [x] Recheck current Qwen3.8 and Hy3 route/model configuration without exposing credentials.
 - [x] Obtain explicit authorization for a bounded Query-only real call batch.
-- [x] Review exact outputs for a small restaurant, enterprise service, and another representative store; stop on the first material quality failure.
-- [x] Iterate Prompt versions from observed outputs without adding symptom-by-symptom prohibitions.
+- [ ] Review exact outputs through the complete Brand/Amap/Snapshot/Query path for Interaction Pie, 广东星宇律师事务所, and Gram&Gram·酸种披萨.
+- [ ] Iterate Prompt versions from real-chain outputs without adding symptom-by-symptom prohibitions.
 - [x] Hand the representative 4×5 run to the separate authorization and acceptance Gate under #39; do not execute it in #26.
 
 ## 7. Reconciliation and exit
 
-- [x] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview.
-- [x] Update Issue #26 and PR #28 with implementation, evidence, limitations, and cross-Issue handoffs.
+- [ ] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview after real-chain acceptance.
+- [ ] Update Issue #26 and PR #28 with corrected implementation, evidence, limitations, and cross-Issue handoffs.
 - [x] Notify #32 that its stacked PR must rebase onto the stable #26 head.
 - [x] Complete fixed-diff code review.
-- [ ] Pass required CI on the published revision.
-- [x] Archive this Change after current truth is reconciled.
+- [ ] Pass required CI on the corrected published revision.
+- [ ] Archive this Change after corrected current truth is reconciled.
 - [ ] Obtain explicit Merge authorization; after merge, verify Issue/Project/branch/worktree exit state.

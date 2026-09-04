@@ -1,5 +1,5 @@
 # Code Review: AI Evaluation Query Generator
-<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
+<!-- Reopened on 2026-09-04 after the real-chain location acceptance failed. -->
 
 ## Review contract
 
