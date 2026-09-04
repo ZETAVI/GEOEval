@@ -38,6 +38,13 @@ export type IdentityLifecycleCleanupResult = {
   deletedChallengeRateLimits: number;
 };
 
+export type IdentityBootstrapResult = {
+  status: "CREATED" | "UNCHANGED";
+  account: AccountView;
+  completedAt: Date;
+  keyId: string;
+};
+
 export type AuthenticatedSession = {
   id: string;
   expiresAt: Date;

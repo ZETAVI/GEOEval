@@ -181,6 +181,11 @@ const identityMaintenanceSchema = z.object({
   ...identityCleanupSchema.shape,
 });
 
+const identityBootstrapSchema = z.object({
+  DATABASE_URL: z.string().min(1),
+  IDENTITY_BOOTSTRAP_SECRET_DIGEST: z.string().regex(/^[0-9a-f]{64}$/i),
+});
+
 export type ApiConfig = {
   databaseUrl: string;
   port: number;
@@ -218,6 +223,11 @@ export type IdentityCleanupPolicy = {
 export type IdentityMaintenanceConfig = {
   databaseUrl: string;
   authCleanupPolicy: IdentityCleanupPolicy;
+};
+
+export type IdentityBootstrapConfig = {
+  databaseUrl: string;
+  expectedSecretDigest: string;
 };
 
 export type WorkerConfig = {
@@ -346,6 +356,16 @@ export function loadIdentityMaintenanceConfig(
   return {
     databaseUrl: parsed.DATABASE_URL,
     authCleanupPolicy: cleanupPolicy(parsed),
+  };
+}
+
+export function loadIdentityBootstrapConfig(
+  environment: NodeJS.ProcessEnv = process.env,
+): IdentityBootstrapConfig {
+  const parsed = identityBootstrapSchema.parse(environment);
+  return {
+    databaseUrl: parsed.DATABASE_URL,
+    expectedSecretDigest: parsed.IDENTITY_BOOTSTRAP_SECRET_DIGEST.toLowerCase(),
   };
 }
 

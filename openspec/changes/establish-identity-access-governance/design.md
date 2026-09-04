@@ -284,6 +284,15 @@ deployment environment holds the expected secret digest or equivalent
 deployment-managed verifier. The control row records completion, target, time,
 and a non-secret key identifier; the audit records an offline actor kind.
 
+The initial CLI requires an explicit `DATABASE_URL`, `--mobile`, non-secret
+`--key-id`, and `--secret-stdin`. It never accepts plaintext secret material in
+an argument, environment variable, file in this repository, result, or audit.
+The deployment supplies only the expected SHA-256 verifier; the provided secret
+must contain at least 32 characters and is compared in constant time before any
+Bootstrap database read or write. Local database defaults are deliberately
+unavailable to this command. The verifier digest is retained in the singleton control row only to
+distinguish an exact replay from a changed deployment authority.
+
 Inside the locked transaction, Bootstrap requires no prior completion, no active
 administrator, and an unused mobile. A matching replay returns deterministic
 no-change only when the control record and resulting active administrator still

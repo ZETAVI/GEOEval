@@ -8,6 +8,7 @@ import {
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import {
   ChallengeRateLimitError,
+  IdentityBootstrapError,
   IdentityGovernanceError,
 } from "../domain/identity.errors.js";
 import type { IdentityRepository } from "../domain/identity.repository.js";
@@ -19,6 +20,7 @@ import type {
   AuthenticatedSession,
   IdentityGovernanceAction,
   IdentityGovernanceAuditView,
+  IdentityBootstrapResult,
   IdentityLifecycleCleanupResult,
   InternalAccountRole,
   MobileChallengeView,
@@ -30,6 +32,115 @@ type GovernanceTransaction = Prisma.TransactionClient;
 @Injectable()
 export class PostgresIdentityRepository implements IdentityRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async bootstrapAdministrator(input: {
+    mobile: string;
+    keyId: string;
+    secretDigest: string;
+    now: Date;
+  }): Promise<IdentityBootstrapResult> {
+    return this.prisma.$transaction(async (transaction) => {
+      const controls = await transaction.$queryRaw<Array<{ id: string }>>`
+          SELECT id
+          FROM identity_governance_controls
+          WHERE id = 'GLOBAL'
+          FOR UPDATE
+        `;
+      if (controls.length !== 1) {
+        throw new IdentityBootstrapError(
+          "BOOTSTRAP_CONTROL_UNAVAILABLE",
+          "Bootstrap control state is unavailable",
+        );
+      }
+      const control =
+        await transaction.identityGovernanceControl.findUniqueOrThrow({
+          where: { id: "GLOBAL" },
+        });
+      if (control.bootstrapCompletedAt) {
+        const account = control.bootstrapAccountId
+          ? await transaction.account.findUnique({
+              where: { id: control.bootstrapAccountId },
+            })
+          : null;
+        if (
+          account &&
+          account.mobile === input.mobile &&
+          account.role === "ADMINISTRATOR" &&
+          account.status === "ACTIVE" &&
+          control.bootstrapKeyId === input.keyId &&
+          control.bootstrapSecretDigest === input.secretDigest
+        ) {
+          return {
+            status: "UNCHANGED",
+            account: presentAccount(account),
+            completedAt: control.bootstrapCompletedAt,
+            keyId: input.keyId,
+          };
+        }
+        throw new IdentityBootstrapError(
+          "BOOTSTRAP_ALREADY_COMPLETED_CONFLICT",
+          "Bootstrap has already completed with different state",
+        );
+      }
+
+      if (
+        (await transaction.account.count({
+          where: { role: "ADMINISTRATOR", status: "ACTIVE" },
+        })) > 0
+      ) {
+        throw new IdentityBootstrapError(
+          "BOOTSTRAP_ACTIVE_ADMINISTRATOR_EXISTS",
+          "An active administrator already exists",
+        );
+      }
+      if (
+        await transaction.account.findUnique({
+          where: { mobile: input.mobile },
+        })
+      ) {
+        throw new IdentityBootstrapError(
+          "BOOTSTRAP_MOBILE_ALREADY_EXISTS",
+          "Bootstrap mobile already belongs to an account",
+        );
+      }
+
+      const account = await transaction.account.create({
+        data: {
+          mobile: input.mobile,
+          role: "ADMINISTRATOR",
+          status: "ACTIVE",
+        },
+      });
+      await transaction.identityGovernanceControl.update({
+        where: { id: "GLOBAL" },
+        data: {
+          bootstrapAccountId: account.id,
+          bootstrapSecretDigest: input.secretDigest,
+          bootstrapKeyId: input.keyId,
+          bootstrapCompletedAt: input.now,
+          revision: { increment: 1 },
+        },
+      });
+      await transaction.identityGovernanceAudit.create({
+        data: {
+          actorKind: "BOOTSTRAP",
+          actorKeyId: input.keyId,
+          targetAccountId: account.id,
+          action: "BOOTSTRAP_ADMINISTRATOR",
+          reason: "首次管理员 Bootstrap",
+          beforeState: Prisma.JsonNull,
+          afterState: auditState(account),
+          createdAt: input.now,
+        },
+      });
+      return {
+        status: "CREATED",
+        account: presentAccount(account),
+        completedAt: input.now,
+        keyId: input.keyId,
+      };
+    });
+  }
 
   async issueChallenge(input: {
     id: string;

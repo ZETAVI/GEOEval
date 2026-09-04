@@ -20,7 +20,7 @@ import type {
   IdentityGovernanceAuditView,
   InternalAccountRole,
 } from "../domain/identity.types.js";
-import { normalizeMobile } from "./authentication.service.js";
+import { InvalidMobileError, normalizeMobile } from "../domain/mobile.js";
 
 const accountRoles: AccountRole[] = [
   "TERMINAL_CUSTOMER",
@@ -85,7 +85,7 @@ export class AccountGovernanceService {
     try {
       return await this.repository.createInternalAccount({
         actorAccountId: input.actorAccountId,
-        mobile: normalizeMobile(input.mobile),
+        mobile: normalizeMobileForHttp(input.mobile),
         role: parseInternalRole(input.role),
         reason: parseReason(input.reason),
         now: new Date(),
@@ -141,6 +141,17 @@ export class AccountGovernanceService {
 function parseRole(value: string): AccountRole {
   if (accountRoles.includes(value as AccountRole)) return value as AccountRole;
   throw new BadRequestException("role 不受支持");
+}
+
+function normalizeMobileForHttp(value: unknown): string {
+  try {
+    return normalizeMobile(value);
+  } catch (error) {
+    if (error instanceof InvalidMobileError) {
+      throw new BadRequestException("请输入有效的手机号");
+    }
+    throw error;
+  }
 }
 
 function parseInternalRole(value: string): InternalAccountRole {

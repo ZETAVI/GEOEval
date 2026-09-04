@@ -24,6 +24,7 @@ import {
   type IdentityRepository,
 } from "../domain/identity.repository.js";
 import type { AccountView } from "../domain/identity.types.js";
+import { InvalidMobileError, normalizeMobile } from "../domain/mobile.js";
 import { IDENTITY_CONFIG } from "./identity.config.js";
 
 export type ChallengeDelivery = {
@@ -49,7 +50,7 @@ export class AuthenticationService {
   ) {}
 
   async requestChallenge(rawMobile: string): Promise<ChallengeDelivery> {
-    const mobile = normalizeMobile(rawMobile);
+    const mobile = normalizeMobileForHttp(rawMobile);
     const id = randomUUID();
     const now = new Date();
     const expiresAt = new Date(
@@ -104,7 +105,7 @@ export class AuthenticationService {
     mobile: string;
     code: string;
   }): Promise<SessionDelivery> {
-    const mobile = normalizeMobile(input.mobile);
+    const mobile = normalizeMobileForHttp(input.mobile);
     if (typeof input.code !== "string" || !/^\d{6}$/.test(input.code)) {
       throw new BadRequestException("验证码格式不正确");
     }
@@ -162,12 +163,13 @@ export class AuthenticationService {
   }
 }
 
-export function normalizeMobile(input: string): string {
-  if (typeof input !== "string") {
-    throw new BadRequestException("请输入有效的手机号");
+function normalizeMobileForHttp(input: unknown): string {
+  try {
+    return normalizeMobile(input);
+  } catch (error) {
+    if (error instanceof InvalidMobileError) {
+      throw new BadRequestException("请输入有效的手机号");
+    }
+    throw error;
   }
-  const compact = input.trim().replace(/[\s()-]/g, "");
-  if (/^1\d{10}$/.test(compact)) return `+86${compact}`;
-  if (/^\+\d{8,15}$/.test(compact)) return compact;
-  throw new BadRequestException("请输入有效的手机号");
 }

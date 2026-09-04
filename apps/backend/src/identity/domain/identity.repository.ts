@@ -5,6 +5,7 @@ import type {
   AccountView,
   AuthenticatedSession,
   IdentityGovernanceAuditView,
+  IdentityBootstrapResult,
   IdentityLifecycleCleanupResult,
   InternalAccountRole,
   MobileChallengeView,
@@ -24,6 +25,12 @@ export interface IdentityRepository {
     windowMs: number;
     maximumRequestsPerWindow: number;
   }): Promise<void>;
+  bootstrapAdministrator(input: {
+    mobile: string;
+    keyId: string;
+    secretDigest: string;
+    now: Date;
+  }): Promise<IdentityBootstrapResult>;
   findChallenge(id: string): Promise<MobileChallengeView | undefined>;
   incrementFailedAttempts(input: {
     id: string;

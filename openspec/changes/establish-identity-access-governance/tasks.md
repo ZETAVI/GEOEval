@@ -38,7 +38,7 @@
       any cleanup or migration rehearsal.
 - [x] Add additive Account status/revision, Session lifecycle, governance-control,
       and Identity-audit schema/migration with compatible rollback behavior.
-- [ ] Split the current all-purpose Identity service into cohesive Account,
+- [x] Split the current all-purpose Identity service into cohesive Account,
       Authentication, Session, Access, Governance, Audit, and Bootstrap
       responsibilities without creating another deployable service.
 - [x] Preserve opaque credential/digest handling and implement server-owned
@@ -63,7 +63,7 @@
 - [x] Enforce no customer/internal conversion, immutable mobile, no account
       deletion, no administrator self-governance, and no last-administrator loss
       inside the locked Governance transaction.
-- [ ] Implement first-administrator Bootstrap replay/conflict behavior without
+- [x] Implement first-administrator Bootstrap replay/conflict behavior without
       an automated recovery command; expose no Bootstrap or recovery HTTP route
       and create no real administrator.
 - [x] Generate OpenAPI/client contracts for accounts, governance, audit,
@@ -85,7 +85,7 @@
 - [ ] Test current logout, self logout-all, administrator revoke-all, multiple
       sessions, idle/absolute expiry, permission-change invalidation, revocation
       reasons, cleanup, and new authentication after change.
-- [ ] Test Bootstrap first run/replay/conflicts and prove no recovery/public HTTP
+- [x] Test Bootstrap first run/replay/conflicts and prove no recovery/public HTTP
       entry and no secret/plaintext Token in output or audit; verify the normal
       second-administrator readiness path through Governance.
 - [ ] Force stale revision, self-operation, last-administrator, concurrent
@@ -144,6 +144,32 @@
 - Verification: Challenge/cleanup/config/HTTP focused tests passed; complete
   backend regression is 33 files / 175 tests; typecheck, production build,
   generated contracts, formatting, Diff check, and framework validation pass.
-- Still open: remaining internal service split, Bootstrap, role shells,
+- Still open at this checkpoint: remaining internal service split, Bootstrap,
+  role shells,
   administrator UI, complete failure/security/browser/rollback evidence,
   reconciliation, PR review, and integration.
+
+## Bootstrap checkpoint — 2026-09-04
+
+- Added an offline-only Bootstrap application service and CLI. The command
+  requires explicit database, mobile, non-secret key ID, digest-only deployment
+  verifier, and protected standard-input secret; it has no local database
+  default and no HTTP route.
+- The singleton Governance control row serializes first creation and replay.
+  First execution atomically creates one active administrator, control state,
+  and one Bootstrap audit; an exact replay returns `UNCHANGED`; different
+  target, key, verifier, existing administrator, or owned mobile rejects without
+  mutation.
+- The CLI was exercised on a disposable 21-migration database with a public
+  fixture secret: first execution returned `CREATED`, matching replay returned
+  `UNCHANGED`, and database inspection showed one administrator, one audit,
+  a 64-character digest, and no plaintext fixture secret. The database was then
+  removed.
+- Focused Bootstrap/CLI/config/authentication/governance tests pass, including
+  concurrent first-admin attempts and creation of the recommended second
+  administrator through ordinary Governance. Complete regression is 35 files /
+  187 tests; typecheck, build, formatting, Diff, and framework checks pass.
+- No real administrator, real secret, recovery command, production database,
+  deployment, or activation was used. Remaining work is frontend role entry and
+  governance UI, expanded non-Bootstrap verification, reconciliation, PR, and
+  integration.

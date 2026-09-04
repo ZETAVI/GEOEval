@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   loadApiConfig,
+  loadIdentityBootstrapConfig,
   loadIdentityMaintenanceConfig,
   loadWorkerConfig,
 } from "../src/config/runtime-config.js";
@@ -95,6 +96,31 @@ describe("process-scoped configuration", () => {
         AUTH_IDENTITY_CLEANUP_BATCH_SIZE: "0",
       }).aiExecution.mode,
     ).toBe("deterministic");
+  });
+
+  it("requires an explicit database and digest-only Bootstrap verifier", () => {
+    const digest = "a".repeat(64);
+    expect(
+      loadIdentityBootstrapConfig({
+        DATABASE_URL: "postgresql://example/bootstrap",
+        IDENTITY_BOOTSTRAP_SECRET_DIGEST: digest.toUpperCase(),
+      }),
+    ).toEqual({
+      databaseUrl: "postgresql://example/bootstrap",
+      expectedSecretDigest: digest,
+    });
+    expect(() =>
+      loadIdentityBootstrapConfig({
+        GEOEVAL_LOCAL_DEFAULTS: "1",
+        IDENTITY_BOOTSTRAP_SECRET_DIGEST: digest,
+      }),
+    ).toThrow();
+    expect(() =>
+      loadIdentityBootstrapConfig({
+        DATABASE_URL: "postgresql://example/bootstrap",
+        IDENTITY_BOOTSTRAP_SECRET_DIGEST: "plaintext-secret",
+      }),
+    ).toThrow();
   });
 
   it("keeps Store Location conditional and rejects unsafe activation", () => {
