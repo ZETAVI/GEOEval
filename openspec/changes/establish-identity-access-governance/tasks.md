@@ -26,6 +26,10 @@
       Secret or automated break-glass CLI; use normal second-administrator
       readiness and route a true sole-admin lockout to a separately authorized
       incident/follow-up rather than extending Bootstrap.
+- [x] Record the approved parallel boundary with Issue #57: #50 owns Identity,
+      Access, role entry, and shared generated-contract writes while #57 remains
+      in product discussion, owns GEO Optimization/article semantics, and must
+      rebase/regenerate before touching shared integration surfaces.
 
 ## Stage 2 — Implement Account, Session, and Access foundation
 

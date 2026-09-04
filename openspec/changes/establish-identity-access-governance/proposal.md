@@ -112,6 +112,17 @@ principal, role metadata, or current Identity spec. Compatible implementation
 slices may be reviewed sequentially, but no proposal-only PR, Stacked PR, or
 Integration Branch is created merely to divide backend and frontend work.
 
+Issue #57 may continue its independent GEO Optimization discussion and design
+in parallel. #50 is the single writer for `apps/backend/src/identity/**`, the
+authenticated access contract, fixed role entry, and the new Identity current
+spec. #57 owns only GEO Optimization/article semantics and consumes the
+terminal-customer principal without modifying Identity. Prisma schema,
+`api.module.ts`, OpenAPI/generated client output, and shared Web shell/style
+files remain sequential single-writer surfaces: #50 writes them during its
+active implementation; #57 rebases onto the accepted #50 result and regenerates
+derived contracts before its own integration. This coordination order is not a
+Stacked PR or functional dependency and does not combine the two Issues.
+
 ## Impact
 
 - PostgreSQL migration for account state/revision, session lifecycle fields,
