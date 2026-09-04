@@ -19,8 +19,12 @@
   the [Brand Knowledge specification](../brand-knowledge/spec.md).
   The administrator-maintained platform catalog, pricing, optional resource
   examples, revision, and audit boundary are owned by the
-  [Media Supply specification](../media-supply/spec.md). This marker remains for
-  product capabilities that have not yet gained an activated owner.
+  [Media Supply specification](../media-supply/spec.md). Fixed single-role
+  accounts, authentication, Session lifecycle, access, account governance,
+  Bootstrap, and fixed role entry are owned by the
+  [Identity and Access specification](../identity-and-access/spec.md). This
+  marker remains for product capabilities that have not yet gained an activated
+  owner.
 
 ## Requirements
 
@@ -73,18 +77,6 @@ while the public marketing website remains a distinct top-navigation experience.
   density
 - **AND** the exact sections for each role remain an explicit information-
   architecture decision before frontend design
-
-#### Scenario: An account enters its one assigned role
-
-- **GIVEN** every initial-product account has exactly one role
-- **WHEN** the account signs in
-- **THEN** the product opens only the terminal-customer, operations,
-  administrator, or agent navigation and home assigned to that account
-- **AND** the account does not receive a role switcher or the combined authority
-  of multiple roles
-- **AND** a person who needs another role uses a separate role-specific account
-- **AND** agent attribution on a terminal-customer account does not add the agent
-  role or agent permissions to that customer account
 
 #### Scenario: A terminal customer has no module data yet
 

@@ -101,7 +101,7 @@
 - [x] Run focused tests, typecheck, full backend/Web tests, build, formatting,
       framework validation, migration status, OpenAPI drift check, and fixed-diff
       code/architecture review.
-- [ ] Reconcile accepted behavior into a new current Identity and Access spec,
+- [x] Reconcile accepted behavior into a new current Identity and Access spec,
       Architecture Overview, Product Definition Evolution marker, generated
       contracts, runbook, and ADR if still warranted; remove obsolete Guard and
       routing explanations.
@@ -383,3 +383,26 @@
   all returned zero. API/Web processes and browser tabs were stopped.
 - Still open: aggregate verification/fixed-diff review, reconciliation, PR, and
   integration.
+
+## Aggregate review and reconciliation checkpoint — 2026-09-04
+
+- Repeated the complete backend and Web regressions together on a fresh,
+  dedicated PostgreSQL database and pre-confirmed-empty Redis DB 2: 39 backend
+  files / 207 tests and 10 Web files / 52 tests passed. Typecheck, production
+  build, formatting, framework validation, 21-migration status, generated-
+  contract drift, and Diff checks passed.
+- The fixed-diff code/architecture review resolved malformed Cookie/body 500s,
+  embedded Media editor Session-state divergence, an unbounded audit-action API
+  type, misleading post-activation rollback interpretation, and a stale test
+  filename. No unresolved must-fix or should-fix finding remains.
+- Promoted accepted behavior to the current `identity-and-access` spec, updated
+  Architecture Overview and the Product Definition extraction index, recorded
+  the server-authoritative decision in ADR 0004, and added one operations
+  runbook for migration, Bootstrap, second-administrator readiness, cleanup,
+  incidents, and release evidence.
+- Removed the obsolete current Media Supply Guard explanation. The active Change
+  remains only until the review PR is opened and its final task/relationship can
+  be recorded before archival.
+- No production database, real account, provider, SMS, Bootstrap, deployment,
+  activation, or PR merge was used. The remaining Issue task is opening the
+  reviewable final PR; integration remains a later human Gate.
