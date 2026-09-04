@@ -25,7 +25,7 @@
       checks appropriate to the documentation slice.
 - [x] Review the fixed Diff for intent, instruction clarity, ownership,
       proportionality, and evidence continuity.
-- [ ] Push the verified branch and open a Partial PR using `Part of #55 — does
+- [x] Push the verified branch and open Partial PR #56 using `Part of #55 — does
       not close`.
 
 ## Final integration gate

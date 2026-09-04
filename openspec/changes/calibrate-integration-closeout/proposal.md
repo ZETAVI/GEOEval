@@ -1,6 +1,6 @@
 # Change: Calibrate Integration Closeout and Project Done
 
-- Status: Repository slice verified; Partial PR pending; integration not yet
+- Status: Repository slice verified in Partial PR #56; integration not yet
   authorized
 - Class: Standard project-governance change
 - Issue: [#55](https://github.com/ZETAVI/GEOEval/issues/55)
@@ -64,10 +64,10 @@ becomes `Done` only after post-integration reconciliation and workspace exit.
 - Branch: `codex/issue-55-integration-closeout`.
 - Workspace: the live Issue-owned Worktree; its machine-local path is not a
   durable project fact.
-- Exit: the documentation PR remains Partial and `ready-for-integration` until
-  merge is authorized. At that gate, perform and verify the reversible cloud
-  workflow and safe workspace changes, archive this Change on the same branch,
-  promote the PR to Final, and then integrate once.
+- Exit: PR #56 remains Partial and `ready-for-integration` until merge is
+  authorized. At that gate, perform and verify the reversible cloud workflow
+  and safe workspace changes, archive this Change on the same branch, promote
+  the PR to Final, and then integrate once.
 
 ## Approval Boundary
 
