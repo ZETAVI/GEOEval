@@ -1,4 +1,5 @@
 # Design: AI Evaluation Query Generator
+<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
 
 ## Design position
 

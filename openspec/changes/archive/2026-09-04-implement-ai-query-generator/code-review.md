@@ -1,4 +1,5 @@
 # Code Review: AI Evaluation Query Generator
+<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
 
 ## Review contract
 
@@ -62,11 +63,12 @@ The implementation matches the approved boundary:
 
 - The rebased branch is published and #32 / PR #35 have received the stable-base
   handoff. Required CI must pass again on the final Prompt revision.
-- Accepted current specs and architecture remain unchanged until Query quality
-  is accepted; reconciliation and Change archival are intentionally pending.
+- Query quality is accepted, current specs and architecture are reconciled, and
+  the Change is archived. Required CI and explicit integration authorization
+  remain pending.
 - A representative 4 x 5 evaluation belongs to #39 and requires separate
   authorization after Query acceptance.
 
 ## Result
 
-`ready for reconciliation after final revision verification`
+`ready for integration after required CI`

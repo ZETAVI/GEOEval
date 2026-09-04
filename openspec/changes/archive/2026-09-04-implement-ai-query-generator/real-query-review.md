@@ -1,4 +1,5 @@
 # Real Query Review
+<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
 
 ## Review contract
 
@@ -91,4 +92,3 @@ fallback rather than the primary Query route.
   a stable semantic gap. Future iterations should improve task or input meaning
   and examples rather than append phrase-level prohibitions.
 - The representative 4 x 5 evaluation remains a separate #39 Integration Gate.
-

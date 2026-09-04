@@ -1,4 +1,5 @@
 # Source Brief: 互动派 Query Generator Test Profile
+<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
 
 - Checked: 2026-09-01
 - Purpose: derive one authorized, realistic brand profile for Query-only and
@@ -32,4 +33,3 @@
   questions; it does not make GEOEval a verifier of the company's claims.
 - Refresh this brief only if the official site changes materially before the
   controlled batch or the product owner changes the test profile.
-

@@ -1,4 +1,5 @@
 # Evaluation Definition Delta Specification
+<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
 
 ## MODIFIED Requirements
 

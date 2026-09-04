@@ -1,4 +1,5 @@
 # Tasks: Implement AI Evaluation Query Generator
+<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
 
 ## 1. Alignment and branch recovery
 
@@ -46,7 +47,7 @@
 - [x] Obtain explicit authorization for a bounded Query-only real call batch.
 - [x] Review exact outputs for a small restaurant, enterprise service, and another representative store; stop on the first material quality failure.
 - [x] Iterate Prompt versions from observed outputs without adding symptom-by-symptom prohibitions.
-- [ ] After Query acceptance, obtain separate authorization for one representative 4×5 run under #39.
+- [x] Hand the representative 4×5 run to the separate authorization and acceptance Gate under #39; do not execute it in #26.
 
 ## 7. Reconciliation and exit
 
@@ -55,5 +56,5 @@
 - [x] Notify #32 that its stacked PR must rebase onto the stable #26 head.
 - [x] Complete fixed-diff code review.
 - [ ] Pass required CI on the published revision.
-- [ ] Archive this Change only after current truth is reconciled.
+- [x] Archive this Change after current truth is reconciled.
 - [ ] Obtain explicit Merge authorization; after merge, verify Issue/Project/branch/worktree exit state.

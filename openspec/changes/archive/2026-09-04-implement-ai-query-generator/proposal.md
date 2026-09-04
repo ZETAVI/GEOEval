@@ -1,8 +1,9 @@
 # Change Proposal: Implement AI Evaluation Query Generator
+<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
 
 ## Status
 
-- Phase: Implement
+- Phase: Reconciled; integration review remains
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owner: Product owner
@@ -60,4 +61,7 @@ Snapshot v3 现已由 Brand Knowledge 提供经过验证的门店位置、主打
 
 ## Approval and External Gates
 
-The product decision brief was confirmed on 2026-09-04. Implementation may proceed in the Issue-owned Worktree. Real Provider calls, final representative 4×5, Merge, production customer data, and deployment remain separate explicit gates.
+The product decision brief was confirmed on 2026-09-04. The bounded real
+Query-only review is accepted and current truth is reconciled. Final
+representative 4×5, Merge, production customer data, and deployment remain
+separate explicit gates.

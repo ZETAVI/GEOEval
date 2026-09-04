@@ -1,4 +1,5 @@
 # Decision Brief: Snapshot v3 上的 AI 评测问题生成
+<!-- Archived after 2026-09-04 reconciliation; integration remains PR #28. -->
 
 ## Outcome
 
