@@ -8,12 +8,27 @@ const apiBaseUrl =
 export function AdminSidebar({ account }: { account: Account }) {
   return (
     <aside className="sidebar admin-sidebar">
-      <a className="brand-mark inverse" href="/admin/media">
+      <a className="brand-mark inverse" href="/admin">
         <span aria-hidden="true">G</span>
         <strong>GEO 管理台</strong>
       </a>
-      <div className="admin-area-label">内容与供给</div>
+      <div className="admin-area-label">管理员工作区</div>
       <nav aria-label="管理员功能">
+        <a className="side-link" href="/admin">
+          <i>总</i>
+          <span>
+            <b>管理总览</b>
+            <small>权限与系统模块</small>
+          </span>
+        </a>
+        <span className="side-link unavailable">
+          <i>权</i>
+          <span>
+            <b>账号与访问</b>
+            <small>账号、角色与会话</small>
+          </span>
+          <em>待接入</em>
+        </span>
         <a className="side-link active" href="/admin/media" aria-current="page">
           <i>媒</i>
           <span>

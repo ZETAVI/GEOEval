@@ -22,6 +22,7 @@ import {
 } from "@geoeval/api-client";
 import { useEffect, useMemo, useState } from "react";
 
+import { roleHomePath } from "../../enter/post-login-route.js";
 import { AdminSidebar } from "./admin-sidebar.js";
 import {
   DeleteConfirmDialog,
@@ -384,11 +385,9 @@ export function AdminMediaWorkspace() {
             」。平台资料、价格、供应商、采购成本和操作记录只向系统管理员开放。
           </p>
           <div>
-            {account.role === "TERMINAL_CUSTOMER" && (
-              <a className="primary-button" href="/brands">
-                返回我的品牌
-              </a>
-            )}
+            <a className="primary-button" href={roleHomePath(account.role)}>
+              返回我的工作区
+            </a>
             <button
               className="secondary-button"
               type="button"

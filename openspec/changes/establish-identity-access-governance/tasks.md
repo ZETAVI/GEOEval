@@ -68,7 +68,7 @@
       and create no real administrator.
 - [x] Generate OpenAPI/client contracts for accounts, governance, audit,
       logout-all, and authenticated principal responses.
-- [ ] Replace the post-login Media Supply special case with fixed `/brands`,
+- [x] Replace the post-login Media Supply special case with fixed `/brands`,
       `/admin`, `/operations`, and `/agent` role entry.
 - [ ] Build the administrator `账号与访问` workspace with list/search/filter,
       create, role/status/revoke-all, confirmation/reason, audit, and explicit
@@ -173,3 +173,30 @@
   deployment, or activation was used. Remaining work is frontend role entry and
   governance UI, expanded non-Bootstrap verification, reconciliation, PR, and
   integration.
+
+## Fixed role-entry checkpoint — 2026-09-04
+
+- Replaced the administrator-only Media Supply redirect and unsupported internal
+  roles with fixed `/brands`, `/admin`, `/operations`, and `/agent` entry.
+- Added an administrator overview plus honest operations and agent shells. The
+  shells expose only established Identity and access boundaries, mark future
+  business capabilities unavailable, and do not invent counts, orders,
+  customers, commissions, or settlement data.
+- Reused each account's fixed role home for cross-role denial and the existing
+  Media Supply denial path; no client-side role switch or merged-role behavior
+  was introduced.
+- Browser proof used three synthetic accounts only in `geoeval_issue50`: each
+  internal role completed the real Challenge/login flow and arrived at its fixed
+  home; an administrator was denied `/operations`, and an agent was denied
+  `/admin/media` with a return link to `/agent`. Browser warning/error logs were
+  empty and the desktop layout had no horizontal overflow.
+- The three synthetic accounts, their Sessions, Challenges, and per-mobile rate
+  state were deleted after the browser check and all cleanup counts were verified
+  as zero. Shared defaults, real accounts, and production state were untouched.
+- Verification: Web regression is 6 files / 27 tests; complete backend regression
+  on the Issue-owned PostgreSQL/Redis targets is 35 files / 187 tests; typecheck,
+  formatting, production build, generated OpenAPI/client drift check, Diff check,
+  and project-framework validation pass.
+- Still open at this checkpoint: administrator account-and-access UI, the shared
+  inactive/revoked/expired state matrix, expanded security/concurrency evidence,
+  rollback rehearsal, reconciliation, PR review, and integration.
