@@ -100,7 +100,8 @@ security transaction; business modules declare roles and consume a principal.
   closed. The normal runbook establishes another active administrator; a true
   sole-admin lockout fails closed and requires a separately authorized incident
   and later recovery-security decision.
-- **Origin:** exposed by the required Bootstrap/recovery boundary; not a current
+- **Origin:** exposed while defining the Bootstrap and exceptional-lockout
+  boundary; not a current
   runtime regression.
 
 ## Confirmed architectural qualities

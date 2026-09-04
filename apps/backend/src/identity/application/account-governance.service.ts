@@ -69,7 +69,7 @@ export class AccountGovernanceService {
   }> {
     return this.repository.listGovernanceAudits({
       ...(input.targetAccountId
-        ? { targetAccountId: input.targetAccountId }
+        ? { targetAccountId: parseAccountId(input.targetAccountId) }
         : {}),
       ...(input.cursor ? { cursor: parseCursor(input.cursor) } : {}),
       limit: parseLimit(input.limit),
@@ -126,7 +126,7 @@ export class AccountGovernanceService {
     try {
       return await this.repository.changeGovernedAccount({
         actorAccountId: input.actorAccountId,
-        targetAccountId: input.targetAccountId,
+        targetAccountId: parseAccountId(input.targetAccountId),
         expectedRevision: input.expectedRevision,
         reason: parseReason(input.reason),
         now: new Date(),
@@ -184,6 +184,14 @@ function parseCursor(value: string): string {
     return value;
   }
   throw new BadRequestException("cursor 格式不正确");
+}
+
+function parseAccountId(value: string): string {
+  try {
+    return parseCursor(value);
+  } catch {
+    throw new BadRequestException("accountId 格式不正确");
+  }
 }
 
 function throwGovernanceHttpError(error: unknown): never {

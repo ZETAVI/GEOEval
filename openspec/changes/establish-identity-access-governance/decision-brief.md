@@ -17,7 +17,7 @@ existing session and leave attributable audit evidence.
 - In: fixed single-role accounts, internal-account pre-provisioning, account
   status and revision, opaque Cookie sessions, complete session revocation,
   declarative backend access, account governance and audit, first-administrator
-  Bootstrap, fixed role homes, and migration/recovery evidence.
+  Bootstrap, fixed role homes, and migration/rollback evidence.
 - Out: multi-role accounts, role switching, user-defined RBAC/ABAC, JWT or
   OAuth access/refresh tokens, SSO, device fingerprinting, real SMS activation,
   agent attribution, production deployment, and real-account creation.
@@ -72,7 +72,7 @@ existing session and leave attributable audit evidence.
 ## Confirmation and Next Gate
 
 - Confirmation: role, account-conversion, session architecture, access-contract,
-  administrator self-operation, last-administrator, and bounded recovery
+  administrator self-operation, last-administrator, and exceptional-lockout
   boundaries are confirmed.
 - Next action: begin the first compatible implementation slice using isolated
   PostgreSQL and Redis targets.

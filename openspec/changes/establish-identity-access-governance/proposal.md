@@ -128,7 +128,8 @@ Stacked PR or functional dependency and does not combine the two Issues.
 - PostgreSQL migration for account state/revision, session lifecycle fields,
   Identity governance control, and append-only audit.
 - Backend refactor across Identity and every authenticated controller.
-- New administrator HTTP contracts and offline Bootstrap/recovery CLI boundary.
+- New administrator HTTP contracts, an offline one-time Bootstrap boundary,
+  and the explicit absence of an automated recovery command.
 - Web authenticated shell, fixed role homes, account-governance workspace, and
   session-expired/access-denied states.
 - OpenAPI and generated client updates plus focused unit, integration, migration,

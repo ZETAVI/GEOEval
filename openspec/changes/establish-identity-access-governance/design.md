@@ -52,7 +52,7 @@ Identity and Access
 ├── Access         public/role metadata, guard, current principal, 401/403
 ├── Governance     administrator account commands and queries
 ├── Audit          accepted governance history and bounded security evidence
-└── Bootstrap      first administrator and separately gated recovery CLI
+└── Bootstrap      one-time first administrator; no recovery command in v1
 ```
 
 These remain cohesive packages inside the NestJS modular monolith. They are not
@@ -158,9 +158,9 @@ database advisory lock, and governance write volume is low.
 
 An append-only Identity audit records:
 
-- actor kind: account, Bootstrap operator, or approved recovery operator;
+- actor kind: authenticated account or Bootstrap operator;
 - actor account ID when the actor is an authenticated account;
-- a non-secret deployment/recovery key identifier for an offline actor;
+- a non-secret Bootstrap key identifier for the offline actor;
 - target account, action, reason, bounded before/after role/status/revision, and
   server time.
 
@@ -260,7 +260,7 @@ Identity account governance and Media Supply as separate modules. Operations
 and Agent receive honest role shells and capability-owned empty states, not
 customer APIs or fabricated dashboards.
 
-## Bootstrap and bounded recovery
+## Bootstrap and exceptional-lockout boundary
 
 The first-administrator CLI reads the target mobile explicitly and reads the
 Bootstrap secret from protected input rather than a command-line value. The
@@ -342,7 +342,7 @@ deployment, real account, or production migration remains a separate human Gate.
   last-seen writes must be measured rather than cached into a second authority.
 - **Metrics and logs:** count Challenge issue/failure/rate-limit, Session
   creation/revocation/expiry, 401/403/CSRF outcomes, Governance results, and
-  Bootstrap/recovery results through identifiers that cannot authenticate.
+  Bootstrap results through identifiers that cannot authenticate.
 - **Completion evidence:** migration rehearsal, domain transition matrix,
   transaction rollback/concurrency, Bootstrap replay, Session expiry/revocation,
   controller role inventory, CSRF HTTP matrix, OpenAPI/client build, and browser

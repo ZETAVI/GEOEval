@@ -134,6 +134,20 @@ describe("administrator account governance", () => {
     expect(await prisma.identityGovernanceAudit.count()).toBe(0);
   });
 
+  it("rejects a malformed governance target before it reaches PostgreSQL", async () => {
+    const administrator = await createAdministrator(prisma, 6);
+
+    await expect(
+      governance.changeAccount({
+        actorAccountId: administrator.id,
+        targetAccountId: "not-an-account-id",
+        expectedRevision: 1,
+        reason: "拒绝非法目标标识",
+        mutation: { kind: "STATUS", status: "INACTIVE" },
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+  });
+
   it("serializes competing demotions and always retains one active administrator", async () => {
     const first = await createAdministrator(prisma, 4);
     const second = await createAdministrator(prisma, 5);
