@@ -184,6 +184,18 @@
         "tags": [
           "identity"
         ]
+      },
+      "delete": {
+        "operationId": "IdentityController_deleteAllSessions",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "identity"
+        ]
       }
     },
     "/identity/me": {
@@ -218,6 +230,236 @@
         },
         "tags": [
           "identity"
+        ]
+      }
+    },
+    "/admin/accounts": {
+      "get": {
+        "operationId": "AccountGovernanceController_list",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountListResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity-governance"
+        ]
+      },
+      "post": {
+        "operationId": "AccountGovernanceController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInternalAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity-governance"
+        ]
+      }
+    },
+    "/admin/accounts/{accountId}/status": {
+      "patch": {
+        "operationId": "AccountGovernanceController_changeStatus",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeAccountStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity-governance"
+        ]
+      }
+    },
+    "/admin/accounts/{accountId}/role": {
+      "patch": {
+        "operationId": "AccountGovernanceController_changeRole",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeAccountRoleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity-governance"
+        ]
+      }
+    },
+    "/admin/accounts/{accountId}/sessions": {
+      "delete": {
+        "operationId": "AccountGovernanceController_revokeSessions",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GovernedAccountMutationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity-governance"
+        ]
+      }
+    },
+    "/admin/accounts/audits": {
+      "get": {
+        "operationId": "AccountGovernanceController_audits",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "targetAccountId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGovernanceAuditListResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity-governance"
         ]
       }
     },
@@ -1355,12 +1597,279 @@
               "ADMINISTRATOR",
               "AGENT"
             ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "revision": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastAuthenticatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "required": [
           "id",
           "mobile",
+          "role",
+          "status",
+          "revision"
+        ]
+      },
+      "AccountSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "TERMINAL_CUSTOMER",
+              "OPERATIONS",
+              "ADMINISTRATOR",
+              "AGENT"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "revision": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastAuthenticatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "activeSessionCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "mobile",
+          "role",
+          "status",
+          "revision",
+          "activeSessionCount"
+        ]
+      },
+      "AccountListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountSummaryResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "CreateInternalAccountRequest": {
+        "type": "object",
+        "properties": {
+          "mobile": {
+            "type": "string",
+            "example": "13800138000"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OPERATIONS",
+              "ADMINISTRATOR",
+              "AGENT"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 320
+          }
+        },
+        "required": [
+          "mobile",
+          "role",
+          "reason"
+        ]
+      },
+      "ChangeAccountStatusRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 320
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "reason",
+          "status"
+        ]
+      },
+      "ChangeAccountRoleRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 320
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OPERATIONS",
+              "ADMINISTRATOR",
+              "AGENT"
+            ]
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "reason",
           "role"
+        ]
+      },
+      "GovernedAccountMutationRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 320
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "reason"
+        ]
+      },
+      "IdentityGovernanceAuditResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actorKind": {
+            "type": "string",
+            "enum": [
+              "ACCOUNT",
+              "BOOTSTRAP"
+            ]
+          },
+          "actorAccountId": {
+            "type": "string",
+            "nullable": true
+          },
+          "actorKeyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetAccountId": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "beforeState": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "afterState": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "actorKind",
+          "targetAccountId",
+          "action",
+          "reason",
+          "afterState",
+          "createdAt"
+        ]
+      },
+      "IdentityGovernanceAuditListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityGovernanceAuditResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items"
         ]
       },
       "EvaluationBrandSnapshotResponse": {

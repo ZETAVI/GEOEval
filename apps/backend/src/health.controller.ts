@@ -2,8 +2,10 @@ import { Controller, Get, Inject } from "@nestjs/common";
 import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
 
 import { ReadinessState } from "./readiness.js";
+import { PublicAccess } from "./identity/access/access.metadata.js";
 
 @ApiTags("health")
+@PublicAccess()
 @Controller("health")
 export class HealthController {
   constructor(

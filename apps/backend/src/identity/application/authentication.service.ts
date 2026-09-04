@@ -8,21 +8,19 @@ import { randomBytes, randomUUID } from "node:crypto";
 
 import type { ApiConfig } from "../../config/runtime-config.js";
 import {
-  IDENTITY_REPOSITORY,
-  type IdentityRepository,
-} from "../domain/identity.repository.js";
-import {
   challengeDigest,
   digestsMatch,
   sessionDigest,
 } from "../domain/identity.crypto.js";
+import {
+  IDENTITY_REPOSITORY,
+  type IdentityRepository,
+} from "../domain/identity.repository.js";
 import type { AccountView } from "../domain/identity.types.js";
+import { IDENTITY_CONFIG } from "./identity.config.js";
 
 const challengeLifetimeMs = 5 * 60 * 1000;
-const sessionLifetimeMs = 7 * 24 * 60 * 60 * 1000;
 const maximumFailedAttempts = 5;
-
-export const IDENTITY_CONFIG = Symbol("IDENTITY_CONFIG");
 
 export type ChallengeDelivery = {
   challengeId: string;
@@ -37,7 +35,7 @@ export type SessionDelivery = {
 };
 
 @Injectable()
-export class IdentityService {
+export class AuthenticationService {
   constructor(
     @Inject(IDENTITY_REPOSITORY)
     private readonly repository: IdentityRepository,
@@ -98,43 +96,21 @@ export class IdentityService {
     }
 
     const token = randomBytes(32).toString("base64url");
-    const expiresAt = new Date(now.getTime() + sessionLifetimeMs);
-    const account = await this.repository.completeChallenge({
+    const completed = await this.repository.completeChallenge({
       challengeId: challenge.id,
       mobile,
       sessionDigest: sessionDigest(token),
-      sessionExpiresAt: expiresAt,
+      ...this.config.authSessionPolicy,
       now,
     });
-    if (!account) {
-      throw new UnauthorizedException("验证码已使用，请重新获取");
+    if (!completed) {
+      throw new UnauthorizedException("验证码无效或账号不可用，请重新获取");
     }
-    return { account, token, expiresAt };
-  }
-
-  async authenticate(token: string | undefined): Promise<AccountView> {
-    const account = await this.authenticateAccount(token);
-    if (account.role !== "TERMINAL_CUSTOMER") {
-      throw new UnauthorizedException("登录状态已失效，请重新登录");
-    }
-    return account;
-  }
-
-  async authenticateAccount(token: string | undefined): Promise<AccountView> {
-    if (!token) throw new UnauthorizedException("请先登录");
-    const session = await this.repository.findSession(
-      sessionDigest(token),
-      new Date(),
-    );
-    if (!session) {
-      throw new UnauthorizedException("登录状态已失效，请重新登录");
-    }
-    return session.account;
-  }
-
-  async logout(token: string | undefined): Promise<void> {
-    if (!token) return;
-    await this.repository.revokeSession(sessionDigest(token), new Date());
+    return {
+      account: completed.account,
+      token,
+      expiresAt: completed.expiresAt,
+    };
   }
 }
 

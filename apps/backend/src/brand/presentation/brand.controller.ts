@@ -7,8 +7,6 @@ import {
   Patch,
   Post,
   Put,
-  Req,
-  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBody,
@@ -19,25 +17,29 @@ import {
   getSchemaPath,
 } from "@nestjs/swagger";
 
-import { SessionGuard } from "../../identity/presentation/session.guard.js";
-import type { AuthenticatedRequest } from "../../identity/presentation/session-http.js";
+import { RequireAccountRoles } from "../../identity/access/access.metadata.js";
+import {
+  CurrentAccountMobile,
+  CurrentPrincipal,
+} from "../../identity/access/current-principal.js";
+import type { AuthenticatedPrincipal } from "../../identity/domain/identity.types.js";
 import { BrandService } from "../application/brand.service.js";
 import type { BrandMutationInput, BrandView } from "../domain/brand.types.js";
 import { BrandMutationRequest, BrandResponse } from "./brand.dto.js";
 
 @ApiTags("brands")
 @ApiExtraModels(BrandResponse)
-@UseGuards(SessionGuard)
+@RequireAccountRoles("TERMINAL_CUSTOMER")
 @Controller("brands")
 export class BrandController {
   constructor(@Inject(BrandService) private readonly brands: BrandService) {}
 
   @Get()
   @ApiOkResponse({ type: [BrandResponse] })
-  async list(@Req() request: AuthenticatedRequest): Promise<BrandResponse[]> {
-    return (await this.brands.list(request.geoevalAccount!.id)).map(
-      presentBrand,
-    );
+  async list(
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
+  ): Promise<BrandResponse[]> {
+    return (await this.brands.list(principal.accountId)).map(presentBrand);
   }
 
   @Get("current")
@@ -48,9 +50,9 @@ export class BrandController {
     },
   })
   async current(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
   ): Promise<BrandResponse | null> {
-    const brand = await this.brands.current(request.geoevalAccount!.id);
+    const brand = await this.brands.current(principal.accountId);
     return brand ? presentBrand(brand) : null;
   }
 
@@ -58,15 +60,12 @@ export class BrandController {
   @ApiBody({ type: BrandMutationRequest })
   @ApiCreatedResponse({ type: BrandResponse })
   create(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
+    @CurrentAccountMobile() accountMobile: string,
     @Body() input: BrandMutationRequest,
   ): Promise<BrandResponse> {
     return this.brands
-      .create(
-        request.geoevalAccount!.id,
-        input as BrandMutationInput,
-        request.geoevalAccount!.mobile,
-      )
+      .create(principal.accountId, input as BrandMutationInput, accountMobile)
       .then(presentBrand);
   }
 
@@ -74,23 +73,23 @@ export class BrandController {
   @ApiBody({ type: BrandMutationRequest })
   @ApiOkResponse({ type: BrandResponse })
   update(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("id") id: string,
     @Body() input: BrandMutationRequest,
   ): Promise<BrandResponse> {
     return this.brands
-      .update(request.geoevalAccount!.id, id, input as BrandMutationInput)
+      .update(principal.accountId, id, input as BrandMutationInput)
       .then(presentBrand);
   }
 
   @Put(":id/current")
   @ApiOkResponse({ type: BrandResponse })
   selectCurrent(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("id") id: string,
   ): Promise<BrandResponse> {
     return this.brands
-      .selectCurrent(request.geoevalAccount!.id, id)
+      .selectCurrent(principal.accountId, id)
       .then(presentBrand);
   }
 }

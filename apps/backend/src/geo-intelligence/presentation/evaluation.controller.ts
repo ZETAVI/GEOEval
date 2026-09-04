@@ -7,8 +7,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
-  UseGuards,
 } from "@nestjs/common";
 import {
   ApiCreatedResponse,
@@ -19,8 +17,9 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 
-import type { AuthenticatedRequest } from "../../identity/presentation/session-http.js";
-import { SessionGuard } from "../../identity/presentation/session.guard.js";
+import { RequireAccountRoles } from "../../identity/access/access.metadata.js";
+import { CurrentPrincipal } from "../../identity/access/current-principal.js";
+import type { AuthenticatedPrincipal } from "../../identity/domain/identity.types.js";
 import { EvaluationService } from "../application/evaluation.service.js";
 import { EvaluationReportService } from "../application/evaluation-report.service.js";
 import type { EvaluationReportView } from "../domain/evaluation-report.view.js";
@@ -81,7 +80,7 @@ import {
   EvaluationReportHistoryResponse,
   EvaluationReportSummaryResponse,
 )
-@UseGuards(SessionGuard)
+@RequireAccountRoles("TERMINAL_CUSTOMER")
 @Controller()
 export class EvaluationController {
   constructor(
@@ -95,11 +94,11 @@ export class EvaluationController {
   @ApiOkResponse({ type: CurrentEvaluationReportResponse })
   @ApiParam({ name: "brandId", type: String })
   currentReport(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("brandId") brandId: string,
   ): Promise<CurrentEvaluationReportResponse> {
     return this.reports
-      .current(request.geoevalAccount!.id, brandId)
+      .current(principal.accountId, brandId)
       .then((report) => ({ report: report ? presentReport(report) : null }));
   }
 
@@ -115,17 +114,12 @@ export class EvaluationController {
   })
   @ApiQuery({ name: "cursor", required: false, type: String })
   reportHistory(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("brandId") brandId: string,
     @Query("limit") limit?: string,
     @Query("cursor") cursor?: string,
   ): Promise<EvaluationReportHistoryResponse> {
-    return this.reports.history(
-      request.geoevalAccount!.id,
-      brandId,
-      limit,
-      cursor,
-    );
+    return this.reports.history(principal.accountId, brandId, limit, cursor);
   }
 
   @Get("brands/:brandId/evaluation-reports/:reportId")
@@ -133,34 +127,34 @@ export class EvaluationController {
   @ApiParam({ name: "brandId", type: String })
   @ApiParam({ name: "reportId", type: String })
   reportDetail(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("brandId") brandId: string,
     @Param("reportId") reportId: string,
   ): Promise<EvaluationReportResponse> {
     return this.reports
-      .detail(request.geoevalAccount!.id, brandId, reportId)
+      .detail(principal.accountId, brandId, reportId)
       .then(presentReport);
   }
 
   @Put("brands/:brandId/evaluation-definition")
   @ApiOkResponse({ type: EvaluationDefinitionResponse })
   prepareDefinition(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("brandId") brandId: string,
   ): Promise<EvaluationDefinitionResponse> {
     return this.evaluations
-      .prepareDefinition(request.geoevalAccount!.id, brandId)
+      .prepareDefinition(principal.accountId, brandId)
       .then(presentDefinition);
   }
 
   @Post("evaluation-definitions/:definitionId/runs")
   @ApiCreatedResponse({ type: EvaluationRunResponse })
   startRun(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("definitionId") definitionId: string,
   ): Promise<EvaluationRunResponse> {
     return this.evaluations
-      .startRun(request.geoevalAccount!.id, definitionId)
+      .startRun(principal.accountId, definitionId)
       .then(presentRun);
   }
 
@@ -169,11 +163,11 @@ export class EvaluationController {
   @ApiOkResponse({ type: EvaluationRunResponse })
   @ApiParam({ name: "runId", type: String })
   retryRun(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("runId") runId: string,
   ): Promise<EvaluationRunResponse> {
     return this.evaluations
-      .retryRun(request.geoevalAccount!.id, runId)
+      .retryRun(principal.accountId, runId)
       .then(presentRun);
   }
 }

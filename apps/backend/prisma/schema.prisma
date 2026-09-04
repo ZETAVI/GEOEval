@@ -25,6 +25,33 @@ enum AccountRole {
   AGENT
 }
 
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum SessionRevocationReason {
+  USER_LOGOUT
+  USER_LOGOUT_ALL
+  ADMIN_REVOKE_ALL
+  ACCOUNT_DEACTIVATED
+  ROLE_CHANGED
+}
+
+enum IdentityGovernanceActorKind {
+  ACCOUNT
+  BOOTSTRAP
+}
+
+enum IdentityGovernanceAction {
+  BOOTSTRAP_ADMINISTRATOR
+  CREATE_INTERNAL_ACCOUNT
+  ACTIVATE_ACCOUNT
+  DEACTIVATE_ACCOUNT
+  CHANGE_INTERNAL_ROLE
+  REVOKE_ACCOUNT_SESSIONS
+}
+
 enum BrandStatus {
   ACTIVE
   ARCHIVED
@@ -143,17 +170,25 @@ enum MediaQualityTier {
 }
 
 model Account {
-  id           String           @id @default(uuid()) @db.Uuid
-  mobile       String           @unique @db.VarChar(20)
-  role         AccountRole      @default(TERMINAL_CUSTOMER)
-  createdAt    DateTime         @default(now()) @map("created_at")
-  updatedAt    DateTime         @updatedAt @map("updated_at")
-  sessions     AccountSession[]
-  brands       BrandProfile[]
-  brandContext BrandContext?
-  notifications Notification[]
-  mediaCatalogAudits MediaCatalogAudit[]
+  id                       String                     @id @default(uuid()) @db.Uuid
+  mobile                   String                     @unique @db.VarChar(20)
+  role                     AccountRole                @default(TERMINAL_CUSTOMER)
+  status                   AccountStatus              @default(ACTIVE)
+  revision                 Int                        @default(1)
+  lastAuthenticatedAt      DateTime?                  @map("last_authenticated_at")
+  createdAt                DateTime                   @default(now()) @map("created_at")
+  updatedAt                DateTime                   @updatedAt @map("updated_at")
+  sessions                 AccountSession[]
+  brands                   BrandProfile[]
+  brandContext             BrandContext?
+  notifications            Notification[]
+  mediaCatalogAudits       MediaCatalogAudit[]
+  identityAuditsActed      IdentityGovernanceAudit[]  @relation("IdentityAuditActor")
+  identityAuditsTargeted   IdentityGovernanceAudit[]  @relation("IdentityAuditTarget")
+  bootstrapGovernanceState IdentityGovernanceControl? @relation("BootstrapAccount")
 
+  @@index([role, status, createdAt, id])
+  @@index([status, updatedAt, id])
   @@map("accounts")
 }
 
@@ -171,16 +206,53 @@ model MobileChallenge {
 }
 
 model AccountSession {
-  id          String    @id @default(uuid()) @db.Uuid
-  accountId   String    @map("account_id") @db.Uuid
-  tokenDigest String    @unique @map("token_digest") @db.Char(64)
-  expiresAt   DateTime  @map("expires_at")
-  revokedAt   DateTime? @map("revoked_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  account     Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  id            String                   @id @default(uuid()) @db.Uuid
+  accountId     String                   @map("account_id") @db.Uuid
+  tokenDigest   String                   @unique @map("token_digest") @db.Char(64)
+  expiresAt     DateTime                 @map("expires_at")
+  idleExpiresAt DateTime                 @default(dbgenerated("(CURRENT_TIMESTAMP + '00:30:00'::interval)")) @map("idle_expires_at")
+  lastSeenAt    DateTime                 @default(now()) @map("last_seen_at")
+  revokedAt     DateTime?                @map("revoked_at")
+  revokedReason SessionRevocationReason? @map("revoked_reason")
+  createdAt     DateTime                 @default(now()) @map("created_at")
+  account       Account                  @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
-  @@index([accountId, expiresAt])
+  @@index([accountId, revokedAt, expiresAt])
+  @@index([idleExpiresAt])
   @@map("account_sessions")
+}
+
+model IdentityGovernanceControl {
+  id                    String    @id @db.VarChar(32)
+  bootstrapAccountId    String?   @unique @map("bootstrap_account_id") @db.Uuid
+  bootstrapSecretDigest String?   @map("bootstrap_secret_digest") @db.Char(64)
+  bootstrapKeyId        String?   @map("bootstrap_key_id") @db.VarChar(120)
+  bootstrapCompletedAt  DateTime? @map("bootstrap_completed_at")
+  revision              Int       @default(1)
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  bootstrapAccount      Account?  @relation("BootstrapAccount", fields: [bootstrapAccountId], references: [id], onDelete: Restrict)
+
+  @@map("identity_governance_controls")
+}
+
+model IdentityGovernanceAudit {
+  id              String                      @id @default(uuid()) @db.Uuid
+  actorKind       IdentityGovernanceActorKind @map("actor_kind")
+  actorAccountId  String?                     @map("actor_account_id") @db.Uuid
+  actorKeyId      String?                     @map("actor_key_id") @db.VarChar(120)
+  targetAccountId String                      @map("target_account_id") @db.Uuid
+  action          IdentityGovernanceAction
+  reason          String                      @db.VarChar(320)
+  beforeState     Json?                       @map("before_state")
+  afterState      Json                        @map("after_state")
+  createdAt       DateTime                    @default(now()) @map("created_at")
+  actor           Account?                    @relation("IdentityAuditActor", fields: [actorAccountId], references: [id], onDelete: Restrict)
+  target          Account                     @relation("IdentityAuditTarget", fields: [targetAccountId], references: [id], onDelete: Restrict)
+
+  @@index([targetAccountId, createdAt, id])
+  @@index([actorAccountId, createdAt, id])
+  @@index([action, createdAt, id])
+  @@map("identity_governance_audits")
 }
 
 model BrandProfile {

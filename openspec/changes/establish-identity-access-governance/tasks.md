@@ -33,10 +33,10 @@
 
 ## Stage 2 — Implement Account, Session, and Access foundation
 
-- [ ] Allocate an explicit Issue-owned PostgreSQL database and Redis target for
+- [x] Allocate an explicit Issue-owned PostgreSQL database and Redis target for
       later integration tests; prove neither shared default is selected before
       any cleanup or migration rehearsal.
-- [ ] Add additive Account status/revision, Session lifecycle, governance-control,
+- [x] Add additive Account status/revision, Session lifecycle, governance-control,
       and Identity-audit schema/migration with compatible rollback behavior.
 - [ ] Split the current all-purpose Identity service into cohesive Account,
       Authentication, Session, Access, Governance, Audit, and Bootstrap
@@ -47,26 +47,26 @@
 - [ ] Add the Challenge-delivery port plus shared expiry, single-use, supersession,
       failure-attempt and request-rate policies; keep deterministic delivery
       local/test only and do not call real SMS.
-- [ ] Implement host-only production Cookie serialization and the shared JSON
+- [x] Implement host-only production Cookie serialization and the shared JSON
       custom-header/exact-Origin CSRF boundary.
-- [ ] Add the fail-closed access guard, public/fixed-role metadata, current-
+- [x] Add the fail-closed access guard, public/fixed-role metadata, current-
       principal accessor, and consistent 401/403/409 errors.
-- [ ] Migrate Identity, Brand, Store Location, Evaluation, Notification, Media
+- [x] Migrate Identity, Brand, Store Location, Evaluation, Notification, Media
       Catalog, and Media Admin controllers through a complete route inventory;
       remove old Guards/request types only after equivalent behavior is proven.
 
 ## Stage 3 — Implement administrator governance and role shells
 
-- [ ] Implement account search/filter/pagination, internal-account creation,
+- [x] Implement account search/filter/pagination, internal-account creation,
       activation/deactivation, internal-role changes, administrator revoke-all,
       expected revision, required reason, and audit queries.
-- [ ] Enforce no customer/internal conversion, immutable mobile, no account
+- [x] Enforce no customer/internal conversion, immutable mobile, no account
       deletion, no administrator self-governance, and no last-administrator loss
       inside the locked Governance transaction.
 - [ ] Implement first-administrator Bootstrap replay/conflict behavior without
       an automated recovery command; expose no Bootstrap or recovery HTTP route
       and create no real administrator.
-- [ ] Generate OpenAPI/client contracts for accounts, governance, audit,
+- [x] Generate OpenAPI/client contracts for accounts, governance, audit,
       logout-all, and authenticated principal responses.
 - [ ] Replace the post-login Media Supply special case with fixed `/brands`,
       `/admin`, `/operations`, and `/agent` role entry.
@@ -108,3 +108,18 @@
 - [ ] Open a reviewable implementation PR with the correct Partial or Final
       Issue relationship, evidence, residual release gates, and explicit
       worktree exit; do not merge without separate authorization.
+
+## Backend foundation checkpoint — 2026-09-04
+
+- Isolated targets: PostgreSQL database `geoeval_issue50` and Redis database
+  `10`; the default `geoeval` database and Redis database `0` are not test
+  targets.
+- Migration: all 20 migrations replayed from an empty Issue-owned database;
+  additive Session defaults preserve old-writer insertion after migration.
+- Verification: 32 backend test files / 165 tests passed, root typecheck passed,
+  production build passed, generated OpenAPI/client contracts are current,
+  formatting and project-framework validation passed.
+- Route proof: [authenticated route access inventory](verification/route-access-inventory.md).
+- Still open: Challenge delivery/rate lifecycle, bounded cleanup, Bootstrap,
+  role shells and administrator UI, complete failure/concurrency matrix,
+  browser inspection, rollback rehearsal, reconciliation, and PR review.

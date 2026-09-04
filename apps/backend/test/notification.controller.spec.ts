@@ -1,7 +1,7 @@
 import type { MessageEvent } from "@nestjs/common";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { AuthenticatedRequest } from "../src/identity/presentation/session-http.js";
+import type { AuthenticatedPrincipal } from "../src/identity/domain/identity.types.js";
 import { NotificationService } from "../src/notification/application/notification.service.js";
 import { NotificationController } from "../src/notification/presentation/notification.controller.js";
 import { ReadinessState } from "../src/readiness.js";
@@ -30,7 +30,11 @@ describe("notification SSE refresh boundary", () => {
     let completed = false;
 
     controller
-      .events({ geoevalAccount: { id: "account-id" } } as AuthenticatedRequest)
+      .events({
+        accountId: "account-id",
+        role: "TERMINAL_CUSTOMER",
+        sessionId: "session-id",
+      } satisfies AuthenticatedPrincipal)
       .subscribe({
         next: (event) => events.push(event),
         complete: () => {

@@ -68,11 +68,18 @@ async function apiRequest<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
+  const method = (init?.method ?? "GET").toUpperCase();
+  const changesState = !["GET", "HEAD", "OPTIONS"].includes(method);
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     credentials: "include",
     headers: {
-      ...(init?.body ? { "content-type": "application/json" } : {}),
+      ...(changesState
+        ? {
+            "content-type": "application/json",
+            "x-geoeval-request": "1",
+          }
+        : {}),
       ...init?.headers,
     },
   });

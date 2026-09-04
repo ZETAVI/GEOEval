@@ -1,8 +1,9 @@
-import { Body, Controller, Inject, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Inject, Post } from "@nestjs/common";
 import { ApiBody, ApiCreatedResponse, ApiTags } from "@nestjs/swagger";
 
-import { SessionGuard } from "../../identity/presentation/session.guard.js";
-import type { AuthenticatedRequest } from "../../identity/presentation/session-http.js";
+import { RequireAccountRoles } from "../../identity/access/access.metadata.js";
+import { CurrentPrincipal } from "../../identity/access/current-principal.js";
+import type { AuthenticatedPrincipal } from "../../identity/domain/identity.types.js";
 import { StoreLocationVerificationService } from "../application/store-location-verification.service.js";
 import {
   StoreLocationVerificationRequest,
@@ -10,7 +11,7 @@ import {
 } from "./brand.dto.js";
 
 @ApiTags("brands")
-@UseGuards(SessionGuard)
+@RequireAccountRoles("TERMINAL_CUSTOMER")
 @Controller("brand-location-verifications")
 export class StoreLocationVerificationController {
   constructor(
@@ -22,9 +23,9 @@ export class StoreLocationVerificationController {
   @ApiBody({ type: StoreLocationVerificationRequest })
   @ApiCreatedResponse({ type: StoreLocationVerificationResponse })
   verify(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Body() input: StoreLocationVerificationRequest,
   ): Promise<StoreLocationVerificationResponse> {
-    return this.verifications.verify(request.geoevalAccount!.id, input);
+    return this.verifications.verify(principal.accountId, input);
   }
 }

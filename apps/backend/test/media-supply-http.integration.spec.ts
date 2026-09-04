@@ -5,6 +5,7 @@ import { createApiApp } from "../src/api-app.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { clearCustomerData } from "./customer-data.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
+import { browserMutationHeaders } from "./http-test-headers.js";
 
 const config = loadIntegrationApiConfig();
 
@@ -29,7 +30,7 @@ describe("Media Supply HTTP authorization and projection", () => {
     const customer = await login(baseUrl, "13900003301");
     const denied = await fetch(`${baseUrl}/admin/media/platforms`, {
       method: "POST",
-      headers: { "content-type": "application/json", cookie: customer.cookie },
+      headers: browserMutationHeaders(customer.cookie),
       body: JSON.stringify({
         displayName: "越权平台",
         categories: ["PORTAL_MEDIA"],
@@ -64,13 +65,10 @@ describe("Media Supply HTTP authorization and projection", () => {
     const administratorBrandAccess = await fetch(`${baseUrl}/brands`, {
       headers: { cookie: administrator.cookie },
     });
-    expect(administratorBrandAccess.status).toBe(401);
+    expect(administratorBrandAccess.status).toBe(403);
     const platformResponse = await fetch(`${baseUrl}/admin/media/platforms`, {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        cookie: administrator.cookie,
-      },
+      headers: browserMutationHeaders(administrator.cookie),
       body: JSON.stringify({
         displayName: "人民网",
         description: "中央重点新闻网站",
@@ -89,10 +87,7 @@ describe("Media Supply HTTP authorization and projection", () => {
       `${baseUrl}/admin/media/platforms/${platform.id}`,
       {
         method: "PATCH",
-        headers: {
-          "content-type": "application/json",
-          cookie: administrator.cookie,
-        },
+        headers: browserMutationHeaders(administrator.cookie),
         body: JSON.stringify({
           status: "ACTIVE",
           pointPrice: 500,
@@ -136,7 +131,7 @@ describe("Media Supply HTTP authorization and projection", () => {
 async function login(baseUrl: string, mobile: string) {
   const challengeResponse = await fetch(`${baseUrl}/identity/challenges`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: browserMutationHeaders(),
     body: JSON.stringify({ mobile }),
   });
   const challenge = (await challengeResponse.json()) as {
@@ -145,7 +140,7 @@ async function login(baseUrl: string, mobile: string) {
   };
   const sessionResponse = await fetch(`${baseUrl}/identity/sessions`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: browserMutationHeaders(),
     body: JSON.stringify({
       challengeId: challenge.challengeId,
       mobile,

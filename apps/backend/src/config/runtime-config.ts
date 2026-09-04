@@ -25,6 +25,36 @@ const apiSchema = commonSchema.extend({
   AUTH_CHALLENGE_MODE: z.literal("deterministic").default("deterministic"),
   AUTH_HASH_PEPPER: z.string().min(32),
   AUTH_DETERMINISTIC_CODE: z.string().regex(/^\d{6}$/),
+  AUTH_CUSTOMER_SESSION_ABSOLUTE_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(3600)
+    .max(30 * 24 * 60 * 60)
+    .default(7 * 24 * 60 * 60),
+  AUTH_CUSTOMER_SESSION_IDLE_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(900)
+    .max(7 * 24 * 60 * 60)
+    .default(24 * 60 * 60),
+  AUTH_INTERNAL_SESSION_ABSOLUTE_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(3600)
+    .max(7 * 24 * 60 * 60)
+    .default(12 * 60 * 60),
+  AUTH_INTERNAL_SESSION_IDLE_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(300)
+    .max(24 * 60 * 60)
+    .default(30 * 60),
+  AUTH_SESSION_TOUCH_INTERVAL_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(30)
+    .max(15 * 60)
+    .default(5 * 60),
   STORE_LOCATION_MODE: z
     .enum(["disabled", "deterministic", "amap"])
     .default("disabled"),
@@ -104,6 +134,13 @@ export type ApiConfig = {
   authHashPepper: string;
   authDeterministicCode: string;
   authCookieSecure: boolean;
+  authSessionPolicy: {
+    customerAbsoluteMs: number;
+    customerIdleMs: number;
+    internalAbsoluteMs: number;
+    internalIdleMs: number;
+    touchIntervalMs: number;
+  };
   storeLocation: StoreLocationRuntimeConfig;
 };
 
@@ -171,6 +208,16 @@ export function loadApiConfig(
       "Deterministic authentication challenge delivery is forbidden in production",
     );
   }
+  if (
+    parsed.AUTH_CUSTOMER_SESSION_IDLE_SECONDS >
+      parsed.AUTH_CUSTOMER_SESSION_ABSOLUTE_SECONDS ||
+    parsed.AUTH_INTERNAL_SESSION_IDLE_SECONDS >
+      parsed.AUTH_INTERNAL_SESSION_ABSOLUTE_SECONDS
+  ) {
+    throw new Error(
+      "Authentication Session idle timeout must not exceed its absolute timeout",
+    );
+  }
   return {
     databaseUrl: parsed.DATABASE_URL,
     port: parsed.PORT,
@@ -181,6 +228,13 @@ export function loadApiConfig(
     authHashPepper: parsed.AUTH_HASH_PEPPER,
     authDeterministicCode: parsed.AUTH_DETERMINISTIC_CODE,
     authCookieSecure: parsed.NODE_ENV === "production",
+    authSessionPolicy: {
+      customerAbsoluteMs: parsed.AUTH_CUSTOMER_SESSION_ABSOLUTE_SECONDS * 1000,
+      customerIdleMs: parsed.AUTH_CUSTOMER_SESSION_IDLE_SECONDS * 1000,
+      internalAbsoluteMs: parsed.AUTH_INTERNAL_SESSION_ABSOLUTE_SECONDS * 1000,
+      internalIdleMs: parsed.AUTH_INTERNAL_SESSION_IDLE_SECONDS * 1000,
+      touchIntervalMs: parsed.AUTH_SESSION_TOUCH_INTERVAL_SECONDS * 1000,
+    },
     storeLocation: {
       mode: parsed.STORE_LOCATION_MODE,
       receiptSigningSecret: parsed.STORE_LOCATION_RECEIPT_SIGNING_SECRET,

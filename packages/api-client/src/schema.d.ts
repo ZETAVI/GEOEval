@@ -126,7 +126,7 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["IdentityController_createSession"];
-        delete?: never;
+        delete: operations["IdentityController_deleteAllSessions"];
         options?: never;
         head?: never;
         patch?: never;
@@ -159,6 +159,86 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["IdentityController_deleteSession"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AccountGovernanceController_list"];
+        put?: never;
+        post: operations["AccountGovernanceController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{accountId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AccountGovernanceController_changeStatus"];
+        trace?: never;
+    };
+    "/admin/accounts/{accountId}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AccountGovernanceController_changeRole"];
+        trace?: never;
+    };
+    "/admin/accounts/{accountId}/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["AccountGovernanceController_revokeSessions"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/audits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AccountGovernanceController_audits"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -671,6 +751,80 @@ export interface components {
             mobile: string;
             /** @enum {string} */
             role: "TERMINAL_CUSTOMER" | "OPERATIONS" | "ADMINISTRATOR" | "AGENT";
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+            revision: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** Format: date-time */
+            lastAuthenticatedAt?: string | null;
+        };
+        AccountSummaryResponse: {
+            id: string;
+            mobile: string;
+            /** @enum {string} */
+            role: "TERMINAL_CUSTOMER" | "OPERATIONS" | "ADMINISTRATOR" | "AGENT";
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+            revision: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** Format: date-time */
+            lastAuthenticatedAt?: string | null;
+            activeSessionCount: number;
+        };
+        AccountListResponse: {
+            items: components["schemas"]["AccountSummaryResponse"][];
+            nextCursor?: string | null;
+        };
+        CreateInternalAccountRequest: {
+            /** @example 13800138000 */
+            mobile: string;
+            /** @enum {string} */
+            role: "OPERATIONS" | "ADMINISTRATOR" | "AGENT";
+            reason: string;
+        };
+        ChangeAccountStatusRequest: {
+            expectedRevision: number;
+            reason: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+        };
+        ChangeAccountRoleRequest: {
+            expectedRevision: number;
+            reason: string;
+            /** @enum {string} */
+            role: "OPERATIONS" | "ADMINISTRATOR" | "AGENT";
+        };
+        GovernedAccountMutationRequest: {
+            expectedRevision: number;
+            reason: string;
+        };
+        IdentityGovernanceAuditResponse: {
+            id: string;
+            /** @enum {string} */
+            actorKind: "ACCOUNT" | "BOOTSTRAP";
+            actorAccountId?: string | null;
+            actorKeyId?: string | null;
+            targetAccountId: string;
+            action: string;
+            reason: string;
+            beforeState?: {
+                [key: string]: unknown;
+            } | null;
+            afterState: {
+                [key: string]: unknown;
+            };
+            /** Format: date-time */
+            createdAt: string;
+        };
+        IdentityGovernanceAuditListResponse: {
+            items: components["schemas"]["IdentityGovernanceAuditResponse"][];
+            nextCursor?: string | null;
         };
         EvaluationBrandSnapshotResponse: {
             companyName: string;
@@ -1461,6 +1615,23 @@ export interface operations {
             };
         };
     };
+    IdentityController_deleteAllSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     IdentityController_me: {
         parameters: {
             query?: never;
@@ -1494,6 +1665,146 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    AccountGovernanceController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+                status?: string;
+                role?: string;
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountListResponse"];
+                };
+            };
+        };
+    };
+    AccountGovernanceController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInternalAccountRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResponse"];
+                };
+            };
+        };
+    };
+    AccountGovernanceController_changeStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeAccountStatusRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResponse"];
+                };
+            };
+        };
+    };
+    AccountGovernanceController_changeRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeAccountRoleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResponse"];
+                };
+            };
+        };
+    };
+    AccountGovernanceController_revokeSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GovernedAccountMutationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountResponse"];
+                };
+            };
+        };
+    };
+    AccountGovernanceController_audits: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+                targetAccountId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdentityGovernanceAuditListResponse"];
+                };
             };
         };
     };

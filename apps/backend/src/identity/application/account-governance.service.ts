@@ -1,0 +1,219 @@
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+
+import { IdentityGovernanceError } from "../domain/identity.errors.js";
+import {
+  IDENTITY_REPOSITORY,
+  type IdentityRepository,
+} from "../domain/identity.repository.js";
+import type {
+  AccountListPage,
+  AccountRole,
+  AccountStatus,
+  AccountView,
+  IdentityGovernanceAuditView,
+  InternalAccountRole,
+} from "../domain/identity.types.js";
+import { normalizeMobile } from "./authentication.service.js";
+
+const accountRoles: AccountRole[] = [
+  "TERMINAL_CUSTOMER",
+  "OPERATIONS",
+  "ADMINISTRATOR",
+  "AGENT",
+];
+const internalRoles: InternalAccountRole[] = [
+  "OPERATIONS",
+  "ADMINISTRATOR",
+  "AGENT",
+];
+const accountStatuses: AccountStatus[] = ["ACTIVE", "INACTIVE"];
+
+@Injectable()
+export class AccountGovernanceService {
+  constructor(
+    @Inject(IDENTITY_REPOSITORY)
+    private readonly repository: IdentityRepository,
+  ) {}
+
+  listAccounts(input: {
+    search?: string;
+    role?: string;
+    status?: string;
+    cursor?: string;
+    limit?: string;
+  }): Promise<AccountListPage> {
+    return this.repository.listAccounts({
+      ...(input.search?.trim() ? { search: input.search.trim() } : {}),
+      ...(input.role ? { role: parseRole(input.role) } : {}),
+      ...(input.status ? { status: parseStatus(input.status) } : {}),
+      ...(input.cursor ? { cursor: parseCursor(input.cursor) } : {}),
+      limit: parseLimit(input.limit),
+      now: new Date(),
+    });
+  }
+
+  listAudits(input: {
+    targetAccountId?: string;
+    cursor?: string;
+    limit?: string;
+  }): Promise<{
+    items: IdentityGovernanceAuditView[];
+    nextCursor: string | null;
+  }> {
+    return this.repository.listGovernanceAudits({
+      ...(input.targetAccountId
+        ? { targetAccountId: input.targetAccountId }
+        : {}),
+      ...(input.cursor ? { cursor: parseCursor(input.cursor) } : {}),
+      limit: parseLimit(input.limit),
+    });
+  }
+
+  async createInternalAccount(input: {
+    actorAccountId: string;
+    mobile: string;
+    role: string;
+    reason: string;
+  }): Promise<AccountView> {
+    try {
+      return await this.repository.createInternalAccount({
+        actorAccountId: input.actorAccountId,
+        mobile: normalizeMobile(input.mobile),
+        role: parseInternalRole(input.role),
+        reason: parseReason(input.reason),
+        now: new Date(),
+      });
+    } catch (error) {
+      throwGovernanceHttpError(error);
+    }
+  }
+
+  async changeAccount(input: {
+    actorAccountId: string;
+    targetAccountId: string;
+    expectedRevision: number;
+    reason: string;
+    mutation:
+      | { kind: "STATUS"; status: string }
+      | { kind: "ROLE"; role: string }
+      | { kind: "REVOKE_SESSIONS" };
+  }): Promise<AccountView> {
+    if (
+      !Number.isInteger(input.expectedRevision) ||
+      input.expectedRevision < 1
+    ) {
+      throw new BadRequestException("expectedRevision 必须是正整数");
+    }
+    const mutation =
+      input.mutation.kind === "ROLE"
+        ? {
+            kind: "ROLE" as const,
+            role: parseInternalRole(input.mutation.role),
+          }
+        : input.mutation.kind === "STATUS"
+          ? {
+              kind: "STATUS" as const,
+              status: parseStatus(input.mutation.status),
+            }
+          : input.mutation;
+    try {
+      return await this.repository.changeGovernedAccount({
+        actorAccountId: input.actorAccountId,
+        targetAccountId: input.targetAccountId,
+        expectedRevision: input.expectedRevision,
+        reason: parseReason(input.reason),
+        now: new Date(),
+        mutation,
+      });
+    } catch (error) {
+      throwGovernanceHttpError(error);
+    }
+  }
+}
+
+function parseRole(value: string): AccountRole {
+  if (accountRoles.includes(value as AccountRole)) return value as AccountRole;
+  throw new BadRequestException("role 不受支持");
+}
+
+function parseInternalRole(value: string): InternalAccountRole {
+  if (internalRoles.includes(value as InternalAccountRole)) {
+    return value as InternalAccountRole;
+  }
+  throw new BadRequestException("内部账号角色不受支持");
+}
+
+function parseStatus(value: string): AccountStatus {
+  if (accountStatuses.includes(value as AccountStatus)) {
+    return value as AccountStatus;
+  }
+  throw new BadRequestException("status 不受支持");
+}
+
+function parseReason(value: string): string {
+  if (typeof value !== "string") throw new BadRequestException("必须填写原因");
+  const reason = value.trim();
+  if (reason.length < 3 || reason.length > 320) {
+    throw new BadRequestException("原因长度必须为 3 到 320 个字符");
+  }
+  return reason;
+}
+
+function parseLimit(value: string | undefined): number {
+  if (value === undefined) return 20;
+  const limit = Number(value);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    throw new BadRequestException("limit 必须是 1 到 100 的整数");
+  }
+  return limit;
+}
+
+function parseCursor(value: string): string {
+  if (
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
+    )
+  ) {
+    return value;
+  }
+  throw new BadRequestException("cursor 格式不正确");
+}
+
+function throwGovernanceHttpError(error: unknown): never {
+  const databaseCode =
+    typeof error === "object" && error !== null && "code" in error
+      ? String(error.code)
+      : undefined;
+  if (databaseCode === "P2002") {
+    throw new ConflictException({
+      code: "ACCOUNT_ALREADY_EXISTS",
+      message: "该手机号已存在账号",
+    });
+  }
+  if (databaseCode === "P2034") {
+    throw new ConflictException({
+      code: "CONCURRENT_GOVERNANCE_CONFLICT",
+      message: "账号治理发生并发冲突，请刷新后重试",
+    });
+  }
+  if (!(error instanceof IdentityGovernanceError)) throw error;
+  if (
+    error.code === "ACTOR_FORBIDDEN" ||
+    error.code === "SELF_GOVERNANCE_FORBIDDEN" ||
+    error.code === "ROLE_FAMILY_CONVERSION_FORBIDDEN" ||
+    error.code === "LAST_ADMINISTRATOR_FORBIDDEN"
+  ) {
+    throw new ForbiddenException({ code: error.code, message: error.message });
+  }
+  if (error.code === "ACCOUNT_NOT_FOUND") {
+    throw new NotFoundException({ code: error.code, message: error.message });
+  }
+  throw new ConflictException({ code: error.code, message: error.message });
+}

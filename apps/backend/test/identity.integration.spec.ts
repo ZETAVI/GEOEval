@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-import { IdentityService } from "../src/identity/application/identity.service.js";
+import { AuthenticationService } from "../src/identity/application/authentication.service.js";
+import { SessionService } from "../src/identity/application/session.service.js";
 import { PostgresIdentityRepository } from "../src/identity/infrastructure/postgres-identity.repository.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { clearCustomerData } from "./customer-data.js";
@@ -10,10 +11,9 @@ const config = loadIntegrationApiConfig();
 
 describe("terminal-customer passwordless entry", () => {
   const prisma = new PrismaService(config.databaseUrl);
-  const service = new IdentityService(
-    new PostgresIdentityRepository(prisma),
-    config,
-  );
+  const repository = new PostgresIdentityRepository(prisma);
+  const authentication = new AuthenticationService(repository, config);
+  const sessions = new SessionService(repository, config);
 
   beforeAll(async () => prisma.$connect());
   afterAll(async () => prisma.$disconnect());
@@ -22,8 +22,8 @@ describe("terminal-customer passwordless entry", () => {
   });
 
   it("creates a terminal customer and authenticates an opaque session", async () => {
-    const challenge = await service.requestChallenge("138 0013 8000");
-    const completed = await service.completeChallenge({
+    const challenge = await authentication.requestChallenge("138 0013 8000");
+    const completed = await authentication.completeChallenge({
       challengeId: challenge.challengeId,
       mobile: "13800138000",
       code: challenge.developmentCode!,
@@ -33,7 +33,7 @@ describe("terminal-customer passwordless entry", () => {
       mobile: "+8613800138000",
       role: "TERMINAL_CUSTOMER",
     });
-    expect(await service.authenticate(completed.token)).toEqual(
+    expect((await sessions.authenticate(completed.token)).account).toEqual(
       completed.account,
     );
     const stored = await prisma.accountSession.findFirstOrThrow();
@@ -41,9 +41,9 @@ describe("terminal-customer passwordless entry", () => {
   });
 
   it("counts a wrong code and never creates a session", async () => {
-    const challenge = await service.requestChallenge("13800138001");
+    const challenge = await authentication.requestChallenge("13800138001");
     await expect(
-      service.completeChallenge({
+      authentication.completeChallenge({
         challengeId: challenge.challengeId,
         mobile: "13800138001",
         code: "000000",
@@ -63,34 +63,100 @@ describe("terminal-customer passwordless entry", () => {
     await prisma.account.create({
       data: { mobile: "+8613800138003", role: "ADMINISTRATOR" },
     });
-    const challenge = await service.requestChallenge("13800138003");
-    const completed = await service.completeChallenge({
+    const challenge = await authentication.requestChallenge("13800138003");
+    const completed = await authentication.completeChallenge({
       challengeId: challenge.challengeId,
       mobile: "13800138003",
       code: challenge.developmentCode!,
     });
 
     expect(completed.account.role).toBe("ADMINISTRATOR");
-    expect(await service.authenticateAccount(completed.token)).toEqual(
+    expect((await sessions.authenticate(completed.token)).account).toEqual(
       completed.account,
-    );
-    await expect(service.authenticate(completed.token)).rejects.toThrow(
-      "登录状态已失效",
     );
   });
 
   it("consumes a challenge once and revokes logout immediately", async () => {
-    const challenge = await service.requestChallenge("13800138002");
+    const challenge = await authentication.requestChallenge("13800138002");
     const input = {
       challengeId: challenge.challengeId,
       mobile: "13800138002",
       code: challenge.developmentCode!,
     };
-    const completed = await service.completeChallenge(input);
-    await expect(service.completeChallenge(input)).rejects.toThrow();
-    await service.logout(completed.token);
-    await expect(service.authenticate(completed.token)).rejects.toThrow(
+    const completed = await authentication.completeChallenge(input);
+    await expect(authentication.completeChallenge(input)).rejects.toThrow();
+    await sessions.logoutCurrent(completed.token);
+    await expect(sessions.authenticate(completed.token)).rejects.toThrow(
       "登录状态已失效",
     );
+    expect((await prisma.accountSession.findFirstOrThrow()).revokedReason).toBe(
+      "USER_LOGOUT",
+    );
+  });
+
+  it("revokes every parallel session on self logout-all", async () => {
+    const firstChallenge = await authentication.requestChallenge("13800138004");
+    const first = await authentication.completeChallenge({
+      challengeId: firstChallenge.challengeId,
+      mobile: "13800138004",
+      code: firstChallenge.developmentCode!,
+    });
+    const secondChallenge =
+      await authentication.requestChallenge("13800138004");
+    const second = await authentication.completeChallenge({
+      challengeId: secondChallenge.challengeId,
+      mobile: "13800138004",
+      code: secondChallenge.developmentCode!,
+    });
+
+    await sessions.logoutAll(first.account.id);
+
+    await expect(sessions.authenticate(first.token)).rejects.toThrow(
+      "登录状态已失效",
+    );
+    await expect(sessions.authenticate(second.token)).rejects.toThrow(
+      "登录状态已失效",
+    );
+    expect(
+      await prisma.accountSession.count({
+        where: { revokedReason: "USER_LOGOUT_ALL" },
+      }),
+    ).toBe(2);
+  });
+
+  it("rejects an idle-expired credential from server state", async () => {
+    const challenge = await authentication.requestChallenge("13800138005");
+    const completed = await authentication.completeChallenge({
+      challengeId: challenge.challengeId,
+      mobile: "13800138005",
+      code: challenge.developmentCode!,
+    });
+    await prisma.accountSession.updateMany({
+      data: { idleExpiresAt: new Date(Date.now() - 1) },
+    });
+
+    await expect(sessions.authenticate(completed.token)).rejects.toThrow(
+      "登录状态已失效",
+    );
+  });
+
+  it("does not issue a session for an inactive pre-provisioned account", async () => {
+    await prisma.account.create({
+      data: {
+        mobile: "+8613800138006",
+        role: "OPERATIONS",
+        status: "INACTIVE",
+      },
+    });
+    const challenge = await authentication.requestChallenge("13800138006");
+
+    await expect(
+      authentication.completeChallenge({
+        challengeId: challenge.challengeId,
+        mobile: "13800138006",
+        code: challenge.developmentCode!,
+      }),
+    ).rejects.toThrow("账号不可用");
+    expect(await prisma.accountSession.count()).toBe(0);
   });
 });

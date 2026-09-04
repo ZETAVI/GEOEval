@@ -70,6 +70,12 @@ Backend business controllers may depend on only:
 - a parameter decorator or equivalent request accessor that supplies that
   principal after the shared access boundary succeeds.
 
+Brand creation additionally retains the accepted login-mobile-as-default-
+contact behavior through a scalar `CurrentAccountMobile` accessor. This is a
+compatibility projection from the already authenticated Account, not a second
+principal or an exposed `AccountView`; no other business controller receives
+Account state through it.
+
 They do not import Session repositories, Cookie parsers, `AccountView`, account
 status, `AuthenticatedRequest`, or individual Guard implementations. Business
 services continue to receive actor/account IDs where their own contracts need
