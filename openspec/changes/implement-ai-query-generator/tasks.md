@@ -6,7 +6,7 @@
 - [x] Reopen the failed Query-quality acceptance boundary under Issue #26.
 - [x] Confirm Snapshot v3 Query semantics and the compact single-result model output.
 - [x] Record the confirmed Decision Brief and move #26 to `In Progress / P0`.
-- [x] Rebase the Issue branch onto `main@82f7056`, dropping the crossed #41 synthesis commit and premature archive commit.
+- [x] Rebase the Issue branch onto `main@fcb87ff`, retaining the corrected Query-only history and current governance contract.
 - [x] Restore the active OpenSpec Change.
 
 ## 2. Architecture and contracts

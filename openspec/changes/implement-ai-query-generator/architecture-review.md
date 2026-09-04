@@ -3,7 +3,7 @@
 
 ## Review contract
 
-- Baseline: `main@82f70564889698d501129b5188f4046a1a20dfa9`
+- Baseline: `main@fcb87ff729d1a238f3b3cea1f0466b379c5deed3`
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Reviewed design: [design.md](design.md)
 - Confirmed product boundary: [decision-brief.md](decision-brief.md)
