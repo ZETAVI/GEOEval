@@ -3,7 +3,7 @@
 
 ## Status
 
-- Phase: Reconcile; real-chain acceptance passed
+- Phase: Implement; save-time background preparation refinement
 - Owning Issue: [#26](https://github.com/ZETAVI/GEOEval/issues/26)
 - Parent outcome: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owner: Product owner
@@ -35,6 +35,7 @@ Snapshot v3 现已由 Brand Knowledge 提供经过验证的门店位置、主打
 - 更新迁移顺序、契约测试、集成测试和客户页面状态；
 - 先做确定性验证，再经单独授权做真实 Query-only 产品审查；
 - 在最终接受前对账 Current Spec、Architecture、PR 和 Worktree 状态。
+- 当前品牌资料保存或切换后，在资料已可诊断时立即幂等启动后台问题准备，诊断页仍保留兜底触发。
 
 ## Out of Scope
 

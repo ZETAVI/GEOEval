@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { CustomerSidebar } from "../customer-sidebar.js";
 import { BrandEditor } from "./brand-editor.js";
+import { prewarmEvaluationQuestions } from "./evaluation-question-prewarm.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -45,9 +46,16 @@ export function BrandWorkspace() {
     setBusy(true);
     setMessage("");
     try {
-      if (editing === "new") await createBrand(apiBaseUrl, input);
-      else if (editing) await updateBrand(apiBaseUrl, editing.id, input);
-      await refresh();
+      let saved: Brand | undefined;
+      if (editing === "new") saved = await createBrand(apiBaseUrl, input);
+      else if (editing)
+        saved = await updateBrand(apiBaseUrl, editing.id, input);
+      await Promise.all([
+        refresh(),
+        saved
+          ? prewarmEvaluationQuestions(apiBaseUrl, saved)
+          : Promise.resolve(),
+      ]);
       setEditing(undefined);
       setMessage("品牌资料已保存");
     } catch (error) {
@@ -61,8 +69,11 @@ export function BrandWorkspace() {
     setBusy(true);
     setMessage("");
     try {
-      await selectCurrentBrand(apiBaseUrl, brand.id);
-      await refresh();
+      const selected = await selectCurrentBrand(apiBaseUrl, brand.id);
+      await Promise.all([
+        refresh(),
+        prewarmEvaluationQuestions(apiBaseUrl, selected),
+      ]);
       setMessage(`已切换到「${brand.companyName}」`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "切换失败");

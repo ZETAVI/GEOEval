@@ -51,6 +51,10 @@
 
 ## 7. Reconciliation and exit
 
+- [x] Start durable question preparation after a successful save or selection of a current evaluation-ready Brand.
+- [x] Keep incomplete and non-current Brands out of prewarm, preserve Brand-save success on preparation failure, and retain diagnosis fallback.
+- [x] Add focused tests for the prewarm decision and failure boundary.
+
 - [x] Reconcile accepted behavior into the current evaluation-definition spec and architecture overview after real-chain acceptance.
 - [ ] Update Issue #26 and PR #28 with corrected implementation, evidence, limitations, and cross-Issue handoffs.
 - [x] Notify #32 that its stacked PR must rebase onto the stable #26 head.

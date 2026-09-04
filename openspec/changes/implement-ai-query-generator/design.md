@@ -65,6 +65,26 @@ Existing seams are sufficient:
 
 No factory hierarchy, hot replacement, generic workflow engine, Critic/Judge, or second Query owner is added.
 
+### Save-time background preparation
+
+Web opportunistically starts question preparation after a successful Brand
+create, update, or current-Brand selection when the returned Brand is both
+current and evaluation-ready. It calls the existing idempotent GEO command and
+waits only for the preparation identity and Outbox fact to commit; it never
+waits for the model result.
+
+This timing optimization is not a second lifecycle owner:
+
+- Brand creation and update remain successful even if the preparation request
+  fails;
+- incomplete and non-current Brands do not spend a Provider call;
+- diagnosis still observes the durable state and ensures preparation when none
+  exists, covering a closed browser or failed prewarm request;
+- Brand does not publish a new event or depend on GEO, and GEO does not enter
+  the Brand write transaction;
+- repeated saves, selection, and diagnosis entry converge on the existing
+  Brand-plus-fingerprint preparation identity.
+
 ## Snapshot v3 Query projection
 
 `evaluationBrandQueryContext(snapshot)` is the only Prompt input projection:

@@ -32,6 +32,21 @@ fingerprint meaning.
   return the same preparation without another business identity or synchronous
   Provider call.
 
+#### Scenario: The customer saves or selects a current ready Brand
+
+- **WHEN** the Web successfully creates, updates, or selects a Brand
+- **AND** the returned Brand is both current and evaluation-ready
+- **THEN** the Web immediately asks GEO Intelligence to ensure question
+  preparation for that Brand and fingerprint
+- **AND** waits only for the preparation and Product Outbox transaction, not
+  for Query model completion
+- **AND** duplicate save, selection, or diagnosis requests converge on the same
+  durable preparation
+- **BUT WHEN** the Brand is incomplete or not current
+- **THEN** Web does not prewarm Query generation
+- **AND** a failed prewarm request does not fail the successful Brand mutation
+  because diagnosis retains the authoritative ensure path.
+
 #### Scenario: Query consumes the frozen Brand context
 
 - **WHEN** the Query Agent prepares question wording

@@ -16,6 +16,17 @@ GEO Intelligence SHALL own one immutable Definition for each Brand evaluation fi
 - **AND** commits one durable preparation-requested Outbox fact in the same transaction
 - **AND** repeated or concurrent requests return the same preparation without another business identity.
 
+#### Scenario: A current ready Brand is saved or selected
+
+- **WHEN** the Web successfully creates, updates, or selects the current Brand
+- **AND** the returned Brand is evaluation-ready
+- **THEN** the Web immediately asks GEO to ensure question preparation for that Brand and fingerprint
+- **AND** the request waits only for durable preparation and Outbox persistence, not for model completion
+- **AND** repeated save, selection, or diagnosis requests remain idempotent
+- **BUT WHEN** the Brand is incomplete or not current
+- **THEN** the Web does not prewarm question generation
+- **AND** a failed prewarm request does not turn a successful Brand mutation into a failure because diagnosis retains the authoritative ensure path.
+
 #### Scenario: Query receives its frozen input
 
 - **WHEN** the Query Agent prepares the four questions

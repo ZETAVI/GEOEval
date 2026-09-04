@@ -99,6 +99,15 @@ and `请重试` states but not Prompt, Provider, model, route, attempt, queue, o
 trace details. Current behavior is specified by
 [`evaluation-definition`](../../openspec/specs/evaluation-definition/spec.md).
 
+After a successful create, update, or selection of a current evaluation-ready
+Brand, Web opportunistically asks GEO Intelligence to ensure the durable
+preparation before returning control to the customer; the model work continues
+in Background Work and never extends the Brand transaction. Incomplete or
+non-current Brands do not prewarm. A failed prewarm does not fail the completed
+Brand mutation, and the diagnosis page remains the authoritative idempotent
+ensure-and-observe path. This improves perceived latency without making Brand
+Knowledge publish a new event or depend on GEO Intelligence.
+
 Media Supply owns the global administrator-maintained platform catalog in
 PostgreSQL: stable platform identity, fixed multi-category membership,
 one first-release availability state and whole-point price per platform,
