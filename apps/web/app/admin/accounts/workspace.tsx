@@ -2,9 +2,13 @@
 
 import {
   ApiRequestError,
+  changeAdminAccountRole,
+  changeAdminAccountStatus,
+  createAdminInternalAccount,
   getCurrentAccount,
   listAdminAccounts,
   listIdentityGovernanceAudits,
+  revokeAdminAccountSessions,
   type Account,
   type AccountList,
   type AccountSummary,
@@ -20,8 +24,16 @@ import {
   accountTimestamp,
   auditActorLabel,
   governanceActionLabel,
+  governanceErrorView,
   shortAccountId,
+  type GovernanceErrorView,
 } from "./account-ui.js";
+import {
+  CreateInternalAccountDialog,
+  GovernanceActionDialog,
+  type DangerousGovernanceAction,
+  type InternalAccountRole,
+} from "./governance-dialog.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -35,6 +47,7 @@ type AccountFilters = {
   role: "" | Account["role"];
   status: "" | Account["status"];
 };
+type AccountDialog = { kind: "create" } | DangerousGovernanceAction;
 
 const emptyFilters: AccountFilters = { search: "", role: "", status: "" };
 const emptyAccountPage: AccountList = { items: [], nextCursor: null };
@@ -64,6 +77,10 @@ export function AdminAccountsWorkspace() {
   const [auditError, setAuditError] = useState("");
   const [auditPage, setAuditPage] =
     useState<IdentityGovernanceAuditList>(emptyAuditPage);
+  const [dialog, setDialog] = useState<AccountDialog>();
+  const [mutationBusy, setMutationBusy] = useState(false);
+  const [mutationError, setMutationError] = useState<GovernanceErrorView>();
+  const [toast, setToast] = useState("");
   const accountRequest = useRef(0);
   const auditRequest = useRef(0);
 
@@ -91,7 +108,11 @@ export function AdminAccountsWorkspace() {
     }
   }
 
-  async function loadAccountPage(filters: AccountFilters, cursor?: string) {
+  async function loadAccountPage(
+    filters: AccountFilters,
+    cursor?: string,
+    preferredAccountId?: string,
+  ) {
     const requestId = ++accountRequest.current;
     ++auditRequest.current;
     setAccountState("loading");
@@ -110,7 +131,9 @@ export function AdminAccountsWorkspace() {
       if (requestId !== accountRequest.current) return;
       setAccountPage(result);
       setAccountState("ready");
-      const firstAccount = result.items[0];
+      const firstAccount =
+        result.items.find((item) => item.id === preferredAccountId) ??
+        result.items[0];
       setSelectedAccountId(firstAccount?.id);
       if (firstAccount) {
         await loadAudits(firstAccount.id);
@@ -214,6 +237,95 @@ export function AdminAccountsWorkspace() {
     void loadAudits(item.id);
   }
 
+  function openDialog(next: AccountDialog) {
+    setMutationError(undefined);
+    setDialog(next);
+  }
+
+  function closeDialog() {
+    if (mutationBusy) return;
+    setMutationError(undefined);
+    setDialog(undefined);
+  }
+
+  function refreshDialogTarget() {
+    if (mutationBusy) return;
+    const preferredAccountId =
+      dialog && dialog.kind !== "create" ? dialog.target.id : undefined;
+    setMutationError(undefined);
+    setDialog(undefined);
+    void loadAccountPage(activeFilters, currentCursor, preferredAccountId);
+  }
+
+  async function createInternalAccount(input: {
+    mobile: string;
+    role: InternalAccountRole;
+    reason: string;
+  }) {
+    setMutationBusy(true);
+    setMutationError(undefined);
+    try {
+      const created = await createAdminInternalAccount(apiBaseUrl, input);
+      setDialog(undefined);
+      setToast(
+        `已创建${accountRoleLabels[created.role]}账号 ${created.mobile}`,
+      );
+      setDraftFilters(emptyFilters);
+      setActiveFilters(emptyFilters);
+      setCurrentCursor(undefined);
+      setCursorHistory([]);
+      await loadAccountPage(emptyFilters, undefined, created.id);
+    } catch (error) {
+      if (error instanceof ApiRequestError && error.status === 401) {
+        window.location.assign("/enter");
+        return;
+      }
+      setMutationError(governanceErrorView(error));
+    } finally {
+      setMutationBusy(false);
+    }
+  }
+
+  async function executeGovernanceAction(input: {
+    reason: string;
+    role?: InternalAccountRole;
+  }) {
+    if (!dialog || dialog.kind === "create") return;
+    const action = dialog;
+    setMutationBusy(true);
+    setMutationError(undefined);
+    try {
+      const updated =
+        action.kind === "status"
+          ? await changeAdminAccountStatus(apiBaseUrl, action.target.id, {
+              expectedRevision: action.target.revision,
+              reason: input.reason,
+              status: action.nextStatus,
+            })
+          : action.kind === "sessions"
+            ? await revokeAdminAccountSessions(apiBaseUrl, action.target.id, {
+                expectedRevision: action.target.revision,
+                reason: input.reason,
+              })
+            : await changeAdminAccountRole(apiBaseUrl, action.target.id, {
+                expectedRevision: action.target.revision,
+                reason: input.reason,
+                role: requiredRole(input.role),
+              });
+      setDialog(undefined);
+      setToast(governanceSuccessMessage(action, updated));
+      await loadAccountPage(activeFilters, currentCursor, action.target.id);
+    } catch (error) {
+      if (error instanceof ApiRequestError && error.status === 401) {
+        window.location.assign("/enter");
+        return;
+      }
+      setMutationError(governanceErrorView(error));
+    } finally {
+      setMutationBusy(false);
+    }
+  }
+
   if (authenticationState === "loading") {
     return (
       <main className="loading-page admin-loading-page">
@@ -279,10 +391,25 @@ export function AdminAccountsWorkspace() {
           <div>
             <p className="eyebrow">身份与访问</p>
             <h1>账号管理</h1>
-            <p>查看账号、固定角色、状态、活跃会话与留存的治理记录。</p>
+            <p>查看账号与治理记录，并在明确确认后执行身份管理操作。</p>
           </div>
-          <span className="read-only-pill">只读视图</span>
+          <button
+            className="primary-button"
+            type="button"
+            onClick={() => openDialog({ kind: "create" })}
+          >
+            创建内部账号
+          </button>
         </header>
+
+        {toast && (
+          <div className="governance-toast" role="status">
+            <span>{toast}</span>
+            <button type="button" onClick={() => setToast("")}>
+              关闭
+            </button>
+          </div>
+        )}
 
         <form
           className="account-filter-bar"
@@ -484,12 +611,87 @@ export function AdminAccountsWorkspace() {
                     <dd>{accountTimestamp(selectedAccount.createdAt)}</dd>
                   </div>
                 </dl>
-                <aside className="account-read-boundary">
-                  <b>当前仅开放查看</b>
-                  <p>
-                    创建账号、角色或状态变更、全部会话回收将在独立检查点加入原因、确认和并发冲突处理。
-                  </p>
-                </aside>
+                <section className="account-governance-panel">
+                  <header>
+                    <div>
+                      <p className="step-label">账号治理</p>
+                      <h3>管理固定身份与会话</h3>
+                    </div>
+                    <span>所有成功操作都会进入审计</span>
+                  </header>
+                  {selectedAccount.id === account.id ? (
+                    <div className="self-governance-notice">
+                      <b>当前管理员不能治理自身账号</b>
+                      <p>
+                        请使用普通退出功能管理自己的会话；角色、状态或管理性会话回收必须由另一名有效管理员执行。
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {selectedAccount.role === "TERMINAL_CUSTOMER" && (
+                        <p className="role-family-notice">
+                          客户账号与内部账号之间不能转换角色；手机号错误时应停用旧账号并创建新的独立身份。
+                        </p>
+                      )}
+                      <div className="governance-action-grid">
+                        {selectedAccount.role !== "TERMINAL_CUSTOMER" && (
+                          <button
+                            className="secondary-button"
+                            type="button"
+                            onClick={() =>
+                              openDialog({
+                                kind: "role",
+                                target: selectedAccount,
+                              })
+                            }
+                          >
+                            变更内部角色
+                          </button>
+                        )}
+                        <button
+                          className={
+                            selectedAccount.status === "ACTIVE"
+                              ? "danger-button"
+                              : "secondary-button"
+                          }
+                          type="button"
+                          onClick={() =>
+                            openDialog({
+                              kind: "status",
+                              target: selectedAccount,
+                              nextStatus:
+                                selectedAccount.status === "ACTIVE"
+                                  ? "INACTIVE"
+                                  : "ACTIVE",
+                            })
+                          }
+                        >
+                          {selectedAccount.status === "ACTIVE"
+                            ? "停用账号"
+                            : "启用账号"}
+                        </button>
+                        <button
+                          className="secondary-button"
+                          type="button"
+                          disabled={selectedAccount.activeSessionCount === 0}
+                          title={
+                            selectedAccount.activeSessionCount === 0
+                              ? "该账号当前没有活跃会话"
+                              : undefined
+                          }
+                          onClick={() =>
+                            openDialog({
+                              kind: "sessions",
+                              target: selectedAccount,
+                            })
+                          }
+                        >
+                          回收全部会话
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </section>
                 <section className="identity-audit-panel">
                   <header>
                     <div>
@@ -560,6 +762,49 @@ export function AdminAccountsWorkspace() {
           </div>
         </section>
       </main>
+      {dialog?.kind === "create" && (
+        <CreateInternalAccountDialog
+          key="create-account"
+          busy={mutationBusy}
+          {...(mutationError ? { error: mutationError } : {})}
+          onClose={closeDialog}
+          onRefresh={refreshDialogTarget}
+          onSubmit={(input) => void createInternalAccount(input)}
+        />
+      )}
+      {dialog && dialog.kind !== "create" && (
+        <GovernanceActionDialog
+          key={`${dialog.kind}-${dialog.target.id}-${dialog.target.revision}`}
+          action={dialog}
+          busy={mutationBusy}
+          {...(mutationError ? { error: mutationError } : {})}
+          onClose={closeDialog}
+          onRefresh={refreshDialogTarget}
+          onSubmit={(input) => void executeGovernanceAction(input)}
+        />
+      )}
     </div>
   );
+}
+
+function requiredRole(
+  role: InternalAccountRole | undefined,
+): InternalAccountRole {
+  if (role) return role;
+  throw new Error("INTERNAL_ACCOUNT_ROLE_REQUIRED");
+}
+
+function governanceSuccessMessage(
+  action: DangerousGovernanceAction,
+  updated: Account,
+): string {
+  if (action.kind === "role") {
+    return `已将 ${updated.mobile} 变更为${accountRoleLabels[updated.role]}，原有会话已回收`;
+  }
+  if (action.kind === "sessions") {
+    return `已回收 ${updated.mobile} 的全部活跃会话`;
+  }
+  return updated.status === "ACTIVE"
+    ? `已启用账号 ${updated.mobile}`
+    : `已停用账号 ${updated.mobile}，原有会话已回收`;
 }
