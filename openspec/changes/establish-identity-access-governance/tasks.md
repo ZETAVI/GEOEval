@@ -70,7 +70,7 @@
       logout-all, and authenticated principal responses.
 - [x] Replace the post-login Media Supply special case with fixed `/brands`,
       `/admin`, `/operations`, and `/agent` role entry.
-- [ ] Build the administrator `账号与访问` workspace with list/search/filter,
+- [x] Build the administrator `账号与访问` workspace with list/search/filter,
       create, role/status/revoke-all, confirmation/reason, audit, and explicit
       stale/self/last-admin/error states.
 - [ ] Build honest operations/agent shells and shared unauthenticated,
@@ -228,3 +228,40 @@
 - Still open: all administrator governance writes and their confirmation,
   reason, stale/self/last-administrator/error states; the broader role/session
   state matrix; rollback rehearsal; reconciliation; PR review; and integration.
+
+## Administrator governance workspace checkpoint — 2026-09-04
+
+- Added four generated-contract-backed command functions for internal-account
+  creation, status change, internal-role change, and administrator revoke-all.
+  `ApiRequestError` now retains the bounded server error code needed for explicit
+  UI states.
+- Creation and dangerous target actions use separate typed dialogs. Every role,
+  status, or revoke-all command carries the displayed revision, a 3–320 character
+  reason, and a target-aware mobile-suffix confirmation. Customer/internal role
+  conversion is not offered; self-governance actions are not rendered.
+- Dangerous actions use the native modal dialog lifecycle. Background content is
+  removed from the accessibility focus boundary, the first command field receives
+  focus, Escape cancels while idle, and controls cannot close during submission.
+- Controlled HTTP checks against `geoeval_issue50` created two internal accounts,
+  changed one role, deactivated/reactivated another, and revoked one customer's
+  Sessions. Database inspection proved revision, revocation reason, six audit
+  rows, and bounded before/after states; stale revision, duplicate mobile, and
+  self-governance returned explicit 409/409/403 errors without accepted audits.
+- Browser inspection proved the self and role-family restrictions, disabled
+  zero-Session action, internal-only create options, reason/confirmation gates,
+  modal focus/Escape behavior, and post-command account/audit readback. Browser
+  warnings/errors were empty. Final mutations were submitted through the same
+  local HTTP API rather than Computer Use, so no risky browser confirmation was
+  bypassed.
+- Both fixture sets and their Audits, Sessions, Challenges, rate state, temporary
+  Cookie jars, and response files were removed. Exact database selectors and
+  post-cleanup counts proved no matching fixture state remained; shared defaults,
+  pre-existing Issue test records, and production state were untouched.
+- Verification: Web regression is 9 files / 38 tests; typecheck, formatting,
+  production build, generated contract drift, Diff, and project-framework checks
+  pass. The existing 35-file / 187-test backend result and concurrent-last-admin
+  integration evidence remain applicable because backend code/config/schema did
+  not change in this checkpoint.
+- Still open: the shared unauthenticated/inactive/revoked/expired role-shell
+  matrix, the broader Stage 4 security/concurrency matrix, rollback rehearsal,
+  design reconciliation, PR review, and integration.
