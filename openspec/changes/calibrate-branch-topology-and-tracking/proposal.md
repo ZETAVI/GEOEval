@@ -1,6 +1,6 @@
 # Change: Calibrate Branch Topology and Human-Readable Tracking
 
-- Status: Ready for Review
+- Status: Review / Decision in PR #54
 - Class: Standard project-governance change
 - Issue: [#53](https://github.com/ZETAVI/GEOEval/issues/53)
 - Decision owner: Project owner
