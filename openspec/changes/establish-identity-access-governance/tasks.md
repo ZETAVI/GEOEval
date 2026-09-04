@@ -93,7 +93,7 @@
       is all-or-nothing.
 - [x] Test the complete route classification and CSRF header/Origin/content-type
       matrix, including login and logout boundaries.
-- [ ] Rehearse migration and application rollback in the explicit isolated
+- [x] Rehearse migration and application rollback in the explicit isolated
       database; prove shared PostgreSQL/Redis remain unchanged.
 - [ ] Inspect real browser desktop and narrow states for each role, administrator
       account governance, allowed/denied access, session expiry/revocation, and
@@ -336,3 +336,26 @@
   backend typecheck, formatting, and Diff check passed.
 - Still open: isolated rollback rehearsal, full desktop/narrow browser pass,
   aggregate verification/review, reconciliation, PR, and integration.
+
+## Migration and application rollback checkpoint — 2026-09-04
+
+- Replayed all 21 migrations from empty dedicated databases and verified the
+  current migration status as up to date.
+- Built the application at pre-Change commit `82f7056` in a detached temporary
+  worktree. Against the fully migrated schema, it read a Session created by the
+  current application and created a legacy-shaped Session of its own; after
+  restoring the current application, both credentials authenticated with active
+  revision-1 account state.
+- Database inspection proved both Session rows had 64-character digests,
+  non-null last-seen/idle expiry defaults bounded by absolute expiry, and no
+  revocation. Plaintext credentials were kept only in temporary Cookie jars and
+  never printed.
+- Shared `geoeval` schema/data fingerprints were identical before and after the
+  authoritative rehearsal; shared Redis DB 0 stayed at three keys and isolated
+  DB 1 stayed empty. Occupied Redis DB 15 was detected before use and never
+  touched.
+- Both temporary databases, the detached worktree and local dependencies, all
+  Cookie/response files, and port 3315 processes were removed and absence was
+  rechecked.
+- Still open: full desktop/narrow browser pass, aggregate verification/review,
+  reconciliation, PR, and integration.
