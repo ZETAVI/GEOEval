@@ -21,6 +21,12 @@ return to the current application without losing Session compatibility.
 The newest `main` commit after the merge base changes only project governance
 documentation, so the merge base is the correct pre-Issue application sample.
 
+This is a pre-activation compatibility rehearsal, not authorization for an
+unconditional rollback after the new account and Session semantics are active.
+The old application does not enforce every new status, idle-expiry, or
+revocation distinction. A post-activation rollback would therefore need its own
+human-approved session invalidation and operational plan before old code starts.
+
 ## Rehearsal sequence
 
 1. Create an empty dedicated PostgreSQL database.
@@ -73,6 +79,9 @@ Verdict: ready for this checkpoint.
   the old writer to operate on the migrated schema.
 - Both application directions were exercised. Merely compiling old code or
   inserting legacy-shaped SQL would not have proven Cookie/read behavior.
+- Compatibility is intentionally bounded to pre-activation rollback. The proof
+  does not claim that old code preserves all security semantics introduced by
+  this Change after users have begun relying on them.
 - The rollback sample is the actual Issue merge base, not a recreated mock.
 - Shared-state proof uses deterministic normalized artifacts and records the
   rejected raw-hash method, preserving evidence continuity.

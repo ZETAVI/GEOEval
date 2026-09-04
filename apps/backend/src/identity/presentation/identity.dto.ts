@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-import type { SessionAuthenticationFailureCode } from "../domain/identity.types.js";
+import type {
+  IdentityGovernanceAction,
+  SessionAuthenticationFailureCode,
+} from "../domain/identity.types.js";
 
 export class RequestChallengeRequest {
   @ApiProperty({ type: String, example: "13800138000" })
@@ -142,8 +145,18 @@ export class IdentityGovernanceAuditResponse {
   @ApiProperty({ type: String })
   targetAccountId!: string;
 
-  @ApiProperty({ type: String })
-  action!: string;
+  @ApiProperty({
+    type: String,
+    enum: [
+      "BOOTSTRAP_ADMINISTRATOR",
+      "CREATE_INTERNAL_ACCOUNT",
+      "ACTIVATE_ACCOUNT",
+      "DEACTIVATE_ACCOUNT",
+      "CHANGE_INTERNAL_ROLE",
+      "REVOKE_ACCOUNT_SESSIONS",
+    ],
+  })
+  action!: IdentityGovernanceAction;
 
   @ApiProperty({ type: String })
   reason!: string;

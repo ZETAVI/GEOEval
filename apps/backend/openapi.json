@@ -1856,7 +1856,15 @@
             "type": "string"
           },
           "action": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "BOOTSTRAP_ADMINISTRATOR",
+              "CREATE_INTERNAL_ACCOUNT",
+              "ACTIVATE_ACCOUNT",
+              "DEACTIVATE_ACCOUNT",
+              "CHANGE_INTERNAL_ROLE",
+              "REVOKE_ACCOUNT_SESSIONS"
+            ]
           },
           "reason": {
             "type": "string"

@@ -816,7 +816,8 @@ export interface components {
             actorAccountId?: string | null;
             actorKeyId?: string | null;
             targetAccountId: string;
-            action: string;
+            /** @enum {string} */
+            action: "BOOTSTRAP_ADMINISTRATOR" | "CREATE_INTERNAL_ACCOUNT" | "ACTIVATE_ACCOUNT" | "DEACTIVATE_ACCOUNT" | "CHANGE_INTERNAL_ROLE" | "REVOKE_ACCOUNT_SESSIONS";
             reason: string;
             beforeState?: {
                 [key: string]: unknown;
