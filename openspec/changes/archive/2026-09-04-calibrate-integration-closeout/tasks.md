@@ -30,16 +30,16 @@
 
 ## Final integration gate
 
-- [ ] After explicit merge authorization, revalidate the fixed Diff, review,
+- [x] After explicit merge authorization, revalidate the fixed Diff, review,
       Required Checks, Project, Change, and workspace state before mutation.
-- [ ] Disable `Item closed → Done`, `PR linked → In Progress`, and `PR merged →
+- [x] Disable `Item closed → Done`, `PR linked → In Progress`, and `PR merged →
       Done`; retain Auto-add sub-issues, Item added → Backlog, and Done →
       Auto-close Issue.
-- [ ] Re-query Project workflows and exercise only the smallest safe status
+- [x] Re-query Project workflows and exercise only the smallest safe status
       evidence needed to confirm the new direction.
-- [ ] Audit completed-item Worktrees, clean only owner-confirmed safe exits, and
+- [x] Audit completed-item Worktrees, clean only owner-confirmed safe exits, and
       preserve active or ambiguous work.
-- [ ] Reconcile and archive this Change on the same branch, promote the PR from
+- [x] Reconcile and archive this Change on the same branch, promote the PR from
       Partial to Final, and rerun invalidated checks.
 - [ ] Integrate once, verify protected `main`, complete post-integration
       reconciliation, move Issue #55 to `Done`, and verify final closure.

@@ -1,7 +1,6 @@
 # Change: Calibrate Integration Closeout and Project Done
 
-- Status: Repository slice verified in Partial PR #56; integration not yet
-  authorized
+- Status: Accepted and ready for final integration through PR #56
 - Class: Standard project-governance change
 - Issue: [#55](https://github.com/ZETAVI/GEOEval/issues/55)
 - Decision owner: Project owner
@@ -57,22 +56,49 @@ becomes `Done` only after post-integration reconciliation and workspace exit.
 - Issue #44 is `Done`, while its clean closed-task Worktree and deleted-upstream
   branch remain locally after the owner recorded it safe to remove.
 
+## Final Gate Evidence
+
+- The Project now keeps three workflows enabled: Auto-add sub-issues, Item
+  added to `Backlog`, and explicit `Done` to Issue close.
+- Issue close to `Done`, PR link to `In Progress`, and PR merge to `Done` are
+  disabled; the visible enabled-workflow count changed from six to three.
+- The completed Issue #44 workspace was not deleted. Its source tree is already
+  represented by the accepted squash merge, but unique ignored local
+  configuration and active use make deletion unsafe.
+- That workspace therefore exits as `retain`, owned by ZETAVI. Its removal
+  trigger is the end of active use plus confirmation that the ignored
+  configuration is recoverable or disposable, followed by a fresh clean/tree
+  audit.
+- Active M4, Identity, Query Generator, report, parser, and parent-Change
+  workspaces remain untouched.
+
 ## Control State
 
-- Project: Issue #55 in `GEOEval Delivery`, Status `In Progress`, Priority `P1`.
+- Project: Issue #55 in `GEOEval Delivery`, Status `Review / Decision`, Priority
+  `P1`.
 - Topology: `main-direct` from protected `main@9069cb8`.
 - Branch: `codex/issue-55-integration-closeout`.
 - Workspace: the live Issue-owned Worktree; its machine-local path is not a
   durable project fact.
-- Exit: PR #56 remains Partial and `ready-for-integration` until merge is
-  authorized. At that gate, perform and verify the reversible cloud workflow
-  and safe workspace changes, archive this Change on the same branch, promote
-  the PR to Final, and then integrate once.
+- Exit: cloud workflow and workspace decisions are verified. PR #56 is Final and
+  its native closing relationship resolves Issue #55. Push this archived Change,
+  rerun invalidated checks, and integrate once through protected `main`.
 
 ## Approval Boundary
 
 Issue, Change, repository documents, current Spec, PR template, branch, commits,
-push, and Partial PR are approved. Protected-main merge remains a separate
-human authorization. Project workflow changes and safe workspace cleanup occur
-only at that final gate; if integration cannot proceed, restore the prior cloud
-workflow state and keep the PR Partial.
+push, Project workflow changes, workspace reconciliation, Final relationship,
+and protected-main merge are authorized by the 2026-09-04 owner instruction.
+Provider calls, product behavior, production changes, and unrelated workspaces
+remain outside this Change.
+
+## Final Disposition
+
+- Integration and closeout semantics are reconciled into the existing process,
+  template, and current Project Governance owners.
+- Project automation now supplies context and safe defaults without inferring
+  acceptance or lifecycle completion from link, merge, or close events.
+- The only completed-item workspace found is deliberately retained with an
+  owner and removal trigger because immediate deletion is unsafe.
+- PR #56 is the Final transaction for Issue #55; its archived revision and
+  invalidated checks remain to be integrated.
