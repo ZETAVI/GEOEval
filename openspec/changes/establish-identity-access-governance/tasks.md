@@ -200,3 +200,31 @@
 - Still open at this checkpoint: administrator account-and-access UI, the shared
   inactive/revoked/expired state matrix, expanded security/concurrency evidence,
   rollback rehearsal, reconciliation, PR review, and integration.
+
+## Administrator account read-model checkpoint — 2026-09-04
+
+- Added generated-client-backed administrator reads for paginated account
+  summaries and target-owned governance audits. No governance mutation client or
+  UI action is part of this checkpoint.
+- Added `/admin/accounts` with mobile search, fixed-role and status filters,
+  cursor pagination, account identity/session facts, target-owned audit history,
+  explicit loading/empty/retry states, and an always-visible read-only boundary.
+- Moved the administrator sidebar out of Media Supply ownership and reused one
+  navigation source across `/admin`, `/admin/accounts`, and `/admin/media`.
+- Browser proof used 23 fixed-prefix synthetic accounts and two audits only in
+  `geoeval_issue50`: first/next pagination returned 20 and 4 rows including one
+  pre-existing Issue test account; combined search/role filtering returned the
+  intended agent and its audit; an agent was denied the administrator route; and
+  the narrow layout had no horizontal overflow. Browser warning/error logs were
+  empty.
+- All fixed-prefix synthetic Accounts, Audits, Sessions, Challenges, and rate
+  records were removed after inspection and verified as zero. The pre-existing
+  Issue test account/audit, shared defaults, and production state were untouched.
+- Verification: Web regression is 7 files / 30 tests; typecheck, formatting,
+  production build, generated OpenAPI/client drift check, Diff check, and
+  project-framework validation pass. The immediately preceding 35-file / 187-test
+  backend result remains applicable because this checkpoint changes no backend
+  implementation, schema, configuration, or test target.
+- Still open: all administrator governance writes and their confirmation,
+  reason, stale/self/last-administrator/error states; the broader role/session
+  state matrix; rollback rehearsal; reconciliation; PR review; and integration.
