@@ -93,6 +93,7 @@ describe("administrator account governance", () => {
 
   it("rejects customer conversion, stale writes, and administrative self-action", async () => {
     const administrator = await createAdministrator(prisma, 3);
+    await createAdministrator(prisma, 9);
     const customer = await prisma.account.create({
       data: { mobile: "+8613800138123" },
     });
@@ -134,8 +135,40 @@ describe("administrator account governance", () => {
     expect(await prisma.identityGovernanceAudit.count()).toBe(0);
   });
 
-  it("rejects a malformed governance target before it reaches PostgreSQL", async () => {
+  it("requires a second active administrator before reporting the remaining self-governance boundary", async () => {
     const administrator = await createAdministrator(prisma, 6);
+    await createSession(prisma, administrator.id, "9".repeat(64));
+
+    await expect(
+      governance.changeAccount({
+        actorAccountId: administrator.id,
+        targetAccountId: administrator.id,
+        expectedRevision: 1,
+        reason: "唯一管理员尝试自我停用",
+        mutation: { kind: "STATUS", status: "INACTIVE" },
+      }),
+    ).rejects.toMatchObject({
+      response: { code: "LAST_ADMINISTRATOR_FORBIDDEN" },
+    });
+    expect(
+      await prisma.account.findUniqueOrThrow({
+        where: { id: administrator.id },
+      }),
+    ).toMatchObject({
+      role: "ADMINISTRATOR",
+      status: "ACTIVE",
+      revision: 1,
+    });
+    expect(
+      await prisma.accountSession.findFirstOrThrow({
+        where: { accountId: administrator.id },
+      }),
+    ).toMatchObject({ revokedAt: null, revokedReason: null });
+    expect(await prisma.identityGovernanceAudit.count()).toBe(0);
+  });
+
+  it("rejects a malformed governance target before it reaches PostgreSQL", async () => {
+    const administrator = await createAdministrator(prisma, 10);
 
     await expect(
       governance.changeAccount({
@@ -151,6 +184,8 @@ describe("administrator account governance", () => {
   it("serializes competing demotions and always retains one active administrator", async () => {
     const first = await createAdministrator(prisma, 4);
     const second = await createAdministrator(prisma, 5);
+    await createSession(prisma, first.id, "c".repeat(64));
+    await createSession(prisma, second.id, "d".repeat(64));
 
     const results = await Promise.allSettled([
       governance.changeAccount({
@@ -177,7 +212,86 @@ describe("administrator account governance", () => {
         where: { role: "ADMINISTRATOR", status: "ACTIVE" },
       }),
     ).toBe(1);
+    expect(
+      await prisma.account.count({
+        where: { role: "OPERATIONS", status: "ACTIVE" },
+      }),
+    ).toBe(1);
+    expect(
+      await prisma.accountSession.count({
+        where: { revokedReason: "ROLE_CHANGED" },
+      }),
+    ).toBe(1);
+    expect(
+      await prisma.accountSession.count({ where: { revokedAt: null } }),
+    ).toBe(1);
     expect(await prisma.identityGovernanceAudit.count()).toBe(1);
+  });
+
+  it("rolls back account and audit when Session revocation fails", async () => {
+    const administrator = await createAdministrator(prisma, 7);
+    const target = await prisma.account.create({
+      data: { mobile: "+8613800138271", role: "OPERATIONS" },
+    });
+    await createSession(prisma, target.id, "e".repeat(64));
+
+    try {
+      await installSessionRevocationFailure(prisma);
+      await expect(
+        governance.changeAccount({
+          actorAccountId: administrator.id,
+          targetAccountId: target.id,
+          expectedRevision: 1,
+          reason: "强制会话撤销失败",
+          mutation: { kind: "ROLE", role: "AGENT" },
+        }),
+      ).rejects.toThrow("forced Session revocation failure");
+    } finally {
+      await removeSessionRevocationFailure(prisma);
+    }
+
+    expect(
+      await prisma.account.findUniqueOrThrow({ where: { id: target.id } }),
+    ).toMatchObject({ role: "OPERATIONS", status: "ACTIVE", revision: 1 });
+    expect(
+      await prisma.accountSession.findFirstOrThrow({
+        where: { accountId: target.id },
+      }),
+    ).toMatchObject({ revokedAt: null, revokedReason: null });
+    expect(await prisma.identityGovernanceAudit.count()).toBe(0);
+  });
+
+  it("rolls back account and Session when governance audit insertion fails", async () => {
+    const administrator = await createAdministrator(prisma, 8);
+    const target = await prisma.account.create({
+      data: { mobile: "+8613800138281", role: "OPERATIONS" },
+    });
+    await createSession(prisma, target.id, "f".repeat(64));
+
+    try {
+      await installGovernanceAuditFailure(prisma);
+      await expect(
+        governance.changeAccount({
+          actorAccountId: administrator.id,
+          targetAccountId: target.id,
+          expectedRevision: 1,
+          reason: "FORCE_AUDIT_FAILURE",
+          mutation: { kind: "STATUS", status: "INACTIVE" },
+        }),
+      ).rejects.toThrow("forced Governance audit failure");
+    } finally {
+      await removeGovernanceAuditFailure(prisma);
+    }
+
+    expect(
+      await prisma.account.findUniqueOrThrow({ where: { id: target.id } }),
+    ).toMatchObject({ role: "OPERATIONS", status: "ACTIVE", revision: 1 });
+    expect(
+      await prisma.accountSession.findFirstOrThrow({
+        where: { accountId: target.id },
+      }),
+    ).toMatchObject({ revokedAt: null, revokedReason: null });
+    expect(await prisma.identityGovernanceAudit.count()).toBe(0);
   });
 });
 
@@ -205,4 +319,72 @@ async function createSession(
       lastSeenAt: now,
     },
   });
+}
+
+async function installSessionRevocationFailure(
+  prisma: PrismaService,
+): Promise<void> {
+  await removeSessionRevocationFailure(prisma);
+  await prisma.$executeRawUnsafe(`
+    CREATE FUNCTION geoeval_test_fail_session_revocation()
+    RETURNS trigger AS $$
+    BEGIN
+      IF OLD.revoked_at IS NULL AND NEW.revoked_at IS NOT NULL THEN
+        RAISE EXCEPTION 'forced Session revocation failure';
+      END IF;
+      RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql
+  `);
+  await prisma.$executeRawUnsafe(`
+    CREATE TRIGGER geoeval_test_fail_session_revocation
+    BEFORE UPDATE ON account_sessions
+    FOR EACH ROW EXECUTE FUNCTION geoeval_test_fail_session_revocation()
+  `);
+}
+
+async function removeSessionRevocationFailure(
+  prisma: PrismaService,
+): Promise<void> {
+  await prisma.$executeRawUnsafe(`
+    DROP TRIGGER IF EXISTS geoeval_test_fail_session_revocation
+    ON account_sessions
+  `);
+  await prisma.$executeRawUnsafe(
+    "DROP FUNCTION IF EXISTS geoeval_test_fail_session_revocation()",
+  );
+}
+
+async function installGovernanceAuditFailure(
+  prisma: PrismaService,
+): Promise<void> {
+  await removeGovernanceAuditFailure(prisma);
+  await prisma.$executeRawUnsafe(`
+    CREATE FUNCTION geoeval_test_fail_governance_audit()
+    RETURNS trigger AS $$
+    BEGIN
+      IF NEW.reason = 'FORCE_AUDIT_FAILURE' THEN
+        RAISE EXCEPTION 'forced Governance audit failure';
+      END IF;
+      RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql
+  `);
+  await prisma.$executeRawUnsafe(`
+    CREATE TRIGGER geoeval_test_fail_governance_audit
+    BEFORE INSERT ON identity_governance_audits
+    FOR EACH ROW EXECUTE FUNCTION geoeval_test_fail_governance_audit()
+  `);
+}
+
+async function removeGovernanceAuditFailure(
+  prisma: PrismaService,
+): Promise<void> {
+  await prisma.$executeRawUnsafe(`
+    DROP TRIGGER IF EXISTS geoeval_test_fail_governance_audit
+    ON identity_governance_audits
+  `);
+  await prisma.$executeRawUnsafe(
+    "DROP FUNCTION IF EXISTS geoeval_test_fail_governance_audit()",
+  );
 }

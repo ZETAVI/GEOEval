@@ -583,6 +583,16 @@ export class PostgresIdentityRepository implements IdentityRepository {
           );
         }
         if (target.id === input.actorAccountId) {
+          if (
+            target.role === "ADMINISTRATOR" &&
+            target.status === "ACTIVE" &&
+            ((input.mutation.kind === "ROLE" &&
+              input.mutation.role !== "ADMINISTRATOR") ||
+              (input.mutation.kind === "STATUS" &&
+                input.mutation.status === "INACTIVE"))
+          ) {
+            await requireAnotherActiveAdministrator(transaction, target.id);
+          }
           throw new IdentityGovernanceError(
             "SELF_GOVERNANCE_FORBIDDEN",
             "管理员不能对自身执行管理性操作",
