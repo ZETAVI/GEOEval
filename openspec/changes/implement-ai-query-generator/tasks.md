@@ -42,7 +42,7 @@
 
 ## 6. Controlled real validation
 
-- [ ] Recheck current Qwen3.8 and Hy3 route/model configuration without exposing credentials.
+- [x] Recheck current Qwen3.8 and Hy3 route/model configuration without exposing credentials.
 - [ ] Obtain explicit authorization for a bounded Query-only real call batch.
 - [ ] Review exact outputs for a small restaurant, enterprise service, and another representative store; stop on the first material quality failure.
 - [ ] Iterate Prompt versions from observed outputs without adding symptom-by-symptom prohibitions.

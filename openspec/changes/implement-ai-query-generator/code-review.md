@@ -45,6 +45,10 @@ The implementation matches the approved boundary:
   deploy reported no pending migration.
 - Deterministic browser journey showed prepare, leave/return, four-question
   review, and evaluation start with no browser console errors.
+- The unchanged S6 Provider source brief remains applicable. A read-only model
+  list probe on 2026-09-04 returned HTTP 200 from both configured accounts and
+  confirmed that Model Studio exposes `qwen3.8-flash` and TokenHub exposes
+  `hy3`; no content generation was performed.
 
 ## Remaining gates
 
