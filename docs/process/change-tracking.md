@@ -47,9 +47,13 @@ architectural write:
 
 1. create or identify the Issue that owns the outcome;
 2. link the relevant current owner and OpenSpec change;
-3. create `codex/issue-<number>-<slug>` from current `main`;
-4. create a worktree only when the branch is an independently mergeable write;
-5. open a pull request before asking for final review or integration.
+3. choose `main-direct`, a true linear stack, or an approved parent-scoped
+   Integration Branch under the
+   [integration-topology contract](human-agent-collaboration.md#integration-topology);
+4. create `codex/issue-<number>-<slug>` from current `main` by default, or from
+   the exact approved lower-stack/integration base;
+5. create a worktree only when the branch is an independently mergeable write;
+6. open a pull request before asking for final review or integration.
 
 Protected `main` requires the project checks and normal pull-request path. Do
 not push directly to bypass the lifecycle, reconstruct completed history merely
@@ -127,6 +131,20 @@ State the owning relationship in the PR description:
 - a Review Gate uses an ordinary `Review Gate #<issue>` reference and does not
   require an independent PR.
 
+Before using `Closes` or manually adding a PR under `Development`, answer:
+**should merging this PR into the default branch immediately close the Issue
+because its full acceptance boundary is met?** If not, use a Partial or ordinary
+reference. An empty `Development` field is valid and must not be populated for
+visual completeness.
+
+A PR targeting a non-default branch is not the final closing transaction. Use a
+Partial or ordinary reference while it targets a lower stack or Integration
+Branch. Before changing its base to the default branch, re-evaluate its Diff,
+review, Required Checks, closing keywords, Issue acceptance, and branch exit.
+Research, decision, release-gate, and manual-operation Issues that have no code
+transaction may close from an explicit owner decision plus durable evidence;
+do not create an artificial PR.
+
 When several PRs advance one Issue, only the final acceptance PR creates the
 native closing relationship. Before merge, every requested review must have a
 completed outcome, and each material finding must be fixed, explicitly rejected
@@ -188,7 +206,8 @@ not replace the Issue, PR, current spec, or handoff.
 An Issue closes only when:
 
 1. the approved acceptance boundary is met or explicitly reduced by the owner;
-2. merged PRs and evidence identify the delivered revision;
+2. applicable merged PRs and evidence identify the delivered revision, or an
+   explicit non-code decision and durable evidence identify the accepted result;
 3. affected tests and current owners are reconciled;
 4. residual work has a new owner and durable location;
 5. the branch or worktree exit state is explicit.

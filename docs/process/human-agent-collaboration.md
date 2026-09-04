@@ -50,6 +50,48 @@ At any moment, one owner writes each of these:
 
 Others may review or propose patches, but the lead owner reconciles them.
 
+## Integration topology
+
+Choose topology from dependency and acceptance boundaries, not from feature
+size or agent count:
+
+1. **Direct to protected `main` — default.** Use when a slice is independently
+   acceptable, compatible with current behavior, and does not expose an invalid
+   half-finished path. Keeping a parent outcome open does not make an accepted
+   child slice unsafe for `main`.
+2. **Stacked PR — linear dependency.** Use when each upper change genuinely
+   depends on the branch immediately below it. The bottom PR targets the stack
+   trunk, normally `main`; each higher PR targets the lower PR's branch. A Git
+   base chosen only for convenience is not a product dependency and must not
+   create a stack.
+3. **Integration Branch — exceptional parallel fan-in.** Use a parent-scoped,
+   short-lived branch only when two or more parallel slices cannot safely enter
+   `main` independently and one combined acceptance or rollback boundary is
+   required. Do not create a permanent shared `dev` branch.
+
+Use this smallest decision sequence:
+
+- If the slice can stand safely on `main`, merge it through the normal PR path.
+- Otherwise, if the dependency is linear, use a Stacked PR.
+- Otherwise, if parallel slices must be accepted together, propose an
+  Integration Branch.
+- If none applies, wait for the contract to stabilize or reshape the slices;
+  another branch does not resolve unclear ownership.
+
+An Integration Branch requires an owning parent Issue, one integration owner,
+fixed child interfaces and write ownership, an exact base and merge target,
+the same Required Checks and review standard as `main`, a stated method for
+syncing changes from `main`, a final combined verification gate, and a
+delete-after-merge exit. Configure branch protection only when the branch is
+approved and created; do not maintain an unused global integration branch.
+Child PRs merge through PR review rather than direct pushes.
+
+Changing a PR base, moving a PR within a stack, or synchronizing an Integration
+Branch invalidates the affected Diff, review, CI, closing-relationship, and
+workspace-exit evidence. Recheck only those invalidated dimensions before the
+next merge. One lead owns stack ordering, Integration Branch promotion, final
+Issue disposition, and cleanup.
+
 ## Branch and worktree lifecycle
 
 The unit of isolation is one independently mergeable write outcome, not one
@@ -74,6 +116,7 @@ Before creating one, inspect existing branches and worktrees, then define:
 - allowed interface assumptions;
 - validation command;
 - merge order when dependencies exist;
+- topology (`main-direct`, `stack:<base>`, or `integration:<branch>`);
 - handoff format;
 - exit condition.
 

@@ -125,6 +125,27 @@ state.
 - **AND** on exit the owner SHALL record one lifecycle state defined by the
   [branch and worktree lifecycle](../../../docs/process/human-agent-collaboration.md#branch-and-worktree-lifecycle)
 
+### Requirement: Integration topology follows real dependency and acceptance boundaries
+
+Protected `main` SHALL remain the default merge target. A Stacked PR SHALL
+represent a linear dependency chain, and an Integration Branch SHALL be a
+parent-scoped, short-lived exception for parallel slices that cannot safely be
+accepted independently.
+
+#### Scenario: A large parent outcome is split into child writes
+
+- **WHEN** a child slice is independently acceptable and compatible
+- **THEN** it SHALL merge through the normal protected-`main` PR path
+- **BUT WHEN** an upper slice genuinely depends on the branch immediately below
+- **THEN** it MAY use a linear stack with an explicit trunk and merge order
+- **BUT WHEN** parallel slices must share one atomic acceptance or rollback
+  boundary
+- **THEN** they MAY use one parent Issue-owned Integration Branch with a single
+  integration owner, fixed interfaces, main-equivalent checks and review,
+  current-main synchronization, a final combined gate, and delete-after-merge
+  exit
+- **AND** the project SHALL NOT maintain a permanent shared `dev` branch
+
 ### Requirement: Concurrent Worktree tests own isolated resources
 
 Every Worktree that may run integration tests concurrently SHALL use explicit,
@@ -172,6 +193,26 @@ records, and handoffs SHALL keep the responsibilities defined by the
   reference and leave the Issue open
 - **AND** a Review Gate MAY use an ordinary Issue reference over the integrated
   PR without receiving an otherwise unnecessary Branch or pull request
+- **AND** an empty `Development` field MAY be the correct state for Partial,
+  Review Gate, research, decision, release-gate, or manual-operation work
+
+#### Scenario: A pull request base or stack position changes
+
+- **WHEN** a pull request moves between a non-default branch and the default
+  branch, or changes position in a stack
+- **THEN** the affected Diff, review, Required Checks, closing relationship,
+  Issue acceptance, and workspace exit SHALL be re-evaluated before merge
+- **AND** a non-default-branch PR SHALL NOT claim to be the final native closing
+  transaction
+
+### Requirement: Human coordination names referenced work on first use
+
+#### Scenario: An agent discusses an Issue or pull request with the human owner
+
+- **WHEN** the Issue or pull request appears for the first time in the current
+  response
+- **THEN** the agent SHALL include its current title with the number
+- **AND** later references MAY use only the number after context is clear
 
 ### Requirement: Completed work does not absorb later requirements
 
@@ -209,6 +250,7 @@ reach protected `main` through a pull request with required project checks.
 - **WHEN** the owner approves a standard or architectural next action
 - **THEN** the work SHALL identify its Issue and current-context pointers
 - **AND** its branch SHALL use `codex/issue-<number>-<slug>` from current `main`
+  by default or from the exact approved lower-stack/integration base
 - **AND** its pull request SHALL carry implementation, evidence,
   reconciliation, risk, and follow-up state
 - **AND** direct push, force push, and branch deletion SHALL NOT bypass protected
