@@ -1,6 +1,6 @@
 # Change: Calibrate Comment Checkpoints and Multi-Agent Coordination
 
-- Status: Accepted and ready for final review
+- Status: Accepted and ready for final integration through PR #60
 - Class: Standard project-governance change
 - Issue: [#59](https://github.com/ZETAVI/GEOEval/issues/59)
 - Decision owner: Project owner
@@ -72,6 +72,7 @@ accepted knowledge to one canonical owner.
 - Project: Issue #59 in `GEOEval Delivery`, Status `In Progress`, Priority `P1`.
 - Topology: `main-direct` from protected `main@82f7056`.
 - Branch: `codex/issue-59-comment-checkpoints`.
+- Pull request: Final PR #60 with `Closes #59`; merge remains unauthorized.
 - Change: `openspec/changes/archive/2026-09-04-calibrate-comment-checkpoints/`.
 - Exit: retain until review and integration; merge remains a separate human
   authorization Gate.
