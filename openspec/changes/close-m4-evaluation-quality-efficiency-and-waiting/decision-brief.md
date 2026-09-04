@@ -2,8 +2,8 @@
 
 ## State and authority
 
-- Review state: Approved on 2026-09-02; child delivery coordination may proceed
-  within the approved dependency graph
+- Review state: Approved on 2026-09-02; execution sequence simplified on
+  2026-09-04 without changing D1-D9 or child ownership
 - Approval evidence:
   [Issue #39 product-owner record](https://github.com/ZETAVI/GEOEval/issues/39#issuecomment-5505659279)
 - Confirmed-decision source: owning Issue
@@ -43,19 +43,21 @@
 - Notification remains a durable inbox with SSE as a recoverable refresh hint;
   M4 progress does not introduce a second notification or realtime authority.
 
-## Child-owned decisions not approved by this parent
+## Child-owned decisions and current disposition
 
-These choices remain with the named child Issue and are not implied by D1–D9:
+These choices remain with the named child Issue and are not implied by D1–D9.
+Completed rows identify where the child decision is now accepted; open rows
+remain change-local rather than becoming new parent requirements:
 
-| Owner | Open decision before implementation or integration |
+| Owner | Decision boundary and current disposition |
 | --- | --- |
-| #40 | Exact AMap endpoint/SDK, credential placement, server revalidation, quota, source identity, locality choice, failure fallback, maximum characteristic count, schema/migration and rollback |
-| #26 | Versioned Prompt/model contract, representative examples, exact selection/composition behavior, route reuse and Query-only product-review evidence on Snapshot v3 |
-| #32 | Exact minimal readability predicate and deterministic fallback for the proven `}}}`-class failure without weakening mention or rank evidence |
-| #41 | Compact synthesis input, name-candidate preparation, customer-copy contract and reachable safety fallback without creating a brand master system |
-| #42 | Selected task graph, model per purpose, concurrency/limiter, timeout, retry, cost and latency budgets, and the quantitative definition of “material improvement” |
+| #40 | Completed in PR #46: AMap boundary, verified store identity, locality, Snapshot v3, compatibility, migration and rollback |
+| #26 | Completed in PR #28: versioned Prompt/model contract, durable preparation and product-reviewed four-question projection over Snapshot v3 |
+| #32 | Active: strict mention/open-position evidence, recoverable optional detail, one model-facing limit contract and the narrow `}}}`-class customer-copy fallback |
+| #41 | Review / Decision: compact synthesis evidence, brand decisions and customer-copy acceptance on the task boundary selected by #42 |
+| #42 | Open: Phase A selects the task graph and budgets in a Partial PR; Phase B proves concurrency, retry, cost, latency and customer-safe progress after #41 acceptance |
 | #43 | Exact stage labels, easing intervals, long-wait content, responsive interaction and accessibility details within the truthful progress contract |
-| #44 | Diagnostic allowlist, environment gate, local/test retention and access; any production content capture remains a separate security/privacy approval |
+| #44 | Completed in PR #47: local/test diagnostic allowlist and failure isolation; production content capture remains a separate security/privacy approval |
 | #39 Gate | Representative store, Provider-call authorization, evidence retention locator, and final integration revision |
 
 No exact three-minute or five-minute customer SLA is confirmed. The transcript
@@ -65,7 +67,16 @@ budget and acceptance threshold before such a promise can become current truth.
 ## Approval result
 
 The product owner approved D1–D9, the preserved meaning, the child ownership of
-open decisions, and the integration dependency graph on 2026-09-02. The approval
-does not authorize implementation outside a child Issue, PR merge, any real
+open decisions, and the initial integration dependency graph on 2026-09-02.
+
+On 2026-09-04 the owner accepted the completed #40/#26/#44 state and requested a
+simpler correction for the #41/#42 cycle. The accepted execution rule is to keep
+both existing Issues: #42 first records the selected task boundary in a Partial
+PR, #41 then completes the customer-synthesis contract on that boundary, and
+#42 finally completes runtime orchestration, budgets and progress projection.
+This phase exchange is recorded in the parent sequence rather than represented
+as two opposing native blockers or a new Issue.
+
+The approval does not authorize implementation outside a child Issue, any real
 Provider call, production deployment, API purchase, customer-data migration or
 production content telemetry.
