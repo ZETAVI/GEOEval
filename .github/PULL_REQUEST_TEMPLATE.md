@@ -58,6 +58,8 @@ retarget 到默认分支前，必须重新检查关系选择。
 - Project Status：<before → after>
 - Dependency / blocked state：<links or `none`>
 - Base / stack 变化：`none | <变化以及重新验证的 Diff、Review、CI 与 closing relationship>`
+- Pre-integration Reconcile：`complete | <未完成项>`
+- Post-integration Closeout：<owner；合并后核对 target revision、Issue/PR、Project、Change、Evidence 与 Workspace Exit>
 - 文档影响：`none | update | add | move | split | merge | delete | generate | supersede`
 - 正式权威或演进标记：<路径与对账方式，或 `none`>
 - 发布影响：`release:skip | release:candidate` <适用时补充说明或链接>
@@ -77,5 +79,6 @@ retarget 到默认分支前，必须重新检查关系选择。
 - [ ] 已记录未执行检查、已知风险以及可行的恢复方式
 - [ ] 已请求的 Review 已完成；阻塞发现已修复或有明确 Evidence / Follow-up disposition
 - [ ] Issue Assignee、Project Status/Priority、Dependency 与 Checklist 已对账
+- [ ] Pre-integration Reconcile 已完成；Post-integration Closeout 的 owner 与检查项已记录，未伪造合并后证据
 - [ ] 已完成的 OpenSpec Change 已归档；未完成时已记录准确退出状态
-- [ ] 已确认发布影响、Handoff 与 Worktree 退出状态
+- [ ] 已确认发布影响、Handoff 与 Worktree 退出计划；执行结果在合并后对账

@@ -70,8 +70,9 @@ Assignee as Owner, and maintain:
 - `Ready`: outcome and acceptance are clear and work may enter WIP;
 - `In Progress`: one active bounded write or execution package;
 - `Review / Decision`: implementation or analysis is ready and a review,
-  decision, or integration gate remains;
-- `Done`: acceptance, reconciliation, and workspace exit are complete.
+  decision, integration gate, or post-integration closeout remains;
+- `Done`: acceptance, post-integration reconciliation, and workspace exit are
+  complete.
 
 Priority is `P0` for current safety/delivery-critical work, `P1` for the next
 valuable outcome, and `P2` for later work. Labels express type or orthogonal
@@ -170,6 +171,21 @@ Before completion, map acceptance criteria to implementation and evidence,
 record tests added, changed, or removed, reconcile current truth, and create
 durable follow-up Issues for work outside the approved boundary.
 
+For a review-backed change, follow the
+[integration checkpoint](core-workflow.md#7-reconcile) without adding a new
+Project Status. Before integration, reconcile the accepted slice into the
+current owners in the PR, record residual work and the intended workspace exit,
+and keep an unfinished parent Change active. After integration, confirm the
+accepted revision, relationship, applicable evidence, current truth, and
+workspace exit.
+
+A Final PR may close its Issue automatically at integration before the
+post-integration checks run. During that bounded closeout window the Project
+item remains in `Review / Decision`; a closed Issue is not by itself evidence
+for `Done`. Reopen the Issue only when its original acceptance failed or closure
+was factually premature. Keep closeout-only work owned and non-`Done` without
+rewriting an accepted delivery history.
+
 ## Multiple PRs, reopening, and follow-up Issues
 
 Multiple PRs may serve one open Issue when each PR is a coherent vertical slice
@@ -212,8 +228,16 @@ An Issue closes only when:
 4. residual work has a new owner and durable location;
 5. the branch or worktree exit state is explicit.
 
-The final reconciliation also moves the Project item to `Done`, removes stale
-blocked relationships, and records the next independent Issue without copying
-its backlog into the closed Issue.
+Issue closure and Project `Done` are separate facts. A Final PR may close an
+Issue after acceptance and pre-integration reconciliation when its post-merge
+exit is explicit; the Project item moves to `Done` only after the integrated
+revision, current truth, Change state, evidence, and workspace exit are
+verified after integration and reconciled. The integration owner then
+explicitly moves the Project item to `Done`. A deliberately retained workspace
+counts as an exit only when its owner, purpose, recovery boundary, and later
+removal trigger remain explicit.
+
+The final reconciliation also removes stale blocked relationships and records
+the next independent Issue without copying its backlog into the closed Issue.
 
 Do not keep a completed Issue or OpenSpec change active as a general roadmap.
