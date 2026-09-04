@@ -37,6 +37,20 @@ Do not fan out several agents to reread the same sources or produce interchangea
 summaries. Each delegation must add a distinct decision input, artifact, or
 verification result.
 
+## Durable agent coordination
+
+When one agent's accepted result changes another agent's assumptions or next
+action, use one material `Agent Coordination` checkpoint under the owning Issue
+or pull request. The producer owns that checkpoint; consumers link it, state
+only their local impact, and recheck its revision and live state before writing.
+Follow the [comment and checkpoint contract](change-tracking.md#comment-and-checkpoint-contract)
+rather than copying the same coordination note into several Issues.
+
+GitHub comments are a durable asynchronous coordination surface, not a
+high-frequency agent message bus. Keep exploration and ordinary progress in the
+active conversation. Promote only decision, delivery, Gate, integration, or
+handoff evidence that another session, agent, branch, or Worktree must recover.
+
 ## Single-writer rule
 
 At any moment, one owner writes each of these:
@@ -165,4 +179,9 @@ branch. Do not use recovery branches as the project's permanent archive.
 
 ## Handoff rule
 
-Every agent response should make its outcome recoverable. Persist a handoff only when work crosses a session, agent, branch, or owner boundary. A handoff records state and evidence, never hidden reasoning or a transcript.
+Every agent response should make its outcome recoverable. When an owning Issue
+or pull request plus a material checkpoint makes continuation unambiguous, link
+that checkpoint instead of creating a separate handoff artifact. Persist a
+dedicated handoff only when work crosses a session, agent, branch, or owner
+boundary and normal artifacts cannot carry the required recovery state. A
+handoff records state and evidence, never hidden reasoning or a transcript.

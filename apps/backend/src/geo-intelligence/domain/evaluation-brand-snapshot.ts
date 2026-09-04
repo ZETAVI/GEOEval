@@ -82,7 +82,14 @@ export type EvaluationBrandTextContext = {
 export type EvaluationBrandQueryContext = {
   companyName: string;
   recommendationSubject: string;
-  locality: { kind: "BUSINESS_AREA" | "ADDRESS_LOCALITY"; label: string };
+  location: {
+    cityLabel: string;
+    terminalRegionLabel: string;
+    locality: {
+      kind: "BUSINESS_AREA" | "ADDRESS_LOCALITY";
+      label: string;
+    };
+  };
   flagshipProductOrService: string;
   characteristics: string[];
 };
@@ -121,7 +128,11 @@ export function evaluationBrandQueryContext(
   return {
     companyName: snapshot.companyName,
     recommendationSubject: snapshot.industry.recommendationSubject,
-    locality: snapshot.storeLocation.queryLocality,
+    location: {
+      cityLabel: snapshot.region.city.label,
+      terminalRegionLabel: snapshot.region.terminal.label,
+      locality: { ...snapshot.storeLocation.queryLocality },
+    },
     flagshipProductOrService: snapshot.flagshipProductOrService,
     characteristics: [...snapshot.characteristics],
   };

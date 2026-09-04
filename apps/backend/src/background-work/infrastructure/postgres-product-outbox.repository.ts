@@ -13,6 +13,7 @@ const EVALUATION_EVENT_TYPES = [
   "evaluation.sample.interpret.requested",
   "evaluation.run.readiness.requested",
   "evaluation.run.synthesize.requested",
+  "evaluation.definition.prepare.requested",
   "evaluation.report.accepted",
   "evaluation.retry.required",
 ] as const;

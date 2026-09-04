@@ -1,13 +1,18 @@
 export type AiExecutionPurpose =
-  "EVALUATION_ACQUISITION" | "EVALUATION_INTERPRETATION";
+  | "EVALUATION_ACQUISITION"
+  | "EVALUATION_INTERPRETATION"
+  | "EVALUATION_QUESTION_GENERATION";
 
 type AiAttemptRequestBase = {
-  runId: string;
-  cycleId: string;
   attemptNumber: number;
   routePolicyId: string;
   requestedModel: string;
   correlationId: string;
+};
+
+type EvaluationRunAttemptRequestBase = AiAttemptRequestBase & {
+  runId: string;
+  cycleId: string;
 };
 
 export type AcquisitionAttemptInput = {
@@ -32,18 +37,24 @@ export type StructuredOutputAttemptInput = {
 };
 
 export type AiAttemptRequest =
-  | (AiAttemptRequestBase & {
+  | (EvaluationRunAttemptRequestBase & {
       sampleId: string;
       purpose: "EVALUATION_ACQUISITION";
       input: AcquisitionAttemptInput;
     })
-  | (AiAttemptRequestBase & {
+  | (EvaluationRunAttemptRequestBase & {
       sampleId: string;
       purpose: "EVALUATION_INTERPRETATION";
       input: StructuredOutputAttemptInput;
     })
-  | (AiAttemptRequestBase & {
+  | (EvaluationRunAttemptRequestBase & {
       purpose: "OVERALL_SYNTHESIS";
+      input: StructuredOutputAttemptInput;
+    })
+  | (AiAttemptRequestBase & {
+      preparationId: string;
+      sequence: number;
+      purpose: "EVALUATION_QUESTION_GENERATION";
       input: StructuredOutputAttemptInput;
     });
 
@@ -55,6 +66,11 @@ export type SampleAiAttemptRequest = Extract<
 export type SynthesisAiAttemptRequest = Extract<
   AiAttemptRequest,
   { purpose: "OVERALL_SYNTHESIS" }
+>;
+
+export type QuestionGenerationAiAttemptRequest = Extract<
+  AiAttemptRequest,
+  { purpose: "EVALUATION_QUESTION_GENERATION" }
 >;
 
 export type ResolvedAiRoute = {
@@ -74,6 +90,11 @@ export type ResolvedSampleAiAttemptRequest = Extract<
 export type ResolvedSynthesisAiAttemptRequest = Extract<
   ResolvedAiAttemptRequest,
   { purpose: "OVERALL_SYNTHESIS" }
+>;
+
+export type ResolvedQuestionGenerationAiAttemptRequest = Extract<
+  ResolvedAiAttemptRequest,
+  { purpose: "EVALUATION_QUESTION_GENERATION" }
 >;
 
 export type AiAttemptFailure = {

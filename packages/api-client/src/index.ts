@@ -25,6 +25,8 @@ export type GovernedAccountMutation =
 export type Brand = components["schemas"]["BrandResponse"];
 export type EvaluationDefinition =
   components["schemas"]["EvaluationDefinitionResponse"];
+export type EvaluationDefinitionPreparation =
+  components["schemas"]["EvaluationDefinitionPreparationResponse"];
 export type EvaluationRun = components["schemas"]["EvaluationRunResponse"];
 export type EvaluationReport =
   components["schemas"]["EvaluationReportResponse"];
@@ -285,10 +287,33 @@ export function selectCurrentBrand(
 export function prepareEvaluationDefinition(
   apiBaseUrl: string,
   brandId: string,
-): Promise<EvaluationDefinition> {
+): Promise<EvaluationDefinitionPreparation> {
   return apiRequest(apiBaseUrl, `/brands/${brandId}/evaluation-definition`, {
     method: "PUT",
   });
+}
+
+export async function getEvaluationDefinitionPreparation(
+  apiBaseUrl: string,
+  brandId: string,
+): Promise<EvaluationDefinitionPreparation | null> {
+  const result = await apiRequest<
+    components["schemas"]["CurrentEvaluationDefinitionPreparationResponse"]
+  >(apiBaseUrl, `/brands/${brandId}/evaluation-definition`, {
+    cache: "no-store",
+  });
+  return result.preparation ?? null;
+}
+
+export function retryEvaluationDefinitionPreparation(
+  apiBaseUrl: string,
+  preparationId: string,
+): Promise<EvaluationDefinitionPreparation> {
+  return apiRequest(
+    apiBaseUrl,
+    `/evaluation-question-preparations/${preparationId}/retries`,
+    { method: "POST" },
+  );
 }
 
 export function startEvaluationRun(

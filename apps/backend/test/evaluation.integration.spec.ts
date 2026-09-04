@@ -4,7 +4,6 @@ import { BrandService } from "../src/brand/application/brand.service.js";
 import { PostgresBrandRepository } from "../src/brand/infrastructure/postgres-brand.repository.js";
 import { BrandReferenceData } from "../src/brand/reference-data/brand-reference-data.js";
 import { EvaluationService } from "../src/geo-intelligence/application/evaluation.service.js";
-import { DeterministicEvaluationQuestionGenerator } from "../src/geo-intelligence/domain/question-generator.js";
 import { PostgresEvaluationRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation.repository.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import {
@@ -13,6 +12,7 @@ import {
   TEST_STORE_LOCATION_RECEIPTS,
 } from "./customer-data.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
+import { createEvaluationQuestionPreparationHarness } from "./evaluation-question-preparation-harness.js";
 
 const config = loadIntegrationApiConfig();
 
@@ -23,10 +23,12 @@ describe("evaluation definition and official start", () => {
     new BrandReferenceData(),
     TEST_STORE_LOCATION_RECEIPTS,
   );
+  const questionPreparation =
+    createEvaluationQuestionPreparationHarness(prisma);
   const evaluations = new EvaluationService(
     brands,
     new PostgresEvaluationRepository(prisma),
-    new DeterministicEvaluationQuestionGenerator(),
+    questionPreparation.repository,
   );
   let accountId: string;
   let otherAccountId: string;
@@ -45,8 +47,16 @@ describe("evaluation definition and official start", () => {
 
   it("keeps one immutable four-question definition for an unchanged revision", async () => {
     const brand = await createReadyBrand(brands, accountId);
-    const first = await evaluations.prepareDefinition(accountId, brand.id);
-    const again = await evaluations.prepareDefinition(accountId, brand.id);
+    const first = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
+    const again = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
 
     expect(again.id).toBe(first.id);
     expect(first.questions.map((question) => question.kind)).toEqual([
@@ -69,7 +79,8 @@ describe("evaluation definition and official start", () => {
     expect(first.brandSnapshot).not.toHaveProperty("contactName");
 
     await brands.update(accountId, brand.id, { contactName: "新的联系人" });
-    const afterContactEdit = await evaluations.prepareDefinition(
+    const afterContactEdit = await questionPreparation.prepareReadyDefinition(
+      evaluations,
       accountId,
       brand.id,
     );
@@ -84,19 +95,31 @@ describe("evaluation definition and official start", () => {
       evaluations.prepareDefinition(accountId, brand.id),
     ]);
 
-    expect(second.id).toBe(first.id);
-    expect(second.questions).toEqual(first.questions);
+    expect(second.preparationId).toBe(first.preparationId);
+    expect(first).toMatchObject({ status: "PREPARING", definition: null });
+    await questionPreparation.processPreparation(first.preparationId);
+    const ready = await evaluations.observeDefinition(accountId, brand.id);
+    expect(ready).toMatchObject({ status: "READY" });
+    expect(ready?.definition?.questions).toHaveLength(4);
     expect(await prisma.evaluationDefinition.count()).toBe(1);
     expect(await prisma.evaluationQuestion.count()).toBe(4);
   });
 
   it("creates a new definition after relevant edits and rejects the stale one", async () => {
     const brand = await createReadyBrand(brands, accountId);
-    const first = await evaluations.prepareDefinition(accountId, brand.id);
+    const first = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
     await brands.update(accountId, brand.id, {
       characteristics: ["安静办公与小型会议", "精品手冲"],
     });
-    const second = await evaluations.prepareDefinition(accountId, brand.id);
+    const second = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
 
     expect(second.id).not.toBe(first.id);
     expect(first.questions[2]?.content).toContain("安静办公");
@@ -108,7 +131,11 @@ describe("evaluation definition and official start", () => {
 
   it("atomically starts one run with twenty positions and one outbox fact", async () => {
     const brand = await createReadyBrand(brands, accountId);
-    const definition = await evaluations.prepareDefinition(accountId, brand.id);
+    const definition = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
     const run = await evaluations.startRun(accountId, definition.id);
     const duplicate = await evaluations.startRun(accountId, definition.id);
 
@@ -119,8 +146,16 @@ describe("evaluation definition and official start", () => {
     });
     expect(await prisma.evaluationRun.count()).toBe(1);
     expect(await prisma.evaluationSample.count()).toBe(20);
-    expect(await prisma.productOutboxEvent.count()).toBe(1);
-    expect(await prisma.productOutboxEvent.findFirst()).toMatchObject({
+    expect(
+      await prisma.productOutboxEvent.count({
+        where: { eventType: "evaluation.run.started" },
+      }),
+    ).toBe(1);
+    expect(
+      await prisma.productOutboxEvent.findFirst({
+        where: { eventType: "evaluation.run.started" },
+      }),
+    ).toMatchObject({
       aggregateId: run.id,
       eventType: "evaluation.run.started",
       status: "PENDING",
@@ -129,12 +164,20 @@ describe("evaluation definition and official start", () => {
 
   it("allows only one active run for a brand across changing revisions", async () => {
     const brand = await createReadyBrand(brands, accountId);
-    const first = await evaluations.prepareDefinition(accountId, brand.id);
+    const first = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
     await evaluations.startRun(accountId, first.id);
     await brands.update(accountId, brand.id, {
       characteristics: ["安静办公", "可预订的手冲体验课"],
     });
-    const second = await evaluations.prepareDefinition(accountId, brand.id);
+    const second = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
 
     await expect(evaluations.startRun(accountId, second.id)).rejects.toThrow(
       "该品牌正在评测中",
@@ -144,7 +187,11 @@ describe("evaluation definition and official start", () => {
 
   it("does not expose or start another account's definition", async () => {
     const brand = await createReadyBrand(brands, accountId);
-    const definition = await evaluations.prepareDefinition(accountId, brand.id);
+    const definition = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
 
     await expect(
       evaluations.prepareDefinition(otherAccountId, brand.id),
@@ -156,7 +203,11 @@ describe("evaluation definition and official start", () => {
 
   it("never creates another official run after the definition is used", async () => {
     const brand = await createReadyBrand(brands, accountId);
-    const definition = await evaluations.prepareDefinition(accountId, brand.id);
+    const definition = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
     const run = await evaluations.startRun(accountId, definition.id);
     await prisma.evaluationRun.update({
       where: { id: run.id },

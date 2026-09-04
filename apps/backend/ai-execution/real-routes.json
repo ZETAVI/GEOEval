@@ -1,5 +1,5 @@
 {
-  "version": "evaluation-real-routes@1",
+  "version": "evaluation-real-routes@2",
   "routes": [
     {
       "routePolicyId": "evaluation.deepseek",
@@ -70,6 +70,23 @@
     {
       "routePolicyId": "evaluation.overall-synthesis.hy3-fallback@1",
       "purpose": "OVERALL_SYNTHESIS",
+      "providerKey": "tencent-tokenhub",
+      "serviceClass": "platform",
+      "protocol": "responses",
+      "requestedModel": "hy3"
+    },
+    {
+      "routePolicyId": "evaluation.question-generation.qwen-primary@1",
+      "purpose": "EVALUATION_QUESTION_GENERATION",
+      "providerKey": "alibaba-model-studio",
+      "serviceClass": "workspace-pay-as-you-go",
+      "protocol": "chat-completions",
+      "requestedModel": "qwen3.8-flash",
+      "structuredReasoningEffort": "medium"
+    },
+    {
+      "routePolicyId": "evaluation.question-generation.hy3-fallback@1",
+      "purpose": "EVALUATION_QUESTION_GENERATION",
       "providerKey": "tencent-tokenhub",
       "serviceClass": "platform",
       "protocol": "responses",

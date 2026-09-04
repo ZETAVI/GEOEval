@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import {
   ConflictException,
   Inject,
@@ -7,23 +9,25 @@ import {
 
 import { BrandService } from "../../brand/application/brand.service.js";
 import {
+  EVALUATION_QUESTION_PREPARATION_REPOSITORY,
+  type EvaluationQuestionPreparationRepository,
+} from "../domain/evaluation-question-preparation.repository.js";
+import type {
+  EvaluationDefinitionPreparationView,
+  EvaluationQuestionPreparationView,
+} from "../domain/evaluation-question-preparation.types.js";
+import {
   EVALUATION_REPOSITORY,
   type EvaluationRepository,
 } from "../domain/evaluation.repository.js";
 import type {
   EvaluationBrandSnapshot,
-  EvaluationDefinitionView,
-  EvaluationQuestionKind,
   EvaluationRunView,
 } from "../domain/evaluation.types.js";
 import {
-  QUESTION_GENERATOR,
-  type EvaluationQuestionGenerator,
-} from "../domain/question-generator.js";
-import {
-  EVALUATION_OBJECTIVITY_PROFILE,
-  EVALUATION_PLATFORM_POLICY,
-} from "../evaluation-policy.js";
+  evaluationQuestionGenerationInstructionSnapshot,
+  evaluationQuestionGenerationOutputContractSnapshot,
+} from "../evaluation-question-generation.policy.js";
 
 @Injectable()
 export class EvaluationService {
@@ -31,21 +35,46 @@ export class EvaluationService {
     @Inject(BrandService) private readonly brands: BrandService,
     @Inject(EVALUATION_REPOSITORY)
     private readonly repository: EvaluationRepository,
-    @Inject(QUESTION_GENERATOR)
-    private readonly questionGenerator: EvaluationQuestionGenerator,
+    @Inject(EVALUATION_QUESTION_PREPARATION_REPOSITORY)
+    private readonly questionPreparations: EvaluationQuestionPreparationRepository,
   ) {}
+
+  async observeDefinition(
+    accountId: string,
+    brandId: string,
+  ): Promise<EvaluationDefinitionPreparationView | null> {
+    const brand = await this.brands.evaluationPurposeView(accountId, brandId);
+    const definition = await this.repository.findDefinition({
+      accountId,
+      brandId,
+      inputFingerprint: brand.inputFingerprint,
+    });
+    if (definition) {
+      return { status: "READY", preparationId: null, definition };
+    }
+    const preparation = await this.questionPreparations.find({
+      accountId,
+      brandId,
+      inputFingerprint: brand.inputFingerprint,
+    });
+    return preparation
+      ? this.preparationView(accountId, brandId, preparation)
+      : null;
+  }
 
   async prepareDefinition(
     accountId: string,
     brandId: string,
-  ): Promise<EvaluationDefinitionView> {
+  ): Promise<EvaluationDefinitionPreparationView> {
     const brand = await this.brands.evaluationPurposeView(accountId, brandId);
     const existing = await this.repository.findDefinition({
       accountId,
       brandId,
       inputFingerprint: brand.inputFingerprint,
     });
-    if (existing) return existing;
+    if (existing) {
+      return { status: "READY", preparationId: null, definition: existing };
+    }
 
     const snapshot: EvaluationBrandSnapshot = {
       schemaVersion: "brand-evaluation-snapshot@3",
@@ -62,24 +91,48 @@ export class EvaluationService {
       flagshipProductOrService: brand.flagshipProductOrService,
       characteristics: brand.characteristics,
     };
-    const questions = await this.questionGenerator.generate(snapshot);
-    assertCompleteQuestionSet(questions);
-
-    return this.repository.createDefinition({
+    const outcome = await this.questionPreparations.ensure({
       accountId,
       brandId,
       inputFingerprint: brand.inputFingerprint,
       brandSnapshot: snapshot,
-      questionGenerator: this.questionGenerator.identity,
-      objectivityProfile: {
-        id: EVALUATION_OBJECTIVITY_PROFILE.id,
-        version: EVALUATION_OBJECTIVITY_PROFILE.version,
-        contentHash: EVALUATION_OBJECTIVITY_PROFILE.contentHash,
-        content: EVALUATION_OBJECTIVITY_PROFILE.content,
-      },
-      platforms: EVALUATION_PLATFORM_POLICY,
-      questions,
+      instruction: evaluationQuestionGenerationInstructionSnapshot(),
+      outputContract: evaluationQuestionGenerationOutputContractSnapshot(),
+      correlationId: randomUUID(),
     });
+    if (outcome.kind === "DEFINITION_EXISTS") {
+      const concurrent = await this.repository.findDefinition({
+        accountId,
+        brandId,
+        inputFingerprint: brand.inputFingerprint,
+      });
+      if (!concurrent) {
+        throw new Error("Existing evaluation definition became unreadable");
+      }
+      return { status: "READY", preparationId: null, definition: concurrent };
+    }
+    return this.preparationView(accountId, brandId, outcome.preparation);
+  }
+
+  async retryDefinitionPreparation(
+    accountId: string,
+    preparationId: string,
+  ): Promise<EvaluationDefinitionPreparationView> {
+    const outcome = await this.questionPreparations.retry({
+      accountId,
+      preparationId,
+    });
+    if (outcome.kind === "NOT_FOUND") {
+      throw new NotFoundException("未找到该评测问题准备记录");
+    }
+    if (outcome.kind === "NOT_RETRYABLE") {
+      throw new ConflictException("当前评测问题无需重试，请查看最新状态");
+    }
+    return this.preparationView(
+      accountId,
+      outcome.preparation.brandId,
+      outcome.preparation,
+    );
   }
 
   async startRun(
@@ -117,24 +170,31 @@ export class EvaluationService {
     }
     throw new ConflictException("当前评测不需要重试，请查看最新状态");
   }
-}
 
-function assertCompleteQuestionSet(
-  questions: Array<{ kind: EvaluationQuestionKind; ordinal: number }>,
-): void {
-  const expected: EvaluationQuestionKind[] = [
-    "BRAND_DIRECTED",
-    "INDUSTRY_RECOMMENDATION",
-    "CHARACTERISTIC_ONE",
-    "CHARACTERISTIC_TWO",
-  ];
-  const actual = [...questions]
-    .sort((left, right) => left.ordinal - right.ordinal)
-    .map((question) => question.kind);
-  if (
-    actual.length !== expected.length ||
-    actual.some((kind, index) => kind !== expected[index])
-  ) {
-    throw new Error("Question generator returned an invalid evaluation set");
+  private async preparationView(
+    accountId: string,
+    brandId: string,
+    preparation: EvaluationQuestionPreparationView,
+  ): Promise<EvaluationDefinitionPreparationView> {
+    if (preparation.status !== "READY") {
+      return {
+        status: preparation.status,
+        preparationId: preparation.id,
+        definition: null,
+      };
+    }
+    const definition = await this.repository.findDefinition({
+      accountId,
+      brandId,
+      inputFingerprint: preparation.inputFingerprint,
+    });
+    if (!definition) {
+      throw new Error("Ready question preparation has no accepted definition");
+    }
+    return {
+      status: "READY",
+      preparationId: preparation.id,
+      definition,
+    };
   }
 }

@@ -13,7 +13,11 @@ describe("evaluation Brand Snapshot v3", () => {
     expect(evaluationBrandQueryContext(snapshot)).toEqual({
       companyName: "星河咖啡",
       recommendationSubject: "饮品甜品",
-      locality: { kind: "BUSINESS_AREA", label: "赤岗" },
+      location: {
+        cityLabel: "广州市",
+        terminalRegionLabel: "海珠区",
+        locality: { kind: "BUSINESS_AREA", label: "赤岗" },
+      },
       flagshipProductOrService: "精品手冲咖啡",
       characteristics: ["安静办公", "精品手冲"],
     });
@@ -37,6 +41,26 @@ describe("evaluation Brand Snapshot v3", () => {
     const value = snapshotValue();
     delete (value as { storeLocation?: unknown }).storeLocation;
     expect(() => parseEvaluationBrandSnapshot(value)).toThrow();
+  });
+
+  it("preserves an address locality without exposing exact location evidence to Query", () => {
+    const value = snapshotValue();
+    value.storeLocation.queryLocality = {
+      kind: "ADDRESS_LOCALITY",
+      label: "阅江西路附近",
+    };
+
+    const context = evaluationBrandQueryContext(
+      parseEvaluationBrandSnapshot(value),
+    );
+    expect(context.location).toEqual({
+      cityLabel: "广州市",
+      terminalRegionLabel: "海珠区",
+      locality: { kind: "ADDRESS_LOCALITY", label: "阅江西路附近" },
+    });
+    expect(context).not.toHaveProperty("formattedAddress");
+    expect(context).not.toHaveProperty("coordinate");
+    expect(context).not.toHaveProperty("source");
   });
 });
 

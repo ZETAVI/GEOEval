@@ -88,6 +88,29 @@ export class EvaluationDefinitionResponse {
   createdAt!: Date;
 }
 
+export class EvaluationDefinitionPreparationResponse {
+  @ApiProperty({
+    type: String,
+    enum: ["PREPARING", "READY", "PLEASE_RETRY"],
+  })
+  status!: "PREPARING" | "READY" | "PLEASE_RETRY";
+  @ApiProperty({ type: String, nullable: true })
+  preparationId!: string | null;
+  @ApiProperty({
+    type: EvaluationDefinitionResponse,
+    nullable: true,
+  })
+  definition!: EvaluationDefinitionResponse | null;
+}
+
+export class CurrentEvaluationDefinitionPreparationResponse {
+  @ApiProperty({
+    type: EvaluationDefinitionPreparationResponse,
+    nullable: true,
+  })
+  preparation!: EvaluationDefinitionPreparationResponse | null;
+}
+
 export class EvaluationTypicalPositionResponse {
   @ApiProperty({ type: String, enum: ["NONE", "SINGLE", "RANGE"] })
   kind!: "NONE" | "SINGLE" | "RANGE";

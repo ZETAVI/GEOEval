@@ -74,6 +74,14 @@ export class DeterministicAiAttemptAdapter implements AiAttemptAdapter {
       };
     }
 
+    if (request.purpose === "EVALUATION_QUESTION_GENERATION") {
+      return {
+        kind: "SUCCEEDED",
+        output: deterministicQuestionGeneration(request.input.userContext),
+        usage: { inputTokens: 420, outputTokens: 240 },
+      };
+    }
+
     const userContext = request.input.userContext;
     const companyName = requiredString(userContext, "companyName");
     const answerContent = requiredString(userContext, "originalAnswer");
@@ -241,6 +249,34 @@ export class DeterministicAiAttemptAdapter implements AiAttemptAdapter {
       usage: { inputTokens: 220, outputTokens: 96 },
     };
   }
+}
+
+function deterministicQuestionGeneration(
+  userContext: Record<string, unknown>,
+): Record<string, unknown> {
+  const companyName = requiredString(userContext, "companyName");
+  const location = requiredRecord(userContext, "location");
+  const locality = requiredRecord(location, "locality");
+  requiredString(locality, "kind");
+  const region = [
+    requiredString(location, "cityLabel"),
+    requiredString(location, "terminalRegionLabel"),
+    requiredString(locality, "label"),
+  ]
+    .filter((value, index, values) => values.indexOf(value) === index)
+    .join("");
+  const subject = requiredString(userContext, "recommendationSubject");
+  const flagship = requiredString(userContext, "flagshipProductOrService");
+  const characteristics = requiredStringArray(userContext, "characteristics");
+  const characteristicOne = characteristics[0]!;
+  const characteristicTwo = characteristics[1]!;
+  return {
+    queryTargetName: companyName,
+    brandDirected: `${region}${companyName}这家${subject}怎么样，主要提供哪些产品或服务，整体表现如何？`,
+    industryRecommendation: `想在${region}找${flagship}，有哪些${subject}值得了解和比较？`,
+    characteristicAngleOne: `想在${region}找${flagship}，比较看重${characteristicOne}，有哪些选择？`,
+    characteristicAngleTwo: `${region}附近有哪些在${characteristicTwo}方面有特点的${flagship}商家？`,
+  };
 }
 
 function deterministicOverallSynthesis(
@@ -498,6 +534,20 @@ function requiredArray(input: Record<string, unknown>, key: string): unknown[] {
     throw new Error(`Deterministic AI input is missing ${key}`);
   }
   return value;
+}
+
+function requiredStringArray(
+  input: Record<string, unknown>,
+  key: string,
+): string[] {
+  const values = requiredArray(input, key);
+  if (
+    values.length < 2 ||
+    values.some((value) => typeof value !== "string" || value.length === 0)
+  ) {
+    throw new Error(`Deterministic AI input is missing ${key}`);
+  }
+  return values as string[];
 }
 
 function optionalArray(input: Record<string, unknown>, key: string): unknown[] {

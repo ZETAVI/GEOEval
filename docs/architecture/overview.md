@@ -1,7 +1,8 @@
 # Architecture Overview
 
-- Status: S1-S6 evaluation behavior, the Media Supply backend foundation, and
-  the Identity and Access foundation are integrated after one
+- Status: S1-S6 evaluation behavior, AI-generated Query preparation, the Media
+  Supply backend foundation, and the Identity and Access foundation are
+  integrated after one
   fictional real 4-by-5 Worker evaluation, authenticated customer-report
   inspection, fixed-revision review, and product-owner confirmation. Production
   activation and commercial customer data remain separate gates.
@@ -14,6 +15,9 @@
 - Current Identity contract:
   [`identity-and-access`](../../openspec/specs/identity-and-access/spec.md), with
   durable rationale in [ADR 0004](adr/0004-server-authoritative-identity-and-access.md)
+- Completed change: [`implement-ai-query-generator`](../../openspec/changes/archive/2026-09-04-implement-ai-query-generator/proposal.md),
+  coordinated by [Issue #26](https://github.com/ZETAVI/GEOEval/issues/26) and
+  [PR #28](https://github.com/ZETAVI/GEOEval/pull/28)
 
 ## Current state
 
@@ -100,6 +104,35 @@ Bootstrap execution, second-administrator readiness, monitoring, deployment,
 and activation remain separate release gates documented by the
 [Identity operations runbook](../operations/identity-and-access.md).
 
+GEO Intelligence turns the narrow frozen Query handoff into one durable
+`EvaluationQuestionPreparation` per Brand fingerprint. One repository-owned,
+versioned no-search Prompt asks a single Agent for a natural target-brand name
+and four final question strings; the program supplies fixed business kinds and
+ordinals and validates only the agreed target-name boundary. The three open
+questions combine concrete location and flagship need, while two of them form
+complementary scenarios from all peer characteristics. Candidate generation,
+Critic/Judge layers, naturalness scores, template fallback, and customer Query
+editing or refresh are deliberately absent.
+
+Preparation, Prompt and schema snapshots, append-oriented Query attempts,
+Product Outbox delivery, conditional Definition acceptance, explicit retry,
+and stale-sequence rejection keep Provider work recoverable without creating a
+second orchestration framework. Model Studio `qwen3.8-flash` owns attempts one
+and two; TokenHub `hy3` is the third-attempt cross-provider fallback.
+Deterministic Query output is a test fixture only. Web exposes preparing, ready,
+and `请重试` states but not Prompt, Provider, model, route, attempt, queue, or
+trace details. Current behavior is specified by
+[`evaluation-definition`](../../openspec/specs/evaluation-definition/spec.md).
+
+After a successful create, update, or selection of a current evaluation-ready
+Brand, Web opportunistically asks GEO Intelligence to ensure the durable
+preparation before returning control to the customer; the model work continues
+in Background Work and never extends the Brand transaction. Incomplete or
+non-current Brands do not prewarm. A failed prewarm does not fail the completed
+Brand mutation, and the diagnosis page remains the authoritative idempotent
+ensure-and-observe path. This improves perceived latency without making Brand
+Knowledge publish a new event or depend on GEO Intelligence.
+
 Media Supply owns the global administrator-maintained platform catalog in
 PostgreSQL: stable platform identity, fixed multi-category membership,
 one first-release availability state and whole-point price per platform,
@@ -174,7 +207,8 @@ source evidence, optional masked Langfuse telemetry, and ambiguity recovery
 without another workflow engine or attempt store. Sampling keeps its five
 accepted platform routes. Per-sample interpretation and overall synthesis use
 Model Studio Qwen3.8 Flash for attempts one and two with `medium` reasoning
-effort, then TokenHub Hy3 as the third-attempt fallback.
+effort, then TokenHub Hy3 as the third-attempt fallback. Query preparation now
+reuses the same semantic route order with its own smaller model contract.
 
 Semantic provider contracts are deliberately smaller than the canonical GEO
 contracts: models return evidence-linked semantic facts, while deterministic
@@ -195,6 +229,14 @@ the next semantic-quality frontier: improve evidence extraction, other-brand
 classification, and synthesis-reference discipline from retained real evidence
 before adding retries or weakening the canonical contracts.
 
+The Query-only quality review then accepted one shared Prompt across an
+advertising service company, a law firm, and a restaurant. The real browser
+path verified Amap selection, frozen Brand projection, durable preparation,
+Qwen execution, and final Web display. Exact frozen-projection replays passed
+Qwen3.8 Flash for all three types and Hy3 for the restaurant fallback. Together
+with the earlier recovered timeout, this supports the existing recovery order
+and Prompt semantics, not production latency or capacity.
+
 ## Architecture qualities
 
 When architecture work begins, it must preserve:
@@ -212,13 +254,10 @@ When architecture work begins, it must preserve:
 1. Reconcile provider-console billed cost and commercial data terms before any
    production-capacity, pricing, or real-customer claim. One successful
    fictional run is not a load or quota test.
-2. Introduce the AI question
-   generator as a separate GEO Intelligence change behind the existing
-   `EvaluationQuestionGenerator` port. Versioned prompt, model-output contract,
-   and fixtures belong to `apps/backend/geo-intelligence/query-generator/`;
-   external execution still goes through AI Execution, while GEO retains the
-   four-question shape, immutable snapshot, validation, and fallback authority.
-   Keep the deterministic generator as the local baseline and rollback path.
+2. Complete the representative Brand 4-by-5 Integration Gate under Issue #39
+   using the accepted Query Definition, then route any independent parsing,
+   synthesis, latency, or report finding back to its owning Issue rather than
+   reopening Query design.
 3. Validate SSE proxy buffering and reconnect behavior in the named release
    environment, and remove or isolate F0-only HTTP, schema, and page probes,
    before a commercial deployment.

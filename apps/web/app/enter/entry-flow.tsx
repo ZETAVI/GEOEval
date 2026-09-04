@@ -9,6 +9,7 @@ import {
 } from "@geoeval/api-client";
 import { useState } from "react";
 import { BrandProfileFields } from "../brands/brand-profile-fields.js";
+import { prewarmEvaluationQuestions } from "../brands/evaluation-question-prewarm.js";
 import { postLoginRoute } from "./post-login-route.js";
 
 const apiBaseUrl =
@@ -77,10 +78,11 @@ export function EntryFlow() {
     setBusy(true);
     setMessage("");
     try {
-      await createBrand(apiBaseUrl, {
+      const brand = await createBrand(apiBaseUrl, {
         ...brandForm,
         contactMobile: brandForm.contactMobile || mobile,
       });
+      await prewarmEvaluationQuestions(apiBaseUrl, brand);
       window.location.assign("/brands");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "品牌保存失败");
