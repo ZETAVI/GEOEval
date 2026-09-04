@@ -1,16 +1,17 @@
 # Real Query Review
 <!-- Reopened on 2026-09-04 after the real-chain location acceptance failed. -->
 
-> **Acceptance withdrawn:** this review called the real Query Provider but
-> bypassed the Brand and Amap path. The Interaction Pie fixture manually set
-> `天河路`, which the source brief never established. The outputs below remain
-> Prompt-iteration history only and are not real-chain acceptance evidence.
+> **Historical correction:** the first review called the real Query Provider
+> but bypassed Brand and Amap and manually set `天河路`. Those outputs remain
+> iteration history only. The final acceptance below combines the verified
+> browser location lineage, one final complete browser replay, and real calls
+> over the same three frozen Query projections.
 
 ## Review contract
 
 - Date: 2026-09-04
-- Prompt: `evaluation.question-generation.profile@2.3.0+2.0.0`
-- Model contract: `evaluation.question-generation-model@2`
+- Final Prompt: `evaluation.question-generation.profile@2.4.0+2.0.0`
+- Final model contract: `evaluation.question-generation-model@3`
 - Primary route: Model Studio `qwen3.8-flash`, `medium` reasoning
 - Fallback route: TokenHub `hy3`
 - Scope: Query-only content generation for three representative store types;
@@ -31,9 +32,11 @@ written to this review.
 | 2.1.0 | Restaurant succeeded in 17.5 s | Merchant grammar improved, but two characteristic questions still widened `高端潮汕私房菜` to `潮汕菜餐厅` | Require every open question to preserve the flagship's core category and distinguishing positioning after natural rewriting |
 | 2.2.0 | Restaurant attempt one timed out at 180.0 s; same-route attempt two succeeded in 10.6 s | The accepted retry preserved complete flagship meaning; the timeout demonstrates real Provider latency variance | Retain one bounded same-route retry rather than changing the business contract or adding unbounded retries |
 | 2.2.0 | Enterprise service succeeded in 7.3 s | The model selected `互动派` but used the full legal name in the direct question and repeated detailed characteristics there | Make `queryTargetName` the actual displayed brand expression and keep the direct question broad; reserve characteristics for the two need scenarios |
-| 2.3.0 | Restaurant, enterprise service, and consumer electronics primary calls succeeded; restaurant fallback succeeded | The final Prompt preserved natural brand names, location, flagship meaning, merchant or provider type, and complementary characteristic scenarios across the reviewed types | Accept Prompt 2.3.0 for Query Generator reconciliation |
+| 2.3.0 | Restaurant, enterprise service, and consumer electronics primary calls succeeded; restaurant fallback succeeded | The Prompt improved semantics, but the enterprise locality came from an unverified manual fixture | Withdraw acceptance and replay the real Brand/Amap path |
+| 2.4.0 | The real path for Interaction Pie, a law firm, and a restaurant removed the false locality and exposed two remaining wording gaps | Some characteristic questions weakened the flagship demand; one question lacked a complete interrogative intent | Clarify the shared location-plus-flagship demand line and align JSON Schema field descriptions |
+| 2.4.0 + model contract 3 | Three parallel Qwen calls and one Hy3 fallback call succeeded over the verified frozen projections; a final Interaction Pie browser run also succeeded | Every open question retained location and flagship meaning, the characteristic questions remained complementary, and all questions were complete | Accept the final Prompt and model contract for reconciliation |
 
-## Accepted Qwen3.8 Flash outputs
+## Historical Prompt 2.3 outputs
 
 ### Restaurant store
 
@@ -68,7 +71,7 @@ Natural brand name: `小米之家`
 
 Latency: 15.4 s. Returned model identity matched `qwen3.8-flash`.
 
-## Accepted Hy3 fallback output
+## Historical Prompt 2.3 Hy3 fallback output
 
 The fallback used the restaurant fixture and returned natural brand name
 `头家顺`:
@@ -82,18 +85,53 @@ Latency: 36.7 s. Returned model identity matched `hy3`. Its 5,230 total
 tokens, including 3,671 reasoning tokens, reinforce its position as a bounded
 fallback rather than the primary Query route.
 
+## Final accepted evidence
+
+### Complete browser replay: Interaction Pie
+
+The final API froze the verified `猎德社区` Brand locality, Prompt
+`2.4.0+2.0.0`, and model contract `@3`. Qwen3.8 Flash succeeded on attempt one
+in 17.1 seconds, and Web displayed:
+
+1. 广州天河猎德的互动派这家数字营销公司怎么样，主要提供哪些业务和服务，市场口碑如何？
+2. 想在广州天河猎德找一家提供抖音和小红书广告代理服务的公司，有哪些值得了解和比较？
+3. 想在广州天河猎德找一家能提供从策划到投放一站式服务的抖音和小红书广告代理公司，有哪些值得了解？
+4. 准备在广州天河猎德合作抖音和小红书推广，有哪些具备双平台官方广告代理资质的营销策划公司值得比较？
+
+### Final Qwen3.8 Flash projection replay
+
+The same verified Query projections were replayed in parallel through the real
+Provider adapter and final frozen task:
+
+- Interaction Pie: 10.1 seconds, one successful attempt.
+- 广东星宇律师事务所: 15.4 seconds, one successful attempt. Its open questions
+  retained 企业法律顾问与民商事诉讼服务 while using 专业分工、团队协作、诉讼仲裁
+  and 公司法律业务 as distinct selection conditions.
+- Gram&Gram·酸种披萨: 16.6 seconds, one successful attempt. Its three open
+  questions retained 酸种披萨, while the characteristic questions separately
+  used 自然发酵 and 手工现烤.
+
+### Final Hy3 fallback replay
+
+The Gram&Gram projection succeeded through TokenHub Hy3 in 49.4 seconds. All
+three open questions retained 酸种披萨 and the two characteristic questions
+remained distinct. The call used 6,039 total tokens, including 4,442 reasoning
+tokens, so Hy3 remains a bounded third-attempt fallback rather than the primary
+route.
+
 ## Decision and limitations
 
-`Withdrawn pending real-chain revalidation.`
+`Accepted for Query Generator reconciliation.`
 
 - The final outputs are natural enough for the first commercial version and
   preserve the confirmed four-role product meaning without a Critic, candidate
-  set, template fallback, or naturalness scorer.
-- One Qwen timeout is retained as observed operational evidence. One successful
-  same-route retry and the Hy3 cross-provider result support the existing
-  bounded recovery sequence; this small batch is not production latency or
+  set, template fallback, naturalness scorer, or phrase blacklist.
+- Real Amap and browser evidence proves the location lineage. The product needs
+  a useful nearby-area label, not exact ranking among adjacent business areas.
+- Earlier timeout evidence plus the final Qwen and Hy3 results support the
+  existing bounded route order; this batch is not production latency or
   capacity evidence.
-- The Prompt should change again only when new representative behavior exposes
-  a stable semantic gap. Future iterations should improve task or input meaning
-  and examples rather than append phrase-level prohibitions.
+- Change the Prompt again only when representative real behavior exposes a
+  repeatable semantic gap. Improve task or input meaning rather than append
+  symptom-level prohibitions.
 - The representative 4 x 5 evaluation remains a separate #39 Integration Gate.

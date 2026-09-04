@@ -23,7 +23,7 @@ describe("evaluation question generation contract", () => {
       location: {
         cityLabel: "广州市",
         terminalRegionLabel: "天河区",
-        locality: { kind: "BUSINESS_AREA", label: "天河路" },
+        locality: { kind: "BUSINESS_AREA", label: "猎德" },
       },
       flagshipProductOrService: "抖音和小红书广告代理服务",
       characteristics: ["双平台官方广告代理", "从策划到投放的一站式服务"],
@@ -36,7 +36,7 @@ describe("evaluation question generation contract", () => {
       location: {
         cityLabel: "广州市",
         terminalRegionLabel: "天河区",
-        locality: { kind: "BUSINESS_AREA", label: "天河路" },
+        locality: { kind: "BUSINESS_AREA", label: "猎德" },
       },
       flagshipProductOrService: "抖音和小红书广告代理服务",
       characteristics: ["双平台官方广告代理", "从策划到投放的一站式服务"],
@@ -71,10 +71,13 @@ describe("evaluation question generation contract", () => {
     const instruction = evaluationQuestionGenerationInstructionSnapshot();
     expect(instruction).toMatchObject({
       id: "evaluation.question-generation.profile",
-      version: "2.3.0+2.0.0",
+      version: "2.4.0+2.0.0",
     });
     expect(instruction.contentHash).toMatch(/^[a-f0-9]{64}$/);
-    expect(instruction.content).toContain("共同限定三个开放问题");
+    expect(instruction.content).toContain(
+      "三个开放问题共享一条不可丢失的需求主线",
+    );
+    expect(instruction.content).toContain("characteristics 只在这条主线上增加");
     expect(instruction.content).toContain("不联网");
     expect(instruction.content).not.toContain("candidateGroups");
     expect(instruction.content).not.toContain("selectionNote");
@@ -87,7 +90,7 @@ describe("evaluation question generation contract", () => {
       location: {
         cityLabel: "广州市",
         terminalRegionLabel: "天河区",
-        locality: { kind: "BUSINESS_AREA", label: "天河路" },
+        locality: { kind: "BUSINESS_AREA", label: "猎德" },
       },
       flagshipProductOrService: "抖音和小红书广告代理服务",
       characteristics: [
@@ -108,25 +111,25 @@ describe("evaluation question generation contract", () => {
         kind: "BRAND_DIRECTED",
         ordinal: 1,
         content:
-          "广州互动派这家数字营销公司怎么样，主要提供哪些业务和服务，市场口碑如何？",
+          "广州天河猎德的互动派这家数字营销公司怎么样，主要提供哪些业务和服务，市场口碑如何？",
       },
       {
         kind: "INDUSTRY_RECOMMENDATION",
         ordinal: 2,
         content:
-          "我们准备做抖音和小红书推广，广州天河路附近有哪些广告代理公司值得了解？",
+          "我们准备做抖音和小红书推广，广州天河猎德附近有哪些广告代理公司值得了解和比较？",
       },
       {
         kind: "CHARACTERISTIC_ONE",
         ordinal: 3,
         content:
-          "想把抖音和小红书广告交给同一家服务商，广州天河路附近有哪些选择？",
+          "想把抖音和小红书广告交给同一家服务商，广州天河猎德附近有哪些同时具备双平台官方代理能力的公司？",
       },
       {
         kind: "CHARACTERISTIC_TWO",
         ordinal: 4,
         content:
-          "一个品牌项目需要从策划到投放完整执行，广州天河路附近有哪些公司可以承接？",
+          "品牌需要从策划到投放完整执行，广州天河猎德附近有哪些能提供抖音和小红书广告代理服务的公司？",
       },
     ]);
   });
@@ -177,13 +180,13 @@ function validOutput() {
   return {
     queryTargetName: "互动派",
     brandDirected:
-      "广州互动派这家数字营销公司怎么样，主要提供哪些业务和服务，市场口碑如何？",
+      "广州天河猎德的互动派这家数字营销公司怎么样，主要提供哪些业务和服务，市场口碑如何？",
     industryRecommendation:
-      "我们准备做抖音和小红书推广，广州天河路附近有哪些广告代理公司值得了解？",
+      "我们准备做抖音和小红书推广，广州天河猎德附近有哪些广告代理公司值得了解和比较？",
     characteristicAngleOne:
-      "想把抖音和小红书广告交给同一家服务商，广州天河路附近有哪些选择？",
+      "想把抖音和小红书广告交给同一家服务商，广州天河猎德附近有哪些同时具备双平台官方代理能力的公司？",
     characteristicAngleTwo:
-      "一个品牌项目需要从策划到投放完整执行，广州天河路附近有哪些公司可以承接？",
+      "品牌需要从策划到投放完整执行，广州天河猎德附近有哪些能提供抖音和小红书广告代理服务的公司？",
   };
 }
 
@@ -237,14 +240,15 @@ function snapshot(): EvaluationBrandSnapshot {
     },
     storeLocation: {
       semanticFactId: "00000000-0000-4000-8000-000000000026",
-      placeName: "天河路项目中心",
-      formattedAddress: "广东省广州市天河区天河路123号",
+      placeName: "互动派科技股份有限公司",
+      formattedAddress:
+        "广东省广州市天河区天盈广场西塔15楼(猎德地铁站A口步行390米)",
       coordinate: {
         longitude: 113.32,
         latitude: 23.13,
         system: "GCJ_02",
       },
-      queryLocality: { kind: "BUSINESS_AREA", label: "天河路" },
+      queryLocality: { kind: "BUSINESS_AREA", label: "猎德" },
       source: {
         provider: "AMAP",
         placeId: "fixture-interaction-pie",

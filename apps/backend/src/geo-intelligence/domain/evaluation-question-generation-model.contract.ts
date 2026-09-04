@@ -6,7 +6,7 @@ import type {
 } from "./evaluation.types.js";
 
 export const EVALUATION_QUESTION_GENERATION_MODEL_CONTRACT_VERSION =
-  "evaluation.question-generation-model@2";
+  "evaluation.question-generation-model@3";
 export const EVALUATION_QUESTION_SET_CONTRACT_VERSION =
   "evaluation.question-set@1";
 
@@ -22,7 +22,7 @@ const questionText = z
   .trim()
   .min(1)
   .max(240)
-  .describe("自然、完整的中文问题，不包含答案或内部说明。");
+  .describe("自然、语义完整且有明确询问意图的中文问题，不包含答案或内部说明。");
 
 export const evaluationQuestionGenerationModelOutputSchema = z
   .object({
@@ -38,13 +38,13 @@ export const evaluationQuestionGenerationModelOutputSchema = z
       "明确写出 queryTargetName、用于了解该品牌业务与整体表现的问题。",
     ),
     industryRecommendation: questionText.describe(
-      "不写目标品牌、围绕具体位置和主打产品或服务的行业发现问题。",
+      "不写目标品牌，在明确位置寻找能提供主打产品或服务的商家或服务方。",
     ),
     characteristicAngleOne: questionText.describe(
-      "不写目标品牌、结合特点形成的第一个自然需求场景。",
+      "不写目标品牌，以明确位置和主打产品或服务为主线，结合特点形成第一个自然需求场景。",
     ),
     characteristicAngleTwo: questionText.describe(
-      "不写目标品牌、与第一个场景互补的第二个自然需求场景。",
+      "不写目标品牌，以明确位置和主打产品或服务为主线，结合特点形成与第一题互补的自然需求场景。",
     ),
   })
   .strict();

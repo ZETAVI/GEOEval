@@ -61,3 +61,26 @@ For each representative Brand:
 The first set is Interaction Pie, 广东星宇律师事务所, and
 Gram&Gram·酸种披萨. An ambiguous or missing POI blocks that Brand's acceptance;
 the test does not guess another place.
+
+## Verified outcome
+
+The browser path selected and saved one unambiguous Amap POI for each Brand:
+
+| Brand | Selected address | Stored Query locality | Customer-facing use |
+| --- | --- | --- | --- |
+| 互动派科技股份有限公司 | 广州市天河区天盈广场西塔 15 楼 | 猎德社区 | Questions naturally shorten this to 广州天河猎德 |
+| 广东星宇律师事务所 | 佛山市南海区南海大道北 51 号财汇大厦 | 桂城 | Questions use 佛山南海桂城 |
+| Gram&Gram·酸种披萨 | 广州市越秀区惠吉东 29 号 | 东风 | Questions use 广州越秀东风 |
+
+The product owner confirmed that Query locality is an understandable nearby
+area, not a precise GIS classification. Adjacent labels such as 六榕、东风 and
+西门口 are acceptable for the same small area; only a materially displaced or
+misleading location requires correction. The temporary nearest-business-area
+follow-up was therefore closed without implementation.
+
+No real-chain run produced `天河路`. The runtime reference example and Query
+contract fixture now use the verified Interaction Pie locality rather than the
+manual placeholder. The final browser replay froze Prompt
+`2.4.0+2.0.0` and model contract
+`evaluation.question-generation-model@3`, then accepted four questions from
+Qwen3.8 Flash on the first attempt in 17.1 seconds.

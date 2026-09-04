@@ -194,12 +194,13 @@ the next semantic-quality frontier: improve evidence extraction, other-brand
 classification, and synthesis-reference discipline from retained real evidence
 before adding retries or weakening the canonical contracts.
 
-The Query-only quality review then accepted one shared Prompt across restaurant,
-enterprise-service, and consumer-electronics stores. One Qwen request timed out
-at the bounded 180-second limit and its same-route retry succeeded; an explicit
-Hy3 fallback call also produced an accepted four-question set. This supports
-the existing recovery order and Prompt semantics, not production latency or
-capacity.
+The Query-only quality review then accepted one shared Prompt across an
+advertising service company, a law firm, and a restaurant. The real browser
+path verified Amap selection, frozen Brand projection, durable preparation,
+Qwen execution, and final Web display. Exact frozen-projection replays passed
+Qwen3.8 Flash for all three types and Hy3 for the restaurant fallback. Together
+with the earlier recovered timeout, this supports the existing recovery order
+and Prompt semantics, not production latency or capacity.
 
 ## Architecture qualities
 

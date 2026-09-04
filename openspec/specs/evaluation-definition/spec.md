@@ -144,8 +144,10 @@ one and two with `medium` reasoning effort, then TokenHub `hy3` as the
 third-attempt fallback. Deterministic Query output exists only in the test
 adapter and is not a customer recovery path.
 
-The bounded real Query review accepted the Prompt across restaurant,
-enterprise-service, and consumer-electronics stores and retained one recovered
-Qwen timeout as operational evidence. This proves the Query contract and
-bounded recovery path, not production capacity, commercial data readiness, or
-the separate representative 4-by-5 Integration Gate.
+The bounded real Query review accepted one shared Prompt across an advertising
+service company, a law firm, and a restaurant. The browser path verified Amap
+selection, frozen Brand projection, durable preparation, final Query execution,
+and Web display; exact projection replays passed Qwen3.8 Flash and the Hy3
+fallback. This proves the Query contract and bounded recovery path, not
+production capacity, commercial data readiness, or the separate representative
+4-by-5 Integration Gate.

@@ -45,8 +45,8 @@
 
 - [x] Recheck current Qwen3.8 and Hy3 route/model configuration without exposing credentials.
 - [x] Obtain explicit authorization for a bounded Query-only real call batch.
-- [ ] Review exact outputs through the complete Brand/Amap/Snapshot/Query path for Interaction Pie, 广东星宇律师事务所, and Gram&Gram·酸种披萨.
-- [ ] Iterate Prompt versions from real-chain outputs without adding symptom-by-symptom prohibitions.
+- [x] Review exact outputs through the complete Brand/Amap/Snapshot/Query path for Interaction Pie, 广东星宇律师事务所, and Gram&Gram·酸种披萨.
+- [x] Iterate Prompt versions from real-chain outputs without adding symptom-by-symptom prohibitions.
 - [x] Hand the representative 4×5 run to the separate authorization and acceptance Gate under #39; do not execute it in #26.
 
 ## 7. Reconciliation and exit

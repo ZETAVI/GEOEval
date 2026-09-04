@@ -110,7 +110,7 @@ Only boundaries that change evaluation meaning are explicit prohibitions: no web
 
 ## Model output and deterministic projection
 
-Model contract `evaluation.question-generation-model@2` contains only:
+Model contract `evaluation.question-generation-model@3` contains only:
 
 ```json
 {
@@ -122,7 +122,7 @@ Model contract `evaluation.question-generation-model@2` contains only:
 }
 ```
 
-JSON Schema owns required fields, strict additional-property rejection, trimmed non-empty strings, and persistence bounds. Program projection owns only:
+JSON Schema owns required fields, strict additional-property rejection, trimmed non-empty strings, persistence bounds, and concise semantic descriptions that keep each characteristic question on the location-plus-flagship demand line. Program projection owns only:
 
 - `queryTargetName` is the full normalized `companyName` or a normalized continuous substring;
 - the brand-directed question contains `queryTargetName`;
