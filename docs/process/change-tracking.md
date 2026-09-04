@@ -39,6 +39,71 @@ the behavior is accepted and merged. Create a short decision record only when a
 rationale constrains several future changes and would be surprising from code or
 current design alone.
 
+## Comment and checkpoint contract
+
+Issue and pull-request bodies are editable current snapshots of their
+transactions. Comments preserve chronological evidence only when a decision or
+result changes the next action or makes continuation materially safer. Do not
+post routine start messages, duplicate native commit or Check events, or turn a
+timeline into a session diary.
+
+Use a material checkpoint for one of these events:
+
+- `Decision`: the owner accepts, rejects, or changes scope, behavior,
+  architecture, or risk;
+- `Delivery`: a coherent slice reaches a named revision with new evidence;
+- `Gate / Failure`: a validation result, blocker, or authority boundary changes
+  what may happen next;
+- `Integration`: the base, topology, merge order, closing relationship, or
+  invalidated evidence changes;
+- `Agent Coordination`: one owner's stable result changes another agent's
+  allowed assumptions or next action;
+- `Handoff / Closeout`: ownership, workspace, integration, or recovery state
+  crosses a durable boundary.
+
+Use the heading `## <Type> checkpoint` so another agent can locate material
+comments without treating every timeline entry as required context. Put
+outcome, scope, decision, acceptance, dependency, or owner changes under the
+Issue. Put revision, Diff, review, Check, base, merge, and branch-exit evidence
+under the pull request. When one event affects both, publish it once at its
+owner and link the exact comment from the other transaction.
+
+A checkpoint states only what another reader needs to act safely:
+
+1. the checkpoint type and owning Issue or pull request;
+2. what changed, with the relevant revision and bounded evidence;
+3. the impact on scope, dependencies, consumers, or current status;
+4. the next action and its owner;
+5. unresolved Gates, authority limits, and the canonical owner updated or
+   linked;
+6. the earlier checkpoint it corrects or supersedes, when applicable.
+
+Record conclusions, decision-relevant rationale, uncertainty, and rejected
+alternatives without publishing hidden reasoning, credentials, sensitive raw
+evidence, machine-local secrets, or large logs. If an earlier comment becomes
+wrong, add a linked correction and update the current body or canonical owner;
+do not leave recovery dependent on silently edited history.
+
+For multi-agent producer/consumer work, the producer posts one canonical
+checkpoint in the Issue or pull request that owns the changed contract. A
+consumer links that exact comment and records only its local impact. Before
+acting, the consumer rechecks the referenced revision, live Issue/Project/PR,
+and workspace state. A new shared-contract need returns to its current owner;
+it is not implemented around in the consumer's Worktree.
+
+Resume work by reading the current Issue body and Project fields, active Change
+and current owners, the latest material checkpoints, the pull-request body and
+unresolved review conversations, and then the live branch and workspace. Read
+older comments only when the current snapshot links to them or historical
+rationale is needed.
+
+Keep task ownership out of comment-only checklists: immediate next actions may
+stay in a checkpoint; implementation sequence belongs in the active Change;
+independently verifiable work belongs in a Sub-Issue; later independent value
+belongs in a Follow-up Issue; priority and ordering belong in the Project.
+Line-level PR findings stay in review conversations until resolved, rejected
+with evidence, or moved to a linked Follow-up.
+
 ## GitHub control plane
 
 The live coordination repository is
