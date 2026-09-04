@@ -7,6 +7,10 @@ import type { AccountRole } from "../src/identity/domain/identity.types.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { clearCustomerData } from "./customer-data.js";
 import { browserMutationHeaders } from "./http-test-headers.js";
+import {
+  loginWithDevelopmentChallenge as login,
+  requestDevelopmentChallenge as requestChallenge,
+} from "./identity-http-fixtures.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
 const baseConfig = loadIntegrationApiConfig();
@@ -240,48 +244,6 @@ async function createRoleSessions(
   return Object.fromEntries(
     allRoles.map((role, index) => [role, entries[index]]),
   ) as Record<AccountRole, Awaited<ReturnType<typeof login>>>;
-}
-
-async function requestChallenge(baseUrl: string, mobile: string) {
-  const response = await fetch(`${baseUrl}/identity/challenges`, {
-    method: "POST",
-    headers: browserMutationHeaders(),
-    body: JSON.stringify({ mobile }),
-  });
-  expect(response.status).toBe(201);
-  return (await response.json()) as {
-    challengeId: string;
-    developmentCode: string;
-  };
-}
-
-async function login(
-  baseUrl: string,
-  mobile: string,
-  extraBody: Record<string, unknown> = {},
-) {
-  const challenge = await requestChallenge(baseUrl, mobile);
-  const response = await fetch(`${baseUrl}/identity/sessions`, {
-    method: "POST",
-    headers: browserMutationHeaders(),
-    body: JSON.stringify({
-      challengeId: challenge.challengeId,
-      mobile,
-      code: challenge.developmentCode,
-      ...extraBody,
-    }),
-  });
-  expect(response.status).toBe(201);
-  const setCookie = response.headers.get("set-cookie")!;
-  return {
-    account: (await response.json()) as {
-      id: string;
-      mobile: string;
-      role: AccountRole;
-    },
-    cookie: setCookie.split(";", 1)[0],
-    setCookie,
-  };
 }
 
 function cookieValue(cookie: string): string {
