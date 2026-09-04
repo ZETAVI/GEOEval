@@ -1,7 +1,8 @@
 # Change: 收束 M4 评测质量、效率与等待体验
 
-- Status: Parent contract approved on 2026-09-02; Partial PR integration remains
-  pending and child work continues only inside each owning Issue
+- Status: Parent contract and Partial PR #45 integrated; #40, #26 and #44 are
+  complete, while #32, #41, #42 and #43 continue under the 2026-09-04
+  simplified execution sequence
 - Class: Architectural parent
 - Owning Issue: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owners: Product owner and architecture owner
@@ -76,5 +77,10 @@ Notification、架构概览和可执行契约分别拥有。
 3. 未确认项继续留在对应子 Issue，不被本 Change 默认为已批准；
 4. 最终真实 4×5 仍需独立 Provider 调用授权，生产遥测内容仍需独立数据与保留审批。
 
-该批准允许按依赖图继续子任务协调，但不授权合并本 PR、扩大任何子 Issue、调用
-真实 Provider、部署、迁移客户数据、采购 API 或启用生产内容遥测。
+2026-09-04 的执行对账保留全部产品决定和子任务 owner，但不再用一个原生
+Issue blocker 表达 #41 与 #42 之间的阶段级往返。#42 在同一 Issue 内先以 Partial
+PR 固定最小任务边界，#41 再完成综合语义验收，随后 #42 完成运行时、耗时和进度
+投影；不新增只为表达该顺序的子 Issue。
+
+该批准允许按更新后的顺序继续子任务协调，但不授权扩大任何子 Issue、调用真实
+Provider、部署、迁移客户数据、采购 API 或启用生产内容遥测。

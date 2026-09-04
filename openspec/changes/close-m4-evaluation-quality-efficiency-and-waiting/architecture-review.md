@@ -140,3 +140,26 @@ was not a requested review or a material finding.
 No unresolved `must-fix` or `should-fix` finding remains. Merging this Partial
 proposal would establish the approved active parent Change on `main`; it would
 not complete, reconcile, archive, or close Issue #39.
+
+## 2026-09-04 execution realignment review
+
+The integrated #40, #26 and #44 outcomes invalidate the old live-status text,
+and #41's controlled semantic failure invalidates the assumption that #41 can
+finish before #42 chooses a task boundary. Keeping `#41 -> #42` as a native
+blocker while describing #41 as waiting for #42 creates an actionable cycle.
+
+The smallest correction is `ready`:
+
+- keep #41 and #42 as the existing owners; do not create another Issue or
+  orchestration module merely to express phase order;
+- remove #41 as a native blocker of #42 and remove #41's unmatched `blocked`
+  label;
+- keep #32 as the one activation blocker for #42 and keep #42 blocking #43;
+- use a #42 Partial architecture PR, then #41 acceptance, then #42 runtime
+  completion to represent the phase exchange with reviewable revisions;
+- preserve #32 per-sample, #41 cross-sample meaning, #42 orchestration and #43
+  presentation as separate capability owners.
+
+This changes coordination only. It does not approve a specific task graph,
+Provider call, production action or customer-data boundary. Runtime architecture
+still requires its own fixed design and owner approval in #42.
