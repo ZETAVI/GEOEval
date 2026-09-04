@@ -281,6 +281,31 @@ describe("customer-entry HTTP contract", () => {
     });
   });
 
+  it("returns a bounded 429 contract for repeated public Challenge requests", async () => {
+    const first = await fetch(`${baseUrl}/identity/challenges`, {
+      method: "POST",
+      headers: browserMutationHeaders(),
+      body: JSON.stringify({ mobile: "13900000022" }),
+    });
+    expect(first.status).toBe(201);
+
+    const repeated = await fetch(`${baseUrl}/identity/challenges`, {
+      method: "POST",
+      headers: browserMutationHeaders(),
+      body: JSON.stringify({ mobile: "13900000022" }),
+    });
+    expect(repeated.status).toBe(429);
+    expect(await repeated.json()).toMatchObject({
+      code: "CHALLENGE_RATE_LIMITED",
+      retryAfterSeconds: expect.any(Number),
+    });
+    expect(
+      await prisma.mobileChallenge.count({
+        where: { mobile: "+8613900000022" },
+      }),
+    ).toBe(1);
+  });
+
   it("keeps notification reads durable, account-scoped, and separate from SSE hints", async () => {
     const ownerCookie = await login(baseUrl, "13900000007");
     const ownerResponse = await fetch(`${baseUrl}/identity/me`, {

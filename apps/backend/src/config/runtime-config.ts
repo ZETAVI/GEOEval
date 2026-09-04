@@ -11,6 +11,9 @@ const localAuthHashPepper = "geoeval_local_auth_hash_pepper_2026";
 const commonSchema = z.object({
   DATABASE_URL: z.string().min(1),
   GEOEVAL_TELEMETRY_FAIL: z.enum(["0", "1"]).default("0"),
+});
+
+const identityCleanupSchema = z.object({
   AUTH_SESSION_RETENTION_DAYS: z.coerce
     .number()
     .int()
@@ -32,6 +35,7 @@ const commonSchema = z.object({
 });
 
 const apiSchema = commonSchema.extend({
+  ...identityCleanupSchema.shape,
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
@@ -170,6 +174,11 @@ const workerSchema = commonSchema.extend({
   LANGFUSE_BASE_URL: z.string().url().default("https://us.cloud.langfuse.com"),
   LANGFUSE_TRACING_ENVIRONMENT: z.string().min(1).default("development"),
   LANGFUSE_RELEASE: z.string().trim().max(200).default(""),
+});
+
+const identityMaintenanceSchema = z.object({
+  DATABASE_URL: z.string().min(1),
+  ...identityCleanupSchema.shape,
 });
 
 export type ApiConfig = {
@@ -331,7 +340,9 @@ export function loadApiConfig(
 export function loadIdentityMaintenanceConfig(
   environment: NodeJS.ProcessEnv = process.env,
 ): IdentityMaintenanceConfig {
-  const parsed = commonSchema.parse(withLocalDefaults(environment));
+  const parsed = identityMaintenanceSchema.parse(
+    withLocalDefaults(environment),
+  );
   return {
     databaseUrl: parsed.DATABASE_URL,
     authCleanupPolicy: cleanupPolicy(parsed),
@@ -430,7 +441,7 @@ function aiTelemetryConfig(
 }
 
 function cleanupPolicy(
-  parsed: z.infer<typeof commonSchema>,
+  parsed: z.infer<typeof identityCleanupSchema>,
 ): IdentityCleanupPolicy {
   return {
     sessionRetentionMs:

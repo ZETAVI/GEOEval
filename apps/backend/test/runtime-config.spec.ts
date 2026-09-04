@@ -85,6 +85,18 @@ describe("process-scoped configuration", () => {
     });
   });
 
+  it("does not couple Worker startup to Identity maintenance policy", () => {
+    expect(
+      loadWorkerConfig({
+        DATABASE_URL: "postgresql://example/worker",
+        REDIS_URL: "redis://example:6379",
+        AUTH_SESSION_RETENTION_DAYS: "0",
+        AUTH_CHALLENGE_RETENTION_HOURS: "0",
+        AUTH_IDENTITY_CLEANUP_BATCH_SIZE: "0",
+      }).aiExecution.mode,
+    ).toBe("deterministic");
+  });
+
   it("keeps Store Location conditional and rejects unsafe activation", () => {
     const apiBase = {
       NODE_ENV: "test",

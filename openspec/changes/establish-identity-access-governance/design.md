@@ -204,8 +204,9 @@ only the target and generated code plus correlation metadata; it does not own
 Account or Session.
 
 The initial per-normalized-mobile policy is configuration: five-minute expiry,
-at least 60 seconds between issuances, at most five issuances in a rolling
-15-minute window, and at most five failed verification attempts. A successful
+at least 60 seconds between issuances, at most five issuances in one 15-minute
+window anchored by its first issuance, and at most five failed verification
+attempts. A successful
 new issuance atomically supersedes every earlier usable Challenge for that
 mobile. One PostgreSQL rate row serializes concurrent requests; Redis, client
 state, IP addresses, and device fingerprints are not Challenge authority. The

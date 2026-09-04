@@ -14,7 +14,7 @@
 | Cleanup is bounded and cannot delete active Session, usable Challenge, refreshed rate state, or Governance audit | `identity-maintenance.integration.spec.ts` with batch size one and mixed active/recent/old records | Passed | Explicit command only; no automatic schedule is claimed |
 | The operational cleanup entrypoint runs with maintenance-only configuration | `DATABASE_URL=... pnpm identity:cleanup` returned `COMPLETED` on `geoeval_issue50` | Passed | No production execution |
 | Current migrations apply from an empty database | Temporary `geoeval_issue50_lifecycle` applied all 21 migrations; migration count, rate table, and superseded column were inspected; database then removed | Passed | Local synthetic database only |
-| Existing application behavior remains intact | `pnpm test`: 33 files / 173 tests; `pnpm build`, `pnpm typecheck`, format and project-framework validation | Passed | Browser role shells and administrator UI remain outside this slice |
+| Existing application behavior remains intact | `pnpm test`: 33 files / 175 tests; `pnpm build`, `pnpm typecheck`, format and project-framework validation | Passed | Browser role shells and administrator UI remain outside this slice |
 | Shared default resources were not selected | Default PostgreSQL remains at 19 migrations with no rate table; Issue database is at 21. Redis DB 0 was only queried and remains separate from DB 10 | Passed | Pre-existing default Redis records were not modified or cleared |
 | Whole Issue #50 is complete | OpenSpec tasks still contain Bootstrap, role shells/UI, expanded failure/browser/rollback evidence, reconciliation, PR and integration | Not run | Do not open a final PR or move #50 from `In Progress` based on this checkpoint |
 

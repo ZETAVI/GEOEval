@@ -142,7 +142,7 @@
   Challenge table, rate-limit table, and new column were inspected before the
   temporary database was removed.
 - Verification: Challenge/cleanup/config/HTTP focused tests passed; complete
-  backend regression is 33 files / 173 tests; typecheck, production build,
+  backend regression is 33 files / 175 tests; typecheck, production build,
   generated contracts, formatting, Diff check, and framework validation pass.
 - Still open: remaining internal service split, Bootstrap, role shells,
   administrator UI, complete failure/security/browser/rollback evidence,
