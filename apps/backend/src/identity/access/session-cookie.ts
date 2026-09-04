@@ -13,7 +13,13 @@ export function readSessionToken(
   const expectedName = sessionCookieName(secure);
   for (const item of header.split(";")) {
     const [name, ...value] = item.trim().split("=");
-    if (name === expectedName) return decodeURIComponent(value.join("="));
+    if (name === expectedName) {
+      try {
+        return decodeURIComponent(value.join("="));
+      } catch {
+        return undefined;
+      }
+    }
   }
   return undefined;
 }

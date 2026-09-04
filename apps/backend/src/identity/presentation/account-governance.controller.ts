@@ -68,13 +68,13 @@ export class AccountGovernanceController {
   @ApiCreatedResponse({ type: AccountResponse })
   create(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
-    @Body() input: CreateInternalAccountRequest,
+    @Body() input: CreateInternalAccountRequest | null,
   ): Promise<AccountResponse> {
     return this.governance.createInternalAccount({
       actorAccountId: principal.accountId,
-      mobile: input.mobile,
-      role: input.role,
-      reason: input.reason,
+      mobile: input?.mobile,
+      role: input?.role,
+      reason: input?.reason,
     });
   }
 
@@ -84,14 +84,14 @@ export class AccountGovernanceController {
   changeStatus(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("accountId") accountId: string,
-    @Body() input: ChangeAccountStatusRequest,
+    @Body() input: ChangeAccountStatusRequest | null,
   ): Promise<AccountResponse> {
     return this.governance.changeAccount({
       actorAccountId: principal.accountId,
       targetAccountId: accountId,
-      expectedRevision: input.expectedRevision,
-      reason: input.reason,
-      mutation: { kind: "STATUS", status: input.status },
+      expectedRevision: input?.expectedRevision,
+      reason: input?.reason,
+      mutation: { kind: "STATUS", status: input?.status },
     });
   }
 
@@ -101,14 +101,14 @@ export class AccountGovernanceController {
   changeRole(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("accountId") accountId: string,
-    @Body() input: ChangeAccountRoleRequest,
+    @Body() input: ChangeAccountRoleRequest | null,
   ): Promise<AccountResponse> {
     return this.governance.changeAccount({
       actorAccountId: principal.accountId,
       targetAccountId: accountId,
-      expectedRevision: input.expectedRevision,
-      reason: input.reason,
-      mutation: { kind: "ROLE", role: input.role },
+      expectedRevision: input?.expectedRevision,
+      reason: input?.reason,
+      mutation: { kind: "ROLE", role: input?.role },
     });
   }
 
@@ -118,13 +118,13 @@ export class AccountGovernanceController {
   revokeSessions(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("accountId") accountId: string,
-    @Body() input: GovernedAccountMutationRequest,
+    @Body() input: GovernedAccountMutationRequest | null,
   ): Promise<AccountResponse> {
     return this.governance.changeAccount({
       actorAccountId: principal.accountId,
       targetAccountId: accountId,
-      expectedRevision: input.expectedRevision,
-      reason: input.reason,
+      expectedRevision: input?.expectedRevision,
+      reason: input?.reason,
       mutation: { kind: "REVOKE_SESSIONS" },
     });
   }

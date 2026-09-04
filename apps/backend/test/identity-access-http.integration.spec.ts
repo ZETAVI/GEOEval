@@ -175,6 +175,7 @@ describe("Identity HTTP role and forgery boundary", () => {
     for (const cookie of [
       "geoeval_session=random-opaque-value",
       `geoeval_session=${storedSession.tokenDigest}`,
+      "geoeval_session=%E0%A4%A",
       `__Host-geoeval_session=${cookieValue(administrator.cookie)}`,
     ]) {
       const response = await fetch(`${baseUrl}/identity/me`, {
@@ -223,6 +224,53 @@ describe("Identity HTTP role and forgery boundary", () => {
     expect(
       await prisma.account.findUniqueOrThrow({ where: { id: created.id } }),
     ).toMatchObject({ role: "AGENT", status: "ACTIVE", revision: 1 });
+  });
+
+  it("rejects null or malformed Identity and Governance bodies without a server error", async () => {
+    const nullChallenge = await fetch(`${baseUrl}/identity/challenges`, {
+      method: "POST",
+      headers: browserMutationHeaders(),
+      body: "null",
+    });
+    expect(nullChallenge.status).toBe(400);
+
+    const invalidSession = await fetch(`${baseUrl}/identity/sessions`, {
+      method: "POST",
+      headers: browserMutationHeaders(),
+      body: JSON.stringify({
+        challengeId: "not-a-uuid",
+        mobile: "13900005031",
+        code: "246810",
+      }),
+    });
+    expect(invalidSession.status).toBe(400);
+    const nullSession = await fetch(`${baseUrl}/identity/sessions`, {
+      method: "POST",
+      headers: browserMutationHeaders(),
+      body: "null",
+    });
+    expect(nullSession.status).toBe(400);
+
+    await prisma.account.create({
+      data: { mobile: "+8613900005032", role: "ADMINISTRATOR" },
+    });
+    const administrator = await login(baseUrl, "13900005032");
+    const nullCreate = await fetch(`${baseUrl}/admin/accounts`, {
+      method: "POST",
+      headers: browserMutationHeaders(administrator.cookie),
+      body: "null",
+    });
+    expect(nullCreate.status).toBe(400);
+    const nullStatus = await fetch(
+      `${baseUrl}/admin/accounts/${administrator.account.id}/status`,
+      {
+        method: "PATCH",
+        headers: browserMutationHeaders(administrator.cookie),
+        body: "null",
+      },
+    );
+    expect(nullStatus.status).toBe(400);
+    expect(await prisma.identityGovernanceAudit.count()).toBe(0);
   });
 });
 

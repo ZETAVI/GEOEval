@@ -100,17 +100,22 @@ export class AuthenticationService {
     };
   }
 
-  async completeChallenge(input: {
-    challengeId: string;
-    mobile: string;
-    code: string;
-  }): Promise<SessionDelivery> {
-    const mobile = normalizeMobileForHttp(input.mobile);
-    if (typeof input.code !== "string" || !/^\d{6}$/.test(input.code)) {
+  async completeChallenge(input: unknown): Promise<SessionDelivery> {
+    const body = objectBody(input);
+    const mobile = normalizeMobileForHttp(body.mobile);
+    if (
+      typeof body.challengeId !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        body.challengeId,
+      )
+    ) {
+      throw new BadRequestException("challengeId 格式不正确");
+    }
+    if (typeof body.code !== "string" || !/^\d{6}$/.test(body.code)) {
       throw new BadRequestException("验证码格式不正确");
     }
 
-    const challenge = await this.repository.findChallenge(input.challengeId);
+    const challenge = await this.repository.findChallenge(body.challengeId);
     const now = new Date();
     if (
       !challenge ||
@@ -128,7 +133,7 @@ export class AuthenticationService {
       this.config.authHashPepper,
       challenge.id,
       mobile,
-      input.code,
+      body.code,
     );
     if (!digestsMatch(challenge.codeDigest, providedDigest)) {
       await this.repository.incrementFailedAttempts({
@@ -161,6 +166,12 @@ export class AuthenticationService {
       expiresAt: completed.expiresAt,
     };
   }
+}
+
+function objectBody(input: unknown): Record<string, unknown> {
+  return typeof input === "object" && input !== null
+    ? (input as Record<string, unknown>)
+    : {};
 }
 
 function normalizeMobileForHttp(input: unknown): string {

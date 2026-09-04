@@ -78,9 +78,9 @@ export class AccountGovernanceService {
 
   async createInternalAccount(input: {
     actorAccountId: string;
-    mobile: string;
-    role: string;
-    reason: string;
+    mobile: unknown;
+    role: unknown;
+    reason: unknown;
   }): Promise<AccountView> {
     try {
       return await this.repository.createInternalAccount({
@@ -98,14 +98,15 @@ export class AccountGovernanceService {
   async changeAccount(input: {
     actorAccountId: string;
     targetAccountId: string;
-    expectedRevision: number;
-    reason: string;
+    expectedRevision: unknown;
+    reason: unknown;
     mutation:
-      | { kind: "STATUS"; status: string }
-      | { kind: "ROLE"; role: string }
+      | { kind: "STATUS"; status: unknown }
+      | { kind: "ROLE"; role: unknown }
       | { kind: "REVOKE_SESSIONS" };
   }): Promise<AccountView> {
     if (
+      typeof input.expectedRevision !== "number" ||
       !Number.isInteger(input.expectedRevision) ||
       input.expectedRevision < 1
     ) {
@@ -138,7 +139,7 @@ export class AccountGovernanceService {
   }
 }
 
-function parseRole(value: string): AccountRole {
+function parseRole(value: unknown): AccountRole {
   if (accountRoles.includes(value as AccountRole)) return value as AccountRole;
   throw new BadRequestException("role 不受支持");
 }
@@ -154,21 +155,21 @@ function normalizeMobileForHttp(value: unknown): string {
   }
 }
 
-function parseInternalRole(value: string): InternalAccountRole {
+function parseInternalRole(value: unknown): InternalAccountRole {
   if (internalRoles.includes(value as InternalAccountRole)) {
     return value as InternalAccountRole;
   }
   throw new BadRequestException("内部账号角色不受支持");
 }
 
-function parseStatus(value: string): AccountStatus {
+function parseStatus(value: unknown): AccountStatus {
   if (accountStatuses.includes(value as AccountStatus)) {
     return value as AccountStatus;
   }
   throw new BadRequestException("status 不受支持");
 }
 
-function parseReason(value: string): string {
+function parseReason(value: unknown): string {
   if (typeof value !== "string") throw new BadRequestException("必须填写原因");
   const reason = value.trim();
   if (reason.length < 3 || reason.length > 320) {

@@ -67,7 +67,7 @@ export class IdentityController {
   @ApiBody({ type: CompleteSessionRequest })
   @ApiCreatedResponse({ type: AccountResponse })
   async createSession(
-    @Body() input: CompleteSessionRequest,
+    @Body() input: unknown,
     @Res({ passthrough: true }) response: HeaderWriter,
   ): Promise<AccountResponse> {
     const completed = await this.authentication.completeChallenge(input);
