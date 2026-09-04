@@ -8,16 +8,23 @@ import {
 
 describe("supporting role homes", () => {
   it("keeps each fixed role on a distinct capability-owned navigation", () => {
-    expect(supportingRoleConfig("ADMINISTRATOR").navigation).toMatchObject([
-      { href: "/admin", label: "管理总览" },
-      { label: "账号与访问" },
-      { href: "/admin/media", label: "媒体库管理" },
-    ]);
-    expect(supportingRoleConfig("OPERATIONS").navigation[0]).toMatchObject({
+    expect(supportingRoleConfig("ADMINISTRATOR").cards).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          href: "/admin/accounts",
+          title: "账号与访问",
+        }),
+        expect.objectContaining({
+          href: "/admin/media",
+          title: "媒体库管理",
+        }),
+      ]),
+    );
+    expect(supportingRoleConfig("OPERATIONS").navigation?.[0]).toMatchObject({
       href: "/operations",
       label: "履约工作台",
     });
-    expect(supportingRoleConfig("AGENT").navigation[0]).toMatchObject({
+    expect(supportingRoleConfig("AGENT").navigation?.[0]).toMatchObject({
       href: "/agent",
       label: "代理商总览",
     });

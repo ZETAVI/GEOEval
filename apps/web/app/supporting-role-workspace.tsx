@@ -8,6 +8,7 @@ import {
 } from "@geoeval/api-client";
 import { useEffect, useState } from "react";
 
+import { AdminSidebar } from "./admin/admin-sidebar.js";
 import { roleHomePath } from "./enter/post-login-route.js";
 
 const apiBaseUrl =
@@ -21,7 +22,7 @@ type RoleWorkspaceConfig = {
   title: string;
   introduction: string;
   boundary: string;
-  navigation: Array<{
+  navigation?: Array<{
     label: string;
     description: string;
     mark: string;
@@ -30,7 +31,8 @@ type RoleWorkspaceConfig = {
   cards: Array<{
     title: string;
     description: string;
-    status: "AVAILABLE" | "FOUNDATION_READY" | "FUTURE_CAPABILITY";
+    status:
+      "AVAILABLE" | "READ_ONLY" | "FOUNDATION_READY" | "FUTURE_CAPABILITY";
     href?: string;
   }>;
 };
@@ -47,6 +49,7 @@ const statusLabels: Record<
   string
 > = {
   AVAILABLE: "已开放",
+  READ_ONLY: "只读视图已开放",
   FOUNDATION_READY: "基础已就绪",
   FUTURE_CAPABILITY: "业务模块待接入",
 };
@@ -147,59 +150,63 @@ export function SupportingRoleWorkspace({ role }: { role: SupportingRole }) {
 
   return (
     <div className="app-shell admin-app-shell supporting-app-shell">
-      <aside className="sidebar admin-sidebar supporting-sidebar">
-        <a className="brand-mark inverse" href={roleHomePath(role)}>
-          <span aria-hidden="true">G</span>
-          <strong>GEO 优化</strong>
-        </a>
-        <div className="admin-area-label">{config.eyebrow}</div>
-        <nav aria-label={`${roleLabels[role]}功能`}>
-          {config.navigation.map((item, index) =>
-            item.href ? (
-              <a
-                key={item.label}
-                className={index === 0 ? "side-link active" : "side-link"}
-                href={item.href}
-                aria-current={index === 0 ? "page" : undefined}
-              >
-                <i>{item.mark}</i>
-                <span>
-                  <b>{item.label}</b>
-                  <small>{item.description}</small>
+      {role === "ADMINISTRATOR" ? (
+        <AdminSidebar account={account} active="overview" />
+      ) : (
+        <aside className="sidebar admin-sidebar supporting-sidebar">
+          <a className="brand-mark inverse" href={roleHomePath(role)}>
+            <span aria-hidden="true">G</span>
+            <strong>GEO 优化</strong>
+          </a>
+          <div className="admin-area-label">{config.eyebrow}</div>
+          <nav aria-label={`${roleLabels[role]}功能`}>
+            {config.navigation?.map((item, index) =>
+              item.href ? (
+                <a
+                  key={item.label}
+                  className={index === 0 ? "side-link active" : "side-link"}
+                  href={item.href}
+                  aria-current={index === 0 ? "page" : undefined}
+                >
+                  <i>{item.mark}</i>
+                  <span>
+                    <b>{item.label}</b>
+                    <small>{item.description}</small>
+                  </span>
+                </a>
+              ) : (
+                <span key={item.label} className="side-link unavailable">
+                  <i>{item.mark}</i>
+                  <span>
+                    <b>{item.label}</b>
+                    <small>{item.description}</small>
+                  </span>
+                  <em>待接入</em>
                 </span>
-              </a>
-            ) : (
-              <span key={item.label} className="side-link unavailable">
-                <i>{item.mark}</i>
-                <span>
-                  <b>{item.label}</b>
-                  <small>{item.description}</small>
-                </span>
-                <em>待接入</em>
-              </span>
-            ),
-          )}
-        </nav>
-        <div className="admin-boundary-note">
-          <b>职责边界</b>
-          <p>{config.boundary}</p>
-        </div>
-        <div className="sidebar-account">
-          <span>{account.mobile.slice(-4)}</span>
-          <div>
-            <b>{roleLabels[role]}</b>
-            <small>{account.mobile}</small>
+              ),
+            )}
+          </nav>
+          <div className="admin-boundary-note">
+            <b>职责边界</b>
+            <p>{config.boundary}</p>
           </div>
-          <button
-            type="button"
-            onClick={() =>
-              void logout(apiBaseUrl).then(() => window.location.assign("/"))
-            }
-          >
-            退出
-          </button>
-        </div>
-      </aside>
+          <div className="sidebar-account">
+            <span>{account.mobile.slice(-4)}</span>
+            <div>
+              <b>{roleLabels[role]}</b>
+              <small>{account.mobile}</small>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                void logout(apiBaseUrl).then(() => window.location.assign("/"))
+              }
+            >
+              退出
+            </button>
+          </div>
+        </aside>
+      )}
       <main className="workspace supporting-workspace">
         <header className="supporting-hero">
           <div>
@@ -261,27 +268,13 @@ export function supportingRoleConfig(
         "集中进入需要系统管理员权限的治理能力；账号与访问和媒体供给保持独立模块。",
       boundary:
         "管理员治理账号、角色与平台级资料，不代替运营履约，也不拥有客户品牌内容。",
-      navigation: [
-        {
-          label: "管理总览",
-          description: "权限与系统模块",
-          mark: "总",
-          href: "/admin",
-        },
-        { label: "账号与访问", description: "账号、角色与会话", mark: "权" },
-        {
-          label: "媒体库管理",
-          description: "平台、资源与供应商",
-          mark: "媒",
-          href: "/admin/media",
-        },
-      ],
       cards: [
         {
           title: "账号与访问",
           description:
-            "后端治理、审计和会话回收基础已经就绪，管理界面正在完善。",
-          status: "FOUNDATION_READY",
+            "查看账号、固定角色、状态、活跃会话与身份治理审计。治理操作仍在完善。",
+          status: "READ_ONLY",
+          href: "/admin/accounts",
         },
         {
           title: "媒体库管理",
