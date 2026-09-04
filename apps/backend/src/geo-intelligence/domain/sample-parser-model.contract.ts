@@ -294,7 +294,6 @@ function projectModelOutput(
               : value.category === "AUDIENCE"
                 ? groups.audiences
                 : groups.targetObservations;
-      if (group.length >= 12) continue;
       const projected = observation(value);
       if (projected) group.push(projected);
     }
@@ -364,7 +363,6 @@ function projectModelOutput(
           : value.category === "QUERY_FIT"
             ? groups.queryFit
             : groups.targetObservations;
-    if (group.length >= 12) continue;
     const projected = observation(value);
     if (projected) group.push(projected);
   }
