@@ -14,13 +14,13 @@ to an explicitly owned follow-up; reopen #32 only for failed original acceptance
 
 ## Observed chain and falsifiable hypotheses
 
-| Stage and executable owner | Observed seam | Discriminating check |
-| --- | --- | --- |
-| Sampling: objectivity profile and acquisition adapters | Natural answers are the measurement | Freeze query, answer and policy; extraction instructions must not contaminate sampling |
-| Parser: policy, model contract, process coordinator | Prompt combines extraction, classification, quote copying and prose; input still uses two compatibility characteristics | Compare positive staged Prompt with identical input and Schema first |
-| Accepted evidence: projector/canonical contract | Recovery can discard detail or replace unreadable prose | Assess raw output separately from projection, including lost useful evidence |
-| Main synthesis: policy | Full frozen Brand and canonical samples expose irrelevant storage identities and mixed field roles | Compare a purpose-specific projection preserving source evidence |
-| PR #48: model reference projection | Findings and observations omit original evidence spans; brand candidates contain names without adjacent source context | Restore minimal source context before attributing failure to topology |
+| Stage and executable owner                             | Observed seam                                                                                                           | Discriminating check                                                                   |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Sampling: objectivity profile and acquisition adapters | Natural answers are the measurement                                                                                     | Freeze query, answer and policy; extraction instructions must not contaminate sampling |
+| Parser: policy, model contract, process coordinator    | Prompt combines extraction, classification, quote copying and prose; input still uses two compatibility characteristics | Compare positive staged Prompt with identical input and Schema first                   |
+| Accepted evidence: projector/canonical contract        | Recovery can discard detail or replace unreadable prose                                                                 | Assess raw output separately from projection, including lost useful evidence           |
+| Main synthesis: policy                                 | Full frozen Brand and canonical samples expose irrelevant storage identities and mixed field roles                      | Compare a purpose-specific projection preserving source evidence                       |
+| PR #48: model reference projection                     | Findings and observations omit original evidence spans; brand candidates contain names without adjacent source context  | Restore minimal source context before attributing failure to topology                  |
 
 These are code facts and hypotheses, not proof that one field caused a historical
 failure. Missing Brand fields do not justify giving extraction every customer
@@ -62,11 +62,11 @@ candidate, not reliability statistics or a production SLA.
 
 ## Runtime choice after evidence
 
-| Candidate | Benefit to verify | Cost or failure to verify |
-| --- | --- | --- |
-| One synthesis call with adequate evidence | Lowest call count and integration change | Coupled semantic failure and full-request retry |
-| Parallel relationship and narrative | Focus, independent retry, overlapping latency | Two calls, prose/group consistency and component persistence |
-| Dependent analysis then writing | Explicit evidence-to-prose handoff | Serial latency, information loss and another contract |
+| Candidate                                 | Benefit to verify                             | Cost or failure to verify                                    |
+| ----------------------------------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| One synthesis call with adequate evidence | Lowest call count and integration change      | Coupled semantic failure and full-request retry              |
+| Parallel relationship and narrative       | Focus, independent retry, overlapping latency | Two calls, prose/group consistency and component persistence |
+| Dependent analysis then writing           | Explicit evidence-to-prose handoff            | Serial latency, information loss and another contract        |
 
 If split wins, task-kind attempts and one GEO-owned component table remain
 candidates. Before implementation settle input identity, accepted-result reuse,
@@ -113,15 +113,25 @@ application import is introduced. Unknown exact evidence still fails. Coverage
 is intentionally limited to open questions; no direct-question support is claimed.
 
 This is a Prompt plus interface package comparison, not proof of a schema-only
-effect. JSON Schema structure support is documented, but this nested object/null
-candidate's real acceptance remains a Provider test. Unit tests exercise both
-branches, absent proof, invented proof and current fixture fidelity.
+effect. The real route accepted the nested contract with target=null in the
+first natural-answer package; its nonempty target branch remains unverified by
+real calls. Unit tests exercise both branches, absent proof, invented proof and
+current fixture fidelity.
 
-The real-chain package, if authorized, starts from the exact public-business
-Query accepted in #26, obtains one new natural Qwen answer, and compares current
+The owner-authorized real-chain package started from the exact public-business
+Query accepted in #26, obtained one new natural Qwen answer, and compared current
 P0 with this evidence-first candidate against that identical immutable answer.
 Keep the acquisition response, parser task, raw parser output and projection
 linked by content hashes. This is not a new Brand/Query verification or a full
 4x5 run. The maximum is one acquisition and two Parser requests; no other platform,
 business database or synthesis call. Transport/auth failures stop the package;
 semantic rejection is reviewed per arm without automatic retries.
+
+The [recorded result](research/chain-quality-experiment.md#natural-answer-chain-and-langfuse-readback--2026-09-05)
+rejects both outputs for quality despite code acceptance. An exact quote alone
+does not establish its subject or a candidate's role. P0's non-target reasons
+survive into synthesis-consumable observations; P2's null target avoids that
+combination but does not ground free-text explanation. Next acceptance must
+cover these relationships before adding rules or selecting topology. Keep the
+provider answer as the observation, brand context as identity information, and
+the parser's interpretation as a derived claim; do not promote one to another.

@@ -14,8 +14,14 @@
       after 11.231s; the resumed batch stopped, all later cases remain not run.
 - [x] Inspect retained evidence lineage and prepare an offline evidence-first
       open-question contract without changing current runtime.
-- [ ] Confirm and execute the max-three-call natural-answer chain; retain each
-      stage and its hashes, then inspect both parsing arms before further scope.
+- [x] Confirm and execute the three-call natural-answer chain; retain each
+      stage and hashes, and review both parsing arms: code accepted, semantic
+      quality rejected for both; no runtime activation.
+- [x] Export authorized diagnostic IO to Langfuse and read back the root,
+      three generations and separate semantic review with matching lineage/usage.
+- [ ] Use the retained failure to specify subject attribution, candidate entity
+      role and source-supported prose acceptance; then freeze the next bounded
+      comparison, including an independent mentioned-target case.
 
 ## Synthesis comparison
 
@@ -23,7 +29,8 @@
 - [ ] Construct compact evidence retaining source excerpts and candidate context.
 - [ ] Freeze current-main and improved one-call packages; disclose changed variables.
 - [ ] Compare matched one-call/split candidates and test narrative/group dependency.
-- [ ] Obtain bounded authority before each later real-call batch.
+- [ ] Freeze each later batch within the owner's controlled real-call authority;
+      obtain new authority for a different data, cost, Provider or production gate.
 - [ ] Select topology and budget from evidence, then obtain architecture approval.
 
 ## Actual delivery

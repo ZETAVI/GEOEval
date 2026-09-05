@@ -23,15 +23,16 @@ evidence, quality findings, token usage and latency separately. Select the
 smallest supported runtime only after evidence and architecture approval.
 
 This Partial revises the existing proposal, prepares non-runtime experimental
-assets and offline checks, and reconciles stale #39 planning assumptions. #41
+assets, records controlled real-call evidence, and reconciles #39 planning. #41
 retains synthesis semantic ownership; #32 remains completed. A new Parser
 implementation requires explicit owning scope based on experiment findings.
 
 ## Non-goals and authority
 
 No runtime Prompt activation, current-spec change, migration, new queue, model
-purchase, Hy3 billing, production, customer data, fresh platform acquisition or
-automatic experiment sweep. Four questions, five platforms, metric meaning,
+purchase, Hy3 billing, production, customer data or automatic experiment sweep.
+The owner separately approved controlled real acquisition and diagnostic
+Langfuse input/output export. Four questions, five platforms, metric meaning,
 17/20 readiness and immutable accepted records remain unchanged.
 
 The authorized first batch used the owner-approved generic endpoint only in
@@ -39,7 +40,12 @@ isolation. P0 failed; after owner-requested continuation P1 failed on the same
 fixture too. Across two stages, 2/8 cases were executed. Both returned valid JSON
 but omitted evidence and competitors. An evidence-first open-question contract
 is now prepared for isolated comparison; current runtime remains unchanged.
-No candidate superiority is established. See the
+The next authorized package executed one natural Qwen acquisition and P0/P2
+parsing of its unchanged answer. Both passed code acceptance but failed agent
+semantic review: P0 misattributed non-target observations; P2 still produced
+unsupported prose and a structure error. All three generations and the separate
+review were read back from Langfuse. No candidate superiority is established.
+See the
 [experiment protocol](research/chain-quality-experiment.md).
 
 ## Impact and exit
