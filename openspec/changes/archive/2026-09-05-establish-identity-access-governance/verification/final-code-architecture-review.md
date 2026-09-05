@@ -3,7 +3,7 @@
 Date: 2026-09-05
 
 - Fixed comparison base:
-  `origin/main@ddadf77d5077e6bf7a1e1cdd33a28171b89e0be8`.
+  `origin/main@ddadf7718a6896c5682603be9ec87de77556a98d`.
 - Reviewed implementation head after current-truth reconciliation and latest
   main sync: `329d710`.
 - Reviewed scope: the approved Issue #50 Identity, authenticated-access,

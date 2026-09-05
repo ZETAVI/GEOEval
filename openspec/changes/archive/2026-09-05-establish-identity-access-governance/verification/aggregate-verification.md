@@ -7,7 +7,7 @@ Date: 2026-09-05
 - Verified revision: `329d710` on
   `codex/issue-50-identity-access-governance`.
 - Current Final-PR comparison base:
-  `origin/main@ddadf77d5077e6bf7a1e1cdd33a28171b89e0be8`.
+  `origin/main@ddadf7718a6896c5682603be9ec87de77556a98d`.
 - PostgreSQL target:
   `geoeval_issue50_release_verify_ddadf77_20260904`, created empty only for the
   authoritative post-main-sync pass.

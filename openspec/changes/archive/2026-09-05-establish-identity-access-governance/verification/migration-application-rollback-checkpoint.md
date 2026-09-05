@@ -10,7 +10,7 @@ and can return to the Issue implementation without losing Session or dependent
 Query-route compatibility.
 
 - Current application: Issue #50 branch at `329d710`.
-- Rollback application: `main@ddadf77d5077e6bf7a1e1cdd33a28171b89e0be8`.
+- Rollback application: `main@ddadf7718a6896c5682603be9ec87de77556a98d`.
 - PostgreSQL: dedicated database
   `geoeval_issue50_main_rollback_ddadf77_20260905`, created empty and removed at
   exit.
