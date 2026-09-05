@@ -50,8 +50,14 @@
 - [x] Prepare an isolated source-range handoff: complete answer lines in, selected
       evidence ranges out, exact text restored by program; same P4 judgment/prose,
       constraints and final acceptance. Verify source/metric/control preservation.
-- [ ] Execute one frozen retained-answer P5 call, review source-range usefulness
+- [x] Execute one frozen retained-answer P5 call, review source-range usefulness
       separately from overall meaning, and synchronize actual messages/results.
+- [x] Isolate shared prose-as-name identity loss with one offline counterfactual:
+      separate WPP/宏盟 forms restore the seventh brand, but eligible occurrences
+      remain zero because roles are unchanged. Do not overwrite original output.
+- [ ] Align individual-name identity and local choice/mention/condition semantics
+      with the final report consumers before the next frozen comparison; preserve
+      current metric meaning and defer any additional Agent to evidence.
 - [ ] After freezing that decision, test its smallest discriminating control and
       independent-answer/mentioned-target coverage; current candidate is rejected.
 

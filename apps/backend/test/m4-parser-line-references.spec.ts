@@ -208,6 +208,44 @@ describe("M4 program-owned source-reference handoff", () => {
       }),
     ).toThrow("Open questions only");
   });
+
+  it("isolates legacy identity loss from shared prose forms despite exact source ranges", () => {
+    const shared = "甲品牌或乙品牌旗下机构";
+    const input = {
+      ...valid(),
+      target: null,
+      cardInterpretation: "原文未提及当前品牌。",
+      otherBrands: ["甲品牌", "乙品牌"].map((displayName) => ({
+        displayName,
+        observedForms: [shared],
+        role: "MENTIONED_ONLY",
+        relativePosition: null,
+        positionKind: null,
+        evidence: [range(1)],
+      })),
+    };
+    const localContext = {
+      ...context,
+      originalAnswer: `**${shared}**：具体团队未具名。`,
+    };
+    const before = structuredClone(input);
+    const original = projectM4LineReferenceOutput(input, localContext);
+    expect(
+      original.projected.semantic.otherBrands.map((brand) => brand.displayName),
+    ).toEqual(["甲品牌"]);
+    const counterfactual = structuredClone(input);
+    counterfactual.otherBrands.forEach((brand) => {
+      brand.observedForms = [brand.displayName];
+    });
+    const result = projectM4LineReferenceOutput(counterfactual, localContext);
+    expect(
+      result.projected.semantic.otherBrands.map((brand) => brand.displayName),
+    ).toEqual(["甲品牌", "乙品牌"]);
+    expect(result.projected.semantic.evidenceAnchors).toEqual(
+      original.projected.semantic.evidenceAnchors,
+    );
+    expect(input).toEqual(before);
+  });
 });
 
 function withoutEvidenceRepresentation(value: unknown): unknown {

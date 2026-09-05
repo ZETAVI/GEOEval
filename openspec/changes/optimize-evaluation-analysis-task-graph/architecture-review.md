@@ -118,3 +118,26 @@ remain pending. This review is not approval for a runtime merge.
   identity, role/position, source evidence and prose responsibilities against
   actual consumers. Independent answer, positive mention, synthesis and product
   integration remain unverified. No further call is part of this checkpoint.
+
+## Source-reference handoff checkpoint
+
+- Fixed implementation `582d282` against `57d5c54`; independent read-only
+  fixed-diff review found no blocking finding for the single-call experiment.
+  This was not an approval to activate runtime or accept model semantics.
+- Consumer audit grounded the design in final metric, grouping, card and
+  highlight needs. Synthesis receives semantic records, not the complete raw
+  answer. Keep mechanical source restoration separate from subject/role meaning.
+- Existing P4 instructions/constraints are reused; the isolated input representation
+  and four span leaves change. Source offsets restore exact substrings with
+  compatible trimming/occurrence semantics. Invalid/empty/oversized ranges reject
+  before final projection; no fallback, runtime import, persistence or migration.
+- Pre-call evidence: 4 files / 30 tests, Backend typecheck/build and framework/links.
+  Post-call offline identity-loss regression extends this to 31 tests; typecheck
+  passes, unchanged implementation build/review evidence is reused.
+- The real call resolves all seven ranges but fails semantic acceptance. A
+  single-variable offline replay proves shared prose forms cause distinct-name
+  deduplication loss; the role/metric issue remains independent. Actual messages,
+  restored source and final projection were read back separately from Langfuse.
+- Verdict: `ready with follow-up` for this evidence checkpoint; `not ready` for
+  runtime. Next align individual identity and local recommendation/mention meaning
+  with their consumers, not another surface prohibition or an assumed Agent split.

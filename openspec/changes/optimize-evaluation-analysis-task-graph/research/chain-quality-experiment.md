@@ -717,3 +717,65 @@ range resolves. Do not reward selecting whole-answer ranges or program recovery.
 Keep raw range output, restored evidence and final projection separate. Export
 the authorized actual messages and separate program result/review to a new private
 Langfuse Trace. No runtime activation, #49 publishing or business record write.
+
+### P5 result and isolated downstream loss
+
+Fixed implementation `582d282`; exact confirmation
+`f6233ad8e3272897c7c0bdd788af49f50366c5d6a67d87b6b806bda4805a3038`.
+Executed 1/1 calls from 12:52:25Z on 2026-09-05; no acquisition or retry.
+Qwen3.8 Flash low returned in 36,018 ms, input/output/total tokens
+1,957 / 3,700 / 5,657, including 2,860 reasoning tokens already counted in output.
+finish_reason=stop; code accepted, agent semantic review SEMANTIC_REJECTED.
+Do not infer a speed gain from a non-contemporaneous single P4.1 reference:
+the source representation adds input tokens, and total tokens did not decrease.
+
+Source handoff passes this case: seven ranges across five unique source locations
+resolve to exact source text, with Markdown, branch/affiliation and conditional
+context intact. No quote-copying fallback or whole-answer reference was needed.
+Target absence and concise card copy are faithful, seven short brand subjects
+are present, and unnamed teams/certification/tool platforms are not emitted in
+this observation. This is not stability or positive-target evidence.
+
+Overall semantics still fails. Every brand is COMPARED, flattening conditional
+choice and affiliation-only contexts. Current metric eligibility therefore has
+zero competitor occurrences. Relative positions are all null while positionKind
+is CONTEXTUAL, which projection normalizes to null. The structure is labelled
+PARAGRAPHS despite headings and nested lists. None of these meanings is fixed
+by mechanically restoring a source range.
+
+The name/evidence distinction remains wrong too: observedForms contain Markdown,
+relationship prose and a multi-brand heading. WPP and 宏盟 share exactly that
+whole heading as a name. Existing normalized-form deduplication consequently
+keeps only WPP, reducing seven raw records to six projected records even though
+their source ranges are correct.
+
+An offline counterfactual changes only those two observedForms to their separate
+literal names and invokes the same projector: seven records survive, but eligible
+competitor occurrences remain zero because roles are untouched. Original model
+output and acceptance evidence remain immutable. A fictional two-brand regression
+reproduces the shared-form collapse and isolated restoration without Provider use.
+This proves the program's loss mechanism, not why the model chose those forms.
+
+### P5 evidence and continuation
+
+[Private P5 Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/00ff650152d1321e3cef98dd5847c06c).
+API readback at 14:03:37Z verified all four observations: actual line-context
+messages, request Schema/hashes, raw range output, separately restored evidence/
+accepted interpretation and usage match the local artifacts. Independent review
+is SEMANTIC_REJECTED. No credential values were present. The display is unchanged;
+this slice did not repeat the earlier browser check or modify historical traces.
+
+Protected directory `apps/backend/.provider-evidence/m4-line-reference-DoBC7W/`,
+0700 with evidence files 0600, ignored and retained by #42 until decision/review:
+
+- Result SHA-256 `e597509c071e09d4b28dd82655b8b96b5785db9250246845cc4624d28e29bfca`.
+- Plan SHA-256 `b296b6d2e6bd1850d6208e21d545b8ea4c35e6656b4fd4f9783434e7f54c74db`.
+- Runner SHA-256 `aa9cbd5e940c238c1653f125fffb2ef475b57f81eb41c6b22b462c14223ca756`.
+
+Four files / 31 tests, Backend typecheck/build, fixed-diff independent review,
+framework/Markdown links and format/diff checks support the bounded checkpoint.
+No DB, migration, synthesis, independent answer, positive-target real branch or
+customer report acceptance was run. Full-report/production quality is not claimed.
+Next align individual name identity and local choice/mention/condition meaning
+against report consumers, retaining current metric policy; only then freeze the
+next comparison. Do not add an Agent merely because these semantics are unresolved.

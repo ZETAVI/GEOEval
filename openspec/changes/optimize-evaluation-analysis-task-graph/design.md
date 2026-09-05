@@ -290,3 +290,22 @@ cannot accept business records. Rollback removes only experimental files. Source
 reference identity remains sample-local and is not a cross-sample evidence ID.
 The current spec and accepted history stay unchanged; runtime adoption would
 require an explicit Parser owner, compatibility/integration evidence and approval.
+
+### Result and remaining semantic decisions
+
+P5's one real call resolved all seven selected source ranges, but is not approved
+as a complete Parser. Shared prose-valued observedForms made the current name
+deduplicator collapse WPP/宏盟. Changing only those two forms to their individual
+literal names restores both in an offline replay; source selection did not need
+to change. All roles remain COMPARED, so eligible competitor occurrences remain
+zero. The response's uniform role fails to distinguish conditional choice from
+affiliation-only mention even though the corresponding source context is intact.
+
+The next bounded design must distinguish an individual source name from a
+relationship-bearing evidence span, and an offered choice from incidental or
+excluded mention. The raw word "compare" is not by itself an eligibility policy.
+Use the existing final-product and metric owners to define that work; do not
+silently count every COMPARED item, rewrite accepted history, or use a suffix
+filter as entity resolution. Whether separate calls improve these judgments
+remains unselected. Retain source-reference handoff as a candidate and add
+independent/positive-target real evidence only in a newly frozen package.

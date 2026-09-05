@@ -68,8 +68,17 @@ fidelity. Both reviews are rejected and verified in Langfuse; no independent
 acquisition ran. Single observations do not establish causality or reliability.
 Next inspect first-layer output responsibilities against real metric/synthesis
 consumers before another candidate. Role/position cannot be removed silently:
-current competitor statistics consume them. See the
-[experiment protocol](research/chain-quality-experiment.md).
+current competitor statistics consume them.
+
+The output-first consumer audit then selected P5, a program-owned source-reference
+handoff rather than another model task. One real call resolved all seven selected
+ranges with source qualifications intact and produced a faithful absent-target
+card. Overall semantics still failed: all roles were COMPARED, and a shared prose
+observedForm caused existing identity deduplication to lose a distinct brand.
+An offline single-variable replay isolates that loss without changing the original
+result. Next align individual identity and local choice/mention semantics with
+their consumers; exact source restoration is useful but not semantic acceptance.
+See the [experiment protocol](research/chain-quality-experiment.md).
 
 ## Impact and exit
 
