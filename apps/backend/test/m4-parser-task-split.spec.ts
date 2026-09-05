@@ -62,6 +62,49 @@ const judgment = () => ({
 });
 
 describe("M4 task-load comparison handoff", () => {
+  it("accepts a literal alias already visible through another record without duplicating the source", () => {
+    const local = {
+      ...base,
+      userContext: {
+        ...base.userContext,
+        originalAnswer: "甲咖啡可考虑。\n甲旗舰店和乙咖啡均在本段具名。",
+      },
+    };
+    const inventory = {
+      answerStructure: "PARAGRAPHS",
+      target: null,
+      otherBrands: [
+        {
+          displayName: "甲咖啡",
+          observedForms: ["甲咖啡", "甲旗舰店"],
+          evidence: [range(1)],
+        },
+        {
+          displayName: "乙咖啡",
+          observedForms: ["乙咖啡"],
+          evidence: [range(2)],
+        },
+      ],
+    };
+    const output = {
+      ...judgment(),
+      target: null,
+      otherBrands: inventory.otherBrands.map((b) => ({
+        ...b,
+        role: "MENTIONED_ONLY",
+        relativePosition: null,
+        positionKind: null,
+      })),
+    };
+    expect(buildM4EvidenceJudgmentTask(local, inventory).visibleLineCount).toBe(
+      2,
+    );
+    expect(
+      projectM4EvidenceJudgmentOutput(output, local, inventory).projected
+        .semantic.otherBrands[0]!.observedForms,
+    ).toContain("甲旗舰店");
+  });
+
   it("rejects recovery of a brand from source hidden from the judgment task", () => {
     const local = {
       ...base,

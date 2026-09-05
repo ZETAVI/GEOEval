@@ -166,7 +166,7 @@ export function buildM4EvidenceJudgmentTask(
     (inventory.target?.evidence.length ?? 0) > p.targetRangeLimit
   )
     throw new Error("Inventory exceeds source contract capacity");
-  for (const item of [
+  const items = [
     ...(inventory.target
       ? [
           {
@@ -179,14 +179,11 @@ export function buildM4EvidenceJudgmentTask(
       forms: b.observedForms,
       evidence: b.evidence,
     })),
-  ]) {
-    if (
-      !item.forms.every((form) =>
-        item.evidence.some((span) => span.exactText.includes(form)),
-      )
-    )
-      throw new Error("Inventory name is not grounded in its selected source");
-  }
+  ];
+  const visibleEvidence = items.flatMap((item) => item.evidence);
+  items.forEach((item) =>
+    requireGroundedNames(item.forms, item.evidence, visibleEvidence),
+  );
   const selected = new Set<number>();
   for (const ref of [
     ...(raw.target?.evidence ?? []),
@@ -271,12 +268,10 @@ export function projectM4EvidenceJudgmentOutput(
     forms: string[],
     spans: Array<{ exactText: string }>,
   ) => {
-    if (
-      !forms.every((form) =>
-        spans.some((span) => span.exactText.includes(form)),
-      )
-    )
-      throw new Error("Judgment name is not grounded in its visible evidence");
+    requireGroundedNames(forms, spans, [
+      ...(handoff.inventory.target?.evidence ?? []),
+      ...handoff.inventory.otherBrands.flatMap((b) => b.evidence),
+    ]);
   };
   if (restored.target)
     requireGrounded(
@@ -322,6 +317,25 @@ export function projectM4EvidenceJudgmentOutput(
       ),
     );
   return result;
+}
+
+// Visibility is shared across the handoff. A record needs its own identity
+// evidence, but aliases already present elsewhere in visible source need not
+// repeat that source range. This is lexical grounding, not entity resolution.
+function requireGroundedNames(
+  forms: string[],
+  ownEvidence: Array<{ exactText: string }>,
+  visibleEvidence: Array<{ exactText: string }>,
+) {
+  if (
+    !forms.every((form) =>
+      visibleEvidence.some((span) => span.exactText.includes(form)),
+    ) ||
+    !forms.some((form) =>
+      ownEvidence.some((span) => span.exactText.includes(form)),
+    )
+  )
+    throw new Error("Name is not grounded in visible source and its record");
 }
 
 function object(value: unknown): Record<string, unknown> {
