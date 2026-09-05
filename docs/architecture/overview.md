@@ -1,7 +1,8 @@
 # Architecture Overview
 
-- Status: S1-S6 evaluation behavior, AI-generated Query preparation, and the
-  Media Supply backend foundation are integrated after one
+- Status: S1-S6 evaluation behavior, AI-generated Query preparation, the Media
+  Supply backend foundation, and the Identity and Access foundation are
+  integrated after one
   fictional real 4-by-5 Worker evaluation, authenticated customer-report
   inspection, fixed-revision review, and product-owner confirmation. Production
   activation and commercial customer data remain separate gates.
@@ -11,6 +12,9 @@
 - Completed change: [`integrate-real-evaluation-providers`](../../openspec/changes/archive/2026-09-01-integrate-real-evaluation-providers/proposal.md),
   coordinated by [Issue #4](https://github.com/ZETAVI/GEOEval/issues/4) and
   [PR #20](https://github.com/ZETAVI/GEOEval/pull/20)
+- Current Identity contract:
+  [`identity-and-access`](../../openspec/specs/identity-and-access/spec.md), with
+  durable rationale in [ADR 0004](adr/0004-server-authoritative-identity-and-access.md)
 - Completed change: [`implement-ai-query-generator`](../../openspec/changes/archive/2026-09-04-implement-ai-query-generator/proposal.md),
   coordinated by [Issue #26](https://github.com/ZETAVI/GEOEval/issues/26) and
   [PR #28](https://github.com/ZETAVI/GEOEval/pull/28)
@@ -79,6 +83,27 @@ remain in separate server runtimes. The Brand API completes provider calls befor
 the aggregate transaction, stores no raw provider response, serializes Brand
 writes, and rejects expired, replayed, cross-account, or stale receipts.
 
+Identity and Access owns fixed single-role Accounts, mobile Challenge lifecycle,
+opaque server-side Sessions, declarative HTTP access, administrator account
+governance, append-only governance audit, and one-time offline first-
+administrator Bootstrap. Every account has exactly one of terminal customer,
+operations, administrator, or agent; customer and internal role families never
+convert, while controlled internal-role changes revoke all existing Sessions.
+PostgreSQL is the sole authority for account status, current role, Session
+expiry/revocation, the last-administrator invariant, Bootstrap control, and
+audit. Redis, Cookie content, Web routing, and business modules do not own
+authorization truth.
+
+The NestJS API authenticates by default through one global fail-closed access
+boundary. Controllers explicitly mark public routes or required fixed roles and
+consume only a narrow current principal. State-changing browser requests also
+require JSON, the application header, and an exact configured Origin. The Web
+maps the returned role to `/brands`, `/admin`, `/operations`, or `/agent`, but
+that mapping grants no backend authority. Real SMS, production migration,
+Bootstrap execution, second-administrator readiness, monitoring, deployment,
+and activation remain separate release gates documented by the
+[Identity operations runbook](../operations/identity-and-access.md).
+
 GEO Intelligence turns the narrow frozen Query handoff into one durable
 `EvaluationQuestionPreparation` per Brand fingerprint. One repository-owned,
 versioned no-search Prompt asks a single Agent for a natural target-brand name
@@ -116,8 +141,9 @@ catalog revision, and administrator audit. Each supplier is a globally reusable
 `MediaSupplier`; each resource stores one resource-owned two-state decision while its
 effective availability is derived from that decision and supplier status.
 Supplier/resource association counts are queried rather than stored, and both
-owners use optimistic concurrency plus guarded non-cascading deletion. Identity owns the reusable all-role
-session and required-role guards; only administrators mutate media facts.
+owners use optimistic concurrency plus guarded non-cascading deletion. Media
+Supply declares its administrator requirement through the Identity-owned access
+contract; only administrators mutate media facts.
 Customer HTTP responses are explicit safe projections and never reuse
 administrator DTOs or expose procurement cost, supplier/contact data, cases, or
 notes.
@@ -150,7 +176,7 @@ seventeen-of-twenty readiness decision. AI Execution owns only append-oriented
 attempt evidence. Background Work owns product-Outbox relay, small BullMQ jobs,
 and a scheduled reconciliation scan; neither Redis nor telemetry is a source of
 business truth. The API and Worker load separate module graphs so background
-processing does not depend on HTTP controllers or session guards. The current
+processing does not depend on HTTP controllers or access guards. The current
 behavior is specified by
 [`evaluation-evidence`](../../openspec/specs/evaluation-evidence/spec.md).
 

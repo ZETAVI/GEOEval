@@ -1,30 +1,110 @@
 import type {
+  AccountListPage,
+  AccountRole,
+  AccountStatus,
   AccountView,
-  AuthenticatedSession,
+  SessionAuthenticationRecord,
+  IdentityGovernanceAuditView,
+  IdentityBootstrapResult,
+  IdentityLifecycleCleanupResult,
+  InternalAccountRole,
   MobileChallengeView,
+  SessionRevocationReason,
 } from "./identity.types.js";
 
 export const IDENTITY_REPOSITORY = Symbol("IDENTITY_REPOSITORY");
 
 export interface IdentityRepository {
-  createChallenge(input: {
+  issueChallenge(input: {
     id: string;
     mobile: string;
     codeDigest: string;
     expiresAt: Date;
+    now: Date;
+    resendIntervalMs: number;
+    windowMs: number;
+    maximumRequestsPerWindow: number;
   }): Promise<void>;
+  bootstrapAdministrator(input: {
+    mobile: string;
+    keyId: string;
+    secretDigest: string;
+    now: Date;
+  }): Promise<IdentityBootstrapResult>;
   findChallenge(id: string): Promise<MobileChallengeView | undefined>;
-  incrementFailedAttempts(id: string): Promise<void>;
+  incrementFailedAttempts(input: {
+    id: string;
+    maximumFailedAttempts: number;
+  }): Promise<void>;
+  cleanupIdentityLifecycle(input: {
+    now: Date;
+    sessionRetentionMs: number;
+    challengeRetentionMs: number;
+    batchSize: number;
+  }): Promise<IdentityLifecycleCleanupResult>;
   completeChallenge(input: {
     challengeId: string;
     mobile: string;
     sessionDigest: string;
-    sessionExpiresAt: Date;
+    customerAbsoluteMs: number;
+    customerIdleMs: number;
+    internalAbsoluteMs: number;
+    internalIdleMs: number;
+    maximumFailedAttempts: number;
     now: Date;
-  }): Promise<AccountView | undefined>;
+  }): Promise<
+    { account: AccountView; expiresAt: Date; idleExpiresAt: Date } | undefined
+  >;
   findSession(
     tokenDigest: string,
-    now: Date,
-  ): Promise<AuthenticatedSession | undefined>;
-  revokeSession(tokenDigest: string, now: Date): Promise<void>;
+  ): Promise<SessionAuthenticationRecord | undefined>;
+  touchSession(input: {
+    sessionId: string;
+    lastSeenAt: Date;
+    idleExpiresAt: Date;
+  }): Promise<void>;
+  revokeSession(input: {
+    tokenDigest: string;
+    now: Date;
+    reason: SessionRevocationReason;
+  }): Promise<void>;
+  revokeAccountSessions(input: {
+    accountId: string;
+    now: Date;
+    reason: SessionRevocationReason;
+  }): Promise<number>;
+  listAccounts(input: {
+    search?: string;
+    role?: AccountRole;
+    status?: AccountStatus;
+    cursor?: string;
+    limit: number;
+    now: Date;
+  }): Promise<AccountListPage>;
+  listGovernanceAudits(input: {
+    targetAccountId?: string;
+    cursor?: string;
+    limit: number;
+  }): Promise<{
+    items: IdentityGovernanceAuditView[];
+    nextCursor: string | null;
+  }>;
+  createInternalAccount(input: {
+    actorAccountId: string;
+    mobile: string;
+    role: InternalAccountRole;
+    reason: string;
+    now: Date;
+  }): Promise<AccountView>;
+  changeGovernedAccount(input: {
+    actorAccountId: string;
+    targetAccountId: string;
+    expectedRevision: number;
+    reason: string;
+    now: Date;
+    mutation:
+      | { kind: "STATUS"; status: AccountStatus }
+      | { kind: "ROLE"; role: InternalAccountRole }
+      | { kind: "REVOKE_SESSIONS" };
+  }): Promise<AccountView>;
 }

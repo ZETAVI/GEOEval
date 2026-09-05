@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   ApiRequestError,
@@ -10,6 +10,7 @@ import {
   DeleteConfirmDialog,
   PlatformEditor,
   ResourceEditor,
+  routeMediaEditorFailure,
   SupplierEditor,
 } from "../app/admin/media/media-editors.js";
 import {
@@ -152,6 +153,21 @@ describe("Media Supply administrator UI behavior", () => {
     );
   });
 
+  it("routes editor authentication failures to the shared Session boundary", () => {
+    const failure = new ApiRequestError(
+      "此登录会话已结束",
+      401,
+      "SESSION_REVOKED",
+    );
+    const onAccessFailure = vi.fn(() => true);
+    const onLocalFailure = vi.fn();
+
+    routeMediaEditorFailure(failure, onAccessFailure, onLocalFailure);
+
+    expect(onAccessFailure).toHaveBeenCalledWith(failure);
+    expect(onLocalFailure).not.toHaveBeenCalled();
+  });
+
   it("renders the confirmed platform and resource defaults", () => {
     const supplier: MediaSupplier = {
       id: "00000000-0000-4000-8000-000000000003",
@@ -171,6 +187,7 @@ describe("Media Supply administrator UI behavior", () => {
       <PlatformEditor
         apiBaseUrl="http://127.0.0.1:3300"
         onClose={() => undefined}
+        onAccessFailure={() => false}
         onSaved={() => undefined}
       />,
     );
@@ -180,6 +197,7 @@ describe("Media Supply administrator UI behavior", () => {
         platform={platforms[0]!}
         suppliers={[supplier]}
         onClose={() => undefined}
+        onAccessFailure={() => false}
         onSaved={() => undefined}
       />,
     );
@@ -187,6 +205,7 @@ describe("Media Supply administrator UI behavior", () => {
       <SupplierEditor
         apiBaseUrl="http://127.0.0.1:3300"
         onClose={() => undefined}
+        onAccessFailure={() => false}
         onSaved={() => undefined}
       />,
     );
@@ -195,6 +214,7 @@ describe("Media Supply administrator UI behavior", () => {
         apiBaseUrl="http://127.0.0.1:3300"
         platform={{ ...platforms[0]!, logoUrl: "/media/logo.svg" }}
         onClose={() => undefined}
+        onAccessFailure={() => false}
         onSaved={() => undefined}
       />,
     );

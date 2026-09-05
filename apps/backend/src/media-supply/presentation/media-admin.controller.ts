@@ -9,8 +9,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
-  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBody,
@@ -19,10 +17,9 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 
-import { AccountSessionGuard } from "../../identity/presentation/account-session.guard.js";
-import { RequireRole } from "../../identity/presentation/require-role.js";
-import { RoleGuard } from "../../identity/presentation/role.guard.js";
-import type { AuthenticatedRequest } from "../../identity/presentation/session-http.js";
+import { RequireAccountRoles } from "../../identity/access/access.metadata.js";
+import { CurrentPrincipal } from "../../identity/access/current-principal.js";
+import type { AuthenticatedPrincipal } from "../../identity/domain/identity.types.js";
 import { MediaSupplyService } from "../application/media-supply.service.js";
 import {
   MediaCatalogAuditResponse,
@@ -43,8 +40,7 @@ import {
 } from "./media-supply.dto.js";
 
 @ApiTags("admin-media")
-@RequireRole("ADMINISTRATOR")
-@UseGuards(AccountSessionGuard, RoleGuard)
+@RequireAccountRoles("ADMINISTRATOR")
 @Controller("admin/media")
 export class MediaAdminController {
   constructor(
@@ -69,40 +65,32 @@ export class MediaAdminController {
   @ApiBody({ type: MediaPlatformCreateRequest })
   @ApiCreatedResponse({ type: MediaPlatformAdminResponse })
   createPlatform(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Body() input: MediaPlatformCreateRequest,
   ): Promise<MediaPlatformAdminResponse> {
-    return this.media.createPlatform(request.geoevalAccount!.id, input);
+    return this.media.createPlatform(principal.accountId, input);
   }
 
   @Patch("platforms/:platformId")
   @ApiBody({ type: MediaPlatformUpdateRequest })
   @ApiOkResponse({ type: MediaPlatformAdminResponse })
   updatePlatform(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("platformId") platformId: string,
     @Body() input: MediaPlatformUpdateRequest,
   ): Promise<MediaPlatformAdminResponse> {
-    return this.media.updatePlatform(
-      request.geoevalAccount!.id,
-      platformId,
-      input,
-    );
+    return this.media.updatePlatform(principal.accountId, platformId, input);
   }
 
   @Delete("platforms/:platformId")
   @ApiBody({ type: MediaDeleteOwnerRequest })
   @HttpCode(204)
   async deletePlatform(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("platformId") platformId: string,
     @Body() input: MediaDeleteOwnerRequest,
   ): Promise<void> {
-    await this.media.deletePlatform(
-      request.geoevalAccount!.id,
-      platformId,
-      input,
-    );
+    await this.media.deletePlatform(principal.accountId, platformId, input);
   }
 
   @Get("suppliers")
@@ -123,53 +111,42 @@ export class MediaAdminController {
   @ApiBody({ type: MediaSupplierCreateRequest })
   @ApiCreatedResponse({ type: MediaSupplierResponse })
   createSupplier(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Body() input: MediaSupplierCreateRequest,
   ): Promise<MediaSupplierResponse> {
-    return this.media.createSupplier(request.geoevalAccount!.id, input);
+    return this.media.createSupplier(principal.accountId, input);
   }
 
   @Patch("suppliers/:supplierId")
   @ApiBody({ type: MediaSupplierUpdateRequest })
   @ApiOkResponse({ type: MediaSupplierResponse })
   updateSupplier(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("supplierId") supplierId: string,
     @Body() input: MediaSupplierUpdateRequest,
   ): Promise<MediaSupplierResponse> {
-    return this.media.updateSupplier(
-      request.geoevalAccount!.id,
-      supplierId,
-      input,
-    );
+    return this.media.updateSupplier(principal.accountId, supplierId, input);
   }
 
   @Delete("suppliers/:supplierId")
   @ApiBody({ type: MediaDeleteOwnerRequest })
   @HttpCode(204)
   async deleteSupplier(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("supplierId") supplierId: string,
     @Body() input: MediaDeleteOwnerRequest,
   ): Promise<void> {
-    await this.media.deleteSupplier(
-      request.geoevalAccount!.id,
-      supplierId,
-      input,
-    );
+    await this.media.deleteSupplier(principal.accountId, supplierId, input);
   }
 
   @Patch("resources/status")
   @ApiBody({ type: MediaResourceBatchStatusRequest })
   @ApiOkResponse({ type: [MediaResourceAdminResponse] })
   batchUpdateResourceStatus(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Body() input: MediaResourceBatchStatusRequest,
   ): Promise<MediaResourceAdminResponse[]> {
-    return this.media.batchUpdateResourceStatus(
-      request.geoevalAccount!.id,
-      input,
-    );
+    return this.media.batchUpdateResourceStatus(principal.accountId, input);
   }
 
   @Get("platforms/:platformId/resources")
@@ -184,40 +161,32 @@ export class MediaAdminController {
   @ApiBody({ type: MediaResourceCreateRequest })
   @ApiCreatedResponse({ type: MediaResourceAdminResponse })
   createResource(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Body() input: MediaResourceCreateRequest,
   ): Promise<MediaResourceAdminResponse> {
-    return this.media.createResource(request.geoevalAccount!.id, input);
+    return this.media.createResource(principal.accountId, input);
   }
 
   @Patch("resources/:resourceId")
   @ApiBody({ type: MediaResourceUpdateRequest })
   @ApiOkResponse({ type: MediaResourceAdminResponse })
   updateResource(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("resourceId") resourceId: string,
     @Body() input: MediaResourceUpdateRequest,
   ): Promise<MediaResourceAdminResponse> {
-    return this.media.updateResource(
-      request.geoevalAccount!.id,
-      resourceId,
-      input,
-    );
+    return this.media.updateResource(principal.accountId, resourceId, input);
   }
 
   @Delete("resources/:resourceId")
   @ApiBody({ type: MediaResourceDeleteRequest })
   @ApiOkResponse({ type: MediaResourceDeleteResponse })
   deleteResource(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("resourceId") resourceId: string,
     @Body() input: MediaResourceDeleteRequest,
   ): Promise<MediaResourceDeleteResponse> {
-    return this.media.deleteResource(
-      request.geoevalAccount!.id,
-      resourceId,
-      input,
-    );
+    return this.media.deleteResource(principal.accountId, resourceId, input);
   }
 
   @Get("audits")

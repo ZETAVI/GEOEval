@@ -1,12 +1,12 @@
-import { Controller, Get, Inject, UseGuards } from "@nestjs/common";
+import { Controller, Get, Inject } from "@nestjs/common";
 import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
 
-import { SessionGuard } from "../../identity/presentation/session.guard.js";
+import { RequireAccountRoles } from "../../identity/access/access.metadata.js";
 import { BrandReferenceData } from "../reference-data/brand-reference-data.js";
 import { IndustryCatalogResponse } from "./brand-reference.dto.js";
 
 @ApiTags("brand-reference-data")
-@UseGuards(SessionGuard)
+@RequireAccountRoles("TERMINAL_CUSTOMER")
 @Controller("brand-reference-data")
 export class BrandReferenceController {
   constructor(

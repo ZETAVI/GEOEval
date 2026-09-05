@@ -18,6 +18,10 @@ import {
 } from "./foundation.dto.js";
 import { FoundationService } from "./foundation.service.js";
 import { ReadinessState } from "../readiness.js";
+import {
+  CsrfExempt,
+  PublicAccess,
+} from "../identity/access/access.metadata.js";
 
 type RefreshMessage = {
   data: {
@@ -29,6 +33,8 @@ type RefreshMessage = {
 };
 
 @ApiTags("foundation")
+@PublicAccess()
+@CsrfExempt()
 @Controller("foundation")
 export class FoundationController {
   constructor(

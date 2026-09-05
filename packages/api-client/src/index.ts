@@ -4,6 +4,24 @@ export type FoundationRecord =
   components["schemas"]["FoundationRecordResponse"];
 export type Challenge = components["schemas"]["ChallengeResponse"];
 export type Account = components["schemas"]["AccountResponse"];
+export type SessionAuthenticationError =
+  components["schemas"]["SessionAuthenticationErrorResponse"];
+export type SessionAuthenticationFailureCode =
+  SessionAuthenticationError["code"];
+export type AccountSummary = components["schemas"]["AccountSummaryResponse"];
+export type AccountList = components["schemas"]["AccountListResponse"];
+export type IdentityGovernanceAudit =
+  components["schemas"]["IdentityGovernanceAuditResponse"];
+export type IdentityGovernanceAuditList =
+  components["schemas"]["IdentityGovernanceAuditListResponse"];
+export type CreateInternalAccount =
+  components["schemas"]["CreateInternalAccountRequest"];
+export type ChangeAccountStatus =
+  components["schemas"]["ChangeAccountStatusRequest"];
+export type ChangeAccountRole =
+  components["schemas"]["ChangeAccountRoleRequest"];
+export type GovernedAccountMutation =
+  components["schemas"]["GovernedAccountMutationRequest"];
 export type Brand = components["schemas"]["BrandResponse"];
 export type EvaluationDefinition =
   components["schemas"]["EvaluationDefinitionResponse"];
@@ -59,6 +77,7 @@ export class ApiRequestError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    readonly code?: string,
   ) {
     super(message);
     this.name = "ApiRequestError";
@@ -70,23 +89,31 @@ async function apiRequest<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
+  const method = (init?.method ?? "GET").toUpperCase();
+  const changesState = !["GET", "HEAD", "OPTIONS"].includes(method);
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     credentials: "include",
     headers: {
-      ...(init?.body ? { "content-type": "application/json" } : {}),
+      ...(changesState
+        ? {
+            "content-type": "application/json",
+            "x-geoeval-request": "1",
+          }
+        : {}),
       ...init?.headers,
     },
   });
   if (!response.ok) {
     const body = (await response.json().catch(() => undefined)) as
-      { message?: string | string[] } | undefined;
+      { code?: string; message?: string | string[] } | undefined;
     const message = Array.isArray(body?.message)
       ? body.message.join("；")
       : body?.message;
     throw new ApiRequestError(
       message ?? `请求失败（${response.status}）`,
       response.status,
+      body?.code,
     );
   }
   if (response.status === 204) return undefined as T;
@@ -119,6 +146,94 @@ export function getCurrentAccount(apiBaseUrl: string): Promise<Account> {
 
 export function logout(apiBaseUrl: string): Promise<void> {
   return apiRequest(apiBaseUrl, "/identity/session", { method: "DELETE" });
+}
+
+export function logoutAllSessions(apiBaseUrl: string): Promise<void> {
+  return apiRequest(apiBaseUrl, "/identity/sessions", { method: "DELETE" });
+}
+
+export function listAdminAccounts(
+  apiBaseUrl: string,
+  options: {
+    search?: string;
+    role?: Account["role"];
+    status?: Account["status"];
+    cursor?: string;
+    limit?: number;
+  } = {},
+): Promise<AccountList> {
+  const query = new URLSearchParams();
+  if (options.search) query.set("search", options.search);
+  if (options.role) query.set("role", options.role);
+  if (options.status) query.set("status", options.status);
+  if (options.cursor) query.set("cursor", options.cursor);
+  if (options.limit !== undefined) query.set("limit", String(options.limit));
+  const suffix = query.size ? `?${query.toString()}` : "";
+  return apiRequest(apiBaseUrl, `/admin/accounts${suffix}`, {
+    cache: "no-store",
+  });
+}
+
+export function listIdentityGovernanceAudits(
+  apiBaseUrl: string,
+  options: { targetAccountId?: string; cursor?: string; limit?: number } = {},
+): Promise<IdentityGovernanceAuditList> {
+  const query = new URLSearchParams();
+  if (options.targetAccountId) {
+    query.set("targetAccountId", options.targetAccountId);
+  }
+  if (options.cursor) query.set("cursor", options.cursor);
+  if (options.limit !== undefined) query.set("limit", String(options.limit));
+  const suffix = query.size ? `?${query.toString()}` : "";
+  return apiRequest(apiBaseUrl, `/admin/accounts/audits${suffix}`, {
+    cache: "no-store",
+  });
+}
+
+export function createAdminInternalAccount(
+  apiBaseUrl: string,
+  input: CreateInternalAccount,
+): Promise<Account> {
+  return apiRequest(apiBaseUrl, "/admin/accounts", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function changeAdminAccountStatus(
+  apiBaseUrl: string,
+  accountId: string,
+  input: ChangeAccountStatus,
+): Promise<Account> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/accounts/${encodeURIComponent(accountId)}/status`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function changeAdminAccountRole(
+  apiBaseUrl: string,
+  accountId: string,
+  input: ChangeAccountRole,
+): Promise<Account> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/accounts/${encodeURIComponent(accountId)}/role`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function revokeAdminAccountSessions(
+  apiBaseUrl: string,
+  accountId: string,
+  input: GovernedAccountMutation,
+): Promise<Account> {
+  return apiRequest(
+    apiBaseUrl,
+    `/admin/accounts/${encodeURIComponent(accountId)}/sessions`,
+    { method: "DELETE", body: JSON.stringify(input) },
+  );
 }
 
 export function listBrands(apiBaseUrl: string): Promise<Brand[]> {

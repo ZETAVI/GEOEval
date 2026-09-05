@@ -1,14 +1,7 @@
-import {
-  Controller,
-  Get,
-  Inject,
-  Param,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Get, Inject, Param, Query } from "@nestjs/common";
 import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
 
-import { AccountSessionGuard } from "../../identity/presentation/account-session.guard.js";
+import { RequireAccountRoles } from "../../identity/access/access.metadata.js";
 import { MediaSupplyService } from "../application/media-supply.service.js";
 import {
   MediaCatalogRevisionResponse,
@@ -18,7 +11,12 @@ import {
 } from "./media-supply.dto.js";
 
 @ApiTags("media-catalog")
-@UseGuards(AccountSessionGuard)
+@RequireAccountRoles(
+  "TERMINAL_CUSTOMER",
+  "OPERATIONS",
+  "ADMINISTRATOR",
+  "AGENT",
+)
 @Controller("media-catalog")
 export class MediaCatalogController {
   constructor(

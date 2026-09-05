@@ -2,41 +2,68 @@
 
 import {
   createBrand,
-  getCurrentAccount,
   listBrands,
   selectCurrentBrand,
   updateBrand,
-  type Account,
   type Brand,
   type BrandMutation,
 } from "@geoeval/api-client";
 import { useEffect, useState } from "react";
 import { CustomerSidebar } from "../customer-sidebar.js";
+import {
+  loadRoleSession,
+  type RoleSessionState,
+  sessionFailureState,
+  WorkspaceAccessPanel,
+} from "../session-access.js";
 import { BrandEditor } from "./brand-editor.js";
 import { prewarmEvaluationQuestions } from "./evaluation-question-prewarm.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 export function BrandWorkspace() {
-  const [account, setAccount] = useState<Account>();
+  const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Brand | "new">();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
   async function refresh() {
-    const [nextAccount, nextBrands] = await Promise.all([
-      getCurrentAccount(apiBaseUrl),
-      listBrands(apiBaseUrl),
-    ]);
-    setAccount(nextAccount);
-    setBrands(nextBrands);
+    setBrands(await listBrands(apiBaseUrl));
   }
+
+  async function bootstrap() {
+    setSession({ kind: "loading" });
+    const access = await loadRoleSession(apiBaseUrl, "TERMINAL_CUSTOMER");
+    if (access.kind !== "ready") {
+      setSession(access);
+      return;
+    }
+    try {
+      await refresh();
+      setSession(access);
+    } catch (error) {
+      setSession(
+        sessionFailureState(error) ?? {
+          kind: "error",
+          message:
+            error instanceof Error ? error.message : "品牌空间暂时无法加载",
+        },
+      );
+    }
+  }
+
+  function handleSessionFailure(error: unknown): boolean {
+    const failure = sessionFailureState(error);
+    if (failure) {
+      setSession(failure);
+      return true;
+    }
+    return false;
+  }
+
   useEffect(() => {
-    void refresh()
-      .catch(() => window.location.assign("/enter"))
-      .finally(() => setLoading(false));
+    void bootstrap();
   }, []);
 
   const current = brands.find((brand) => brand.isCurrent);
@@ -59,6 +86,7 @@ export function BrandWorkspace() {
       setEditing(undefined);
       setMessage("品牌资料已保存");
     } catch (error) {
+      if (handleSessionFailure(error)) return;
       setMessage(error instanceof Error ? error.message : "保存失败");
     } finally {
       setBusy(false);
@@ -76,19 +104,27 @@ export function BrandWorkspace() {
       ]);
       setMessage(`已切换到「${brand.companyName}」`);
     } catch (error) {
+      if (handleSessionFailure(error)) return;
       setMessage(error instanceof Error ? error.message : "切换失败");
     } finally {
       setBusy(false);
     }
   }
 
-  if (loading)
+  if (session.kind !== "ready") {
     return (
-      <main className="loading-page">
-        <span className="loading-orbit" />
-        正在准备你的品牌空间…
-      </main>
+      <WorkspaceAccessPanel
+        state={session}
+        expectedRole="TERMINAL_CUSTOMER"
+        workspaceName="品牌空间"
+        loadingDetail="通过后再读取你的品牌资料"
+        apiBaseUrl={apiBaseUrl}
+        onRetry={() => void bootstrap()}
+      />
     );
+  }
+
+  const { account } = session;
 
   return (
     <div className="app-shell">

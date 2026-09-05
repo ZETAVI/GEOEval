@@ -66,6 +66,15 @@ function messageFor(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
+export function routeMediaEditorFailure(
+  error: unknown,
+  onAccessFailure: (error: unknown) => boolean,
+  onLocalFailure: () => void,
+): void {
+  if (onAccessFailure(error)) return;
+  onLocalFailure();
+}
+
 function EditorFrame({
   eyebrow,
   title,
@@ -272,11 +281,13 @@ export function PlatformEditor({
   apiBaseUrl,
   platform,
   onClose,
+  onAccessFailure,
   onSaved,
 }: {
   apiBaseUrl: string;
   platform?: MediaPlatformAdmin;
   onClose: () => void;
+  onAccessFailure: (error: unknown) => boolean;
   onSaved: SaveResult<MediaPlatformAdmin>;
 }) {
   const [current, setCurrent] = useState(platform);
@@ -351,14 +362,16 @@ export function PlatformEditor({
       );
       onClose();
     } catch (caught) {
-      if (isPlatformRevisionConflict(caught)) {
-        setConflict(true);
-        setError(
-          "平台已在其他页面发生变化。请刷新最新内容，重新核对后再保存。",
-        );
-      } else {
-        setError(messageFor(caught, "平台未保存，请稍后重试"));
-      }
+      routeMediaEditorFailure(caught, onAccessFailure, () => {
+        if (isPlatformRevisionConflict(caught)) {
+          setConflict(true);
+          setError(
+            "平台已在其他页面发生变化。请刷新最新内容，重新核对后再保存。",
+          );
+        } else {
+          setError(messageFor(caught, "平台未保存，请稍后重试"));
+        }
+      });
     } finally {
       setBusy(false);
     }
@@ -384,7 +397,9 @@ export function PlatformEditor({
       setNotice("已获取最新平台内容，请重新确认后保存。");
       setErrors({});
     } catch (caught) {
-      setError(messageFor(caught, "暂时无法刷新平台内容"));
+      routeMediaEditorFailure(caught, onAccessFailure, () =>
+        setError(messageFor(caught, "暂时无法刷新平台内容")),
+      );
     } finally {
       setBusy(false);
     }
@@ -579,11 +594,13 @@ export function SupplierEditor({
   apiBaseUrl,
   supplier,
   onClose,
+  onAccessFailure,
   onSaved,
 }: {
   apiBaseUrl: string;
   supplier?: MediaSupplier;
   onClose: () => void;
+  onAccessFailure: (error: unknown) => boolean;
   onSaved: SaveResult<MediaSupplier>;
 }) {
   const [displayName, setDisplayName] = useState(supplier?.displayName ?? "");
@@ -629,7 +646,9 @@ export function SupplierEditor({
       );
       onClose();
     } catch (caught) {
-      setError(messageFor(caught, "供应商未保存，请稍后重试"));
+      routeMediaEditorFailure(caught, onAccessFailure, () =>
+        setError(messageFor(caught, "供应商未保存，请稍后重试")),
+      );
     } finally {
       setBusy(false);
     }
@@ -740,6 +759,7 @@ export function ResourceEditor({
   suppliers,
   resource,
   onClose,
+  onAccessFailure,
   onSaved,
 }: {
   apiBaseUrl: string;
@@ -747,6 +767,7 @@ export function ResourceEditor({
   suppliers: MediaSupplier[];
   resource?: MediaResourceAdmin;
   onClose: () => void;
+  onAccessFailure: (error: unknown) => boolean;
   onSaved: SaveResult<MediaResourceAdmin>;
 }) {
   const defaultSupplier = useMemo(
@@ -841,7 +862,9 @@ export function ResourceEditor({
       );
       onClose();
     } catch (caught) {
-      setError(messageFor(caught, "资源未保存，请稍后重试"));
+      routeMediaEditorFailure(caught, onAccessFailure, () =>
+        setError(messageFor(caught, "资源未保存，请稍后重试")),
+      );
     } finally {
       setBusy(false);
     }

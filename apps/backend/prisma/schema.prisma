@@ -25,6 +25,33 @@ enum AccountRole {
   AGENT
 }
 
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum SessionRevocationReason {
+  USER_LOGOUT
+  USER_LOGOUT_ALL
+  ADMIN_REVOKE_ALL
+  ACCOUNT_DEACTIVATED
+  ROLE_CHANGED
+}
+
+enum IdentityGovernanceActorKind {
+  ACCOUNT
+  BOOTSTRAP
+}
+
+enum IdentityGovernanceAction {
+  BOOTSTRAP_ADMINISTRATOR
+  CREATE_INTERNAL_ACCOUNT
+  ACTIVATE_ACCOUNT
+  DEACTIVATE_ACCOUNT
+  CHANGE_INTERNAL_ROLE
+  REVOKE_ACCOUNT_SESSIONS
+}
+
 enum BrandStatus {
   ACTIVE
   ARCHIVED
@@ -149,18 +176,26 @@ enum MediaQualityTier {
 }
 
 model Account {
-  id                   String                          @id @default(uuid()) @db.Uuid
-  mobile               String                          @unique @db.VarChar(20)
-  role                 AccountRole                     @default(TERMINAL_CUSTOMER)
-  createdAt            DateTime                        @default(now()) @map("created_at")
-  updatedAt            DateTime                        @updatedAt @map("updated_at")
-  sessions             AccountSession[]
-  brands               BrandProfile[]
-  brandContext         BrandContext?
-  notifications        Notification[]
-  mediaCatalogAudits   MediaCatalogAudit[]
-  questionPreparations EvaluationQuestionPreparation[]
+  id                       String                          @id @default(uuid()) @db.Uuid
+  mobile                   String                          @unique @db.VarChar(20)
+  role                     AccountRole                     @default(TERMINAL_CUSTOMER)
+  status                   AccountStatus                   @default(ACTIVE)
+  revision                 Int                             @default(1)
+  lastAuthenticatedAt      DateTime?                       @map("last_authenticated_at")
+  createdAt                DateTime                        @default(now()) @map("created_at")
+  updatedAt                DateTime                        @updatedAt @map("updated_at")
+  sessions                 AccountSession[]
+  brands                   BrandProfile[]
+  brandContext             BrandContext?
+  notifications            Notification[]
+  mediaCatalogAudits       MediaCatalogAudit[]
+  questionPreparations     EvaluationQuestionPreparation[]
+  identityAuditsActed      IdentityGovernanceAudit[]       @relation("IdentityAuditActor")
+  identityAuditsTargeted   IdentityGovernanceAudit[]       @relation("IdentityAuditTarget")
+  bootstrapGovernanceState IdentityGovernanceControl?      @relation("BootstrapAccount")
 
+  @@index([role, status, createdAt, id])
+  @@index([status, updatedAt, id])
   @@map("accounts")
 }
 
@@ -171,45 +206,94 @@ model MobileChallenge {
   failedAttempts Int       @default(0) @map("failed_attempts")
   expiresAt      DateTime  @map("expires_at")
   consumedAt     DateTime? @map("consumed_at")
+  supersededAt   DateTime? @map("superseded_at")
   createdAt      DateTime  @default(now()) @map("created_at")
 
   @@index([mobile, createdAt])
   @@map("mobile_challenges")
 }
 
-model AccountSession {
-  id          String    @id @default(uuid()) @db.Uuid
-  accountId   String    @map("account_id") @db.Uuid
-  tokenDigest String    @unique @map("token_digest") @db.Char(64)
-  expiresAt   DateTime  @map("expires_at")
-  revokedAt   DateTime? @map("revoked_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  account     Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+model MobileChallengeRateLimit {
+  mobile          String   @id @db.VarChar(20)
+  windowStartedAt DateTime @map("window_started_at")
+  requestCount    Int      @default(0) @map("request_count")
+  lastIssuedAt    DateTime @map("last_issued_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
-  @@index([accountId, expiresAt])
+  @@index([lastIssuedAt])
+  @@map("mobile_challenge_rate_limits")
+}
+
+model AccountSession {
+  id            String                   @id @default(uuid()) @db.Uuid
+  accountId     String                   @map("account_id") @db.Uuid
+  tokenDigest   String                   @unique @map("token_digest") @db.Char(64)
+  expiresAt     DateTime                 @map("expires_at")
+  idleExpiresAt DateTime                 @default(dbgenerated("(CURRENT_TIMESTAMP + '00:30:00'::interval)")) @map("idle_expires_at")
+  lastSeenAt    DateTime                 @default(now()) @map("last_seen_at")
+  revokedAt     DateTime?                @map("revoked_at")
+  revokedReason SessionRevocationReason? @map("revoked_reason")
+  createdAt     DateTime                 @default(now()) @map("created_at")
+  account       Account                  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, revokedAt, expiresAt])
+  @@index([idleExpiresAt])
   @@map("account_sessions")
 }
 
+model IdentityGovernanceControl {
+  id                    String    @id @db.VarChar(32)
+  bootstrapAccountId    String?   @unique @map("bootstrap_account_id") @db.Uuid
+  bootstrapSecretDigest String?   @map("bootstrap_secret_digest") @db.Char(64)
+  bootstrapKeyId        String?   @map("bootstrap_key_id") @db.VarChar(120)
+  bootstrapCompletedAt  DateTime? @map("bootstrap_completed_at")
+  revision              Int       @default(1)
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  bootstrapAccount      Account?  @relation("BootstrapAccount", fields: [bootstrapAccountId], references: [id], onDelete: Restrict)
+
+  @@map("identity_governance_controls")
+}
+
+model IdentityGovernanceAudit {
+  id              String                      @id @default(uuid()) @db.Uuid
+  actorKind       IdentityGovernanceActorKind @map("actor_kind")
+  actorAccountId  String?                     @map("actor_account_id") @db.Uuid
+  actorKeyId      String?                     @map("actor_key_id") @db.VarChar(120)
+  targetAccountId String                      @map("target_account_id") @db.Uuid
+  action          IdentityGovernanceAction
+  reason          String                      @db.VarChar(320)
+  beforeState     Json?                       @map("before_state")
+  afterState      Json                        @map("after_state")
+  createdAt       DateTime                    @default(now()) @map("created_at")
+  actor           Account?                    @relation("IdentityAuditActor", fields: [actorAccountId], references: [id], onDelete: Restrict)
+  target          Account                     @relation("IdentityAuditTarget", fields: [targetAccountId], references: [id], onDelete: Restrict)
+
+  @@index([targetAccountId, createdAt, id])
+  @@index([actorAccountId, createdAt, id])
+  @@index([action, createdAt, id])
+  @@map("identity_governance_audits")
+}
+
 model BrandProfile {
-  id                     String                          @id @default(uuid()) @db.Uuid
-  accountId              String                          @map("account_id") @db.Uuid
-  status                 BrandStatus                     @default(ACTIVE)
-  companyName            String                          @map("company_name")
-  primaryIndustryId      String?                         @map("primary_industry_id") @db.VarChar(100)
-  secondaryIndustryId    String?                         @map("secondary_industry_id") @db.VarChar(100)
-  otherProductOrService  String?                         @map("other_product_or_service") @db.VarChar(60)
-  flagshipProductOrService String?                       @map("flagship_product_or_service") @db.VarChar(80)
-  characteristics        Json                            @default("[]")
-  contactName            String?                         @map("contact_name")
-  contactMobile          String?                         @map("contact_mobile") @db.VarChar(20)
-  evaluationFingerprint  String                          @map("evaluation_fingerprint") @db.Char(64)
-  createdAt              DateTime                        @default(now()) @map("created_at")
-  updatedAt              DateTime                        @updatedAt @map("updated_at")
-  account                Account                         @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  selectedByBrandContext BrandContext?                   @relation("CurrentBrand")
-  evaluationDefinitions  EvaluationDefinition[]          @relation("BrandEvaluationDefinitions")
-  questionPreparations   EvaluationQuestionPreparation[] @relation("BrandQuestionPreparations")
-  storeLocation          BrandStoreLocation?
+  id                       String                          @id @default(uuid()) @db.Uuid
+  accountId                String                          @map("account_id") @db.Uuid
+  status                   BrandStatus                     @default(ACTIVE)
+  companyName              String                          @map("company_name")
+  primaryIndustryId        String?                         @map("primary_industry_id") @db.VarChar(100)
+  secondaryIndustryId      String?                         @map("secondary_industry_id") @db.VarChar(100)
+  otherProductOrService    String?                         @map("other_product_or_service") @db.VarChar(60)
+  flagshipProductOrService String?                         @map("flagship_product_or_service") @db.VarChar(80)
+  characteristics          Json                            @default("[]")
+  contactName              String?                         @map("contact_name")
+  contactMobile            String?                         @map("contact_mobile") @db.VarChar(20)
+  evaluationFingerprint    String                          @map("evaluation_fingerprint") @db.Char(64)
+  createdAt                DateTime                        @default(now()) @map("created_at")
+  updatedAt                DateTime                        @updatedAt @map("updated_at")
+  account                  Account                         @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  selectedByBrandContext   BrandContext?                   @relation("CurrentBrand")
+  evaluationDefinitions    EvaluationDefinition[]          @relation("BrandEvaluationDefinitions")
+  questionPreparations     EvaluationQuestionPreparation[] @relation("BrandQuestionPreparations")
+  storeLocation            BrandStoreLocation?
 
   @@unique([id, accountId])
   @@index([accountId, status, updatedAt])
@@ -652,18 +736,18 @@ model Notification {
 }
 
 model MediaPlatform {
-  id             String              @id @default(uuid()) @db.Uuid
-  normalizedName String              @unique @map("normalized_name") @db.VarChar(160)
-  displayName    String              @map("display_name") @db.VarChar(160)
-  aliases        String[]            @default([])
+  id             String                  @id @default(uuid()) @db.Uuid
+  normalizedName String                  @unique @map("normalized_name") @db.VarChar(160)
+  displayName    String                  @map("display_name") @db.VarChar(160)
+  aliases        String[]                @default([])
   description    String?
-  logoUrl        String?             @map("logo_url") @db.VarChar(2048)
-  regionScope    MediaRegionScope    @default(DOMESTIC) @map("region_scope")
-  status         MediaPlatformStatus @default(INACTIVE)
-  pointPrice     Int?                @map("point_price")
-  revision       Int                 @default(1)
-  createdAt      DateTime            @default(now()) @map("created_at")
-  updatedAt      DateTime            @updatedAt @map("updated_at")
+  logoUrl        String?                 @map("logo_url") @db.VarChar(2048)
+  regionScope    MediaRegionScope        @default(DOMESTIC) @map("region_scope")
+  status         MediaPlatformStatus     @default(INACTIVE)
+  pointPrice     Int?                    @map("point_price")
+  revision       Int                     @default(1)
+  createdAt      DateTime                @default(now()) @map("created_at")
+  updatedAt      DateTime                @updatedAt @map("updated_at")
   categories     MediaPlatformCategory[]
   resources      MediaResource[]
 
@@ -699,25 +783,25 @@ model MediaSupplier {
 }
 
 model MediaResource {
-  id                 String                @id @default(uuid()) @db.Uuid
-  platformId         String                @map("platform_id") @db.Uuid
-  supplierId         String                @map("supplier_id") @db.Uuid
-  resourceName       String                @map("resource_name") @db.VarChar(240)
-  accountIdentifier  String?               @map("account_identifier") @db.VarChar(240)
-  accountUrl         String?               @map("account_url") @db.VarChar(2048)
-  publicationMode    MediaPublicationMode  @default(FIRST_PUBLISH) @map("publication_mode")
-  status             MediaResourceStatus   @default(ACTIVE)
-  publicVisibility   MediaPublicVisibility @default(HIDDEN) @map("public_visibility")
-  publicAlias        String?               @map("public_alias") @db.VarChar(240)
-  qualityTier        MediaQualityTier      @default(MEDIUM) @map("quality_tier")
-  procurementCostYuan Int?                 @map("procurement_cost_yuan")
-  caseUrl            String?               @map("case_url") @db.VarChar(2048)
-  publicationNotes   String?               @map("publication_notes")
-  revision           Int                   @default(1)
-  createdAt          DateTime              @default(now()) @map("created_at")
-  updatedAt          DateTime              @updatedAt @map("updated_at")
-  platform           MediaPlatform         @relation(fields: [platformId], references: [id], onDelete: Restrict)
-  supplier           MediaSupplier         @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  id                  String                @id @default(uuid()) @db.Uuid
+  platformId          String                @map("platform_id") @db.Uuid
+  supplierId          String                @map("supplier_id") @db.Uuid
+  resourceName        String                @map("resource_name") @db.VarChar(240)
+  accountIdentifier   String?               @map("account_identifier") @db.VarChar(240)
+  accountUrl          String?               @map("account_url") @db.VarChar(2048)
+  publicationMode     MediaPublicationMode  @default(FIRST_PUBLISH) @map("publication_mode")
+  status              MediaResourceStatus   @default(ACTIVE)
+  publicVisibility    MediaPublicVisibility @default(HIDDEN) @map("public_visibility")
+  publicAlias         String?               @map("public_alias") @db.VarChar(240)
+  qualityTier         MediaQualityTier      @default(MEDIUM) @map("quality_tier")
+  procurementCostYuan Int?                  @map("procurement_cost_yuan")
+  caseUrl             String?               @map("case_url") @db.VarChar(2048)
+  publicationNotes    String?               @map("publication_notes")
+  revision            Int                   @default(1)
+  createdAt           DateTime              @default(now()) @map("created_at")
+  updatedAt           DateTime              @updatedAt @map("updated_at")
+  platform            MediaPlatform         @relation(fields: [platformId], references: [id], onDelete: Restrict)
+  supplier            MediaSupplier         @relation(fields: [supplierId], references: [id], onDelete: Restrict)
 
   @@index([platformId, status, publicVisibility, qualityTier, id])
   @@index([supplierId, status, id])

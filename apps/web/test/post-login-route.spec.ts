@@ -3,10 +3,10 @@ import { describe, expect, it } from "vitest";
 import { postLoginRoute } from "../app/enter/post-login-route.js";
 
 describe("post-login role routing", () => {
-  it("routes administrators to Media Supply without entering the Brand flow", () => {
+  it("routes administrators to the administrator home without entering the Brand flow", () => {
     expect(postLoginRoute("ADMINISTRATOR")).toEqual({
       kind: "redirect",
-      path: "/admin/media",
+      path: "/admin",
     });
   });
 
@@ -16,10 +16,20 @@ describe("post-login role routing", () => {
     });
   });
 
-  it.each(["OPERATIONS", "AGENT"] as const)(
-    "does not route %s into a customer or administrator workspace",
-    (role) => {
-      expect(postLoginRoute(role)).toEqual({ kind: "unsupported-role" });
-    },
-  );
+  it("routes operations and agent accounts to their fixed honest shells", () => {
+    expect(postLoginRoute("OPERATIONS")).toEqual({
+      kind: "redirect",
+      path: "/operations",
+    });
+    expect(postLoginRoute("AGENT")).toEqual({
+      kind: "redirect",
+      path: "/agent",
+    });
+  });
+
+  it("fails closed when a future server role is not in the generated contract", () => {
+    expect(() => postLoginRoute("UNKNOWN_ROLE" as never)).toThrowError(
+      "UNSUPPORTED_ACCOUNT_ROLE",
+    );
+  });
 });

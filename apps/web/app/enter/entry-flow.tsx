@@ -57,10 +57,6 @@ export function EntryFlow() {
         window.location.assign(route.path);
         return;
       }
-      if (route.kind === "unsupported-role") {
-        setMessage("当前角色的工作区尚未接入，请使用对应的已开放入口");
-        return;
-      }
       const brands = await listBrands(apiBaseUrl);
       if (brands.length > 0) {
         window.location.assign("/brands");

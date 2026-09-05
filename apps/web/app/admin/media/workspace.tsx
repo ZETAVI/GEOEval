@@ -3,7 +3,6 @@
 import {
   getAdminMediaPlatform,
   getAdminMediaSupplier,
-  getCurrentAccount,
   batchUpdateAdminMediaResourceStatus,
   deleteAdminMediaPlatform,
   deleteAdminMediaResource,
@@ -12,7 +11,6 @@ import {
   listAdminMediaPlatforms,
   listAdminMediaResources,
   listAdminMediaSuppliers,
-  logout,
   type Account,
   type MediaCatalogAudit,
   type MediaPlatformAdmin,
@@ -22,7 +20,13 @@ import {
 } from "@geoeval/api-client";
 import { useEffect, useMemo, useState } from "react";
 
-import { AdminSidebar } from "./admin-sidebar.js";
+import {
+  loadRoleSession,
+  type RoleSessionState,
+  sessionFailureState,
+  WorkspaceAccessPanel,
+} from "../../session-access.js";
+import { AdminSidebar } from "../admin-sidebar.js";
 import {
   DeleteConfirmDialog,
   PlatformEditor,
@@ -35,7 +39,6 @@ import {
   formatAuditValue,
   formatDateTime,
   groupAdminPlatformsByStatus,
-  isApiStatus,
   mediaCategoryOptions,
   platformStatusLabels,
   publicationModeLabels,
@@ -49,7 +52,7 @@ import {
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
-type WorkspaceState = "loading" | "ready" | "denied" | "error";
+type WorkspaceState = RoleSessionState["kind"];
 type DetailTab = "OVERVIEW" | "RESOURCES" | "AUDIT";
 type WorkspaceArea = "PLATFORMS" | "SUPPLIERS";
 type EditorState =
@@ -67,13 +70,6 @@ type DeleteTarget =
   | { kind: "platform"; platform: MediaPlatformAdmin }
   | { kind: "resource"; resource: MediaResourceAdmin }
   | { kind: "supplier"; supplier: MediaSupplier };
-
-const roleLabels: Record<Account["role"], string> = {
-  TERMINAL_CUSTOMER: "终端客户",
-  OPERATIONS: "运营人员",
-  ADMINISTRATOR: "系统管理员",
-  AGENT: "代理商",
-};
 
 const auditEntityLabels: Record<string, string> = {
   PLATFORM: "媒体平台",
@@ -120,20 +116,20 @@ export function AdminMediaWorkspace() {
   async function bootstrap() {
     setState("loading");
     setErrorMessage("");
+    const session = await loadRoleSession(apiBaseUrl, "ADMINISTRATOR");
+    if (session.kind === "ready" || session.kind === "denied") {
+      setAccount(session.account);
+    }
+    if (session.kind !== "ready") {
+      if (session.kind === "error") setErrorMessage(session.message);
+      setState(session.kind);
+      return;
+    }
     try {
-      const currentAccount = await getCurrentAccount(apiBaseUrl);
-      setAccount(currentAccount);
-      if (currentAccount.role !== "ADMINISTRATOR") {
-        setState("denied");
-        return;
-      }
       await reloadAdminData();
       setState("ready");
     } catch (error) {
-      if (isApiStatus(error, 401)) {
-        window.location.assign("/enter");
-        return;
-      }
+      if (handleSessionFailure(error)) return;
       setErrorMessage(
         error instanceof Error
           ? error.message
@@ -141,6 +137,15 @@ export function AdminMediaWorkspace() {
       );
       setState("error");
     }
+  }
+
+  function handleSessionFailure(error: unknown): boolean {
+    const failure = sessionFailureState(error);
+    if (failure) {
+      setState(failure.kind);
+      return true;
+    }
+    return false;
   }
 
   async function reloadAdminData(preferredPlatformId?: string) {
@@ -201,6 +206,7 @@ export function AdminMediaWorkspace() {
       setTab("OVERVIEW");
       setAuditScope("SELECTED");
     } catch (error) {
+      if (handleSessionFailure(error)) return;
       setErrorMessage(
         error instanceof Error ? error.message : "平台详情暂时无法加载",
       );
@@ -217,6 +223,7 @@ export function AdminMediaWorkspace() {
     setRefreshing(true);
     void reloadAdminData(preferredPlatformId)
       .catch((error) => {
+        if (handleSessionFailure(error)) return;
         setErrorMessage(
           `变更已保存，但最新数据刷新失败：${
             error instanceof Error ? error.message : "请手动刷新"
@@ -251,6 +258,7 @@ export function AdminMediaWorkspace() {
         `已批量${nextStatus === "ACTIVE" ? "启用" : "停用"} ${items.length} 个资源`,
       );
     } catch (error) {
+      if (handleSessionFailure(error)) return;
       setErrorMessage(
         error instanceof Error ? error.message : "批量操作未执行，请稍后重试",
       );
@@ -272,6 +280,7 @@ export function AdminMediaWorkspace() {
       await reloadAdminData();
       setToast("平台已删除");
     } catch (error) {
+      if (handleSessionFailure(error)) return;
       setDeleteError(error instanceof Error ? error.message : "平台删除失败");
     } finally {
       setDeleteBusy(false);
@@ -291,6 +300,7 @@ export function AdminMediaWorkspace() {
       await reloadAdminData();
       setToast("供应商已删除");
     } catch (error) {
+      if (handleSessionFailure(error)) return;
       setDeleteError(error instanceof Error ? error.message : "供应商删除失败");
     } finally {
       setDeleteBusy(false);
@@ -319,6 +329,7 @@ export function AdminMediaWorkspace() {
         deleteUnreferencedSupplier ? "资源和无引用供应商已删除" : "资源已删除",
       );
     } catch (error) {
+      if (handleSessionFailure(error)) return;
       setDeleteError(error instanceof Error ? error.message : "资源删除失败");
     } finally {
       setDeleteBusy(false);
@@ -358,70 +369,24 @@ export function AdminMediaWorkspace() {
       ? audits
       : audits.filter((audit) => selectedAuditEntityIds.has(audit.entityId));
 
-  if (state === "loading") {
+  if (state !== "ready") {
+    const accessState: Exclude<RoleSessionState, { kind: "ready" }> =
+      state === "denied" && account
+        ? { kind: "denied", account }
+        : state === "error"
+          ? { kind: "error", message: errorMessage }
+          : state === "denied"
+            ? { kind: "error", message: "当前账号角色暂时无法读取" }
+            : { kind: state };
     return (
-      <main className="loading-page admin-loading-page">
-        <span className="loading-orbit" />
-        <div>
-          <b>正在核验管理员身份</b>
-          <small>通过后再加载媒体平台、供应商与操作记录</small>
-        </div>
-      </main>
-    );
-  }
-
-  if (state === "denied" && account) {
-    return (
-      <main className="admin-denied-page">
-        <section>
-          <span className="denied-mark" aria-hidden="true">
-            403
-          </span>
-          <p className="eyebrow">权限边界</p>
-          <h1>该账号不能进入媒体库管理</h1>
-          <p>
-            当前账号角色是「{roleLabels[account.role]}
-            」。平台资料、价格、供应商、采购成本和操作记录只向系统管理员开放。
-          </p>
-          <div>
-            {account.role === "TERMINAL_CUSTOMER" && (
-              <a className="primary-button" href="/brands">
-                返回我的品牌
-              </a>
-            )}
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={() =>
-                void logout(apiBaseUrl).then(() =>
-                  window.location.assign("/enter"),
-                )
-              }
-            >
-              退出并更换账号
-            </button>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
-  if (state === "error") {
-    return (
-      <main className="admin-error-page">
-        <section>
-          <p className="eyebrow">暂时无法进入工作区</p>
-          <h1>管理员媒体库没有加载完成</h1>
-          <p>{errorMessage}</p>
-          <button
-            type="button"
-            className="primary-button"
-            onClick={() => void bootstrap()}
-          >
-            重新加载
-          </button>
-        </section>
-      </main>
+      <WorkspaceAccessPanel
+        state={accessState}
+        expectedRole="ADMINISTRATOR"
+        workspaceName="媒体库管理"
+        loadingDetail="通过后再加载媒体平台、供应商与操作记录"
+        apiBaseUrl={apiBaseUrl}
+        onRetry={() => void bootstrap()}
+      />
     );
   }
 
@@ -429,7 +394,7 @@ export function AdminMediaWorkspace() {
 
   return (
     <div className="app-shell admin-app-shell">
-      <AdminSidebar account={account} />
+      <AdminSidebar account={account} active="media" />
       <main className="workspace admin-media-workspace" id="media-catalog">
         <header className="workspace-header admin-workspace-header">
           <div>
@@ -838,6 +803,7 @@ export function AdminMediaWorkspace() {
         <PlatformEditor
           apiBaseUrl={apiBaseUrl}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(saved, message) => acceptedMutation(message, saved.id)}
         />
       )}
@@ -846,6 +812,7 @@ export function AdminMediaWorkspace() {
           apiBaseUrl={apiBaseUrl}
           platform={editor.platform}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(saved, message) => acceptedMutation(message, saved.id)}
         />
       )}
@@ -855,6 +822,7 @@ export function AdminMediaWorkspace() {
           platform={editor.platform}
           suppliers={suppliers}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(saved, message) =>
             acceptedMutation(message, saved.platformId)
           }
@@ -867,6 +835,7 @@ export function AdminMediaWorkspace() {
           suppliers={suppliers}
           resource={editor.resource}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(saved, message) =>
             acceptedMutation(message, saved.platformId)
           }
@@ -876,6 +845,7 @@ export function AdminMediaWorkspace() {
         <SupplierEditor
           apiBaseUrl={apiBaseUrl}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(_saved, message) =>
             acceptedMutation(message, selectedPlatform?.id)
           }
@@ -886,6 +856,7 @@ export function AdminMediaWorkspace() {
           apiBaseUrl={apiBaseUrl}
           supplier={editor.supplier}
           onClose={() => setEditor(undefined)}
+          onAccessFailure={handleSessionFailure}
           onSaved={(_saved, message) =>
             acceptedMutation(message, selectedPlatform?.id)
           }

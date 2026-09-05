@@ -5,9 +5,7 @@ import {
   Param,
   Put,
   Query,
-  Req,
   Sse,
-  UseGuards,
   type MessageEvent,
 } from "@nestjs/common";
 import {
@@ -28,8 +26,9 @@ import {
 } from "rxjs";
 import type { Observable } from "rxjs";
 
-import type { AuthenticatedRequest } from "../../identity/presentation/session-http.js";
-import { SessionGuard } from "../../identity/presentation/session.guard.js";
+import { RequireAccountRoles } from "../../identity/access/access.metadata.js";
+import { CurrentPrincipal } from "../../identity/access/current-principal.js";
+import type { AuthenticatedPrincipal } from "../../identity/domain/identity.types.js";
 import { ReadinessState } from "../../readiness.js";
 import { NotificationService } from "../application/notification.service.js";
 import type { NotificationView } from "../domain/notification.types.js";
@@ -46,7 +45,7 @@ import {
   EvaluationReportNotificationTargetResponse,
   EvaluationRetryNotificationTargetResponse,
 )
-@UseGuards(SessionGuard)
+@RequireAccountRoles("TERMINAL_CUSTOMER")
 @Controller("notifications")
 export class NotificationController {
   constructor(
@@ -66,12 +65,12 @@ export class NotificationController {
   })
   @ApiQuery({ name: "cursor", required: false, type: String })
   list(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Query("limit") limit?: string,
     @Query("cursor") cursor?: string,
   ): Promise<NotificationListResponse> {
     return this.notifications
-      .list(request.geoevalAccount!.id, limit, cursor)
+      .list(principal.accountId, limit, cursor)
       .then((page) => ({
         ...page,
         items: page.items.map(presentNotification),
@@ -81,30 +80,30 @@ export class NotificationController {
   @Put("read-all")
   @ApiOkResponse({ type: NotificationReadAllResponse })
   markAllRead(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
   ): Promise<NotificationReadAllResponse> {
-    return this.notifications.markAllRead(request.geoevalAccount!.id);
+    return this.notifications.markAllRead(principal.accountId);
   }
 
   @Put(":notificationId/read")
   @ApiOkResponse({ type: NotificationResponse })
   @ApiParam({ name: "notificationId", type: String })
   markRead(
-    @Req() request: AuthenticatedRequest,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("notificationId") notificationId: string,
   ): Promise<NotificationResponse> {
     return this.notifications
-      .markRead(request.geoevalAccount!.id, notificationId)
+      .markRead(principal.accountId, notificationId)
       .then(presentNotification);
   }
 
   @Sse("events")
   @ApiProduces("text/event-stream")
-  events(@Req() request: AuthenticatedRequest): Observable<MessageEvent> {
+  events(
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
+  ): Observable<MessageEvent> {
     return timer(0, 2_000).pipe(
-      switchMap(() =>
-        from(this.notifications.revision(request.geoevalAccount!.id)),
-      ),
+      switchMap(() => from(this.notifications.revision(principal.accountId))),
       map((revision) => ({
         key: `${revision.latestNotificationId ?? "none"}:${revision.unreadCount}`,
         revision,

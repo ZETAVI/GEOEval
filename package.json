@@ -20,6 +20,8 @@
     "db:generate": "pnpm --filter @geoeval/backend db:generate",
     "db:migrate": "pnpm --filter @geoeval/backend db:migrate",
     "openapi:generate": "pnpm --filter @geoeval/backend openapi:generate && pnpm --filter @geoeval/api-client generate",
+    "identity:bootstrap": "pnpm --filter @geoeval/backend identity:bootstrap",
+    "identity:cleanup": "pnpm --filter @geoeval/backend identity:cleanup",
     "e0:plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs plan",
     "e0:probe-plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs probe-plan",
     "e0:instruction-plan": "node --env-file=.env scripts/provider-validation/e0-runner.mjs instruction-plan",

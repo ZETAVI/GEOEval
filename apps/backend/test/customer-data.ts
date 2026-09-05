@@ -135,7 +135,18 @@ export async function clearCustomerData(prisma: PrismaService): Promise<void> {
   await prisma.brandContext.deleteMany();
   await prisma.brandStoreLocation.deleteMany();
   await prisma.brandProfile.deleteMany();
+  await prisma.identityGovernanceAudit.deleteMany();
+  await prisma.identityGovernanceControl.updateMany({
+    data: {
+      bootstrapAccountId: null,
+      bootstrapSecretDigest: null,
+      bootstrapKeyId: null,
+      bootstrapCompletedAt: null,
+      revision: 1,
+    },
+  });
   await prisma.accountSession.deleteMany();
   await prisma.account.deleteMany();
   await prisma.mobileChallenge.deleteMany();
+  await prisma.mobileChallengeRateLimit.deleteMany();
 }

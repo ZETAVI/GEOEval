@@ -7,6 +7,7 @@ import { createApiApp } from "../src/api-app.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { clearCustomerData } from "./customer-data.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
+import { browserMutationHeaders } from "./http-test-headers.js";
 import { createEvaluationQuestionPreparationHarness } from "./evaluation-question-preparation-harness.js";
 
 const config = loadIntegrationApiConfig();
@@ -41,7 +42,7 @@ describe("customer-entry HTTP contract", () => {
   it("serves login, cookie authentication, and an account-owned first brand", async () => {
     const challengeResponse = await fetch(`${baseUrl}/identity/challenges`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: browserMutationHeaders(),
       body: JSON.stringify({ mobile: "13900000003" }),
     });
     expect(challengeResponse.status).toBe(201);
@@ -52,7 +53,7 @@ describe("customer-entry HTTP contract", () => {
 
     const sessionResponse = await fetch(`${baseUrl}/identity/sessions`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: browserMutationHeaders(),
       body: JSON.stringify({
         challengeId: challenge.challengeId,
         mobile: "13900000003",
@@ -72,7 +73,7 @@ describe("customer-entry HTTP contract", () => {
 
     const brandResponse = await fetch(`${baseUrl}/brands`, {
       method: "POST",
-      headers: { "content-type": "application/json", cookie: cookie! },
+      headers: browserMutationHeaders(cookie!),
       body: JSON.stringify({ companyName: "HTTP 契约测试品牌" }),
     });
     expect(brandResponse.status).toBe(201);
@@ -106,7 +107,7 @@ describe("customer-entry HTTP contract", () => {
       `${baseUrl}/brand-location-verifications`,
       {
         method: "POST",
-        headers: { "content-type": "application/json", cookie },
+        headers: browserMutationHeaders(cookie),
         body: JSON.stringify({
           searchInput: "广州塔",
           providerPlaceId: "fixture-guangzhou-tower",
@@ -130,7 +131,7 @@ describe("customer-entry HTTP contract", () => {
     });
     const brandResponse = await fetch(`${baseUrl}/brands`, {
       method: "POST",
-      headers: { "content-type": "application/json", cookie },
+      headers: browserMutationHeaders(cookie),
       body: JSON.stringify({
         companyName: "HTTP 评测测试品牌",
         primaryIndustryId: "IND-01",
@@ -163,7 +164,7 @@ describe("customer-entry HTTP contract", () => {
 
     const definitionResponse = await fetch(
       `${baseUrl}/brands/${brand.id}/evaluation-definition`,
-      { method: "PUT", headers: { cookie } },
+      { method: "PUT", headers: browserMutationHeaders(cookie) },
     );
     expect(definitionResponse.status).toBe(200);
     const preparing = (await definitionResponse.json()) as {
@@ -205,7 +206,7 @@ describe("customer-entry HTTP contract", () => {
 
     const firstStart = await fetch(
       `${baseUrl}/evaluation-definitions/${definition.id}/runs`,
-      { method: "POST", headers: { cookie } },
+      { method: "POST", headers: browserMutationHeaders(cookie) },
     );
     const firstRun = (await firstStart.json()) as {
       id: string;
@@ -218,7 +219,7 @@ describe("customer-entry HTTP contract", () => {
 
     const duplicateStart = await fetch(
       `${baseUrl}/evaluation-definitions/${definition.id}/runs`,
-      { method: "POST", headers: { cookie } },
+      { method: "POST", headers: browserMutationHeaders(cookie) },
     );
     expect((await duplicateStart.json()).id).toBe(firstRun.id);
     expect(await prisma.evaluationRun.count()).toBe(1);
@@ -234,7 +235,7 @@ describe("customer-entry HTTP contract", () => {
     const ownerCookie = await login(baseUrl, "13900000005");
     const brandResponse = await fetch(`${baseUrl}/brands`, {
       method: "POST",
-      headers: { "content-type": "application/json", cookie: ownerCookie },
+      headers: browserMutationHeaders(ownerCookie),
       body: JSON.stringify({ companyName: "报告权限测试品牌" }),
     });
     const brand = (await brandResponse.json()) as { id: string };
@@ -259,6 +260,7 @@ describe("customer-entry HTTP contract", () => {
       headers: {
         origin: "http://127.0.0.1:3200",
         "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type,x-geoeval-request",
       },
     });
     expect(response.headers.get("access-control-allow-origin")).toBe(
@@ -267,6 +269,66 @@ describe("customer-entry HTTP contract", () => {
     expect(response.headers.get("access-control-allow-credentials")).toBe(
       "true",
     );
+    expect(response.headers.get("access-control-allow-headers")).toContain(
+      "x-geoeval-request",
+    );
+  });
+
+  it("rejects browser state changes without the JSON header and exact trusted Origin", async () => {
+    const missingApplicationHeader = await fetch(
+      `${baseUrl}/identity/challenges`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          origin: "http://127.0.0.1:3200",
+        },
+        body: JSON.stringify({ mobile: "13900000021" }),
+      },
+    );
+    expect(missingApplicationHeader.status).toBe(403);
+    expect(await missingApplicationHeader.json()).toMatchObject({
+      code: "APPLICATION_HEADER_REQUIRED",
+    });
+
+    const wrongOrigin = await fetch(`${baseUrl}/identity/challenges`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-geoeval-request": "1",
+        origin: "https://attacker.invalid",
+      },
+      body: JSON.stringify({ mobile: "13900000021" }),
+    });
+    expect(wrongOrigin.status).toBe(403);
+    expect(await wrongOrigin.json()).toMatchObject({
+      code: "ORIGIN_FORBIDDEN",
+    });
+  });
+
+  it("returns a bounded 429 contract for repeated public Challenge requests", async () => {
+    const first = await fetch(`${baseUrl}/identity/challenges`, {
+      method: "POST",
+      headers: browserMutationHeaders(),
+      body: JSON.stringify({ mobile: "13900000022" }),
+    });
+    expect(first.status).toBe(201);
+
+    const repeated = await fetch(`${baseUrl}/identity/challenges`, {
+      method: "POST",
+      headers: browserMutationHeaders(),
+      body: JSON.stringify({ mobile: "13900000022" }),
+    });
+    expect(repeated.status).toBe(429);
+    expect(await repeated.json()).toMatchObject({
+      code: "CHALLENGE_RATE_LIMITED",
+      retryAfterSeconds: expect.any(Number),
+    });
+    expect(
+      await prisma.mobileChallenge.count({
+        where: { mobile: "+8613900000022" },
+      }),
+    ).toBe(1);
   });
 
   it("keeps notification reads durable, account-scoped, and separate from SSE hints", async () => {
@@ -328,12 +390,12 @@ describe("customer-entry HTTP contract", () => {
     const foreignCookie = await login(baseUrl, "13900000008");
     const foreignRead = await fetch(
       `${baseUrl}/notifications/${first.id}/read`,
-      { method: "PUT", headers: { cookie: foreignCookie } },
+      { method: "PUT", headers: browserMutationHeaders(foreignCookie) },
     );
     expect(foreignRead.status).toBe(404);
     const ownerRead = await fetch(`${baseUrl}/notifications/${first.id}/read`, {
       method: "PUT",
-      headers: { cookie: ownerCookie },
+      headers: browserMutationHeaders(ownerCookie),
     });
     expect(ownerRead.status).toBe(200);
     expect((await ownerRead.json()) as { readAt: string | null }).toMatchObject(
@@ -343,7 +405,7 @@ describe("customer-entry HTTP contract", () => {
     );
     const allRead = await fetch(`${baseUrl}/notifications/read-all`, {
       method: "PUT",
-      headers: { cookie: ownerCookie },
+      headers: browserMutationHeaders(ownerCookie),
     });
     expect(await allRead.json()).toEqual({ unreadCount: 0 });
 
@@ -379,7 +441,7 @@ async function readSseEvent(response: Response): Promise<string> {
 async function login(baseUrl: string, mobile: string): Promise<string> {
   const challengeResponse = await fetch(`${baseUrl}/identity/challenges`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: browserMutationHeaders(),
     body: JSON.stringify({ mobile }),
   });
   const challenge = (await challengeResponse.json()) as {
@@ -388,7 +450,7 @@ async function login(baseUrl: string, mobile: string): Promise<string> {
   };
   const sessionResponse = await fetch(`${baseUrl}/identity/sessions`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: browserMutationHeaders(),
     body: JSON.stringify({
       challengeId: challenge.challengeId,
       mobile,
