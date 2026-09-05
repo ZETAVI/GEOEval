@@ -167,3 +167,29 @@ ready for runtime activation. Main runtime, specs, migration, source ownership,
 telemetry defaults and #49 mirror publishing are outside the write boundary.
 Holdout output is not a Prompt example. No success-rate or topology claim follows
 from one retained case and one independent answer.
+
+## Input ablation and diagnostic-view slice
+
+The owner approved proceeding with the input audit's separated plan. Keep this
+slice in #42's controlled experiment, not the production telemetry projection or
+#49 mirror. Present the already captured sanitized Chat Completions body rather
+than maintain another request builder: messages become the generation input;
+request controls/Schema and hashes become metadata. Generation output is the
+model output; a separate span records the current program projection. Mask each
+serialized message independently, omit content by default, and isolate view/
+export failure from Provider and semantic results. Do not rewrite old traces.
+
+For context testing, full and minimal variants share P3 instruction, P2 Schema,
+answer, question and target name. Minimal retains companyName, questionKind,
+question and originalAnswer, removing the five industry/region/characteristic
+fields. This is a diagnostic ablation, not an accepted new runtime input.
+An independently scheduled two-call pair on the retained public answer gives a
+contemporaneous baseline; one call per arm, no acquisition, retry, fallback or
+Prompt/Schema change. Transport/identity/structure failure stops; both planned
+semantic observations are reviewed without treating known P3 defects as fixed.
+
+Readiness: ready for the bounded display/input experiment. The test seam proves
+view-to-transmitted-body equality, input isolation and masking. A single absent-
+target answer cannot establish alias disambiguation or broad minimal-context
+adequacy; preserve those gates before adopting input reduction. A richer generic
+logging layer or global metadata migration is not justified by this slice.

@@ -467,3 +467,28 @@ minimal context against the frozen full context separately from the pending
 output-field-description test: one changed variable family per batch, with
 semantic completeness and disambiguation checks, not token reduction alone.
 No further Provider call or input/Schema change was made in this audit.
+
+## Full/minimal context and clearer diagnostic view — protocol
+
+The owner approved executing the separated plan. This batch changes the
+experimental view and runs a contemporaneous full/minimal context pair on the
+retained public marketing-service answer. Both arms use the frozen P3 instruction,
+P2 Schema, Qwen3.8 Flash low and unchanged projector. Minimal removes industry,
+region and both characteristic fields, retaining name/question kind/question/
+answer verbatim. This is an input-family ablation, not proof of any single removed
+field's causal effect. No output-field description is changed in this batch.
+
+Maximum two calls, full then minimal, one per arm; no acquisition, fallback,
+retry or same-batch tuning. Transport/model identity/structural failure stops.
+Inspect both semantic observations separately after the pair; known P3 quality
+defects are neither waived nor assumed fixed. One absent-target answer can test
+scope fidelity and measured usage here, not general input adequacy, ambiguous-
+name identification, positive mention coverage or production performance.
+
+The generation's input is an allowlisted, masked copy of the actual transmitted
+messages from retained request evidence; its output is the model result. Actual
+Schema/request controls and content hashes are metadata, and a separate span
+records program projection. The helper does not build or mutate Provider bodies.
+Default metadata-only behavior omits both messages and Schema content. An explicit
+diagnostic mode masks JSON-serialized message contents before export. The current
+runtime telemetry projection and all historical traces stay unchanged.

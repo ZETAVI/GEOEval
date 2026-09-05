@@ -15,6 +15,7 @@ import type { RealAiExecutionConfig } from "../src/ai-execution/infrastructure/a
 import { RealAiAttemptAdapter } from "../src/ai-execution/infrastructure/providers/real-ai-attempt.adapter.js";
 import { REAL_AI_ROUTES } from "../src/ai-execution/infrastructure/providers/real-route.catalog.js";
 import { EVALUATION_PLATFORM_POLICY } from "../src/geo-intelligence/evaluation-policy.js";
+import { presentM4StructuredRequest } from "../src/ai-execution/controlled-validation/m4-parser-context-comparison.js";
 
 describe("real AI attempt adapters", () => {
   let fixture: ProviderFixtureServer;
@@ -167,6 +168,29 @@ describe("real AI attempt adapters", () => {
     expect(() =>
       adapter.resolve({ ...request, routePolicyId: "evaluation.unknown" }),
     ).toThrow("Unsupported real AI route");
+  });
+
+  it("presents the exact transmitted structured messages without changing the Provider body", async () => {
+    const request = structuredRequest({
+      routePolicyId: "evaluation.interpretation.qwen-primary@2",
+      model: "qwen3.8-flash",
+    });
+    const result = await adapter.execute({
+      ...request,
+      ...adapter.resolve(request),
+    });
+    const body = fixture.requests.at(-1)!.body;
+    const before = structuredClone(body);
+    const view = presentM4StructuredRequest(
+      result.evidence?.sanitizedRequest,
+      "local-diagnostic",
+    );
+    expect(view.input).toEqual(body.messages);
+    expect(view.metadata.requestSettings).toEqual({
+      response_format: body.response_format,
+    });
+    expect(body).toEqual(before);
+    expect(JSON.stringify(view)).not.toContain("fixture-key");
   });
 
   it.each([
