@@ -62,3 +62,20 @@ remain pending. This review is not approval for a runtime merge.
 - Verdict: `ready with follow-up` for controlled testing, not runtime activation.
   Real acquired-answer lineage is requested separately; current P0/P1 evidence
   is real model execution over a fictional input, not a real sampling run.
+
+## Subject-grounded instruction checkpoint
+
+- Fixed implementation `1c29b9c` against `89686a6`; reviewed locally without a
+  second agent. Intent: P3 changes only instruction within the existing experiment,
+  preserving P2 input/Schema/projection and the approved staged stop boundary.
+- Engineering: one existing builder/asset-loading seam, no new runtime interface,
+  application import, dependency, migration or #49 publishing operation.
+- Evidence: 3 files / 13 focused tests, Backend typecheck/build, framework links,
+  format and diff checks passed. The real retained-case output still fails
+  semantic quality despite code acceptance; all three holdout calls were skipped.
+- New proven seam: name containment does not establish a name's semantic unit;
+  per-span name filtering loses separated role/condition context. The offline
+  two-variable check isolates these independently without changing actual evidence.
+- Verdict: `ready with follow-up` for the experimental evidence checkpoint;
+  `not ready` for runtime activation. Clarify the model-facing units and test
+  before changing projection semantics or accepting a downstream report.

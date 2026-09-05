@@ -350,3 +350,78 @@ batch resampling. A per-arm semantic review is separate from code acceptance.
 Export controlled IO and independent review to Langfuse, preserve local raw
 evidence, and verify readback. No runtime, full report, production or #49 Prompt
 Management activation follows from this batch.
+
+### Executed result and next discriminating seam
+
+- Fixed implementation: `1c29b9c`; plan confirmation:
+  `697fcf463dd71ac2e990c250420ead2c5c4c396e9897be9f1321f709bf71034f`.
+- Executed **1/4** calls: retained-answer P3. qwen3.8-flash low returned in
+  20,152 ms, 1,704 input + 1,791 output = 3,495 total tokens. Code accepted;
+  Codex semantic review rejected. Reasoning usage is not added again.
+- The fresh coffee acquisition and both holdout Parser arms were **not run**.
+  No Prompt edit, retry or replacement batch followed the failure.
+- P2/P3 share the original answer hash recorded above. P3's input hash is
+  `8eb904fcf71208342418f380ff16b65ae277923fd4516d3c903c0c59b7bd32a7`.
+
+In this case P3 correctly returned MIXED and target=null, excluded certification
+platforms, retained the explicit companies, and treated partner-brand references
+as MENTIONED_ONLY with scoped limitations. The prior unsupported substitute-
+recommendation explanation, internal classification prefix and name-confusion
+guess were absent. These are observed local improvements, not a proven general
+advantage or an accepted complete output.
+
+The blocking relationship errors moved rather than disappeared:
+
+1. Three `observedForms` contain whole formatted descriptive paragraphs rather
+   than name forms; other entries retain Markdown decoration. The current field
+   schema permits these strings, and projection preserves source-contained forms.
+2. Each brand's raw evidence separates the name from its characterization or
+   condition. `projectOtherBrands` keeps only individual spans containing a name
+   form, so all five projected anchors reduce to names; the supporting context
+   is lost even though it was present in the raw model output.
+3. The conditional live-selling example is assigned unconditional RECOMMENDED;
+   the retained bare-name anchor no longer carries that condition. The card also
+   expands into an other-brand summary beyond this batch's target-record scope.
+
+No runtime fix or fallback was applied. A first-brand-only offline counterfactual
+using the unchanged full answer isolated two different interface units:
+
+| Offline intervention                                               | Name field still contains a sentence | Supporting context retained after current projection |
+| ------------------------------------------------------------------ | ------------------------------------ | ---------------------------------------------------- |
+| Copied raw first-brand record                                      | Yes                                  | No; 22-character name anchor                         |
+| Only replace name forms with the displayed name                    | No                                   | No; same anchor                                      |
+| Only replace split evidence with its actual whole source paragraph | Yes                                  | Yes; 98-character source anchor                      |
+| Both interventions                                                 | No                                   | Yes                                                  |
+
+All four variants pass code acceptance. They are diagnostic counterfactuals,
+not model outputs, a repair of the official result or proof of a new Prompt's
+quality. The original response remains untouched. This proves the local
+containment/filtering mechanism and distinguishes naming from context retention;
+it does not establish the LLM's internal reason for producing either error.
+
+The next bounded candidate should first clarify model-facing units: name forms
+are names; a role/condition evidence unit includes its named subject and the
+contiguous supporting context. Compare field descriptions on the frozen P3
+instruction before inventing a richer relation schema. Assess whether the
+existing name-per-span containment boundary suffices on real outputs; any
+required runtime change needs an explicit owner and separate acceptance. Do not
+silently broaden the experiment projector or classify this result as passed.
+
+Protected directory:
+`apps/backend/.provider-evidence/m4-subject-retained-djPowl/` (0700, files 0600),
+retained by #42 until decision/review; cleanup requires exact-target review.
+
+- Raw result SHA-256:
+  `ff3f79a04e777e77972590d8e70ac7eb9cb39bfb14a80d52f8f8d01a6f26fb0b`.
+- Plan file SHA-256:
+  `a007586e2c039d57087d0d131537a48c61121883e5b4088e4cec67a7d3a8c7db`.
+- Isolated runner `apps/backend/.provider-evidence/m4-subject-grounded-runner.ts`
+  SHA-256 `9c4f839c99d9afddefc0ae887117a342a17f413c750f14b395eb6a6d216883da`.
+
+The [P3 Trace and separate quality review](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/e567a2a9fb262f4c897b5b2ed3385f42)
+links the retained source Trace. Cloud readback verifies original input/answer
+hash, raw model output, program projection, model, usage and the separate
+SEMANTIC_REJECTED review; no credential, provider envelope or reasoning text is
+in the checked content. This is Trace observation, not #49 Prompt Management.
+See [#49 reconciliation](https://github.com/ZETAVI/GEOEval/issues/49#issuecomment-5550652475)
+for completed prerequisites and outstanding mirror acceptance.

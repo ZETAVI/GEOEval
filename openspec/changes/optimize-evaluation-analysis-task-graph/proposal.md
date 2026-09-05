@@ -45,6 +45,11 @@ parsing of its unchanged answer. Both passed code acceptance but failed agent
 semantic review: P0 misattributed non-target observations; P2 still produced
 unsupported prose and a structure error. All three generations and the separate
 review were read back from Langfuse. No candidate superiority is established.
+The subsequent P3 instruction-only test improved some subject/role handling in
+that answer but still failed name-form and contextual-evidence fidelity. It
+stopped after 1/4 calls; the new-answer holdout remains unexecuted. Offline
+counterfactuals now isolate naming from source-context retention at the unchanged
+projection boundary, rather than treating code acceptance as model quality.
 See the
 [experiment protocol](research/chain-quality-experiment.md).
 

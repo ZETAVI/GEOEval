@@ -19,9 +19,14 @@
       quality rejected for both; no runtime activation.
 - [x] Export authorized diagnostic IO to Langfuse and read back the root,
       three generations and separate semantic review with matching lineage/usage.
-- [ ] Use the retained failure to specify subject attribution, candidate entity
-      role and source-supported prose acceptance; then freeze the next bounded
-      comparison, including an independent mentioned-target case.
+- [x] Specify subject/role/prose acceptance and freeze P3 instruction-only
+      comparison with an independent-answer second stage; execute 1/4 calls,
+      then stop on retained-case semantic failure before fresh acquisition.
+- [x] Isolate name-form and context-evidence units with offline counterfactuals;
+      preserve the original failure and synchronize its separate Langfuse review.
+- [ ] Clarify these two model-facing units on the frozen P3 instruction, then
+      compare the smallest field-description candidate without changing runtime
+      projection. Independent-answer and mentioned-target evidence remain pending.
 
 ## Synthesis comparison
 
