@@ -5,8 +5,9 @@
 Does a clearer semantic task and sufficient evidence context improve raw
 generation enough to justify a runtime change? The owner's 2026-09-05 feedback
 approves preparing this comparison, not accepting a topology in advance.
-Exact first-batch authorization is requested in the task; record the response
-before execution. Subsequent synthesis batches require their own frozen scope.
+The owner authorized the first batch in the task; its current execution blocker
+and zero-request preflight are recorded in the [owning Gate checkpoint](https://github.com/ZETAVI/GEOEval/issues/42#issuecomment-5550245255).
+Subsequent synthesis batches require their own frozen scope.
 
 ## First package: Parser instruction only
 
