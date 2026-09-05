@@ -193,3 +193,36 @@ view-to-transmitted-body equality, input isolation and masking. A single absent-
 target answer cannot establish alias disambiguation or broad minimal-context
 adequacy; preserve those gates before adopting input reduction. A richer generic
 logging layer or global metadata migration is not justified by this slice.
+
+## Confirmed brand-subject direction and P4 scope
+
+The owner confirmed task-relevant context per Agent layer and brand-subject
+extraction in the first Parser: no invented unnamed teams, and a concise brand
+instead of a branch-decorated display name. This does not make either prior full
+or minimal context universally correct. Keep full input fixed for the next
+comparison to isolate the new output package; revisit context by task acceptance,
+not by a smallest-field-count rule.
+
+P4 separates short displayName from original observedForms and full source
+evidence. Clearly separable branch/store decoration may leave the display name,
+but the original scope remains in quotes. Intrinsic name words, uncertain names
+and independent brands are not mechanically stripped or merged. A team with a
+clear brand yields that brand; no-name teams/places/categories yield no invented
+entity. Named parent/partner brands remain scoped mentions unless themselves
+recommended. This is per-answer cleanup, not cross-answer entity research or
+#41's final grouping decision.
+
+Current competitor metrics consume other-brand role and recommendation position
+in evaluation-report.policy.ts, so keep these fields and verify that affiliation-
+only mentions do not become recommendations. P4 changes instruction and generated
+field descriptions together; it is a coherent package, not a schema-only causal
+test. All fields, constraints, target proof rules, metrics and the final projector
+remain unchanged. No program suffix stripper, fabricated quote or runtime route
+is introduced. Unit examples verify representability, not LLM quality.
+
+Readiness: ready for a maximum-three-call controlled package. First run P4 on
+the retained public answer; if semantic review fails, stop. If it passes, acquire
+one independently frozen public coffee-recommendation answer and parse it once
+with frozen P4. Preserve no-mention if it occurs; do not resample for a preferred
+outcome. Use the actual-message Langfuse view and separate projection/review.
+No #32 reopening, #41 implementation, #49 publishing or production activation.

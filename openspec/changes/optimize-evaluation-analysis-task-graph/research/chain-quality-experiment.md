@@ -562,3 +562,39 @@ Verification: seven focused files / 47 tests, Backend typecheck/build, framework
 links, format and diff checks passed. Content masking covers serialized messages
 and defaults to metadata-only. Full DB suite, migrations, end-to-end report,
 new sampling and topology selection were not executed by this slice.
+
+## Brand-subject package — confirmed scope and protocol
+
+The owner confirmed brand-focused first-layer extraction and task-relevant
+context per Agent, rather than treating the prior nine-field control as a
+universal input requirement. P4 changes instruction and field descriptions as
+one package; input, structural constraints, target proof and final projection
+remain frozen. It does not prove an isolated Prompt or Schema effect.
+
+Acceptance emphasizes a short recognizable brand subject, no invented unnamed
+teams/places, no combined independent brands, and no lost explicit brands.
+Original name forms and evidence preserve branch/store scope. Geographic words
+intrinsic to a brand stay intact. Named affiliation/partner brands may remain
+scoped mentions without becoming recommended local providers. Current role and
+position fields remain because competitor metrics consume them; cross-answer
+grouping still belongs to #41.
+
+First call: P4 on the retained public marketing answer. The explicit BlueFocus,
+YCHOO and Xinxuan subjects must survive without branch decoration or invented
+teams. WPP/Omnicom or partner brands, if included, must remain distinct and retain
+their actual mention-only context rather than acquire the unnamed firm's role.
+Check target absence, exact name forms, conditional meaning and source evidence
+alongside brand coverage. Program normalization is not credited as model quality.
+
+Only after that result passes agent semantic review, acquire one new answer to
+the previously frozen public coffee question about Shanghai Jing'an, current
+target 星巴克, then parse that unchanged answer once with frozen P4. No brand
+name is injected into acquisition. This is an experimental question, not product
+Query generation or a verified storefront profile. If the target is absent,
+retain it and disclose the positive branch unverified, with no resampling.
+
+Maximum three calls: retained Parser, independent Qwen acquisition, independent
+Parser; Qwen3.8 low for Parser and current Qwen3.7 sampling route. Timeout 180s,
+no retries/fallback, stop on transport/identity/structure failure or failed
+retained-case semantic review, no same-batch changes. Use actual-message Langfuse
+display and separate program projection/review; do not activate runtime or #49.
