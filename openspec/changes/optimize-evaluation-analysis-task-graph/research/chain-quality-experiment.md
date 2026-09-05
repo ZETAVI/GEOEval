@@ -492,3 +492,73 @@ records program projection. The helper does not build or mutate Provider bodies.
 Default metadata-only behavior omits both messages and Schema content. An explicit
 diagnostic mode masks JSON-serialized message contents before export. The current
 runtime telemetry projection and all historical traces stay unchanged.
+
+### Paired result
+
+Fixed implementation `03172ed`; exact plan confirmation
+`205a62548262b739ea21708df9f30a9ed9afde13f01bfc8e7b683498441de0ba`.
+Executed two requests, no acquisition or retry:
+
+| Arm                             | Input / output / total tokens | Latency   | Code acceptance | Semantic review                                    |
+| ------------------------------- | ----------------------------- | --------- | --------------- | -------------------------------------------------- |
+| Full P3 context, nine fields    | 1,704 / 2,135 / 3,839         | 28,130 ms | Accepted        | Rejected: entity scope and conditional role errors |
+| Minimal P3 context, four fields | 1,661 / 1,304 / 2,965         | 21,209 ms | Accepted        | Rejected: all other brands omitted                 |
+
+Total 6,804 tokens. Removing five fields saved only 43 input tokens (about 2.5%)
+in this request. The shorter overall response cannot be credited as an efficiency
+gain because extraction completeness failed; reasoning usage is already included
+in output. The pair has one observation per arm and fixed order, not a stability
+estimate or causal proof about any particular removed field.
+
+Both arms correctly reported MIXED and target absence. Full context retained
+actual names and contextual evidence this time, but also synthesized one combined
+WPP/Omnicom-group candidate and two unnamed team candidates from locations, and
+flattened a conditional live-selling example into unconditional recommendation.
+Minimal context returned no other brands at all, omitting the answer's explicit
+BlueFocus, YCHOO and Xinxuan candidates. Do not adopt this minimal input.
+
+Full's input hash matches the previous P3 request exactly, yet its failure mode
+changed: prior full-paragraph name forms and bare-name-only anchors did not recur
+for the explicit companies. This observed variation is another reason not to
+assign every single-run output change to an input/Prompt modification. The full
+context remains the experimental control, not a quality-approved runtime candidate.
+Next compare the narrowly described output units on frozen input/instruction,
+then add independent-answer/mentioned-target evidence before claiming adequacy.
+
+### Display delivery and evidence
+
+The new [context-pair Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/f9e39143359de70ca8d3bac9832a7c3c)
+has generation and program-projection layers. Browser verification in the actual
+Langfuse page confirmed the two generations with child projections; selecting
+the full generation's Formatted view shows System/User messages and separate
+Metadata containing requestSettings, schemaHash and messageHash. No task or
+contentHash wrapper was inserted into generation Input. The independent quality
+review marks both arms SEMANTIC_REJECTED; owner acceptance remains pending.
+Cloud readback at 09:36:03Z verified all six observations: actual messages,
+model outputs, request Schema, hashes, usage and both program projections match
+the protected evidence; no credential values were present and the Trace is not
+public. The post-run review appears after model execution, so the whole Trace's
+time span includes review delay; use generation durations for Provider timing.
+
+This experimental display comes from an allowlisted copy of the actual captured
+body, not a second message builder. A local HTTP mock verifies equality with the
+transmitted messages and output contract. The actual controls remain sent to the
+Provider even though displayed separately in metadata. No production telemetry,
+old Trace, Prompt Management entry or #49 mirror has been changed.
+
+Protected directory `apps/backend/.provider-evidence/m4-context-pair-0uC01y/`
+(0700, evidence files 0600), retained by #42 until decision/review:
+
+- Full result SHA-256:
+  `a5d5e5be0289bb71a3c3c36ec3b16103f30153baf894af7dcb711e7557cb85c0`.
+- Minimal result SHA-256:
+  `0d7932f01248693f19891b7c29a0f09191aef1ab32f58bfea672b219204e0c0b`.
+- Plan SHA-256:
+  `50d286c93719c74bdc97d6f425018cef35538465e677c2332d41f1616d411e0b`.
+- Isolated runner `apps/backend/.provider-evidence/m4-context-pair-runner.ts`
+  SHA-256 `689708078adc34e47eb250f63cad380b7c6c2a710f81d636616ecf3009c791bc`.
+
+Verification: seven focused files / 47 tests, Backend typecheck/build, framework
+links, format and diff checks passed. Content masking covers serialized messages
+and defaults to metadata-only. Full DB suite, migrations, end-to-end report,
+new sampling and topology selection were not executed by this slice.

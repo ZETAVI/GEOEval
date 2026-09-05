@@ -79,3 +79,20 @@ remain pending. This review is not approval for a runtime merge.
 - Verdict: `ready with follow-up` for the experimental evidence checkpoint;
   `not ready` for runtime activation. Clarify the model-facing units and test
   before changing projection semantics or accepting a downstream report.
+
+## Diagnostic view and input-pair checkpoint
+
+- Fixed implementation `03172ed` against `48eaf0f`, local fixed-diff review.
+- Intent: separate display from actual input, then ablate context without changing
+  instruction, output Schema or final projector. The real pair completes this
+  bounded question, not Parser quality or #49 mirror delivery.
+- Engineering: view consumes an already captured body; a mock HTTP boundary
+  proves no duplicate request construction or mutation. Input is content-free
+  by default; explicit diagnostic messages receive serialized-content masking.
+  The isolated runner keeps presentation/export failures outside Provider state.
+- Evidence: 47 focused tests, typecheck/build, framework/format/diff checks and
+  actual browser System/User display. Both real model outputs remain rejected;
+  input savings cannot compensate for omitted facts. No runtime activation.
+- Verdict: `ready with follow-up` for the experiment/view checkpoint, `not ready`
+  for adopting minimal context or selecting synthesis topology. Prior real-call
+  variability and independent-answer/positive-mention gaps remain explicit.

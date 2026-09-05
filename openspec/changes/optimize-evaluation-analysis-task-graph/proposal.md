@@ -50,6 +50,11 @@ that answer but still failed name-form and contextual-evidence fidelity. It
 stopped after 1/4 calls; the new-answer holdout remains unexecuted. Offline
 counterfactuals now isolate naming from source-context retention at the unchanged
 projection boundary, rather than treating code acceptance as model quality.
+The subsequent full/minimal context pair also failed quality in both arms.
+Removing five context fields saved 43 input tokens but omitted every other brand;
+the minimal input is not adopted. An experimental Langfuse view now separates
+actual model messages, request controls and program projection, verified against
+the transmitted body and the browser. Production telemetry remains unchanged.
 See the
 [experiment protocol](research/chain-quality-experiment.md).
 

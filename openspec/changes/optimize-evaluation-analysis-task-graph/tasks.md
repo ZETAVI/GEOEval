@@ -27,10 +27,13 @@
 - [x] Audit retained HTTP bodies against diagnostic input: hashes/task wrappers
       are telemetry-only; all nine Parser user-context fields and output Schema
       do reach the Provider interface. Preserve natural acquisition isolation.
-- [ ] Separate model messages/contract from provenance in the diagnostic-view
-      plan; independently define full-versus-minimal context acceptance before
-      further calls. Do not mix input removal with output-contract changes.
-- [ ] Clarify these two model-facing units on the frozen P3 instruction, then
+- [x] Implement the experimental diagnostic view from captured messages, with
+      contract/provenance metadata and separate program projection; verify actual
+      HTTP-body equality, masking and visible System/User layout in Langfuse.
+- [x] Execute the two-call full/minimal context pair without output changes:
+      both semantic reviews rejected; 43 fewer input tokens do not justify the
+      minimal arm's complete omission of other brands. Do not adopt minimal input.
+- [ ] Clarify these two model-facing units on the frozen full context/P3 instruction, then
       compare the smallest field-description candidate without changing runtime
       projection. Independent-answer and mentioned-target evidence remain pending.
 
