@@ -6,8 +6,12 @@
 - [x] Retract selected-two-task claim and record chain-level hypotheses.
 - [x] Reconcile parent status, peer characteristics and single-v3 development activation.
 - [x] Prepare and verify frozen Parser Prompt-only comparison.
-- [ ] Record approved real-call scope and execute only its exact manifest.
-- [ ] Review raw/projected results and route failures before further calls.
+- [x] Record approved real-call scope and execute its exact manifest: 1/8 calls,
+      then stopped at the first semantic failure under the approved rule.
+- [x] Review raw/projected result and offline counterfactual; record the incomplete
+      extraction failure separately from hypotheses about model behavior.
+- [ ] After stop-and-review, compare the still-frozen P1 on the same P01 input;
+      remaining cases and all synthesis comparisons are not run.
 
 ## Synthesis comparison
 

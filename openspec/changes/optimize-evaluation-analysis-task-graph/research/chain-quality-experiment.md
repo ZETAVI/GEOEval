@@ -5,8 +5,11 @@
 Does a clearer semantic task and sufficient evidence context improve raw
 generation enough to justify a runtime change? The owner's 2026-09-05 feedback
 approves preparing this comparison, not accepting a topology in advance.
-The owner authorized the first batch in the task; its current execution blocker
-and zero-request preflight are recorded in the [owning Gate checkpoint](https://github.com/ZETAVI/GEOEval/issues/42#issuecomment-5550245255).
+The owner authorized the first batch and then explicitly approved the generic
+Beijing endpoint for this isolated experiment only. The earlier
+[zero-request preflight](https://github.com/ZETAVI/GEOEval/issues/42#issuecomment-5550245255)
+is historical; the executed first-batch result is recorded below. The product
+Worker's workspace-dedicated endpoint restriction remains unchanged.
 Subsequent synthesis batches require their own frozen scope.
 
 ## First package: Parser instruction only
@@ -78,3 +81,71 @@ that could disprove the proposed mechanism before activation.
 Freeze contracts and budgets for each later package before real calls. Do not
 convert the historical twelve-minute run or old Parser recovery count into
 current-version evidence. Actual report-path acceptance precedes #41 closure.
+
+## First real batch result — 2026-09-05
+
+- Tested revision: `8a717eac621206b04b0222b95c27f23987af4cbc`.
+- Exact confirmation: `26088fd63d0acc7761666d3ac6de864ff85cfe4fe8a009b331d4e90a903e9ff0`.
+- Endpoint: `https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions`.
+- Isolated adapter execution only; no Worker startup, business database,
+  telemetry, acquisition, Hy3 or runtime configuration change.
+- Executed 1/8 requests: P01-P0, the current-main Prompt. First failure stopped
+  the batch. P1 and all later cases are **not run**.
+- Provider succeeded with matching `qwen3.8-flash`, `finish_reason=stop`, 8,720 ms.
+- Usage: 628 prompt + 445 completion = 1,073 total tokens. Reasoning details are
+  preserved as provider data and are not added again to this total.
+
+### Evidence matrix
+
+| Claim | Retained evidence | Result |
+| --- | --- | --- |
+| Selected generic endpoint works for this request | Successful response and exact model identity | Passed; not a production capacity or dedicated-endpoint comparison |
+| Provider receives the full intended task | Sanitized request exactly matches input, instruction and Schema; strict mode and low effort retained | Passed |
+| Raw output conforms to the model Schema | Raw output parses successfully | Passed |
+| Raw result completes the extraction task | Mention=true, position=2 and fluent card prose; mention/position evidence, otherBrands and observations all empty | Failed |
+| Current product accepts this output | Projector rejects missing open-position evidence | Failed as intended |
+| Candidate Prompt improves quality | No P1 request was made | Not verified |
+
+### Diagnosis and next discriminating action
+
+The proven failure is incomplete structured extraction despite correct coarse
+classification and readable prose. The Schema permits empty evidence arrays
+independently of mentioned/position; local validation catches the inconsistent
+combination afterwards. The output also omits two explicit competing brands.
+Transport, input loss, Schema loss and token-limit truncation are not supported
+by this retained request/response.
+
+Offline counterfactual only: adding the exact second list line as position
+evidence makes the domain projection accept, but the unchanged fixture still
+fails because competitors are missing. The real output was not modified or
+accepted. Thus filling one evidence gap would hide a broader extraction omission.
+
+Ranked hypotheses for later comparisons:
+
+1. The task and field contract let coarse classification/prose dominate full
+   evidence extraction. Compare the already-frozen P1 on the same P01 input first.
+2. Empty-field semantics do not distinguish no evidence from unfinished work.
+   If P1 also fails, compare a coherent evidence-first output contract at its
+   explicit owning decision boundary rather than add another recovery rule.
+3. Low reasoning may affect extraction completeness. Change effort only after
+   the instruction comparison, so model/effort and Prompt effects stay separate.
+
+These hypotheses do not establish why the model omitted the fields or prove a
+new Prompt, Schema or topology superior. Do not rewrite P1 using this result
+before its paired comparison; further calls follow the stop-and-review boundary.
+
+### Protected evidence and exit
+
+Ignored directory relative to this worktree:
+`.provider-evidence/m4-parser-comparison/2026-09-05T07-27-10-081Z-semantic-probe/`.
+Directories are 0700 and evidence files 0600. Raw outputs and provider reasoning
+stay there, not in GitHub comments or committed documents.
+
+- `01-P01-P0.json` SHA-256:
+  `bd8694c0aa6015419b955a4a307985102f1d75d5d3d7334326c6d3a8a75ba5b2`.
+- `experiment-plan.json` SHA-256:
+  `660b2b46362ebaaa18798931cf7c74f74d7899f0664e7487b147c171d7951d0f`.
+
+#42 owns retention through the comparison/review decision. Keep the current
+worktree and evidence; review exact targets before cleanup at experiment close.
+No customer result, current spec or production behavior changed.

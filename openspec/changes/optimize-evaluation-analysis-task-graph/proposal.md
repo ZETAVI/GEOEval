@@ -34,10 +34,10 @@ purchase, Hy3 billing, production, customer data, fresh platform acquisition or
 automatic experiment sweep. Four questions, five platforms, metric meaning,
 17/20 readiness and immutable accepted records remain unchanged.
 
-The first proposed real batch is at most eight Qwen Parser requests over four
-existing fictional fixtures, no automatic retries, stop on first failure.
-Exact frozen requests need confirmation; later synthesis calls are separate.
-A dry run is not real quality evidence. See the
+The authorized first batch used the owner-approved generic endpoint only in
+isolation. It stopped after 1/8 requests: the current Prompt returned valid JSON
+but omitted required evidence and explicit competitors. No candidate superiority
+is established; P1 and later cases are not run. See the
 [experiment protocol](research/chain-quality-experiment.md).
 
 ## Impact and exit
