@@ -162,3 +162,27 @@ remain pending. This review is not approval for a runtime merge.
   task responsibilities with the complete frozen one-call outcome, not another
   holistic wording patch. Persistent/runtime topology still needs evidence and
   explicit architecture approval.
+
+## Source-inventory/judgment checkpoint
+
+- Fixed implementation `be96f55` against `f85386f`: independent review found a
+  reachable hidden-source fallback through the full-source projector. A red
+  regression reproduced it; `f7047e8` adds pre-projection lexical grounding and
+  final exact-anchor/name checks. Focused re-review accepted this correction
+  before any call. Existing P6 input hashes remain unchanged.
+- Five real calls ran against `f7047e8`. The negative full comparison fails
+  semantic quality in both arms; the positive split has no final output because
+  its inventory failed the original per-record alias guard. Program acceptance
+  is not semantic acceptance, and an incomplete arm is not a topology verdict.
+- Offline replay demonstrates that rejected `Manner大店` already exists in the
+  shared visible union. A second red-to-green regression in `c35824f` corrects
+  this overconstraint without allowing unseen source recovery. Focused independent
+  review confirms the hidden-source boundary remains closed. It does not prove
+  alias identity, repair missing context or change the original call result.
+- Verification: 5 files / 43 tests, Backend typecheck/build; twelve private
+  Langfuse observations read back with messages/Schema, raw output, program
+  result, usage and full review equality. Trace public=false; no credential values.
+- Verdict: `ready with follow-up` for experimental evidence; `not ready` for
+  runtime. The next question separates complete structural/conditional context
+  from relationship judgment. No sixth call, runtime import, migration, model
+  change or production activation followed the offline correction.

@@ -921,3 +921,104 @@ tokens and summed serial latency, not only its faster component. The comparison
 has one observation per arm/case and a fixed order; it establishes neither
 stability nor a selected production architecture. Export a new private Trace
 with actual messages and separate program results/reviews; keep history immutable.
+
+## P7 task-load comparison — observed result
+
+Executed 2026-09-05 16:49:45–16:52:21 UTC against `f7047e8`, confirmation
+`75e835e5ce4e51ce553cb84950fbe196be3c9147cdb6a10bc4becfa85fda6d05`.
+Five requests ran; positive judgment (06) was skipped under the frozen invalid-
+inventory rule. There was no new acquisition, retry, fallback or post-result
+Prompt tuning. P6 input hashes match the prior package byte-for-byte: negative
+`2daf19d50385e41bc483d68bb3e0ee45f4662b2ffe56af7bf596e1b7ba851cda`,
+positive `460acca84bca40d1a523c88e06a20f33d7f48e9236e2fe6b978e1e5e4925c10b`.
+
+| Stage | Input / output / total tokens | Latency | Program result |
+| --- | --- | --- | --- |
+| 01 Negative P6 | 1,897 / 4,551 / 6,448 | 47,612 ms | Accepted |
+| 02 Negative inventory | 1,671 / 1,861 / 3,532 | 17,799 ms | Accepted |
+| 03 Negative judgment | 1,378 / 2,919 / 4,297 | 29,896 ms | Accepted |
+| 04 Positive P6 | 2,405 / 3,164 / 5,569 | 32,097 ms | Accepted |
+| 05 Positive inventory | 2,189 / 2,481 / 4,670 | 28,482 ms | Rejected by name-grounding guard |
+| 06 Positive judgment | Not run | Not run | Skipped |
+
+Total 24,516 tokens; reasoning is already included in output. Negative split
+totals 7,829 tokens / 47,695 ms, versus P6 6,448 / 47,612: 1,381 more tokens and
+essentially equal observed latency. Positive 4,670 / 28,482 is only extraction,
+not a complete split cost or speed advantage. One observation per fixed-order
+arm does not establish variance, reliability or general cost/performance.
+
+### Absent target: names retained, relationship judgments still fail
+
+P6 correctly reports the target absent, but emits platform noise, recommends
+conditionally relevant/partner brands without preserving those relationships,
+and produces a long whole-answer card. Its structure label is also unfaithful.
+The inventory preserves all seven principal names (蓝色光标、元创互动、WPP、宏盟、辛选、
+有赞、微盟), alongside 聚划算、天猫、巨量引擎. It selects only six of 45 lines
+(9, 10, 11, 24, 25, 34) and labels the answer PARAGRAPHS.
+
+Judgment improves the absent-target card, but labels all seven principal names
+RECOMMENDED and gives them contextual positions 1–7. WPP/宏盟 are thereby promoted
+from context to recommendations; the local conditions and partner relationships
+for other names are flattened despite relevant wording being visible. All raw
+quotes are visible and accepted by code. Both complete final outputs fail
+semantic quality; clean names or exact quotes do not compensate for wrong roles.
+
+### Present target: separate a guard error from actual information loss
+
+P6 identifies the target and position 1 but retains only Peet's as another brand,
+losing most candidate coverage; role/observation classification is also unreliable.
+The inventory instead covers the target and all five other brands: Peet's,
+Maxwell, Tims, Manner and Jia. Its `Manner大店` form is absent from Manner's own
+ranges (36–44, 64), so the original per-record guard rejects it. However, Jia's
+record selects line 69 containing that exact form: it is already visible in the
+shared union. This rejection is an experimental validation overconstraint, not
+proof the model fabricated a hidden alias.
+
+Offline-only correction `c35824f` requires all forms in the visible union and at
+least one name grounded in each record's own evidence. Hidden-source name recovery
+and final anchor augmentation remain rejected. Corrected replay yields 45/69
+visible lines, but line 34 (negative/group conditions) and table headers 59–60
+are genuinely omitted. A lexical check does not prove same-brand identity or
+semantic completeness. No sixth call ran, no historical result was overwritten,
+and the positive split is still incomplete, not semantically accepted.
+
+The first implementation also had a distinct pre-call defect: visible raw refs
+could pass to the full-source projector, which recovered an unseen brand name.
+Independent review and a red reproduction established it; `f7047e8` fixed it
+before execution. The later shared-union correction has its own red-to-green
+regression and focused independent review, without reopening that visibility hole.
+
+### Evidence, decision and next boundary
+
+[Private Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/e804069417e924adbd341485476ccfdb)
+has root `0b1e8a44a9537989`; generation IDs in stage order are
+`a3d744b3be835eb4`, `558836d2d1c947d7`, `2fef95c73828c70b`,
+`1fbebb8be2c223bb`, `0cb09c3e8e65bd79`. Program-result observations are
+`5353da9c6ff7d504`, `5e0141b4925b063b`, `fae477da20e0d9c4`,
+`2d8069a13e33dde2`, `a817905508be965d`; review is `8b61b1b7d882d413`.
+API readback verified all twelve observations: actual messages/Schema hashes,
+raw outputs, restored/projected result or original rejection, usage and complete
+review equality. Trace public=false; credential values absent. Review status is
+`NO_WINNER_PARTIAL_COMPARISON`, not a passing Parser score. Post-run review delay
+is excluded from generation latency. Unchanged browser display evidence is reused.
+
+Protected evidence directory `apps/backend/.provider-evidence/m4-task-load-FZ639m/`
+is ignored, 0700 with evidence files 0600, retained by #42 until decision/review.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| 01 Negative P6 result | 3c1d58dd6119acc3d044ffd9491df4779624ce7316f1c65f86c0a12c26a42a02 |
+| 02 Negative inventory result | ce9091a102a854bdb0a2c851633ea7f343b03b7b9992978c2b6cb4f740988c66 |
+| 03 Negative judgment result | ca20d54851eb7e856da7794929863a347e520f31374ce6a0f1b63e0df86bef10 |
+| 04 Positive P6 result | a6aee4872773776b4d9b1b29fcf942d58a86662dce2d23b595c852892e15e34d |
+| 05 Positive inventory result | d46455d6857e2c9867300c372d21a314489e358a447a50d9c44cf20b462a97a7 |
+| Plan | 923366fb95c00673eb47c91f637d0f1764114b65c192e179d639281e3aad960c |
+| Runner | 327ee3b671341a1969b4b8bfaf14791168380b7d8508d5bd706c6e97c1948427 |
+
+Five files / 43 tests, Backend typecheck/build, independent fixed-diff/focused
+correction review passed. No DB/migration, synthesis, product report, runtime,
+Hy3, #49 Prompt mirror or other worktree change is included. Next define complete
+structural/conditional handoff and isolate relationship judgment on already-
+complete source before freezing another batch. The observed negative failure and
+positive incompleteness do not select a production topology or justify another
+Agent layer. This batch is ended; the offline correction does not resume it.

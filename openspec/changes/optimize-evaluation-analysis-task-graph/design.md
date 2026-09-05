@@ -407,3 +407,28 @@ text/occurrence pairs, including final name grounding. This rejects hidden-sourc
 recovery rather than changing runtime recovery or silently repairing the proposal.
 The reproduced failure and a hidden target-name augmentation case are regression
 tests; no Provider call preceded this correction.
+
+### Observed boundary and offline correction
+
+The frozen batch completed five calls; its sixth judgment was skipped. The
+negative split has a complete result but fails role/condition fidelity despite
+those qualifiers being visible, at higher total token cost. The positive
+inventory covers the target and all five other brands, but the original guard
+mistakenly requires every alias in that record's own ranges. `Manner大店` is absent
+from its own record but present in line 69 selected by another record. All tasks
+consume the same selected-line union, so record association is not a visibility
+boundary. The corrected guard requires every form in the visible union and at
+least one own name in each record's evidence. Exact final anchor whitelisting and
+hidden-source rejection remain unchanged. Literal visibility does not prove
+alias identity or semantic entailment.
+
+Offline replay now constructs 45/69 visible lines, but the omitted negative
+condition at line 34 and table headers at 59–60 remain real context losses. The
+original rejection is immutable and no dependent model call ran after correction.
+The [experiment record](research/chain-quality-experiment.md) owns exact results.
+
+Next isolate two uncertainties: which structural/conditional context a consumer
+needs, and whether a narrow judgment task handles relationships correctly when
+that context is complete. A selected quote is not necessarily a complete semantic
+unit. This directs the next protocol; it does not yet justify another abstraction,
+Agent, model switch, runtime topology or extension of the ended batch.

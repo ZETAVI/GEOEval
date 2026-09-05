@@ -18,13 +18,20 @@ Completed chronology, exact manifests and failed candidates live in the
       target evidence is now observed; all three Parser arms still fail quality.
 - [x] Independently review implementation and semantic outputs; reconcile protected
       evidence and private Trace readback without activating candidates.
-- [ ] Design and freeze one bounded task-load comparison: source-grounded subject/
+- [x] Design and freeze one bounded task-load comparison: source-grounded subject/
       evidence extraction followed by judgment/expression versus a frozen one-call
       candidate. Specify information completeness and no unsupported additions at
       the handoff; do not preselect a production split or merely rename fields.
-- [ ] Compare both retained answers, including absence and positive-target cases,
-      with complete output requirements, source context, calls/tokens/latency and
-      failure/retry implications. No runtime claim follows from small probes.
+- [x] Execute the frozen package on both retained answers: 5/6 calls, negative
+      full comparison fails; positive judgment skipped by the original inventory
+      guard. Preserve this incomplete result, costs and exact failure ownership.
+- [x] Correct shared-source name visibility offline with a red-to-green regression;
+      retain hidden-source rejection, original outputs and the skipped sixth call.
+- [ ] Specify the smallest complete structural/conditional handoff and isolate
+      relationship judgment on complete source; distinguish context loss from
+      model judgment error before freezing another batch. Do not resume P7.
+- [ ] Obtain a complete positive/negative task-package comparison before selecting
+      runtime. Small probes do not establish stability or general efficiency.
 
 ## Synthesis comparison
 

@@ -40,25 +40,28 @@ Langfuse input/output export. Four questions, five platforms, metric meaning,
 
 ## Current evidence and next decision
 
-The [experiment record](research/chain-quality-experiment.md) owns P0–P6 manifests,
+The [experiment record](research/chain-quality-experiment.md) owns P0–P7 manifests,
 results and limits; the proposal does not repeat their chronology. Natural sampling
 remains isolated from target/profile injection. Diagnostic messages, metadata,
 raw output and program projection are distinct. Minimal input was not adopted.
 Source-reference handoff preserves exact text in retained and independent cases,
 but does not establish correct brand identity, role, position or derived claims.
 
-The latest frozen four-call package acquired an independent coffee answer that
-naturally mentions the target. Both P5 and P6 correctly identify that target and
-position 1, but all three Parser observations fail whole-output quality. P6 loses
-some explicit subjects, misstates another brand's order and carries unsupported
-attribute inference into projection. More explicit holistic instructions have
-not demonstrated a sufficient repair; no whole-candidate superiority is established.
+The latest package compared frozen P6 with source-inventory/judgment tasks on
+both retained answers. Five of at most six calls ran. The absent-target split
+preserves principal names and source quotes but misjudges visible relationships;
+it fails semantics at higher token cost than the also-failing baseline. The
+positive-target split stops before judgment: an overly strict per-record name
+check rejects an alias already in the shared visible source. Its inventory also
+genuinely omits a negative condition and table headers. This is an incomplete
+comparison, not evidence that either architecture wins or all splitting fails.
 
-Next compare a smaller evidence-extraction task followed by judgment/expression
-against the frozen one-call candidate, preserving the same source and final needs.
-This is the next experimental question, not an accepted two-call runtime. Keep
-individual identity, full local qualifiers and all required target/competitor
-outputs visible at the handoff; do not simplify by dropping metric-consumed fields.
+The name-visibility check is corrected offline while preserving the original
+rejection and skipped call. Next separate source-context completeness from
+relationship judgment: define the necessary structural/conditional context and
+calibrate the smallest judgment task on already-complete evidence before freezing
+another batch. Do not add another Agent layer, remove metric-consumed fields or
+select a runtime solely to make a probe pass.
 
 ## Impact and exit
 
