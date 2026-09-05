@@ -44,3 +44,21 @@ remain pending. This review is not approval for a runtime merge.
 - Verdict: `ready with follow-up` for the Partial experimental checkpoint, not
   for a claim of improved model quality. Retain this worktree; do not merge or
   activate a candidate before its relevant evidence and approval.
+
+## Evidence-first candidate checkpoint
+
+- Reviewed implementation: `4f2ebc9` against `93b18e2`.
+- Intent: follows the observed P0/P1 missing-proof failure without claiming a
+  confirmed LLM root cause or changing current Parser acceptance.
+- Engineering: open-question-only experimental boundary; current field schemas
+  reused, deterministic shape translation, unchanged final projector. Mandatory
+  proof applies only to a mentioned target; unmentioned results remain valid.
+- Remaining risk: a model can still omit competitors, invent quote content or
+  choose false absence. Nested object/null Schema support on the actual route
+  and semantic quality need real evidence. Strict Schema cannot prove these.
+- Verification: 3 files / 12 focused tests, Backend typecheck/build, format,
+  framework links and diff hygiene passed. No application coordinator imports
+  the candidate. Current specs, runtime Prompt and database schema are unchanged.
+- Verdict: `ready with follow-up` for controlled testing, not runtime activation.
+  Real acquired-answer lineage is requested separately; current P0/P1 evidence
+  is real model execution over a fictional input, not a real sampling run.
