@@ -27,3 +27,20 @@ Runtime tables, queues, concurrency, retries and migrations remain conditional.
 No new workflow platform or critic is justified. Offline checks cannot establish
 model quality; real comparison, holdouts, integration and browser acceptance
 remain pending. This review is not approval for a runtime merge.
+
+## Fixed experimental checkpoint
+
+- Reviewed implementation: `fe59cab` against `main@ddadf77`.
+- Intent: Prompt-only Parser experiment, parent reconciliation and unselected
+  topology match the owner feedback; runtime/current specs stay unchanged.
+- Engineering: existing fixture/executor reuse; fixed Qwen interpretation scope;
+  request-content confirmation before adapter execution; no application import,
+  business persistence, acquisition or fallback path.
+- Evidence: 2 files / 7 focused tests, Backend typecheck/build, Prisma generation,
+  format, framework/Markdown links, diff checks and credential-free plan passed.
+  An initial discriminated-union type error was corrected before this revision.
+- Not run: real Provider calls, full database suite, browser, migrations and
+  whole-workspace build; no runtime/UI/database boundary changed.
+- Verdict: `ready with follow-up` for the Partial experimental checkpoint, not
+  for a claim of improved model quality. Retain this worktree; do not merge or
+  activate a candidate before its relevant evidence and approval.
