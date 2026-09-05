@@ -9,20 +9,24 @@ import {
   projectM4EvidenceFirstOutput,
 } from "./m4-parser-evidence-first.js";
 
-const instruction = z
-  .object({ id: z.string(), version: z.string(), content: z.string().min(1) })
-  .strict()
-  .parse(
-    JSON.parse(
-      readFileSync(
-        new URL(
-          "../../../geo-intelligence/experiments/m4-parser-line-references.json",
-          import.meta.url,
+function loadInstruction(fileName: string) {
+  return z
+    .object({ id: z.string(), version: z.string(), content: z.string().min(1) })
+    .strict()
+    .parse(
+      JSON.parse(
+        readFileSync(
+          new URL(
+            `../../../geo-intelligence/experiments/${fileName}`,
+            import.meta.url,
+          ),
+          "utf8",
         ),
-        "utf8",
       ),
-    ),
-  );
+    );
+}
+const instruction = loadInstruction("m4-parser-line-references.json");
+const identityRoleInstruction = loadInstruction("m4-parser-identity-role.json");
 const rangeSchema = z
   .object({
     startLine: z.number().int().positive(),
@@ -142,6 +146,43 @@ export function projectM4LineReferenceOutput(
     restoredEvidenceFirstOutput,
     ...projectM4EvidenceFirstOutput(restoredEvidenceFirstOutput, context),
   };
+}
+
+// P6 changes semantic instructions/descriptions only; P5 inputs, constraints,
+// source restoration and the production acceptance/metric owners stay frozen.
+export function buildM4IdentityRoleTask(
+  base: StructuredOutputAttemptInput,
+): StructuredOutputAttemptInput {
+  const task = buildM4LineReferenceTask(base);
+  const jsonSchema = structuredClone(task.outputContract.jsonSchema);
+  const properties = objectAt(jsonSchema.properties);
+  const brand = objectAt(
+    objectAt(objectAt(properties.otherBrands).items).properties,
+  );
+  objectAt(brand.observedForms).description =
+    "原文用来指代这一个品牌的名称片段，每项只指向该主体，可为全称、简称或原文别名。两品牌同处一段时各记录自己的名称；多个主体的整句、关系描述及 Markdown 标记属于证据而不是名称。";
+  objectAt(brand.role).description =
+    "判断回答对这个品牌本身的意思：RECOMMENDED=作为满足问题需求的可考虑选择；CONDITIONALLY_RECOMMENDED=只有额外实质条件成立时才作为选择；ALTERNATIVE=明确作为另一选项的替代。COMPARED=只作比较参照而未提出选它；EXAMPLE=仅作说明例子；EXCLUDED=明确不建议选择；MENTIONED_ONLY=仅在背景、旗下或合作关系中具名而未建议选择该主体。邀请用户比较/了解可选服务商也可能是推荐选择，不由某个动词决定。";
+  objectAt(brand.relativePosition).description =
+    "原文支持的这个主体的候选呈现顺序，不是市场排名。结合完整列表、表格、标题和段落理解；附带提及不获得推荐位置，没有顺序依据时为 null。";
+  objectAt(brand.positionKind).description =
+    "RECOMMENDATION 表示候选呈现位置，CONTEXTUAL 表示仅比较语境中的明确顺序；没有 relativePosition 时为 null。";
+  objectAt(properties.answerStructure).description =
+    "描述完整原回答的结构，结合标题、列表、表格与段落；多种结构共同组织内容时用 MIXED。";
+  return {
+    ...task,
+    systemInstruction: identityRoleInstruction.content,
+    outputContract: {
+      version: "experiment.m4.parser-identity-role@1",
+      jsonSchema,
+    },
+  };
+}
+
+function objectAt(value: unknown): Record<string, unknown> {
+  if (!isObject(value))
+    throw new Error("P5 schema path changed; review before P6");
+  return value;
 }
 
 function indexAnswer(answer: string) {

@@ -309,3 +309,35 @@ silently count every COMPARED item, rewrite accepted history, or use a suffix
 filter as entity resolution. Whether separate calls improve these judgments
 remains unselected. Retain source-reference handoff as a candidate and add
 independent/positive-target real evidence only in a newly frozen package.
+
+## Identity and recommendation meaning — P6 bounded package
+
+The owner approved continued task/meaning refinement and real testing. Retain P5
+source selection, its full input, structural constraints and final projector.
+P6 changes only the instruction/field-description package: name forms identify
+one brand, while source ranges retain relationship context; roles describe whether
+the answer offers that brand as a choice, not whether a literal verb appears.
+The current metric policy and its eligible-role set stay unchanged.
+
+A recommendation can be phrased as a suggestion to compare or consider a provider.
+An additional material precondition belongs to conditional recommendation; a name
+used only as a benchmark, illustration, exclusion or affiliation is distinguished
+from an offered choice. This aligns existing fields to their consumers rather than
+promoting every comparison into a recommendation. Unknown real-world affiliation
+or name identity is not investigated. Source names and evidence are different units.
+
+No new entity/role enum, alias database, classification guard, new Agent or runtime
+interface is warranted yet. P6 is composed at the existing experimental task seam;
+removing it leaves P5 and application startup unchanged. The source bridge still
+only restores evidence and cannot repair wrong names, roles, ranks or prose.
+Existing same-route/strict-Schema source evidence is reusable; no new SDK/API or
+Provider capability is assumed.
+
+The next manifest is a four-call coverage package, not continuation of a stopped
+batch: P6 on the retained marketing answer; one new natural answer to the already
+frozen Shanghai Jing'an coffee question; then P5 and P6 on that identical new
+answer. Freeze all instructions before acquisition. Meaning failures are recorded
+per planned arm without tuning; transport, identity, structure/reference or code-
+acceptance failure stops remaining calls. Never resample to force target presence.
+This finally tests transfer beyond the retained answer without presuming success
+there or estimating a production success rate. No runtime activation follows.

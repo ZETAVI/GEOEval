@@ -779,3 +779,38 @@ customer report acceptance was run. Full-report/production quality is not claime
 Next align individual name identity and local choice/mention/condition meaning
 against report consumers, retaining current metric policy; only then freeze the
 next comparison. Do not add an Agent merely because these semantics are unresolved.
+
+## Identity/role transfer comparison — protocol
+
+P6 is an instruction and field-purpose package on the unchanged P5 input and
+source-reference Schema structure. It separates individual name identity from
+relationship evidence and offered choices from benchmark/incidental/excluded
+mentions. All classification remains a model judgment; current metric eligibility,
+count/quote constraints, source restoration and final acceptance stay unchanged.
+
+Maximum four calls, no retries/fallback/tuning: retained marketing answer with P6;
+one natural Qwen3.7 Flash acquisition; independent answer with P5, then P6 using
+Qwen3.8 Flash low. The independently frozen question is: 在上海市静安区，想找可以买到
+现磨咖啡、适合短暂办公的连锁咖啡店，有哪些值得比较？ Parser target is 星巴克, with the
+previously frozen coffee identity context. The actual acquisition request must
+contain only the question/objectivity/search controls, not that target or profile.
+This is public experimental input, not a newly approved product Query/store profile.
+
+Freeze P6 before observing the new answer. All phases belong to this new manifest;
+no stopped P0–P5 batch resumes. Review each arm's meaning independently after its
+planned execution, preserving failures. Transport/model mismatch, invalid source
+acquisition, structure/reference or code acceptance failure stops the remaining
+requests. Timeout 180s per call; no resampling to obtain a preferred answer or
+positive target. If absent, keep absence and report the positive branch untested.
+
+Retained acceptance checks seven independent named subjects without shared prose
+forms, context-faithful distinction of offered/conditional choices from affiliation,
+meaningful ordering, absence, evidence completeness and concise card. On the new
+answer, derive expected semantics from that immutable source, not from the known
+brand profile or expected corporate relationships. Compare P5/P6 coverage, useful
+source retention, role/position, target evidence/prose, token usage and latency;
+one ordered pair does not prove causality, stability or general performance.
+
+Keep each raw output, restored evidence, final projection and review separate in
+protected local evidence and a private Langfuse Trace. No application import,
+business DB, synthesis, #49 mirror, Hy3 or runtime/production activation.
