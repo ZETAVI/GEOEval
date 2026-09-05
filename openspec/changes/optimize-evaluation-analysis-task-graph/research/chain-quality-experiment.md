@@ -684,3 +684,36 @@ Backend typecheck/build, framework/Markdown links, format and diff checks passed
 Reuse unchanged display/browser and runtime evidence. Full DB suite, new sampling,
 positive-target real evidence, synthesis, 4×5 and customer report acceptance were
 not executed. #49 Prompt Management publishing remains outside this slice.
+
+## Source-reference handoff — bounded protocol
+
+The owner's output-first/task-handoff direction and current consumer audit select
+P5: source-range selection instead of quote copying. P4 1.1.0 is the fixed semantic
+control. Change only the source/evidence representation and its instructions:
+replace originalAnswer with the complete ordered answerLines, and exactText/
+occurrence with startLine/endLine. Keep all other context, brand/target/prose
+fields, list/quote limits, model, effort and final projector. This is a coherent
+handoff-package comparison, not a Prompt-only effect.
+
+Offline checks cover unchanged P4/structural constraints, Markdown/CRLF/blank lines,
+adjacent qualifiers, repeated occurrence identity, invalid/empty/reversed/oversized
+references, both target states and actual metric consumption. A deliberately wrong
+role/position/prose remains wrong after restoration: exact quoting cannot prove
+semantic attribution. No new public or persisted source-reference contract.
+
+Maximum one new Qwen3.8 Flash low call on the same retained natural marketing
+answer (hash afe5f76ef7c4ade9061fcc8e56598e31d93a07853c3ff1c6ffb524e6389c7dda).
+Timeout 180s, existing approved generic endpoint, no new acquisition, retry,
+fallback, mode change or same-batch tuning. The previous P4.1 observation is a
+non-contemporaneous reference, not a matched performance benchmark. Stop after
+this call regardless of outcome; independent-answer and positive-target real
+coverage require a subsequent frozen package.
+
+Judge two dimensions separately: do selected source ranges resolve and retain
+brand/relationship/condition context without quote loss, and does the entire result
+remain faithful, complete and customer-readable? Inspect candidate inclusion,
+target absence, conditional role, candidate order and card scope even if every
+range resolves. Do not reward selecting whole-answer ranges or program recovery.
+Keep raw range output, restored evidence and final projection separate. Export
+the authorized actual messages and separate program result/review to a new private
+Langfuse Trace. No runtime activation, #49 publishing or business record write.

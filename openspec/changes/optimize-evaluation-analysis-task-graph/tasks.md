@@ -43,10 +43,15 @@
       inclusion, role/position and quote fidelity still fail. Stop, no activation.
 - [x] Read back both private Langfuse traces, actual messages, Schema, raw results,
       program acceptance/projection, usage and separate semantic reviews.
-- [ ] Review first-layer responsibilities against actual metric/synthesis consumers:
+- [x] Review first-layer responsibilities against actual metric/synthesis consumers:
       separate brand identity, source scope, role/position and customer prose;
       use the retained failures to choose one bounded next comparison. Do not
       add another brand blacklist or silently remove metric-consumed fields.
+- [x] Prepare an isolated source-range handoff: complete answer lines in, selected
+      evidence ranges out, exact text restored by program; same P4 judgment/prose,
+      constraints and final acceptance. Verify source/metric/control preservation.
+- [ ] Execute one frozen retained-answer P5 call, review source-range usefulness
+      separately from overall meaning, and synchronize actual messages/results.
 - [ ] After freezing that decision, test its smallest discriminating control and
       independent-answer/mentioned-target coverage; current candidate is rejected.
 

@@ -243,11 +243,50 @@ The next decision is about responsibility, not additional organization-name rule
 | GEO program | Source text, derived records and current metric policy | Resolve exact citations, protect accepted facts and compute metrics; never fabricate semantic evidence |
 | Synthesis, owned by #41 | Accepted records, resolvable supporting context and deterministic metrics | Cross-answer identity/relationship decisions and faithful customer expression; not a substitute for missing source evidence |
 
-This is a review frame, not a new accepted interface. Inspect whether role/position
-and short card prose belong in the same model task as identity extraction, and
-whether source-span selection can reduce quote-copying errors. Role/position are
-currently consumed by evaluation-report.policy.ts for eligible competitor
-occurrences; changing their producer requires an explicit compatible design.
-Do not implement a split, another critic, a new span contract or a suffix stripper
-without a discriminating result. Full context remains only a frozen control, not
-a prescription to give every downstream Agent all nine fields.
+This is a review frame, not a new accepted runtime interface. The consumer audit
+below selects an isolated evidence-handoff probe before moving role/position or
+prose to another Agent. Full context remains only a frozen control, not a
+prescription to give every downstream Agent all nine fields.
+
+## Output-first responsibility audit and selected next probe
+
+The owner approved deriving task boundaries from final required content. Current
+consumers at `57d5c54` establish the following constraints; `main@975f2d2` has the
+same Parser, metric, synthesis-input and report-projection behavior.
+
+| Final need | Current source and consumer | Consequence for task design |
+| --- | --- | --- |
+| Target mention, index and typical position | [metric policy](../../../apps/backend/src/geo-intelligence/domain/evaluation-report.policy.ts) consumes mentioned and the open sample's top-level position, not targetRole | Keep local target identity/order judgment distinct from other-brand recommendation eligibility; do not change the formula |
+| Other-brand names, frequency and position | Same policy filters roles; [report document](../../../apps/backend/src/geo-intelligence/domain/evaluation-report.document.ts) aggregates grouped mentions | A brand's existence, recommendation role and source order are different facts; source line IDs never become candidate ranks |
+| Brand impressions, conditions and broad guidance | [synthesis input](../../../apps/backend/src/geo-intelligence/overall-synthesis.policy.ts) consumes classified observations and exact anchors | Keep source-supported subject/claim/qualifier together; derived card prose must not replace that evidence |
+| Sample card and original-answer highlights | [public projection](../../../apps/backend/src/geo-intelligence/presentation/evaluation.dto.ts) uses cardInterpretation directly; [highlight projection](../../../apps/backend/src/geo-intelligence/domain/evaluation-report.projection.ts) uses anchors/polarity | Prose has a real customer consumer and cannot simply be dropped; quoting is a separate deterministic handoff need |
+| Cross-answer brand grouping | Synthesis consumes all otherBrands, including mention-only records, and observedForms | First layer supplies recognizable subjects and source forms; #41 groups across answers without company-master research |
+
+The [synthesis repository](../../../apps/backend/src/geo-intelligence/infrastructure/postgres-evaluation-synthesis.repository.ts)
+currently hands over semantic records, not the complete original answer. A lost
+qualifier cannot reliably be recovered downstream. Conversely, feeding the whole
+raw answer and every stored field to every task is not yet justified. Keep one
+owner of immutable source text and pass only sufficient, resolvable context.
+
+Three candidate changes were considered: (a) retain current quote-copying with
+more wording, (b) let the model select source ranges and the program restore exact
+text, (c) split identity, judgment and prose into additional calls. The observed
+Markdown-copying failures make (b) the smallest discriminating probe. It changes
+one responsibility—mechanical source reproduction—without transferring brand
+meaning, role, position or prose, selecting a runtime topology or adding a call.
+
+P5 reuses P4 1.1.0 and its constraints. The full answer is represented once as
+ordered text lines; every evidence span becomes startLine/endLine. Program-owned
+offsets resolve those references against the immutable answer, preserving interior
+whitespace, Markdown and line endings. Existing edge whitespace normalization,
+quote lengths, counts and final canonical acceptance remain in effect. Invalid,
+reversed, empty, oversized or unresolvable ranges reject instead of fuzzy recovery.
+No program-selected semantic range, name, role, rank or customer sentence is added.
+
+Readiness for this isolated probe: no datastore, public contract, Queue/Worker or
+new external interface; same Qwen strict route and existing diagnostic exporter.
+It is invoked only from a frozen local experiment, has no retry/fallback, and
+cannot accept business records. Rollback removes only experimental files. Source
+reference identity remains sample-local and is not a cross-sample evidence ID.
+The current spec and accepted history stay unchanged; runtime adoption would
+require an explicit Parser owner, compatibility/integration evidence and approval.
