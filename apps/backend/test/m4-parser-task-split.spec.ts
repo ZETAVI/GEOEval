@@ -62,6 +62,74 @@ const judgment = () => ({
 });
 
 describe("M4 task-load comparison handoff", () => {
+  it("rejects recovery of a brand from source hidden from the judgment task", () => {
+    const local = {
+      ...base,
+      userContext: {
+        ...base.userContext,
+        originalAnswer: "甲咖啡可考虑。\n乙咖啡未提供给第二步。",
+      },
+    };
+    const inventory = {
+      answerStructure: "PARAGRAPHS",
+      target: null,
+      otherBrands: [
+        {
+          displayName: "甲咖啡",
+          observedForms: ["甲咖啡"],
+          evidence: [range(1)],
+        },
+      ],
+    };
+    const output = {
+      ...judgment(),
+      target: null,
+      otherBrands: [
+        {
+          displayName: "乙咖啡",
+          observedForms: ["乙咖啡"],
+          role: "RECOMMENDED",
+          relativePosition: null,
+          positionKind: null,
+          evidence: [range(1)],
+        },
+      ],
+    };
+    expect(() =>
+      projectM4EvidenceJudgmentOutput(output, local, inventory),
+    ).toThrow("grounded");
+  });
+
+  it("rejects a name added by final recovery from an unseen target occurrence", () => {
+    const local = {
+      ...base,
+      userContext: {
+        ...base.userContext,
+        companyName: "乙咖啡",
+        originalAnswer: "1. 甲咖啡可考虑。\n乙咖啡只出现在未提供行。",
+      },
+    };
+    const inventory = {
+      answerStructure: "PARAGRAPHS",
+      target: { displayedForms: ["甲咖啡"], evidence: [range(1)] },
+      otherBrands: [],
+    };
+    const output = {
+      ...judgment(),
+      target: {
+        ...judgment().target,
+        displayedForms: ["甲咖啡"],
+        mentionEvidence: [range(1)],
+        positionEvidence: [range(1)],
+        observations: [],
+      },
+      otherBrands: [],
+    };
+    expect(() =>
+      projectM4EvidenceJudgmentOutput(output, local, inventory),
+    ).toThrow("grounded");
+  });
+
   it("extracts only names/source context with purpose-specific input and leaves P6 frozen", () => {
     const before = buildM4IdentityRoleTask(base);
     const task = buildM4EvidenceExtractionTask(base);

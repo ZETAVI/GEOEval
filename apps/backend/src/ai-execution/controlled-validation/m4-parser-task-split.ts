@@ -264,12 +264,64 @@ export function projectM4EvidenceJudgmentOutput(
     } else Object.values(v).forEach(check);
   };
   check(value);
-  return projectM4LineReferenceOutput(value, {
+  const restored = m4EvidenceFirstSchema.parse(
+    restoreM4SourceReferences(value, String(base.userContext.originalAnswer)),
+  );
+  const requireGrounded = (
+    forms: string[],
+    spans: Array<{ exactText: string }>,
+  ) => {
+    if (
+      !forms.every((form) =>
+        spans.some((span) => span.exactText.includes(form)),
+      )
+    )
+      throw new Error("Judgment name is not grounded in its visible evidence");
+  };
+  if (restored.target)
+    requireGrounded(
+      restored.target.displayedForms,
+      restored.target.mentionEvidence,
+    );
+  restored.otherBrands.forEach((brand) =>
+    requireGrounded(brand.observedForms, brand.evidence),
+  );
+  const suppliedSpans = [
+    ...(restored.target?.mentionEvidence ?? []),
+    ...(restored.target?.positionEvidence ?? []),
+    ...(restored.target?.observations.flatMap((o) => o.evidence) ?? []),
+    ...restored.otherBrands.flatMap((b) => b.evidence),
+  ];
+  const key = (span: { exactText: string; occurrence: number }) =>
+    JSON.stringify([span.exactText, span.occurrence]);
+  const visibleSpanKeys = new Set(suppliedSpans.map(key));
+  const result = projectM4LineReferenceOutput(value, {
     companyName: String(base.userContext.companyName),
     originalAnswer: String(base.userContext.originalAnswer),
     questionKind: base.userContext
       .questionKind as SampleParserAcceptanceContext["questionKind"],
   });
+  if (
+    result.projected.semantic.evidenceAnchors.some(
+      (anchor) => !visibleSpanKeys.has(key(anchor)),
+    )
+  )
+    throw new Error(
+      "Final recovery introduced evidence not selected from visible source",
+    );
+  if (restored.target)
+    requireGrounded(
+      result.projected.semantic.targetDisplayedForms,
+      restored.target.mentionEvidence,
+    );
+  for (const brand of result.projected.semantic.otherBrands)
+    requireGrounded(
+      brand.observedForms,
+      result.projected.semantic.evidenceAnchors.filter((a) =>
+        brand.evidenceAnchorIds.includes(a.anchorId),
+      ),
+    );
+  return result;
 }
 
 function object(value: unknown): Record<string, unknown> {

@@ -398,3 +398,12 @@ judgment, while the other frozen case remains independently useful. Transport or
 model-identity failure stops the batch. Rollback removes only experiment assets.
 Existing strict-Qwen and diagnostic-source evidence remains applicable; changing
 model/endpoint/mode would require a new check. Runtime topology stays unselected.
+
+Pre-call review exposed a visibility leak: checking raw line references alone
+still allowed the existing full-source projector to recover a name from an unseen
+line. The experimental wrapper now requires names grounded in their visible
+evidence before projection and checks final anchors against the exact supplied
+text/occurrence pairs, including final name grounding. This rejects hidden-source
+recovery rather than changing runtime recovery or silently repairing the proposal.
+The reproduced failure and a hidden target-name augmentation case are regression
+tests; no Provider call preceded this correction.
