@@ -1,17 +1,17 @@
 # Identity and Access aggregate verification
 
-Date: 2026-09-04
+Date: 2026-09-05
 
 ## Scope and isolation
 
-- Verified revision: `727d431` on
+- Verified revision: `329d710` on
   `codex/issue-50-identity-access-governance`.
-- Current PR comparison base:
-  `origin/main@18b69d0bdd97752d1f2fde8504564062beb8a62f`.
+- Current Final-PR comparison base:
+  `origin/main@ddadf77d5077e6bf7a1e1cdd33a28171b89e0be8`.
 - PostgreSQL target:
-  `geoeval_issue50_final_merged_20260904`, created empty only for the
-  authoritative post-main-merge pass.
-- Redis target: DB 2, confirmed empty before this pass. The shared DB 0 was not
+  `geoeval_issue50_release_verify_ddadf77_20260904`, created empty only for the
+  authoritative post-main-sync pass.
+- Redis target: DB 4, confirmed empty before this pass. Shared DB 0 was not
   selected.
 - No provider call, real SMS, real account, production database, deployment, or
   activation was used.
@@ -21,9 +21,9 @@ Date: 2026-09-04
 | Claim | Evidence | Result |
 | --- | --- | --- |
 | All database changes deploy from empty | `pnpm db:migrate` against the dedicated database | 22/22 migrations applied |
-| Migration owner is current | Prisma migration status against the dedicated database | Schema up to date |
-| Complete backend behavior is preserved | `DATABASE_URL=<dedicated> REDIS_URL=.../2 pnpm test` | 41 files / 219 tests passed |
-| Complete Web behavior is preserved | `pnpm --filter @geoeval/web test` | 11 files / 56 tests passed |
+| Migration owner remains current | Earlier 22-migration `prisma migrate status` result, reused because neither the later fixes nor `main@ddadf77` change Prisma schema or migrations | Schema up to date |
+| Complete backend behavior is preserved | `DATABASE_URL=<dedicated> REDIS_URL=.../4 pnpm test` | 41 files / 228 tests passed |
+| Complete Web behavior is preserved | `pnpm --filter @geoeval/web test` | 11 files / 58 tests passed |
 | Workspace contracts typecheck | `pnpm typecheck` | Backend, generated client, and Web passed |
 | Production artifacts compile | `pnpm build` | Prisma/OpenAPI generation, backend, client, and 12 Web routes passed |
 | Checked source formatting is current | `pnpm format:check` | Passed |
@@ -31,43 +31,70 @@ Date: 2026-09-04
 | Generated HTTP contracts are current | Build-time OpenAPI/client regeneration followed by scoped `git diff --exit-code` | No drift |
 | Patch is mechanically clean | `git diff --check` | Passed |
 
-PostgreSQL emitted its existing `pg` concurrent-query deprecation warning in
+PostgreSQL emitted the existing `pg` concurrent-query deprecation warning in
 tests, and controlled telemetry tests emitted their expected failure logs. The
 test process exited zero; neither output identifies an Issue #50 acceptance
 failure.
 
+## Independent final-review remediation
+
+Three independent read-only reviews covered security/architecture, runtime/Web,
+and workflow/evidence boundaries. Their material findings were fixed before the
+final aggregate pass:
+
+- Account deactivation and authentication completion now serialize on the
+  Account row and reload status before Session creation. A deterministic
+  PostgreSQL concurrency test proves that deactivation cannot leave a live
+  Session behind.
+- A missing singleton Governance control row now fails closed with
+  `GOVERNANCE_CONTROL_UNAVAILABLE`; the integration rollback test proves no
+  Account or audit mutation commits.
+- Repeated query parameters are rejected as HTTP 400 instead of escaping into
+  Prisma or returning 500.
+- All four role sidebars expose current logout and confirmed self logout-all
+  through one shared component and generated client request.
+- All four Media editor mutation/refresh failure branches route a 401 through
+  the shared Session boundary rather than a local form error.
+- Unused Identity application-service exports were removed, preserving the
+  metadata/current-principal seam.
+
+Focused independent verification passed 2 backend files / 16 tests and the
+complete Web 11-file / 58-test suite. The current aggregate run supersedes the
+earlier 219/56 and 221/58 counts.
+
 ## Evidence continuity
 
-- Focused Identity tests already distinguish role, Session lifecycle,
-  Governance concurrency/rollback, Bootstrap, route policy, CSRF, cleanup, and
-  malformed-request behavior. The aggregate run repeats those suites together
-  rather than replacing their narrower proof.
-- The complete browser checkpoint remains applicable to visible role homes,
-  narrow layout, dangerous-dialog behavior, and session states. Later Web code
-  only routes embedded Media editor authentication failures through the same
-  shared state and removes unused presentation constants; its failure handling
-  is covered by the 56-test Web regression.
-- The latest `main` adds the accepted Issue #26 Query Generator. The semantic
-  merge keeps its Account relation, migration, generated API, Web prewarm, and
-  definition-observe/prepare/retry behavior while moving all new authenticated
-  controller paths through `CurrentPrincipal`. The post-merge aggregate run is
-  authoritative over the earlier 21-migration result.
-- The migration/application rollback rehearsal remains the compatibility proof.
-  It is explicitly bounded to pre-activation rollback and does not authorize old
-  code after new account/Session security semantics become active.
+- Focused Identity tests distinguish role, Session lifecycle, Governance
+  concurrency/rollback, Bootstrap, route policy, CSRF, cleanup, malformed
+  requests, and authentication/deactivation serialization. The aggregate run
+  repeats those suites together rather than replacing their narrower proof.
+- Existing browser evidence covers all four role homes, administrator account
+  governance, cross-role denial, Session expired/revoked/inactive states,
+  dangerous-dialog behavior, and 390x844 responsive layouts. After the final
+  logout-all change, a real 390x844 customer render showed both exit controls
+  fully visible with `clientWidth=scrollWidth=390`; administrator and supporting
+  roles reuse the same component and styles, while automated Web tests verify
+  the entry on the shared render boundary.
+- The latest `main` adds M4 handoff reconciliation and the accepted Issue #35
+  parser correction. The merge changes neither Identity implementation nor the
+  final Web repairs; the complete 228-test backend pass includes the new parser
+  cases, and Architecture Overview retains both owners.
+- The current -> `main@ddadf77` -> current application rehearsal is the Final-PR
+  compatibility proof. It remains explicitly bounded to pre-activation rollback
+  and does not authorize old code after new Account/Session security semantics
+  become active.
 
 ## Cleanup
 
-The authoritative aggregate test process left one synthetic Account, two
-Sessions, no Query preparation, one Identity audit, and one Redis DB 2 key in
-the dedicated targets. These were not shared records: the complete temporary
-PostgreSQL database was dropped and the pre-confirmed-empty Redis DB 2 was
-flushed. Final checks returned zero matching databases and zero DB 2 keys;
-shared Redis DB 0 remained at three keys.
+The aggregate test process left three synthetic Accounts, three Sessions, one
+Identity audit, and one Redis DB 4 key in its dedicated targets. The complete
+temporary PostgreSQL database was dropped and the pre-confirmed-empty Redis DB 4
+was flushed. The rollback database/worktree/Cookie files and Redis DB 5 were
+also removed. Final selectors returned zero matching databases, zero DB 4/5
+keys, no process on port 3319, and three unchanged keys in shared Redis DB 0.
 
 ## Verdict
 
-Aggregate verification is `passed`. The implementation is ready for current-
-truth reconciliation and pull-request review, but this result does not authorize
-merge, deployment, production migration, real SMS, Bootstrap execution, or
-activation.
+Aggregate verification is `passed`. The fixed implementation is ready for a
+Final PR and human review. This result does not authorize merge, deployment,
+production migration, real SMS, Bootstrap execution, or activation.

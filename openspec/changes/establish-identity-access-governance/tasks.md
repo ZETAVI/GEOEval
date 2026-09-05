@@ -411,3 +411,45 @@
 - No production database, real account, provider, SMS, Bootstrap, deployment,
   activation, or PR merge was used. The remaining Issue task is opening the
   reviewable final PR; integration remains a later human Gate.
+
+## Independent final-review and latest-main checkpoint — 2026-09-05
+
+- This checkpoint supersedes the preceding aggregate checkpoint as the
+  authoritative Final-PR evidence.
+- Three independent read-only review lanes covered security/architecture,
+  runtime/Web, and workflow/evidence. The first pass found an
+  authentication/deactivation Session race, missing-control-row fail-open
+  behavior, repeated-query 500 handling, a missing Web self logout-all entry,
+  incomplete Media editor Session-failure routing, and unnecessary Identity
+  exports. Commits `08a9d53` and `39dd2b9` resolve all findings.
+- Independent focused rechecks passed 2 backend files / 16 tests and the complete
+  Web 11-file / 58-test suite. Both code reviewers report no remaining must-fix
+  or should-fix finding.
+- Refreshed and merged `origin/main@ddadf77`. Its M4 handoff and Issue #35
+  parser changes do not alter the final Identity/Web repairs; the shared
+  Architecture Overview preserves both capability owners.
+- On a fresh dedicated PostgreSQL database and empty Redis DB 4, all 22
+  migrations applied, 41 backend files / 228 tests passed, and 11 Web files /
+  58 tests passed. Typecheck, production build with 12 routes, formatting,
+  project-framework validation, generated-contract drift, and Diff checks
+  passed.
+- Repeated the application compatibility sequence against the exact latest
+  `main`: current -> `main@ddadf77` -> current. Both current- and
+  rollback-created Cookies returned HTTP 200 after restoration; the shared
+  incomplete Query path returned its expected HTTP 400 on both applications;
+  both Session rows satisfied digest, last-seen, idle-expiry, and revocation
+  invariants.
+- Removed both exact temporary databases, isolated Redis DB 4/5 state, the
+  detached rollback worktree and its local dependencies, all Cookie/response
+  files, and the local API process. Final checks found zero matching databases,
+  zero DB 4/5 keys, no port 3319 listener, and the same three shared Redis DB 0
+  keys.
+- A user-requested network pause occurred after local verification. The
+  interrupted document replacement was restored before any commit; no
+  implementation file, credential, database, process, or temporary worktree was
+  left in a partial state.
+- Remaining lifecycle work: commit this superseding evidence, recheck live
+  remote state, push the branch, open the Final PR with `Closes #50`, update
+  Issue #50 and its Project item to `Review / Decision`, then archive this
+  active Change and push that closeout commit. Merge and release actions remain
+  separate human gates.

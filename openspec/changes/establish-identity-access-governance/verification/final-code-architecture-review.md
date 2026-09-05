@@ -1,17 +1,20 @@
 # Final fixed-diff code and architecture review
 
-Date: 2026-09-04
+Date: 2026-09-05
 
 - Fixed comparison base:
-  `origin/main@18b69d0bdd97752d1f2fde8504564062beb8a62f`.
-- Reviewed head after current-truth reconciliation and main sync: `727d431`.
-- Reviewed scope: 128 files, 13,256 additions, and 800 deletions across the
-  approved Issue #50 Identity, authenticated-access, generated-contract, role-
-  entry, administrator-workspace, migration, test, and evidence boundary.
-- Review method: approved proposal/spec/task trace, architecture-boundary
-  inspection, critical security/data paths, generated public contracts,
-  complete automated regression, isolated migration/rollback, and real browser
-  evidence.
+  `origin/main@ddadf77d5077e6bf7a1e1cdd33a28171b89e0be8`.
+- Reviewed implementation head after current-truth reconciliation and latest
+  main sync: `329d710`.
+- Reviewed scope: the approved Issue #50 Identity, authenticated-access,
+  generated-contract, role-entry, administrator-workspace, migration, test, and
+  evidence boundary. M4/Issue #35 changes brought in from `main` were reviewed
+  only for overlap and regression.
+- Review method: approved proposal/spec/task trace, codebase-design deletion and
+  dependency tests, architecture-boundary inspection, critical security/data
+  paths, generated public contracts, three independent read-only review lanes,
+  complete automated regression, isolated application rollback, and real
+  browser evidence.
 
 ## Requirement fidelity
 
@@ -40,62 +43,79 @@ Verdict: `ready`.
   modules.
 
 No implemented behavior materially widens the approved product meaning or
-crosses the Issue #57 GEO Optimization/article boundary.
+crosses the independent Issue #57 GEO Optimization/article boundary.
 
 ## Engineering-quality findings
 
-All material findings discovered during the fixed-diff pass were resolved
+All material findings discovered across the fixed-diff reviews were resolved
 before this verdict.
 
 | Severity | Finding | Resolution |
 | --- | --- | --- |
-| Must fix | A malformed percent-encoded Session Cookie escaped decoding and returned 500 instead of a generic authentication failure | `e3a896b` catches decoding failure and the HTTP forgery matrix proves the bounded 401 response |
-| Must fix | Null/malformed authentication and Governance bodies, including invalid UUID input, could reach property access or Prisma and return 500 | `e3a896b` validates unknown input before repository access; focused HTTP tests prove 400 responses |
-| Should fix | Embedded Media Supply editors handled a 401 as a local form error while their workspace used the shared Session state | `c231d1f` routes editor and refresh failures through the shared access-failure handler; Web regression passes |
+| Must fix | A malformed percent-encoded Session Cookie escaped decoding and returned 500 instead of a generic authentication failure | `e3a896b` catches decoding failure and the HTTP forgery matrix proves bounded 401 |
+| Must fix | Null/malformed authentication and Governance bodies, including invalid UUID input, could reach property access or Prisma and return 500 | `e3a896b` validates unknown input before repository access; focused HTTP tests prove 400 |
+| Must fix | Authentication could read ACTIVE before a concurrent deactivation committed, wait on the Account write, then create a Session that the earlier revoke-all never saw | `08a9d53` locks and reloads the Account inside Session creation; a deterministic PostgreSQL interleaving proves no live Session survives |
+| Must fix | Governance proceeded without the singleton control row, weakening the serialized last-administrator invariant | `08a9d53` requires exactly one GLOBAL control row and fails closed with `GOVERNANCE_CONTROL_UNAVAILABLE`; the integration rollback test proves no partial write |
+| Should fix | Repeated query parameters could flow as arrays and produce 500 | `08a9d53` treats query input as unknown, accepts only one bounded string, and proves repeated search returns 400 |
+| Should fix | Web offered only current-Session logout despite the approved self logout-all lifecycle | `39dd2b9` adds one confirmed shared action and generated-client call to all four role sidebars; Web contract tests verify the request |
+| Should fix | Media editor authentication failures were not uniformly routed through the shared Session state | `39dd2b9` centralizes the decision across platform, supplier, resource, and refresh branches; a 401 test proves the local error path is skipped |
 | Should fix | The Governance audit action was a closed domain/database enum but an unbounded OpenAPI string | `a267115` publishes the same enum through OpenAPI and the generated client |
-| Should fix | The rollback evidence could be read as authorization for old code after new status/idle-expiry semantics activate | `a267115` limits the proof to pre-activation rollback and requires a separate human-approved post-activation invalidation plan |
-| Improve | A remaining test filename described the retired `RoleGuard` | `b4abe59` renames it to the current access contract |
+| Should fix | Rollback evidence could be read as authorization for old code after new status/idle-expiry semantics activate | `a267115` and the refreshed `ddadf77` rehearsal limit the proof to pre-activation rollback |
+| Improve | IdentityModule exported application services unused by external modules | `08a9d53` removes them; metadata and current principal remain the cross-module seam |
+| Improve | A test filename described the retired `RoleGuard` | `b4abe59` renames it to the current access contract |
 
-After the initial review, Issue #26 Query Generator entered `main`. Four textual
-conflicts and the automatically merged shared surfaces were reviewed by owner,
-not by choosing one side wholesale. The merged schema retains both Account
-relation families, all new Query endpoints consume `CurrentPrincipal`, the HTTP
-test keeps both the Query harness and CSRF headers, generated contracts contain
-both APIs, and Architecture Overview retains both current boundaries. The
-post-merge complete regression is the final evidence.
+The runtime/Web and security/architecture reviewers independently rechecked
+their findings after the repairs. The workflow/evidence reviewer identified the
+required Final-PR, Issue-body/Project-status, stage wording, and Change-archive
+closeout; those are the remaining remote and lifecycle actions, not code
+findings.
+
+After the initial review, Issue #26 Query Generator and later M4/Issue #35
+changes entered `main`. Shared schema, controller, test, generated-contract, and
+Architecture Overview surfaces were reviewed by owner instead of accepting one
+side wholesale. The current schema retains both Account relation families, all
+new Query endpoints consume `CurrentPrincipal`, and the latest main sync leaves
+the final Identity/Web repairs untouched. The post-sync complete regression is
+the authoritative evidence.
 
 No unresolved must-fix or should-fix code finding remains in the reviewed diff.
 
 ## Architecture qualities
 
 - **Cohesion:** Identity is deepened inside the modular monolith into focused
-  application responsibilities; no microservice or generic authorization engine
-  was introduced.
+  authentication, Session, access, governance, maintenance, and Bootstrap
+  responsibilities; removing the module would make those invariants leak back
+  into every controller, so the boundary hides real complexity.
 - **Dependency direction:** product controllers depend on Identity's small
-  metadata/principal boundary. Identity does not import business modules.
-- **Integrity:** the Governance control row serializes the last-administrator
-  invariant, and one serializable PostgreSQL transaction owns Account revision,
-  Session invalidation, and audit.
+  metadata/current-principal interface. Identity imports no business module and
+  no caller receives repository, Cookie, or application-service internals.
+- **Integrity:** Account locking serializes authentication against governance;
+  the Governance control row serializes the last-administrator invariant; one
+  serializable transaction owns Account revision, Session invalidation, and
+  audit.
 - **Security:** authorization fails closed; Cookie/Origin/CSRF, unknown
-  credentials, inactive/revoked/expired Sessions, Bootstrap, and audit-secret
-  boundaries have discriminating evidence.
-- **Proportionality:** fixed roles, opaque server sessions, one datastore, and a
+  credentials, inactive/revoked/expired Sessions, missing governance control,
+  Bootstrap, and audit-secret boundaries have discriminating evidence.
+- **Reuse and locality:** one declarative access contract and one Web Session
+  boundary have multiple stable consumers with the same semantics. Business
+  errors remain local to their modules.
+- **Proportionality:** fixed roles, opaque server Sessions, one datastore, and a
   manual rare-incident boundary fit the approved small-team application. SSO,
   custom permissions, impersonation, device risk, JWT, and break-glass recovery
   remain intentionally absent.
-- **Change shape:** the branch is large because it replaces one cross-cutting
-  temporary boundary and supplies migration, generated contracts, UI, tests,
-  browser evidence, and reconciliation in one architecture Change. The commit
-  sequence remains divided into small reviewable checkpoints, and splitting by
-  frontend/backend would create parallel writers for the same access contract.
+- **Change shape:** this architectural Change replaces one cross-cutting
+  temporary boundary and must carry migration, generated contracts, UI, tests,
+  browser evidence, and reconciliation together. Its commit sequence remains
+  reviewable; splitting by frontend/backend would create two writers for the
+  same access lifecycle rather than independent value.
 
 ## Evidence continuity and residual gates
 
-The aggregate result is 41 backend files / 219 tests and 11 Web files / 56
-tests, plus typecheck, production build, formatting, framework, migration,
-generated-contract, Diff, rollback, and browser evidence. The evidence files
-record their exact targets and cleanup rather than relying on this review as a
-second source of truth.
+The authoritative aggregate result is 41 backend files / 228 tests and 11 Web
+files / 58 tests, plus typecheck, production build, formatting, framework,
+22-migration deployment, generated-contract Diff, current -> `main@ddadf77` ->
+current application rollback, and browser evidence. The evidence files own
+their exact targets and cleanup.
 
 The following are release or later-Issue gates, not incomplete Issue #50 code:
 
@@ -104,15 +124,17 @@ The following are release or later-Issue gates, not incomplete Issue #50 code:
 - review the production Origin/Cookie topology and Session policy values;
 - authorize production migration, one-time Bootstrap, verification of a second
   active administrator, monitoring, deployment, and activation;
-- design a post-activation rollback/session-invalidation procedure if a release
+- design a post-activation rollback/Session-invalidation procedure if a release
   needs that path;
-- open a separate recovery-security Change only if lockout frequency, compliance,
-  or team scale justifies it;
+- open a separate recovery-security Change only if lockout frequency,
+  compliance, or team scale justifies it;
 - let Issue #57 continue independently and rebase/regenerate only after this
   shared Identity contract is accepted.
 
 ## Final verdict
 
-The fixed diff is `ready for reconciliation and human PR review`. It is not a
-merge, deployment, migration, Bootstrap, production-activation, or residual-risk
-acceptance decision.
+The fixed implementation is `ready for a Final PR and human review`. The
+workflow is not yet complete until the PR relationship, Issue/Project review
+state, active-Change archive, and remote checks are recorded. This verdict is
+not merge, deployment, migration, Bootstrap, production-activation, or
+residual-risk acceptance.
