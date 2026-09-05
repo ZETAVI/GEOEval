@@ -598,3 +598,17 @@ Parser; Qwen3.8 low for Parser and current Qwen3.7 sampling route. Timeout 180s,
 no retries/fallback, stop on transport/identity/structure failure or failed
 retained-case semantic review, no same-batch changes. Use actual-message Langfuse
 display and separate program projection/review; do not activate runtime or #49.
+
+### Explicit absence-branch control after the P4 stop
+
+The original P4 package stopped after its first rejected request; independent
+sampling was not run. Audit found P4's shortened instruction removed P3's explicit
+target=null mapping, though the Schema still permits null and earlier real calls
+returned it. This is a falsifiable instruction difference, not a proven cause.
+
+The existing brand-subject asset advances to 1.1.0, restoring only an explicit
+companyName/absent-target/null workflow sentence and independence of other-brand
+extraction. Freeze a separate maximum-one-call control against the same retained
+input, exact output Schema, model, effort and endpoint. No acquisition, automatic
+retry, format-mode change or further tuning is included. Retain v1.0.0's request
+and rejection independently; the new result cannot retroactively accept it.

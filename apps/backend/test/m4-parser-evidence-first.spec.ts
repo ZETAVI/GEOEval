@@ -55,6 +55,7 @@ describe("M4 evidence-first experimental contract", () => {
       withoutDescriptions(p2.outputContract.jsonSchema),
     );
     expect(p4.systemInstruction).not.toBe(p2.systemInstruction);
+    expect(p4.systemInstruction).toContain("原文未提及目标时 target=null");
     expect(p2).toEqual(before);
     expect(buildM4EvidenceFirstTask(base)).toEqual(before);
   });
