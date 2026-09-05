@@ -100,7 +100,21 @@ export function projectM4LineReferenceOutput(
 ) {
   if (context.questionKind === "BRAND_DIRECTED")
     throw new Error("Open questions only");
-  const lines = indexAnswer(context.originalAnswer);
+  const restoredEvidenceFirstOutput = m4EvidenceFirstSchema.parse(
+    restoreM4SourceReferences(value, context.originalAnswer),
+  );
+  return {
+    restoredEvidenceFirstOutput,
+    ...projectM4EvidenceFirstOutput(restoredEvidenceFirstOutput, context),
+  };
+}
+
+// Shared only by the controlled experiments; resolves text, never model meaning.
+export function restoreM4SourceReferences(
+  value: unknown,
+  originalAnswer: string,
+) {
+  const lines = indexAnswer(originalAnswer);
   const restore = (value: unknown): unknown => {
     if (Array.isArray(value)) return value.map(restore);
     if (!isObject(value)) return value;
@@ -117,17 +131,14 @@ export function projectM4LineReferenceOutput(
             const last = lines[range.endLine - 1];
             if (!first || !last || range.endLine < range.startLine)
               throw new Error("Evidence line range does not resolve");
-            const selected = context.originalAnswer.slice(
-              first.start,
-              last.end,
-            );
+            const selected = originalAnswer.slice(first.start, last.end);
             const exactText = selected.trim();
             if (!exactText) throw new Error("Evidence line range is empty");
             const selectedStart = first.start + selected.indexOf(exactText);
             return {
               exactText,
               occurrence: occurrenceAt(
-                context.originalAnswer,
+                originalAnswer,
                 exactText,
                 selectedStart,
               ),
@@ -137,15 +148,7 @@ export function projectM4LineReferenceOutput(
       }),
     );
   };
-  // Reuse all canonical field/count/quote-size constraints. No name, role,
-  // position or prose is inferred, filled or repaired by this reference bridge.
-  const restoredEvidenceFirstOutput = m4EvidenceFirstSchema.parse(
-    restore(value),
-  );
-  return {
-    restoredEvidenceFirstOutput,
-    ...projectM4EvidenceFirstOutput(restoredEvidenceFirstOutput, context),
-  };
+  return restore(value);
 }
 
 // P6 changes semantic instructions/descriptions only; P5 inputs, constraints,

@@ -1,0 +1,183 @@
+import { describe, expect, it } from "vitest";
+import { buildSampleParserTask } from "../src/geo-intelligence/sample-parser.policy.js";
+import { buildM4IdentityRoleTask } from "../src/ai-execution/controlled-validation/m4-parser-line-references.js";
+import {
+  buildM4EvidenceExtractionTask,
+  buildM4EvidenceJudgmentTask,
+  projectM4EvidenceJudgmentOutput,
+} from "../src/ai-execution/controlled-validation/m4-parser-task-split.js";
+import { calculateEvaluationReportMetrics } from "../src/geo-intelligence/domain/evaluation-report.policy.js";
+
+const base = buildSampleParserTask({
+  companyName: "青禾咖啡",
+  primaryIndustry: "餐饮",
+  secondaryIndustry: "咖啡",
+  region: "杭州",
+  characteristicOne: "咖啡",
+  characteristicTwo: "办公",
+  questionKind: "INDUSTRY_RECOMMENDATION",
+  question: "哪些咖啡店适合办公？",
+  originalAnswer:
+    "1. **青禾咖啡杭州店**\r\n若有包间需求，可以考虑。\r\n与本题无关的一句原文。\r\n2. 可了解甲品牌或乙品牌旗下机构，具体团队未具名。",
+});
+const range = (startLine: number, endLine = startLine) => ({
+  startLine,
+  endLine,
+});
+const proposal = () => ({
+  answerStructure: "MIXED",
+  target: { displayedForms: ["青禾咖啡"], evidence: [range(1, 2)] },
+  otherBrands: ["甲品牌", "乙品牌"].map((displayName) => ({
+    displayName,
+    observedForms: [displayName],
+    evidence: [range(4)],
+  })),
+});
+const judgment = () => ({
+  answerStructure: "MIXED",
+  target: {
+    displayedForms: ["青禾咖啡"],
+    mentionEvidence: [range(1)],
+    positionEvidence: [range(1)],
+    position: 1,
+    role: "CONDITIONALLY_RECOMMENDED",
+    observations: [
+      {
+        category: "CONDITION",
+        label: "包间需求",
+        detail: "在有包间需求时建议考虑该店。",
+        polarity: "NEUTRAL",
+        evidence: [range(1, 2)],
+      },
+    ],
+  },
+  otherBrands: proposal().otherBrands.map((b) => ({
+    ...b,
+    role: "MENTIONED_ONLY",
+    relativePosition: null,
+    positionKind: null,
+  })),
+  cardInterpretation: "回答将青禾咖啡作为有包间需求时的选择。",
+  limitations: [],
+});
+
+describe("M4 task-load comparison handoff", () => {
+  it("extracts only names/source context with purpose-specific input and leaves P6 frozen", () => {
+    const before = buildM4IdentityRoleTask(base);
+    const task = buildM4EvidenceExtractionTask(base);
+    expect(Object.keys(task.userContext)).toEqual([
+      "companyName",
+      "question",
+      "questionKind",
+      "answerLines",
+    ]);
+    const schema = task.outputContract.jsonSchema as any;
+    expect(Object.keys(schema.properties.otherBrands.items.properties)).toEqual(
+      ["displayName", "observedForms", "evidence"],
+    );
+    expect(schema.properties.otherBrands.maxItems).toBe(
+      (before.outputContract.jsonSchema as any).properties.otherBrands.maxItems,
+    );
+    expect(Object.keys(schema.properties.target.anyOf[0].properties)).toEqual([
+      "displayedForms",
+      "evidence",
+    ]);
+    expect(buildM4IdentityRoleTask(base)).toEqual(before);
+  });
+
+  it("hands over original line identities once, retaining conditions and separate names", () => {
+    const input = proposal();
+    const before = structuredClone(input);
+    const h = buildM4EvidenceJudgmentTask(base, input);
+    expect(h.task.userContext.answerLines.map((l) => l.line)).toEqual([
+      1, 2, 4,
+    ]);
+    expect(h.visibleLineCount).toBe(3);
+    expect(h.originalLineCount).toBe(4);
+    expect(h.inventory.target!.evidence[0]!.exactText).toBe(
+      "1. **青禾咖啡杭州店**\r\n若有包间需求，可以考虑。",
+    );
+    expect(JSON.stringify(h.task.userContext.sourceInventory)).not.toContain(
+      "若有包间需求",
+    );
+    expect(h.task.systemInstruction).not.toContain("呈现完整原回答");
+    expect(h.task.outputContract.jsonSchema).toEqual(
+      buildM4IdentityRoleTask(base).outputContract.jsonSchema,
+    );
+    expect(input).toEqual(before);
+  });
+
+  it("preserves complete final evidence, target metrics and affiliation exclusion", () => {
+    const out = projectM4EvidenceJudgmentOutput(
+      judgment(),
+      base,
+      proposal(),
+    ).projected;
+    expect(out.semantic.otherBrands.map((b) => b.displayName)).toEqual([
+      "甲品牌",
+      "乙品牌",
+    ]);
+    const metrics = calculateEvaluationReportMetrics([
+      {
+        sampleId: "split-fixture",
+        questionKind: "INDUSTRY_RECOMMENDATION",
+        questionOrdinal: 2,
+        platformKey: "qwen",
+        platformLabel: "千问",
+        platformOrdinal: 1,
+        interpretation: out,
+      },
+    ]);
+    expect(metrics.recommendationIndex.mentionCount).toBe(1);
+    expect(metrics.eligibleCompetitorOccurrences).toHaveLength(0);
+    expect(out.semantic.cardInterpretation).toBe(judgment().cardInterpretation);
+  });
+
+  it("rejects globally real but consumer-invisible source before final recovery", () => {
+    const output = judgment();
+    output.target.positionEvidence = [range(1, 4)];
+    expect(() =>
+      projectM4EvidenceJudgmentOutput(output, base, proposal()),
+    ).toThrow("unavailable source");
+  });
+
+  it("rejects invalid extraction references or ungrounded names rather than filling them", () => {
+    const badRange = proposal();
+    badRange.otherBrands[0]!.evidence = [range(99)];
+    expect(() => buildM4EvidenceJudgmentTask(base, badRange)).toThrow(
+      "does not resolve",
+    );
+    const badName = proposal();
+    badName.otherBrands[0]!.observedForms = ["凭空品牌"];
+    expect(() => buildM4EvidenceJudgmentTask(base, badName)).toThrow(
+      "not grounded",
+    );
+  });
+
+  it("does not repair meaning and keeps both target states representable", () => {
+    const input = { ...proposal(), target: null };
+    const output = {
+      ...judgment(),
+      target: null,
+      cardInterpretation: "该回答未提及当前品牌。",
+    };
+    expect(
+      projectM4EvidenceJudgmentOutput(output, base, input).projected.mentioned,
+    ).toBe(false);
+    const wrong = judgment();
+    wrong.otherBrands[0]!.role = "RECOMMENDED";
+    expect(
+      projectM4EvidenceJudgmentOutput(wrong, base, proposal()).projected
+        .semantic.otherBrands[0]!.role,
+    ).toBe("RECOMMENDED");
+  });
+
+  it("retains open-question scope", () => {
+    expect(() =>
+      buildM4EvidenceExtractionTask({
+        ...base,
+        userContext: { ...base.userContext, questionKind: "BRAND_DIRECTED" },
+      }),
+    ).toThrow("open questions only");
+  });
+});

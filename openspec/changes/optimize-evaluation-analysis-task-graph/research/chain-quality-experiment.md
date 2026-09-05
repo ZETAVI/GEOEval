@@ -896,3 +896,28 @@ Four files / 33 tests, Backend typecheck/build, independent fixed-diff review,
 framework/Markdown links, format/diff checks passed. No business DB, migration,
 synthesis, product report, runtime activation, Hy3 or #49 mirror was run. This
 worktree remains the active #42 experiment owner; other worktrees are untouched.
+
+## P7 task-load comparison — protocol
+
+Freeze P6 single-call and P7 extraction/judgment before execution. For each of
+the retained marketing (target absent) and coffee (target present) answers, call
+P6, then extraction, then judgment if the extraction is structurally/source-valid.
+Maximum six Qwen3.8 Flash low requests, timeout 180s each, no new acquisition,
+retry, fallback, tuning, Hy3 or runtime activation. These are independent planned
+arms, not retries of failed candidates. Transport/model mismatch stops all;
+invalid inventory skips its dependent judgment, but not the other frozen case.
+
+This compares coherent task/context packages, not task count alone: extraction
+uses full source with necessary question/identity, judgment only selected source
+lines plus the proposal, and P6 retains its frozen full context. The judgment
+Schema, source restoration and final metric/prose requirements remain unchanged.
+Preserve and review first-stage names/coverage/ranges, visible second-stage input,
+raw judgment and final projection separately. All cited judgment lines must have
+been visible to that task; missing context is a failure, not authority to infer it.
+
+Check identity/target coverage, conditional recommendation, candidate order,
+source entailment and customer readability on both answers. Report split total
+tokens and summed serial latency, not only its faster component. The comparison
+has one observation per arm/case and a fixed order; it establishes neither
+stability nor a selected production architecture. Export a new private Trace
+with actual messages and separate program results/reviews; keep history immutable.

@@ -364,3 +364,37 @@ answers so absent and present targets remain visible. Test loss at the handoff,
 unsupported additions, end-to-end quality, total cost/latency and failure recovery;
 do not assume splitting reduces either errors or latency. No new runtime table,
 queue, dependency, critic, public contract or accepted topology is selected here.
+
+## P7 source-inventory and judgment experiment
+
+The owner approved the next bounded task-load comparison. The first task sees
+the complete answer lines plus question and target identity. It returns structure,
+target name/evidence or absence, and independent other-brand names/evidence; it
+does not assign roles, positions, observations or customer prose. The second task
+receives that proposal and only the selected original lines, with original line
+numbers. It produces the complete existing P6 output, including all metric facts
+and target expression. Original text, not the first proposal, remains the source.
+
+Two handoffs were considered: full answer plus inventory, or selected evidence
+plus inventory. The former preserves context but largely repeats the full task;
+the latter actually tests narrower responsibility and context, at the risk of
+losing qualifiers/order/subjects. Choose the latter for this experiment and score
+first-stage coverage separately. A final improvement cannot erase a first-stage
+failure, and the consumer must not invent unavailable context or claim a full
+source reread. No requirement is removed merely to make the split pass.
+
+Reuse P6 names, per-span constraints and other-brand capacity. Target inventory
+is context for later observations, not merely mention proof: its range count is
+bounded by the existing target-observation capacity so it can carry scattered
+positive/negative conditions. Program restores source exactly, validates only
+structure/references/literal name grounding, and passes source text once. It never
+infers names, roles or positions. Consumer evidence outside the lines it saw fails
+before the unchanged final projector. Mechanically valid inventories are still
+unaccepted model proposals; semantic omissions and misattribution remain reviewed.
+
+The isolated module has no runtime import, persistence, business write, public
+contract, scheduler or automatic retry. Invalid extraction skips its dependent
+judgment, while the other frozen case remains independently useful. Transport or
+model-identity failure stops the batch. Rollback removes only experiment assets.
+Existing strict-Qwen and diagnostic-source evidence remains applicable; changing
+model/endpoint/mode would require a new check. Runtime topology stays unselected.
