@@ -38,47 +38,27 @@ The owner separately approved controlled real acquisition and diagnostic
 Langfuse input/output export. Four questions, five platforms, metric meaning,
 17/20 readiness and immutable accepted records remain unchanged.
 
-The authorized first batch used the owner-approved generic endpoint only in
-isolation. P0 failed; after owner-requested continuation P1 failed on the same
-fixture too. Across two stages, 2/8 cases were executed. Both returned valid JSON
-but omitted evidence and competitors. An evidence-first open-question contract
-is now prepared for isolated comparison; current runtime remains unchanged.
-The next authorized package executed one natural Qwen acquisition and P0/P2
-parsing of its unchanged answer. Both passed code acceptance but failed agent
-semantic review: P0 misattributed non-target observations; P2 still produced
-unsupported prose and a structure error. All three generations and the separate
-review were read back from Langfuse. No candidate superiority is established.
-The subsequent P3 instruction-only test improved some subject/role handling in
-that answer but still failed name-form and contextual-evidence fidelity. It
-stopped after 1/4 calls; the new-answer holdout remains unexecuted. Offline
-counterfactuals now isolate naming from source-context retention at the unchanged
-projection boundary, rather than treating code acceptance as model quality.
-The subsequent full/minimal context pair also failed quality in both arms.
-Removing five context fields saved 43 input tokens but omitted every other brand;
-the minimal input is not adopted. An experimental Langfuse view now separates
-actual model messages, request controls and program projection, verified against
-the transmitted body and the browser. Production telemetry remains unchanged.
+## Current evidence and next decision
 
-P4 then tested brand-focused instruction/field descriptions with unchanged input,
-structural constraints and projector. Its first call misattributed a non-target
-brand and was code rejected. A separately frozen one-call control restored the
-explicit absent-target/null instruction: this observation recovered target absence
-and short subjects, but still failed platform scope, role/position and quote
-fidelity. Both reviews are rejected and verified in Langfuse; no independent
-acquisition ran. Single observations do not establish causality or reliability.
-Next inspect first-layer output responsibilities against real metric/synthesis
-consumers before another candidate. Role/position cannot be removed silently:
-current competitor statistics consume them.
+The [experiment record](research/chain-quality-experiment.md) owns P0–P6 manifests,
+results and limits; the proposal does not repeat their chronology. Natural sampling
+remains isolated from target/profile injection. Diagnostic messages, metadata,
+raw output and program projection are distinct. Minimal input was not adopted.
+Source-reference handoff preserves exact text in retained and independent cases,
+but does not establish correct brand identity, role, position or derived claims.
 
-The output-first consumer audit then selected P5, a program-owned source-reference
-handoff rather than another model task. One real call resolved all seven selected
-ranges with source qualifications intact and produced a faithful absent-target
-card. Overall semantics still failed: all roles were COMPARED, and a shared prose
-observedForm caused existing identity deduplication to lose a distinct brand.
-An offline single-variable replay isolates that loss without changing the original
-result. Next align individual identity and local choice/mention semantics with
-their consumers; exact source restoration is useful but not semantic acceptance.
-See the [experiment protocol](research/chain-quality-experiment.md).
+The latest frozen four-call package acquired an independent coffee answer that
+naturally mentions the target. Both P5 and P6 correctly identify that target and
+position 1, but all three Parser observations fail whole-output quality. P6 loses
+some explicit subjects, misstates another brand's order and carries unsupported
+attribute inference into projection. More explicit holistic instructions have
+not demonstrated a sufficient repair; no whole-candidate superiority is established.
+
+Next compare a smaller evidence-extraction task followed by judgment/expression
+against the frozen one-call candidate, preserving the same source and final needs.
+This is the next experimental question, not an accepted two-call runtime. Keep
+individual identity, full local qualifiers and all required target/competitor
+outputs visible at the handoff; do not simplify by dropping metric-consumed fields.
 
 ## Impact and exit
 

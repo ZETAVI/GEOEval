@@ -141,3 +141,24 @@ remain pending. This review is not approval for a runtime merge.
 - Verdict: `ready with follow-up` for this evidence checkpoint; `not ready` for
   runtime. Next align individual identity and local recommendation/mention meaning
   with their consumers, not another surface prohibition or an assumed Agent split.
+
+## Identity/role transfer checkpoint
+
+- Fixed implementation `ec43f87` against `fd44956`; independent one-pass review
+  found no blocking finding for the frozen experiment. P5 request hash is checked
+  unchanged by the runner; P6 only changes instructions/descriptions, not input,
+  structural constraints, restoration, final acceptance or metric eligibility.
+- Verification: 4 files / 33 tests, Backend typecheck/build, framework/links,
+  format/diff; existing unchanged runtime/display evidence reused. No runtime import.
+- Four real calls completed under the manifest. Acquisition input was verified
+  against the actual wire body, without target/profile injection. The new answer
+  naturally mentions the target; both Parser arms identify its first position.
+- Independent semantic review rejects all three Parser outputs. Completeness,
+  role/condition, position and unsupported-attribute errors remain even when
+  source references resolve. Nine private Langfuse observations read back with
+  wire/output/projection/usage and full review equality; Trace public=false.
+- Verdict: `ready with follow-up` for the evidence checkpoint; `not ready` for
+  P6 runtime adoption or a superiority claim. Next compare smaller evidence-led
+  task responsibilities with the complete frozen one-call outcome, not another
+  holistic wording patch. Persistent/runtime topology still needs evidence and
+  explicit architecture approval.

@@ -814,3 +814,85 @@ one ordered pair does not prove causality, stability or general performance.
 Keep each raw output, restored evidence, final projection and review separate in
 protected local evidence and a private Langfuse Trace. No application import,
 business DB, synthesis, #49 mirror, Hy3 or runtime/production activation.
+
+### Transfer results — 2026-09-05
+
+Fixed implementation `ec43f87`; exact manifest confirmation
+`704121503c02a013d2bc96582f4f117555c49828691fcc0fa29d2e982735c60f`.
+Executed 4/4 from 15:44:37Z to 15:46:35Z, with no retries, same-batch tuning or
+resampling. All model identities and code acceptance checks passed.
+
+| Stage | Input / output / total tokens | Latency | Review |
+| --- | --- | --- | --- |
+| Retained marketing answer / P6 | 1,897 / 1,459 / 3,356 | 16,680 ms | Semantic rejected |
+| New natural coffee acquisition | 435 / 3,332 / 3,767 | 27,535 ms | Accepted platform observation, not verified business truth |
+| Same new answer / P5 | 2,465 / 2,710 / 5,175 | 37,596 ms | Semantic rejected |
+| Same new answer / P6 | 2,405 / 3,878 / 6,283 | 36,599 ms | Semantic rejected |
+
+Total 18,581 tokens; reasoning is already included in output, including the
+acquisition's nested usage details. P6's new-answer input uses 60 fewer tokens,
+but total tokens increase by 1,108. No efficiency or stability conclusion follows
+from a single ordered pair, especially with failed quality.
+
+The new source hash is
+`1a8a46fcd6390bbf8e6b45c03a3134f3319f88ed9b0bf511943fbd1b0dfedd41`.
+The actual acquisition body contained the frozen query, objectivity and search
+configuration, not 星巴克 or the Parser profile. The answer naturally mentions
+星巴克 first. Search observation remains UNKNOWN; no actual search or real-world
+store/brand-fact verification is inferred. Potential platform inaccuracies are
+preserved as measurement, not silently corrected during parsing.
+
+Retained P6 emits five brands, omits WPP/宏盟, assigns every item COMPARED with
+position 1/CONTEXTUAL, and gives only the company name as card text. Absence is
+correct, but current competitor eligibility becomes zero and customer explanation
+fails. Raw name forms still contain markup/relationship material. All five source
+ranges resolve, which does not make their associated judgments correct.
+
+On the new answer both P5/P6 correctly identify target mention and position 1.
+This supplies the previously missing naturally positive target observation, not
+complete positive-branch semantic acceptance. P5 keeps Maxwell and Tims as separate
+subjects at their shared third source item, but incorrectly makes Reserve a
+separate recommended competitor and introduces outside translation correction.
+P6 removes that false target-store competitor and shortens names, but omits Maxwell
+from brand records and gives Peet's position 1 despite its selected second heading/
+table entry. Some P6 raw name forms are not verbatim and are filtered by projection.
+
+Both label Manner unconditionally RECOMMENDED despite the cited anti-office warning
+and the source's limited large-store/light-rest conditions. P6 also infers favorable
+Reserve coffee quality from an office-use recommendation; the unsupported claim
+survives projection. Exact ranges therefore do not establish subject completeness,
+the meaning of a recommendation, or entailment of an attribute. The three Parser
+arms contain 5, 20 and 18 resolvable ranges respectively; preserved text is not a
+reason to overlook dropped qualifiers or mismatched judgment.
+
+Primary and independent read-only semantic reviews agree that all three Parser
+arms fail. P6 is not accepted as superior. The next experiment should compare
+smaller evidence-extraction and dependent judgment/expression responsibilities
+against the complete frozen one-call task; topology remains unselected. This
+batch is over, and no further call or Prompt edit is included in it.
+
+### Transfer evidence and exit
+
+[Private transfer Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/00574a94bfa8666d4777b3f12f4257af).
+API readback at 15:56:30Z verified nine observations: actual acquisition/Parser
+inputs, output, Schema/hashes, restored evidence and final projection, usage and
+complete independent review match local evidence. Trace API confirms public=false;
+credential values are absent. The prior browser/display evidence is unchanged
+and was reused, not rerun. Generation timing excludes post-run review delay.
+
+Protected directory `apps/backend/.provider-evidence/m4-identity-role-transfer-4hzKba/`,
+0700 and evidence files 0600, ignored and retained by #42 until decision/review:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Retained P6 result | 65d1f971b8180daec1a98cbe9a8020d6224949820396cce3c3889f35d7e40e26 |
+| Acquisition result | cb9716ed8d9a943c56e0d81817e222c51b8a5474370d0a6e0ea3ec49984484fd |
+| Independent P5 result | 7250a9385d66d0381d3ab9f250f3b9477f88acd7e410d1ef6f4d5ae9bb59fc20 |
+| Independent P6 result | f1ad4aa91c126ac5c70531062643fe42e29a57bfc9a3969fb1b312a930c37609 |
+| Plan | 4be38b8e7ee18039846d4ff391d2f9515c0d00775f00a045fbe214900d9e1a59 |
+| Runner | fe22d79c14bb0e46391de4831b5d52df18b488f01c8beebff5b21d8e9e0ff2c4 |
+
+Four files / 33 tests, Backend typecheck/build, independent fixed-diff review,
+framework/Markdown links, format/diff checks passed. No business DB, migration,
+synthesis, product report, runtime activation, Hy3 or #49 mirror was run. This
+worktree remains the active #42 experiment owner; other worktrees are untouched.

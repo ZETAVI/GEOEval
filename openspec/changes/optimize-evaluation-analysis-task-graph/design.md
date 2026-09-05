@@ -341,3 +341,26 @@ per planned arm without tuning; transport, identity, structure/reference or code
 acceptance failure stops remaining calls. Never resample to force target presence.
 This finally tests transfer beyond the retained answer without presuming success
 there or estimating a production success rate. No runtime activation follows.
+
+### Transfer result and next task-load question
+
+The four-call package completed, including an independent natural answer with
+target presence. All requests passed code acceptance, but all three Parser
+outputs failed independent semantic review. P6 did not establish whole-output
+superiority: the retained failure persists; on the new answer it removes a false
+target-store competitor but omits another explicit brand, changes an evidenced
+position and infers coffee quality from an office-use recommendation.
+
+This rejects P6 as a sufficient holistic Prompt/description repair, not all
+one-call solutions. The next bounded comparison should test task load at the
+existing experimental seam: first identify complete independent subjects and
+source-supported statements/qualifiers, then use that evidence for role/position
+judgment and target expression, versus a frozen one-call baseline. Both stages
+must still jointly provide the entire final Parser outcome; no metric field is
+silently removed, and a first-stage omission cannot be concealed by final prose.
+
+Freeze the next interfaces and call ceiling before execution. Use both retained
+answers so absent and present targets remain visible. Test loss at the handoff,
+unsupported additions, end-to-end quality, total cost/latency and failure recovery;
+do not assume splitting reduces either errors or latency. No new runtime table,
+queue, dependency, critic, public contract or accepted topology is selected here.
