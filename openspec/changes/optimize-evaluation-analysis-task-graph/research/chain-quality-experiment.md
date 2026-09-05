@@ -425,3 +425,45 @@ SEMANTIC_REJECTED review; no credential, provider envelope or reasoning text is
 in the checked content. This is Trace observation, not #49 Prompt Management.
 See [#49 reconciliation](https://github.com/ZETAVI/GEOEval/issues/49#issuecomment-5550652475)
 for completed prerequisites and outstanding mirror acceptance.
+
+## Actual Provider input versus diagnostic display
+
+The owner observed apparent redundant `contentHash` and `task` fields in
+Langfuse and requested input reflection before further calls. Inspection of the
+retained P3 `evidence.sanitizedRequest.body` and the original acquisition request
+confirms the mapping below; `executeProviderJsonRequest` uses that same body for
+the transport. The Langfuse diagnostic projection is not a wire-body dump.
+
+| Diagnostic field                                                        | Actual Qwen request mapping                                                           |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| schemaVersion, purpose, prompt.contentHash, task wrapper, task.taskKind | Diagnostic-only; not sent as these fields                                             |
+| prompt.systemInstruction                                                | Parser messages[system].content                                                       |
+| task.userContext contents                                               | JSON serialized into messages[user].content, without a task/userContext outer wrapper |
+| task.outputContract.jsonSchema                                          | response_format.json_schema.schema with strict=true                                   |
+| task.outputContract.version                                             | Sanitized into the response_format schema name, not an extra user-context field       |
+| Run/cycle/sample IDs, source hash and trace lineage                     | Local/telemetry metadata, not Parser message content                                  |
+
+The actual Parser user message has nine keys: companyName, primaryIndustry,
+secondaryIndustry, region, characteristicOne, characteristicTwo, questionKind,
+question and originalAnswer. No diagnostic contentHash/task/taskKind is present
+in it. The actual acquisition body has model, input=query,
+instructions=objectivity and tools=web_search; it does not send the target
+company or Parser brand profile. This proves only the inspected Qwen route.
+
+Next work has two different acceptance boundaries. A clearer diagnostic view
+should distinguish model messages/structured-output contract from provenance
+metadata, preserve hashes rather than discard them, and prove that changing
+display does not change the Provider body. It must use safe allowlisted content,
+not expose a full credential-bearing Provider envelope. No runtime telemetry
+projection or historical Trace was changed during this audit; #49 remains the
+independent Prompt mirror owner, not the owner of Parser context semantics.
+
+For actual model context, first classify each field as target identity, question
+scope, answer evidence or business-profile claim. Preserve the original answer,
+question and necessary identity; evaluate whether industry/region/compatibility
+characteristics add disambiguation or encourage profile-to-answer attribution.
+Do not assume all JSON keys or all profile context are redundant. Compare a
+minimal context against the frozen full context separately from the pending
+output-field-description test: one changed variable family per batch, with
+semantic completeness and disambiguation checks, not token reduction alone.
+No further Provider call or input/Schema change was made in this audit.

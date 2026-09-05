@@ -24,6 +24,12 @@
       then stop on retained-case semantic failure before fresh acquisition.
 - [x] Isolate name-form and context-evidence units with offline counterfactuals;
       preserve the original failure and synchronize its separate Langfuse review.
+- [x] Audit retained HTTP bodies against diagnostic input: hashes/task wrappers
+      are telemetry-only; all nine Parser user-context fields and output Schema
+      do reach the Provider interface. Preserve natural acquisition isolation.
+- [ ] Separate model messages/contract from provenance in the diagnostic-view
+      plan; independently define full-versus-minimal context acceptance before
+      further calls. Do not mix input removal with output-contract changes.
 - [ ] Clarify these two model-facing units on the frozen P3 instruction, then
       compare the smallest field-description candidate without changing runtime
       projection. Independent-answer and mentioned-target evidence remain pending.
