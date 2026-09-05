@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildM4ParserComparison } from "../src/ai-execution/controlled-validation/m4-parser-comparison.js";
 import {
   buildM4EvidenceFirstTask,
+  buildM4SubjectGroundedTask,
   m4EvidenceFirstSchema,
   projectM4EvidenceFirstOutput,
 } from "../src/ai-execution/controlled-validation/m4-parser-evidence-first.js";
@@ -40,6 +41,18 @@ const valid = () => ({
 });
 
 describe("M4 evidence-first experimental contract", () => {
+  it("isolates P3 instruction from P2 input, Schema and acceptance", () => {
+    const p2 = buildM4EvidenceFirstTask(base);
+    const p3 = buildM4SubjectGroundedTask(base);
+    expect(p3.systemInstruction).not.toBe(p2.systemInstruction);
+    expect({ ...p3, systemInstruction: p2.systemInstruction }).toEqual(p2);
+    expect(() =>
+      source.validateOutput(
+        projectM4EvidenceFirstOutput(valid(), context).modelOutput,
+      ),
+    ).not.toThrow();
+  });
+
   it("preserves input and reuses the current acceptance path", () => {
     const task = buildM4EvidenceFirstTask(base);
     expect(task.userContext).toEqual(base.userContext);
@@ -92,6 +105,12 @@ describe("M4 evidence-first experimental contract", () => {
   it("does not claim coverage of direct questions", () => {
     expect(() =>
       buildM4EvidenceFirstTask({
+        ...base,
+        userContext: { ...base.userContext, questionKind: "BRAND_DIRECTED" },
+      }),
+    ).toThrow("open questions only");
+    expect(() =>
+      buildM4SubjectGroundedTask({
         ...base,
         userContext: { ...base.userContext, questionKind: "BRAND_DIRECTED" },
       }),

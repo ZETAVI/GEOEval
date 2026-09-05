@@ -317,3 +317,36 @@ telemetry/config test files / fourteen tests passed, including intentional
 exporter failure. Full DB suite, integrated report, browser, migration and
 synthesis topology comparison were not run. Verdict: operational traceability
 verified for this package; quality improvement not verified.
+
+## Subject-grounded instruction package — frozen protocol
+
+The next owner-authorized iteration is P3, instruction
+`experiment.m4.parser-subject-grounded@1.0.0`, over the unchanged P2 model
+contract, input context and final projector. The baseline P2 instruction remains
+unchanged. Freeze the actual plan before calls; changing only the instruction
+isolates this attempt from Schema, reasoning-effort or upstream-input changes.
+
+1. Run P3 once over the retained marketing-service answer. The earlier P2 result
+   is a retained, non-contemporaneous quality baseline, not a speed benchmark.
+2. Review target absence, correct observation subject, actual service-provider
+   candidates, source-supported prose, accurate structure and raw/projected
+   consistency. The answer's explicit BlueFocus, YCHOO and Xinxuan candidates
+   should survive; certification-only platforms should not become candidates.
+   Group/partner relationships remain scoped to their excerpts, not a forced
+   exact entity count. No-target is a valid result, not a sampling failure.
+3. Only if that result passes, acquire one fresh public open-question answer:
+   “在上海市静安区，想找可以买到现磨咖啡、适合短暂办公的连锁咖啡店，有哪些值得比较？”
+   The preselected target is 星巴克. This is an experimental question, not a
+   product-generated Query or a newly verified brand/store profile.
+4. Compare frozen P2 and P3 once each over that same new answer. Inspect actual
+   mention, original order/qualifiers, useful observations, quote support and
+   customer prose. If the target is absent, retain that result and leave the
+   positive branch unverified; do not fish for a favorable answer.
+
+Maximum four calls, Qwen only, low parsing, 180-second request timeout. Retained
+case semantic failure stops before the new acquisition. Transport, identity or
+structural failure stops; no automatic retry, fallback, Prompt patch or same-
+batch resampling. A per-arm semantic review is separate from code acceptance.
+Export controlled IO and independent review to Langfuse, preserve local raw
+evidence, and verify readback. No runtime, full report, production or #49 Prompt
+Management activation follows from this batch.

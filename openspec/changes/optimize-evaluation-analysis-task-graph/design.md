@@ -135,3 +135,35 @@ combination but does not ground free-text explanation. Next acceptance must
 cover these relationships before adding rules or selecting topology. Keep the
 provider answer as the observation, brand context as identity information, and
 the parser's interpretation as a derived claim; do not promote one to another.
+
+## Subject-grounded instruction comparison
+
+The owner approved continued source-level iteration on the retained real failure.
+P3 changes only the instruction of the frozen P2 model contract: identify the
+subject and entity role before recording an observation, preserve source scope,
+and write the card from the target record. No new relation schema, program
+blacklist or runtime guard is added. Existing evidence-first construction and
+projection remain the only experiment interface; current Parser stays untouched.
+
+Compare this small reversible change before a richer entity/relation interface:
+the former tests whether clearer field responsibility suffices; the latter adds
+contract and projection complexity and remains conditional on a demonstrated gap.
+The named provider API, route and strict Schema are unchanged, so reuse the
+current source brief and actual route evidence rather than re-audit the SDK.
+
+Freeze P3 before new sampling. First run P3 once on the retained natural answer;
+reuse the P2 result as a non-contemporaneous quality baseline, not a latency
+benchmark. If source attribution, candidate role or customer prose still fails,
+stop and review without editing the Prompt in the same batch. Only if that case
+passes, acquire one independent public coffee-recommendation answer, then run
+P2/P3 once each on it. Maximum four calls, Qwen only, low parsing, no fallback or
+automatic retry. A new open test question is not approved product Query output;
+no Brand/Amap/Query-generation or customer report claim follows from it. If the
+answer does not mention the preselected target, preserve absence and report the
+positive branch unverified instead of resampling until it does.
+
+Review before execution: ready for this isolated Prompt-only experiment; not
+ready for runtime activation. Main runtime, specs, migration, source ownership,
+telemetry defaults and #49 mirror publishing are outside the write boundary.
+Holdout output is not a Prompt example. No success-rate or topology claim follows
+from one retained case and one independent answer.

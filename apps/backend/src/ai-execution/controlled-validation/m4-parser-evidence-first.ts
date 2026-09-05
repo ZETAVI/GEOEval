@@ -12,20 +12,27 @@ import type { SampleParserAcceptanceContext } from "../../geo-intelligence/domai
 // current final acceptance path; never import this from an application coordinator.
 const openModel = sampleParserModelOutputSchema.options[1];
 const fields = openModel.shape.semantic.shape;
-const prompt = z
-  .object({ id: z.string(), version: z.string(), content: z.string().min(1) })
-  .strict()
-  .parse(
-    JSON.parse(
-      readFileSync(
-        new URL(
-          "../../../geo-intelligence/experiments/m4-parser-evidence-first.json",
-          import.meta.url,
+const prompt = loadInstruction("m4-parser-evidence-first.json");
+const subjectGroundedPrompt = loadInstruction(
+  "m4-parser-subject-grounded.json",
+);
+
+function loadInstruction(fileName: string) {
+  return z
+    .object({ id: z.string(), version: z.string(), content: z.string().min(1) })
+    .strict()
+    .parse(
+      JSON.parse(
+        readFileSync(
+          new URL(
+            `../../../geo-intelligence/experiments/${fileName}`,
+            import.meta.url,
+          ),
+          "utf8",
         ),
-        "utf8",
       ),
-    ),
-  );
+    );
+}
 
 export const M4_EVIDENCE_FIRST_VERSION =
   "experiment.m4.parser-evidence-first@1";
@@ -115,5 +122,16 @@ export function projectM4EvidenceFirstOutput(
   return {
     modelOutput,
     projected: parseAndProjectSampleParserModelOutput(modelOutput, context),
+  };
+}
+
+// P3 changes instruction only. Keep P2's input, Schema and projector frozen so
+// the experiment does not attribute interface changes to better instructions.
+export function buildM4SubjectGroundedTask(
+  base: StructuredOutputAttemptInput,
+): StructuredOutputAttemptInput {
+  return {
+    ...buildM4EvidenceFirstTask(base),
+    systemInstruction: subjectGroundedPrompt.content,
   };
 }
