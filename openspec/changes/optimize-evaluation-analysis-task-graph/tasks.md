@@ -33,9 +33,22 @@
 - [x] Execute the two-call full/minimal context pair without output changes:
       both semantic reviews rejected; 43 fewer input tokens do not justify the
       minimal arm's complete omission of other brands. Do not adopt minimal input.
-- [ ] Clarify these two model-facing units on the frozen full context/P3 instruction, then
-      compare the smallest field-description candidate without changing runtime
-      projection. Independent-answer and mentioned-target evidence remain pending.
+- [x] Confirm task-relevant context and short brand-subject scope with the owner;
+      preserve exact source qualifications and metric-consumed role/position.
+- [x] Test P4 instruction/field-description package on the retained answer: 1/3
+      calls, structural pass but false-target semantic rejection; stop before
+      independent acquisition and preserve original wire evidence.
+- [x] Audit that failure and test one separately frozen explicit-null control:
+      target absence and subject labels improve in this observation, but platform
+      inclusion, role/position and quote fidelity still fail. Stop, no activation.
+- [x] Read back both private Langfuse traces, actual messages, Schema, raw results,
+      program acceptance/projection, usage and separate semantic reviews.
+- [ ] Review first-layer responsibilities against actual metric/synthesis consumers:
+      separate brand identity, source scope, role/position and customer prose;
+      use the retained failures to choose one bounded next comparison. Do not
+      add another brand blacklist or silently remove metric-consumed fields.
+- [ ] After freezing that decision, test its smallest discriminating control and
+      independent-answer/mentioned-target coverage; current candidate is rejected.
 
 ## Synthesis comparison
 

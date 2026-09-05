@@ -96,3 +96,25 @@ remain pending. This review is not approval for a runtime merge.
 - Verdict: `ready with follow-up` for the experiment/view checkpoint, `not ready`
   for adopting minimal context or selecting synthesis topology. Prior real-call
   variability and independent-answer/positive-mention gaps remain explicit.
+
+## Brand-subject and explicit-null checkpoint
+
+- Fixed implementations `32fc3cc` and `97ff78e` against `f9c2fd1`, locally reviewed.
+  Live main `975f2d2` does not change the relevant AI/Parser/Prompt boundary;
+  this branch was not rebased between experiments.
+- Intent: short brand subjects and task-relevant context follow the owner's
+  confirmed direction. Exact branch qualifications remain in evidence; no
+  company-master enrichment or cross-answer grouping was introduced.
+- Engineering: existing experimental builder, cloned field descriptions only,
+  unchanged structural constraints/projector. Tests prove no P2/P3 mutation and
+  exercise current metric consumers, including mention-only exclusion. No new
+  dependency, application import, runtime activation or other-worktree change.
+- Evidence: seven focused files / 50 tests, Backend typecheck/build, framework,
+  links, format and diff checks. Two real requests: P4 code rejection; explicit-null
+  control code acceptance but semantic rejection. Both private traces read back
+  with wire/message/Schema/output/projection/usage equality and no credentials.
+- Verdict: `ready with follow-up` for recording the experimental checkpoint;
+  `not ready` for runtime or quality approval. The next bounded work reviews
+  identity, role/position, source evidence and prose responsibilities against
+  actual consumers. Independent answer, positive mention, synthesis and product
+  integration remain unverified. No further call is part of this checkpoint.

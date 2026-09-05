@@ -39,3 +39,25 @@ choosing topology. See the [protocol](chain-quality-experiment.md).
 Reuse while the task, adapter, Schema mode and model route are unchanged.
 Refresh on model/endpoint/mode changes or contradictory real behavior. No pricing,
 quota, production access or Hy3 entitlement is inferred from these documents.
+
+## P4 anomaly review — 2026-09-05
+
+Rechecked the [official structured-output guide](https://www.alibabacloud.com/help/en/model-studio/qwen-structured-output)
+after the P4 failure. Its detailed list still includes Qwen3.8 Flash despite the
+narrower summary table. It illustrates nullable types but does not enumerate
+`anyOf` or all supported constraints; omission is not proof of incompatibility.
+
+Controlled evidence is more specific: request input/instruction/Schema matched,
+returned model matched, finish_reason was stop, no max_tokens cap was set, and
+raw model content matched the normalized output. JSON satisfied local structural
+validation but failed target identity/evidence semantics. Earlier real requests
+using the same nullable structure returned target=null, so this failure does not
+establish a universally unsupported branch or a decoder defect.
+
+One observable instruction difference is that P4 shortened away P3's explicit
+target=null workflow. The separately frozen control restored that mapping and
+returned correct absence this time, but other semantic failures remained; see
+the [results](chain-quality-experiment.md#brand-subject-results--2026-09-05).
+This is not proof of causality or a reason to downgrade mode/change Provider.
+The model's internal cause remains uncertain. Context7 was unavailable; official
+pages and retained wire evidence were used without installing a global tool.

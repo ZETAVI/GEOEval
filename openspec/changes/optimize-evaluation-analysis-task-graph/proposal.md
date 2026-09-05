@@ -11,8 +11,11 @@
 Historical evaluation exposed slow synthesis recovery and readable but unfaithful
 model output. The owner's 2026-09-05 feedback requires examining the entire
 sampling/parsing/synthesis context chain and improving normal generation before
-selecting topology. Earlier failures reject those candidates, not all one-call
-designs. Projection recovery is a safety boundary, not the quality being optimized.
+selecting topology. Each layer receives task-relevant context; the first Parser
+focuses on recognizable brand subjects, not unnamed teams or organization detail.
+Source evidence still preserves branch scope and conditional meaning. Earlier
+failures reject those candidates, not all one-call designs. Projection recovery
+is a safety boundary, not the quality being optimized.
 
 ## Outcome and scope
 
@@ -55,7 +58,17 @@ Removing five context fields saved 43 input tokens but omitted every other brand
 the minimal input is not adopted. An experimental Langfuse view now separates
 actual model messages, request controls and program projection, verified against
 the transmitted body and the browser. Production telemetry remains unchanged.
-See the
+
+P4 then tested brand-focused instruction/field descriptions with unchanged input,
+structural constraints and projector. Its first call misattributed a non-target
+brand and was code rejected. A separately frozen one-call control restored the
+explicit absent-target/null instruction: this observation recovered target absence
+and short subjects, but still failed platform scope, role/position and quote
+fidelity. Both reviews are rejected and verified in Langfuse; no independent
+acquisition ran. Single observations do not establish causality or reliability.
+Next inspect first-layer output responsibilities against real metric/synthesis
+consumers before another candidate. Role/position cannot be removed silently:
+current competitor statistics consume them. See the
 [experiment protocol](research/chain-quality-experiment.md).
 
 ## Impact and exit

@@ -612,3 +612,75 @@ extraction. Freeze a separate maximum-one-call control against the same retained
 input, exact output Schema, model, effort and endpoint. No acquisition, automatic
 retry, format-mode change or further tuning is included. Retain v1.0.0's request
 and rejection independently; the new result cannot retroactively accept it.
+
+### Brand-subject results — 2026-09-05
+
+The original P4 package executed 1/3 and stopped. The separately frozen explicit-
+null control executed its sole call and stopped. No new acquisition, holdout,
+automatic retry, mode change or runtime activation occurred.
+
+| Package / fixed revision | Input / output / total tokens | Provider latency | Code acceptance | Agent semantic review |
+| --- | --- | --- | --- | --- |
+| P4 1.0.0 / `32fc3cc` | 1,464 / 2,860 / 4,324 | 56,267 ms | Rejected: false target and invalid proof | Rejected |
+| Explicit-null 1.1.0 / `97ff78e` | 1,511 / 3,419 / 4,930 | 53,197 ms | Accepted | Rejected: scope, role/position and quotes |
+
+Total 9,254 tokens, with reasoning already included in output. This is one
+observation per package on the same retained answer, not causal, latency or
+stability proof. Both requests used Qwen3.8 Flash low and returned model identity
+qwen3.8-flash with finish_reason=stop. Neither specified a max_tokens cap.
+
+P4 incorrectly assigned 元创互动 to the absent target 互动派. A displayed form
+contained repeated structural debris and a field name absent from the answer;
+mention evidence was not verbatim. The card nevertheless stated target absence.
+Raw JSON passed structural validation, but the unchanged final acceptance guard
+rejected missing valid name/mention proof. Shorter other-brand labels did not
+compensate for false attribution and incomplete extraction.
+
+Read-only wire audit confirmed intended input, instruction and Schema matched
+the actual request, and normalized output equalled parsed raw model content.
+Earlier calls used target=null successfully with the same nullable structure.
+This does not establish a Provider/decoder defect. P4 had removed P3's explicit
+absence mapping; restoring only that instruction was the separate control.
+
+The control returned target=null and recognizable subjects 蓝色光标、元创互动、辛选、
+有赞、微盟、WPP、宏盟, without branch suffixes or fabricated unnamed teams. However,
+it also included certification/tool platforms, assigned sequential positions to
+mention-only records, and flattened conditional recommendation. Some WPP/宏盟
+quotes omitted source Markdown, so projection fell back to bare-name anchors
+and lost position; this recovery is not faithful model quoting. The card also
+expanded into an answer-wide summary instead of a concise absent-target reading.
+Partial improvements do not accept the whole output or prove their cause.
+
+Both independent quality reviews remain SEMANTIC_REJECTED, owner acceptance
+pending. Next review first-layer identity, role/position, evidence and prose
+responsibilities against real consumers before another candidate; do not solve
+these failures with a growing blacklist or silently erase metric-used fields.
+
+### Trace and protected evidence
+
+- [Original P4 Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/98e763edd36c680b7bb5fa609a5f2865), read back at 10:39:10Z.
+- [Explicit-null control Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/d5ad7ee66e47616ebb9fd000ed017a71), read back at 10:54:23Z.
+
+Each private Trace has four observations: root, generation, program projection
+or rejection record, and independent semantic review. Actual messages, request
+Schema, model output, program result and usage match local evidence; credential
+values are absent. Generation durations exclude post-run review/export delay.
+The display is unchanged from the browser-verified preceding slice; this slice
+reverified both new traces through the API, not another browser session.
+
+Retain under #42 until decision/review: directories 0700, evidence files 0600,
+ignored by Git. No raw response/reasoning or credentials enter repository history.
+
+| Artifact | P4 | Explicit-null control |
+| --- | --- | --- |
+| Directory under apps/backend/.provider-evidence/ | m4-brand-retained-VaMaOl/ | m4-explicit-null-control-yz2E5N/ |
+| Result SHA-256 | ac8f70467f23521a78b1451135c80bae2e7d906fe83d01ac88282f30fd8a708f | 2b800eada9012a5876376100e44cde33b27a0fc146887820477a61f078c14abf |
+| Plan file SHA-256 | 303eb88e8b2e28071c0bfa78a2db95e6bd8ba0305ca836295e604ed907f4ffde | 7a4a18fa464640cf83d1c3f6da6fb5e108c41d9cd8f1aa4a61dc9da034f2af47 |
+| Exact call-plan confirmation | 26bd186fea21e04df66560bdf456bfc369c90ebbf7d4d5e7972d78d154358fec | 2f4416f869f864b7422b3cd096ee40775807081d7ef354e662c821efbcc58a24 |
+
+Verification: seven focused files / 50 tests passed, including metric-consumer,
+immutable-control, actual-message display and telemetry masking coverage;
+Backend typecheck/build, framework/Markdown links, format and diff checks passed.
+Reuse unchanged display/browser and runtime evidence. Full DB suite, new sampling,
+positive-target real evidence, synthesis, 4×5 and customer report acceptance were
+not executed. #49 Prompt Management publishing remains outside this slice.

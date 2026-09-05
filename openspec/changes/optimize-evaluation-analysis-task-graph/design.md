@@ -220,9 +220,34 @@ test. All fields, constraints, target proof rules, metrics and the final project
 remain unchanged. No program suffix stripper, fabricated quote or runtime route
 is introduced. Unit examples verify representability, not LLM quality.
 
-Readiness: ready for a maximum-three-call controlled package. First run P4 on
+Pre-execution review: ready for a maximum-three-call controlled package. First run P4 on
 the retained public answer; if semantic review fails, stop. If it passes, acquire
 one independently frozen public coffee-recommendation answer and parse it once
 with frozen P4. Preserve no-mention if it occurs; do not resample for a preferred
 outcome. Use the actual-message Langfuse view and separate projection/review.
 No #32 reopening, #41 implementation, #49 publishing or production activation.
+
+### Current result and next responsibility review
+
+P4 stopped at its first false-target rejection. The separately frozen explicit-null
+control restored target absence and short brand labels in one observation but
+still failed semantic quality. Neither package is ready for runtime. See the
+[results](research/chain-quality-experiment.md#brand-subject-results--2026-09-05).
+
+The next decision is about responsibility, not additional organization-name rules:
+
+| Layer | Relevant context and work | Boundary to retain |
+| --- | --- | --- |
+| Natural acquisition | Frozen customer question and objectivity policy | Do not inject target/profile facts to steer the measured answer |
+| Single-answer Parser | Original answer, question scope, necessary target identity; recognizable brand subjects with exact local evidence | No invented unnamed teams, external company enrichment or cross-answer grouping |
+| GEO program | Source text, derived records and current metric policy | Resolve exact citations, protect accepted facts and compute metrics; never fabricate semantic evidence |
+| Synthesis, owned by #41 | Accepted records, resolvable supporting context and deterministic metrics | Cross-answer identity/relationship decisions and faithful customer expression; not a substitute for missing source evidence |
+
+This is a review frame, not a new accepted interface. Inspect whether role/position
+and short card prose belong in the same model task as identity extraction, and
+whether source-span selection can reduce quote-copying errors. Role/position are
+currently consumed by evaluation-report.policy.ts for eligible competitor
+occurrences; changing their producer requires an explicit compatible design.
+Do not implement a split, another critic, a new span contract or a suffix stripper
+without a discriminating result. Full context remains only a frozen control, not
+a prescription to give every downstream Agent all nine fields.
