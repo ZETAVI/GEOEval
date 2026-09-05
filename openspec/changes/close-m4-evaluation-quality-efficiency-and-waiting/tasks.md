@@ -18,24 +18,22 @@
 ## Stage 2 — Child outcomes
 
 - [x] #40 delivers and reconciles Brand-owned store context, location boundary,
-      Snapshot v3, fingerprint, migration and v1/v2 compatibility.
+      Snapshot v3, fingerprint and approved empty-development activation.
 - [x] #26 rebases after #40, consumes only the stable Brand projection, and
       delivers the approved four questions with Query-only product evidence.
-- [ ] #32 delivers one coherent parser boundary: metric-critical mention and
+- [x] #32 delivers one coherent parser boundary: metric-critical mention and
       open-position evidence stays strict, recoverable optional detail is
       discarded rather than failing the sample, and accepted card copy is
       customer-readable without another Provider attempt.
 - [x] #44 delivers explicit local/test diagnostic telemetry while proving
       metadata-only production default and non-blocking failure.
-- [ ] After #32 reaches a stable main revision, #42 publishes one independently
-      reviewable Partial architecture checkpoint selecting the smallest task
-      boundary, model responsibilities and deterministic assembly seam.
-- [ ] #41 consumes that accepted #42 checkpoint and delivers customer-safe
-      synthesis narratives, compact evidence and evidence-linked obvious brand
-      grouping without taking metric or orchestration ownership.
-- [ ] #42 then completes runtime orchestration and proves timing, concurrency,
-      retry, cost and customer-safe progress boundaries on the accepted #41
-      contract.
+- [ ] #42 coordinates bounded Prompt/context/topology comparisons with #41;
+      inspect raw output separately from projector recovery before selection.
+- [ ] #41 prepares evidence-grounded contracts; #42 implements the selected
+      execution boundary only after real evidence and architecture approval.
+- [ ] Integrate the actual report path and close #41 only after customer-quality
+      acceptance; an isolated semantic probe is not Final delivery.
+- [ ] #42 proves timing, concurrency, recovery, lightweight cost and truthful progress.
 - [ ] #43 starts only after #42 progress contract, then delivers truthful
       per-platform waiting behavior and responsive browser evidence.
 

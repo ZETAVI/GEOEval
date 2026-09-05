@@ -4,20 +4,18 @@
 
 ### Requirement: Model output does not become report truth
 
-GEO Intelligence SHALL accept model output only after deterministic projection
-into task-local semantic contracts and SHALL create one immutable report only
-after every required synthesis component is accepted.
+GEO Intelligence SHALL preserve deterministic metrics and accept reports only
+after evidence-grounded semantic and reference validation.
 
-#### Scenario: Parallel semantic components are assembled
+#### Scenario: Synthesis consumes compressed context
 
-- **WHEN** accepted sample interpretations are ready for synthesis
-- **THEN** one brand-relationship task decides every compact other-brand
-  candidate and one report-narrative task writes current-brand conclusions
-- **AND** the two tasks may execute in parallel without consuming each other's
-  model output
-- **AND** program logic resolves references, preserves deterministic metrics and
-  rejects incomplete or unsupported meaning independently for each task
-- **AND** only deterministic assembly combines both accepted components into the
-  existing canonical synthesis, protected guidance and public report
-- **AND** no intermediate component is customer-visible or rewrites an accepted
-  sample, metric, historical synthesis or report.
+- **WHEN** sample context is reduced
+- **THEN** relevant source meaning, attribution, qualifiers and references remain
+- **AND** generated card prose does not replace its underlying evidence
+- **AND** valid JSON or a resolvable citation alone does not prove faithful prose.
+
+#### Scenario: A semantic probe succeeds
+
+- **WHEN** an isolated candidate passes a quality probe
+- **THEN** customer-quality closure still requires actual report-path integration
+- **AND** no topology may rewrite accepted samples, metrics or report history.

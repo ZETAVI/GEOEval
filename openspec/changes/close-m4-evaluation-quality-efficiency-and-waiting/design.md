@@ -13,9 +13,9 @@ cross-module database access is outside this design.
 ```mermaid
 flowchart LR
   I40["#40 Brand store context - done"] --> I26["#26 Query Generator - done"]
-  I32["#32 Sample parser projection"] --> I42A["#42 architecture checkpoint"]
-  I42A --> I41["#41 Synthesis copy and brand grouping"]
-  I41 --> I42B["#42 runtime, budget and progress"]
+  I32["#32 Parser - done"] --> I42A["#42 + #41 bounded comparison"]
+  I42A --> I41["#41 evidence-grounded contracts"]
+  I41 --> I42B["#42 runtime + integrated #41 acceptance"]
   I42B --> I43["#43 Customer waiting experience"]
   I44["#44 Local/test Langfuse diagnostics"] --> G["#39 Integration Gate"]
   I26 --> G
@@ -31,9 +31,9 @@ action:
 
 - #39 has native Sub-Issues #26, #32 and #40–#44;
 - #40 and #26 are complete, so their stale native blocker is removed;
-- #32 blocks #42 activation;
-- #41 is not a native blocker of #42 because its accepted task interface depends
-  on #42's first architecture checkpoint;
+- #32 is complete and its stale activation blocker has been removed;
+- #41 is not a native blocker of #42 because the two owners first compare
+  context/Prompt/task candidates and then integrate the selected contract;
 - #42 blocks #43;
 - #44 is complete and has no child dependency.
 
@@ -46,10 +46,10 @@ slices rather than creating another Issue or two opposing blockers.
 
 | Producer | Stable handoff | Consumer | Producer owns | Must not cross the seam |
 | --- | --- | --- | --- | --- |
-| #40 Brand Knowledge | Versioned `EvaluationPurposeBrandView` and immutable Evaluation Brand Snapshot v3 containing validated store-location semantics, chosen Query locality, main product/service and ordered characteristics; semantic fingerprint | #26 and existing GEO definition preparation | Editable Brand facts, external location adapter, validation, fingerprint, projection, migration and v1/v2 decoder | Query cannot call AMap, read Brand tables/reference JSON, reinterpret locality or rewrite old snapshots |
+| #40 Brand Knowledge | Versioned `EvaluationPurposeBrandView` and immutable Evaluation Brand Snapshot v3 containing validated store-location semantics, chosen Query locality, main product/service and peer characteristics; semantic fingerprint | #26 and existing GEO definition preparation | Editable Brand facts, external location adapter, validation, fingerprint, projection, authorized empty-development v3 activation | Query cannot call AMap, read Brand tables/reference JSON, reinterpret locality or rewrite old snapshots |
 | #26 Query Generator | One accepted immutable ordered Definition with the existing four question kinds and generator identity | Official evaluation start and the 20 logical sample positions | Prompt/model contract, one durable preparation per fingerprint, retry/fallback and final question content | No extra official questions, refresh on unchanged fingerprint, customer editing, map access or fact research |
 | #32 Sample Parser | One accepted per-sample semantic record with hard literal mention/rank evidence and customer-safe `cardInterpretation`, or explicit unavailable state | Report projection and #41 synthesis context | Prompt, model-output projection and only evidence-backed recovery for per-sample semantics | No metric calculation, cross-sample grouping, frontend-only masking, invented mention/rank or resampling to repair copy |
-| #41 Overall Synthesis | Accepted report semantic proposal: customer narratives, evidence-linked themes/directions and obvious brand entity groups | Deterministic report assembly and #42's selected task topology | Compact synthesis input, Prompt/model contract, grouping proposal and safe narrative fallback | No deterministic metric rewrite, global brand master, default web research, raw internal enum/ID/field exposure or #32 parser ownership |
+| #41 Overall Synthesis | Accepted report semantic proposal: customer narratives, evidence-linked themes/directions and obvious brand entity groups | Deterministic report assembly and #42's selected task topology | Compact synthesis input, Prompt/model contract, source-grounded grouping proposal and customer quality | No deterministic metric rewrite, global brand master, default web research, raw internal enum/ID/field exposure or #32 parser ownership |
 | #42 Performance | Purpose-level task graph plus authoritative stage timing/budget evidence and a customer-safe progress projection with per-platform expected/acquired/analyzed/available counts | #43 waiting UI and #39 Gate | Scheduling/orchestration at existing owner seams, route budget, limiter, timeout, retry, idempotency and performance evidence | Queue or telemetry cannot own business truth; parallelism cannot issue concurrent duplicate Provider requests or duplicate accepted evidence or reports; no speculative workflow platform |
 | #43 Waiting UI | Responsive presentation over generated REST/OpenAPI progress types and existing notification reads | Terminal customer | Per-platform status display, truthful stage-local easing, long-wait content, responsive/accessibility behavior | No scheduling policy, fabricated platform completion, Provider/retry/queue detail, new WebSocket authority or report-page redesign |
 | #44 AI telemetry | Explicit local/test diagnostic projection for versioned task input, normalized output/failure and correlation; production metadata-only default | Human debugging only | Environment gate, allowlist/mask, non-blocking exporter behavior and telemetry tests | Langfuse cannot drive retry, report, evidence, progress or history; no credentials/raw envelopes/unneeded answers; no production content without a new approval |
@@ -74,7 +74,7 @@ slices rather than creating another Issue or two opposing blockers.
 | Reachable boundary | Owner | Required protection before integration |
 | --- | --- | --- |
 | Location provider unavailable, ambiguous or forged client result | #40 | Customer-actionable fallback, server validation, source identity and no partial Brand write |
-| Snapshot v3 activation conflicts with v1/v2 history or fingerprint opportunity | #40 | Central decoder, migration rehearsal, unchanged historical JSON and no representation-created evaluation allowance |
+| Current v3 history or evaluation opportunity is changed | GEO owners | Preserve frozen accepted records and semantic fingerprint; #40 empty-development activation does not require v1/v2 compatibility |
 | Query preparation duplicates paid calls or yields incomplete Definition | #26 | Durable idempotency, bounded retry/fallback, no startable partial question set |
 | Parser returns structural debris or recoverable optional noise | #32 | Prompt-first correction and narrow owner-local projection/fallback while hard evidence still rejects unsupported meaning |
 | Synthesis leaks internals or misses obvious name grouping | #41 | Customer-copy contract, evidence/reference checks, obvious grouping replay and uncertain-name independence |
@@ -90,20 +90,17 @@ safe rollback or compatible forward path.
 ## Integration sequence
 
 1. **Parent and completed producers:** parent approval completed on 2026-09-02;
-   #40, #26 and #44 are integrated and reconciled on protected `main`.
-2. **Parser stabilization:** #32 is rebuilt from current `main` using only its
-   owner-local work, then proves strict metric evidence, recoverable optional
-   detail and customer-readable card copy as one parser acceptance boundary.
-3. **#42 architecture checkpoint:** after #32 is stable, #42 compares the current
-   single synthesis, semantic-task split and analysis-then-writing alternatives.
-   A Partial PR records the selected interface, budgets and rollback boundary;
-   it does not claim runtime improvement or close #42.
-4. **Synthesis acceptance:** #41 consumes the selected interface, keeps report
-   semantics and brand decisions in GEO Intelligence, and reaches its own real
-   customer-quality acceptance without taking queue or metric ownership.
-5. **#42 runtime completion:** #42 resumes on the accepted #41 contract and
-   implements the smallest task topology, timing/budget evidence and durable
-   customer-safe progress projection.
+   #40, #26, #32 and #44 are integrated and reconciled on protected `main`.
+2. **Source-quality comparison:** compare Parser instructions and then synthesis
+   context/topology in bounded stages. Preserve sampling and inspect raw output
+   separately from recovery. Route new Parser implementation by explicit owner.
+3. **Evidence-led selection:** #41 and #42 compare the same accepted inputs;
+   choose a task boundary after quality, cost and latency evidence and approval.
+4. **Contracts and execution:** #41 owns semantic contracts; #42 owns required
+   runtime. Use independently acceptable main slices or a genuine linear stack.
+5. **Actual acceptance:** close #41 only after the selected contract is wired to
+   the real report path and customer quality passes. #42 proves runtime recovery,
+   timing, cost and truthful progress; no native dependency cycle is introduced.
 6. **Waiting activation:** #43 starts its write only after #42's public progress
    contract is stable, then verifies the same generated contract across desktop,
    narrow viewport, refresh, leave/return, multi-brand and partial-unavailable
@@ -128,7 +125,7 @@ axes below.
 | Gate claim | Smallest discriminating evidence | Blocking result |
 | --- | --- | --- |
 | Store context and four questions express the approved product meaning | Snapshot v3 contract/migration evidence plus product review of the exact four questions from one valid store | Missing/ambiguous locality or main product/service; mechanical or off-category open question |
-| History and evaluation opportunity remain truthful | v1/v2 decoder fixtures, migration replay and immutable old Definition/Run/report checks | Rewritten historical JSON/report or a representation-only new opportunity |
+| History and evaluation opportunity remain truthful | current-v3 frozen Definition/Run/report checks and relevant migration evidence | Rewritten historical JSON/report or a representation-only new opportunity |
 | Per-sample and synthesis customer copy is safe | Protected replay for `}}}`, internal enum/UUID/field leakage and obvious/uncertain brand-name cases | Structural fragment or internal identifier reaches the public report; fuzzy grouping merges uncertain brands |
 | Metrics and evidence semantics are unchanged | Before/after deterministic report reproduction plus 4×5 comparison over retained evidence | Agent/queue changes counts, index, rank, 17/20 meaning or accepted evidence |
 | Performance change is material and explainable | Stage baseline and selected-budget table; same-store controlled run showing queue wait, Provider, projection, retry and assembly timing | No measured improvement, unexplained retry amplification, or missing cost/concurrency boundary |

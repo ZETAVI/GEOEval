@@ -2,8 +2,8 @@
 
 ## State and authority
 
-- Review state: Approved on 2026-09-02; execution sequence simplified on
-  2026-09-04 without changing D1-D9 or child ownership
+- Review state: D1-D9 approved on 2026-09-02; child decisions reconciled and
+  experiment-first sequence confirmed by owner feedback on 2026-09-05
 - Approval evidence:
   [Issue #39 product-owner record](https://github.com/ZETAVI/GEOEval/issues/39#issuecomment-5505659279)
 - Confirmed-decision source: owning Issue
@@ -20,7 +20,7 @@
 | ID | Confirmed product decision | Owner and consequence |
 | --- | --- | --- |
 | D1 | 首期目标品牌具有具体门店；完整、有效的门店位置属于评测相关资料 | #40 / Brand Knowledge owns editable facts, validation, fingerprint and frozen projection |
-| D2 | 新增客户可理解的“主打产品或服务”；特点默认展示两个并允许继续添加 | #40 owns ordered Brand facts; #26 selects or combines any additional characteristics without increasing the four-question count |
+| D2 | 新增客户可理解的“主打产品或服务”；特点默认展示两个并允许继续添加 | #40 owns peer Brand characteristics; #26 selects or combines any additional characteristics without increasing the four-question count |
 | D3 | 保留行业推荐问题；三个开放问题都以门店商圈和主打产品或服务为主轴，两个特点问题叠加不同需求角度且不能机械模板化 | #26 owns one immutable ordered four-question Definition from the Brand projection |
 | D4 | 高德位置能力只是候选外部边界，用于辅助选择有效门店并取得结构化地址、坐标和商圈候选 | #40 must use current official evidence and controlled validation before choosing the API, authorization, source identity or fallback; this decision does not approve a purchase or production key |
 | D5 | Prompt 和结构输出说明是 Agent 质量的主要手段；程序只保护已证明可达的客户边界失败 | #32 and #41 own narrow model-to-domain and report-projection guards; frontend masking cannot be the fix |
@@ -35,9 +35,10 @@
   characteristic-oriented questions over the same fixed five platforms.
 - The recommendation index, 70/30 weighting, deterministic metric ownership,
   17/20 report threshold and valid no-mention meaning do not change.
-- Existing v1/v2 snapshots, Definitions, Runs, attempts and reports remain
-  readable and immutable. A representation-only migration cannot create a new
-  evaluation opportunity.
+- #40 subsequently approved development-empty activation of single Snapshot v3;
+  no v1/v2 runtime decoder or development-data migration remains required.
+  Current accepted v3 Definitions, Runs and reports remain immutable; display-only
+  changes cannot create an evaluation opportunity.
 - The customer does not see internal question-family enums, IDs, Prompt, model,
   Provider, retry, queue, trace or protected source details.
 - Notification remains a durable inbox with SSE as a recoverable refresh hint;
@@ -51,11 +52,11 @@ remain change-local rather than becoming new parent requirements:
 
 | Owner | Decision boundary and current disposition |
 | --- | --- |
-| #40 | Completed in PR #46: AMap boundary, verified store identity, locality, Snapshot v3, compatibility, migration and rollback |
+| #40 | Completed in PR #46: AMap boundary, verified store identity, locality, Snapshot v3 and explicitly authorized empty-development activation |
 | #26 | Completed in PR #28: versioned Prompt/model contract, durable preparation and product-reviewed four-question projection over Snapshot v3 |
-| #32 | Active: strict mention/open-position evidence, recoverable optional detail, one model-facing limit contract and the narrow `}}}`-class customer-copy fallback |
-| #41 | Review / Decision: compact synthesis evidence, brand decisions and customer-copy acceptance on the task boundary selected by #42 |
-| #42 | Open: Phase A selects the task graph and budgets in a Partial PR; Phase B proves concurrency, retry, cost, latency and customer-safe progress after #41 acceptance |
+| #32 | Completed in PR #35: strict mention/open-position evidence, recoverable optional detail, one model-facing limit contract and the narrow `}}}`-class customer-copy fallback |
+| #41 | Review / Decision: source-faithful synthesis context, brand decisions and actual report-path acceptance; detached probes cannot close the Issue |
+| #42 | Open: Phase A compares Prompt/context/topology candidates; select only after evidence, then integrate execution with #41 and prove recovery, timing and truthful progress |
 | #43 | Exact stage labels, easing intervals, long-wait content, responsive interaction and accessibility details within the truthful progress contract |
 | #44 | Completed in PR #47: local/test diagnostic allowlist and failure isolation; production content capture remains a separate security/privacy approval |
 | #39 Gate | Representative store, Provider-call authorization, evidence retention locator, and final integration revision |
@@ -76,6 +77,11 @@ PR, #41 then completes the customer-synthesis contract on that boundary, and
 #42 finally completes runtime orchestration, budgets and progress projection.
 This phase exchange is recorded in the parent sequence rather than represented
 as two opposing native blockers or a new Issue.
+
+The 2026-09-05 owner feedback confirms experiment-first comparison and current-state
+reconciliation. Two tasks are not selected. #41 closure follows actual report-path
+integration, even when an isolated model probe passes. Preserve the 2026-09-04
+no-extra-Issue decision; the earlier architecture-first sequence is superseded.
 
 The approval does not authorize implementation outside a child Issue, any real
 Provider call, production deployment, API purchase, customer-data migration or

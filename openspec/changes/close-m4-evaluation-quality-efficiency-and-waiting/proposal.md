@@ -1,8 +1,7 @@
 # Change: 收束 M4 评测质量、效率与等待体验
 
-- Status: Parent contract and Partial PR #45 integrated; #40, #26 and #44 are
-  complete, while #32, #41, #42 and #43 continue under the 2026-09-04
-  simplified execution sequence
+- Status: #40, #26, #32 and #44 integrated; #41/#42 now compare Prompt,
+  context and task candidates before runtime selection; #43 awaits stable progress
 - Class: Architectural parent
 - Owning Issue: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owners: Product owner and architecture owner
@@ -27,7 +26,7 @@ Change 的 [decision brief](decision-brief.md) 收口供审批。
 名单的前提下，建立一组可由 #26、#32、#40–#44 独立交付、最终统一验收的父级
 产品和接口契约，使下一次获授权的代表性门店评测同时证明：
 
-- Brand 输入能形成准确门店位置、主打产品或服务和有序特点的冻结上下文；
+- Brand 输入能形成准确门店位置、主打产品或服务和同级特点的冻结上下文；
 - 四问保留既有业务角色，但三个开放问题围绕商圈和主打品类自然展开；
 - 客户报告没有结构残片、内部枚举、引用 ID 或技术字段，并合理归并明显名称
   变体；
@@ -77,10 +76,10 @@ Notification、架构概览和可执行契约分别拥有。
 3. 未确认项继续留在对应子 Issue，不被本 Change 默认为已批准；
 4. 最终真实 4×5 仍需独立 Provider 调用授权，生产遥测内容仍需独立数据与保留审批。
 
-2026-09-04 的执行对账保留全部产品决定和子任务 owner，但不再用一个原生
-Issue blocker 表达 #41 与 #42 之间的阶段级往返。#42 在同一 Issue 内先以 Partial
-PR 固定最小任务边界，#41 再完成综合语义验收，随后 #42 完成运行时、耗时和进度
-投影；不新增只为表达该顺序的子 Issue。
+2026-09-05 的 owner 反馈将下一步前移到全链路 Prompt、上下文与输出质量的
+受控对照；双任务仍是候选。#42 与 #41 先验证任务边界，再按明确所有权集成；
+#41 仅在实际报告路径验收后关闭。保留现有 Issue，不新增 Performance 子 Issue。
+#32 已完成；后续 Parser 优化先根据证据明确新变更归属，不静默重开历史交付。
 
 该批准允许按更新后的顺序继续子任务协调，但不授权扩大任何子 Issue、调用真实
 Provider、部署、迁移客户数据、采购 API 或启用生产内容遥测。

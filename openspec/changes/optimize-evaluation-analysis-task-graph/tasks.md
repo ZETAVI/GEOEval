@@ -1,49 +1,31 @@
 # Tasks
 
-## Phase A — architecture Partial
+## Alignment and experimental preparation
 
-- [x] Re-read #39, #41, #42, current main, the single-synthesis lifecycle,
-      attempt persistence, Product Outbox and Worker topology.
-- [x] Reconcile #32 completion and remove stale/circular native blockers before
-      activating #42.
-- [x] Compare one broad call, two parallel semantic tasks and sequential
-      analysis-then-writing against the real semantic and latency failures.
-- [x] Verify BullMQ 6.2.1 concurrency, global-concurrency, limiter and Flow
-      capabilities from official/current sources.
-- [x] Propose the smallest task contracts, persistence, retry, queue, progress,
-      migration, rollback and verification boundaries.
-- [ ] Complete fixed intent, architecture, source and evidence review with no
-      unresolved material finding.
-- [ ] Obtain product/architecture-owner approval and merge only a Partial PR
-      using `Part of #42 — does not close`.
+- [x] Inspect live owners, main, #48 and exact Prompt/input/Schema paths.
+- [x] Retract selected-two-task claim and record chain-level hypotheses.
+- [x] Reconcile parent status, peer characteristics and single-v3 development activation.
+- [x] Prepare and verify frozen Parser Prompt-only comparison.
+- [ ] Record approved real-call scope and execute only its exact manifest.
+- [ ] Review raw/projected results and route failures before further calls.
 
-## #41 semantic consumer
+## Synthesis comparison
 
-- [ ] Rebuild PR #48 on the accepted Phase A revision without carrying the
-      rejected broad Prompt as current behavior.
-- [ ] Implement owner-local brand-relationship and report-narrative Prompt/model
-      contracts plus deterministic semantic validation.
-- [ ] Run focused replay and a separately authorized, capped real semantic Gate;
-      close #41 only when customer quality passes.
+- [ ] Reuse useful #41 code/evidence without treating its rejected head as accepted.
+- [ ] Construct compact evidence retaining source excerpts and candidate context.
+- [ ] Freeze current-main and improved one-call packages; disclose changed variables.
+- [ ] Compare matched one-call/split candidates and test narrative/group dependency.
+- [ ] Obtain bounded authority before each later real-call batch.
+- [ ] Select topology and budget from evidence, then obtain architecture approval.
 
-## Phase B — runtime and evidence
+## Actual delivery
 
-- [ ] Add backward-compatible synthesis task-kind and accepted-component
-      persistence with migration and rollback rehearsal.
-- [ ] Append both task events atomically, execute them through current Product
-      Outbox/Worker delivery, and retain task-local idempotency and retries.
-- [ ] Assemble the existing canonical synthesis/report only after both supported
-      components are accepted.
-- [ ] Add authoritative queue-wait, Provider, projection, retry and assembly
-      timing plus customer-safe per-platform progress.
-- [ ] Prove concurrency, duplicate delivery, crash recovery, late result,
-      one-task exhaustion, retry reuse and legacy history.
-- [ ] Run the separately authorized same-store 4x5 comparison and decide the
-      final timeout/model/cost budgets from evidence.
-- [ ] Reconcile current specs/architecture, archive this Change, use the final
-      PR's native `Closes #42`, and complete branch/worktree exit.
-
-## #43 and parent Gate
-
-- [ ] Hand the generated customer-safe progress contract to #43 after Phase B.
-- [ ] Enter #39 final Integration Gate only after #41, #42 and #43 are complete.
+- [ ] Route any new Parser implementation to an explicit owner; preserve #32 history.
+- [ ] #41 implements approved semantics; #42 implements only required execution.
+- [ ] Verify integration, retries, duplicate delivery and immutable reports;
+      rehearse migrations only if the chosen design requires them.
+- [ ] Close #41 after actual customer report acceptance, not a detached probe.
+- [ ] Hand truthful stable progress to #43.
+- [ ] Measure fixed-input timing and lightweight cost, disclosing model/config differences.
+- [ ] Complete fixed-version #39 end-to-end/browser evidence; reuse unaffected evidence.
+- [ ] Reconcile current owners, archive when complete and record exact worktree exit.

@@ -1,5 +1,17 @@
 # Architecture and Fixed-Diff Review: M4 Parent Change
 
+## Current reconciliation — 2026-09-05
+
+The reviews below are historical checkpoints, not live dependency authority.
+Current #32 is completed; #40 accepted empty-development single-v3 activation
+and peer characteristics. The owner's latest feedback puts bounded Prompt/context
+comparison before topology selection. #41 closes only after actual report-path
+integration. No new Performance Issue or reverse native blocker is introduced.
+The amended parent design/tasks own the current sequence; PR #62 owns experimental
+preparation and its verification. Current specs and runtime remain unchanged.
+
+## Historical parent approval
+
 - Review base: `main@af72ba5f261925525b897c9124c28f5fb574c111`
 - Reviewed proposal diff SHA-256:
   `8df35ec2698b24cc761e260fee6f62fbd97bdb412ae64ac7d94d45077b7f9dad`

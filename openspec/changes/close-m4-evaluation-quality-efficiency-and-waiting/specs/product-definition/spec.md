@@ -14,7 +14,7 @@ retaining the accepted four-question roles.
 - **THEN** its Brand-owned frozen projection contains the validated store-
   location meaning used for Query locality
 - **AND** contains one customer-understandable main product or service
-- **AND** contains the customer's ordered characteristics, with two inputs shown
+- **AND** contains the customer's peer characteristics, with two inputs shown
   by default and additional inputs allowed under the approved Brand boundary
 - **AND** changing any of these evaluation meanings creates a new semantic
   fingerprint

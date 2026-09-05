@@ -1,98 +1,48 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Proposed; Phase A architecture approval pending
+- Status: Experimental alignment; runtime topology unselected
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
-- Parent result: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
-- Current PR boundary: architecture Partial only; no runtime implementation
+- Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
+- PR #62: Partial experiment preparation and parent-plan reconciliation
 
 ## Why
 
-One retained 20/20 run took about twelve minutes. Two Qwen synthesis calls each
-reached the 180-second timeout before a Hy3 fallback completed in about 103
-seconds. Subsequent #41 controlled probes showed a second problem: one broad
-synthesis request could produce readable JSON while still omitting required
-brand decisions, citing absent observations, or adding unsupported tactics.
+Historical evaluation exposed slow synthesis recovery and readable but unfaithful
+model output. The owner's 2026-09-05 feedback requires examining the entire
+sampling/parsing/synthesis context chain and improving normal generation before
+selecting topology. Earlier failures reject those candidates, not all one-call
+designs. Projection recovery is a safety boundary, not the quality being optimized.
 
-More Prompt text, a larger global concurrency number, another API key, or a
-BullMQ flow would not by itself fix both semantic overload and slow recovery.
-The current single synthesis attempt identity also cannot retain two independent
-accepted semantic tasks or retry only the failed one.
+## Outcome and scope
 
-## Outcome
+Compare Prompt, evidence context and task structure reproducibly. Start with a
+Parser Prompt-only control, then compare synthesis input and topology without
+changing all variables together. Preserve raw output, projected output, useful
+evidence, quality findings, token usage and latency separately. Select the
+smallest supported runtime only after evidence and architecture approval.
 
-Keep one evaluation lifecycle and one final immutable synthesis, but replace the
-single overloaded model request with two bounded semantic tasks that can execute
-in parallel:
+This Partial revises the existing proposal, prepares non-runtime experimental
+assets and offline checks, and reconciles stale #39 planning assumptions. #41
+retains synthesis semantic ownership; #32 remains completed. A new Parser
+implementation requires explicit owning scope based on experiment findings.
 
-1. **Brand relationship:** classify every compact other-brand candidate into an
-   evidence-supported group or an explicit independent decision.
-2. **Report narrative:** form the current-brand assessment, perception, themes,
-   customer directions and protected writing guidance from deterministic facts
-   and compact accepted evidence, without deciding other-brand identity.
+## Non-goals and authority
 
-GEO Intelligence persists each accepted component, deterministically assembles
-the existing canonical synthesis only after both are available, and preserves
-the existing report, metric, history and retry meaning.
+No runtime Prompt activation, current-spec change, migration, new queue, model
+purchase, Hy3 billing, production, customer data, fresh platform acquisition or
+automatic experiment sweep. Four questions, five platforms, metric meaning,
+17/20 readiness and immutable accepted records remain unchanged.
 
-## Scope
+The first proposed real batch is at most eight Qwen Parser requests over four
+existing fictional fixtures, no automatic retries, stop on first failure.
+Exact frozen requests need confirmation; later synthesis calls are separate.
+A dry run is not real quality evidence. See the
+[experiment protocol](research/chain-quality-experiment.md).
 
-### Phase A — this Partial
+## Impact and exit
 
-- Compare one broad synthesis, parallel semantic tasks, and sequential
-  analysis-then-writing.
-- Fix the component interfaces, ownership, persistence, idempotency, retry,
-  timing, cost, migration and rollback boundaries.
-- Decide whether current BullMQ queues, concurrency and limiter capabilities are
-  sufficient without making Redis a workflow authority.
-- Define the customer-safe progress facts later consumed by #43.
-
-### Phase B — after #41 acceptance
-
-- Implement the selected task graph through existing PostgreSQL Outbox and
-  Product Worker seams.
-- Add additive persistence and task-local attempt identities.
-- Measure queue wait, Provider, projection, retry and assembly time.
-- Run the separately authorized same-store controlled comparison.
-
-## Non-goals
-
-- No new workflow framework, microservice, permanent Integration Branch, Critic
-  Agent, third final model call, brand master, default web research, extra API
-  account, billing activation, production deployment or customer-data transfer.
-- No change to four questions, five platforms, 17/20 readiness, recommendation
-  index, accepted sample evidence, report history or Notification authority.
-- Phase A does not edit #41 Prompt/model contracts or #43 presentation.
-
-## Initial engineering budget
-
-These are implementation ceilings to test, not a customer SLA:
-
-- both tasks are scheduled from one PostgreSQL transition and may overlap;
-- initial route candidate: Qwen low reasoning for brand relationship and Qwen
-  medium reasoning for report narrative;
-- no more than two explicit Qwen attempts per task in the first split Gate;
-- initial timeout candidates are 90 seconds for brand relationship and 120
-  seconds for report narrative;
-- at most four Provider requests per synthesis cycle, with no SDK or BullMQ
-  delivery retry creating hidden model calls;
-- Hy3 remains outside the first split Gate while its current contract and account
-  entitlement are unverified; enabling billing or using it requires a separate
-  decision;
-- the final same-store comparison must beat the retained twelve-minute total and
-  explain any remaining retry or queue cost. Exact customer timing remains open
-  until that evidence exists.
-
-## Impact and recovery
-
-The implementation is expected to add a task kind to synthesis attempts and one
-GEO-owned accepted-component table. Existing single-synthesis rows and public
-reports remain readable. The attempt uniqueness change requires a staged
-migration: first add/backfill the legacy task kind while retaining the old key,
-then deploy schema-aware code before the split path removes the old key. Runtime
-rollback uses the new code's legacy mode; a pre-migration binary is not redeployed
-after parallel task attempts can exist. Accepted reports never require data
-rollback.
-
-The current Phase A PR changes proposed design only. It authorizes no migration,
-Provider call, runtime code, production operation or merge of PR #48.
+Application execution does not import experimental assets. No database or public
+API changes are included. Reverting this Partial removes preparation only.
+Keep this Change active and PR #62 Draft while probes, runtime selection and
+implementation remain outstanding. Parent #39 stays open.
