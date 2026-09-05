@@ -10,8 +10,12 @@
       then stopped at the first semantic failure under the approved rule.
 - [x] Review raw/projected result and offline counterfactual; record the incomplete
       extraction failure separately from hypotheses about model behavior.
-- [ ] After stop-and-review, compare the still-frozen P1 on the same P01 input;
-      remaining cases and all synthesis comparisons are not run.
+- [x] After owner-requested continuation, compare frozen P1 on P01: rejected
+      after 11.231s; the resumed batch stopped, all later cases remain not run.
+- [x] Inspect retained evidence lineage and prepare an offline evidence-first
+      open-question contract without changing current runtime.
+- [ ] Confirm and execute the max-three-call natural-answer chain; retain each
+      stage and its hashes, then inspect both parsing arms before further scope.
 
 ## Synthesis comparison
 

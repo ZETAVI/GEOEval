@@ -149,3 +149,52 @@ stay there, not in GitHub comments or committed documents.
 #42 owns retention through the comparison/review decision. Keep the current
 worktree and evidence; review exact targets before cleanup at experiment close.
 No customer result, current spec or production behavior changed.
+
+## Resumed instruction comparison — 2026-09-05
+
+After the owner requested continuing from real evidence, the remaining frozen
+cases were resumed at ordinal 2, without repeating P0 or changing P1.
+
+| Arm | Model/Schema | Latency | Input/output/total tokens | Raw extraction | Acceptance |
+| --- | --- | --- | --- | --- | --- |
+| P0, first batch | Qwen3.8 low / @5 | 8,720 ms | 628 / 445 / 1,073 | Correct mention and position; empty evidence, competitors and observations | Rejected |
+| P1, resumed batch | Same | 11,231 ms | 710 / 614 / 1,324 | Same omissions; displayed forms also empty, though prose names the target and competitors | Rejected |
+
+The resumed batch stopped after one request. Across the original eight-case
+plan, 2/8 cases were executed in two authorized stages; all later cases remain
+not run. Each arm has only one observation. This disproves a success claim for
+P1 on P01, not a universal claim about Prompt engineering or relative latency.
+The next action is an evidence-first interface candidate, not more appended
+prohibitions or a production guard change; see the active design.
+
+Protected resumed directory:
+`.provider-evidence/m4-parser-comparison/2026-09-05T07-37-25-334Z-semantic-probe/`.
+
+- `02-P01-P1.json` SHA-256:
+  `30547f08c7bf6f8c82935f2f813718cc1eff8848ef7456e012fb7a3488577912`.
+- `experiment-plan.json` SHA-256:
+  `4778c940de582c3c3ab3970b037a38dd3e541f05b3d8ec4345b0f45a03208bbe`.
+
+### Evidence lineage audit and next package
+
+The inspected retained #41 manifests are Y02/Y03 and fictional Parser fixtures,
+not platform acquisitions. Historical Parser diagnostic scripts reference old
+database runs, rather than retained answer artifacts; their old execution
+worktree is gone. No reusable acquisition artifact was located in the inspected
+main/#41/#44 evidence paths. This is a bounded search result, not proof that every
+historical answer has been deleted. Do not call these fixtures a real sampling
+chain or restore old development databases merely for testing.
+
+The proposed max-three-call real chain uses the exact accepted open Query from
+[Query review](../../archive/2026-09-04-implement-ai-query-generator/real-query-review.md):
+“想找能做抖音和小红书广告代理的营销策划公司，广州天河猎德社区附近有哪些值得比较？”
+Target identity is 互动派科技股份有限公司. The acquisition uses the current
+Qwen sampling route (qwen3.7-flash, natural objectivity profile and automatic
+search); parsing uses Qwen3.8 Flash low. The requested scope is one acquisition
+plus P0 and the evidence-first candidate over the same unchanged answer.
+
+Do not claim to rerun Brand/Amap/Query generation: the archived accepted Query
+is reused. The two parsing outcomes are examined separately after each call;
+no automatic semantic repair or retry is authorized. Reject an invalid
+acquisition/transport identity before any parser call. Full report/synthesis
+claims still require accepted sample sets and later bounded evidence.

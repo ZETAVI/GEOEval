@@ -91,3 +91,37 @@ actual report path. No reverse native blockers or extra Performance Issue.
 analyses and terminally unavailable positions remain distinguishable. A failed
 position cannot imply successful analysis. Exact names remain a later contract
 decision. Metrics, 17/20, immutable v3 history and Notification ownership stay fixed.
+
+## Evidence-first Parser experiment after the P0/P1 failure
+
+Both frozen instructions returned readable prose but empty extraction fields on
+P01. Prompt-only revision has not demonstrated a repair. The next candidate is
+an experimental model contract, not a production change or reopening of #32.
+
+The [candidate](../../../apps/backend/src/ai-execution/controlled-validation/m4-parser-evidence-first.ts)
+represents an unmentioned target as null, and a mentioned target as one object
+containing displayed forms, nonempty mention/position evidence, position, role
+and observations. Customer prose follows the records. This removes the specific
+representable combination of mentioned=true/position=2 with empty proof, while
+preserving valid no-mention behavior. It cannot prevent false absence, omitted
+competitors or fabricated quote content by structure alone.
+
+The experiment reuses current field semantics and maps only names and known
+constants into current model @5, then invokes the unchanged projector/domain
+acceptance. No program-supplied quote, rank, new runtime guard, migration or
+application import is introduced. Unknown exact evidence still fails. Coverage
+is intentionally limited to open questions; no direct-question support is claimed.
+
+This is a Prompt plus interface package comparison, not proof of a schema-only
+effect. JSON Schema structure support is documented, but this nested object/null
+candidate's real acceptance remains a Provider test. Unit tests exercise both
+branches, absent proof, invented proof and current fixture fidelity.
+
+The real-chain package, if authorized, starts from the exact public-business
+Query accepted in #26, obtains one new natural Qwen answer, and compares current
+P0 with this evidence-first candidate against that identical immutable answer.
+Keep the acquisition response, parser task, raw parser output and projection
+linked by content hashes. This is not a new Brand/Query verification or a full
+4x5 run. The maximum is one acquisition and two Parser requests; no other platform,
+business database or synthesis call. Transport/auth failures stop the package;
+semantic rejection is reviewed per arm without automatic retries.

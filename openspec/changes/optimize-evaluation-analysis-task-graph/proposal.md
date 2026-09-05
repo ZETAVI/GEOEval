@@ -35,9 +35,11 @@ automatic experiment sweep. Four questions, five platforms, metric meaning,
 17/20 readiness and immutable accepted records remain unchanged.
 
 The authorized first batch used the owner-approved generic endpoint only in
-isolation. It stopped after 1/8 requests: the current Prompt returned valid JSON
-but omitted required evidence and explicit competitors. No candidate superiority
-is established; P1 and later cases are not run. See the
+isolation. P0 failed; after owner-requested continuation P1 failed on the same
+fixture too. Across two stages, 2/8 cases were executed. Both returned valid JSON
+but omitted evidence and competitors. An evidence-first open-question contract
+is now prepared for isolated comparison; current runtime remains unchanged.
+No candidate superiority is established. See the
 [experiment protocol](research/chain-quality-experiment.md).
 
 ## Impact and exit
