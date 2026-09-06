@@ -1866,7 +1866,8 @@ accepted open query and objectivity instruction, without target-name injection.
 
 Total 59,812 tokens. Wall time is 227.304 seconds because calls partly overlap;
 do not add call durations and label them wall time. Two acquisition calls trigger
-search (one and three searches respectively); the third does not. Search and
+search (one and three searches respectively); the third reports `UNKNOWN`, so
+no search-trigger conclusion is drawn for that call. Search and
 cached-input usage stay in their provider-reported totals, without double-counting
 reasoning, cache or nested usage details. This batch is acquisition-dominated;
 it is not a multi-platform performance benchmark or billed-cost calculation.
