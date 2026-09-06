@@ -121,6 +121,9 @@ export const overallSynthesisOutputSchema = z
   })
   .strict();
 
+export const overallSynthesisGuidanceSchema =
+  overallSynthesisOutputSchema.shape.internalGuidance;
+
 export type OverallSynthesisOutput = z.infer<
   typeof overallSynthesisOutputSchema
 >;
@@ -128,8 +131,9 @@ export type AcceptedOverallSynthesisSemantic = Omit<
   OverallSynthesisOutput,
   "internalGuidance"
 >;
-export type OverallSynthesisGuidance =
-  OverallSynthesisOutput["internalGuidance"];
+export type OverallSynthesisGuidance = z.infer<
+  typeof overallSynthesisGuidanceSchema
+>;
 
 export const overallSynthesisJsonSchema = z.toJSONSchema(
   overallSynthesisOutputSchema,
@@ -283,6 +287,18 @@ export function parseStoredOverallSynthesis(
   return overallSynthesisOutputSchema
     .omit({ internalGuidance: true })
     .parse(payload);
+}
+
+export function parseStoredOverallSynthesisGuidance(
+  contractVersion: string,
+  payload: unknown,
+): OverallSynthesisGuidance {
+  if (contractVersion !== OVERALL_SYNTHESIS_CONTRACT_VERSION) {
+    throw new Error(
+      `Unsupported overall synthesis contract ${contractVersion}`,
+    );
+  }
+  return overallSynthesisGuidanceSchema.parse(payload);
 }
 
 function validateSampleReferences(

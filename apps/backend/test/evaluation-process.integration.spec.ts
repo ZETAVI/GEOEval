@@ -24,6 +24,7 @@ import { BrandService } from "../src/brand/application/brand.service.js";
 import { PostgresBrandRepository } from "../src/brand/infrastructure/postgres-brand.repository.js";
 import { BrandReferenceData } from "../src/brand/reference-data/brand-reference-data.js";
 import { EvaluationProcessCoordinator } from "../src/geo-intelligence/application/evaluation-process.coordinator.js";
+import { EvaluationOptimizationGuidanceService } from "../src/geo-intelligence/application/evaluation-optimization-guidance.service.js";
 import { EvaluationReportService } from "../src/geo-intelligence/application/evaluation-report.service.js";
 import { EvaluationSynthesisCoordinator } from "../src/geo-intelligence/application/evaluation-synthesis.coordinator.js";
 import { EvaluationService } from "../src/geo-intelligence/application/evaluation.service.js";
@@ -67,9 +68,11 @@ describe("resumable evaluation evidence", () => {
     new PostgresEvaluationRepository(prisma),
     questionPreparation.repository,
   );
-  const reports = new EvaluationReportService(
+  const reportRepository = new PostgresEvaluationReportRepository(prisma);
+  const reports = new EvaluationReportService(brands, reportRepository);
+  const optimizationGuidance = new EvaluationOptimizationGuidanceService(
     brands,
-    new PostgresEvaluationReportRepository(prisma),
+    reportRepository,
   );
   let accountId: string;
 
@@ -218,6 +221,19 @@ describe("resumable evaluation evidence", () => {
     expect(
       currentReport?.questions.flatMap((question) => question.samples),
     ).toHaveLength(20);
+    const latestGuidance = await optimizationGuidance.latest(
+      accountId,
+      brandId,
+    );
+    expect(latestGuidance).toMatchObject({
+      reference: { reportId: report.id, runId },
+      brandInformationChanged: false,
+    });
+    expect(latestGuidance?.customerDirections.length).toBeGreaterThan(0);
+    expect(latestGuidance?.writerGuidance.priorities.length).toBeGreaterThan(0);
+    expect(JSON.stringify(latestGuidance?.writerGuidance)).not.toContain(
+      "evidenceRefs",
+    );
     const publicProjection = JSON.stringify(currentReport);
     for (const privateField of [
       "systemInstruction",
@@ -250,6 +266,12 @@ describe("resumable evaluation evidence", () => {
       id: currentReport?.id,
       brandInformationChanged: true,
     });
+    expect(await optimizationGuidance.latest(accountId, brandId)).toMatchObject(
+      {
+        reference: { guidanceId: latestGuidance?.reference.guidanceId },
+        brandInformationChanged: true,
+      },
+    );
     const nextDefinition = await questionPreparation.prepareReadyDefinition(
       evaluations,
       accountId,
@@ -257,12 +279,21 @@ describe("resumable evaluation evidence", () => {
     );
     await evaluations.startRun(accountId, nextDefinition.id);
     expect(await reports.current(accountId, brandId)).toBeNull();
+    expect(await optimizationGuidance.latest(accountId, brandId)).toMatchObject(
+      {
+        reference: { guidanceId: latestGuidance?.reference.guidanceId },
+        brandInformationChanged: true,
+      },
+    );
     const otherAccount = await prisma.account.create({
       data: { mobile: "+8613900000399" },
     });
     await expect(reports.current(otherAccount.id, brandId)).rejects.toThrow(
       "未找到该品牌",
     );
+    await expect(
+      optimizationGuidance.latest(otherAccount.id, brandId),
+    ).rejects.toThrow("未找到该品牌");
     const synthesisAttempt = await prisma.aiSynthesisAttempt.findFirstOrThrow({
       where: { runId },
     });

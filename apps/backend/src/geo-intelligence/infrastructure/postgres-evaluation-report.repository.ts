@@ -9,6 +9,10 @@ import {
   parseStoredEvaluationReportDocument,
   type EvaluationReportDocument,
 } from "../domain/evaluation-report.document.js";
+import type {
+  EvaluationOptimizationGuidanceView,
+  EvaluationWriterGuidance,
+} from "../domain/evaluation-optimization-guidance.view.js";
 import { buildEvaluationHighlightProjection } from "../domain/evaluation-report.projection.js";
 import type { EvaluationReportRepository } from "../domain/evaluation-report.repository.js";
 import type {
@@ -17,6 +21,7 @@ import type {
   EvaluationReportSampleView,
   EvaluationReportView,
 } from "../domain/evaluation-report.view.js";
+import { parseStoredOverallSynthesisGuidance } from "../domain/overall-synthesis.contract.js";
 import {
   SAMPLE_PARSER_CONTRACT_VERSION,
   parseStoredSampleSemantic,
@@ -35,6 +40,73 @@ const reportRunInclude = {
 @Injectable()
 export class PostgresEvaluationReportRepository implements EvaluationReportRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async findLatestOptimizationGuidance(input: {
+    accountId: string;
+    brandId: string;
+    currentInputFingerprint: string;
+  }): Promise<EvaluationOptimizationGuidanceView | undefined> {
+    const guidance = await this.prisma.evaluationOptimizationGuidance.findFirst(
+      {
+        where: {
+          run: {
+            accountId: input.accountId,
+            brandId: input.brandId,
+            status: "COMPLETED",
+            stage: "REPORT_ACCEPTED",
+            report: { isNot: null },
+          },
+        },
+        orderBy: [{ acceptedAt: "desc" }, { id: "desc" }],
+        include: {
+          synthesis: { select: { semanticContractVersion: true } },
+          run: {
+            select: {
+              inputFingerprint: true,
+              report: {
+                select: {
+                  id: true,
+                  documentContractVersion: true,
+                  publicDocument: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    );
+    if (!guidance) return undefined;
+    if (!guidance.run.report) {
+      throw new Error("Accepted optimization guidance has no report record");
+    }
+    const document = parseStoredEvaluationReportDocument(
+      guidance.run.report.documentContractVersion,
+      guidance.run.report.publicDocument,
+    );
+    const protectedGuidance = parseStoredOverallSynthesisGuidance(
+      guidance.synthesis.semanticContractVersion,
+      guidance.guidancePayload,
+    );
+    return {
+      reference: {
+        guidanceId: guidance.id,
+        reportId: guidance.run.report.id,
+        runId: guidance.runId,
+        acceptedAt: guidance.acceptedAt,
+        evaluationInputFingerprint: guidance.run.inputFingerprint,
+      },
+      brandInformationChanged:
+        guidance.run.inputFingerprint !== input.currentInputFingerprint,
+      customerDirections: document.directions.map((direction) => ({
+        ...direction,
+        evidence: {
+          ...direction.evidence,
+          platforms: [...direction.evidence.platforms],
+        },
+      })),
+      writerGuidance: writerGuidanceProjection(protectedGuidance),
+    };
+  }
 
   async findCurrent(input: {
     accountId: string;
@@ -145,6 +217,26 @@ export class PostgresEvaluationReportRepository implements EvaluationReportRepos
     });
     return run ? mapReport(run, input.currentInputFingerprint) : undefined;
   }
+}
+
+function writerGuidanceProjection(input: {
+  summary: string;
+  priorities: Array<{ label: string; detail: string }>;
+  writingAngles: Array<{ label: string; detail: string }>;
+  cautions: string[];
+}): EvaluationWriterGuidance {
+  return {
+    summary: input.summary,
+    priorities: input.priorities.map(({ label, detail }) => ({
+      label,
+      detail,
+    })),
+    writingAngles: input.writingAngles.map(({ label, detail }) => ({
+      label,
+      detail,
+    })),
+    cautions: [...input.cautions],
+  };
 }
 
 function mapReport(
