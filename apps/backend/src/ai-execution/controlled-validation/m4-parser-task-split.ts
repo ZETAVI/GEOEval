@@ -281,6 +281,7 @@ export function buildM4FullSourceTask(
 
 export function buildM4WorkedExampleTask(
   base: StructuredOutputAttemptInput,
+  evidenceFirst = false,
 ): StructuredOutputAttemptInput {
   const task = buildM4FullSourceTask(base);
   const examplePrompt = z
@@ -288,6 +289,7 @@ export function buildM4WorkedExampleTask(
       id: z.string(),
       version: z.string(),
       content: z.string().min(1),
+      evidenceOrderInstruction: z.string().min(1),
       examples: z
         .array(
           z.object({
@@ -309,13 +311,34 @@ export function buildM4WorkedExampleTask(
         ),
       ),
     );
+  // Controlled ordering probe only: keep field meanings, constraints and values.
+  const orderBrand = (value: unknown) => {
+    const { displayName, observedForms, evidence, ...judgments } =
+      object(value);
+    return { displayName, observedForms, evidence, ...judgments };
+  };
+  if (evidenceFirst) {
+    const properties = object(task.outputContract.jsonSchema.properties);
+    const item = object(object(properties.otherBrands).items);
+    item.properties = orderBrand(item.properties);
+    item.required = Object.keys(object(item.properties));
+  }
   return {
     ...task,
-    systemInstruction: `${examplePrompt.content}\n\n${examplePrompt.examples
-      .map(
-        (example, index) =>
-          `示例 ${index + 1} 输入：\n${JSON.stringify(example.input)}\n完整输出：\n${JSON.stringify(example.output)}`,
-      )
+    systemInstruction: `${examplePrompt.content}${evidenceFirst ? `\n\n${examplePrompt.evidenceOrderInstruction}` : ""}\n\n${examplePrompt.examples
+      .map((example, index) => {
+        const output = object(example.output);
+        const ordered = evidenceFirst
+          ? {
+              ...output,
+              otherBrands: z
+                .array(z.unknown())
+                .parse(output.otherBrands)
+                .map(orderBrand),
+            }
+          : output;
+        return `示例 ${index + 1} 输入：\n${JSON.stringify(example.input)}\n完整输出：\n${JSON.stringify(ordered)}`;
+      })
       .join("\n\n")}`,
   };
 }

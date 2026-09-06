@@ -68,6 +68,44 @@ const judgment = () => ({
 });
 
 describe("M4 task-load comparison handoff", () => {
+  it("orders other-brand evidence before judgment without changing fields or constraints", () => {
+    const baseline = buildM4WorkedExampleTask(base);
+    const candidate = buildM4WorkedExampleTask(base, true);
+    expect(candidate.userContext).toEqual(baseline.userContext);
+    const a = baseline.outputContract.jsonSchema as any;
+    const b = candidate.outputContract.jsonSchema as any;
+    const aBrand = a.properties.otherBrands.items;
+    const bBrand = b.properties.otherBrands.items;
+    expect(Object.keys(bBrand.properties)).toEqual([
+      "displayName",
+      "observedForms",
+      "evidence",
+      "role",
+      "relativePosition",
+      "positionKind",
+    ]);
+    expect(bBrand.required).toEqual(Object.keys(bBrand.properties));
+    // Object key order is not semantic equality; required-array order is not a constraint.
+    bBrand.required = aBrand.required;
+    expect(candidate.outputContract).toEqual(baseline.outputContract);
+    expect(candidate.systemInstruction).toContain(
+      "两段证据可以共同支持一个判断",
+    );
+    const outputs = (text: string) =>
+      [...text.matchAll(/完整输出：\n([^\n]+)/gu)].map((match) =>
+        JSON.parse(match[1]!),
+      );
+    expect(outputs(candidate.systemInstruction)).toEqual(
+      outputs(baseline.systemInstruction),
+    );
+    for (const output of outputs(candidate.systemInstruction)) {
+      expect(Object.keys(output.otherBrands[0])).toEqual(
+        Object.keys(bBrand.properties),
+      );
+    }
+    expect(buildM4WorkedExampleTask(base)).toEqual(baseline);
+  });
+
   it("keeps full-source input, Schema and processing unchanged for the worked-example Prompt", () => {
     const baseline = buildM4FullSourceTask(base);
     const candidate = buildM4WorkedExampleTask(base);

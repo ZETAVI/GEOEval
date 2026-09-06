@@ -505,3 +505,25 @@ forms names but leaves condition/evidence issues and takes 90.4/178.6 seconds.
 Keep strict runtime and default effort unchanged. These observations do not
 establish one decoder cause or justify more Agent layers; stop parameter probes
 and reconcile the smallest semantic/evidence obligations before the next slice.
+
+## Evidence-before-judgment slice
+
+The owner asks for efficient bounded execution with verification. Rechecking the
+existing consumer audit does not justify dropping names, roles, positions,
+observations or card prose. Keep those obligations. Test one local hypothesis:
+placing complete evidence before other-brand role/position may reduce conclusions
+whose selected evidence omits their qualifying condition. This is not a proven
+cause of the name anomaly or a Provider property-order guarantee.
+
+Reuse the worked-example task, full source, strict Schema constraints/descriptions,
+low effort and final projector. The candidate changes only the evidence-selection
+instruction and the order of other-brand properties in the Schema and complete
+examples: names, evidence, then role/position. No new field, guard, Agent, public
+contract or runtime import. A pure reorder must preserve every example's semantic
+value and projected result. Existing consumer evidence remains applicable.
+
+Architecture readiness: `ready` for this isolated experiment, not runtime. One
+writer in #42 owns the reversible candidate; source restoration and semantics
+remain with their current owners. Reuse transport/privacy/recovery checks and
+freeze at most four matched calls on the retained shoe and coffee answers before
+any result. Compare the complete baseline/candidate pair, not only repaired names.

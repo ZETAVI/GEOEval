@@ -74,9 +74,13 @@ contract. All four full low calls reach the documented 4,096 thinking-token budg
 A separately frozen two-call medium counterfactual forms names but retains
 condition/evidence errors and takes 90.4/178.6 seconds. Neither mode relaxation
 nor a blanket effort increase is an accepted solution; the unique upstream cause
-is still unproven. End this parameter exploration and make a bounded single-call
-delivery decision around necessary semantic output and complete evidence handoff
-before more implementation or calls. Runtime and current semantics stay unchanged.
+is still unproven. End this parameter exploration. The owner asks for efficient
+execution of one small verified change. Existing consumers justify retaining the
+current fields; the next isolated candidate instead places other-brand evidence
+before role/position in the Schema and examples, with a positive evidence-first
+instruction. Compare four matched retained shoe/coffee calls at unchanged low,
+strict output and full context. This tests an ordering package, not a guaranteed
+Provider mechanism. Runtime and current semantics stay unchanged.
 
 ## Impact and exit
 

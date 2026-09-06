@@ -42,9 +42,10 @@ Completed chronology, exact manifests and failed candidates live in the
       strict replay is intermittently malformed, and JSON Object breaks contract.
 - [x] Confirm documented low budget saturation and execute a separate two-call
       medium counterfactual: names improve, but semantic gaps/latency remain.
-- [ ] Reconcile these findings into one bounded single-call delivery decision on
-      necessary semantic output and complete evidence handoff; do not continue
-      ad hoc Prompt/mode/effort sweeps or claim a uniquely proven root cause.
+- [x] Recheck actual consumers: no field removal is justified. Select one local
+      evidence-before-judgment candidate, keeping full source and current semantics.
+- [ ] Compare four frozen shoe/coffee baseline/candidate requests; inspect complete
+      conditions, brand/position regressions and actual cost. No further sweep.
 - [ ] Resolve material identity/role/position quality and verify held-out behavior
       before small report-path integration; no candidate is accepted yet.
 

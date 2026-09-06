@@ -1397,3 +1397,38 @@ actual synthesis/report, #49 mirror or other-worktree change is claimed.
 | Medium B result | aea4530e260db7aa74a3b2e50622bd070755f174e078c420c1eabc96ddefa076 |
 | Plan | 7d08ccfc979961cfc25a04da454c87a325030ce8af6dbd88bdae3ac201856914 |
 | Runner | ee669632f52d01dbcc54fca5498b1788d8a3dc629fa6c98de13cd362d3797f54 |
+
+## Evidence-before-judgment — bounded protocol
+
+Under the owner's request for efficient execution, test one isolated ordering
+package, not another multi-option design round. Retain all fields with actual
+consumers. Candidate reorders otherBrands in Schema/complete examples to names,
+evidence, role/position and adds a positive instruction to select complete
+qualifying context first. Field values/constraints/descriptions, full user input,
+model, strict mode, low effort and final projector remain unchanged. Baseline
+generation requests are deep-equal to the preserved worked-example inputs; the
+shoe wire body is also byte-value equal. No property-order guarantee is assumed.
+
+Freeze four calls before results: shoe baseline, shoe candidate, coffee baseline,
+coffee candidate. Qwen3.8 Flash, 180-second timeout, same endpoint/transport and
+private diagnostic telemetry. HTTP/transport/model/abnormal-finish failure stops
+all; semantic/code rejection is recorded and does not cause retries. No new
+sampling, fallback, Prompt edits mid-batch or later parameter calls. The two
+retained positive answers are diagnostic, not held-out or absence validation.
+
+Compare whether brand identity, roles, positions and selected condition evidence
+remain faithful as a whole. Natural paraphrases need not be verbatim. Inspect raw
+model output separately from program recovery; report all usage/latency without
+inferring reliability or causal performance from one ordered pair per answer.
+If no useful improvement, stop this candidate. If useful, keep it experimental
+until held-out and actual report-path evidence; no runtime activation follows.
+
+Pre-call evidence: 31 focused tests, Backend typecheck/build, exact historical
+baseline and changed-package assertions. An initial package-script invocation
+expanded to integration tests and met sandbox EPERM on Redis; it was interrupted,
+then the exact two-file Vitest invocation passed. No database/service changes or
+full local integration pass is claimed. Reuse unchanged telemetry/boundary tests.
+Independent pre-call review caught a diagnostic-runner source mismatch: coffee
+projection still used the shoe source. Correct it before calls and compare both
+cases' known retained outputs against their own previously accepted projections.
+Those offline assertions pass; the old provider outputs are not modified.
