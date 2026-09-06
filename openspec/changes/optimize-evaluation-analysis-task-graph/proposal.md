@@ -71,6 +71,15 @@ The owner elects to keep independent semantic reviews local. Langfuse receives
 only actual model IO and operational call metadata, not reviews or projections;
 the prior blocked upload is not retried or treated as an outstanding approval.
 
+The fixed 1.1.0 replay is complete at `28933f3`: three successful calls, 8,600
+tokens and 48.938 seconds, versus the preceding 9,024/40.708. Fewer tokens did
+not mean lower observed latency. All three pass experimental Schema/source
+checks and four private observations pass IO-only readback. The local semantic
+review still finds competitor coverage/name-grounding and absence-summary gaps; this remains
+an experimental baseline, not an accepted customer-report input. The next small
+slice should check distinct-brand completeness and the minimum useful name
+handoff, not restore detailed condition annotation or add another Agent.
+
 The following chronology explains earlier experiments, not additional current
 quality requirements. Conditions/part-wording findings must not silently regain
 blocking status after this recalibration.

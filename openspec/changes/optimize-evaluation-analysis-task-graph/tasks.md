@@ -58,8 +58,10 @@ Completed chronology, exact manifests and failed candidates live in the
       reusing full context and source restoration without a legacy report adapter.
 - [x] Complete the three frozen retained-sample calls and local recalibrated review;
       preserve aggregate efficiency evidence and an internal name-field residual.
-- [ ] Resolve the redundant target-name output field before canonical integration;
-      no detailed condition taxonomy or new Agent layer is required.
+- [x] Remove the redundant generated target-name field in experiment 1.1.0;
+      preserve source-backed points/position and null without name recovery.
+- [x] Execute the fixed three-call replay and verify private IO-only telemetry;
+      keep prior evidence, local semantic findings and efficiency limits separate.
 - [x] Owner confirms independent semantic review stays local; Langfuse records
       actual model input/output and operational call metadata only, not review
       summaries or program projections. This is no longer an authorization gate.
@@ -67,6 +69,9 @@ Completed chronology, exact manifests and failed candidates live in the
       remain eligible; explicit negative/non-recommendation and background do not.
 - [ ] Resolve material identity/position/polarity quality and verify held-out behavior
       before small report-path integration; no candidate is accepted yet.
+- [ ] Focus the next small Parser slice on distinct-brand coverage and grounded
+      name handoff plus null/summary consistency; do not expand alias generation
+      or revive fine role taxonomy. Do not ask synthesis to recover missing facts.
 
 ## Synthesis comparison
 

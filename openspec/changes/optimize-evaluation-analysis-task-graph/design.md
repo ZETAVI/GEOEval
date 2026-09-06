@@ -636,3 +636,13 @@ strict mode and full source unchanged. At most three calls, no retries or new
 acquisition; stop on transport/model/finish failure. New outputs and local review
 are compared to saved 1.0.0 evidence, without claiming a Prompt-only change,
 unique upstream cause, held-out validation or formal report compatibility.
+
+Result at `28933f3`: all three fixed calls complete and preserve the target
+presence/absence decision, without a generated target-name field. This removes
+an unnecessary obligation rather than repairing historical model output. The
+source-backed serialized view is verified locally; no actual report consumer
+was run. The local review retains brand coverage/name-grounding limitations, so
+do not treat Schema/source acceptance as sufficient for report integration.
+Focus the next slice on distinct-brand records and source-backed name handoff;
+the source already carries observed wording, so a new alias taxonomy is not
+justified. Preserve the one-call, customer-level task boundary.

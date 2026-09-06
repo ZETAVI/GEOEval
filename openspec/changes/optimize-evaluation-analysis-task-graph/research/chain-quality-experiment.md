@@ -1717,3 +1717,68 @@ equality or publication success is claimed.
 | Plan | 281636e55453ec0ce21b8e710c586e4196f1d57bb09c8c5170f9fbc052e39803 |
 | Local review | 730b8e31d7af7ee65e980015de4d99c72ddd7f2632e8f0165132f66369b748ec |
 | Runner | cd18b90d88602c3fe6a12d44e6e31947fd6ca125025c10d2a350556033928e04 |
+
+## Known target identity — owner decision and execution
+
+The owner confirms that overall-positive recommendations with ordinary drawbacks
+remain eligible. Independent semantic review stays local by choice; this is not
+a pending upload authorization. Historical upload-rejection records above remain
+unchanged. New telemetry exports only actual model messages/output and operational
+call metadata, without program-projection or independent-review observations.
+
+Experiment 1.1.0 removes `target.displayedForms` because request `companyName`
+already supplies that identity; null remains a model decision, never reconstructed
+from the input label. The Prompt also states the confirmed eligibility rule.
+Other-brand naming, target points, full source, reference restoration, strict
+mode and low effort are unchanged. This is a task-package comparison, not an
+isolated field-removal causal test. There is no canonical report adapter.
+
+At `28933f3`, the three retained answers were replayed once each on 2026-09-06
+09:02:15–09:03:04 UTC. Manifest
+`d7cd70af6682281bccd92b63ba8728565ecbb063a51f4b82e09f1aed577c72cd`;
+maximum three Qwen3.8 Flash calls, timeout 180 seconds, no new sampling/retry/
+fallback/tuning. Provider/model/finish or Schema/source failure stops the batch.
+All returned HTTP 200, configured model, finish_reason=stop and passed the
+experimental Schema/source check. Detailed semantic comparison remains local;
+competitor coverage/name-grounding limitations still prevent promotion. No new
+held-out or actual customer-report evidence is claimed.
+
+| Stage | New tokens | Previous 1.0.0 tokens | New latency | Previous latency |
+| --- | --- | --- | --- | --- |
+| 01 | 2,587 | 2,691 | 17,607 ms | 8,771 ms |
+| 02 | 3,136 | 3,451 | 12,123 ms | 19,890 ms |
+| 03 | 2,877 | 2,882 | 19,208 ms | 12,047 ms |
+
+Total 8,600 versus 9,024 tokens, 48.938 versus 40.708 seconds. The lower token
+count does not establish faster execution, lower billed cost or stable quality.
+These are retained, non-contemporaneous, unseeded observations, not an independent
+test set. New reasoning counts are 261/468/503; cached input is zero in each.
+
+The [private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/eb3334c90686c2ef342a8bb3f3727d83)
+has root `159291e29a2eb8e4` plus exactly three generations. Readback verifies
+actual messages, output, settings, usage and private visibility; no derived
+observations or credentials. Protected local artifacts are retained under #42 at
+`apps/backend/.provider-evidence/m4-customer-identity-N7kfgA/` (0700/0600).
+The semantic review and restored diagnostic output are local-only. Existing
+historical observations were not deleted or edited.
+
+| Verification claim | Evidence | Result and boundary |
+| --- | --- | --- |
+| Smaller contract, null/source handoff | 41 focused Parser/reference tests | Passed; serialized diagnostic view only |
+| Type and packaging compatibility | Backend typecheck/build | Passed; runtime imports unchanged |
+| Approved scope and fixed diff | Independent review of `426e022..28933f3` | Ready for experiment only |
+| IO-only logging | Private Trace readback, four observations | Passed; review/projection not exported |
+| Report/held-out quality | Not exercised | Not verified; remains next bounded work |
+
+Main was rechecked at `5157521` (#70 customer workspace); it does not change this
+Parser/metric path or project methodology. No rebase, migration, activation,
+production change, other-worktree write or #49 Prompt Management claim.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Stage 01 result | 75195fbb2bfc7ebe1a0680009653c775cc3dfe62e1846cf429081c1c5a58910e |
+| Stage 02 result | e157603bb5dcb0ad0220b0cec51edca692a25ff4288656fc1eecf5a2a5b57b1b |
+| Stage 03 result | bfeacd6484d8ae9400a48a0eaae87a3a5c4c586bd845f2460bcb28795f02020d |
+| Plan | c7597f6627015401c1f4df51dff84fe4101e6a470194db578438a2c5c0bcb82f |
+| Summary | 42f17f0a7fdea68a53ca410cb9fc75fc4a3c8277eddb62bdb92de65d4db4bc5b |
+| Runner | 18671fd61ecd83154000cf23a3d6f0807dbfce34d783cd26343b331aadbbb38a |
