@@ -148,7 +148,9 @@ revision integrity because customers review and confirm content before purchase.
 The stable top-level Request groups are system-derived Brand context,
 customer-provided content, desired positioning, Evaluation guidance, optional
 prepared Markdown and generation policy. In #57 the prepared value is always
-`null`.
+`null`. Evaluation Report projects only the accepted guidance summary,
+priorities, writing angles and cautions for Writer use; evidence references,
+sample IDs, scores, answers and execution internals do not enter the Request.
 
 The deterministic Adapter must return one title and one Markdown body from the
 same Request for repeatable tests. It may use simple program logic and fixtures;

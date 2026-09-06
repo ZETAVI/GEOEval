@@ -3,12 +3,18 @@ import type {
   EvaluationReportSummaryView,
   EvaluationReportView,
 } from "./evaluation-report.view.js";
+import type { EvaluationOptimizationGuidanceView } from "./evaluation-optimization-guidance.view.js";
 
 export const EVALUATION_REPORT_REPOSITORY = Symbol(
   "EVALUATION_REPORT_REPOSITORY",
 );
 
 export interface EvaluationReportRepository {
+  findLatestOptimizationGuidance(input: {
+    accountId: string;
+    brandId: string;
+    currentInputFingerprint: string;
+  }): Promise<EvaluationOptimizationGuidanceView | undefined>;
   findCurrent(input: {
     accountId: string;
     brandId: string;

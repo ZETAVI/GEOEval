@@ -172,6 +172,42 @@ internal analysis terminology or replacing evidence with decorative output.
 - **AND** the complete original answer remains safely formatted and expandable;
   uncertain highlight mapping falls back to the complete unhighlighted answer
 
+### Requirement: GEO Optimization can read the latest accepted guidance
+
+Evaluation Report SHALL expose one internal account- and Brand-scoped read
+service for the latest accepted optimization guidance while keeping protected
+guidance outside the Web API.
+
+#### Scenario: GEO Optimization requests available guidance
+
+- **WHEN** the caller supplies an account-owned Brand with at least one accepted
+  Evaluation guidance record
+- **THEN** the service returns an immutable guidance/report/run reference,
+  acceptance time and source Evaluation fingerprint
+- **AND** returns the customer-safe directions from the accepted public report
+- **AND** returns only the Writer-useful guidance summary, priorities, writing
+  angles and cautions
+- **AND** excludes sample IDs, evidence references, scores, answers, Provider
+  details, Prompts, attempts and traces from the Writer projection
+- **AND** no Controller, DTO or OpenAPI route exposes the protected projection.
+
+#### Scenario: Current Brand information or Evaluation state is newer
+
+- **WHEN** the current Brand fingerprint differs or a newer Evaluation is
+  running or awaiting retry
+- **THEN** the latest successfully accepted guidance remains available
+- **AND** the result marks whether its Evaluation input differs from the current
+  Brand
+- **AND** it does not invalidate content, force another Evaluation or become a
+  write-integrity gate.
+
+#### Scenario: No accepted guidance exists or the Brand is not owned
+
+- **WHEN** an owned Brand has no accepted guidance
+- **THEN** the service returns `null` without fabricating direction
+- **BUT WHEN** the account does not own the Brand
+- **THEN** access fails before the guidance repository is queried.
+
 ## Current environment boundary
 
 The report remains reproducible with deterministic parser and synthesis

@@ -18,8 +18,10 @@
       existing Evaluation fingerprints.
 - [x] Make all Brand updates use one expected revision and expose separate
       Evaluation/Writer purpose projections and derived readiness.
-- [ ] Add the protected latest-successful Evaluation guidance read for GEO
+- [x] Add the protected latest-successful Evaluation guidance read for GEO
       Optimization without exposing internal guidance to Web.
+- [x] Reconcile the accepted guidance-read contract into the Evaluation Report
+      current spec and remove its completed active delta.
 - [x] Verify Brand validation, CAS, migration, cross-account access and no-new-
       Evaluation-opportunity boundaries.
 - [x] Reconcile the accepted Brand writing foundation into the Brand Knowledge
