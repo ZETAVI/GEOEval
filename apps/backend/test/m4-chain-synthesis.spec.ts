@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildM4ChainSynthesisTask,
+  flattenM4ChainSynthesisTask,
   inspectM4ChainSynthesisOutput,
 } from "../src/ai-execution/controlled-validation/m4-chain-synthesis.js";
 
@@ -44,6 +45,47 @@ const output = () => ({
 });
 
 describe("M4 real-chain synthesis preview", () => {
+  it("flattens only brand placement and preserves a lossless source-shaped reconstruction", () => {
+    const task = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      inputs,
+      4,
+      "用户提供的品牌背景。",
+    );
+    const before = structuredClone(task);
+    const flat = flattenM4ChainSynthesisTask(task);
+    expect(task).toEqual(before);
+    expect(flat.systemInstruction).toBe(task.systemInstruction);
+    expect(flat.outputContract).toEqual(task.outputContract);
+    expect(flat.userContext.coverage).toEqual(task.userContext.coverage);
+    expect(flat.userContext.brandContext).toBe(task.userContext.brandContext);
+    expect(flat.userContext.otherBrands).toHaveLength(4);
+    expect(flat.userContext.samples[0]).not.toHaveProperty("otherBrands");
+    const restored = flat.userContext.samples.map((sample) => ({
+      ...sample,
+      otherBrands: flat.userContext.otherBrands
+        .filter((brand) => brand.sampleId === sample.sampleId)
+        .map(({ sampleId: _sampleId, ...brand }) => brand),
+    }));
+    expect(restored).toEqual(task.userContext.samples);
+    expect(flat.userContext.otherBrands[1]!.positiveRecommendation).toBe(false);
+    expect(flat.userContext.otherBrands[0]!.evidence[0]!.exactText).toContain(
+      "Hill Coffee",
+    );
+    expect(inspectM4ChainSynthesisOutput(output(), task)).toEqual(
+      inspectM4ChainSynthesisOutput(output(), before),
+    );
+    const empty = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      inputs.map((s) => ({
+        ...s,
+        parsedOutput: { target: null, otherBrands: [] },
+      })),
+    );
+    expect(flattenM4ChainSynthesisTask(empty).userContext.otherBrands).toEqual(
+      [],
+    );
+  });
   it("bounds wire references to actual samples and brand records, with no invented identifiers", () => {
     const schema = buildM4ChainSynthesisTask("青禾咖啡", inputs).outputContract
       .jsonSchema as any;

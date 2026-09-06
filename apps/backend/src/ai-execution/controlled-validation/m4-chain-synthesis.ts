@@ -241,6 +241,30 @@ export function buildM4ChainSynthesisTask(
   };
 }
 
+// Alternate model-facing layout only; keep the original task for inspection/counts.
+export function flattenM4ChainSynthesisTask(
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
+  const { samples, ...context } = task.userContext;
+  return {
+    ...task,
+    userContext: {
+      ...context,
+      otherBrands: samples.flatMap((sample) =>
+        sample.otherBrands.map(({ id, displayName, ...details }) => ({
+          id,
+          displayName,
+          sampleId: sample.sampleId,
+          ...details,
+        })),
+      ),
+      samples: samples.map(
+        ({ otherBrands: _otherBrands, ...sample }) => sample,
+      ),
+    },
+  };
+}
+
 export function inspectM4ChainSynthesisOutput(
   value: unknown,
   task: ReturnType<typeof buildM4ChainSynthesisTask>,

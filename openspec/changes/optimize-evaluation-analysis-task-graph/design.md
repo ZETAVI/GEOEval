@@ -11,6 +11,37 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
+### Approved input-layout comparison
+
+The owner accepts the observed same-brand store-name grouping and explicitly
+rejects the two other brands being assigned to the target. Test the suggested
+input-layout explanation rather than assuming it is the root cause.
+
+This standard, experiment-only slice adds one pure projection in the existing
+synthesis helper: move nested other-brand records into a root `otherBrands`
+list, place each ID beside its name and source, and retain parent `sampleId`.
+Target observations and all question/platform metadata remain in `samples`.
+All records, names, excerpts, positions, recommendation flags, target context
+and coverage are retained; no deduplication, new identity inference, clipping,
+reference renumbering or counting change. The projection can reconstruct the
+original input exactly. Default builders and formal runtime remain unchanged.
+
+Freeze four synthesis-only calls on the same retained 19 samples/45 records:
+two matched original/flat pairs, maximum concurrency two, same instruction,
+output Schema/version, model, medium effort and output validation. Only input
+organization changes. Original source-shaped task remains the program-owned
+reference/count basis for both arms. No new acquisition/Parser call, automatic
+retry, fallback, extra Agent, privacy/billing change, or runtime activation.
+Stop queued pairs on Provider/structural failure and settle started requests.
+Actual IO/operational metadata stays in private Langfuse; independent review
+remains local. Round-trip tests and fixed-wire checks establish equivalence;
+real outputs decide the confirmed wrong/correct grouping cases and timing.
+
+Architecture readiness: ready for this reversible owner-local projection.
+The test does not establish long-run reliability or a full-evaluation SLA;
+additional topology is not presumed, and an unchanged semantic failure should
+not trigger an automatic third pair or more naming rules.
+
 ### Owner correction and bounded Prompt replay — 2026-09-06
 
 The owner confirms the two names behind the prior target-identity finding refer
