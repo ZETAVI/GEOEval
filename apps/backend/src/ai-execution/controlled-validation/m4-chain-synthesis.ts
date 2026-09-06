@@ -146,6 +146,7 @@ export function buildM4ChainSynthesisTask(
   companyName: string,
   inputs: M4ChainSample[],
   expectedSampleCount = inputs.length,
+  brandContext?: string,
 ) {
   if (!companyName.trim() || inputs.length < 2)
     throw new Error("Brand and multiple real samples required");
@@ -175,6 +176,9 @@ export function buildM4ChainSynthesisTask(
     systemInstruction: prompt.content,
     userContext: {
       companyName,
+      ...(brandContext === undefined
+        ? {}
+        : { brandContext: text(2000).parse(brandContext) }),
       coverage: {
         expectedSampleCount,
         sampleCount: samples.length,

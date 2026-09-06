@@ -11,6 +11,39 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
+### Owner correction and bounded Prompt replay — 2026-09-06
+
+The owner confirms the two names behind the prior target-identity finding refer
+to the same consumer brand. Withdraw that false-positive finding; exact spelling
+is not the acceptance bar. The earlier raw outputs and review remain historical,
+with a linked correction. Cross-brand thematic grouping and model-authored count
+contradictions remain distinct, observed issues.
+
+This standard experimental slice adds only optional plain-text owner brand context
+to the existing Parser/synthesis builders, and revises their task instructions.
+It creates no alias database, normalization rule, entity-verification gate, new
+Agent, production contract or runtime import. The context is supplied to analysis
+only, never injected into the natural acquisition query; existing parsed records
+and counts are not silently reclassified by code. Omitted context is unchanged.
+
+Keep the current model, reasoning effort and JSON shape. Freeze at most seven
+calls: three retained open-answer Parser replays, a matched full-input synthesis
+baseline/candidate pair, one planned independent candidate repetition, and one
+candidate on the retained other-business chain. Both matched synthesis arms
+consume identical actual replay outputs, context, Schema name and parameters;
+only their instruction differs. Parser replay changes instructions plus the
+new owner context and is not labeled a Prompt-only causal comparison. Preserve
+all original results. No new acquisition, automatic retries, fallback or billing
+change; at most two requests in flight, stop queued work on Provider/structural
+failure and settle started work. Langfuse remains actual-IO/operational only.
+
+Architecture readiness: ready for this reversible owner-local experiment. The
+uncertainties are whether practical grouping stays at brand level, whether known
+context improves consistent target treatment, and whether concise instructions
+reduce actual synthesis time without losing useful conclusions. Focused context
+pass-through tests, fixed-wire comparison, raw-output review and measured repeat
+timing discriminate these questions; further architecture is not presumed.
+
 #39 owns end-to-end acceptance. #41 owns synthesis semantics and customer
 quality. #42 owns the bounded comparison needed to choose task boundaries,
 then execution, recovery, timing and progress. #32 remains completed; Parser

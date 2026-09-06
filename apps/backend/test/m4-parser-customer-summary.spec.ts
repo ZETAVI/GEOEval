@@ -57,6 +57,20 @@ const value = () => ({
 });
 
 describe("M4 customer-value Parser experiment", () => {
+  it("passes optional owner brand context without changing the source or inferring output", () => {
+    const plain = buildM4CustomerSummaryTask(base);
+    const contextual = buildM4CustomerSummaryTask(
+      base,
+      "青禾是青禾咖啡的门店简称。",
+    );
+    expect(contextual.userContext).toEqual({
+      ...plain.userContext,
+      brandContext: "青禾是青禾咖啡的门店简称。",
+    });
+    expect(contextual.outputContract).toEqual(plain.outputContract);
+    expect(base.userContext).not.toHaveProperty("brandContext");
+    expect(() => buildM4CustomerSummaryTask(base, "  ")).toThrow();
+  });
   it("retains full task context without mutating the historical builder", () => {
     const baseline = buildM4WorkedExampleTask(base);
     const candidate = buildM4CustomerSummaryTask(base);
@@ -98,7 +112,7 @@ describe("M4 customer-value Parser experiment", () => {
   it("retains overall recommendations with drawbacks and excludes negative/background mentions", () => {
     const result = inspectM4CustomerSummaryOutput(value(), originalAnswer);
     expect(buildM4CustomerSummaryTask(base).systemInstruction).toContain(
-      "整体仍推荐但带普通缺点的品牌仍为true",
+      "带普通缺点但整体仍推荐时为true",
     );
     expect(result.output.otherBrands).toHaveLength(3);
     expect(result.positiveCompetitors.map((b) => b.displayName)).toEqual([

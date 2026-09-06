@@ -57,9 +57,15 @@ null decision. The owner confirms ordinary drawbacks do not disqualify an
 overall-positive recommendation. Keep the customer-level quality bar and do not
 revive fine condition/role or minor wording gates.
 
+The owner subsequently confirms that the two target names in the local review
+represent one consumer brand. Withdraw the prior false-positive conclusion;
+reasonable aliases, store formats and brand series are acceptable, without
+legal-entity or exact-wording verification. That correction does not approve
+grouping unrelated brands by restaurant category.
+
 The historical coffee shared-item case stays a retained observation/regression,
 not a reason to keep tuning indefinitely. The new matrix provides higher-priority
-reachable failures: a target-identity false positive, unnamed entities entering
+reachable failures: unnamed entities entering
 competitors, direct-Parser malformed names, and synthesis grouping distinct brands
 by category. Synthesis also contradicts the program's available direct count.
 These affect identity/statistics, unlike minor wording. Preserve the failed output;
@@ -78,8 +84,10 @@ three-to-five-minute preference. Use these measured components to choose the
 next bounded concurrency or synthesis experiment; do not claim an SLA, linear
 scaling, billed cost, or a proven benefit from splitting.
 
-Next repair only the demonstrated identity/statistics boundaries using retained
-real answers, and freeze any new call package separately. Keep full source,
+Next run the seven-call retained-answer package in the active design: supply
+owner brand context to analysis, test practical subject-focused instructions,
+compare synthesis on matched input, then repeat and check another retained brand.
+Keep full source,
 ordinary recommendation tolerance and broad practical directions. Do not add
 alias databases, critics, workflow tables or word-for-word proof gates. A second
 merchant matrix follows the targeted replay; it is not a repeated sweep of an

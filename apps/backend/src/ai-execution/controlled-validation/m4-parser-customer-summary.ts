@@ -81,11 +81,18 @@ const prompt = z
 
 export function buildM4CustomerSummaryTask(
   base: StructuredOutputAttemptInput,
+  brandContext?: string,
 ): StructuredOutputAttemptInput {
   const task = buildM4FullSourceTask(base);
   return {
     ...task,
     systemInstruction: prompt.content,
+    userContext: {
+      ...task.userContext,
+      ...(brandContext === undefined
+        ? {}
+        : { brandContext: text(2000).parse(brandContext) }),
+    },
     outputContract: {
       version: `${prompt.id}@${prompt.version}`,
       jsonSchema: z.toJSONSchema(m4CustomerSummarySchema, {

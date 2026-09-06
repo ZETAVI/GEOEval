@@ -27,8 +27,10 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
 
 ## Next bounded package
 
-- [ ] Repair only demonstrated brand-identity/statistics boundaries: target versus
-      similar independent brand; named subject versus unnamed description;
+- [x] Correct the prior target-identity review using the owner's confirmed
+      same-brand meaning; do not make spelling or legal-entity rigor a new gate.
+- [ ] Repair only demonstrated brand-identity/statistics boundaries:
+      named subject versus unnamed description;
       same-brand grouping versus thematic grouping; one program-owned count.
       Diagnose the retained direct-Parser malformed-name output at its own seam.
 - [ ] Freeze a small replay on the retained real failures plus an unaffected

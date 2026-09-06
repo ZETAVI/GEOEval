@@ -44,6 +44,23 @@ const output = () => ({
 });
 
 describe("M4 real-chain synthesis preview", () => {
+  it("keeps optional owner context separate from unmodified parsed records and counts", () => {
+    const plain = buildM4ChainSynthesisTask("青禾咖啡", inputs);
+    const contextual = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      inputs,
+      inputs.length,
+      "青禾是青禾咖啡的门店简称。",
+    );
+    expect(contextual.userContext).toEqual({
+      ...plain.userContext,
+      brandContext: "青禾是青禾咖啡的门店简称。",
+    });
+    expect(contextual.userContext.coverage.mentionedSampleCount).toBe(0);
+    expect(() =>
+      buildM4ChainSynthesisTask("青禾咖啡", inputs, 2, " "),
+    ).toThrow();
+  });
   it("hands off actual parsed facts and restored excerpts without legacy fabrication", () => {
     const task = buildM4ChainSynthesisTask("青禾咖啡", inputs);
     expect(task.userContext.coverage).toMatchObject({
