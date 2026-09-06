@@ -1487,6 +1487,15 @@ outputs/checks, usage and complete semantic review equality; public=false and
 credentials absent. Review `69ea321b7721bc8b` was missing from the first immediate
 query and present on a read-only repeat; no duplicate publication or model call.
 
+| Artifact | SHA-256 |
+| --- | --- |
+| Shoe baseline result | 14fd1c0276acbbceb17dae9daadab3d3a0556277c17ea23398e076402ab18952 |
+| Shoe candidate result | e1aaf6d67e397e41c474c8029ee88a37eb93cfd1ed76188fd482ece71f3cdb4d |
+| Coffee baseline result | 81e2bf0769da179f9aa42f71f9d4b902bc378775b44a30d562246072c47e126a |
+| Coffee candidate result | 295f9c80dafeafd5d6febe1d4e328b4057a2e33334ecad42b2ac0d4df420934e |
+| Plan | 9f45d9e2b64033f474d9f798356eaddddf411b9e0bc43bddcf5d10b15457ac4f |
+| Runner | fada8a76c8fb4cb377cd59b1754409da8bd9863a848e6599f7a28cdfb6e4125a |
+
 ## Shared-condition demonstration — bounded protocol
 
 The owner confirms stable, efficient iteration. Replace only the original
@@ -1520,11 +1529,8 @@ Live main advanced to `6868732` via #66/#67 (writing workspace/brand foundation)
 The change list does not modify Parser, synthesis input, metrics or process rules;
 this branch remains on its existing base without rebase. No other-worktree writes.
 
-| Artifact | SHA-256 |
-| --- | --- |
-| Shoe baseline result | 14fd1c0276acbbceb17dae9daadab3d3a0556277c17ea23398e076402ab18952 |
-| Shoe candidate result | e1aaf6d67e397e41c474c8029ee88a37eb93cfd1ed76188fd482ece71f3cdb4d |
-| Coffee baseline result | 81e2bf0769da179f9aa42f71f9d4b902bc378775b44a30d562246072c47e126a |
-| Coffee candidate result | 295f9c80dafeafd5d6febe1d4e328b4057a2e33334ecad42b2ac0d4df420934e |
-| Plan | 9f45d9e2b64033f474d9f798356eaddddf411b9e0bc43bddcf5d10b15457ac4f |
-| Runner | fada8a76c8fb4cb377cd59b1754409da8bd9863a848e6599f7a28cdfb6e4125a |
+Independent pre-call review identifies that the inherited introduction still
+describes both examples as the same source. Correct only that candidate phrase
+to different source/target situations alongside the replaced example. Baseline
+and the positive demonstration remain byte-value unchanged; this necessary
+introduction correction is part of the declared Prompt-only package.

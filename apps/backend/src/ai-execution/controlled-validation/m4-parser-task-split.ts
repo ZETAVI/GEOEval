@@ -351,9 +351,15 @@ export function buildM4WorkedExampleTask(
     item.properties = orderBrand(item.properties);
     item.required = Object.keys(object(item.properties));
   }
+  const content = sharedCondition
+    ? examplePrompt.content.replace(
+        "同一原文在不同目标下",
+        "不同原文与目标情形下",
+      )
+    : examplePrompt.content;
   return {
     ...task,
-    systemInstruction: `${examplePrompt.content}${evidenceFirst ? `\n\n${examplePrompt.evidenceOrderInstruction}` : ""}\n\n${examplePrompt.examples
+    systemInstruction: `${content}${evidenceFirst ? `\n\n${examplePrompt.evidenceOrderInstruction}` : ""}\n\n${examplePrompt.examples
       .map((example, index) => {
         const output = object(example.output);
         const ordered = evidenceFirst

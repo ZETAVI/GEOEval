@@ -77,7 +77,10 @@ describe("M4 task-load comparison handoff", () => {
     }).toEqual(baseline);
     const split = (text: string) => text.split(/示例 [12] 输入：/u);
     expect(split(candidate.systemInstruction)[0]).toBe(
-      split(baseline.systemInstruction)[0],
+      split(baseline.systemInstruction)[0]!.replace(
+        "同一原文在不同目标下",
+        "不同原文与目标情形下",
+      ),
     );
     expect(split(candidate.systemInstruction)[2]).toBe(
       split(baseline.systemInstruction)[2],
