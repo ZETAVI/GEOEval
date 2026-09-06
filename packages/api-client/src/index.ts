@@ -23,6 +23,17 @@ export type ChangeAccountRole =
 export type GovernedAccountMutation =
   components["schemas"]["GovernedAccountMutationRequest"];
 export type Brand = components["schemas"]["BrandResponse"];
+export type GeoOptimizationWorkspace =
+  components["schemas"]["GeoOptimizationWorkspaceResponse"];
+export type GeoOptimizationGeneration =
+  components["schemas"]["GeoOptimizationGenerationResponse"];
+export type GeoOptimizationArticle =
+  components["schemas"]["GeoOptimizationArticleResponse"];
+export type GenerateCoreArticle =
+  components["schemas"]["GenerateCoreArticleRequest"];
+export type SaveCoreArticle = components["schemas"]["SaveCoreArticleRequest"];
+export type ConfirmCoreArticle =
+  components["schemas"]["ConfirmCoreArticleRequest"];
 export type EvaluationDefinition =
   components["schemas"]["EvaluationDefinitionResponse"];
 export type EvaluationDefinitionPreparation =
@@ -287,6 +298,64 @@ export function selectCurrentBrand(
   return apiRequest(apiBaseUrl, `/brands/${brandId}/current`, {
     method: "PUT",
   });
+}
+
+export function getGeoOptimizationWorkspace(
+  apiBaseUrl: string,
+): Promise<GeoOptimizationWorkspace> {
+  return apiRequest(apiBaseUrl, "/geo-optimization/workspace", {
+    cache: "no-store",
+  });
+}
+
+export function generateCoreArticle(
+  apiBaseUrl: string,
+  brandId: string,
+  input: GenerateCoreArticle,
+): Promise<GeoOptimizationGeneration> {
+  return apiRequest(
+    apiBaseUrl,
+    `/brands/${encodeURIComponent(brandId)}/article-generations`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function retryCoreArticleGeneration(
+  apiBaseUrl: string,
+  brandId: string,
+  generationId: string,
+): Promise<GeoOptimizationGeneration> {
+  return apiRequest(
+    apiBaseUrl,
+    `/brands/${encodeURIComponent(brandId)}/article-generations/${encodeURIComponent(generationId)}/retries`,
+    { method: "POST" },
+  );
+}
+
+export function saveCoreArticle(
+  apiBaseUrl: string,
+  brandId: string,
+  articleId: string,
+  input: SaveCoreArticle,
+): Promise<GeoOptimizationArticle> {
+  return apiRequest(
+    apiBaseUrl,
+    `/brands/${encodeURIComponent(brandId)}/core-article/${encodeURIComponent(articleId)}`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+
+export function confirmCoreArticle(
+  apiBaseUrl: string,
+  brandId: string,
+  articleId: string,
+  input: ConfirmCoreArticle,
+): Promise<GeoOptimizationArticle> {
+  return apiRequest(
+    apiBaseUrl,
+    `/brands/${encodeURIComponent(brandId)}/core-article/${encodeURIComponent(articleId)}/confirmations`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
 }
 
 export function prepareEvaluationDefinition(

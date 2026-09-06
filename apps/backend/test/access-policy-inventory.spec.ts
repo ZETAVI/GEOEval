@@ -97,6 +97,7 @@ const expectedControllerPolicies: Record<
   BrandReferenceController: customerOnly,
   StoreLocationVerificationController: customerOnly,
   EvaluationController: customerOnly,
+  GeoOptimizationController: customerOnly,
   NotificationController: customerOnly,
   MediaAdminController: () => ({
     publicAccess: false,

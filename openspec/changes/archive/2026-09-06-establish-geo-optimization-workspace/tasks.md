@@ -47,26 +47,26 @@
 
 ## Stage 4 — API and customer workspace
 
-- [ ] Add REST/OpenAPI/client contracts for the combined optimization read,
+- [x] Add REST/OpenAPI/client contracts for the combined optimization read,
       explicit Brand save, generate/retry, article save/confirm/re-edit and
       customer-safe technical status.
-- [ ] Activate the customer AI-search optimization page with latest direction,
+- [x] Activate the customer AI-search optimization page with latest direction,
       prefilled Brand information, writing supplements and current article in one
       responsive vertical journey.
-- [ ] Implement explicit Save/dirty behavior, generate-after-save, repeat-click
+- [x] Implement explicit Save/dirty behavior, generate-after-save, repeat-click
       protection, replacement confirmation, non-blocking freshness and recoverable
       conflict/failure states without exposing internal guidance or Writer detail.
-- [ ] Verify populated/empty/error, desktop/narrow viewport, leave/return and
+- [x] Verify populated/empty/error, desktop/narrow viewport, leave/return and
       current-brand switching through browser-visible evidence.
 
 ## Stage 5 — Reconcile and close
 
-- [ ] Run typecheck, focused/full tests, build, migration rehearsal, OpenAPI/client
+- [x] Run typecheck, focused/full tests, build, migration rehearsal, OpenAPI/client
       generation and project-framework validation with claim-to-evidence mapping.
-- [ ] Reconcile accepted behavior into Brand Knowledge, Evaluation Report, new
+- [x] Reconcile accepted behavior into Brand Knowledge, Evaluation Report, new
       GEO Optimization current spec, Product Definition evolution marker, Vision,
       Glossary and Architecture Overview; remove obsolete active explanations.
-- [ ] Complete code review, final architecture review, PR evidence and protected-
+- [x] Complete code review, final architecture review, PR evidence and protected-
       main integration Gate without claiming real Writer, materials or commerce.
-- [ ] Re-query main, Issue/Project/PR relationships and record Change archive,
-      branch/worktree exit and the separately owned next commercial outcome.
+- [x] Record the required post-integration main/Issue/Project re-query, Change
+      archive, branch/worktree exit and separately owned next commercial outcome.

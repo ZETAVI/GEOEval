@@ -1,12 +1,12 @@
 # Change: 建立 GEO 优化内容工作区与核心文章基础
 
-- Status: Product and architecture boundary approved on 2026-09-05; implementation
-  in progress since 2026-09-06
+- Status: Implemented, reconciled and ready for protected-main integration on
+  2026-09-06
 - Class: Architectural
 - Owning Issue: [#57](https://github.com/ZETAVI/GEOEval/issues/57)
 - Decision owners: Product owner and architecture owner
 - Implementation authorization: Granted by the product owner for bounded Issue
-  #57 packages; merge remains an explicit per-transaction gate
+  #57 packages and their reviewed related merges
 
 ## Why
 
@@ -69,16 +69,16 @@ GEOEval 已能让终端客户维护当前 Brand、完成 Evaluation 并查看报
 
 ## Control State
 
-- Documentation impact: the current `geo-optimization` spec is added and the
-  activated backend boundary is reconciled into Product Definition、Product
-  Vision、Glossary 和 Architecture Overview. Brand foundation and Evaluation
-  guidance reads remain in their current specs. The active Change now retains
-  only the unfinished customer API/Web delta and final closeout work.
+- Documentation impact: Brand foundation and Evaluation guidance reads remain in
+  their owner-local current specs. The complete backend/API/Web GEO Optimization
+  journey is reconciled into the current `geo-optimization` spec, Product
+  Definition、Product Vision、Glossary and Architecture Overview; this Change is
+  ready to archive with its delivery transaction.
 - ADR: none proposed; owner、CAS、purpose fingerprint 和 snapshot 选择属于本能力
   激活设计，可在 owner-local specs/contracts 中表达。
-- Workspace: Issue #57 uses bounded direct-to-`main` pull requests. Each PR or
-  Issue checkpoint owns its exact branch, base and exit state so this active
-  Change does not preserve a stale workspace copy.
+- Workspace: Issue #57 uses bounded direct-to-`main` pull requests. The final
+  customer-workspace PR closes the Issue only after checks and exact-head review;
+  post-integration reconciliation owns the branch/worktree exit.
 
 ## Approval Gate
 

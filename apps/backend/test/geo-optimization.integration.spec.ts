@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import type { INestApplication } from "@nestjs/common";
 import {
   afterAll,
   beforeAll,
@@ -11,6 +12,7 @@ import {
 } from "vitest";
 
 import { BrandService } from "../src/brand/application/brand.service.js";
+import { createApiApp } from "../src/api-app.js";
 import { PostgresBrandRepository } from "../src/brand/infrastructure/postgres-brand.repository.js";
 import { BrandReferenceData } from "../src/brand/reference-data/brand-reference-data.js";
 import { EvaluationOptimizationGuidanceService } from "../src/geo-intelligence/application/evaluation-optimization-guidance.service.js";
@@ -44,6 +46,7 @@ import {
   TEST_STORE_LOCATION_RECEIPTS,
 } from "./customer-data.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
+import { browserMutationHeaders } from "./http-test-headers.js";
 
 const config = loadIntegrationApiConfig();
 
@@ -61,9 +64,19 @@ describe("GEO Optimization core article lifecycle", () => {
   );
   const repository = new PostgresGeoOptimizationRepository(prisma);
   const deterministicWriter = new DeterministicCoreArticleWriter();
+  let app: INestApplication;
+  let baseUrl: string;
 
-  beforeAll(async () => prisma.$connect());
-  afterAll(async () => prisma.$disconnect());
+  beforeAll(async () => {
+    await prisma.$connect();
+    app = await createApiApp(config, false);
+    await app.listen(0, "127.0.0.1");
+    baseUrl = await app.getUrl();
+  });
+  afterAll(async () => {
+    await app.close();
+    await prisma.$disconnect();
+  });
   beforeEach(async () => clearCustomerData(prisma));
 
   it("generates idempotently, confirms an exact revision and returns edits to draft", async () => {
@@ -612,6 +625,146 @@ describe("GEO Optimization core article lifecycle", () => {
     expect(await prisma.writerInputSnapshot.count()).toBe(0);
   });
 
+  it("exposes a customer-safe HTTP workspace and revision-conditional commands", async () => {
+    const cookie = await login(baseUrl, "13900000701");
+    const accountResponse = await fetch(`${baseUrl}/identity/me`, {
+      headers: { cookie },
+    });
+    const account = (await accountResponse.json()) as { id: string };
+
+    const emptyResponse = await fetch(`${baseUrl}/geo-optimization/workspace`, {
+      headers: { cookie },
+    });
+    expect(emptyResponse.status).toBe(200);
+    expect(await emptyResponse.json()).toEqual({
+      brand: null,
+      guidance: null,
+      latestGeneration: null,
+      article: null,
+      articleFreshness: null,
+    });
+
+    const brand = await brands.create(
+      account.id,
+      readyCoffeeBrandInput(account.id, {
+        companyName: "HTTP 优化测试品牌",
+        articleInformation: {
+          price: { mode: "RANGE", minimum: 28, maximum: 68 },
+          suitableAudienceContexts: ["需要安静办公的顾客"],
+          supplementalBackground: "团队持有专业咖啡师认证",
+          desiredPositioning: ["本地精品咖啡代表"],
+        },
+      }),
+    );
+    await seedAcceptedGuidance(account.id, brand.id, {
+      evaluationFingerprint: brand.evaluationFingerprint,
+    });
+
+    const workspaceResponse = await fetch(
+      `${baseUrl}/geo-optimization/workspace`,
+      { headers: { cookie } },
+    );
+    expect(workspaceResponse.status).toBe(200);
+    const workspace = await workspaceResponse.json();
+    expect(workspace).toMatchObject({
+      brand: { id: brand.id, revision: brand.revision },
+      guidance: { customerDirections: expect.any(Array) },
+      article: null,
+    });
+    for (const protectedField of [
+      "writerGuidance",
+      "snapshotId",
+      "idempotencyKey",
+      "writingContextFingerprint",
+      "contactMobile",
+    ]) {
+      expect(JSON.stringify(workspace)).not.toContain(protectedField);
+    }
+
+    const generateResponse = await fetch(
+      `${baseUrl}/brands/${brand.id}/article-generations`,
+      {
+        method: "POST",
+        headers: browserMutationHeaders(cookie),
+        body: JSON.stringify({
+          idempotencyKey: "http-generation-one",
+          expectedBrandRevision: brand.revision,
+        }),
+      },
+    );
+    expect(generateResponse.status).toBe(201);
+    const generation = await generateResponse.json();
+    expect(generation).toMatchObject({ status: "SUCCEEDED", attemptCount: 1 });
+    expect(generation).not.toHaveProperty("snapshotId");
+    expect(generation).not.toHaveProperty("idempotencyKey");
+
+    const generatedWorkspace = await fetch(
+      `${baseUrl}/geo-optimization/workspace`,
+      { headers: { cookie } },
+    ).then((response) => response.json());
+    const article = generatedWorkspace.article as {
+      id: string;
+      revision: number;
+      title: string;
+    };
+    expect(article).toMatchObject({ revision: 1, status: "DRAFT" });
+
+    const missingReplacement = await fetch(
+      `${baseUrl}/brands/${brand.id}/article-generations`,
+      {
+        method: "POST",
+        headers: browserMutationHeaders(cookie),
+        body: JSON.stringify({
+          idempotencyKey: "http-replacement-without-revision",
+          expectedBrandRevision: brand.revision,
+        }),
+      },
+    );
+    expect(missingReplacement.status).toBe(409);
+
+    const saveResponse = await fetch(
+      `${baseUrl}/brands/${brand.id}/core-article/${article.id}`,
+      {
+        method: "PATCH",
+        headers: browserMutationHeaders(cookie),
+        body: JSON.stringify({
+          expectedRevision: article.revision,
+          title: `${article.title}（已编辑）`,
+          bodyMarkdown: "# 客户保存的正文",
+        }),
+      },
+    );
+    expect(saveResponse.status).toBe(200);
+    const saved = await saveResponse.json();
+    expect(saved).toMatchObject({ revision: 2, status: "DRAFT" });
+    expect(saved).not.toHaveProperty("source");
+
+    const staleConfirmation = await fetch(
+      `${baseUrl}/brands/${brand.id}/core-article/${article.id}/confirmations`,
+      {
+        method: "POST",
+        headers: browserMutationHeaders(cookie),
+        body: JSON.stringify({ expectedRevision: 1 }),
+      },
+    );
+    expect(staleConfirmation.status).toBe(409);
+
+    const confirmResponse = await fetch(
+      `${baseUrl}/brands/${brand.id}/core-article/${article.id}/confirmations`,
+      {
+        method: "POST",
+        headers: browserMutationHeaders(cookie),
+        body: JSON.stringify({ expectedRevision: saved.revision }),
+      },
+    );
+    expect(confirmResponse.status).toBe(200);
+    expect(await confirmResponse.json()).toMatchObject({
+      revision: 2,
+      confirmedRevision: 2,
+      status: "CONFIRMED",
+    });
+  });
+
   function optimizationService(writer: CoreArticleWriter) {
     return new GeoOptimizationService(brands, guidance, repository, writer);
   }
@@ -771,6 +924,28 @@ function reportDocument() {
     ],
     limitations: [],
   };
+}
+
+async function login(baseUrl: string, mobile: string): Promise<string> {
+  const challengeResponse = await fetch(`${baseUrl}/identity/challenges`, {
+    method: "POST",
+    headers: browserMutationHeaders(),
+    body: JSON.stringify({ mobile }),
+  });
+  const challenge = (await challengeResponse.json()) as {
+    challengeId: string;
+    developmentCode: string;
+  };
+  const sessionResponse = await fetch(`${baseUrl}/identity/sessions`, {
+    method: "POST",
+    headers: browserMutationHeaders(),
+    body: JSON.stringify({
+      challengeId: challenge.challengeId,
+      mobile,
+      code: challenge.developmentCode,
+    }),
+  });
+  return sessionResponse.headers.get("set-cookie")!;
 }
 
 function deferredWriterResult() {

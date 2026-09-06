@@ -3,6 +3,7 @@ import { Module, type DynamicModule } from "@nestjs/common";
 import type { StoreLocationRuntimeConfig } from "../brand/infrastructure/store-location.config.js";
 import { GeoIntelligenceModule } from "../geo-intelligence/geo-intelligence.module.js";
 import { GeoOptimizationService } from "./application/geo-optimization.service.js";
+import { GeoOptimizationController } from "./presentation/geo-optimization.controller.js";
 import { GEO_OPTIMIZATION_REPOSITORY } from "./domain/geo-optimization.repository.js";
 import { CORE_ARTICLE_WRITER } from "./domain/writer.port.js";
 import { DeterministicCoreArticleWriter } from "./infrastructure/deterministic-core-article.writer.js";
@@ -53,6 +54,7 @@ export class GeoOptimizationModule {
         },
         GeoOptimizationService,
       ],
+      controllers: [GeoOptimizationController],
       exports: [GeoOptimizationService],
     };
   }

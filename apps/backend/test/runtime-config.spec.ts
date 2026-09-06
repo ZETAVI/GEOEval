@@ -15,6 +15,7 @@ describe("process-scoped configuration", () => {
       AUTH_DETERMINISTIC_CODE: "246810",
     });
     expect(api.databaseUrl).toBe("postgresql://example/api");
+    expect(api.geoOptimizationWriterMode).toBe("disabled");
   });
 
   it("rejects the same environment for the worker when Redis is absent", () => {
@@ -31,6 +32,9 @@ describe("process-scoped configuration", () => {
       requestTimeoutMs: 180_000,
       ambiguityTimeoutMs: 210_000,
     });
+    expect(
+      loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" }).geoOptimizationWriterMode,
+    ).toBe("deterministic");
   });
 
   it("rejects deterministic challenge delivery in production", () => {

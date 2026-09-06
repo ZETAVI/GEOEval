@@ -10,7 +10,7 @@ const apiBaseUrl =
 const navigation = [
   ["我的品牌", "品牌资料与概览", "/brands"],
   ["AI 搜索诊断", "五平台免费评测", "/diagnosis"],
-  ["AI 搜索优化", "生成优化文章", null],
+  ["AI 搜索优化", "生成优化文章", "/optimization"],
   ["媒体资源", "浏览发布资源", null],
   ["发布管理", "查看履约进度", null],
   ["账户中心", "积分与发票", null],
@@ -21,7 +21,7 @@ export function CustomerSidebar({
   activePath,
 }: {
   account: Account | undefined;
-  activePath: "/brands" | "/diagnosis";
+  activePath: "/brands" | "/diagnosis" | "/optimization";
 }) {
   return (
     <aside className="sidebar">

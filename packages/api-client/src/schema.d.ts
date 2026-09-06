@@ -244,14 +244,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/brands/{brandId}/evaluation-report": {
+    "/geo-optimization/workspace": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["EvaluationController_currentReport"];
+        get: operations["GeoOptimizationController_workspace"];
         put?: never;
         post?: never;
         delete?: never;
@@ -260,55 +260,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/brands/{brandId}/evaluation-reports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["EvaluationController_reportHistory"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/brands/{brandId}/evaluation-reports/{reportId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["EvaluationController_reportDetail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/brands/{brandId}/evaluation-definition": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["EvaluationController_observeDefinition"];
-        put: operations["EvaluationController_prepareDefinition"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/evaluation-question-preparations/{preparationId}/retries": {
+    "/brands/{brandId}/article-generations": {
         parameters: {
             query?: never;
             header?: never;
@@ -317,14 +269,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["EvaluationController_retryDefinitionPreparation"];
+        post: operations["GeoOptimizationController_generate"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/evaluation-definitions/{definitionId}/runs": {
+    "/brands/{brandId}/article-generations/{generationId}/retries": {
         parameters: {
             query?: never;
             header?: never;
@@ -333,14 +285,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["EvaluationController_startRun"];
+        post: operations["GeoOptimizationController_retry"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/evaluation-runs/{runId}/retries": {
+    "/brands/{brandId}/core-article/{articleId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -349,7 +301,23 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["EvaluationController_retryRun"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["GeoOptimizationController_save"];
+        trace?: never;
+    };
+    "/brands/{brandId}/core-article/{articleId}/confirmations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["GeoOptimizationController_confirm"];
         delete?: never;
         options?: never;
         head?: never;
@@ -628,6 +596,118 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/brands/{brandId}/evaluation-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EvaluationController_currentReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brands/{brandId}/evaluation-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EvaluationController_reportHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brands/{brandId}/evaluation-reports/{reportId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EvaluationController_reportDetail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/brands/{brandId}/evaluation-definition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EvaluationController_observeDefinition"];
+        put: operations["EvaluationController_prepareDefinition"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/evaluation-question-preparations/{preparationId}/retries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["EvaluationController_retryDefinitionPreparation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/evaluation-definitions/{definitionId}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["EvaluationController_startRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/evaluation-runs/{runId}/retries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["EvaluationController_retryRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/brands": {
         parameters: {
             query?: never;
@@ -848,117 +928,93 @@ export interface components {
             items: components["schemas"]["IdentityGovernanceAuditResponse"][];
             nextCursor?: string | null;
         };
-        EvaluationBrandSnapshotResponse: {
-            companyName: string;
-            primaryIndustry: string;
-            secondaryIndustry: string;
-            characteristicOne: string;
-            characteristicTwo: string;
-            province: string;
-            city: string;
-            district: string;
-        };
-        EvaluationQuestionResponse: {
+        BrandCharacteristicResponse: {
+            /** Format: uuid */
             id: string;
-            /** @enum {string} */
-            kind: "BRAND_DIRECTED" | "INDUSTRY_RECOMMENDATION" | "CHARACTERISTIC_ONE" | "CHARACTERISTIC_TWO";
-            ordinal: number;
-            content: string;
+            title: string;
+            detail: string | null;
         };
-        EvaluationPlatformResponse: {
-            key: string;
+        BrandArticleInformationRequest: {
+            price: ({
+                /** @enum {string} */
+                mode: "RANGE";
+                minimum: number;
+                maximum: number;
+            } | {
+                /** @enum {string} */
+                mode: "NEGOTIABLE";
+            }) | null;
+            suitableAudienceContexts: string[];
+            supplementalBackground: string | null;
+            desiredPositioning: string[];
+        };
+        StoreLocationCoordinateResponse: {
+            longitude: number;
+            latitude: number;
+            /** @enum {string} */
+            system: "GCJ_02";
+        };
+        RegionLabelResponse: {
+            id: string;
             label: string;
         };
-        EvaluationRunResponse: {
+        CityRegionResponse: {
             id: string;
-            definitionId: string;
-            brandId: string;
+            label: string;
             /** @enum {string} */
-            status: "EVALUATING" | "COMPLETED" | "PLEASE_RETRY";
-            expectedSampleCount: number;
-            processedSampleCount: number;
-            validSampleCount: number;
-            unavailableSampleCount: number;
-            /** Format: date-time */
-            startedAt: string;
-            /** Format: date-time */
-            updatedAt: string;
+            identityKind: "OFFICIAL_DIVISION" | "MUNICIPALITY_REPEAT" | "PROVINCE_DIRECT_GROUP";
+            officialDivisionId?: string | null;
         };
-        EvaluationDefinitionResponse: {
+        OfficialRegionNodeResponse: {
             id: string;
-            brandId: string;
-            brandSnapshot: components["schemas"]["EvaluationBrandSnapshotResponse"];
-            questions: components["schemas"]["EvaluationQuestionResponse"][];
-            platforms: components["schemas"]["EvaluationPlatformResponse"][];
-            run?: components["schemas"]["EvaluationRunResponse"] | null;
+            label: string;
+            officialCode: string;
+            /** @enum {string} */
+            officialLevel: "PROVINCE" | "PREFECTURE" | "COUNTY" | "TOWNSHIP";
+        };
+        DerivedOfficialRegionResponse: {
+            sourceReleaseId: string;
+            province: components["schemas"]["RegionLabelResponse"];
+            city: components["schemas"]["CityRegionResponse"];
+            terminal: components["schemas"]["OfficialRegionNodeResponse"];
+            officialPath: components["schemas"]["OfficialRegionNodeResponse"][];
+        };
+        QueryLocalityResponse: {
+            /** @enum {string} */
+            kind: "BUSINESS_AREA" | "ADDRESS_LOCALITY";
+            label: string;
+        };
+        BrandStoreLocationResponse: {
+            placeName: string;
+            formattedAddress: string;
+            coordinate: components["schemas"]["StoreLocationCoordinateResponse"];
+            officialRegion: components["schemas"]["DerivedOfficialRegionResponse"];
+            queryLocality: components["schemas"]["QueryLocalityResponse"];
             /** Format: date-time */
-            createdAt: string;
+            verifiedAt: string;
         };
-        EvaluationDefinitionPreparationResponse: {
-            /** @enum {string} */
-            status: "PREPARING" | "READY" | "PLEASE_RETRY";
-            preparationId: string | null;
-            definition: components["schemas"]["EvaluationDefinitionResponse"] | null;
-        };
-        CurrentEvaluationDefinitionPreparationResponse: {
-            preparation: components["schemas"]["EvaluationDefinitionPreparationResponse"] | null;
-        };
-        EvaluationRecommendationIndexResponse: {
-            score: number;
-            stars: number;
-            mentionRate: number;
-            mentionCount: number;
-            validOpenSampleCount: number;
-        };
-        EvaluationTypicalPositionResponse: {
-            /** @enum {string} */
-            kind: "NONE" | "SINGLE" | "RANGE";
-            position?: number | null;
-            first?: number | null;
-            second?: number | null;
-        };
-        EvaluationCoverageResponse: {
-            validSampleCount: number;
-            totalSampleCount: number;
-            missingSampleCount: number;
-        };
-        EvaluationReportOverviewResponse: {
-            recommendationAssessment: string;
-            brandPerception: string;
-            recommendationIndex: components["schemas"]["EvaluationRecommendationIndexResponse"];
-            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
-            coverage: components["schemas"]["EvaluationCoverageResponse"];
-        };
-        EvaluationPlatformReportResponse: {
-            platformKey: string;
-            platformLabel: string;
-            validSampleCount: number;
-            totalSampleCount: number;
-            validOpenSampleCount: number;
-            mentionCount: number;
-            mentionRate: number;
-            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+        GeoOptimizationBrandResponse: {
+            /** Format: uuid */
+            id: string;
+            companyName: string;
+            primaryIndustryId: string | null;
+            secondaryIndustryId: string | null;
+            otherProductOrService: string | null;
+            flagshipProductOrService: string | null;
+            characteristics: components["schemas"]["BrandCharacteristicResponse"][];
+            articleInformation: components["schemas"]["BrandArticleInformationRequest"];
+            revision: number;
+            primaryIndustryLabel: string | null;
+            secondaryIndustryLabel: string | null;
+            storeLocation: components["schemas"]["BrandStoreLocationResponse"] | null;
+            readyForEvaluation: boolean;
+            missingFields: string[];
+            readyForArticleGeneration: boolean;
+            articleInformationMissingFields: string[];
         };
         EvaluationEvidenceSummaryResponse: {
             sampleCount: number;
             platforms: string[];
-        };
-        EvaluationThemeResponse: {
-            themeId: string;
-            label: string;
-            summary: string;
-            evidence: components["schemas"]["EvaluationEvidenceSummaryResponse"];
-        };
-        EvaluationThemesResponse: {
-            positive: components["schemas"]["EvaluationThemeResponse"][];
-            negative: components["schemas"]["EvaluationThemeResponse"][];
-        };
-        EvaluationCompetitorResponse: {
-            groupId: string;
-            displayName: string;
-            occurrenceCount: number;
-            platforms: string[];
-            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
         };
         EvaluationDirectionResponse: {
             directionId: string;
@@ -967,77 +1023,77 @@ export interface components {
             intendedImprovement: string;
             evidence: components["schemas"]["EvaluationEvidenceSummaryResponse"];
         };
-        EvaluationReportDocumentResponse: {
-            overview: components["schemas"]["EvaluationReportOverviewResponse"];
-            platforms: components["schemas"]["EvaluationPlatformReportResponse"][];
-            themes: components["schemas"]["EvaluationThemesResponse"];
-            competitors: components["schemas"]["EvaluationCompetitorResponse"][];
-            directions: components["schemas"]["EvaluationDirectionResponse"][];
-            limitations: string[];
-        };
-        EvaluationHighlightRangeResponse: {
-            start: number;
-            end: number;
-            exactText: string;
-            /** @enum {string} */
-            kind: "TARGET" | "POSITIVE" | "NEGATIVE" | "MIXED";
-        };
-        EvaluationReportSampleResponse: {
-            id: string;
-            platformKey: string;
-            platformLabel: string;
-            /** @enum {string} */
-            availability: "INCLUDED" | "NOT_INCLUDED";
-            mentioned: boolean | null;
-            position: number | null;
-            cardInterpretation: string | null;
-            originalAnswer: string | null;
-            highlightUnavailable: boolean;
-            highlights: components["schemas"]["EvaluationHighlightRangeResponse"][];
-        };
-        EvaluationReportQuestionResponse: {
-            id: string;
-            /** @enum {string} */
-            kind: "BRAND_DIRECTED" | "INDUSTRY_RECOMMENDATION" | "CHARACTERISTIC_ONE" | "CHARACTERISTIC_TWO";
-            ordinal: number;
-            content: string;
-            samples: components["schemas"]["EvaluationReportSampleResponse"][];
-        };
-        EvaluationReportResponse: {
-            id: string;
-            runId: string;
-            definitionId: string;
-            brandId: string;
-            brandSnapshot: components["schemas"]["EvaluationBrandSnapshotResponse"];
+        GeoOptimizationGuidanceResponse: {
+            /** Format: uuid */
+            guidanceId: string;
+            /** Format: date-time */
+            acceptedAt: string;
             brandInformationChanged: boolean;
+            customerDirections: components["schemas"]["EvaluationDirectionResponse"][];
+        };
+        GeoOptimizationGenerationFailureResponse: {
+            code: string;
+            message: string;
+        };
+        GeoOptimizationGenerationResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            brandId: string;
+            /** @enum {string} */
+            status: "RUNNING" | "SUCCEEDED" | "FAILED" | "NOT_APPLIED";
+            attemptCount: number;
+            failure: components["schemas"]["GeoOptimizationGenerationFailureResponse"] | null;
             /** Format: date-time */
             startedAt: string;
             /** Format: date-time */
-            acceptedAt: string;
-            document: components["schemas"]["EvaluationReportDocumentResponse"];
-            questions: components["schemas"]["EvaluationReportQuestionResponse"][];
+            finishedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
-        CurrentEvaluationReportResponse: {
-            report: components["schemas"]["EvaluationReportResponse"] | null;
-        };
-        EvaluationReportSummaryResponse: {
+        GeoOptimizationArticleResponse: {
+            /** Format: uuid */
             id: string;
-            runId: string;
+            /** Format: uuid */
             brandId: string;
-            brandName: string;
-            brandInformationChanged: boolean;
+            title: string;
+            bodyMarkdown: string;
+            /** @enum {string} */
+            status: "DRAFT" | "CONFIRMED";
+            revision: number;
+            confirmedRevision: number | null;
             /** Format: date-time */
-            startedAt: string;
+            confirmedAt: string | null;
             /** Format: date-time */
-            acceptedAt: string;
-            recommendationIndex: number;
-            mentionRate: number;
-            validSampleCount: number;
-            totalSampleCount: number;
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
-        EvaluationReportHistoryResponse: {
-            items: components["schemas"]["EvaluationReportSummaryResponse"][];
-            nextCursor: string | null;
+        GeoOptimizationFreshnessResponse: {
+            brandInformationChanged: boolean;
+            guidanceChanged: boolean;
+        };
+        GeoOptimizationWorkspaceResponse: {
+            brand: components["schemas"]["GeoOptimizationBrandResponse"] | null;
+            guidance: components["schemas"]["GeoOptimizationGuidanceResponse"] | null;
+            latestGeneration: components["schemas"]["GeoOptimizationGenerationResponse"] | null;
+            article: components["schemas"]["GeoOptimizationArticleResponse"] | null;
+            articleFreshness: components["schemas"]["GeoOptimizationFreshnessResponse"] | null;
+        };
+        GenerateCoreArticleRequest: {
+            idempotencyKey: string;
+            expectedBrandRevision: number;
+            expectedArticleRevision?: number;
+        };
+        SaveCoreArticleRequest: {
+            expectedRevision: number;
+            title: string;
+            bodyMarkdown: string;
+        };
+        ConfirmCoreArticleRequest: {
+            expectedRevision: number;
         };
         MediaCatalogRevisionResponse: {
             revision: string;
@@ -1360,70 +1416,185 @@ export interface components {
         NotificationReadAllResponse: {
             unreadCount: number;
         };
-        BrandCharacteristicResponse: {
-            /** Format: uuid */
+        EvaluationBrandSnapshotResponse: {
+            companyName: string;
+            primaryIndustry: string;
+            secondaryIndustry: string;
+            characteristicOne: string;
+            characteristicTwo: string;
+            province: string;
+            city: string;
+            district: string;
+        };
+        EvaluationQuestionResponse: {
             id: string;
-            title: string;
-            detail: string | null;
-        };
-        BrandArticleInformationRequest: {
-            price: ({
-                /** @enum {string} */
-                mode: "RANGE";
-                minimum: number;
-                maximum: number;
-            } | {
-                /** @enum {string} */
-                mode: "NEGOTIABLE";
-            }) | null;
-            suitableAudienceContexts: string[];
-            supplementalBackground: string | null;
-            desiredPositioning: string[];
-        };
-        StoreLocationCoordinateResponse: {
-            longitude: number;
-            latitude: number;
             /** @enum {string} */
-            system: "GCJ_02";
+            kind: "BRAND_DIRECTED" | "INDUSTRY_RECOMMENDATION" | "CHARACTERISTIC_ONE" | "CHARACTERISTIC_TWO";
+            ordinal: number;
+            content: string;
         };
-        RegionLabelResponse: {
-            id: string;
+        EvaluationPlatformResponse: {
+            key: string;
             label: string;
         };
-        CityRegionResponse: {
+        EvaluationRunResponse: {
             id: string;
-            label: string;
+            definitionId: string;
+            brandId: string;
             /** @enum {string} */
-            identityKind: "OFFICIAL_DIVISION" | "MUNICIPALITY_REPEAT" | "PROVINCE_DIRECT_GROUP";
-            officialDivisionId?: string | null;
-        };
-        OfficialRegionNodeResponse: {
-            id: string;
-            label: string;
-            officialCode: string;
-            /** @enum {string} */
-            officialLevel: "PROVINCE" | "PREFECTURE" | "COUNTY" | "TOWNSHIP";
-        };
-        DerivedOfficialRegionResponse: {
-            sourceReleaseId: string;
-            province: components["schemas"]["RegionLabelResponse"];
-            city: components["schemas"]["CityRegionResponse"];
-            terminal: components["schemas"]["OfficialRegionNodeResponse"];
-            officialPath: components["schemas"]["OfficialRegionNodeResponse"][];
-        };
-        QueryLocalityResponse: {
-            /** @enum {string} */
-            kind: "BUSINESS_AREA" | "ADDRESS_LOCALITY";
-            label: string;
-        };
-        BrandStoreLocationResponse: {
-            placeName: string;
-            formattedAddress: string;
-            coordinate: components["schemas"]["StoreLocationCoordinateResponse"];
-            officialRegion: components["schemas"]["DerivedOfficialRegionResponse"];
-            queryLocality: components["schemas"]["QueryLocalityResponse"];
+            status: "EVALUATING" | "COMPLETED" | "PLEASE_RETRY";
+            expectedSampleCount: number;
+            processedSampleCount: number;
+            validSampleCount: number;
+            unavailableSampleCount: number;
             /** Format: date-time */
-            verifiedAt: string;
+            startedAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        EvaluationDefinitionResponse: {
+            id: string;
+            brandId: string;
+            brandSnapshot: components["schemas"]["EvaluationBrandSnapshotResponse"];
+            questions: components["schemas"]["EvaluationQuestionResponse"][];
+            platforms: components["schemas"]["EvaluationPlatformResponse"][];
+            run?: components["schemas"]["EvaluationRunResponse"] | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        EvaluationDefinitionPreparationResponse: {
+            /** @enum {string} */
+            status: "PREPARING" | "READY" | "PLEASE_RETRY";
+            preparationId: string | null;
+            definition: components["schemas"]["EvaluationDefinitionResponse"] | null;
+        };
+        CurrentEvaluationDefinitionPreparationResponse: {
+            preparation: components["schemas"]["EvaluationDefinitionPreparationResponse"] | null;
+        };
+        EvaluationRecommendationIndexResponse: {
+            score: number;
+            stars: number;
+            mentionRate: number;
+            mentionCount: number;
+            validOpenSampleCount: number;
+        };
+        EvaluationTypicalPositionResponse: {
+            /** @enum {string} */
+            kind: "NONE" | "SINGLE" | "RANGE";
+            position?: number | null;
+            first?: number | null;
+            second?: number | null;
+        };
+        EvaluationCoverageResponse: {
+            validSampleCount: number;
+            totalSampleCount: number;
+            missingSampleCount: number;
+        };
+        EvaluationReportOverviewResponse: {
+            recommendationAssessment: string;
+            brandPerception: string;
+            recommendationIndex: components["schemas"]["EvaluationRecommendationIndexResponse"];
+            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+            coverage: components["schemas"]["EvaluationCoverageResponse"];
+        };
+        EvaluationPlatformReportResponse: {
+            platformKey: string;
+            platformLabel: string;
+            validSampleCount: number;
+            totalSampleCount: number;
+            validOpenSampleCount: number;
+            mentionCount: number;
+            mentionRate: number;
+            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+        };
+        EvaluationThemeResponse: {
+            themeId: string;
+            label: string;
+            summary: string;
+            evidence: components["schemas"]["EvaluationEvidenceSummaryResponse"];
+        };
+        EvaluationThemesResponse: {
+            positive: components["schemas"]["EvaluationThemeResponse"][];
+            negative: components["schemas"]["EvaluationThemeResponse"][];
+        };
+        EvaluationCompetitorResponse: {
+            groupId: string;
+            displayName: string;
+            occurrenceCount: number;
+            platforms: string[];
+            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+        };
+        EvaluationReportDocumentResponse: {
+            overview: components["schemas"]["EvaluationReportOverviewResponse"];
+            platforms: components["schemas"]["EvaluationPlatformReportResponse"][];
+            themes: components["schemas"]["EvaluationThemesResponse"];
+            competitors: components["schemas"]["EvaluationCompetitorResponse"][];
+            directions: components["schemas"]["EvaluationDirectionResponse"][];
+            limitations: string[];
+        };
+        EvaluationHighlightRangeResponse: {
+            start: number;
+            end: number;
+            exactText: string;
+            /** @enum {string} */
+            kind: "TARGET" | "POSITIVE" | "NEGATIVE" | "MIXED";
+        };
+        EvaluationReportSampleResponse: {
+            id: string;
+            platformKey: string;
+            platformLabel: string;
+            /** @enum {string} */
+            availability: "INCLUDED" | "NOT_INCLUDED";
+            mentioned: boolean | null;
+            position: number | null;
+            cardInterpretation: string | null;
+            originalAnswer: string | null;
+            highlightUnavailable: boolean;
+            highlights: components["schemas"]["EvaluationHighlightRangeResponse"][];
+        };
+        EvaluationReportQuestionResponse: {
+            id: string;
+            /** @enum {string} */
+            kind: "BRAND_DIRECTED" | "INDUSTRY_RECOMMENDATION" | "CHARACTERISTIC_ONE" | "CHARACTERISTIC_TWO";
+            ordinal: number;
+            content: string;
+            samples: components["schemas"]["EvaluationReportSampleResponse"][];
+        };
+        EvaluationReportResponse: {
+            id: string;
+            runId: string;
+            definitionId: string;
+            brandId: string;
+            brandSnapshot: components["schemas"]["EvaluationBrandSnapshotResponse"];
+            brandInformationChanged: boolean;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            acceptedAt: string;
+            document: components["schemas"]["EvaluationReportDocumentResponse"];
+            questions: components["schemas"]["EvaluationReportQuestionResponse"][];
+        };
+        CurrentEvaluationReportResponse: {
+            report: components["schemas"]["EvaluationReportResponse"] | null;
+        };
+        EvaluationReportSummaryResponse: {
+            id: string;
+            runId: string;
+            brandId: string;
+            brandName: string;
+            brandInformationChanged: boolean;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            acceptedAt: string;
+            recommendationIndex: number;
+            mentionRate: number;
+            validSampleCount: number;
+            totalSampleCount: number;
+        };
+        EvaluationReportHistoryResponse: {
+            items: components["schemas"]["EvaluationReportSummaryResponse"][];
+            nextCursor: string | null;
         };
         BrandResponse: {
             id: string;
@@ -1891,13 +2062,11 @@ export interface operations {
             };
         };
     };
-    EvaluationController_currentReport: {
+    GeoOptimizationController_workspace: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                brandId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1907,121 +2076,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CurrentEvaluationReportResponse"];
+                    "application/json": components["schemas"]["GeoOptimizationWorkspaceResponse"];
                 };
             };
         };
     };
-    EvaluationController_reportHistory: {
-        parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                brandId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EvaluationReportHistoryResponse"];
-                };
-            };
-        };
-    };
-    EvaluationController_reportDetail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                reportId: string;
-                brandId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EvaluationReportResponse"];
-                };
-            };
-        };
-    };
-    EvaluationController_observeDefinition: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                brandId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CurrentEvaluationDefinitionPreparationResponse"];
-                };
-            };
-        };
-    };
-    EvaluationController_prepareDefinition: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                brandId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EvaluationDefinitionPreparationResponse"];
-                };
-            };
-        };
-    };
-    EvaluationController_retryDefinitionPreparation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                preparationId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EvaluationDefinitionPreparationResponse"];
-                };
-            };
-        };
-    };
-    EvaluationController_startRun: {
+    GeoOptimizationController_generate: {
         parameters: {
             query?: never;
             header?: never;
@@ -2035,18 +2095,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EvaluationRunResponse"];
+                    "application/json": components["schemas"]["GeoOptimizationGenerationResponse"];
                 };
             };
         };
     };
-    EvaluationController_retryRun: {
+    GeoOptimizationController_retry: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                runId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2056,7 +2114,45 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EvaluationRunResponse"];
+                    "application/json": components["schemas"]["GeoOptimizationGenerationResponse"];
+                };
+            };
+        };
+    };
+    GeoOptimizationController_save: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoOptimizationArticleResponse"];
+                };
+            };
+        };
+    };
+    GeoOptimizationController_confirm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoOptimizationArticleResponse"];
                 };
             };
         };
@@ -2553,6 +2649,176 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    EvaluationController_currentReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentEvaluationReportResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_reportHistory: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                brandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationReportHistoryResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_reportDetail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reportId: string;
+                brandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationReportResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_observeDefinition: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentEvaluationDefinitionPreparationResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_prepareDefinition: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brandId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationDefinitionPreparationResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_retryDefinitionPreparation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preparationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationDefinitionPreparationResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_startRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationRunResponse"];
+                };
+            };
+        };
+    };
+    EvaluationController_retryRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationRunResponse"];
+                };
             };
         };
     };
