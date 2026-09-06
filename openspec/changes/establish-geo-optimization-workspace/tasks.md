@@ -13,14 +13,14 @@
 
 ## Stage 2 — Brand and upstream reads
 
-- [ ] Migrate Brand revision, writing fingerprint, structured characteristics
+- [x] Migrate Brand revision, writing fingerprint, structured characteristics
       and strict Article Information with verified backup/restore and unchanged
       existing Evaluation fingerprints.
-- [ ] Make all Brand updates use one expected revision and expose separate
+- [x] Make all Brand updates use one expected revision and expose separate
       Evaluation/Writer purpose projections and derived readiness.
 - [ ] Add the protected latest-successful Evaluation guidance read for GEO
       Optimization without exposing internal guidance to Web.
-- [ ] Verify Brand validation, CAS, migration, cross-account access and no-new-
+- [x] Verify Brand validation, CAS, migration, cross-account access and no-new-
       Evaluation-opportunity boundaries.
 
 ## Stage 3 — GEO Optimization backend
