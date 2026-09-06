@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Reference-choice replay verified; semantic brand grouping still experimental
+- Status: Layout candidate rejected; focused grouping supports the next report experiment
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -93,10 +93,23 @@ Schema. Both identical-input synthesis calls pass reference checks in 38.821 and
 validity, not semantic grouping or a causal/full-evaluation speedup; the second
 call also uses cached input. No further calls are appended to either batch.
 
-Next simplify the grouping input around a clearly paired brand-record list and
-necessary source context, rather than more name prohibitions or arbitrary ID
-generation. Keep the existing single-call Parser and test that narrow seam before
-selecting any new synthesis topology. The owner-confirmed alias remains accepted;
+The approved lossless layout-only comparison stops after its first pair: the
+baseline duplicates membership, while flat input puts all 45 records in one
+group. Do not adopt that layout as the fix. A separately frozen final two-call
+diagnostic supplies the same brand records/excerpts but asks only for grouping,
+without target narrative/context. Both avoid the owner-confirmed wrong target
+grouping; one returns seven broadly reasonable groups, while the other still
+misassigns a store-qualified record and leaves some duplicates separate.
+The focused calls take 38.226/42.651 seconds, not full-report time. Task, context
+and output scope change together; the result supports another bounded experiment,
+not proof of a layout root cause, stable quality or a selected two-Agent runtime.
+
+Next validate a minimal complete report composition: focused brand grouping,
+target narrative/evidence and program-owned statistics must agree. Measure the
+combined calls, token usage and elapsed time, then select the smallest supported
+execution arrangement with #41. Do not add queues/tables or preselect independent
+retry components merely because the diagnostic has two responsibilities. Keep
+the existing single-call Parser. The owner-confirmed alias remains accepted;
 another relation inferred only by the model is an observation, not a newly
 confirmed fact or a reason for a master identity system. Keep full source,
 ordinary recommendation tolerance and broad practical directions. Do not add
@@ -105,7 +118,7 @@ merchant matrix follows the targeted replay; it is not a repeated sweep of an
 unchanged failing package. #41 retains final synthesis/customer-report ownership.
 
 Langfuse contains actual model input/output and operational metadata only;
-the original 42 and new 6/5 private observations have been read back against the wire. Independent review
+each completed batch's private observations have been read back against the wire. Independent review
 and the raw readable preview remain local. Actual UI/database/recovery, runtime
 activation and formal 17/20 report acceptance remain unverified. Trace logging
 does not complete #49 Prompt Management mirroring.

@@ -35,14 +35,17 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
 - [x] Restore prior Parser scope plus optional owner context (1.4.0), constrain
       synthesis reference choices (1.3.0), and complete the separately frozen
       four calls. Both repeated synthesis references pass; semantic groups do not.
-- [ ] Repair only demonstrated brand-identity/statistics boundaries:
-      named subject versus unnamed description;
-      same-brand grouping versus thematic grouping; one program-owned count.
-      Diagnose the retained direct-Parser malformed-name output at its own seam.
-- [ ] Simplify brand grouping input into clearly paired names/record IDs and
-      necessary source context, then freeze a narrow real replay. Keep original
-      outputs and actual model IO; do not add a strict alias registry, another
-      Parser Agent, silent repair or a mandatory topology comparison.
+- [x] Test the lossless input-layout candidate with unchanged task/model/Schema;
+      stop after 2/4, retain failed output and do not adopt the flat layout as a fix.
+- [x] Execute the separate final two-call grouping-only diagnostic on the same
+      brand records. Confirm useful improvement and preserve the remaining
+      store-name/member and incomplete-grouping differences; do not claim stability.
+- [ ] Freeze a minimal complete report-composition test using focused grouping,
+      target evidence/narrative and program-owned counts. Check agreement and
+      total token/time across all required calls before selecting runtime topology.
+- [ ] Review the remaining named/unnamed, member and direct-Parser failure cases
+      by their actual report impact; retain imperfect results rather than silently
+      repairing them or turning every historical case into an indefinite gate.
 - [ ] Recheck the final readable report and core statistics at the practical
       quality bar. The historical coffee case remains an observation/regression,
       not an indefinite tuning gate. Do not resume every old topology comparison.

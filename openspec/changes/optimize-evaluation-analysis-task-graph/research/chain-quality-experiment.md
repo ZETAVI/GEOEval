@@ -2131,3 +2131,128 @@ Main remains observed at `5fb4400`; other worktrees are unchanged.
 | Candidate result | ced37eae5d067b8f59f094780ba26abdbd462508daaf343b1f79c0fe0c5e7e3f |
 | Repeat result | 97e06078f561de57f310e2f1b4bc9a363da8b098afc2590e20459d2a6aa6379e |
 | Runner | e3c4195b50468739ca79c94c2368c02c005f8b42c39bc698b67b543fbc254651 |
+
+## Lossless flat layout — rejected candidate
+
+The owner confirms the observed store-name grouping is reasonable and the two
+other-brand records assigned to the target are incorrect. This provides concrete
+positive/negative checks without a stricter entity or spelling standard. The
+owner approves testing input organization as a hypothesis, not a proven cause.
+
+At `31b4df9fd94ea9a7c38bb339aa1159b9a0492c3e`, manifest
+`29e177259ec37a20bd8a909151967e570ca5973bdad8c320db49585a1c6ea61e`
+freezes two original/flat synthesis pairs, maximum four calls. Both arms use the
+same retained 19 samples and 45 brand records, instruction, finite-reference
+Schema/version, model and medium effort. A pure optional projection moves other
+brands into a root list with ID/name adjacency and parent sample IDs, keeping all
+record fields and excerpts. Target descriptions and question/platform information
+remain separately in samples. Round-trip reconstruction proves no source clipping,
+semantic alteration, renumbering or program-count change; default input is intact.
+
+Execution stops after the first pair, 2026-09-06 14:25:17.776–14:26:18.644 UTC.
+Both Providers return successfully. The baseline assigns some records twice and
+fails the existing membership check. Flat layout passes references but puts all
+45 records into one consumer-brand group, including the owner-confirmed wrong
+members; the valid store-name grouping is not retained as its own group. This
+candidate does not meet practical quality. The second pair is **not run** under
+the frozen stop condition; no third pair or tuning is appended.
+
+| Arm | Input tokens | Output tokens | Latency | Result |
+| --- | --- | --- | --- | --- |
+| Original layout | 15,986 | 7,854 | 60,203 ms | Repeated membership, quality rejected |
+| Flat layout | 16,275 | 3,469 | 50,359 ms | Valid IDs, incorrect all-record grouping |
+
+Total 43,584 reported tokens; 60.868-second batch wall time, concurrency two,
+zero reported cached input in both arms. Flat context is 30,525 characters versus
+29,777 in the original because parent IDs are explicit; token reduction was not
+claimed. Shorter output/latency does not make incorrect grouping an improvement,
+and this one incomplete pair establishes neither long-run quality nor a universal
+claim about flat input. Reject adoption of this specific layout as the fix.
+
+The raw request pair is checked offline after the stop: everything except the
+user-context layout is identical, and source/count reconstruction remains exact.
+38 focused tests, Backend typecheck/build, framework/links/diff and independent
+fixed-diff/runner review pass for the projection, not the semantic candidate.
+Three private observations (root `3334d6c1f33fc091` plus two generations) match
+actual IO/settings/usage on readback. [Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/e921be522564307ef025a4787c716352).
+Detailed raw output and business review stay local at
+`apps/backend/.provider-evidence/m4-flat-layout-sLVXnw/`.
+
+The next separately frozen two-call diagnostic removes target narrative/context
+and asks only for grouping the same brand records. It changes task, context and
+output scope together, rather than rerunning the layout hypothesis. It does not
+select runtime topology or add an Agent/queue. No new sampling, Parser, retry,
+fallback, model/effort change or production activation occurs.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 414489b25f4c47b8d11383c7e76f9c642ac077a9dfd6c3d62b009ab67317a18c |
+| Summary | d116f978b4b074022059334d430470659d74d1c0d3ec2f476c45bb92771fd256 |
+| Actual handoff | 11063fc0be0786e09b82256915ea98888232e3710864db3dd53cfa68da1d8a47 |
+| Original result | e96dacc02a324c78d9cc42a038d8eed3997f41fc9a1e8b7b9aed3e5575532bac |
+| Flat result | f894b94d9bb81e4c45307636692098641671efe123dfb8bea8a753267bd1e4ca |
+| Runner | eab999159a0129104ccd19fcf034953af6bfefc0b145374e533ca2e411192ba7 |
+
+## Focused brand grouping — useful but incomplete transfer
+
+After the stopped layout pair, `43eac1d9d8c80186a74c8f876b69c306c6eabe47`
+records a separate final diagnostic with manifest
+`6ff80b951f91410080c06af69b9ebd9ff0f8a835d16c8d6dd027ab1b2a8abfe6`.
+Two identical requests receive the same 45 brand records, all record fields and
+excerpts, but no target narrative/context or sample-theme generation task.
+Output contains only name groups with the existing finite brand-ID shape.
+The current Qwen3.8 Flash medium route, original record eligibility, membership
+uniqueness and distinct-sample counts remain unchanged. This changes task,
+context and output scope together, not only input layout. It adds no runtime
+Agent or accepted topology and does not constitute a complete report.
+
+Both calls complete 2026-09-06 14:36:09.498–14:36:53.616 UTC, with valid group
+structure/references. Identical actual wire requests and equality of all 45
+source records are checked. No acquisition/Parser call, automatic retry,
+fallback, model/effort/billing change or follow-on batch occurs.
+
+| Call | Input tokens | Output tokens | Latency |
+| --- | --- | --- | --- |
+| Group-only 1 | 11,413 | 3,951 | 42,651 ms |
+| Group-only 2 | 11,413 | 3,890 | 38,226 ms |
+
+Total 30,667 provider-reported tokens; wall time 44.118 seconds, concurrency two.
+The first call reports 11,264 cached input tokens and the second zero. These are
+grouping-only timings, not a complete synthesis or four-by-five evaluation.
+Do not infer total-runtime savings, billed cost, or long-run stability.
+
+Independent local review finds both outputs avoid the owner-confirmed erroneous
+target assignment. The second returns seven broadly reasonable groups under
+the supplied context and accepted consumer-brand meaning. The first still
+misassigns one store-qualified member and leaves some repeated names separate.
+Its leading preview counts happen to equal the second result, but this does not
+make the memberships equivalent or establish formal ranking acceptance. Retain
+both outputs rather than selecting the better repetition as proof of success.
+
+This supports testing more focused responsibilities in the next minimal report
+composition; it does not prove that target context alone caused the prior error,
+accept a two-Agent architecture, fix source/Parser residuals, or complete #41.
+Keep all successful per-sample facts and program statistics separate from model
+name grouping. Check combined report consistency and total calls/time before
+choosing execution or recovery changes; new workflow components are not implied.
+
+The same 38 focused projection/contract tests, Backend typecheck/build and
+framework/links/diff evidence remain applicable; no tracked executable code
+changes after `31b4df9`. The focused runner has its own bounded read-only review
+and offline group-membership/count checks. Three private observations (root
+`c8b45826def8d540` plus two generations) match actual model IO/settings/usage on
+readback. [Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/6d3f80f60dd86b7cbbba49b6d22270c8).
+The raw results and business-level review remain local at
+`apps/backend/.provider-evidence/m4-group-focus-gSak1w/`.
+Main is observed at `5fb4400`; no formal report/UI/DB/recovery, #49 mirror,
+production, merge or other-worktree change is claimed.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 1f56233f2acad61ef6a2f77958eae69c7698a84946e2e2a5780f97bdbc30aab7 |
+| Summary | dab67ff3cf824e169b995c84054f2cccfa90e745b469dc1fba342812e7955385 |
+| Grouping handoff | 8173eb601c5b9b4451e192c8a0ae7f5ea59748323d1bc6e19f514e625e158fe0 |
+| Identical wire check | 93f5158a90781fb43a6047202de20aa75394c1ce3a5cd6e8d18b2e1beb7be491 |
+| Result 1 | 25f41300045d725ed3fdbdee686d09186d755aa47fbd0c1207f09c9bcba6ebac |
+| Result 2 | 1a0ce7be67c62c20697237da21e82f13e5b5bf39bc9f6b0969aae58191e25cb6 |
+| Runner | d9754bc5dc51f626108712fdc77cad6bcdb5efb18a18b153dbd49a106afc7d58 |
