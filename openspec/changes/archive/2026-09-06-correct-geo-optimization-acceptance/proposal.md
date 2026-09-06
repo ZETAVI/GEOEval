@@ -1,4 +1,4 @@
-# Change: 修复 GEO 优化原验收缺口
+# Archived change: 修复 GEO 优化原验收缺口
 
 - Owner: [Issue #57](https://github.com/ZETAVI/GEOEval/issues/57)
 - Class: Architectural security correction; restores already approved behavior

@@ -1,4 +1,4 @@
-# Correction design
+# Accepted correction design
 
 ## Architecture readiness
 
