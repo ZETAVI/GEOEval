@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   buildM4ChainSynthesisTask,
+  buildM4ReportCompositionTasks,
+  composeM4ReportPreview,
   flattenM4ChainSynthesisTask,
+  inspectM4BrandGroupingOutput,
   inspectM4ChainSynthesisOutput,
+  inspectM4TargetNarrativeOutput,
 } from "../src/ai-execution/controlled-validation/m4-chain-synthesis.js";
 
 const source = "1. 山岚咖啡（Hill Coffee）值得考虑。\n2. 不建议晴川咖啡。";
@@ -45,6 +49,100 @@ const output = () => ({
 });
 
 describe("M4 real-chain synthesis preview", () => {
+  it("separates component contexts without changing evidence, scope or bounded schemas", () => {
+    const task = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      inputs,
+      4,
+      "用户提供的品牌背景。",
+    );
+    const before = structuredClone(task);
+    const { grouping, narrative } = buildM4ReportCompositionTasks(task);
+    const flat = flattenM4ChainSynthesisTask(task);
+    const { otherBrands, ...targetContext } = flat.userContext;
+    expect(grouping.userContext).toEqual({ otherBrands });
+    expect(narrative.userContext).toEqual(targetContext);
+    expect(narrative.userContext.samples[0]).not.toHaveProperty("otherBrands");
+    expect(grouping.outputContract.jsonSchema.properties).toEqual({
+      brandGroups: task.outputContract.jsonSchema.properties!.brandGroups,
+    });
+    const { brandGroups: _groups, ...targetProperties } =
+      task.outputContract.jsonSchema.properties!;
+    expect(narrative.outputContract.jsonSchema.properties).toEqual(
+      targetProperties,
+    );
+    expect(grouping.outputContract.jsonSchema.required).toEqual([
+      "brandGroups",
+    ]);
+    expect(narrative.outputContract.jsonSchema.required).toEqual(
+      Object.keys(targetProperties),
+    );
+    expect(task).toEqual(before);
+    const empty = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      inputs.map((s) => ({
+        ...s,
+        parsedOutput: { target: null, otherBrands: [] },
+      })),
+    );
+    expect(
+      buildM4ReportCompositionTasks(empty).grouping.outputContract.jsonSchema,
+    ).toMatchObject({ properties: { brandGroups: { maxItems: 0 } } });
+  });
+  it("assembles both raw components with the same counts and no semantic repair", () => {
+    const task = buildM4ChainSynthesisTask("青禾咖啡", inputs, 4);
+    const full = output();
+    const { brandGroups, ...narrative } = full;
+    const grouping = { brandGroups };
+    const before = structuredClone({ task, grouping, narrative });
+    expect(composeM4ReportPreview(grouping, narrative, task)).toEqual(
+      inspectM4ChainSynthesisOutput(full, task),
+    );
+    expect(
+      inspectM4BrandGroupingOutput(grouping, task).competitorPreview,
+    ).toEqual(inspectM4ChainSynthesisOutput(full, task).competitorPreview);
+    expect(inspectM4TargetNarrativeOutput(narrative, task).output).toEqual(
+      narrative,
+    );
+    expect({ task, grouping, narrative }).toEqual(before);
+    // Reference validity is not proof of correct brand identity.
+    const wrongButReferentiallyValid = {
+      brandGroups: [{ displayName: "另一个品牌", members: ["s1-b1", "s1-b2"] }],
+    };
+    expect(
+      composeM4ReportPreview(wrongButReferentiallyValid, narrative, task).output
+        .brandGroups,
+    ).toEqual(wrongButReferentiallyValid.brandGroups);
+  });
+  it("rejects missing, cross-task and invalid-reference components without a partial preview", () => {
+    const task = buildM4ChainSynthesisTask("青禾咖啡", inputs);
+    const { brandGroups, ...narrative } = output();
+    const grouping = { brandGroups };
+    expect(() => composeM4ReportPreview(undefined, narrative, task)).toThrow();
+    expect(() => composeM4ReportPreview(grouping, undefined, task)).toThrow();
+    expect(() => composeM4ReportPreview(output(), narrative, task)).toThrow();
+    expect(() => inspectM4TargetNarrativeOutput(output(), task)).toThrow();
+    const badNarrative = {
+      ...narrative,
+      directions: [{ ...narrative.directions[0], sampleIds: ["s9"] }],
+    };
+    expect(() => inspectM4TargetNarrativeOutput(badNarrative, task)).toThrow(
+      "Unknown evidence sample",
+    );
+    expect(() => composeM4ReportPreview(grouping, badNarrative, task)).toThrow(
+      "Unknown evidence sample",
+    );
+    for (const members of [
+      ["s1-b1", "s9-b1"],
+      ["s1-b1", "s1-b1"],
+    ]) {
+      const badGrouping = { brandGroups: [{ displayName: "山岚", members }] };
+      expect(() => inspectM4BrandGroupingOutput(badGrouping, task)).toThrow();
+      expect(() =>
+        composeM4ReportPreview(badGrouping, narrative, task),
+      ).toThrow();
+    }
+  });
   it("flattens only brand placement and preserves a lossless source-shaped reconstruction", () => {
     const task = buildM4ChainSynthesisTask(
       "青禾咖啡",

@@ -69,20 +69,27 @@ const sourceBackedSchema = m4CustomerSummarySchema.extend({
     }),
   ),
 });
-const prompt = z
-  .object({ id: z.string(), version: z.string(), content: z.string().min(1) })
-  .strict()
-  .parse(
-    JSON.parse(
-      readFileSync(
-        new URL(
-          "../../../geo-intelligence/experiments/m4-chain-synthesis.json",
-          import.meta.url,
+function loadPrompt(fileName: string) {
+  return z
+    .object({ id: z.string(), version: z.string(), content: z.string().min(1) })
+    .strict()
+    .parse(
+      JSON.parse(
+        readFileSync(
+          new URL(
+            `../../../geo-intelligence/experiments/${fileName}.json`,
+            import.meta.url,
+          ),
+          "utf8",
         ),
-        "utf8",
       ),
-    ),
-  );
+    );
+}
+const prompt = loadPrompt("m4-chain-synthesis");
+const groupingPrompt = loadPrompt("m4-brand-grouping");
+const narrativePrompt = loadPrompt("m4-target-narrative");
+const groupingSchema = m4ChainSynthesisSchema.pick({ brandGroups: true });
+const narrativeSchema = m4ChainSynthesisSchema.omit({ brandGroups: true });
 
 export type M4ChainSample = {
   sampleId: string;
@@ -265,11 +272,46 @@ export function flattenM4ChainSynthesisTask(
   };
 }
 
-export function inspectM4ChainSynthesisOutput(
-  value: unknown,
+// Experimental task split only; neither component consumes the other's output.
+export function buildM4ReportCompositionTasks(
   task: ReturnType<typeof buildM4ChainSynthesisTask>,
 ) {
-  const output = m4ChainSynthesisSchema.parse(value);
+  const { otherBrands, ...narrativeContext } =
+    flattenM4ChainSynthesisTask(task).userContext;
+  const { brandGroups, ...narrativeProperties } =
+    task.outputContract.jsonSchema.properties!;
+  const contract = (
+    asset: typeof prompt,
+    properties: NonNullable<typeof task.outputContract.jsonSchema.properties>,
+  ) => ({
+    version: `${asset.id}@${asset.version}`,
+    jsonSchema: {
+      type: "object" as const,
+      properties,
+      required: Object.keys(properties),
+      additionalProperties: false,
+    },
+  });
+  return {
+    grouping: {
+      taskKind: "STRUCTURED_OUTPUT" as const,
+      systemInstruction: groupingPrompt.content,
+      userContext: { otherBrands },
+      outputContract: contract(groupingPrompt, { brandGroups: brandGroups! }),
+    },
+    narrative: {
+      taskKind: "STRUCTURED_OUTPUT" as const,
+      systemInstruction: narrativePrompt.content,
+      userContext: narrativeContext,
+      outputContract: contract(narrativePrompt, narrativeProperties),
+    },
+  };
+}
+
+function validateNarrativeReferences(
+  output: z.infer<typeof narrativeSchema>,
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
   const sampleIds = new Set(task.userContext.samples.map((s) => s.sampleId));
   for (const item of [
     ...output.positiveThemes,
@@ -279,6 +321,12 @@ export function inspectM4ChainSynthesisOutput(
     for (const sampleId of item.sampleIds)
       if (!sampleIds.has(sampleId)) throw new Error("Unknown evidence sample");
   }
+}
+
+function projectBrandGroups(
+  output: z.infer<typeof groupingSchema>,
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
   const brands = task.userContext.samples.flatMap((sample) =>
     sample.otherBrands.map((brand) => ({
       ...brand,
@@ -300,7 +348,7 @@ export function inspectM4ChainSynthesisOutput(
       .filter((b) => !assigned.has(b.id))
       .map((b) => ({ displayName: b.displayName, members: [b.id] })),
   );
-  const competitorPreview = groups
+  return groups
     .map((group) => ({
       ...group,
       positiveSampleCount: new Set(
@@ -311,5 +359,46 @@ export function inspectM4ChainSynthesisOutput(
       ).size,
     }))
     .filter((group) => group.positiveSampleCount > 0);
-  return { output, coverage: task.userContext.coverage, competitorPreview };
+}
+
+export function inspectM4BrandGroupingOutput(
+  value: unknown,
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
+  const output = groupingSchema.parse(value);
+  return { output, competitorPreview: projectBrandGroups(output, task) };
+}
+
+export function inspectM4TargetNarrativeOutput(
+  value: unknown,
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
+  const output = narrativeSchema.parse(value);
+  validateNarrativeReferences(output, task);
+  return { output };
+}
+
+export function inspectM4ChainSynthesisOutput(
+  value: unknown,
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
+  const output = m4ChainSynthesisSchema.parse(value);
+  validateNarrativeReferences(output, task);
+  return {
+    output,
+    coverage: task.userContext.coverage,
+    competitorPreview: projectBrandGroups(output, task),
+  };
+}
+
+// Both raw components are required. No prose/identity repair or partial report.
+export function composeM4ReportPreview(
+  grouping: unknown,
+  narrative: unknown,
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
+  return inspectM4ChainSynthesisOutput(
+    { ...groupingSchema.parse(grouping), ...narrativeSchema.parse(narrative) },
+    task,
+  );
 }

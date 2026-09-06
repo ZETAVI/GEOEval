@@ -11,6 +11,36 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
+### Approved minimal report-composition experiment
+
+The owner approves continuing from the focused grouping evidence and judging
+optimization against complete evaluation time. This standard, reversible slice
+stays in the existing controlled-validation helper. Reuse the exact focused
+grouping instruction, all brand records/excerpts and finite member choices.
+A separate target-narrative task receives the unchanged target evidence, sample
+summaries, question/platform scope, owner context and program coverage, without
+the other-brand records. It writes the existing overview/themes/directions;
+it does not group competitors or calculate metrics. Both components must pass
+the existing structure/reference checks before program-owned preview assembly.
+No repair, new semantic gate, runtime Agent, persistence, queue or contract is added.
+
+Freeze two composition rounds, each with the grouping and narrative calls in
+parallel: four calls maximum, concurrency two, same medium model/route. Reuse
+the retained 19-sample handoff, including known upstream ambiguities; do not
+resample, replace parses, retry, fall back or tune between rounds. Stop queued
+rounds on Provider/structural failure and settle started requests. Keep both
+raw outputs and composed previews, review practical agreement locally, and
+measure each complete composition's elapsed time plus combined tokens. Only
+actual model IO/operational metadata goes to private Langfuse. This measures
+analysis composition, not a new full evaluation or formal report acceptance.
+
+Architecture readiness: ready for the owner-local experiment. Reuse the full
+inspector's reference and count rules, require both components, and test context
+separation plus unchanged assembly. The live uncertainty is whether focused
+grouping remains useful alongside an independently written target narrative;
+two complete previews discriminate the next runtime decision without selecting
+tables or recovery topology in advance.
+
 ### Approved input-layout comparison
 
 The owner accepts the observed same-brand store-name grouping and explicitly
