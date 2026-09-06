@@ -8,14 +8,14 @@ without implementing real writing, material parsing or commerce.
 
 ## Ownership and dependency direction
 
-| Owner | Owns | Does not own |
-| --- | --- | --- |
-| Brand Knowledge | Current Brand, characteristic structure, Article Information, readiness, revision and purpose projections | Article body, Evaluation guidance, Writer execution or orders |
-| Evaluation Report | Immutable reports and latest successful protected/customer guidance reads | Current Brand facts or article state |
-| GEO Optimization | WriterInputSnapshot, generation execution, current Core Article and customer workspace | Brand copies, real Provider policy, materials or commerce |
-| Writer Port | Provider-neutral Request/Result behavior | Repositories, business state, retries or customer UI |
-| Future Brand Materials | Upload, preparation and optional prepared Markdown | Current Brand fields or article lifecycle |
-| Future Publishing Commerce | Package/point/order transaction and immutable purchase snapshot | Editable current article or generation |
+| Owner                      | Owns                                                                                                      | Does not own                                                  |
+| -------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Brand Knowledge            | Current Brand, characteristic structure, Article Information, readiness, revision and purpose projections | Article body, Evaluation guidance, Writer execution or orders |
+| Evaluation Report          | Immutable reports and latest successful protected/customer guidance reads                                 | Current Brand facts or article state                          |
+| GEO Optimization           | WriterInputSnapshot, generation execution, current Core Article and customer workspace                    | Brand copies, real Provider policy, materials or commerce     |
+| Writer Port                | Provider-neutral Request/Result behavior                                                                  | Repositories, business state, retries or customer UI          |
+| Future Brand Materials     | Upload, preparation and optional prepared Markdown                                                        | Current Brand fields or article lifecycle                     |
+| Future Publishing Commerce | Package/point/order transaction and immutable purchase snapshot                                           | Editable current article or generation                        |
 
 Dependency direction is:
 
@@ -246,14 +246,13 @@ branch, Change, implementation authorization or acceptance claim.
 
 ## Documentation reconciliation
 
-On acceptance:
-
-- create `openspec/specs/geo-optimization/spec.md` from the accepted capability;
-- update Brand Knowledge and Evaluation Report current specs;
-- replace the old Article Information/material scenarios in Product Definition
-  and execute its `split-on-activation` marker for GEO Optimization;
-- update Product Vision, Glossary and Architecture Overview once;
-- archive this Change only after code, current specs, evidence and Issue agree.
+Brand Knowledge, Evaluation guidance reads and the accepted GEO Optimization
+backend lifecycle are reconciled into their current specs. Product Definition's
+activation marker now links the owner-local GEO Optimization contract, while the
+outdated Article Information/material and Writer-Skill assumptions have been
+removed from Product Definition, Vision and Glossary. The active delta now owns
+only the unfinished terminal-customer API and Web journey. Archive this Change
+only after that journey, final evidence and Issue state agree.
 
 ## Verification strategy
 

@@ -29,18 +29,21 @@
 
 ## Stage 3 — GEO Optimization backend
 
-- [ ] Add owner-local WriterInputSnapshot, ArticleGeneration and CoreArticle
+- [x] Add owner-local WriterInputSnapshot, ArticleGeneration and CoreArticle
       persistence with one-current-article and one-active-generation invariants.
-- [ ] Implement the provider-neutral Writer Port and deterministic local Adapter;
+- [x] Implement the provider-neutral Writer Port and deterministic local Adapter;
       keep prepared material null and make production/real-Provider composition
       fail closed.
-- [ ] Implement idempotent generate/retry, explicit replacement authorization,
+- [x] Implement idempotent generate/retry, explicit replacement authorization,
       transaction-outside Writer calls, failure preservation and article-revision
       conditional completion.
-- [ ] Implement explicit article save, confirm and confirmed-to-draft editing plus
+- [x] Implement explicit article save, confirm and confirmed-to-draft editing plus
       the confirmed-article Future Order read boundary.
-- [ ] Verify duplicate requests, failure, freshness, not-applied conflicts,
+- [x] Verify duplicate requests, failure, freshness, not-applied conflicts,
       stale revisions, cross-account denial and current-article preservation.
+- [x] Reconcile the activated backend into the GEO Optimization current spec,
+      Product Definition, Vision, Glossary and Architecture Overview; retain only
+      the unfinished customer API/Web delta in this active Change.
 
 ## Stage 4 — API and customer workspace
 

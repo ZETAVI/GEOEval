@@ -125,6 +125,18 @@ enum EvaluationSearchObservation {
   UNKNOWN
 }
 
+enum ArticleGenerationStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+  NOT_APPLIED
+}
+
+enum CoreArticleStatus {
+  DRAFT
+  CONFIRMED
+}
+
 enum NotificationKind {
   EVALUATION_COMPLETED
   EVALUATION_RETRY_REQUIRED
@@ -297,6 +309,9 @@ model BrandProfile {
   evaluationDefinitions     EvaluationDefinition[]          @relation("BrandEvaluationDefinitions")
   questionPreparations      EvaluationQuestionPreparation[] @relation("BrandQuestionPreparations")
   storeLocation             BrandStoreLocation?
+  writerInputSnapshots      WriterInputSnapshot[]           @relation("BrandWriterInputSnapshots")
+  articleGenerations        ArticleGeneration[]             @relation("BrandArticleGenerations")
+  coreArticle               CoreArticle?                    @relation("BrandCoreArticle")
 
   @@unique([id, accountId])
   @@index([accountId, status, updatedAt])
@@ -473,8 +488,10 @@ model EvaluationRun {
   synthesis            EvaluationSynthesis?
   report               EvaluationReport?
   optimizationGuidance EvaluationOptimizationGuidance?
+  writerInputSnapshots WriterInputSnapshot[]           @relation("GuidanceRunWriterSnapshots")
 
   @@unique([id, definitionId])
+  @@unique([id, accountId, brandId], map: "evaluation_runs_id_account_brand_key")
   @@unique([definitionId, accountId, brandId])
   @@index([accountId, brandId, startedAt])
   @@map("evaluation_runs")
@@ -673,16 +690,91 @@ model EvaluationReport {
 }
 
 model EvaluationOptimizationGuidance {
-  id              String              @id @default(uuid()) @db.Uuid
-  runId           String              @unique @map("run_id") @db.Uuid
-  synthesisId     String              @unique @map("synthesis_id") @db.Uuid
-  guidancePayload Json                @map("guidance_payload")
-  acceptedAt      DateTime            @default(now()) @map("accepted_at")
-  run             EvaluationRun       @relation(fields: [runId], references: [id], onDelete: Restrict)
-  synthesis       EvaluationSynthesis @relation(fields: [synthesisId, runId], references: [id, runId], onDelete: Restrict, map: "eval_guidance_synthesis_run_fkey")
+  id              String                @id @default(uuid()) @db.Uuid
+  runId           String                @unique @map("run_id") @db.Uuid
+  synthesisId     String                @unique @map("synthesis_id") @db.Uuid
+  guidancePayload Json                  @map("guidance_payload")
+  acceptedAt      DateTime              @default(now()) @map("accepted_at")
+  run             EvaluationRun         @relation(fields: [runId], references: [id], onDelete: Restrict)
+  synthesis       EvaluationSynthesis   @relation(fields: [synthesisId, runId], references: [id, runId], onDelete: Restrict, map: "eval_guidance_synthesis_run_fkey")
+  writerSnapshots WriterInputSnapshot[] @relation("GuidanceWriterSnapshots")
 
   @@unique([synthesisId, runId], map: "eval_guidance_synthesis_run_key")
+  @@unique([id, runId], map: "evaluation_guidance_id_run_key")
   @@map("evaluation_optimization_guidance")
+}
+
+model WriterInputSnapshot {
+  id                              String                         @id @default(uuid()) @db.Uuid
+  accountId                       String                         @map("account_id") @db.Uuid
+  brandId                         String                         @map("brand_id") @db.Uuid
+  sourceBrandRevision             Int                            @map("source_brand_revision")
+  sourceWritingContextFingerprint String                         @map("source_writing_context_fingerprint") @db.Char(64)
+  evaluationGuidanceId            String                         @map("evaluation_guidance_id") @db.Uuid
+  evaluationGuidanceRunId         String                         @map("evaluation_guidance_run_id") @db.Uuid
+  requestContractVersion          String                         @map("request_contract_version") @db.VarChar(80)
+  writerRequest                   Json                           @map("writer_request")
+  generationPolicyId              String                         @map("generation_policy_id") @db.VarChar(80)
+  generationPolicyVersion         String                         @map("generation_policy_version") @db.VarChar(40)
+  generationPolicyHash            String                         @map("generation_policy_hash") @db.Char(64)
+  createdAt                       DateTime                       @default(now()) @map("created_at")
+  brand                           BrandProfile                   @relation("BrandWriterInputSnapshots", fields: [brandId, accountId], references: [id, accountId], onDelete: Restrict, map: "writer_input_snapshots_brand_fkey")
+  evaluationGuidance              EvaluationOptimizationGuidance @relation("GuidanceWriterSnapshots", fields: [evaluationGuidanceId, evaluationGuidanceRunId], references: [id, runId], onDelete: Restrict, map: "writer_input_snapshots_guidance_fkey")
+  evaluationGuidanceRun           EvaluationRun                  @relation("GuidanceRunWriterSnapshots", fields: [evaluationGuidanceRunId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict, map: "writer_input_snapshots_guidance_run_owner_fkey")
+  generation                      ArticleGeneration?
+
+  @@unique([id, accountId, brandId], map: "writer_input_snapshots_id_account_brand_key")
+  @@index([accountId, brandId, createdAt], map: "writer_input_snapshots_account_brand_created_idx")
+  @@map("writer_input_snapshots")
+}
+
+model ArticleGeneration {
+  id                      String                  @id @default(uuid()) @db.Uuid
+  accountId               String                  @map("account_id") @db.Uuid
+  brandId                 String                  @map("brand_id") @db.Uuid
+  snapshotId              String                  @map("snapshot_id") @db.Uuid
+  idempotencyKey          String                  @map("idempotency_key") @db.VarChar(120)
+  status                  ArticleGenerationStatus @default(RUNNING)
+  attemptCount            Int                     @default(1) @map("attempt_count")
+  expectedArticleRevision Int?                    @map("expected_article_revision")
+  failureCode             String?                 @map("failure_code") @db.VarChar(80)
+  failureMessage          String?                 @map("failure_message") @db.VarChar(240)
+  startedAt               DateTime                @default(now()) @map("started_at")
+  finishedAt              DateTime?               @map("finished_at")
+  createdAt               DateTime                @default(now()) @map("created_at")
+  updatedAt               DateTime                @updatedAt @map("updated_at")
+  brand                   BrandProfile            @relation("BrandArticleGenerations", fields: [brandId, accountId], references: [id, accountId], onDelete: Restrict, map: "article_generations_brand_fkey")
+  snapshot                WriterInputSnapshot     @relation(fields: [snapshotId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict, map: "article_generations_snapshot_fkey")
+  sourceArticle           CoreArticle?            @relation("CoreArticleSourceGeneration")
+
+  @@unique([id, accountId, brandId], map: "article_generations_id_account_brand_key")
+  @@unique([snapshotId, accountId, brandId], map: "article_generations_snapshot_account_brand_key")
+  @@unique([accountId, brandId, idempotencyKey], map: "article_generations_account_brand_idempotency_key")
+  @@index([accountId, brandId, createdAt], map: "article_generations_account_brand_created_idx")
+  @@map("article_generations")
+}
+
+model CoreArticle {
+  id                 String            @id @default(uuid()) @db.Uuid
+  accountId          String            @map("account_id") @db.Uuid
+  brandId            String            @map("brand_id") @db.Uuid
+  title              String            @db.VarChar(200)
+  bodyMarkdown       String            @map("body_markdown")
+  status             CoreArticleStatus @default(DRAFT)
+  revision           Int               @default(1)
+  sourceGenerationId String            @map("source_generation_id") @db.Uuid
+  confirmedRevision  Int?              @map("confirmed_revision")
+  confirmedAt        DateTime?         @map("confirmed_at")
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+  brand              BrandProfile      @relation("BrandCoreArticle", fields: [brandId, accountId], references: [id, accountId], onDelete: Restrict, map: "core_articles_brand_fkey")
+  sourceGeneration   ArticleGeneration @relation("CoreArticleSourceGeneration", fields: [sourceGenerationId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict, map: "core_articles_source_generation_fkey")
+
+  @@unique([id, accountId, brandId], map: "core_articles_id_account_brand_key")
+  @@unique([brandId, accountId], map: "core_articles_brand_account_key")
+  @@unique([sourceGenerationId, accountId, brandId], map: "core_articles_source_generation_account_brand_key")
+  @@index([accountId, brandId], map: "core_articles_account_brand_idx")
+  @@map("core_articles")
 }
 
 model EvaluationSynthesisExhaustion {
