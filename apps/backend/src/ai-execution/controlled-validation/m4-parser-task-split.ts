@@ -282,7 +282,10 @@ export function buildM4FullSourceTask(
 export function buildM4WorkedExampleTask(
   base: StructuredOutputAttemptInput,
   evidenceFirst = false,
+  sharedCondition = false,
 ): StructuredOutputAttemptInput {
+  if (evidenceFirst && sharedCondition)
+    throw new Error("M4 experimental candidates are compared separately");
   const task = buildM4FullSourceTask(base);
   const examplePrompt = z
     .object({
@@ -311,6 +314,31 @@ export function buildM4WorkedExampleTask(
         ),
       ),
     );
+  if (sharedCondition) {
+    const example = z
+      .object({
+        id: z.string(),
+        version: z.string(),
+        input: z.record(z.string(), z.unknown()),
+        output: z.unknown(),
+      })
+      .strict()
+      .parse(
+        JSON.parse(
+          readFileSync(
+            new URL(
+              "../../../geo-intelligence/experiments/m4-parser-shared-condition.json",
+              import.meta.url,
+            ),
+            "utf8",
+          ),
+        ),
+      );
+    examplePrompt.examples[0] = {
+      input: example.input,
+      output: example.output,
+    };
+  }
   // Controlled ordering probe only: keep field meanings, constraints and values.
   const orderBrand = (value: unknown) => {
     const { displayName, observedForms, evidence, ...judgments } =

@@ -1487,6 +1487,39 @@ outputs/checks, usage and complete semantic review equality; public=false and
 credentials absent. Review `69ea321b7721bc8b` was missing from the first immediate
 query and present on a read-only repeat; no duplicate publication or model call.
 
+## Shared-condition demonstration — bounded protocol
+
+The owner confirms stable, efficient iteration. Replace only the original
+worked-example Prompt's absent-target demonstration with a fictional shared
+booking condition, a direct recommendation with an ordinary drawback, and a
+partner mention. Retain the positive-target example, total example count, Schema
+including property order, complete task input, low effort and final projector.
+No actual test-answer names or category-specific instructions enter the example.
+
+Offline tests prove distinct names are not merged and each brand retains the
+complete shared qualifier through exact source restoration and canonical evidence
+anchors; existing metric eligibility is unchanged. Synthesis repository and task
+builder pass this semantic record directly. This static path plus projection
+evidence does not claim a DB-backed or real synthesis/report integration pass.
+
+Freeze at most four calls: retained shoe candidate; one natural Qwen acquisition
+for a new robot-vacuum question; matched original baseline/candidate on its answer.
+Reuse the shoe baseline from the preceding experiment, disclosing it is historical
+and not a fresh paired observation. Freeze recipes before acquisition and permit
+only the new answer lines to populate them. Acquisition does not receive the target
+brand, Parser remains Qwen3.8 Flash/low/strict, and all calls retain the existing
+180-second diagnostic timeout. Provider/model failure stops the batch; unusable
+acquisition stops its dependent Parsers. No retries, fallback or post-result edits.
+
+Inspect full brand identity/coverage, roles, positions and qualifying evidence,
+including raw versus program-restored results; allow faithful paraphrase. Compare
+new baseline/candidate usage and latency without inferring reliability or billed
+cost. Do not promote on JSON acceptance or a single pair. Stop after this batch.
+
+Live main advanced to `6868732` via #66/#67 (writing workspace/brand foundation).
+The change list does not modify Parser, synthesis input, metrics or process rules;
+this branch remains on its existing base without rebase. No other-worktree writes.
+
 | Artifact | SHA-256 |
 | --- | --- |
 | Shoe baseline result | 14fd1c0276acbbceb17dae9daadab3d3a0556277c17ea23398e076402ab18952 |

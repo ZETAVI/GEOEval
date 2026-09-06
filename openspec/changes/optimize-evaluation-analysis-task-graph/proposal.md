@@ -83,8 +83,12 @@ output and full context are complete. Coffee now preserves meaningful paragraph
 conditions; shoe still omits shared discount conditions and loses FILA. Both
 candidate observations cost more tokens/time. Keep the sample-level evidence,
 do not promote the package or keep tuning field order. The next small test case
-should exercise several brands sharing an upper-level qualifier, not add fields
-or Agent layers. Runtime and current semantics stay unchanged.
+exercises several brands sharing an upper-level qualifier, not new fields or
+Agent layers. Its complete fictional example replaces only the absent-target
+demonstration, leaving two examples and the baseline field order. Freeze four
+calls: retained shoe candidate (reuse prior baseline), independent robot-vacuum
+acquisition, and a new matched baseline/candidate pair. Runtime and current
+semantics stay unchanged; this is not a production stability claim.
 
 ## Impact and exit
 

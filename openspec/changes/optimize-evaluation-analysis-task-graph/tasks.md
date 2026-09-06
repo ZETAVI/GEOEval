@@ -46,8 +46,10 @@ Completed chronology, exact manifests and failed candidates live in the
       evidence-before-judgment candidate, keeping full source and current semantics.
 - [x] Complete four frozen calls: coffee evidence improves, shoe shared conditions
       remain missing and FILA is lost; candidates take longer. Do not promote.
-- [ ] Carry the shared-condition failure into one representative test case before
-      the next small candidate; stop evidence-property-order tuning.
+- [x] Add a shared-condition demonstration and prove two distinct brand records
+      retain the same complete qualifying evidence and current metric eligibility.
+- [ ] Freeze and execute one retained candidate plus independently acquired answer
+      with matched baseline/candidate (four calls); inspect quality and efficiency.
 - [ ] Resolve material identity/role/position quality and verify held-out behavior
       before small report-path integration; no candidate is accepted yet.
 

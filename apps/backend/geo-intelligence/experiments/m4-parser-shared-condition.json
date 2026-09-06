@@ -1,0 +1,60 @@
+{
+  "id": "experiment.m4.parser-shared-condition",
+  "version": "1.0.0",
+  "input": {
+    "companyName": "知夏书店",
+    "question": "周末想找安静阅读的书店，有哪些选择？",
+    "questionKind": "INDUSTRY_RECOMMENDATION",
+    "answerLines": [
+      { "line": 1, "text": "找安静阅读的书店，可以比较：" },
+      { "line": 2, "text": "1. **山岚书店**、**晴川书屋**。" },
+      {
+        "line": 3,
+        "text": "这两家只有预约到独立阅读室时才适合安静阅读，普通区域较吵。"
+      },
+      { "line": 4, "text": "两家均有丰富藏书。" },
+      { "line": 5, "text": "2. **竹影书坊**：阅读区安静，但座位偏少。" },
+      { "line": 6, "text": "也可联系墨云品牌的本地合作门店，具体店名未给出。" }
+    ]
+  },
+  "output": {
+    "answerStructure": "MIXED",
+    "target": null,
+    "otherBrands": [
+      {
+        "displayName": "山岚书店",
+        "observedForms": ["山岚书店"],
+        "role": "CONDITIONALLY_RECOMMENDED",
+        "relativePosition": 1,
+        "positionKind": "RECOMMENDATION",
+        "evidence": [{ "startLine": 2, "endLine": 4 }]
+      },
+      {
+        "displayName": "晴川书屋",
+        "observedForms": ["晴川书屋"],
+        "role": "CONDITIONALLY_RECOMMENDED",
+        "relativePosition": 1,
+        "positionKind": "RECOMMENDATION",
+        "evidence": [{ "startLine": 2, "endLine": 4 }]
+      },
+      {
+        "displayName": "竹影书坊",
+        "observedForms": ["竹影书坊"],
+        "role": "RECOMMENDED",
+        "relativePosition": 2,
+        "positionKind": "RECOMMENDATION",
+        "evidence": [{ "startLine": 5, "endLine": 5 }]
+      },
+      {
+        "displayName": "墨云",
+        "observedForms": ["墨云"],
+        "role": "MENTIONED_ONLY",
+        "relativePosition": null,
+        "positionKind": null,
+        "evidence": [{ "startLine": 6, "endLine": 6 }]
+      }
+    ],
+    "cardInterpretation": "这条回答未提及知夏书店。",
+    "limitations": []
+  }
+}

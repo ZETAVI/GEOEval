@@ -533,3 +533,26 @@ Manner's office limitations; the shoe candidate still loses the shared discount
 premise and omits FILA. Both take longer in these observations. Do not promote
 the ordering package. Retain its sample-level evidence and use the concrete
 shared-qualifier case to bound the next change; no new architecture is selected.
+
+## Shared-condition demonstration slice
+
+Keep the original worked-example baseline, including property order. Replace
+only its absent-target demonstration with a six-line fictional source where two
+individually named brands inherit one booking condition; a separate brand has an
+ordinary drawback without a conditional recommendation. The same complete source
+range can support both independent brand records without sharing their name forms.
+Retain the original positive-target example and total example count of two.
+
+Offline verification must prove each brand's exact condition survives restoration,
+canonical projection and synthesis-input handoff. The existing projector filters
+other-brand spans without a recognizable name; the demonstration therefore uses
+one complete contiguous name-and-condition range, not an unattached qualifier.
+This verifies a supported path; it neither changes the projector nor claims all
+reference shapes are retained. No new field, repair, Agent or runtime activation.
+
+Readiness: `ready` for the isolated Prompt-only experiment. Reuse the prior shoe
+baseline evidence, then execute one retained candidate, one independently acquired
+robot-vacuum answer and matched baseline/candidate on that answer (four calls).
+The new answer is obtained only after the Prompt freezes; no target injection or
+answer-driven editing. Acceptance requires meaningful condition/identity/position
+quality and reports actual usage/latency, not merely JSON or code acceptance.

@@ -68,6 +68,89 @@ const judgment = () => ({
 });
 
 describe("M4 task-load comparison handoff", () => {
+  it("replaces one demonstration only, preserving baseline and the complete output contract", () => {
+    const baseline = buildM4WorkedExampleTask(base);
+    const candidate = buildM4WorkedExampleTask(base, false, true);
+    expect({
+      ...candidate,
+      systemInstruction: baseline.systemInstruction,
+    }).toEqual(baseline);
+    const split = (text: string) => text.split(/示例 [12] 输入：/u);
+    expect(split(candidate.systemInstruction)[0]).toBe(
+      split(baseline.systemInstruction)[0],
+    );
+    expect(split(candidate.systemInstruction)[2]).toBe(
+      split(baseline.systemInstruction)[2],
+    );
+    expect(split(candidate.systemInstruction)[1]).not.toBe(
+      split(baseline.systemInstruction)[1],
+    );
+    expect(candidate.systemInstruction).not.toMatch(
+      /Nike|Adidas|ASICS|FILA|迪卡侬|科沃斯|扫地机器人/,
+    );
+    expect(buildM4WorkedExampleTask(base)).toEqual(baseline);
+    expect(() => buildM4WorkedExampleTask(base, true, true)).toThrow();
+  });
+
+  it("preserves one shared condition for each distinct brand through source restoration and canonical projection", () => {
+    const example = JSON.parse(
+      readFileSync(
+        new URL(
+          "../geo-intelligence/experiments/m4-parser-shared-condition.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    const originalAnswer = example.input.answerLines
+      .map((line: { text: string }) => line.text)
+      .join("\n");
+    const projected = projectM4LineReferenceOutput(example.output, {
+      companyName: example.input.companyName,
+      questionKind: example.input.questionKind,
+      originalAnswer,
+    }).projected;
+    const brands = projected.semantic.otherBrands;
+    expect(projected.mentioned).toBe(false);
+    expect(brands.map((b) => b.displayName)).toEqual([
+      "山岚书店",
+      "晴川书屋",
+      "竹影书坊",
+      "墨云",
+    ]);
+    const expectedQuote = example.input.answerLines
+      .slice(1, 4)
+      .map((line: { text: string }) => line.text)
+      .join("\n");
+    for (const brand of brands.slice(0, 2)) {
+      expect(brand.role).toBe("CONDITIONALLY_RECOMMENDED");
+      expect(brand.relativePosition).toBe(1);
+      expect(brand.observedForms).toEqual([brand.displayName]);
+      const quotes = brand.evidenceAnchorIds.map(
+        (id) =>
+          projected.semantic.evidenceAnchors.find((a) => a.anchorId === id)
+            ?.exactText,
+      );
+      expect(quotes).toContain(expectedQuote);
+    }
+    expect(brands[2]!.role).toBe("RECOMMENDED");
+    expect(brands[3]!.role).toBe("MENTIONED_ONLY");
+    const metrics = calculateEvaluationReportMetrics([
+      {
+        sampleId: "42000000-0000-4000-8000-000000004001",
+        questionKind: example.input.questionKind,
+        questionOrdinal: 2,
+        platformKey: "qwen",
+        platformLabel: "千问",
+        platformOrdinal: 1,
+        interpretation: projected,
+      },
+    ]);
+    expect(
+      metrics.eligibleCompetitorOccurrences.map((b) => b.displayName),
+    ).toEqual(["山岚书店", "晴川书屋", "竹影书坊"]);
+  });
+
   it("orders other-brand evidence before judgment without changing fields or constraints", () => {
     const baseline = buildM4WorkedExampleTask(base);
     const candidate = buildM4WorkedExampleTask(base, true);
