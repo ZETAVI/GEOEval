@@ -36,8 +36,10 @@
 - [x] Promote activated behavior into owner-local current specs, update existing
       architecture and the accepted atomic-purchase ADR, execute the applicable
       Product Definition marker and retain unactivated commercial scenarios.
-- [ ] Review the fixed diff, run required tests/build/generated-contract checks,
-      archive this Change only at full acceptance, and use Partial/Final PR semantics.
+- [x] Review the fixed implementation diff and run required tests/build/generated-
+      contract checks; PR owns the review scope and exact evidence.
+- [ ] Complete final review/acceptance and archive this Change before changing
+      the PR to Final; retain Partial semantics while that gate remains.
 - [ ] Integrate only under applicable authorization; reconcile exact tree,
       Issue/Project, test-resource shutdown and workspace exit independently.
 

@@ -4,7 +4,8 @@
 - Lane/class: product delivery / architectural
 - Baseline: accepted `main@5fb4400`, including #57 correction PR #71
 - State: approved implementation and isolated end-to-end verification complete;
-  fixed-diff review, integration decision and final reconciliation remain
+  fixed-diff self-review complete; final acceptance, integration decision and
+  post-integration reconciliation remain
 
 ## Why
 
