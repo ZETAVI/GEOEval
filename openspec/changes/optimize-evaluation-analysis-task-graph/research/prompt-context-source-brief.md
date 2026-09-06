@@ -88,3 +88,12 @@ model. The comparison removes out-of-band Schema in object mode and therefore
 does not isolate a particular decoder implementation. Keep model/thinking/effort
 unchanged and measure on the actual account. Context7's project-local CLI was
 unavailable; official primary documentation was used without installing tools.
+
+The [Chat Completions reference](https://www.alibabacloud.com/help/en/model-studio/qwen-api-via-openai-chat-completions)
+was checked after all four full mode probes reported 4,096 reasoning tokens.
+For Qwen3.8 it maps reasoning_effort low to a 4,096 thinking-token maximum and
+medium to 16,384; reasoning_effort and thinking_budget are mutually exclusive.
+This establishes that the observed low calls reached their documented thinking
+budget, not that it caused name corruption (both good and bad names occurred).
+A separate two-call strict-medium counterfactual can change only that parameter;
+do not change Prompt, Schema, model, endpoint or production defaults.

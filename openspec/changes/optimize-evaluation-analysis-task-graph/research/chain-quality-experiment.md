@@ -1256,3 +1256,24 @@ Ranked hypotheses: mode-sensitive upstream generation; full task/context load;
 Prompt/example interaction; stochastic failure. Local transformation already
 excluded by raw replay. These six observations can narrow, not establish universal
 Provider behavior, production reliability or a model-internal mechanism.
+
+## Reasoning-budget counterfactual — separate frozen protocol
+
+The six-call output-mode batch is ended and immutable. It reproduced a punctuation
+target name on one of two identical full strict requests; both full object
+responses instead violate the complete contract. All four full calls report 4,096
+reasoning tokens. Official documentation maps the current low setting to that
+thinking-token maximum; reaching it is observed, causality is not.
+
+Under the owner's continuing controlled-call authority, freeze a separate maximum
+of two strict-medium requests on the exact retained full body. Only reasoning_effort
+changes from low to medium (documented 16,384 maximum); do not also set thinking_budget.
+No new Prompt, Schema, sampling, model, mode, retry, fallback or production change.
+Same 180-second timeout and stop on HTTP/transport/model/abnormal finish. Both
+replications are planned before either result, with separate trace and manifest.
+
+Compare raw names, complete contract, meaningful conditions and actual usage to
+the two already observed low strict replications; do not replay low just to fill
+a table. Two unseeded medium observations are diagnostic, not reliability or
+causality proof. End after these two calls; any further scope requires a new
+decision checkpoint rather than a continuing parameter sweep.
