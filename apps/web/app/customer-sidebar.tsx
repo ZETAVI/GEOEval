@@ -13,7 +13,7 @@ const navigation = [
   ["AI 搜索优化", "生成优化文章", "/optimization"],
   ["发布方案", "套餐与媒体选择", "/publishing"],
   ["发布管理", "查看履约进度", null],
-  ["账户中心", "积分与发票", null],
+  ["账户中心", "积分与流水", "/account"],
 ] as const;
 
 export function CustomerSidebar({
@@ -21,7 +21,8 @@ export function CustomerSidebar({
   activePath,
 }: {
   account: Account | undefined;
-  activePath: "/brands" | "/diagnosis" | "/optimization" | "/publishing";
+  activePath:
+    "/brands" | "/diagnosis" | "/optimization" | "/publishing" | "/account";
 }) {
   return (
     <aside className="sidebar">

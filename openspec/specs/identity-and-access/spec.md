@@ -182,6 +182,14 @@ depending on Cookie, Session repository, or Identity HTTP internals.
 - **AND** no module imports a retired Guard or authenticated HTTP request
   implementation type.
 
+#### Scenario: An account-owned capability needs terminal identity facts
+
+- **WHEN** Publishing Commerce resolves an administrator-selected customer
+- **THEN** Identity provides a narrow read-only ID/mobile/status projection only
+  for a terminal account, without exporting its repository or role mutation
+- **AND** the business controller still declares its own required role; directory
+  access does not independently authorize a financial or governance action.
+
 ### Requirement: Administrator account-governance workspace
 
 Identity and Access SHALL provide administrators one role-specific workspace

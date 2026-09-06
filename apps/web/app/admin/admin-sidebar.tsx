@@ -7,7 +7,7 @@ import { SessionExitActions } from "../session-exit-actions.js";
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
-type AdminSection = "overview" | "accounts" | "media" | "publishing";
+type AdminSection = "overview" | "accounts" | "media" | "publishing" | "points";
 
 export function AdminSidebar({
   account,
@@ -66,6 +66,17 @@ export function AdminSidebar({
           <span>
             <b>发布套餐</b>
             <small>数量、范围与积分价</small>
+          </span>
+        </a>
+        <a
+          className={active === "points" ? "side-link active" : "side-link"}
+          href="/admin/points"
+          aria-current={active === "points" ? "page" : undefined}
+        >
+          <i>分</i>
+          <span>
+            <b>客户积分</b>
+            <small>赠送、调整与流水</small>
           </span>
         </a>
       </nav>

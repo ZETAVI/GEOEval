@@ -82,7 +82,9 @@ export function PublishingWorkspace() {
           </a>
         </section>
         <div className="commerce-notice" role="status">
-          当前可浏览已维护的套餐；积分账户、精准发布选择与购买提交尚未接入，不会产生扣分或订单。
+          当前可浏览已维护的套餐，并在
+          <a href="/account">账户中心查看积分余额</a>
+          ；精准发布选择与购买提交尚未接入，不会产生扣分或订单。
         </div>
         <PublishingPackageCards packages={packages} />
       </main>

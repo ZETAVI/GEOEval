@@ -277,7 +277,14 @@ continues to own platform buyability; a batched quote read derives package
 availability without resource counts or copied status. Scope foreign keys join
 the Media-owned deletion gate. Its current boundary is specified by
 [`publishing-commerce`](../../openspec/specs/publishing-commerce/spec.md).
-Point accounts, saved selection and order submission remain subsequent slices;
+Point accounts now own zero-initialized balances, granted-only administrator
+adjustment and append-only account-sequenced history. Identity provides a narrow
+terminal-account directory; Commerce does not query role tables. One wallet lock
+serializes request replay checks, balance bounds and ledger insertion in the same
+transaction. Customer projections expose one balance and public reasons only.
+An actor-bound pending tab request survives an interrupted response/reload and
+reuses its key; tab storage is not financial truth.
+Saved selection, order submission and real payment remain subsequent slices;
 the approved transaction direction is recorded in
 [ADR 0005](adr/0005-atomic-publishing-purchase.md), not claimed as implemented.
 

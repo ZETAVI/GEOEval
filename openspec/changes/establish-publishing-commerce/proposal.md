@@ -3,7 +3,7 @@
 - Owner: [Issue #65](https://github.com/ZETAVI/GEOEval/issues/65)
 - Lane/class: product delivery / architectural
 - Baseline: accepted `main@5fb4400`, including #57 correction PR #71
-- State: owner approved; implementing the first maintained-package vertical slice
+- State: owner approved; package and granted-point slices verified for Partial PR review
 
 ## Why
 
@@ -43,22 +43,26 @@ production money, deployment or activation.
 
 ## Documentation and workspace control
 
-- Add only this temporary Change now. Do not promote proposed behavior to current
-  specs or duplicate the glossary. Use the existing [architecture overview](../../../docs/architecture/overview.md)
-  and current owner-local specs during implementation reconciliation.
+- Keep this parent Change active until full acceptance. Reconcile implemented
+  slices into the existing [architecture overview](../../../docs/architecture/overview.md)
+  and current owner-local specs in their PR, effective on merge; do not promote
+  unimplemented proposals or duplicate the glossary.
 - Execute Product Definition's `split-on-activation` marker for activated purchase
   and point-account behavior when implemented; retain payment, returns, commission
   and fulfilment scenarios with their unactivated owners. No duplicate current rules.
 - Extend the existing GEO Optimization handoff and Media Supply quote/deletion
-  contracts in place. A short ADR will record the accepted cross-module atomic
-  purchase decision after approval; no speculative framework document.
+  contracts in place. [ADR 0005](../../../docs/architecture/adr/0005-atomic-publishing-purchase.md)
+  records the accepted cross-module atomic-purchase decision; no speculative
+  framework document.
 - Workspace: current #57 worktree reused cleanly; branch
   `codex/issue-65-publishing-commerce`, main-direct from `5fb4400`. This task is the
   single writer for its Change and later approved schema/composition/client changes.
 - #39 stays independent. Recheck shared schema, generated client, composition and
   styles against main before each implementation slice. Use dedicated test data.
-- Current bounded package: administrator package maintenance and customer-safe
-  offer visibility, including schema, API, UI, audit, references and evidence.
-  Point accounts and purchase remain subsequent slices under this same Issue.
+- Current bounded package: administrator package maintenance, customer-safe
+  offer visibility, account-scoped granted-point adjustments and balance/history,
+  including schema, API, UI, audit, interruption recovery and evidence.
+  Saved selection, quote and atomic purchase remain subsequent slices under this
+  same Issue. Real recharge/payment stays outside this Change.
 - Exit: verified Partial PR, parent Change stays active; retain this branch for
   the same outcome. No extra worktree or integration branch.

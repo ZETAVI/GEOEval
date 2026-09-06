@@ -202,6 +202,8 @@ model Account {
   notifications            Notification[]
   mediaCatalogAudits       MediaCatalogAudit[]
   publishingPackageAudits  PublishingPackageAudit[]
+  pointAccount             PointAccount?
+  pointChangesActed        PointChange[]
   questionPreparations     EvaluationQuestionPreparation[]
   identityAuditsActed      IdentityGovernanceAudit[]       @relation("IdentityAuditActor")
   identityAuditsTargeted   IdentityGovernanceAudit[]       @relation("IdentityAuditTarget")
@@ -928,6 +930,45 @@ model MediaCatalogAudit {
   @@index([entityType, entityId, createdAt])
   @@index([actorAccountId, createdAt])
   @@map("media_catalog_audits")
+}
+
+enum PointChangeKind {
+  ADMIN_ADJUSTMENT
+}
+
+model PointAccount {
+  accountId      String        @id @map("account_id") @db.Uuid
+  grantedBalance Int           @default(0) @map("granted_balance")
+  fundedBalance  Int           @default(0) @map("funded_balance")
+  revision       Int           @default(0)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  account        Account       @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  changes        PointChange[]
+
+  @@map("point_accounts")
+}
+
+model PointChange {
+  id                String          @id @default(uuid()) @db.Uuid
+  accountId         String          @map("account_id") @db.Uuid
+  sequence          Int
+  kind              PointChangeKind
+  grantedDelta      Int             @map("granted_delta")
+  fundedDelta       Int             @default(0) @map("funded_delta")
+  balanceAfter      Int             @map("balance_after")
+  actorAccountId    String          @map("actor_account_id") @db.Uuid
+  idempotencyKey    String          @map("idempotency_key") @db.Uuid
+  reason            String          @db.VarChar(160)
+  internalNote      String?         @map("internal_note") @db.VarChar(320)
+  businessReference String?         @map("business_reference") @db.VarChar(160)
+  createdAt         DateTime        @default(now()) @map("created_at")
+  wallet            PointAccount    @relation(fields: [accountId], references: [accountId], onDelete: Restrict)
+  actor             Account         @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([accountId, sequence])
+  @@unique([accountId, idempotencyKey])
+  @@map("point_changes")
 }
 
 enum PublishingPackageStatus {

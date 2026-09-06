@@ -188,3 +188,23 @@ at least one buyable scoped platform via the existing Media Supply quote boundar
 This display is advisory, not a purchase quote or reservation. No debit exists yet.
 Package-scope foreign keys block platform deletion without Commerce reading Media
 private state. Do not add unimplemented wallet/order tables in this migration.
+
+Second slice: point accounts start at zero without a registration step; ordinary
+reads return zero before the first write and do not create records. Administrator
+adjustment is a signed delta, not a balance replacement. Wallet row serialization,
+account sequence, request identity and ledger insertion share one transaction.
+Replay compares actor and normalized intent before applying new-write eligibility;
+same-key success stays recoverable even when the target later becomes inactive.
+Identity supplies a narrow terminal-account directory projection; Commerce never
+queries account role tables directly. Inactive targets remain readable but receive
+no new adjustments. The terminal role family is immutable under Identity governance.
+
+The administrator client retains one actor-bound pending request in tab session
+storage before sending it. Unknown transport outcomes and reloads offer only an
+explicit retry of that same request/key until resolved. Session storage is recovery
+intent, never balance truth; unavailable storage prevents starting an adjustment.
+Known validation/balance failures permit correction, while uncertain failures keep
+the pending intent. Customer history excludes origin, actor and internal reasons.
+Validate cross-account HTTP, concurrent grants/negative deltas, exact-key replay,
+failed-ledger rollback, integer caps, safe pagination, browser reload/retry and
+backup restoration. No funded credit or purchase endpoint is introduced here.

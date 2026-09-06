@@ -95,6 +95,12 @@ const expectedControllerPolicies: Record<
   }),
   BrandController: customerOnly,
   PublishingPackageCustomerController: customerOnly,
+  PointCustomerController: customerOnly,
+  PointAdminController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["ADMINISTRATOR"],
+  }),
   PublishingPackageAdminController: () => ({
     publicAccess: false,
     csrfExempt: false,

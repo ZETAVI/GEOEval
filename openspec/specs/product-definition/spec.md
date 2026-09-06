@@ -31,7 +31,9 @@
   payment, fulfilment and related capabilities. Maintained random-package
   configuration, audit and customer offer visibility are now owned by the
   [Publishing Commerce specification](../publishing-commerce/spec.md).
-  The remaining selection, points and purchase activation stays under this marker.
+  Account-owned points, granted-only administrator adjustments and customer-safe
+  history also use that owner. Remaining selection, purchase and real recharge
+  activation stays under this marker.
 
 ## Requirements
 

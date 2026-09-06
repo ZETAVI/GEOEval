@@ -14,7 +14,7 @@
       backup/restore; extend Media deletion gates for current package references.
 - [x] Deliver administrator package maintenance and customer-safe package cards
       using shared shell/styles, with revisions, audit, role/HTTP and browser evidence.
-- [ ] Deliver zero-initialized point account, idempotent grant/correction and
+- [x] Deliver zero-initialized point account, idempotent grant/correction and
       customer unified balance/history, with atomicity and cross-account tests.
 
 ## 2. Confirmed article to paid pending order

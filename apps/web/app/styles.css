@@ -256,6 +256,116 @@ textarea {
   }
 }
 
+/* Point account and append-only history use Commerce's existing visual tokens. */
+.point-balance {
+  padding: 28px;
+  margin: 0 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--green-pale);
+}
+.point-balance > strong {
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  color: var(--green-dark);
+  overflow-wrap: anywhere;
+}
+.point-balance > span {
+  margin-left: 12px;
+  color: var(--muted);
+}
+.point-balance p {
+  line-height: 1.8;
+}
+.point-history {
+  margin: 20px 0;
+  padding: 0;
+  list-style: none;
+}
+.point-history > li {
+  padding: 20px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.point-history .commerce-card-heading p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.point-increase {
+  color: var(--green);
+  font-size: 1.3rem;
+}
+.point-decrease {
+  color: #9b492b;
+  font-size: 1.3rem;
+}
+.point-history details {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.points-admin-grid {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.points-admin-grid > section {
+  min-width: 0;
+}
+.points-admin-grid .point-account-picker {
+  margin-top: 0;
+}
+.point-account-picker form {
+  display: grid;
+  gap: 10px;
+}
+.point-account-picker label {
+  display: grid;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+.point-account-picker input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+}
+.point-account-picker ul {
+  list-style: none;
+  padding: 0;
+  max-height: 460px;
+  overflow: auto;
+}
+.point-account-option {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 5px 0;
+  overflow-wrap: anywhere;
+}
+.point-account-option small {
+  display: block;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.point-account-option.selected {
+  border-color: var(--green);
+  background: var(--green-pale);
+}
+@media (max-width: 1000px) {
+  .points-admin-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .point-account-picker ul {
+    max-height: 180px;
+  }
+}
+
 /* GEO optimization */
 .optimization-workspace {
   max-width: 1180px;

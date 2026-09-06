@@ -4,6 +4,16 @@ export type FoundationRecord =
   components["schemas"]["FoundationRecordResponse"];
 export type Challenge = components["schemas"]["ChallengeResponse"];
 export type Account = components["schemas"]["AccountResponse"];
+export type PointBalance = components["schemas"]["PointBalanceResponse"];
+export type PointAdminBalance =
+  components["schemas"]["PointAdminBalanceResponse"];
+export type PointAdjustment = components["schemas"]["PointAdjustmentRequest"];
+export type PointChange = components["schemas"]["PointChangeResponse"];
+export type PointAdminChange =
+  components["schemas"]["PointAdminChangeResponse"];
+export type PointHistory = components["schemas"]["PointHistoryResponse"];
+export type PointAdminHistory =
+  components["schemas"]["PointAdminHistoryResponse"];
 export type PublishingPackage =
   components["schemas"]["PublishingPackageCustomerResponse"];
 export type PublishingPackageAdmin =
@@ -140,6 +150,52 @@ async function apiRequest<T>(
   }
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
+}
+
+export function getPointBalance(baseUrl: string): Promise<PointBalance> {
+  return apiRequest(baseUrl, "/points", { cache: "no-store" });
+}
+export function getPointHistory(
+  baseUrl: string,
+  beforeSequence?: number,
+): Promise<PointHistory> {
+  return apiRequest(
+    baseUrl,
+    `/points/changes${beforeSequence ? `?beforeSequence=${beforeSequence}` : ""}`,
+    { cache: "no-store" },
+  );
+}
+export function getAdminPointBalance(
+  baseUrl: string,
+  accountId: string,
+): Promise<PointAdminBalance> {
+  return apiRequest(
+    baseUrl,
+    `/admin/points/accounts/${encodeURIComponent(accountId)}`,
+    { cache: "no-store" },
+  );
+}
+export function getAdminPointHistory(
+  baseUrl: string,
+  accountId: string,
+  beforeSequence?: number,
+): Promise<PointAdminHistory> {
+  return apiRequest(
+    baseUrl,
+    `/admin/points/accounts/${encodeURIComponent(accountId)}/changes${beforeSequence ? `?beforeSequence=${beforeSequence}` : ""}`,
+    { cache: "no-store" },
+  );
+}
+export function adjustGrantedPoints(
+  baseUrl: string,
+  accountId: string,
+  input: PointAdjustment,
+): Promise<PointAdminChange> {
+  return apiRequest(
+    baseUrl,
+    `/admin/points/accounts/${encodeURIComponent(accountId)}/adjustments`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
 }
 
 export function listPublishingPackages(

@@ -3,8 +3,9 @@
 ## Activation boundary
 
 This owner currently implements maintained random-package configuration,
-administrator audit and terminal-customer offer visibility. Saved selections,
-point accounts, purchase, payment and fulfilment are not activated by this slice.
+administrator audit, terminal-customer offer visibility, account points and
+granted-only administrator adjustments/history. Saved selections, purchase,
+payment and fulfilment are not activated by these slices.
 Their approved implementation work remains in
 [`establish-publishing-commerce`](../../changes/establish-publishing-commerce/proposal.md).
 
@@ -72,3 +73,69 @@ foreign keys for package scope.
 - **AND** concurrent reference creation and deletion cannot both succeed
 - **AND** removing a current package scope reference may permit later deletion,
   while historical audit retains its original IDs as historical evidence.
+
+### Requirement: Account-owned points and append-only changes
+
+Publishing Commerce SHALL maintain one point account per terminal customer,
+shared across Brands, with integer granted/funded balances and ordered history.
+
+#### Scenario: Customer reads points before or after adjustment
+
+- **WHEN** an authenticated terminal customer opens the account page
+- **THEN** the response uses only that Principal's account and shows one total
+  balance plus its account sequence, not separately usable point origins
+- **AND** before the first write it returns zero without creating a wallet or
+  registration step
+- **AND** history is ordered/paginated by immutable account sequence and includes
+  time, signed amount, resulting balance and a customer-facing reason
+- **AND** origin, actor, request identity, internal notes and business references
+  are excluded from the customer response.
+
+#### Scenario: Administrator adjusts granted points
+
+- **WHEN** an administrator explicitly confirms a signed nonzero integer delta
+  for a terminal customer with a customer-visible reason
+- **THEN** the wallet update and new ledger row commit or roll back together
+- **AND** each successful change advances one account sequence
+- **AND** subtraction cannot exceed granted balance or consume funded balance
+- **AND** no origin or total becomes negative, and total cannot exceed the
+  supported integer bound
+- **AND** internal notes/business references are optional; no history edit,
+  balance replacement or funded-credit command is exposed.
+
+#### Scenario: Target identity or command is invalid
+
+- **WHEN** the target is not a terminal customer, the request overrides identity
+  or point origin, or an amount/reason is invalid
+- **THEN** no adjustment is written
+- **AND** target facts come from Identity's narrow read-only directory
+- **AND** inactive terminal targets remain readable for administrators but
+  accept no new adjustments; previously committed success remains recoverable.
+
+#### Scenario: Concurrent or interrupted adjustment
+
+- **WHEN** the same account-scoped request key and normalized actor/intent repeat
+- **THEN** the original ledger result is returned without another delta,
+  including after subsequent changes or target inactivity
+- **BUT WHEN** actor, delta or reasons differ for that key
+- **THEN** the request conflicts without another effect
+- **AND** distinct requests serialize balance checks so concurrent subtraction
+  cannot overdraw and a ledger insertion failure cannot leave a balance update.
+
+#### Scenario: Administrator reloads after losing a response
+
+- **WHEN** a submitted adjustment's outcome is uncertain
+- **THEN** one actor-bound pending request/key, saved before sending in the
+  current browser tab, is restored on reload
+- **AND** the administrator can explicitly retry that same operation, not create
+  a fresh grant while the prior one is unresolved
+- **AND** customer identity is read again from the server; tab storage is not
+  authority for role, balance or successful completion
+- **AND** the browser cannot start an adjustment when it cannot retain the
+  recovery intent; unsent edits require explicit submission.
+
+#### Scenario: Customer considers payment or publishing
+
+- **WHEN** this stage shows available points and maintained packages
+- **THEN** recharge and purchasing remain explicitly unavailable
+- **AND** no payment success, order spending, invoice or fulfilment is fabricated.
