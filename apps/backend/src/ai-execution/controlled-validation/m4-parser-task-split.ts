@@ -317,10 +317,6 @@ export function buildM4WorkedExampleTask(
           `示例 ${index + 1} 输入：\n${JSON.stringify(example.input)}\n完整输出：\n${JSON.stringify(example.output)}`,
       )
       .join("\n\n")}`,
-    outputContract: {
-      ...task.outputContract,
-      version: "experiment.m4.parser-worked-examples@1",
-    },
   };
 }
 

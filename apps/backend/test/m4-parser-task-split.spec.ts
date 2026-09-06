@@ -72,9 +72,7 @@ describe("M4 task-load comparison handoff", () => {
     const baseline = buildM4FullSourceTask(base);
     const candidate = buildM4WorkedExampleTask(base);
     expect(candidate.userContext).toEqual(baseline.userContext);
-    expect(candidate.outputContract.jsonSchema).toEqual(
-      baseline.outputContract.jsonSchema,
-    );
+    expect(candidate.outputContract).toEqual(baseline.outputContract);
     expect(candidate.systemInstruction).not.toBe(baseline.systemInstruction);
     expect(candidate.systemInstruction).not.toMatch(
       /星巴克|Manner|互动派|迪卡侬/,
