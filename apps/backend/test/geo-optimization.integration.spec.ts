@@ -769,6 +769,137 @@ describe("GEO Optimization core article lifecycle", () => {
     return new GeoOptimizationService(brands, guidance, repository, writer);
   }
 
+  it("publishes command bodies and every route parameter in OpenAPI", async () => {
+    const document = await fetch(`${baseUrl}/openapi-json`).then((response) =>
+      response.json(),
+    );
+    const commands = [
+      [
+        "/brands/{brandId}/article-generations",
+        "post",
+        "GenerateCoreArticleRequest",
+      ],
+      [
+        "/brands/{brandId}/core-article/{articleId}",
+        "patch",
+        "SaveCoreArticleRequest",
+      ],
+      [
+        "/brands/{brandId}/core-article/{articleId}/confirmations",
+        "post",
+        "ConfirmCoreArticleRequest",
+      ],
+    ];
+    for (const [path, method, schema] of commands) {
+      const operation = document.paths[path!][method!];
+      expect(
+        operation.requestBody.content["application/json"].schema.$ref,
+      ).toBe(`#/components/schemas/${schema}`);
+      expect(
+        operation.parameters
+          .map((parameter: { name: string }) => parameter.name)
+          .sort(),
+      ).toEqual(
+        path!.includes("{articleId}") ? ["articleId", "brandId"] : ["brandId"],
+      );
+    }
+    const retry =
+      document.paths[
+        "/brands/{brandId}/article-generations/{generationId}/retries"
+      ].post;
+    expect(
+      retry.parameters
+        .map((parameter: { name: string }) => parameter.name)
+        .sort(),
+    ).toEqual(["brandId", "generationId"]);
+  });
+
+  it("rejects body-controlled identity and malformed HTTP commands before mutation", async () => {
+    const victim = await createContext();
+    const service = optimizationService(deterministicWriter);
+    await service.generate({
+      accountId: victim.accountId,
+      brandId: victim.brand.id,
+      idempotencyKey: "victim-baseline",
+      expectedBrandRevision: victim.brand.revision,
+    });
+    const before = (await service.currentArticle(
+      victim.accountId,
+      victim.brand.id,
+    ))!;
+    const cookie = await login(baseUrl, "13900000709");
+    const commands = [
+      {
+        path: `brands/${victim.brand.id}/article-generations`,
+        method: "POST",
+        body: {
+          accountId: victim.accountId,
+          expectedBrandRevision: victim.brand.revision,
+          expectedArticleRevision: before.revision,
+          idempotencyKey: "hostile-request",
+        },
+      },
+      {
+        path: `brands/${victim.brand.id}/core-article/${before.id}`,
+        method: "PATCH",
+        body: {
+          accountId: victim.accountId,
+          expectedRevision: before.revision,
+          title: "越权标题",
+          bodyMarkdown: "越权正文",
+        },
+      },
+      {
+        path: `brands/${victim.brand.id}/core-article/${before.id}/confirmations`,
+        method: "POST",
+        body: {
+          accountId: victim.accountId,
+          expectedRevision: before.revision,
+        },
+      },
+    ];
+    for (const command of commands) {
+      const response = await fetch(`${baseUrl}/${command.path}`, {
+        method: command.method,
+        headers: browserMutationHeaders(cookie),
+        body: JSON.stringify(command.body),
+      });
+      expect(response.status).toBe(400);
+    }
+    expect(
+      await service.currentArticle(victim.accountId, victim.brand.id),
+    ).toEqual(before);
+    expect(await prisma.articleGeneration.count()).toBe(1);
+    for (const body of [
+      {},
+      { idempotencyKey: 7, expectedBrandRevision: 1 },
+      { idempotencyKey: "malformed-key", expectedBrandRevision: "1" },
+    ]) {
+      const response = await fetch(
+        `${baseUrl}/brands/${victim.brand.id}/article-generations`,
+        {
+          method: "POST",
+          headers: browserMutationHeaders(cookie),
+          body: JSON.stringify(body),
+        },
+      );
+      expect(response.status).toBe(400);
+    }
+    const foreignSave = await fetch(
+      `${baseUrl}/brands/${victim.brand.id}/core-article/${before.id}`,
+      {
+        method: "PATCH",
+        headers: browserMutationHeaders(cookie),
+        body: JSON.stringify({
+          expectedRevision: before.revision,
+          title: "越权",
+          bodyMarkdown: "越权",
+        }),
+      },
+    );
+    expect(foreignSave.status).toBe(404);
+  });
+
   async function createContext(mobile = "+8613900000701") {
     const accountId = (await prisma.account.create({ data: { mobile } })).id;
     const brand = await brands.create(

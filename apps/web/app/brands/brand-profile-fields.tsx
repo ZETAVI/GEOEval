@@ -14,6 +14,45 @@ type Props = {
 
 const text = (value: string | null | undefined) => value ?? "";
 
+export function BrandIdentityFields({
+  apiBaseUrl,
+  brand,
+  value,
+  onChange,
+}: {
+  apiBaseUrl: string;
+  brand?: Pick<Brand, "id" | "storeLocation">;
+  value: BrandMutation;
+  onChange(value: BrandMutation): void;
+}) {
+  return (
+    <>
+      <label className="wide">
+        公司或店铺名称 *
+        <input
+          value={text(value.companyName)}
+          maxLength={200}
+          onChange={(event) =>
+            onChange({ ...value, companyName: event.target.value })
+          }
+          placeholder="例如：星河咖啡"
+        />
+      </label>
+      <BrandReferenceFields
+        apiBaseUrl={apiBaseUrl}
+        value={value}
+        onChange={onChange}
+      />
+      <StoreLocationPicker
+        apiBaseUrl={apiBaseUrl}
+        {...(brand ? { brand } : {})}
+        value={value}
+        onChange={onChange}
+      />
+    </>
+  );
+}
+
 export function BrandProfileFields({
   apiBaseUrl,
   brand,
@@ -34,21 +73,7 @@ export function BrandProfileFields({
 
   return (
     <>
-      <label className="wide">
-        公司或店铺名称 *
-        <input
-          value={text(value.companyName)}
-          maxLength={200}
-          onChange={(event) => update({ companyName: event.target.value })}
-          placeholder="例如：星河咖啡"
-        />
-      </label>
-      <BrandReferenceFields
-        apiBaseUrl={apiBaseUrl}
-        value={value}
-        onChange={onChange}
-      />
-      <StoreLocationPicker
+      <BrandIdentityFields
         apiBaseUrl={apiBaseUrl}
         {...(brand ? { brand } : {})}
         value={value}

@@ -26,8 +26,9 @@
   marker remains for product capabilities that have not yet gained an activated
   owner. Writer input snapshots, deterministic generation execution, the one
   current Core Article and confirmed-article handoff are owned by the
-  [GEO Optimization specification](../geo-optimization/spec.md); its customer
-  API and page remain in the active Issue #57 Change until activated.
+  [GEO Optimization specification](../geo-optimization/spec.md), including its
+  terminal-customer API and workspace. This marker remains for unactivated
+  commerce, payment, fulfilment and related capabilities.
 
 ## Requirements
 
