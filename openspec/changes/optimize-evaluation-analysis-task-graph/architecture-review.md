@@ -289,3 +289,23 @@ remain pending. This review is not approval for a runtime merge.
 - Verdict: `ready with follow-up` for this evidence checkpoint, `not ready` for
   runtime adoption. The next boundary is identity anchoring and qualifying-context
   handoff, not additional similar examples, Agent layers or automatic source repair.
+
+## Customer-value Parser scope checkpoint
+
+- The owner explicitly reduces analytical obligations. `831ead3..0f99bc3`
+  implements one experimental Prompt/model contract with target points/sentiment/
+  summary and other-brand identity/position/positive eligibility. No new Agent,
+  legacy semantic fabrication, runtime adapter, score change or persistence.
+- Full context and stable source restoration are reused. Forty focused tests,
+  Backend typecheck/build and independent fixed-scope review pass. Existing
+  counterpart builders and their historical request bodies remain unchanged.
+- Three frozen requests complete with lower aggregate token/latency observations;
+  historical comparison does not establish stable production gains. Raw internal
+  name-field failure remains distinct from Schema/source validity and requires
+  disposition before integration; local review uses the new user rubric.
+- Automated safety review blocked separate semantic-review upload. Keep that
+  payload local; only existing IO readback and aggregate execution metadata are
+  continued, not an alternative publication route. Explicit approval is pending.
+- Verdict: `ready with follow-up` for the working experiment, `not ready` for
+  canonical integration. Resolve name representation, mixed-praise eligibility
+  and consumer handoff; do not revive fine-grained conditions or old #48 rules.

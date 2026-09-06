@@ -56,8 +56,12 @@ Completed chronology, exact manifests and failed candidates live in the
       customer-value scope; preserve old evidence without inheriting its rubric.
 - [x] Prepare a smaller target-points/summary and competitor-eligibility contract,
       reusing full context and source restoration without a legacy report adapter.
-- [ ] Verify the smaller package on retained robot/coffee/absent-target answers
-      using recalibrated customer quality plus tokens/time; no runtime acceptance.
+- [x] Complete the three frozen retained-sample calls and local recalibrated review;
+      preserve aggregate efficiency evidence and an internal name-field residual.
+- [ ] Resolve the redundant target-name output field before canonical integration;
+      no detailed condition taxonomy or new Agent layer is required.
+- [ ] Obtain explicit authorization before uploading the separate semantic-review
+      payload to Langfuse; automated safety review blocked it, so retain it locally.
 - [ ] Resolve whether an overall positive recommendation with an ordinary drawback
       stays eligible before formal statistical-policy acceptance.
 - [ ] Resolve material identity/role/position quality and verify held-out behavior

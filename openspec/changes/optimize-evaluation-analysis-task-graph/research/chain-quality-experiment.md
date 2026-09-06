@@ -1659,3 +1659,61 @@ The task deliberately has no old-role/category translator and no canonical
 report acceptance. Formal implementation/consumer reconciliation remains later.
 Main observed at start is `189e1cc` (#69 article backend); it does not alter this
 Parser/metric path or the project process. No rebase or other-worktree write.
+
+## Customer-value scope — execution metadata
+
+Three frozen requests completed 2026-09-06 08:29:23–08:30:03 UTC at `0f99bc3`,
+confirmation `122e975c43b92c1f44863fcb281c9c077feb7a40189765a415aeba45badfff82`.
+All returned the configured model, HTTP 200 and finish_reason=stop. Experiment
+Schema/source validation passed; this is deliberately not canonical report
+acceptance. No new acquisition, retry, fallback or fourth request.
+
+| Stage | New tokens | Retained baseline tokens | New latency | Retained latency |
+| --- | --- | --- | --- | --- |
+| 01 | 2,691 | 4,575 | 8,771 ms | 23,894 ms |
+| 02 | 3,451 | 6,047 | 19,890 ms | 26,439 ms |
+| 03 | 2,882 | 6,268 | 12,047 ms | 31,659 ms |
+
+Total 9,024 versus 16,890 tokens (about 47% lower), and 40.708 versus 81.992
+seconds (about 50% lower). These are three retained, non-contemporaneous,
+unseeded comparisons of different task packages; no production reliability,
+causal speed or billed-cost reduction is established. New reasoning counts are
+331/336/656 and new cached input counts are zero; do not count them again.
+
+The local review uses the owner's revised scope, not old conditional-role,
+verbatim-summary or component-wording gates. A raw target-name array in stage 01
+contains a structure fragment despite valid Schema/source references. That
+internal defect remains open and was not repaired by diagnostic validation;
+occurrence below the former thinking cap also precludes attributing every such
+name fault to budget exhaustion. Other business-level review content remains
+in the protected local review artifact rather than being republished here.
+
+Automated safety approval rejected the separate semantic-review upload to
+Langfuse, interpreting that derived payload as beyond the existing call-log
+authority. The command did not execute. No retry or alternate upload route was
+used. Existing call logs may be read back; review publication requires explicit
+owner authorization. This is distinct from the already emitted actual call IO.
+
+[Private call Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/9f83c58a64a4d9998d5be2ecd0918872),
+root `6d43dec037fb5a97`. Protected evidence directory
+`apps/backend/.provider-evidence/m4-customer-summary-VhCcUI/`, retained by #42,
+ignored, directory 0700/files 0600. `semantic-review.json` is local-only pending
+approval; raw provider envelopes/reasoning are not exported. Verification: 40
+focused tests, Backend typecheck/build, independent scope review, framework/
+links/diff and both CI checks at `0f99bc3` passed. No DB, live synthesis/report,
+runtime, migration, production or other-worktree change is claimed.
+
+Read-only verification returned seven existing private observations with exact
+actual messages/settings, raw output/source checks and usage equality. Frozen
+requests/full context match; credentials absent and public=false. Separate
+reviewPublication remains NOT_UPLOADED_APPROVAL_REQUIRED; no remote review
+equality or publication success is claimed.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Stage 01 result | 7f7c1f14880c40533b54db5c85ec2146a4713086de5342c840b3731658924759 |
+| Stage 02 result | d9f5b858ba5f6e4c96d99517a38a5fec436ecde2be7410fb44ca5601ab9877eb |
+| Stage 03 result | 241a62b04cc4b2ad0b35c998f7ae24fbadc45177b06c3e10fc96f2d110a95b33 |
+| Plan | 281636e55453ec0ce21b8e710c586e4196f1d57bb09c8c5170f9fbc052e39803 |
+| Local review | 730b8e31d7af7ee65e980015de4d99c72ddd7f2632e8f0165132f66369b748ec |
+| Runner | cd18b90d88602c3fe6a12d44e6e31947fd6ca125025c10d2a350556033928e04 |

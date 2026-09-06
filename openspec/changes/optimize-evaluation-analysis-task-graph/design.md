@@ -611,3 +611,11 @@ source round-trip, explicit-negative exclusion and unchanged legacy builder;
 then freeze a small retained-sample batch, evaluating new and old results under
 the same user-calibrated rubric. Formal Parser delivery still needs an owning
 scope and reconciliation; current glossary/specs/history remain unchanged.
+
+The three-call package at `0f99bc3` is completed. Retain the reduced task as an
+experimental working baseline with a remaining internal target-name field defect;
+schema/source validity is not canonical acceptance. Next reduce or resolve that
+redundant generated representation without reviving old conditional-role tasks.
+No reviewed outcome enters formal statistics until the owner's mixed-praise
+decision and report-contract integration are resolved. The separate semantic
+review is local only following an automated upload-authorization rejection.

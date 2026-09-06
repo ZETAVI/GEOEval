@@ -57,6 +57,16 @@ Mixed positive recommendations with ordinary drawbacks have one open owner
 question; provisional experimental interpretation follows overall recommendation,
 and formal statistical acceptance waits for that decision.
 
+All three frozen calls are complete at `0f99bc3`. Aggregate tokens are 9,024
+versus 16,890 in the retained non-contemporaneous baselines; recorded elapsed call
+time is 40.708 versus 81.992 seconds. This supports continuing the smaller task
+as an experimental working baseline, not a reliability or production claim.
+One raw internal target-name field remains malformed despite schema/source
+validity. Resolve that representation and the open eligibility decision before
+canonical integration. Separate semantic-review upload was blocked by automated
+safety review; detailed review stays local pending explicit authority, without
+substituting another external publication route.
+
 The following chronology explains earlier experiments, not additional current
 quality requirements. Conditions/part-wording findings must not silently regain
 blocking status after this recalibration.
