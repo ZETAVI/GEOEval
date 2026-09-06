@@ -4,6 +4,16 @@ export type FoundationRecord =
   components["schemas"]["FoundationRecordResponse"];
 export type Challenge = components["schemas"]["ChallengeResponse"];
 export type Account = components["schemas"]["AccountResponse"];
+export type PublishingPackage =
+  components["schemas"]["PublishingPackageCustomerResponse"];
+export type PublishingPackageAdmin =
+  components["schemas"]["PublishingPackageAdminResponse"];
+export type PublishingPackageCreate =
+  components["schemas"]["PublishingPackageCreateRequest"];
+export type PublishingPackageUpdate =
+  components["schemas"]["PublishingPackageUpdateRequest"];
+export type PublishingPackageAudit =
+  components["schemas"]["PublishingPackageAuditResponse"];
 export type SessionAuthenticationError =
   components["schemas"]["SessionAuthenticationErrorResponse"];
 export type SessionAuthenticationFailureCode =
@@ -130,6 +140,46 @@ async function apiRequest<T>(
   }
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
+}
+
+export function listPublishingPackages(
+  baseUrl: string,
+): Promise<PublishingPackage[]> {
+  return apiRequest(baseUrl, "/publishing/packages");
+}
+export function listAdminPublishingPackages(
+  baseUrl: string,
+): Promise<PublishingPackageAdmin[]> {
+  return apiRequest(baseUrl, "/admin/publishing/packages");
+}
+export function createAdminPublishingPackage(
+  baseUrl: string,
+  input: PublishingPackageCreate,
+): Promise<PublishingPackageAdmin> {
+  return apiRequest(baseUrl, "/admin/publishing/packages", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+export function updateAdminPublishingPackage(
+  baseUrl: string,
+  id: string,
+  input: PublishingPackageUpdate,
+): Promise<PublishingPackageAdmin> {
+  return apiRequest(
+    baseUrl,
+    `/admin/publishing/packages/${encodeURIComponent(id)}`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+export function listPublishingPackageAudits(
+  baseUrl: string,
+  id: string,
+): Promise<PublishingPackageAudit[]> {
+  return apiRequest(
+    baseUrl,
+    `/admin/publishing/packages/${encodeURIComponent(id)}/audits`,
+  );
 }
 
 export function requestLoginChallenge(

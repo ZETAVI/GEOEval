@@ -532,6 +532,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/publishing/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingPackageAdminController_list"];
+        put?: never;
+        post: operations["PublishingPackageAdminController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/publishing/packages/{packageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["PublishingPackageAdminController_update"];
+        trace?: never;
+    };
+    "/admin/publishing/packages/{packageId}/audits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingPackageAdminController_audits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/publishing/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingPackageCustomerController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications": {
         parameters: {
             query?: never;
@@ -1382,6 +1446,61 @@ export interface components {
             afterState?: Record<string, never> | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        PublishingPackageAdminResponse: {
+            name: string;
+            quantity: number;
+            pointPrice: number;
+            /** @enum {string} */
+            status: "INACTIVE" | "ACTIVE";
+            platformIds: string[];
+            /** Format: uuid */
+            id: string;
+            revision: number;
+        };
+        PublishingPackageCreateRequest: {
+            name: string;
+            quantity: number;
+            pointPrice: number;
+            /** @enum {string} */
+            status: "INACTIVE" | "ACTIVE";
+            platformIds: string[];
+        };
+        PublishingPackageUpdateRequest: {
+            name: string;
+            quantity: number;
+            pointPrice: number;
+            /** @enum {string} */
+            status: "INACTIVE" | "ACTIVE";
+            platformIds: string[];
+            expectedRevision: number;
+            reason: string;
+        };
+        PublishingPackageAuditResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            actorAccountId: string;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+            beforeState: components["schemas"]["PublishingPackageAdminResponse"] | null;
+            afterState: components["schemas"]["PublishingPackageAdminResponse"];
+        };
+        PublishingPackageScopeResponse: {
+            /** Format: uuid */
+            platformId: string;
+            displayName: string;
+        };
+        PublishingPackageCustomerResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            quantity: number;
+            pointPrice: number;
+            revision: number;
+            buyable: boolean;
+            scope: components["schemas"]["PublishingPackageScopeResponse"][];
         };
         EvaluationReportNotificationTargetResponse: {
             /** @enum {string} */
@@ -2592,6 +2711,113 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MediaCatalogAuditResponse"][];
+                };
+            };
+        };
+    };
+    PublishingPackageAdminController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageAdminResponse"][];
+                };
+            };
+        };
+    };
+    PublishingPackageAdminController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishingPackageCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageAdminResponse"];
+                };
+            };
+        };
+    };
+    PublishingPackageAdminController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishingPackageUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageAdminResponse"];
+                };
+            };
+        };
+    };
+    PublishingPackageAdminController_audits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageAuditResponse"][];
+                };
+            };
+        };
+    };
+    PublishingPackageCustomerController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageCustomerResponse"][];
                 };
             };
         };

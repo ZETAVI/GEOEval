@@ -95,6 +95,7 @@ export interface MediaSupplyRepository {
     limit: number;
   }): Promise<MediaCatalogAuditView[]>;
   quotePlatform(platformId: string): Promise<MediaPlatformQuote>;
+  quotePlatforms(platformIds: string[]): Promise<MediaPlatformQuote[]>;
   fulfillmentCandidates(
     platformId: string,
   ): Promise<MediaFulfillmentCandidate[]>;

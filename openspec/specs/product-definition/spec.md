@@ -28,7 +28,10 @@
   current Core Article and confirmed-article handoff are owned by the
   [GEO Optimization specification](../geo-optimization/spec.md), including its
   terminal-customer API and workspace. This marker remains for unactivated
-  commerce, payment, fulfilment and related capabilities.
+  payment, fulfilment and related capabilities. Maintained random-package
+  configuration, audit and customer offer visibility are now owned by the
+  [Publishing Commerce specification](../publishing-commerce/spec.md).
+  The remaining selection, points and purchase activation stays under this marker.
 
 ## Requirements
 

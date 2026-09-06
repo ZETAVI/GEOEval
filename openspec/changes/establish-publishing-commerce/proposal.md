@@ -3,7 +3,7 @@
 - Owner: [Issue #65](https://github.com/ZETAVI/GEOEval/issues/65)
 - Lane/class: product delivery / architectural
 - Baseline: accepted `main@5fb4400`, including #57 correction PR #71
-- State: proposal ready for owner architecture approval; no Commerce runtime yet
+- State: owner approved; implementing the first maintained-package vertical slice
 
 ## Why
 
@@ -35,8 +35,11 @@ choices and points rules in [Product Definition](../../specs/product-definition/
 The [delta spec](specs/publishing-commerce/spec.md) defines this stage's observable
 behavior. The [design](design.md) fixes the transaction participants, source
 references versus necessary snapshots, idempotency, data constraints, migration
-and recovery. Owner approval is required before persistent Commerce implementation;
-the existing direction to continue authorizes this proposal, not production money.
+and recovery. On 2026-09-06 the owner explicitly approved atomic purchase,
+article/price reconfirmation, granted-only administration for this stage and the
+normal administrator-to-customer purchase journey. Real recharge/payment follows
+this stage. This permits scoped implementation and isolated validation, not
+production money, deployment or activation.
 
 ## Documentation and workspace control
 
@@ -54,5 +57,8 @@ the existing direction to continue authorizes this proposal, not production mone
   single writer for its Change and later approved schema/composition/client changes.
 - #39 stays independent. Recheck shared schema, generated client, composition and
   styles against main before each implementation slice. Use dedicated test data.
-- Exit for this package: reviewable proposal PR and Issue `Review / Decision`;
-  retain this branch for the same outcome. No extra worktree or integration branch.
+- Current bounded package: administrator package maintenance and customer-safe
+  offer visibility, including schema, API, UI, audit, references and evidence.
+  Point accounts and purchase remain subsequent slices under this same Issue.
+- Exit: verified Partial PR, parent Change stays active; retain this branch for
+  the same outcome. No extra worktree or integration branch.

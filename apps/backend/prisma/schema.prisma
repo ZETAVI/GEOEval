@@ -201,6 +201,7 @@ model Account {
   brandContext             BrandContext?
   notifications            Notification[]
   mediaCatalogAudits       MediaCatalogAudit[]
+  publishingPackageAudits  PublishingPackageAudit[]
   questionPreparations     EvaluationQuestionPreparation[]
   identityAuditsActed      IdentityGovernanceAudit[]       @relation("IdentityAuditActor")
   identityAuditsTargeted   IdentityGovernanceAudit[]       @relation("IdentityAuditTarget")
@@ -831,20 +832,21 @@ model Notification {
 }
 
 model MediaPlatform {
-  id             String                  @id @default(uuid()) @db.Uuid
-  normalizedName String                  @unique @map("normalized_name") @db.VarChar(160)
-  displayName    String                  @map("display_name") @db.VarChar(160)
-  aliases        String[]                @default([])
-  description    String?
-  logoUrl        String?                 @map("logo_url") @db.VarChar(2048)
-  regionScope    MediaRegionScope        @default(DOMESTIC) @map("region_scope")
-  status         MediaPlatformStatus     @default(INACTIVE)
-  pointPrice     Int?                    @map("point_price")
-  revision       Int                     @default(1)
-  createdAt      DateTime                @default(now()) @map("created_at")
-  updatedAt      DateTime                @updatedAt @map("updated_at")
-  categories     MediaPlatformCategory[]
-  resources      MediaResource[]
+  id               String                      @id @default(uuid()) @db.Uuid
+  normalizedName   String                      @unique @map("normalized_name") @db.VarChar(160)
+  displayName      String                      @map("display_name") @db.VarChar(160)
+  aliases          String[]                    @default([])
+  description      String?
+  logoUrl          String?                     @map("logo_url") @db.VarChar(2048)
+  regionScope      MediaRegionScope            @default(DOMESTIC) @map("region_scope")
+  status           MediaPlatformStatus         @default(INACTIVE)
+  pointPrice       Int?                        @map("point_price")
+  revision         Int                         @default(1)
+  createdAt        DateTime                    @default(now()) @map("created_at")
+  updatedAt        DateTime                    @updatedAt @map("updated_at")
+  categories       MediaPlatformCategory[]
+  resources        MediaResource[]
+  publishingScopes PublishingPackagePlatform[]
 
   @@index([status, displayName, id])
   @@map("media_platforms")
@@ -926,6 +928,54 @@ model MediaCatalogAudit {
   @@index([entityType, entityId, createdAt])
   @@index([actorAccountId, createdAt])
   @@map("media_catalog_audits")
+}
+
+enum PublishingPackageStatus {
+  INACTIVE
+  ACTIVE
+}
+
+model PublishingPackage {
+  id             String                      @id @default(uuid()) @db.Uuid
+  name           String                      @db.VarChar(120)
+  normalizedName String                      @unique @map("normalized_name") @db.VarChar(120)
+  quantity       Int
+  pointPrice     Int                         @map("point_price")
+  status         PublishingPackageStatus     @default(INACTIVE)
+  revision       Int                         @default(1)
+  createdAt      DateTime                    @default(now()) @map("created_at")
+  updatedAt      DateTime                    @updatedAt @map("updated_at")
+  platforms      PublishingPackagePlatform[]
+  audits         PublishingPackageAudit[]
+
+  @@index([status, createdAt, id])
+  @@map("publishing_packages")
+}
+
+model PublishingPackagePlatform {
+  packageId  String            @map("package_id") @db.Uuid
+  platformId String            @map("platform_id") @db.Uuid
+  package    PublishingPackage @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  platform   MediaPlatform     @relation(fields: [platformId], references: [id], onDelete: Restrict)
+
+  @@id([packageId, platformId])
+  @@index([platformId])
+  @@map("publishing_package_platforms")
+}
+
+model PublishingPackageAudit {
+  id             String            @id @default(uuid()) @db.Uuid
+  packageId      String            @map("package_id") @db.Uuid
+  actorAccountId String            @map("actor_account_id") @db.Uuid
+  reason         String            @db.VarChar(320)
+  beforeState    Json?             @map("before_state")
+  afterState     Json              @map("after_state")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  package        PublishingPackage @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  actor          Account           @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
+
+  @@index([packageId, createdAt, id])
+  @@map("publishing_package_audits")
 }
 
 model FoundationRecord {

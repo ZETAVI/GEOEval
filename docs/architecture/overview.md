@@ -270,6 +270,17 @@ calls on the earlier model contract were accepted on their first attempt at
 about nineteen seconds average latency; the latest contract and final integrated
 4-by-5 remain separately unverified. The 17/20 report boundary is unchanged.
 
+Publishing Commerce begins with administrator-maintained random packages and
+customer-safe offer visibility. Package configuration, explicit platform scope
+and administrator audit save atomically with expected revisions. Media Supply
+continues to own platform buyability; a batched quote read derives package
+availability without resource counts or copied status. Scope foreign keys join
+the Media-owned deletion gate. Its current boundary is specified by
+[`publishing-commerce`](../../openspec/specs/publishing-commerce/spec.md).
+Point accounts, saved selection and order submission remain subsequent slices;
+the approved transaction direction is recorded in
+[ADR 0005](adr/0005-atomic-publishing-purchase.md), not claimed as implemented.
+
 ## Architecture qualities
 
 When architecture work begins, it must preserve:

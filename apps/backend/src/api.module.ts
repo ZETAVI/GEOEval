@@ -11,6 +11,7 @@ import { MediaSupplyModule } from "./media-supply/media-supply.module.js";
 import { TelemetryModule } from "./infrastructure/telemetry.js";
 import { NotificationApiModule } from "./notification/notification-api.module.js";
 import { ReadinessModule } from "./readiness.module.js";
+import { PublishingCommerceModule } from "./publishing-commerce/publishing-commerce.module.js";
 
 @Module({})
 export class ApiModule {
@@ -27,6 +28,7 @@ export class ApiModule {
           storeLocation: config.storeLocation,
         }),
         MediaSupplyModule,
+        PublishingCommerceModule,
         NotificationApiModule,
         ReadinessModule,
         FoundationModule,

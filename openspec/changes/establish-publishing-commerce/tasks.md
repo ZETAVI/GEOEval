@@ -5,20 +5,21 @@
 - [x] Reconcile #57 and verify latest main, #65 ownership and independent #39 scope.
 - [x] Review existing article/quote/Identity seams and prepare the minimum proposal,
       behavior delta, transaction/failure matrix, migration and recovery design.
-- [ ] Obtain owner approval for the shared purchase transaction and stage-specific
-      granted-only administrator adjustment boundary. No Commerce implementation yet.
+- [x] Obtain owner approval for atomic purchase, article/price reconfirmation,
+      stage-specific granted-only administration and the normal purchase journey.
 
 ## 1. Maintained offers and account points reach the customer
 
-- [ ] Add formal owned schema/constraints and owner-boundary migration tests;
-      extend platform deletion gates for package and later order references.
-- [ ] Deliver administrator package maintenance plus customer-safe offers using
-      existing media cards, with revisions, audit, role/HTTP tests and browser evidence.
+- [x] Add package schema/constraints and verify fresh migration plus isolated
+      backup/restore; extend Media deletion gates for current package references.
+- [x] Deliver administrator package maintenance and customer-safe package cards
+      using shared shell/styles, with revisions, audit, role/HTTP and browser evidence.
 - [ ] Deliver zero-initialized point account, idempotent grant/correction and
       customer unified balance/history, with atomicity and cross-account tests.
 
 ## 2. Confirmed article to paid pending order
 
+- [ ] Extend the existing deletion gate and restrictive references for paid orders.
 - [ ] Add transaction-bound article and media readers and verify their shared
       connection/locking against actual concurrent edits before purchase activation.
 - [ ] Deliver saved selection, server quote and both publishing modes as one
@@ -38,6 +39,6 @@
 - [ ] Integrate only under applicable authorization; reconcile exact tree,
       Issue/Project, test-resource shutdown and workspace exit independently.
 
-Continue on this branch after approval. Each implementation slice includes its
+Continue on this branch within approval. Each implementation slice includes its
 own API/UI/permissions/evidence; do not create horizontal layer-only Issues or
 reopen the completed #57. Tracker/PR own live status and evidence, not this file.

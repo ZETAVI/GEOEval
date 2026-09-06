@@ -1,7 +1,7 @@
 # Publishing Commerce design
 
-Status: proposed for owner approval. This is a bounded activation design, not
-current product truth or a framework for future payments.
+Status: owner approved on 2026-09-06. Implementation is staged; unimplemented
+sections are not current product truth or a framework for future payments.
 
 ## 1. Ownership and public boundary
 
@@ -127,7 +127,7 @@ point multiplication or silently clamp overflow.
 This stage exposes administrator grants and corrections to granted points only;
 it does not create funded credits. Negative corrections cannot exceed granted
 balance. A future real-payment owner will add funded credit under its own gate.
-The spending policy already handles both origins, tested with controlled internal
+The spending policy will handle both origins and be tested with controlled internal
 fixtures. Adjustment commands also need account-scoped idempotency, explicit
 reason, actor audit and atomic balance/change writes. No direct balance setter.
 
@@ -176,8 +176,15 @@ with real two-connection tests before merge. No new library is needed.
 
 ## Architecture review disposition
 
-Ready for owner decision, not implementation acceptance. Current code confirms
+Ready for scoped implementation, not implementation acceptance. Current code confirms
 the independent-read race and deletion-gate extension points; this proposal gives
 each a bounded owner and required test. Shared transaction participation and the
-stage-specific granted-only admin boundary require explicit owner approval.
+stage-specific granted-only admin boundary were explicitly approved by the owner.
 No further Writer, material, payment or fulfilment design is needed for this gate.
+
+First slice: packages own status/revision/scope and immutable administrator audit.
+Only activated packages appear in the customer list; buyability is derived from
+at least one buyable scoped platform via the existing Media Supply quote boundary.
+This display is advisory, not a purchase quote or reservation. No debit exists yet.
+Package-scope foreign keys block platform deletion without Commerce reading Media
+private state. Do not add unimplemented wallet/order tables in this migration.

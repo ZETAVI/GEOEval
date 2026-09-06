@@ -420,6 +420,10 @@ revision.
   name, buyability, whole-number point price, and platform revision
 - **AND** Commerce rejects or reconfirms an unavailable or changed quote and
   owns the paid platform, price, revision, and quantity snapshot
+- **AND** its package-display consumer may batch the same quote projection;
+  buyability still uses the single Media Supply platform rule
+- **AND** current Publishing Package scope is a durable platform-deletion
+  dependency, checked under a platform lock before the existing delete path.
 - **AND** catalog polling never substitutes for this synchronous check.
 
 ### Requirement: Non-blocking fulfilment candidates

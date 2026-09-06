@@ -1185,6 +1185,156 @@
         ]
       }
     },
+    "/admin/publishing/packages": {
+      "get": {
+        "operationId": "PublishingPackageAdminController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-publishing"
+        ]
+      },
+      "post": {
+        "operationId": "PublishingPackageAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishingPackageCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-publishing"
+        ]
+      }
+    },
+    "/admin/publishing/packages/{packageId}": {
+      "patch": {
+        "operationId": "PublishingPackageAdminController_update",
+        "parameters": [
+          {
+            "name": "packageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishingPackageUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-publishing"
+        ]
+      }
+    },
+    "/admin/publishing/packages/{packageId}/audits": {
+      "get": {
+        "operationId": "PublishingPackageAdminController_audits",
+        "parameters": [
+          {
+            "name": "packageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublishingPackageAuditResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-publishing"
+        ]
+      }
+    },
+    "/publishing/packages": {
+      "get": {
+        "operationId": "PublishingPackageCustomerController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublishingPackageCustomerResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing"
+        ]
+      }
+    },
     "/notifications": {
       "get": {
         "operationId": "NotificationController_list",
@@ -3925,6 +4075,247 @@
           "action",
           "reason",
           "createdAt"
+        ]
+      },
+      "PublishingPackageAdminResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "pointPrice": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INACTIVE",
+              "ACTIVE"
+            ]
+          },
+          "platformIds": {
+            "minItems": 1,
+            "maxItems": 200,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "pointPrice",
+          "status",
+          "platformIds",
+          "id",
+          "revision"
+        ]
+      },
+      "PublishingPackageCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "pointPrice": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INACTIVE",
+              "ACTIVE"
+            ]
+          },
+          "platformIds": {
+            "minItems": 1,
+            "maxItems": 200,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "pointPrice",
+          "status",
+          "platformIds"
+        ]
+      },
+      "PublishingPackageUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "pointPrice": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INACTIVE",
+              "ACTIVE"
+            ]
+          },
+          "platformIds": {
+            "minItems": 1,
+            "maxItems": 200,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 320
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "pointPrice",
+          "status",
+          "platformIds",
+          "expectedRevision",
+          "reason"
+        ]
+      },
+      "PublishingPackageAuditResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "beforeState": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+              }
+            ]
+          },
+          "afterState": {
+            "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+          }
+        },
+        "required": [
+          "id",
+          "actorAccountId",
+          "reason",
+          "createdAt",
+          "beforeState",
+          "afterState"
+        ]
+      },
+      "PublishingPackageScopeResponse": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "platformId",
+          "displayName"
+        ]
+      },
+      "PublishingPackageCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "pointPrice": {
+            "type": "integer"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "buyable": {
+            "type": "boolean"
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingPackageScopeResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "quantity",
+          "pointPrice",
+          "revision",
+          "buyable",
+          "scope"
         ]
       },
       "EvaluationReportNotificationTargetResponse": {

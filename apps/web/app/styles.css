@@ -33,6 +33,229 @@ textarea {
   font: inherit;
 }
 
+/* Publishing Commerce shares the existing shell, typography and action tokens. */
+.commerce-workspace {
+  min-width: 0;
+}
+.commerce-intro,
+.commerce-editor,
+.commerce-empty {
+  padding: 28px;
+  margin: 24px 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+.commerce-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.commerce-intro > a {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.commerce-intro h2,
+.commerce-editor h2,
+.commerce-empty h2 {
+  margin: 8px 0 12px;
+  font-size: 1.25rem;
+}
+.commerce-intro p,
+.commerce-editor > p,
+.commerce-empty p {
+  color: var(--muted);
+  line-height: 1.8;
+}
+.commerce-notice {
+  padding: 14px 18px;
+  border-left: 3px solid var(--gold);
+  background: #faf4e8;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+.commerce-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.commerce-card {
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: white;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.commerce-card-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.commerce-card-heading h2 {
+  margin: 0;
+  font-size: 1.18rem;
+  overflow-wrap: anywhere;
+}
+.commerce-card-heading .current-badge {
+  flex-shrink: 0;
+}
+.commerce-price {
+  margin: 24px 0 12px;
+  color: var(--green-dark);
+  font-size: 2rem;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.commerce-price small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.commerce-quantity {
+  margin: 0 0 20px;
+}
+.commerce-quantity strong {
+  font-size: 1.35rem;
+}
+.commerce-muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.commerce-card > button:last-child {
+  margin-top: auto;
+  width: 100%;
+}
+.commerce-tags,
+.commerce-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.commerce-tags span {
+  padding: 6px 10px;
+  background: var(--green-pale);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.commerce-form-grid {
+  border: 0;
+  padding: 0;
+  margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.commerce-form-grid .wide {
+  grid-column: 1 / -1;
+}
+.commerce-form-grid > label {
+  display: grid;
+  gap: 8px;
+  font-weight: 650;
+  font-size: 0.9rem;
+}
+.commerce-form-grid input:not([type="checkbox"]),
+.commerce-form-grid select,
+.commerce-form-grid textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 12px;
+  background: white;
+  color: var(--ink);
+}
+.commerce-form-grid :is(input, select, textarea):focus {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.commerce-form-grid textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+.commerce-scope {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+}
+.commerce-scope legend {
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+.commerce-scope p {
+  color: var(--muted);
+  font-size: 0.83rem;
+  line-height: 1.7;
+}
+.commerce-scope-options {
+  max-height: 260px;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.commerce-scope-options label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.commerce-scope-options span {
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+}
+.commerce-scope-options small {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.commerce-audit {
+  padding-left: 20px;
+}
+.commerce-audit li {
+  border-bottom: 1px solid var(--line);
+  padding: 16px 0;
+  overflow-wrap: anywhere;
+}
+.commerce-audit p,
+.commerce-audit small {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+@media (max-width: 760px) {
+  .commerce-grid,
+  .commerce-form-grid,
+  .commerce-scope-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .commerce-intro {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .commerce-intro,
+  .commerce-editor,
+  .commerce-empty,
+  .commerce-card {
+    padding: 20px;
+  }
+  .commerce-card-heading {
+    flex-wrap: wrap;
+  }
+}
+
 /* GEO optimization */
 .optimization-workspace {
   max-width: 1180px;
