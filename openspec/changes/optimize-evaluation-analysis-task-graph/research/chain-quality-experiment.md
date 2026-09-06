@@ -1022,3 +1022,28 @@ structural/conditional handoff and isolate relationship judgment on already-
 complete source before freezing another batch. The observed negative failure and
 positive incompleteness do not select a production topology or justify another
 Agent layer. This batch is ended; the offline correction does not resume it.
+
+## Full-source task comparison — frozen protocol
+
+Owner approved 2026-09-06: task-relevant context is not minimal source, explanation
+may paraphrase faithfully, and the next comparison keeps the full original answer.
+Use the two retained natural answers, no acquisition. At most six Qwen3.8 Flash
+low calls: negative aligned single / inventory / full-source judgment, then the
+same three positive arms. Each final task has identical full answer, four-field
+context, Prompt, Schema and projector; only the inventory proposal differs.
+The baseline is P6-derived with aligned context and a shared paraphrase instruction,
+not historical P6. Existing extraction is unchanged, so its cost is included.
+
+Inventory is mechanically checked for shape/ranges/capacity, not exact name
+spelling or semantic completeness. Those remain review dimensions; a consumer
+may repair omissions from the full source. No clipped-source guard is imported
+into this full-source comparison. Raw outputs, program recovery and customer-
+relevant correctness are scored separately; explanation need not be verbatim,
+but attribution, negation, conditions, target identity and metric meaning remain.
+
+Timeout 180 seconds, no retry/fallback/tuning/Hy3/runtime. Provider or returned-model
+failure stops the batch; invalid inventory skips only its dependent final task.
+Semantic failure is recorded after the planned independent arms, not used to
+silently adjust later requests. Compare summed serial split time and all tokens,
+not one component. Two fixed-order cases remain diagnostic, not a production
+success rate. If no useful advantage emerges, do not add further task layers.

@@ -15,6 +15,7 @@ const prompt = z
     version: z.string(),
     extractionInstruction: z.string().min(1),
     judgmentInstruction: z.string().min(1),
+    fullSourceInstruction: z.string().min(1),
   })
   .strict()
   .parse(
@@ -235,6 +236,45 @@ export function buildM4EvidenceJudgmentTask(
         ...p.task.outputContract,
         version: "experiment.m4.parser-evidence-judgment@1",
       },
+    },
+  };
+}
+
+// Matched full-source arms differ only by the optional inventory. Names and
+// paraphrases in that proposal are semantic review inputs, not lexical gates.
+export function buildM4FullSourceTask(
+  base: StructuredOutputAttemptInput,
+  proposal?: unknown,
+): StructuredOutputAttemptInput {
+  const p = contractParts(base);
+  const { companyName, question, questionKind, answerLines } =
+    p.task.userContext;
+  let sourceInventory;
+  if (proposal !== undefined) {
+    const raw = rawInventorySchema.parse(proposal);
+    const restored = inventorySchema.parse(
+      restoreM4SourceReferences(raw, String(base.userContext.originalAnswer)),
+    );
+    if (
+      restored.otherBrands.length > p.brandLimit ||
+      (restored.target?.evidence.length ?? 0) > p.targetRangeLimit
+    )
+      throw new Error("Inventory exceeds source contract capacity");
+    sourceInventory = raw;
+  }
+  return {
+    ...p.task,
+    systemInstruction: `${p.task.systemInstruction}\n\n${prompt.fullSourceInstruction}`,
+    userContext: {
+      companyName,
+      question,
+      questionKind,
+      answerLines,
+      ...(sourceInventory === undefined ? {} : { sourceInventory }),
+    },
+    outputContract: {
+      ...p.task.outputContract,
+      version: "experiment.m4.parser-full-source@1",
     },
   };
 }

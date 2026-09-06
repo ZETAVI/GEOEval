@@ -56,12 +56,13 @@ check rejects an alias already in the shared visible source. Its inventory also
 genuinely omits a negative condition and table headers. This is an incomplete
 comparison, not evidence that either architecture wins or all splitting fails.
 
-The name-visibility check is corrected offline while preserving the original
-rejection and skipped call. Next separate source-context completeness from
-relationship judgment: define the necessary structural/conditional context and
-calibrate the smallest judgment task on already-complete evidence before freezing
-another batch. Do not add another Agent layer, remove metric-consumed fields or
-select a runtime solely to make a probe pass.
+The owner confirmed on 2026-09-06 that task-relevant context does not mean minimal
+source text, and faithful explanation need not copy the source verbatim. Next use
+the complete retained answers in matched final tasks, with or without a preceding
+inventory. Both arms use the same necessary identity/question context, Prompt,
+Schema and final projector. Inventory is an unaccepted proposal, not a lexical
+gate; program-owned exact citations remain separate from paraphrased explanation.
+No new clipping algorithm, Agent layer, runtime or metric change is introduced.
 
 ## Impact and exit
 

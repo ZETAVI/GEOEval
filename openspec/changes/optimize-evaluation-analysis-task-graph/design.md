@@ -432,3 +432,27 @@ needs, and whether a narrow judgment task handles relationships correctly when
 that context is complete. A selected quote is not necessarily a complete semantic
 unit. This directs the next protocol; it does not yet justify another abstraction,
 Agent, model switch, runtime topology or extension of the ended batch.
+
+### Full-source control — current experiment boundary
+
+The 2026-09-06 owner confirmation supersedes building a more elaborate clipping
+handoff. Reuse the existing experimental module: both final tasks receive full
+answerLines, companyName, question and questionKind. They have identical Prompt,
+Schema and final source-reference projector; the split arm alone adds the raw
+inventory proposal from the existing first task. This is a P6-derived aligned
+baseline, not the byte-identical historical P6 request. Profile fields are absent
+from both arms. One short shared instruction permits faithful explanatory
+paraphrase while keeping program-restored citations exact.
+
+Inventory shape, range validity and capacity are checked, but its name spelling
+and coverage are semantic review inputs, not additional rejection gates. Unlike
+the prior clipped task, the consumer sees every source line and can correct the
+proposal. Both final arms use the same existing projector, including its recovery;
+raw quality and any recovery/loss are recorded separately. The old clipped
+experiment and its regression tests are preserved, not silently reinterpreted.
+
+Readiness: owner-local reversible experiment, no new dependency, public contract,
+runtime import, persistence or retry. Existing external-route evidence remains
+valid because model, endpoint, strict mode and adapter are unchanged. The smallest
+checks are arm equality except inventory, full source retention, no lexical
+inventory gate, valid range enforcement and existing projection regressions.

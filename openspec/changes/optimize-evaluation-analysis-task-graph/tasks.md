@@ -27,9 +27,11 @@ Completed chronology, exact manifests and failed candidates live in the
       guard. Preserve this incomplete result, costs and exact failure ownership.
 - [x] Correct shared-source name visibility offline with a red-to-green regression;
       retain hidden-source rejection, original outputs and the skipped sixth call.
-- [ ] Specify the smallest complete structural/conditional handoff and isolate
-      relationship judgment on complete source; distinguish context loss from
-      model judgment error before freezing another batch. Do not resume P7.
+- [x] Simplify the next comparison under the 2026-09-06 owner confirmation: full
+      source in both final tasks, same Prompt/Schema/context/projector, optional
+      inventory only. Do not build a clipping algorithm or resume P7.
+- [ ] Execute at most six calls on the two retained answers; assess meaningful
+      subject/condition/role fidelity, full split cost and actual downstream value.
 - [ ] Obtain a complete positive/negative task-package comparison before selecting
       runtime. Small probes do not establish stability or general efficiency.
 

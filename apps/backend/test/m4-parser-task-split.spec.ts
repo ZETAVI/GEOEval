@@ -4,6 +4,7 @@ import { buildM4IdentityRoleTask } from "../src/ai-execution/controlled-validati
 import {
   buildM4EvidenceExtractionTask,
   buildM4EvidenceJudgmentTask,
+  buildM4FullSourceTask,
   projectM4EvidenceJudgmentOutput,
 } from "../src/ai-execution/controlled-validation/m4-parser-task-split.js";
 import { calculateEvaluationReportMetrics } from "../src/geo-intelligence/domain/evaluation-report.policy.js";
@@ -62,6 +63,42 @@ const judgment = () => ({
 });
 
 describe("M4 task-load comparison handoff", () => {
+  it("changes only the inventory between matched full-source final tasks", () => {
+    const single = buildM4FullSourceTask(base);
+    const split = buildM4FullSourceTask(base, proposal());
+    const { sourceInventory, ...context } = split.userContext;
+    expect(sourceInventory).toEqual(proposal());
+    expect(context).toEqual(single.userContext);
+    expect(split.systemInstruction).toBe(single.systemInstruction);
+    expect(split.outputContract).toEqual(single.outputContract);
+    expect(Object.keys(single.userContext).sort()).toEqual(
+      ["companyName", "question", "questionKind", "answerLines"].sort(),
+    );
+    expect(single.userContext.answerLines).toHaveLength(4);
+    expect(split.userContext.answerLines[2].text).toBe(
+      "与本题无关的一句原文。",
+    );
+  });
+
+  it("retains full source for an incomplete or nonverbatim inventory without accepting its semantics", () => {
+    const inventory = proposal();
+    inventory.target!.displayedForms = ["青禾咖啡（杭州）"];
+    inventory.otherBrands = [];
+    const task = buildM4FullSourceTask(base, inventory);
+    expect(task.userContext.answerLines).toEqual(
+      buildM4FullSourceTask(base).userContext.answerLines,
+    );
+    expect(task.userContext.sourceInventory).toEqual(inventory);
+    expect(task.systemInstruction).toContain("可以忠实概括，不要求逐字复述");
+    expect(() => buildM4EvidenceJudgmentTask(base, inventory)).toThrow();
+  });
+
+  it("still rejects inventory ranges outside the actual source", () => {
+    const inventory = proposal();
+    inventory.target!.evidence = [range(500)];
+    expect(() => buildM4FullSourceTask(base, inventory)).toThrow();
+  });
+
   it("accepts a literal alias already visible through another record without duplicating the source", () => {
     const local = {
       ...base,
