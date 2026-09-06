@@ -527,3 +527,9 @@ writer in #42 owns the reversible candidate; source restoration and semantics
 remain with their current owners. Reuse transport/privacy/recovery checks and
 freeze at most four matched calls on the retained shoe and coffee answers before
 any result. Compare the complete baseline/candidate pair, not only repaired names.
+
+Result: the coffee candidate selects complete brand paragraphs and preserves
+Manner's office limitations; the shoe candidate still loses the shared discount
+premise and omits FILA. Both take longer in these observations. Do not promote
+the ordering package. Retain its sample-level evidence and use the concrete
+shared-qualifier case to bound the next change; no new architecture is selected.

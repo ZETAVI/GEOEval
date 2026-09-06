@@ -78,9 +78,13 @@ is still unproven. End this parameter exploration. The owner asks for efficient
 execution of one small verified change. Existing consumers justify retaining the
 current fields; the next isolated candidate instead places other-brand evidence
 before role/position in the Schema and examples, with a positive evidence-first
-instruction. Compare four matched retained shoe/coffee calls at unchanged low,
-strict output and full context. This tests an ordering package, not a guaranteed
-Provider mechanism. Runtime and current semantics stay unchanged.
+instruction. Four matched retained shoe/coffee calls at unchanged low, strict
+output and full context are complete. Coffee now preserves meaningful paragraph
+conditions; shoe still omits shared discount conditions and loses FILA. Both
+candidate observations cost more tokens/time. Keep the sample-level evidence,
+do not promote the package or keep tuning field order. The next small test case
+should exercise several brands sharing an upper-level qualifier, not add fields
+or Agent layers. Runtime and current semantics stay unchanged.
 
 ## Impact and exit
 

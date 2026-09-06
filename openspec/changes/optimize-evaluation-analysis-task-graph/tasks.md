@@ -44,8 +44,10 @@ Completed chronology, exact manifests and failed candidates live in the
       medium counterfactual: names improve, but semantic gaps/latency remain.
 - [x] Recheck actual consumers: no field removal is justified. Select one local
       evidence-before-judgment candidate, keeping full source and current semantics.
-- [ ] Compare four frozen shoe/coffee baseline/candidate requests; inspect complete
-      conditions, brand/position regressions and actual cost. No further sweep.
+- [x] Complete four frozen calls: coffee evidence improves, shoe shared conditions
+      remain missing and FILA is lost; candidates take longer. Do not promote.
+- [ ] Carry the shared-condition failure into one representative test case before
+      the next small candidate; stop evidence-property-order tuning.
 - [ ] Resolve material identity/role/position quality and verify held-out behavior
       before small report-path integration; no candidate is accepted yet.
 

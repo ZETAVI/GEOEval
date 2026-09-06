@@ -1432,3 +1432,66 @@ Independent pre-call review caught a diagnostic-runner source mismatch: coffee
 projection still used the shoe source. Correct it before calls and compare both
 cases' known retained outputs against their own previously accepted projections.
 Those offline assertions pass; the old provider outputs are not modified.
+
+## Evidence-before-judgment — observed result
+
+Four calls completed 2026-09-06 06:27:09–06:31:16 UTC at `4122bda`, confirmation
+`5c967d0190d01793d81e7e315cfbb651b8a8a9798b7a175ed82e65d5f353d9ed`.
+All returned the configured model, HTTP 200, finish_reason=stop, meaningful name
+arrays and code acceptance. No acquisition, retry, fallback or follow-on calls.
+
+| Answer / arm | Total tokens | Latency | Semantic observation |
+| --- | --- | --- | --- |
+| Shoe baseline | 8,137 | 58,955 ms | Nine brands and target position 4; shared discount evidence/roles incomplete |
+| Shoe candidate | 8,474 | 88,262 ms | Target retained; same conditional defects, FILA lost (nine to eight brands) |
+| Coffee baseline | 6,047 | 26,439 ms | Five brands/positions and Manner conditional role; other-brand evidence only headings |
+| Coffee candidate | 8,195 | 73,362 ms | Five brands/positions retained; complete paragraph evidence carries meaningful conditions |
+
+Total 30,853 tokens, reasoning/cache not counted twice. Shoe pairs have no cached
+input; coffee pairs each have 1,024. Reasoning counts in order are 4,096, 4,096,
+2,314 and 4,057. Each candidate uses 51 more input tokens. One fixed-order pair
+per answer is not a causal performance estimate or reliability result.
+
+Independent semantic review agrees with the scoped comparison. Coffee improves
+from headings to substantive blocks: Peet's 16–25, Maxwell/Tims 27–34, Manner
+36–44 and Jia 46–53. Manner's desk/seat restrictions and qualified office use
+survive in final anchors; target line 67 preserves the Reserve distinction for
+complex work, and the customer card is faithful. This is useful local evidence,
+not failure merely because it paraphrases or shares a paragraph between brands.
+
+The shoe candidate emits evidence before judgments, but Nike/Adidas/New Balance
+still omit their shared discount premise at line 20 and remain RECOMMENDED.
+ASICS includes its older-season/price context at 27–28 but is still RECOMMENDED.
+FILA at line 39 disappears, although baseline retains its mention-only role.
+The targeted cross-brand condition loss is therefore unresolved. Normal name
+arrays in this batch do not establish that the previous punctuation fault is fixed.
+
+Decision: keep the coffee improvement as evidence, stop property-order tuning,
+and do not promote this package. The next narrow test case should explicitly
+cover brands inheriting a shared upper-level condition. No extra schema field,
+Agent, clipping system, runtime implementation or larger parameter study follows
+from these four calls. Held-out, absent-target and actual report-path acceptance
+remain outstanding.
+
+[Private Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/a9a66a43eb1c66c55c80903c107f994f),
+root `a8386f4b207f5bd7`. Protected directory
+`apps/backend/.provider-evidence/m4-evidence-order-0DtJCJ/`, 0700 / files 0600,
+ignored and retained by #42 until decision/review. Raw envelopes/reasoning remain
+local, outside Trace/Git. Verification: 31 focused tests, Backend typecheck/build,
+independent fixed-scope review, framework/links/diff and both CI checks at
+`4122bda` passed; interrupted broad local integration invocation is not a pass.
+No DB/service, actual synthesis/report, runtime, #49 or other-worktree change.
+
+Ten private observations read back with frozen actual messages/settings, raw
+outputs/checks, usage and complete semantic review equality; public=false and
+credentials absent. Review `69ea321b7721bc8b` was missing from the first immediate
+query and present on a read-only repeat; no duplicate publication or model call.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Shoe baseline result | 14fd1c0276acbbceb17dae9daadab3d3a0556277c17ea23398e076402ab18952 |
+| Shoe candidate result | e1aaf6d67e397e41c474c8029ee88a37eb93cfd1ed76188fd482ece71f3cdb4d |
+| Coffee baseline result | 81e2bf0769da179f9aa42f71f9d4b902bc378775b44a30d562246072c47e126a |
+| Coffee candidate result | 295f9c80dafeafd5d6febe1d4e328b4057a2e33334ecad42b2ac0d4df420934e |
+| Plan | 9f45d9e2b64033f474d9f798356eaddddf411b9e0bc43bddcf5d10b15457ac4f |
+| Runner | fada8a76c8fb4cb377cd59b1754409da8bd9863a848e6599f7a28cdfb6e4125a |

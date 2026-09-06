@@ -247,3 +247,24 @@ remain pending. This review is not approval for a runtime merge.
   `not ready` for runtime adoption. Stop parameter probes and reconcile the
   smallest useful single-call semantic/evidence delivery slice. Do not infer
   better quality from program recovery or add Agent layers and repair guards.
+
+## Evidence-before-judgment checkpoint
+
+- Fixed diff `ac31bcb..4122bda` keeps baseline requests, field meanings/constraints,
+  full source and final projection unchanged; only experimental instruction and
+  other-brand Schema/example property order vary. No runtime import or new field.
+- Independent review caught coffee using the shoe original in the ignored runner.
+  Before calls, use per-case source and prove both retained outputs match their
+  own stored projections. Focused re-review and the frozen manifest pass.
+- Four calls completed. Coffee evidence handoff improves without losing brands
+  or positions; shoe shared-condition loss remains and FILA disappears. Both
+  candidate observations take longer. Code acceptance is not semantic approval.
+- Evidence: 31 focused tests, Backend typecheck/build, framework/links/diff and
+  both CI checks at the fixed implementation pass. The accidentally broadened
+  local integration invocation was interrupted after sandbox Redis EPERM and is
+  not counted as passing evidence. No database or service configuration changed.
+- Ten private Trace observations read back with actual requests, outputs/checks,
+  usage and complete review equality; no credentials/raw reasoning exported.
+- Verdict: `ready with follow-up` for the experimental record, `not ready` for
+  runtime adoption. Stop property-order tuning; retain the concrete shared-brand
+  qualifier failure as the next bounded test case, without expanding topology.
