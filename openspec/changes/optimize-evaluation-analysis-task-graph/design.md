@@ -718,3 +718,14 @@ keep independent review and the readable result local. Deliver the real source,
 parse and synthesized preview together. Three open questions on one platform
 cover the analysis stages, not the direct question, 4×5 readiness, DB/recovery,
 official report UI or production. Those boundaries remain separately verifiable.
+
+The full seven-call chain completes at `a75a5be`. Independent local comparison
+confirms actual Parser outputs, restored excerpts and the synthesis handoff are
+unchanged; no manual semantic repair occurred. The preview is readable, while
+the remaining action-guidance boundary needs calibration: observed platform
+statements and uncertain interpretations must not silently become verified brand
+facts or directions to publish unsupported capabilities. Keep this real case for
+the next synthesis iteration; do not revive the superseded name counterfactual.
+The measured time distribution puts natural acquisition ahead of parsing as this
+batch's main cost/latency contributor. Reuse unchanged local evidence; a formal
+report integration, broader platform run and #41 acceptance remain separate.

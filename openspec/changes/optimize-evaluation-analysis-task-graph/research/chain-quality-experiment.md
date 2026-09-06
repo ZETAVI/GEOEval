@@ -1840,3 +1840,68 @@ Prompt Management completion is claimed. Other worktrees remain untouched.
 | Answer lineage | 156df6dafbf78dbc691ae70a556b7d6e30325a88fc3dc198d041c491632e96a8 |
 | Summary | 9252eb24f3d88e584c283fd230c0fe4e503fd859dbe0a1e35799381d3c12bc57 |
 | Runner | fa415abb1e454bf0dadf0347eeab5c5dd255a3432723e4ea4230c7612faf76ce |
+
+## Owner-directed real analysis chain — execution
+
+The owner supersedes hypothetical name replacement and asks to inspect a real
+sampling/Parser/synthesis result. This run uses the three accepted Interaction
+Pie open questions in the archived #26 [real-query review](../../archive/2026-09-04-implement-ai-query-generator/real-query-review.md#final-accepted-evidence),
+not fabricated brands or manually rewritten sample text. Existing natural Qwen
+acquisition, unchanged Parser 1.2.0 and one experiment-only synthesis 1.0.0 are
+connected through actual outputs and restored source excerpts.
+
+At `a75a5be`, manifest
+`f60e1d5cc9d43a09d81dcfd0320e165d00f39f698ae0531bb9d511aadd2febd7`
+freezes seven calls and concurrency at most two. Execution completes 2026-09-06
+09:59:45–10:03:33 UTC. No retries, fallback, source rewriting, manual parse repair
+or eighth call. All seven return the configured model and pass their bounded
+stage/Schema/source/reference checks. Natural acquisition wire contains only the
+accepted open query and objectivity instruction, without target-name injection.
+
+| Stage | Calls | Tokens | Cumulative call time |
+| --- | --- | --- | --- |
+| Natural acquisition, Qwen3.7 Flash | 3 | 49,073 | 248,190 ms |
+| Parser, Qwen3.8 Flash low | 3 | 6,698 | 21,510 ms |
+| Synthesis, Qwen3.8 Flash medium | 1 | 4,041 | 26,865 ms |
+
+Total 59,812 tokens. Wall time is 227.304 seconds because calls partly overlap;
+do not add call durations and label them wall time. Two acquisition calls trigger
+search (one and three searches respectively); the third does not. Search and
+cached-input usage stay in their provider-reported totals, without double-counting
+reasoning, cache or nested usage details. This batch is acquisition-dominated;
+it is not a multi-platform performance benchmark or billed-cost calculation.
+
+The unedited local preview combines final synthesis, original answers and actual
+parses. Independent local review verifies source hashes and field-by-field
+handoff equality. Its result is useful for discussion but not final customer
+action acceptance: the synthesis guidance still needs a grounded distinction
+between platform descriptions, current brand facts and suggested next actions.
+Detailed business-level review remains local. No strict minor-wording rubric is
+reintroduced, and the superseded name counterfactual is not executed.
+
+47 focused tests, Backend typecheck/build, framework/links/diff and independent
+experimental code review pass. A generated-reference length edge found during
+review is rejected before external execution; this batch uses short s1/s2/s3 IDs.
+The [private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/745622badd70eb32c2d576d7601d0eff)
+has root `19482029305b3392` plus exactly seven generations. Readback confirms
+actual model IO/settings/usage equality, private visibility and no credentials
+or derived/review observations. The preview and independent review are local only.
+
+Evidence owner #42 retains
+`apps/backend/.provider-evidence/m4-live-open-chain-PmUTIk/` (0700/0600).
+Three open questions on one platform cover analysis stages, not the direct
+question, formal 4×5 readiness, official report UI/database/recovery or production.
+No legacy role adapter or formal metric-policy change is introduced. #41 retains
+final synthesis/report ownership; no #49 Prompt Management completion is claimed.
+Main observed at start is `5fb4400` (#71 optimization workspace correction), and
+other worktrees are not modified.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | f3017b693a950a24ceeccda7e56a3c395251a2a0d5cda7e2eb65c94a87679354 |
+| Summary | 9bda921e98aa35e2de6d8a60251cba5a9eaea30c6b476835aa7591e84446615a |
+| Actual synthesis handoff | e52683c25cf73b5c3b13fde9e81f74e001f94ddc3171a093d8b31a477862ddb7 |
+| Preview | 8003d21be2a74ac16f438e88d538a8ba3d4a546c614b88857d6b621a65be5838 |
+| Readable report | 944d29cb9edb57f0d0145d2f6e5f4231d62a3613df5592a12c452d57be9fd264 |
+| Synthesis result | f04040ca90e46be4fcd5119bd22991304e391405d9d30488e41d7512ca2984f6 |
+| Runner | a5a2c60476a3bf11ea224e4e24958ac78179b8343221ce67025f219cbcd4c634 |

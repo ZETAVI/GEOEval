@@ -5,6 +5,10 @@
 Completed chronology, exact manifests and failed candidates live in the
 [experiment record](research/chain-quality-experiment.md), not this current checklist.
 
+Current owner direction: use the accepted real Interaction Pie questions through
+acquisition → unchanged Parser 1.2.0 → one synthesis → readable local preview.
+The name-only counterfactual is superseded and will not be run in this package.
+
 - [x] Audit main, Issue/PR/Project owners and the actual sampling/Parser/synthesis
       inputs and consumers; preserve natural acquisition and current metric meaning.
 - [x] Test frozen Prompt/context/contract candidates and preserve raw/projected
@@ -73,9 +77,21 @@ Completed chronology, exact manifests and failed candidates live in the
       summary decision in 1.2.0; five frozen calls and private IO readback complete.
 - [x] Separate structural simplification from semantic quality: no net fresh-pair
       benefit, and raw shared-item eligibility/position residual remains.
-- [ ] Diagnose that residual with a bounded unchanged-request replay/name-only
-      counterfactual before another Prompt edit. Do not expand alias generation,
-      revive fine roles or ask synthesis to recover missing facts.
+- [x] Supersede the planned name-only counterfactual with the owner's real-chain
+      direction; preserve previous failures without adding hypothetical samples.
+
+## Current real-chain verification
+
+- [x] Reuse the three accepted #26 open questions and existing natural Qwen route.
+- [x] Keep Parser 1.2.0 unchanged; prepare a source-backed synthesis handoff with
+      reference checks and program-owned preview counts, not a legacy adapter.
+- [x] Execute the seven-call chain and retain actual input/output at every stage.
+- [x] Review the final readable result alongside original answers and actual parses;
+      distinguish missing source information, Parser loss and synthesis additions.
+- [x] Verify IO-only Langfuse readback and reconcile next work from this real result.
+- [ ] Calibrate synthesis guidance from this retained real case: distinguish
+      platform descriptions from current brand facts and grounded next actions;
+      reuse the same raw/parsed evidence instead of hypothetical replacements.
 
 ## Synthesis comparison
 

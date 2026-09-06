@@ -40,116 +40,49 @@ Langfuse input/output export. Four questions, five platforms, metric meaning,
 
 ## Current evidence and next decision
 
-The owner's latest annotated review supersedes the preceding prospective
-condition-handoff work: single-call target points with sentiment and a sample
-summary; other brands need identity, source position and positive-recommendation
-eligibility, not detailed opinions or conditional-role analysis. Retain useful
-source excerpts through the existing line restorer. Ordinary paraphrases and
-minor component wording do not independently fail customer-quality acceptance.
-PR #48 remains historical reference, not the required synthesis design.
+The owner redirects the next step to a real analysis chain, not further
+name-replacement hypotheses. Use Interaction Pie's three accepted open questions
+from the archived #26 real-query review, acquire fresh natural answers, parse
+each with unchanged experiment 1.2.0, and synthesize the actual parses and source
+excerpts into one readable preview. No manual correction or synthetic replacement
+enters these calls. The bounded package contains seven calls on the existing Qwen
+routes, with at most two in flight and no retries or fallback.
 
-Prepare one smaller Prompt/model-contract package with no legacy category/role
-obligations hidden behind it. Its output is a diagnostic view, not an adapter
-that fabricates missing legacy semantics or modifies the report metric policy.
-Evaluate retained robot/coffee/absent-target answers under the same recalibrated
-customer rubric as the retained baselines. Existing raw evidence stays immutable.
-The owner confirms that overall positive recommendations with ordinary drawbacks
-remain eligible; this is no longer a pending product question. Formal statistics
-still require an explicitly owned implementation and report integration.
+The current Parser is an experiment, not a canonical report adapter. It retains
+target points/position/evidence and a target summary, while other brands have
+one subject name, source position, recommendation eligibility and evidence.
+Original names remain in source excerpts; absence display follows the model's
+null decision. The owner confirms ordinary drawbacks do not disqualify an
+overall-positive recommendation. Keep the customer-level quality bar and do not
+revive fine condition/role or minor wording gates.
 
-All three frozen calls are complete at `0f99bc3`. Aggregate tokens are 9,024
-versus 16,890 in the retained non-contemporaneous baselines; recorded elapsed call
-time is 40.708 versus 81.992 seconds. This supports continuing the smaller task
-as an experimental working baseline, not a reliability or production claim.
-One raw internal target-name field remains malformed despite schema/source
-validity. The next 1.1.0 experiment removes the redundant generated target-name
-field: the request supplies identity, while the model still decides actual
-mention, source position and points. This does not establish why the former raw
-output was malformed. Verify the existing source-backed handoff without a legacy
-report adapter, then replay the same three answers under the confirmed policy.
-The owner elects to keep independent semantic reviews local. Langfuse receives
-only actual model IO and operational call metadata, not reviews or projections;
-the prior blocked upload is not retried or treated as an outstanding approval.
+Previous real tests show useful structural simplification but no stable quality
+or efficiency advantage. Shared-item eligibility/position errors remain, and
+Schema/source acceptance alone does not establish customer usefulness. Those
+findings now inform review of the real final result; they do not justify another
+round of hypothetical Prompt changes. All immutable manifests, historical
+results and limits remain in the [experiment record](research/chain-quality-experiment.md).
 
-The fixed 1.1.0 replay is complete at `28933f3`: three successful calls, 8,600
-tokens and 48.938 seconds, versus the preceding 9,024/40.708. Fewer tokens did
-not mean lower observed latency. All three pass experimental Schema/source
-checks and four private observations pass IO-only readback. The local semantic
-review still finds competitor coverage/name-grounding and absence-summary gaps; this remains
-an experimental baseline, not an accepted customer-report input. The next small
-slice should check distinct-brand completeness and the minimum useful name
-handoff, not restore detailed condition annotation or add another Agent.
+The experiment-only synthesis handoff preserves actual parsed facts and restored
+excerpts, assigns short local reference IDs, and leaves counts with code. A
+single synthesis generates overview, themes, proposed brand groups and practical
+directions. It does not invent legacy Parser roles or satisfy the formal report
+contract. #41 retains final synthesis/customer-report ownership.
 
-The next 1.2.0 package at `7fe7b58` removes generated other-brand aliases, keeps
-original wording in source evidence, and derives absence display from the single
-null decision. Five calls completed: two retained candidates, one natural
-acquisition, and a matched new-answer 1.1.0/1.2.0 pair. The new pair has comparable
-useful coverage, but 1.2.0 takes 2,920 tokens/12.808 seconds versus 2,323/7.851.
-An existing shared-item eligibility/position residual remains in raw model output
-and is not introduced by source restoration. Do not promote the package or add
-more semantic prohibitions from this result. Next bound a fixed-request replay
-and name-only counterfactual before choosing another Prompt change; neither a
-unique model cause nor production stability is established.
+Langfuse contains actual model input/output and operational metadata only.
+Independent semantic review and the readable preview remain local. This package
+covers three open questions on one platform, not a brand-directed question,
+4×5 readiness, actual UI/database/recovery or production activation. Review the
+visible result first, then choose the smallest evidence-backed next improvement.
 
-The following chronology explains earlier experiments, not additional current
-quality requirements. Conditions/part-wording findings must not silently regain
-blocking status after this recalibration.
-
-The [experiment record](research/chain-quality-experiment.md) owns all frozen manifests,
-results and limits; the proposal does not repeat their chronology. Natural sampling
-remains isolated from target/profile injection. Diagnostic messages, metadata,
-raw output and program projection are distinct. Minimal input was not adopted.
-Source-reference handoff preserves exact text in retained and independent cases,
-but does not establish correct brand identity, role, position or derived claims.
-
-The owner confirmed on 2026-09-06 that task-relevant context does not mean minimal
-source text, and faithful explanation need not copy source wording. The completed
-six-call comparison supplies full answers to matched final tasks, differing only
-by a preceding inventory. Both use the same necessary identity/question context,
-Prompt, Schema and projector; no lexical inventory gate or clipping algorithm.
-
-The split costs more tokens/time in both cases and does not improve overall
-quality. Its negative final task turns source lines into recommendation positions;
-its positive task drops four brands present in both inventory and full source.
-Single-call output has useful coverage but still misstates material conditions.
-Stop advancing this inventory/judgment split; keep a full-source single-call
-working baseline, not an accepted runtime Prompt.
-
-The next Prompt-only worked-example probe completed five calls, including a new
-natural answer and matched baseline/candidate. Some roles and prose improve, but
-the candidate produces punctuation-only name arrays in two cases, misattributes
-an absent target, and cites an empty source line. Raw model JSON already contains
-the anomalies; local decoding and display did not introduce them. Do not activate
-this candidate or keep adding semantic wording.
-
-The subsequent name/mode diagnosis reproduces intermittent punctuation on an
-identical full strict request, while both minimal modes can form names. JSON
-Object avoids that symptom in two observations but violates the complete output
-contract. All four full low calls reach the documented 4,096 thinking-token budget.
-A separately frozen two-call medium counterfactual forms names but retains
-condition/evidence errors and takes 90.4/178.6 seconds. Neither mode relaxation
-nor a blanket effort increase is an accepted solution; the unique upstream cause
-is still unproven. End this parameter exploration. The owner asks for efficient
-execution of one small verified change. Existing consumers justify retaining the
-current fields; the next isolated candidate instead places other-brand evidence
-before role/position in the Schema and examples, with a positive evidence-first
-instruction. Four matched retained shoe/coffee calls at unchanged low, strict
-output and full context are complete. Coffee now preserves meaningful paragraph
-conditions; shoe still omits shared discount conditions and loses FILA. Both
-candidate observations cost more tokens/time. Keep the sample-level evidence,
-do not promote the package or keep tuning field order. The next small test case
-exercises several brands sharing an upper-level qualifier, not new fields or
-Agent layers. Its complete fictional example replaces only the absent-target
-demonstration, leaving two examples and the baseline field order. Freeze four
-calls: retained shoe candidate (reuse prior baseline), independent robot-vacuum
-acquisition, and a new matched baseline/candidate pair. All completed: some shoe
-roles improve, but shared evidence is still missing; the new candidate changes a
-main-unit fact to a base-station fact and costs 24% more tokens without net gain.
-Stop adding similar demonstrations. A zero-call replay separately proves raw
-selection omission and the existing per-span name filter's loss of a detached
-qualifier; a complete contiguous context passes. Next bound identity anchoring
-and qualifying-context handoff at this concrete seam, not a larger Agent design.
-Runtime and current semantics stay unchanged; this is not production acceptance.
+The seven-call chain is now complete at `a75a5be`, including an unedited readable
+preview. Local review finds the Parser-to-synthesis handoff intact and the final
+result useful for discussion, but action guidance still crosses from platform
+descriptions into insufficiently supported business assertions. Next calibrate
+that synthesis boundary using the same retained real evidence, under #41's final
+semantic ownership. The batch takes 227.304 seconds wall time; natural sampling
+dominates its duration and tokens. This is measured evidence for this package,
+not a universal performance conclusion or an accepted runtime.
 
 ## Impact and exit
 
