@@ -279,6 +279,51 @@ export function buildM4FullSourceTask(
   };
 }
 
+export function buildM4WorkedExampleTask(
+  base: StructuredOutputAttemptInput,
+): StructuredOutputAttemptInput {
+  const task = buildM4FullSourceTask(base);
+  const examplePrompt = z
+    .object({
+      id: z.string(),
+      version: z.string(),
+      content: z.string().min(1),
+      examples: z
+        .array(
+          z.object({
+            input: z.record(z.string(), z.unknown()),
+            output: z.unknown(),
+          }),
+        )
+        .length(2),
+    })
+    .strict()
+    .parse(
+      JSON.parse(
+        readFileSync(
+          new URL(
+            "../../../geo-intelligence/experiments/m4-parser-worked-examples.json",
+            import.meta.url,
+          ),
+          "utf8",
+        ),
+      ),
+    );
+  return {
+    ...task,
+    systemInstruction: `${examplePrompt.content}\n\n${examplePrompt.examples
+      .map(
+        (example, index) =>
+          `示例 ${index + 1} 输入：\n${JSON.stringify(example.input)}\n完整输出：\n${JSON.stringify(example.output)}`,
+      )
+      .join("\n\n")}`,
+    outputContract: {
+      ...task.outputContract,
+      version: "experiment.m4.parser-worked-examples@1",
+    },
+  };
+}
+
 export function projectM4EvidenceJudgmentOutput(
   value: unknown,
   base: StructuredOutputAttemptInput,

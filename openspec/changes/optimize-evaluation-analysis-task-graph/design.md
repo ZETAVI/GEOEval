@@ -464,3 +464,18 @@ and source. Costs and serial time are higher in both cases. Stop advancing this
 split; single-call remains the simpler working baseline but is not quality-accepted.
 This result supersedes further context-clipping design, not the unchanged runtime.
 The [experiment record](research/chain-quality-experiment.md) owns the evidence.
+
+### Single-call worked examples — current probe
+
+Stay at the existing full-source task seam. Replace only instructions with a
+short task sequence and two complete fictional outputs on the same small answer,
+once with the target absent and once present. This concretely demonstrates brand
+assignment, conditional choice, partner mentions and candidate position distinct
+from line coordinates. Neither retained real answer nor the new probe's names
+appear in the demonstrations. Explanation may paraphrase; program citations and
+the complete final Schema remain unchanged. No new guard, clipping or Agent.
+
+The isolated builder is owner-local and reversible. Existing route/adapter and
+privacy evidence apply. Tests check unchanged input/Schema, valid complete examples
+and their final projection; independent review focuses on example consistency and
+test contamination. Model success still needs actual source/meaning review.

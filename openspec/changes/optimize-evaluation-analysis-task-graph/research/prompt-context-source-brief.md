@@ -61,3 +61,14 @@ the [results](chain-quality-experiment.md#brand-subject-results--2026-09-05).
 This is not proof of causality or a reason to downgrade mode/change Provider.
 The model's internal cause remains uncertain. Context7 was unavailable; official
 pages and retained wire evidence were used without installing a global tool.
+
+## Worked-example probe — 2026-09-06
+
+The [official prompt guide](https://help.aliyun.com/en/model-studio/prompt-engineering-guide)
+recommends explicit tasks and examples of expected output. This supports a small
+experiment using two complete, fictional demonstrations of subject assignment,
+conditional selection and semantic position; it does not guarantee this model's
+quality. No automatic optimizer, example-retrieval service or new dependency is
+introduced. Compare against the unchanged full-source input/Schema/projector,
+then use a new natural answer not copied into the examples. Reuse this guidance
+while that prompt-only decision and existing routes remain unchanged.

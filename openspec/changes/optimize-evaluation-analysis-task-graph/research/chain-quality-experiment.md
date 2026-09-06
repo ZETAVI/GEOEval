@@ -1110,3 +1110,23 @@ again from saved requests. Existing unchanged browser presentation evidence reus
 Verification: 5 files / 46 tests, Backend typecheck/build, independent fixed-diff
 and semantic review, framework/links and diff checks. No runtime, DB/migration,
 synthesis/report/browser, model/route switch, #49 mirror or other worktree change.
+
+## Worked-example single-call probe — protocol
+
+Freeze a Prompt-only candidate using two complete fictional demonstrations.
+Full-source input, Schema, projector and Qwen3.8 Flash low route remain unchanged.
+First run the candidate on retained negative and positive answers; the exact
+baseline requests/results from the preceding full-source batch are reused for
+semantic comparison, not a matched new timing claim. Then obtain one natural
+answer for a frozen running-shoe shopping question in Beijing Chaoyang, and run
+both baseline and candidate on that same answer. Maximum five calls in fixed
+order: retained negative candidate, retained positive candidate, Qwen3.7 Flash
+acquisition, new-answer baseline, new-answer candidate. Target identity (迪卡侬)
+is for parsing only; actual acquisition input must not include it.
+
+All independent arms remain planned despite semantic failure; Provider/model
+identity failure stops the batch, and invalid acquisition prevents both dependent
+parsers. No automatic retry, fallback, tuning, second acquisition, Hy3 or runtime.
+Preserve actual source, raw output, projected records and useful/rejected meanings.
+Evaluate material identity/condition/position errors, not exact paraphrase wording.
+The new answer is held out from Prompt design, not statistical reliability proof.

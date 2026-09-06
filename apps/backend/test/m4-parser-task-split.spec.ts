@@ -1,10 +1,15 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { buildSampleParserTask } from "../src/geo-intelligence/sample-parser.policy.js";
-import { buildM4IdentityRoleTask } from "../src/ai-execution/controlled-validation/m4-parser-line-references.js";
+import {
+  buildM4IdentityRoleTask,
+  projectM4LineReferenceOutput,
+} from "../src/ai-execution/controlled-validation/m4-parser-line-references.js";
 import {
   buildM4EvidenceExtractionTask,
   buildM4EvidenceJudgmentTask,
   buildM4FullSourceTask,
+  buildM4WorkedExampleTask,
   projectM4EvidenceJudgmentOutput,
 } from "../src/ai-execution/controlled-validation/m4-parser-task-split.js";
 import { calculateEvaluationReportMetrics } from "../src/geo-intelligence/domain/evaluation-report.policy.js";
@@ -63,6 +68,56 @@ const judgment = () => ({
 });
 
 describe("M4 task-load comparison handoff", () => {
+  it("keeps full-source input, Schema and processing unchanged for the worked-example Prompt", () => {
+    const baseline = buildM4FullSourceTask(base);
+    const candidate = buildM4WorkedExampleTask(base);
+    expect(candidate.userContext).toEqual(baseline.userContext);
+    expect(candidate.outputContract.jsonSchema).toEqual(
+      baseline.outputContract.jsonSchema,
+    );
+    expect(candidate.systemInstruction).not.toBe(baseline.systemInstruction);
+    expect(candidate.systemInstruction).not.toMatch(
+      /星巴克|Manner|互动派|迪卡侬/,
+    );
+  });
+
+  it("provides complete, projectable demonstrations with semantic positions distinct from source lines", () => {
+    const asset = JSON.parse(
+      readFileSync(
+        new URL(
+          "../geo-intelligence/experiments/m4-parser-worked-examples.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    const projected = asset.examples.map(
+      (example: {
+        input: {
+          companyName: string;
+          questionKind: "INDUSTRY_RECOMMENDATION";
+          answerLines: { text: string }[];
+        };
+        output: unknown;
+      }) =>
+        projectM4LineReferenceOutput(example.output, {
+          companyName: example.input.companyName,
+          questionKind: example.input.questionKind,
+          originalAnswer: example.input.answerLines
+            .map((line) => line.text)
+            .join("\n"),
+        }).projected,
+    );
+    expect(projected[0].mentioned).toBe(false);
+    expect(
+      projected[0].semantic.otherBrands.map((b: { role: string }) => b.role),
+    ).toEqual(["RECOMMENDED", "CONDITIONALLY_RECOMMENDED", "MENTIONED_ONLY"]);
+    expect(projected[1].mentioned).toBe(true);
+    expect(projected[1].position).toBe(2);
+    expect(projected[1].semantic.conditions).toHaveLength(1);
+    expect(projected[1].semantic.otherBrands[0].relativePosition).toBe(1);
+  });
+
   it("changes only the inventory between matched full-source final tasks", () => {
     const single = buildM4FullSourceTask(base);
     const split = buildM4FullSourceTask(base, proposal());
