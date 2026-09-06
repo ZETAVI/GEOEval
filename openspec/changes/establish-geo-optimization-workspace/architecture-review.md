@@ -83,7 +83,10 @@ policy is introduced.
 
 `ready for OpenSpec review`.
 
-- Live Issue #57 is open, assigned, P1 and `Review / Decision`.
+- At the pre-approval review, live Issue #57 was open, assigned, P1 and
+  `Review / Decision`; the product-owner disposition below records the later
+  approved transition, while the GitHub Project remains the current scheduling
+  authority.
 - The branch is clean before this Change and based on current
   `origin/main@975f2d2`.
 - `python3 scripts/validate_project_framework.py` passes with all cataloged
@@ -99,9 +102,10 @@ policy is introduced.
 - Issue #39 remains the live P0 `In Progress` primary delivery. Approval of this
   Change does not silently move #57 to implementation or consume another primary
   WIP slot; the Project owner must schedule that transition.
-- No open Issue currently owns the package/points/purchase/Publishing Order
-  increment. Create or identify that independently valuable outcome before
-  claiming the optimization-to-order chain is implemented.
+- At review time no open Issue owned the package/points/purchase/Publishing
+  Order increment. The product-owner disposition subsequently established Issue
+  #65 as that separately prioritized Backlog outcome; its existence still does
+  not mean the optimization-to-order chain is implemented.
 - The first-release field bounds are reversible implementation constraints and
   may need evidence-led adjustment after real customer input.
 - A `NOT_APPLIED` execution may retain protected technical result evidence but
@@ -125,8 +129,9 @@ the Mock optimization-to-confirmed-article route, and retained Publishing
 Commerce, Publication Delivery, real Writer integration and Brand Materials as
 separately owned successor outcomes.
 
-Disposition: `approved for Project scheduling`. Move Issue #57 from
-`Review / Decision` to `Ready`; do not start implementation or migration while
-the current P0 primary delivery remains in progress unless the Project owner
+Disposition: `approved for Project scheduling`. Issue #57 was moved from
+`Review / Decision` to `Ready`, and Issue #65 was established as the separate
+Publishing Commerce owner. Do not start implementation or migration while the
+current P0 primary delivery remains in progress unless the Project owner
 explicitly reprioritizes WIP. This approval does not authorize Provider calls,
 materials, commerce, deployment, PR integration or merge.
