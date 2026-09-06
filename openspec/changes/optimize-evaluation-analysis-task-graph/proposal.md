@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Real merchant matrix reviewed; identity/statistics repair remains experimental
+- Status: Reference-choice replay verified; semantic brand grouping still experimental
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -84,17 +84,28 @@ three-to-five-minute preference. Use these measured components to choose the
 next bounded concurrency or synthesis experiment; do not claim an SLA, linear
 scaling, billed cost, or a proven benefit from splitting.
 
-Next run the seven-call retained-answer package in the active design: supply
-owner brand context to analysis, test practical subject-focused instructions,
-compare synthesis on matched input, then repeat and check another retained brand.
-Keep full source,
+The seven-call Prompt package stops after five calls because both synthesis arms
+reference nonexistent records. Its broader Parser instruction is not adopted.
+The separately frozen four-call repair restores the prior Parser instruction
+with optional owner context and enumerates existing references in the synthesis
+Schema. Both identical-input synthesis calls pass reference checks in 38.821 and
+48.156 seconds, but still select mismatched brand members. This verifies reference
+validity, not semantic grouping or a causal/full-evaluation speedup; the second
+call also uses cached input. No further calls are appended to either batch.
+
+Next simplify the grouping input around a clearly paired brand-record list and
+necessary source context, rather than more name prohibitions or arbitrary ID
+generation. Keep the existing single-call Parser and test that narrow seam before
+selecting any new synthesis topology. The owner-confirmed alias remains accepted;
+another relation inferred only by the model is an observation, not a newly
+confirmed fact or a reason for a master identity system. Keep full source,
 ordinary recommendation tolerance and broad practical directions. Do not add
 alias databases, critics, workflow tables or word-for-word proof gates. A second
 merchant matrix follows the targeted replay; it is not a repeated sweep of an
 unchanged failing package. #41 retains final synthesis/customer-report ownership.
 
 Langfuse contains actual model input/output and operational metadata only;
-42 private observations have been read back against the wire. Independent review
+the original 42 and new 6/5 private observations have been read back against the wire. Independent review
 and the raw readable preview remain local. Actual UI/database/recovery, runtime
 activation and formal 17/20 report acceptance remain unverified. Trace logging
 does not complete #49 Prompt Management mirroring.

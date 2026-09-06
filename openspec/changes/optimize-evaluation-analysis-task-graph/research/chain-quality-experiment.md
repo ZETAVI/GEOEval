@@ -1999,3 +1999,135 @@ merge, production change or other-worktree mutation occurs in this package.
 | Readable report | c81760a94a68c1644d7cd984be37f6c4be9636351cef8a0397da7f0110cf4a06 |
 | Synthesis result | b39120e68509c3f9800b97365db64f45559de7f6c21b01bb2ae8efe913266351 |
 | Runner | c9102fbc066d00f7606f988cd612428fbef20be2e6b873eb10b177830f1ab5f8 |
+
+## Owner correction and practical Prompt replay — 2026-09-06
+
+The owner confirms that the two target names behind the preceding local review
+are one consumer-recognizable brand. Withdraw that target false-positive finding
+and the corresponding literal-name-only conclusion. The original evidence is
+unchanged; the review now has a visible correction. Brand meaning is not defined
+by exact spelling, legal-entity identity or a newly invented alias registry.
+This correction does not make thematic grouping of unrelated brands valid.
+
+At `c22c02dd0e0ae9b4aa64ce7b4bbfd0f6c22ac490`, manifest
+`607f051014bb154e4a27c682529476bd274c4648f9866e97826f84647c041ad1`
+freezes seven calls on retained real answers. Parser 1.3.0 changes instructions
+and supplies the owner's plain brand context; the matched synthesis pair changes
+only the system instruction, keeping the same actual three new parses, remaining
+retained records, input, JSON shape/name, model and effort. It is not a causal
+Parser Prompt-only comparison. No source answer, old result or metric is patched.
+
+Execution stops after five calls, 2026-09-06 13:32:14.972–13:33:39.094 UTC,
+84.122 seconds wall time, 48,141 reported tokens, peak concurrency two.
+All five Provider calls return successfully. Three parses pass stage checks;
+both synthesis outputs pass JSON shape but reference nonexistent brand-record
+IDs and fail the unchanged reference check. The baseline uses sample IDs where
+brand-record IDs are needed; the candidate generates nonexistent record IDs.
+The planned repetition and other-business candidate are **not run**, not passes.
+
+| Stage | Tokens | Latency |
+| --- | --- | --- |
+| Retained Parser 1 | 2,000 | 9,903 ms |
+| Retained Parser 2 | 2,375 | 10,227 ms |
+| Retained Parser 3 | 2,426 | 9,853 ms |
+| Synthesis baseline | 20,647 | 45,819 ms |
+| Synthesis candidate | 20,693 | 63,698 ms |
+
+Local review confirms more consistent handling of the owner-confirmed name in
+two answers, but the broader Parser instruction also introduces unsupported
+position shifts in another retained answer. Do not promote the 1.3.0 Parser
+package or call shorter rejected synthesis results a successful speedup. Retain
+the useful owner-context seam while restoring the earlier Parser instruction.
+
+The next narrow repair is finite-choice reference wiring in the existing
+synthesis Schema, rather than additional Agent layers or stricter brand identity.
+The model should choose an already supplied record ID, not invent one. Semantic
+grouping still requires actual output review; finite choices prove no legal or
+consumer-brand relationship. A new four-call package is frozen separately in the
+active design; the stopped package is never extended.
+
+36 focused tests, Backend typecheck/build, framework/links/diff, fixed-diff and
+runner review pass for this experimental slice. Three retained Parser inputs
+are checked against their old full source/context and JSON shape. Six private
+observations (root `38de4d3f30195b68` plus five generations) are read back with
+matching actual model IO/settings/usage; no semantic-review or derived report
+upload. [Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/d7e75fbef6bd4a22d4775fea647a6e8d).
+Local-only evidence: `apps/backend/.provider-evidence/m4-practical-replay-tYx5fC/`.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 520dcd46e1644a110eb3c2ee8a8c2f2d47dec34192b84c1ab5e1a5e69f42d1c2 |
+| Summary | e877ec332679a337c4161b6831ff98625624d2e77342f284140cbc966b6705d2 |
+| Actual handoff | c50baafc44329f50fe5926585a9134abaf1ccd576e11dd474b6df024754c7061 |
+| Baseline result | aca9dd0acf006a14bcdd59c7c156e3c94bc86b1440466edf146ca715db46957e |
+| Candidate result | 719b1342ba3e53790443361aaaa9c338b87eb4c3721578fc221008fda1723cde |
+| Runner | eba83d44507a6a34e2a7cb0c1c3ad4e8cd1f81846ee6c6ec0ff9bdc772ecbbc7 |
+
+## Finite reference choices — independent repeat
+
+At `aee1de697de9a465e4bb18ff7f57176ea926a13c`, manifest
+`8c019c55bcd70d9a404e2a489bcbf8c544aa6a14a541127e0e3727f2bd1e9e08`
+freezes a new four-call package, not continuation of the stopped experiment.
+Parser 1.4.0 restores the 1.2.0 instruction plus an explanation of optional owner
+brand context. Synthesis 1.3.0 retains concise instructions and supplies separate
+finite sample/brand-record choices in the wire JSON Schema. Counts, source text,
+brand semantics and runtime remain unchanged by code. This is a contract package,
+not a Prompt-only comparison or an automatic repair of retained model output.
+
+Two retained open answers are parsed with actual outputs entering the same
+19-available/20-expected handoff; two identical full-input synthesis requests run
+independently. The original direct-Parser rejection remains unavailable. No new
+sampling, fallback, automatic retry, model/effort/billing change or fifth call.
+
+All four calls complete 2026-09-06 13:42:14.163–13:43:14.141 UTC, 59.978 seconds
+wall time, peak concurrency two, 45,223 provider-reported tokens. Provider,
+structure, source and reference checks pass. Wire readback confirms identical
+repeat requests, including Schema and all model parameters.
+
+| Stage | Tokens | Latency |
+| --- | --- | --- |
+| Retained Parser 1 | 1,934 | 8,033 ms |
+| Retained Parser 2 | 2,600 | 11,345 ms |
+| Synthesis candidate | 19,274 | 38,821 ms |
+| Independent identical-input synthesis | 21,415 | 48,156 ms |
+
+The second synthesis reports 15,360 cached input tokens; input total is 15,986
+for each. Do not count cache twice, label batch wall time a full four-by-five
+evaluation, or infer a causal speedup from earlier changed-input/failed results.
+The earlier full-matrix 352.014-second measurement remains the only current
+full-scope timing evidence.
+
+Local review confirms useful Parser position/noise improvements and consistent
+recognition of the owner-confirmed name. It also finds a further model-inferred
+brand relation not established by the supplied context; this is not converted to
+a fact or a legal-entity verification task. Both synthesis outputs now choose
+existing IDs, but still attach mismatched brand records to a group. The second
+output includes several useful groups, yet the overall grouping result remains
+unaccepted. No semantic success rate or formal metric is claimed.
+
+37 focused tests, Backend typecheck/build, framework/links/diff and scoped
+independent implementation/runner review pass. Exact enum wiring to existing
+sample/brand IDs is checked offline. Independent real-output review distinguishes
+the verified reference fix from unverified semantic correctness. Five private
+Langfuse observations (root `ba3865882a3b27e8` plus four generations) match actual
+IO/settings/usage on readback. [Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/09332732de938ffb92528a8b65f7e852).
+Raw output and business-level review remain local at
+`apps/backend/.provider-evidence/m4-reference-choice-42Fa9Q/`.
+
+Stop this turn's real calls here. Next make the grouping input's record/name
+pairing and necessary context simpler; do not keep appending naming prohibitions
+or select a new Agent topology from reference success. Keep the owner-confirmed
+consumer brand meaning, the single Parser and all original results. No runtime,
+official report/UI/recovery, second merchant, #49 mirror or main merge acceptance.
+Main remains observed at `5fb4400`; other worktrees are unchanged.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | a6eacd9a819c8228220b6dcebb0d815d1e9adcdf2cc6f5602391bb4d75422da0 |
+| Summary | 6924c57399bda81979f438b9d4291bc57a5d6178abc0d011c1a53f3e967e866d |
+| Sample lineage | 9007e1fb7bbe762e03ac33b27122c8e07ad94372067f9e32d9dda62ca1e29ae6 |
+| Actual handoff | a0d214ea8f2099568a755f17fe9053ddf7929198a9ced2c7bcee29c6923bf586 |
+| Identical wire check | a81123529c3b415e26ed24e4d8306c71aece869f3f1bb1959513cd6028558ffb |
+| Candidate result | ced37eae5d067b8f59f094780ba26abdbd462508daaf343b1f79c0fe0c5e7e3f |
+| Repeat result | 97e06078f561de57f310e2f1b4bc9a363da8b098afc2590e20459d2a6aa6379e |
+| Runner | e3c4195b50468739ca79c94c2368c02c005f8b42c39bc698b67b543fbc254651 |

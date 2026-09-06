@@ -11,7 +11,7 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       consumers; keep natural acquisition and accepted metric meaning.
 - [x] Compare bounded Parser Prompt/context/contract candidates, separately retain
       raw/model and program output, and stop advancing the tested Parser split.
-- [x] Retain single-call open Parser 1.2.0, full answers and source-restored excerpts.
+- [x] Retain the single-call open Parser scope, full answers and source-restored excerpts.
       Overall-positive recommendations with ordinary drawbacks remain eligible.
 - [x] Verify actual model IO presentation and private Langfuse readback; independent
       semantic review, program projections and readable reports stay local.
@@ -29,13 +29,20 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
 
 - [x] Correct the prior target-identity review using the owner's confirmed
       same-brand meaning; do not make spelling or legal-entity rigor a new gate.
+- [x] Execute the frozen practical Prompt package; stop at 5/7 after unknown
+      brand references. Do not adopt the broader Parser instruction or label
+      planned-but-skipped repetition/other-business calls successful.
+- [x] Restore prior Parser scope plus optional owner context (1.4.0), constrain
+      synthesis reference choices (1.3.0), and complete the separately frozen
+      four calls. Both repeated synthesis references pass; semantic groups do not.
 - [ ] Repair only demonstrated brand-identity/statistics boundaries:
       named subject versus unnamed description;
       same-brand grouping versus thematic grouping; one program-owned count.
       Diagnose the retained direct-Parser malformed-name output at its own seam.
-- [ ] Freeze a small replay on the retained real failures plus an unaffected
-      control. Keep original failed outputs and actual model IO. No new sampling,
-      alias database, critic or silent program repair is required by this step.
+- [ ] Simplify brand grouping input into clearly paired names/record IDs and
+      necessary source context, then freeze a narrow real replay. Keep original
+      outputs and actual model IO; do not add a strict alias registry, another
+      Parser Agent, silent repair or a mandatory topology comparison.
 - [ ] Recheck the final readable report and core statistics at the practical
       quality bar. The historical coffee case remains an observation/regression,
       not an indefinite tuning gate. Do not resume every old topology comparison.
