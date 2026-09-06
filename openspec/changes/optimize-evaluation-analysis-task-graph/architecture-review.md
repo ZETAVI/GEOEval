@@ -186,3 +186,21 @@ remain pending. This review is not approval for a runtime merge.
   runtime. The next question separates complete structural/conditional context
   from relationship judgment. No sixth call, runtime import, migration, model
   change or production activation followed the offline correction.
+
+## Full-source simplification checkpoint
+
+- Fixed diff `1af658c..3e310f2` independently reviewed `ready` for experiment only.
+  Both final tasks share full source, Prompt, Schema and four-field context;
+  optional inventory is the only difference. Both runner paths use the same
+  existing final projector. No clipped-source lexical gate applies to full source.
+- 5 files / 46 tests, Backend typecheck/build and framework/links passed. Existing
+  clipped-experiment tests remain intact; no runtime or public-contract change.
+- Six calls completed; independent review assessed meaningful fidelity rather
+  than verbatim prose. Both split arms fail materially despite complete context,
+  with higher total tokens/serial time. Single also needs role/condition repair.
+- Fourteen private Trace observations read back: actual messages/Schema, outputs,
+  program results, usage and full review match. Matched final requests retain all
+  45/69 source lines; public=false and no credential values were found.
+- Verdict: `ready with follow-up` for this evidence package, `not ready` for
+  runtime. Stop advancing the inventory/judgment split; do not expand Agent layers
+  or treat program recovery as model quality. No further call follows this batch.

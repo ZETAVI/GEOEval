@@ -1047,3 +1047,66 @@ Semantic failure is recorded after the planned independent arms, not used to
 silently adjust later requests. Compare summed serial split time and all tokens,
 not one component. Two fixed-order cases remain diagnostic, not a production
 success rate. If no useful advantage emerges, do not add further task layers.
+
+## Full-source task comparison — observed result
+
+Six of six calls completed 2026-09-06 04:11:51–04:14:08 UTC at `3e310f2`.
+Confirmation `3a50e5beb6f2bf9141e5521809bc0d331a2ae7d4560a033bbafc4fb710752d6b`.
+No new acquisition, skip, retry, fallback, tuning or later call. Both final
+request pairs differ only by inventory; all 45/69 original lines remain visible.
+All six results were accepted by code; none of the four complete final outputs
+passed independent material-semantic review. This is not a verbatim-text test.
+
+| Case / arm | Tokens | Serial latency | Material result |
+| --- | --- | --- | --- |
+| Negative single | 3,921 | 18,641 ms | Raw absent target incorrectly added as another brand; projection removes it. Conditional/partner roles still flattened |
+| Negative inventory + judgment | 3,319 + 4,624 = 7,943 | 14,452 + 23,837 = 38,289 ms | Final recommendation positions are source line numbers 9/10/24/25, retained by projection |
+| Positive single | 5,674 | 29,961 ms | Target position 1 and all five other brands preserved; Manner's restricted office use becomes unconditional recommendation |
+| Positive inventory + judgment | 5,650 + 5,015 = 10,665 | 28,372 + 21,780 = 50,152 ms | Inventory has all five other brands; final model emits only Peet's, at wrong position 1 |
+
+Total 28,203 tokens. The split final requests have 1,664/2,048 cached input tokens;
+cache and reasoning are already included in the reported totals. Fixed order,
+one observation per case/arm and cache differences preclude a general speed,
+stability or billed-cost claim. Both observed split totals exceed the single arm.
+
+The inventories retain the seven principal negative-case brands and all five
+positive-case other brands. The positive inventory also includes the table and
+negative context. The second-step omissions therefore occur in model output,
+not clipping or projection. Nonverbatim explanations, readable names and aliases
+were not failure criteria. Both positive outputs contain useful target facts;
+their empty `targetObservations` arrays do not mean those facts disappeared:
+single's five observations survive in `recommendationReasons`, split's six in
+`conditions`. The category placement is imperfect; do not misreport it as loss.
+
+Decision: stop advancing this inventory/judgment split. A full-source single task
+is the simpler working baseline, not an approved Prompt or runtime. Next address
+material identity/role/position fidelity within that task and test a held-out
+answer before a small actual report-path check. This batch does not prove all
+splits ineffective or that the model cannot perform the task. Do not respond by
+adding another Agent, clipping algorithm or blanket rejection guard.
+
+[Private Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/d75fce5557c6be7229af795240ab187d),
+root `4402769db9ed46aa`, review `7dab3499dc83e7d6`. Stage-ordered generation IDs:
+`2a8cb0874027b654`, `52eae59f9db9ba00`, `09fcffef937ede45`,
+`f232f09287ef80ef`, `366bf46fca87b413`, `77db990eb115a757`.
+Protected directory `apps/backend/.provider-evidence/m4-full-source-WIxCUy/`,
+0700 / files 0600, ignored and retained by #42 through decision/review.
+Fourteen observations read back with actual wire messages/Schema, raw output,
+program result, usage and full review equality; Trace public=false and credential
+values absent. Final-arm equality and complete 45/69-line visibility were checked
+again from saved requests. Existing unchanged browser presentation evidence reused.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Negative single result | 7dc9ce760c0cd6205c219b8e64a74600a6eb332c9b2cb3fbf02098dca5132912 |
+| Negative inventory result | c6c594e69ca954b1d2ee4ea41e7938aece0436712e67a0a6ecb516694702fcb9 |
+| Negative judgment result | 33d97c918351973b34f0426d7c53d8fe3203d7343f7aec83019eef2f4650b53f |
+| Positive single result | 9bc466a03ffd8f93c11f80f9e7ff746c71d0357abc1c92833fea4905b609434a |
+| Positive inventory result | 47ec6e1ba122015a2bd586db47b783ddd08e192c7668ea1aab4aeea510ff9304 |
+| Positive judgment result | d852e67907d72b7803894cfc2da76559e692d8404265ccb3ba23d17e3abc6809 |
+| Plan | 6ea8f712fede8c6dee6fb66db5ca36da07a999beb4535e37a12b88f96ade60bb |
+| Runner | 6e2a717ccd5267bad5faf93a524ab2649448ca181752d0f0f70e786088561b29 |
+
+Verification: 5 files / 46 tests, Backend typecheck/build, independent fixed-diff
+and semantic review, framework/links and diff checks. No runtime, DB/migration,
+synthesis/report/browser, model/route switch, #49 mirror or other worktree change.

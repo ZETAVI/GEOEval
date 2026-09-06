@@ -30,10 +30,13 @@ Completed chronology, exact manifests and failed candidates live in the
 - [x] Simplify the next comparison under the 2026-09-06 owner confirmation: full
       source in both final tasks, same Prompt/Schema/context/projector, optional
       inventory only. Do not build a clipping algorithm or resume P7.
-- [ ] Execute at most six calls on the two retained answers; assess meaningful
+- [x] Execute at most six calls on the two retained answers; assess meaningful
       subject/condition/role fidelity, full split cost and actual downstream value.
-- [ ] Obtain a complete positive/negative task-package comparison before selecting
-      runtime. Small probes do not establish stability or general efficiency.
+- [x] Complete both positive/negative comparisons: split has no useful advantage,
+      higher full cost and material final-output defects. Stop advancing it.
+- [ ] Narrow the full-source single-call baseline's material identity/role/position
+      errors; validate an independently held-out answer before small report-path
+      integration. Do not preselect another Prompt/model or repeat topology probes.
 
 ## Synthesis comparison
 

@@ -456,3 +456,11 @@ runtime import, persistence or retry. Existing external-route evidence remains
 valid because model, endpoint, strict mode and adapter are unchanged. The smallest
 checks are arm equality except inventory, full source retention, no lexical
 inventory gate, valid range enforcement and existing projection regressions.
+
+All six planned calls completed. Full source did not make the inventory/judgment
+split useful: the negative output substitutes line numbers for recommendation
+positions, and the positive output drops four brands already present in inventory
+and source. Costs and serial time are higher in both cases. Stop advancing this
+split; single-call remains the simpler working baseline but is not quality-accepted.
+This result supersedes further context-clipping design, not the unchanged runtime.
+The [experiment record](research/chain-quality-experiment.md) owns the evidence.
