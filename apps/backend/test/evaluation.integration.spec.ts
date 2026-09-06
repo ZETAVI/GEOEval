@@ -78,7 +78,10 @@ describe("evaluation definition and official start", () => {
     });
     expect(first.brandSnapshot).not.toHaveProperty("contactName");
 
-    await brands.update(accountId, brand.id, { contactName: "新的联系人" });
+    await brands.update(accountId, brand.id, {
+      expectedRevision: brand.revision,
+      contactName: "新的联系人",
+    });
     const afterContactEdit = await questionPreparation.prepareReadyDefinition(
       evaluations,
       accountId,
@@ -113,7 +116,11 @@ describe("evaluation definition and official start", () => {
       brand.id,
     );
     await brands.update(accountId, brand.id, {
-      characteristics: ["安静办公与小型会议", "精品手冲"],
+      expectedRevision: brand.revision,
+      characteristics: [
+        { ...brand.characteristics[0]!, title: "安静办公与小型会议" },
+        brand.characteristics[1]!,
+      ],
     });
     const second = await questionPreparation.prepareReadyDefinition(
       evaluations,
@@ -171,7 +178,11 @@ describe("evaluation definition and official start", () => {
     );
     await evaluations.startRun(accountId, first.id);
     await brands.update(accountId, brand.id, {
-      characteristics: ["安静办公", "可预订的手冲体验课"],
+      expectedRevision: brand.revision,
+      characteristics: [
+        brand.characteristics[0]!,
+        { ...brand.characteristics[1]!, title: "可预订的手冲体验课" },
+      ],
     });
     const second = await questionPreparation.prepareReadyDefinition(
       evaluations,

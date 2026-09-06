@@ -1,11 +1,12 @@
 # Change: 建立 GEO 优化内容工作区与核心文章基础
 
-- Status: Product and architecture boundary approved on 2026-09-05; Ready for
-  Project scheduling, not yet authorized to implement
+- Status: Product and architecture boundary approved on 2026-09-05; implementation
+  in progress since 2026-09-06
 - Class: Architectural
 - Owning Issue: [#57](https://github.com/ZETAVI/GEOEval/issues/57)
 - Decision owners: Product owner and architecture owner
-- Implementation authorization: Not granted by this proposal
+- Implementation authorization: Granted by the product owner for bounded Issue
+  #57 packages; merge remains an explicit per-transaction gate
 
 ## Why
 
@@ -68,21 +69,23 @@ GEOEval 已能让终端客户维护当前 Brand、完成 Evaluation 并查看报
 
 ## Control State
 
-- Documentation impact: `add` active Change and future `geo-optimization`
-  current spec; `update` Brand Knowledge、Evaluation Report、Product Definition、
-  Product Vision、Glossary 和 Architecture Overview；在 reconciliation 时执行
-  Product Definition 的 `split-on-activation` marker，不维护重复 current truth。
+- Documentation impact: active Change and future `geo-optimization` current
+  spec remain `add`; Evaluation Report、Product Definition、Product Vision、
+  Glossary 和 Architecture Overview remain `update`. The accepted Brand
+  foundation is reconciled directly into the Brand Knowledge current spec and
+  removed from this proposed delta; Product Definition's `split-on-activation`
+  marker is resolved when the GEO Optimization owner activates.
 - ADR: none proposed; owner、CAS、purpose fingerprint 和 snapshot 选择属于本能力
   激活设计，可在 owner-local specs/contracts 中表达。
-- Workspace: branch `codex/issue-57-geo-optimization-article`, base
-  `main@975f2d2`, merge destination protected `main`, owner `ZETAVI`; retain through
-  Review / Decision and remove only after accepted PR integration and closeout.
+- Workspace: Issue #57 uses bounded direct-to-`main` pull requests. Each PR or
+  Issue checkpoint owns its exact branch, base and exit state so this active
+  Change does not preserve a stale workspace copy.
 
 ## Approval Gate
 
 产品 Owner 于 2026-09-05 确认本 Change 的整体规划、#57 到 confirmed-article
-handoff 的独立边界，以及后续能力使用独立 Issue 推进。该批准使 Change 可以在
-Project 安排 WIP 后进入 #57 的确定性 Mock 实现，不授权立即开始实现。
+handoff 的独立边界，以及后续能力使用独立 Issue 推进；并于 2026-09-06 明确
+批准 #57 与 #39 在不冲突边界内并行实现，以及经复核后的相关 PR 合并。
 
 真实 Writer、材料解析、Publishing Commerce、运营履约、Provider 调用、部署与
-合并仍需要各自的 Issue、证据和明确授权。
+能力启用仍需要各自的 Issue、证据和明确授权。

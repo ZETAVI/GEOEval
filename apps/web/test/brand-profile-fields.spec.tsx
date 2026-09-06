@@ -4,15 +4,31 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { BrandProfileFields } from "../app/brands/brand-profile-fields.js";
+import { brandMutationForSave } from "../app/brands/brand-mutation.js";
 import { hasAmapPlaceSearchResults } from "../app/brands/store-location-picker.js";
 
 describe("shared Brand v3 fields", () => {
+  it("keeps empty characteristic rows local instead of sending invalid items", () => {
+    expect(
+      brandMutationForSave({
+        companyName: "星河咖啡",
+        characteristics: [
+          { title: "" },
+          { title: "精品手冲" },
+          { title: " ", detail: " " },
+        ],
+      }).characteristics,
+    ).toEqual([{ title: "精品手冲" }]);
+  });
+
   it("renders one store-search path, flagship, and peer characteristics", () => {
     const markup = renderToStaticMarkup(
       <div className="form-grid">
         <BrandProfileFields
           apiBaseUrl="http://127.0.0.1:3300"
-          value={{ characteristics: ["安静办公", "精品手冲"] }}
+          value={{
+            characteristics: [{ title: "安静办公" }, { title: "精品手冲" }],
+          }}
           onChange={() => undefined}
         />
       </div>,

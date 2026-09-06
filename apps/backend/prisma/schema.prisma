@@ -275,25 +275,28 @@ model IdentityGovernanceAudit {
 }
 
 model BrandProfile {
-  id                       String                          @id @default(uuid()) @db.Uuid
-  accountId                String                          @map("account_id") @db.Uuid
-  status                   BrandStatus                     @default(ACTIVE)
-  companyName              String                          @map("company_name")
-  primaryIndustryId        String?                         @map("primary_industry_id") @db.VarChar(100)
-  secondaryIndustryId      String?                         @map("secondary_industry_id") @db.VarChar(100)
-  otherProductOrService    String?                         @map("other_product_or_service") @db.VarChar(60)
-  flagshipProductOrService String?                         @map("flagship_product_or_service") @db.VarChar(80)
-  characteristics          Json                            @default("[]")
-  contactName              String?                         @map("contact_name")
-  contactMobile            String?                         @map("contact_mobile") @db.VarChar(20)
-  evaluationFingerprint    String                          @map("evaluation_fingerprint") @db.Char(64)
-  createdAt                DateTime                        @default(now()) @map("created_at")
-  updatedAt                DateTime                        @updatedAt @map("updated_at")
-  account                  Account                         @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  selectedByBrandContext   BrandContext?                   @relation("CurrentBrand")
-  evaluationDefinitions    EvaluationDefinition[]          @relation("BrandEvaluationDefinitions")
-  questionPreparations     EvaluationQuestionPreparation[] @relation("BrandQuestionPreparations")
-  storeLocation            BrandStoreLocation?
+  id                        String                          @id @default(uuid()) @db.Uuid
+  accountId                 String                          @map("account_id") @db.Uuid
+  status                    BrandStatus                     @default(ACTIVE)
+  companyName               String                          @map("company_name")
+  primaryIndustryId         String?                         @map("primary_industry_id") @db.VarChar(100)
+  secondaryIndustryId       String?                         @map("secondary_industry_id") @db.VarChar(100)
+  otherProductOrService     String?                         @map("other_product_or_service") @db.VarChar(60)
+  flagshipProductOrService  String?                         @map("flagship_product_or_service") @db.VarChar(80)
+  characteristics           Json                            @default("[]")
+  contactName               String?                         @map("contact_name")
+  contactMobile             String?                         @map("contact_mobile") @db.VarChar(20)
+  evaluationFingerprint     String                          @map("evaluation_fingerprint") @db.Char(64)
+  writingContextFingerprint String                          @map("writing_context_fingerprint") @db.Char(64)
+  articleInformation        Json                            @default("{\"price\":null,\"suitableAudienceContexts\":[],\"supplementalBackground\":null,\"desiredPositioning\":[]}") @map("article_information")
+  revision                  Int                             @default(1)
+  createdAt                 DateTime                        @default(now()) @map("created_at")
+  updatedAt                 DateTime                        @updatedAt @map("updated_at")
+  account                   Account                         @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  selectedByBrandContext    BrandContext?                   @relation("CurrentBrand")
+  evaluationDefinitions     EvaluationDefinition[]          @relation("BrandEvaluationDefinitions")
+  questionPreparations      EvaluationQuestionPreparation[] @relation("BrandQuestionPreparations")
+  storeLocation             BrandStoreLocation?
 
   @@unique([id, accountId])
   @@index([accountId, status, updatedAt])

@@ -53,6 +53,7 @@ export type StoreLocationVerificationInput =
   components["schemas"]["StoreLocationVerificationRequest"];
 
 export type BrandMutation = components["schemas"]["BrandMutationRequest"];
+export type BrandUpdate = components["schemas"]["BrandUpdateRequest"];
 export type MediaPlatformCreate =
   components["schemas"]["MediaPlatformCreateRequest"];
 export type MediaPlatformUpdate =
@@ -271,7 +272,7 @@ export function createBrand(
 export function updateBrand(
   apiBaseUrl: string,
   brandId: string,
-  input: BrandMutation,
+  input: BrandUpdate,
 ): Promise<Brand> {
   return apiRequest(apiBaseUrl, `/brands/${brandId}`, {
     method: "PATCH",

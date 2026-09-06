@@ -9,6 +9,7 @@ import {
 } from "@geoeval/api-client";
 import { useState } from "react";
 import { BrandProfileFields } from "../brands/brand-profile-fields.js";
+import { brandMutationForSave } from "../brands/brand-mutation.js";
 import { prewarmEvaluationQuestions } from "../brands/evaluation-question-prewarm.js";
 import { postLoginRoute } from "./post-login-route.js";
 
@@ -22,7 +23,7 @@ export function EntryFlow() {
   const [challengeId, setChallengeId] = useState("");
   const [developmentCode, setDevelopmentCode] = useState<string>();
   const [brandForm, setBrandForm] = useState<BrandMutation>({
-    characteristics: ["", ""],
+    characteristics: [{ title: "" }, { title: "" }],
   });
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -78,10 +79,13 @@ export function EntryFlow() {
     setBusy(true);
     setMessage("");
     try {
-      const brand = await createBrand(apiBaseUrl, {
-        ...brandForm,
-        contactMobile: brandForm.contactMobile || mobile,
-      });
+      const brand = await createBrand(
+        apiBaseUrl,
+        brandMutationForSave({
+          ...brandForm,
+          contactMobile: brandForm.contactMobile || mobile,
+        }),
+      );
       await prewarmEvaluationQuestions(apiBaseUrl, brand);
       window.location.assign("/brands");
     } catch (error) {

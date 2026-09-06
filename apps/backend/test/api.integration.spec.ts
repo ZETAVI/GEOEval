@@ -137,7 +137,7 @@ describe("customer-entry HTTP contract", () => {
         primaryIndustryId: "IND-01",
         secondaryIndustryId: "IND-01-02",
         flagshipProductOrService: "精品手冲咖啡",
-        characteristics: ["安静办公", "精品手冲"],
+        characteristics: [{ title: "安静办公" }, { title: "精品手冲" }],
         contactName: "林先生",
         contactMobile: "13900000004",
         locationChange: {
@@ -148,19 +148,94 @@ describe("customer-entry HTTP contract", () => {
     });
     const brand = (await brandResponse.json()) as {
       id: string;
+      revision: number;
+      characteristics: Array<{
+        id: string;
+        title: string;
+        detail: string | null;
+      }>;
       primaryIndustryLabel: string;
+      readyForArticleGeneration: boolean;
       storeLocation: {
         officialRegion: { terminal: { label: string } };
         queryLocality: { label: string };
       };
     };
     expect(brand).toMatchObject({
+      revision: 1,
+      characteristics: [
+        { title: "安静办公", detail: null },
+        { title: "精品手冲", detail: null },
+      ],
+      readyForArticleGeneration: false,
       primaryIndustryLabel: "本地生活与门店服务",
       storeLocation: {
         officialRegion: { terminal: { label: "海珠区" } },
         queryLocality: { label: "赤岗" },
       },
     });
+
+    const articleInformationResponse = await fetch(
+      `${baseUrl}/brands/${brand.id}`,
+      {
+        method: "PATCH",
+        headers: browserMutationHeaders(cookie),
+        body: JSON.stringify({
+          expectedRevision: brand.revision,
+          characteristics: [
+            {
+              ...brand.characteristics[0],
+              detail: "提供安静座位与稳定网络",
+            },
+            brand.characteristics[1],
+          ],
+          articleInformation: {
+            price: { mode: "NEGOTIABLE" },
+            suitableAudienceContexts: ["需要安静办公的顾客"],
+            supplementalBackground: null,
+            desiredPositioning: ["本地精品咖啡代表"],
+          },
+        }),
+      },
+    );
+    expect(articleInformationResponse.status).toBe(200);
+    expect(await articleInformationResponse.json()).toMatchObject({
+      revision: 2,
+      readyForArticleGeneration: true,
+      articleInformation: { price: { mode: "NEGOTIABLE" } },
+    });
+
+    const staleBrandUpdate = await fetch(`${baseUrl}/brands/${brand.id}`, {
+      method: "PATCH",
+      headers: browserMutationHeaders(cookie),
+      body: JSON.stringify({
+        expectedRevision: brand.revision,
+        contactName: "陈女士",
+      }),
+    });
+    expect(staleBrandUpdate.status).toBe(409);
+
+    const missingRevisionUpdate = await fetch(`${baseUrl}/brands/${brand.id}`, {
+      method: "PATCH",
+      headers: browserMutationHeaders(cookie),
+      body: JSON.stringify({ contactName: "陈女士" }),
+    });
+    expect(missingRevisionUpdate.status).toBe(400);
+
+    const invalidPriceUpdate = await fetch(`${baseUrl}/brands/${brand.id}`, {
+      method: "PATCH",
+      headers: browserMutationHeaders(cookie),
+      body: JSON.stringify({
+        expectedRevision: 2,
+        articleInformation: {
+          price: { mode: "NEGOTIABLE", minimum: 1 },
+          suitableAudienceContexts: ["需要安静办公的顾客"],
+          supplementalBackground: null,
+          desiredPositioning: [],
+        },
+      }),
+    });
+    expect(invalidPriceUpdate.status).toBe(400);
 
     const definitionResponse = await fetch(
       `${baseUrl}/brands/${brand.id}/evaluation-definition`,

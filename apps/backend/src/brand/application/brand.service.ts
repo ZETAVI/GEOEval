@@ -16,26 +16,33 @@ import {
   type BrandRepository,
 } from "../domain/brand.repository.js";
 import {
+  EMPTY_ARTICLE_INFORMATION,
   BrandProfileValidationError,
+  articleInformationReadiness,
   brandReadiness,
   canonicalCharacteristics,
   evaluationFingerprint,
+  normalizeArticleInformation,
   normalizeCharacteristics,
   normalizeFlagshipProductOrService,
   normalizeText,
   sameStoreLocationMeaning,
+  writingContextFingerprint,
 } from "../domain/brand-profile.js";
 import type {
+  BrandCharacteristic,
   BrandMutationInput,
   BrandProfileFields,
   BrandProfileView,
   BrandStoreLocation,
   BrandStoreLocationWrite,
+  BrandUpdateInput,
   BrandView,
   EditableBrandFields,
   EvaluationPurposeBrandView,
   EvaluationReportPurposeBrandView,
   LocationChangeRequest,
+  WriterPurposeBrandView,
 } from "../domain/brand.types.js";
 import {
   BrandReferenceData,
@@ -73,7 +80,7 @@ export class BrandService {
     input: BrandMutationInput,
     defaultContactMobile?: string,
   ): Promise<BrandView> {
-    const parsed = parseBrandMutation(input);
+    const parsed = parseBrandMutation(input, []);
     if (parsed.locationChange?.action === "REMOVE") {
       throw new BadRequestException("新品牌没有可移除的门店");
     }
@@ -98,6 +105,10 @@ export class BrandService {
     const storeLocation = receipt
       ? locationFromReceipt(receipt, randomUUID())
       : null;
+    const inputFingerprint = evaluationFingerprint(
+      fields,
+      asLocation(storeLocation),
+    );
     let created: BrandProfileView;
     try {
       created = await this.repository.create({
@@ -105,9 +116,11 @@ export class BrandService {
         accountId,
         fields,
         storeLocation,
-        evaluationFingerprint: evaluationFingerprint(
-          fields,
-          asLocation(storeLocation),
+        evaluationFingerprint: inputFingerprint,
+        writingContextFingerprint: writingContextFingerprint(
+          inputFingerprint,
+          fields.characteristics,
+          fields.articleInformation,
         ),
       });
     } catch (error) {
@@ -123,11 +136,14 @@ export class BrandService {
   async update(
     accountId: string,
     brandId: string,
-    input: BrandMutationInput,
+    input: BrandUpdateInput,
   ): Promise<BrandView> {
     const existing = await this.repository.find(accountId, brandId);
     if (!existing) throw new NotFoundException("未找到该品牌");
-    const parsed = parseBrandMutation(input);
+    const parsed = parseBrandMutation(input, existing.characteristics, true);
+    if (existing.revision !== parsed.expectedRevision) {
+      throw new ConflictException("品牌资料已被更新，请刷新后重试");
+    }
     const fields = completeFields({ ...existing, ...parsed.fields });
     if (!fields.companyName) {
       throw new BadRequestException("公司或店铺名称不能为空");
@@ -139,18 +155,23 @@ export class BrandService {
       existing.storeLocation,
       parsed.locationChange,
     );
+    const inputFingerprint = evaluationFingerprint(
+      fields,
+      asLocation(storeLocation),
+    );
     let updated: BrandProfileView | undefined;
     try {
       updated = await this.repository.update({
         accountId,
         brandId,
-        expectedLocationVerificationId:
-          existing.storeLocation?.verificationId ?? null,
+        expectedRevision: parsed.expectedRevision!,
         fields,
         storeLocation,
-        evaluationFingerprint: evaluationFingerprint(
-          fields,
-          asLocation(storeLocation),
+        evaluationFingerprint: inputFingerprint,
+        writingContextFingerprint: writingContextFingerprint(
+          inputFingerprint,
+          fields.characteristics,
+          fields.articleInformation,
         ),
       });
     } catch (error) {
@@ -230,6 +251,50 @@ export class BrandService {
     };
   }
 
+  async writerPurposeView(
+    accountId: string,
+    brandId: string,
+  ): Promise<WriterPurposeBrandView> {
+    const brand = await this.repository.find(accountId, brandId);
+    if (!brand) throw new NotFoundException("未找到该品牌");
+    const resolved = this.resolveIndustrySelection(brand);
+    const evaluation = brandReadiness(
+      brand,
+      resolved.secondaryIndustry?.isOther ?? false,
+      brand.storeLocation,
+    );
+    const article = articleInformationReadiness(brand, evaluation);
+    if (!article.readyForArticleGeneration || !brand.storeLocation) {
+      throw new BadRequestException(
+        `请先补全文章资料：${article.articleInformationMissingFields.join("、")}`,
+      );
+    }
+    return {
+      accountId,
+      brandId,
+      revision: brand.revision,
+      writingContextFingerprint: brand.writingContextFingerprint,
+      companyName: brand.companyName,
+      industry: this.references.industryProjection(brand),
+      region: brand.storeLocation.officialRegion,
+      storeLocation: {
+        semanticFactId: brand.storeLocation.semanticFactId,
+        placeName: brand.storeLocation.placeName,
+        formattedAddress: brand.storeLocation.formattedAddress,
+        queryLocality: brand.storeLocation.queryLocality,
+      },
+      flagshipProductOrService: brand.flagshipProductOrService!,
+      characteristics: brand.characteristics.map((item) => ({ ...item })),
+      articleInformation: {
+        ...brand.articleInformation,
+        suitableAudienceContexts: [
+          ...brand.articleInformation.suitableAudienceContexts,
+        ],
+        desiredPositioning: [...brand.articleInformation.desiredPositioning],
+      },
+    };
+  }
+
   private nextLocation(
     accountId: string,
     brandId: string,
@@ -305,13 +370,15 @@ export class BrandService {
 
   private presentBrand(brand: BrandProfileView, isCurrent: boolean): BrandView {
     const resolved = this.resolveIndustrySelection(brand);
+    const evaluation = brandReadiness(
+      brand,
+      resolved.secondaryIndustry?.isOther ?? false,
+      brand.storeLocation,
+    );
     return {
       ...brand,
-      ...brandReadiness(
-        brand,
-        resolved.secondaryIndustry?.isOther ?? false,
-        brand.storeLocation,
-      ),
+      ...evaluation,
+      ...articleInformationReadiness(brand, evaluation),
       primaryIndustryLabel: resolved.primaryIndustry?.label ?? null,
       secondaryIndustryLabel: resolved.secondaryIndustry?.label ?? null,
       isCurrent,
@@ -319,21 +386,34 @@ export class BrandService {
   }
 }
 
-function parseBrandMutation(input: BrandMutationInput): {
+function parseBrandMutation(
+  input: BrandMutationInput,
+  currentCharacteristics: BrandCharacteristic[],
+  requireRevision = false,
+): {
   fields: EditableBrandFields;
   locationChange?: LocationChangeRequest;
+  expectedRevision?: number;
 } {
-  const parsed = brandMutationSchema.safeParse(input);
+  const parsed = (
+    requireRevision ? brandUpdateSchema : brandMutationSchema
+  ).safeParse(input);
   if (!parsed.success) {
     throw new BadRequestException("品牌资料格式不正确，请检查后重试");
   }
   try {
-    const fields = cleanPatch(parsed.data);
+    const fields = cleanPatch(parsed.data, currentCharacteristics);
+    const expectedRevision =
+      "expectedRevision" in parsed.data &&
+      typeof parsed.data.expectedRevision === "number"
+        ? parsed.data.expectedRevision
+        : undefined;
     return {
       fields,
       ...(parsed.data.locationChange
         ? { locationChange: parsed.data.locationChange }
         : {}),
+      ...(expectedRevision !== undefined ? { expectedRevision } : {}),
     };
   } catch (error) {
     if (error instanceof BrandProfileValidationError) {
@@ -345,6 +425,7 @@ function parseBrandMutation(input: BrandMutationInput): {
 
 function cleanPatch(
   input: z.infer<typeof brandMutationSchema>,
+  currentCharacteristics: BrandCharacteristic[],
 ): EditableBrandFields {
   const result: EditableBrandFields = {};
   if (input.companyName !== undefined) {
@@ -367,7 +448,19 @@ function cleanPatch(
     );
   }
   if (input.characteristics !== undefined) {
-    result.characteristics = normalizeCharacteristics(input.characteristics);
+    result.characteristics = normalizeCharacteristics(
+      input.characteristics.map((item) => ({
+        ...(item.id ? { id: item.id } : {}),
+        title: item.title,
+        ...(item.detail !== undefined ? { detail: item.detail } : {}),
+      })),
+      currentCharacteristics,
+    );
+  }
+  if (input.articleInformation !== undefined) {
+    result.articleInformation = normalizeArticleInformation(
+      input.articleInformation,
+    );
   }
   return result;
 }
@@ -379,7 +472,38 @@ const brandMutationSchema = z
     secondaryIndustryId: z.string().max(100).nullable().optional(),
     otherProductOrService: z.string().max(60).nullable().optional(),
     flagshipProductOrService: z.string().max(80).nullable().optional(),
-    characteristics: z.array(z.string().max(120)).max(6).optional(),
+    characteristics: z
+      .array(
+        z
+          .object({
+            id: z.uuid().optional(),
+            title: z.string().min(2).max(120),
+            detail: z.string().max(1000).nullable().optional(),
+          })
+          .strict(),
+      )
+      .max(6)
+      .optional(),
+    articleInformation: z
+      .object({
+        price: z
+          .discriminatedUnion("mode", [
+            z.object({ mode: z.literal("NEGOTIABLE") }).strict(),
+            z
+              .object({
+                mode: z.literal("RANGE"),
+                minimum: z.number().int().positive(),
+                maximum: z.number().int().positive(),
+              })
+              .strict(),
+          ])
+          .nullable(),
+        suitableAudienceContexts: z.array(z.string().max(80)).max(5),
+        supplementalBackground: z.string().max(2000).nullable(),
+        desiredPositioning: z.array(z.string().max(80)).max(5),
+      })
+      .strict()
+      .optional(),
     contactName: z.string().max(100).nullable().optional(),
     contactMobile: z.string().max(20).nullable().optional(),
     locationChange: z
@@ -396,6 +520,10 @@ const brandMutationSchema = z
   })
   .strict();
 
+const brandUpdateSchema = brandMutationSchema.extend({
+  expectedRevision: z.number().int().positive(),
+});
+
 function completeFields(input: EditableBrandFields): BrandProfileFields {
   return {
     companyName: normalizeText(input.companyName),
@@ -405,7 +533,10 @@ function completeFields(input: EditableBrandFields): BrandProfileFields {
     flagshipProductOrService: normalizeFlagshipProductOrService(
       input.flagshipProductOrService,
     ),
-    characteristics: normalizeCharacteristics(input.characteristics ?? []),
+    characteristics: input.characteristics ?? normalizeCharacteristics([], []),
+    articleInformation: normalizeArticleInformation(
+      input.articleInformation ?? EMPTY_ARTICLE_INFORMATION,
+    ),
     contactName: normalizeText(input.contactName) || null,
     contactMobile: normalizeText(input.contactMobile) || null,
   };

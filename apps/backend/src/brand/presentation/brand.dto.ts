@@ -1,5 +1,73 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
+export class BrandCharacteristicMutationRequest {
+  @ApiPropertyOptional({ type: String, format: "uuid" })
+  id?: string;
+
+  @ApiProperty({ type: String, minLength: 2, maxLength: 120 })
+  title!: string;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    minLength: 2,
+    maxLength: 1000,
+  })
+  detail?: string | null;
+}
+
+export class BrandCharacteristicResponse {
+  @ApiProperty({ type: String, format: "uuid" })
+  id!: string;
+
+  @ApiProperty({ type: String })
+  title!: string;
+
+  @ApiProperty({ type: String, nullable: true })
+  detail!: string | null;
+}
+
+export class BrandArticleInformationRequest {
+  @ApiProperty({
+    type: "object",
+    oneOf: [
+      {
+        type: "object",
+        required: ["mode", "minimum", "maximum"],
+        additionalProperties: false,
+        properties: {
+          mode: { type: "string", enum: ["RANGE"] },
+          minimum: { type: "integer", minimum: 1 },
+          maximum: { type: "integer", minimum: 1 },
+        },
+      },
+      {
+        type: "object",
+        required: ["mode"],
+        additionalProperties: false,
+        properties: {
+          mode: { type: "string", enum: ["NEGOTIABLE"] },
+        },
+      },
+    ],
+    additionalProperties: false,
+    nullable: true,
+  })
+  price!:
+    | { mode: "RANGE"; minimum: number; maximum: number }
+    | { mode: "NEGOTIABLE" }
+    | null;
+
+  @ApiProperty({ type: [String], maxItems: 5 })
+  suitableAudienceContexts!: string[];
+
+  @ApiProperty({ type: String, nullable: true, maxLength: 2000 })
+  supplementalBackground!: string | null;
+
+  @ApiProperty({ type: [String], maxItems: 5 })
+  desiredPositioning!: string[];
+}
+
 export class BrandLocationChangeRequest {
   @ApiProperty({ type: String, enum: ["REMOVE", "REPLACE"] })
   action!: "REMOVE" | "REPLACE";
@@ -29,8 +97,14 @@ export class BrandMutationRequest {
   })
   flagshipProductOrService?: string | null;
 
-  @ApiPropertyOptional({ type: [String], minItems: 2, maxItems: 6 })
-  characteristics?: string[];
+  @ApiPropertyOptional({
+    type: [BrandCharacteristicMutationRequest],
+    maxItems: 6,
+  })
+  characteristics?: BrandCharacteristicMutationRequest[];
+
+  @ApiPropertyOptional({ type: BrandArticleInformationRequest })
+  articleInformation?: BrandArticleInformationRequest;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   contactName?: string | null;
@@ -40,6 +114,11 @@ export class BrandMutationRequest {
 
   @ApiPropertyOptional({ type: BrandLocationChangeRequest })
   locationChange?: BrandLocationChangeRequest;
+}
+
+export class BrandUpdateRequest extends BrandMutationRequest {
+  @ApiProperty({ type: Number, minimum: 1 })
+  expectedRevision!: number;
 }
 
 export class RegionLabelResponse {
@@ -155,8 +234,14 @@ export class BrandResponse {
   @ApiPropertyOptional({ type: String, nullable: true })
   flagshipProductOrService!: string | null;
 
-  @ApiProperty({ type: [String] })
-  characteristics!: string[];
+  @ApiProperty({ type: [BrandCharacteristicResponse] })
+  characteristics!: BrandCharacteristicResponse[];
+
+  @ApiProperty({ type: BrandArticleInformationRequest })
+  articleInformation!: BrandArticleInformationRequest;
+
+  @ApiProperty({ type: Number, minimum: 1 })
+  revision!: number;
 
   @ApiPropertyOptional({ type: String, nullable: true })
   contactName!: string | null;
@@ -178,6 +263,12 @@ export class BrandResponse {
 
   @ApiProperty({ type: [String] })
   missingFields!: string[];
+
+  @ApiProperty({ type: Boolean })
+  readyForArticleGeneration!: boolean;
+
+  @ApiProperty({ type: [String] })
+  articleInformationMissingFields!: string[];
 
   @ApiProperty({ type: Boolean })
   isCurrent!: boolean;

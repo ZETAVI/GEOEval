@@ -8,12 +8,18 @@ import {
   BrandStoreLocationReceiptReplayError,
 } from "../domain/brand.repository.js";
 import type {
+  BrandArticleInformation,
+  BrandCharacteristic,
   BrandProfileFields,
   BrandProfileView,
   BrandStoreLocation,
   BrandStoreLocationWrite,
   OfficialRegionNode,
 } from "../domain/brand.types.js";
+import {
+  normalizeArticleInformation,
+  normalizeCharacteristics,
+} from "../domain/brand-profile.js";
 
 const includeStoreLocation = { storeLocation: true } as const;
 type BrandRow = Prisma.BrandProfileGetPayload<{
@@ -60,6 +66,7 @@ export class PostgresBrandRepository implements BrandRepository {
     fields: BrandProfileFields;
     storeLocation: BrandStoreLocationWrite | null;
     evaluationFingerprint: string;
+    writingContextFingerprint: string;
   }): Promise<BrandProfileView> {
     try {
       return await this.prisma.$transaction(async (transaction) => {
@@ -69,6 +76,7 @@ export class PostgresBrandRepository implements BrandRepository {
             accountId: input.accountId,
             ...profileData(input.fields),
             evaluationFingerprint: input.evaluationFingerprint,
+            writingContextFingerprint: input.writingContextFingerprint,
           },
         });
         if (input.storeLocation) {
@@ -106,15 +114,18 @@ export class PostgresBrandRepository implements BrandRepository {
   async update(input: {
     accountId: string;
     brandId: string;
-    expectedLocationVerificationId: string | null;
+    expectedRevision: number;
     fields: BrandProfileFields;
     storeLocation: BrandStoreLocationWrite | null;
     evaluationFingerprint: string;
+    writingContextFingerprint: string;
   }): Promise<BrandProfileView | undefined> {
     try {
       return await this.prisma.$transaction(async (transaction) => {
-        const owned = await transaction.$queryRaw<Array<{ id: string }>>`
-          SELECT "id"
+        const owned = await transaction.$queryRaw<
+          Array<{ id: string; revision: number }>
+        >`
+          SELECT "id", "revision"
           FROM "brand_profiles"
           WHERE "id" = CAST(${input.brandId} AS UUID)
             AND "account_id" = CAST(${input.accountId} AS UUID)
@@ -122,16 +133,7 @@ export class PostgresBrandRepository implements BrandRepository {
           FOR UPDATE
         `;
         if (owned.length === 0) return undefined;
-        const currentLocation = await transaction.brandStoreLocation.findUnique(
-          {
-            where: { brandId: input.brandId },
-            select: { verificationId: true },
-          },
-        );
-        if (
-          (currentLocation?.verificationId ?? null) !==
-          input.expectedLocationVerificationId
-        ) {
+        if (owned[0]!.revision !== input.expectedRevision) {
           throw new BrandConcurrentUpdateError();
         }
         if (input.storeLocation) {
@@ -153,6 +155,8 @@ export class PostgresBrandRepository implements BrandRepository {
           data: {
             ...profileData(input.fields),
             evaluationFingerprint: input.evaluationFingerprint,
+            writingContextFingerprint: input.writingContextFingerprint,
+            revision: { increment: 1 },
           },
           include: includeStoreLocation,
         });
@@ -194,6 +198,7 @@ function profileData(fields: BrandProfileFields) {
     otherProductOrService: fields.otherProductOrService,
     flagshipProductOrService: fields.flagshipProductOrService,
     characteristics: fields.characteristics as Prisma.InputJsonValue,
+    articleInformation: fields.articleInformation as Prisma.InputJsonValue,
     contactName: fields.contactName,
     contactMobile: fields.contactMobile,
   };
@@ -243,9 +248,12 @@ function mapBrand(row: BrandRow): BrandProfileView {
     otherProductOrService: row.otherProductOrService,
     flagshipProductOrService: row.flagshipProductOrService,
     characteristics: parseCharacteristics(row.characteristics),
+    articleInformation: parseArticleInformation(row.articleInformation),
     contactName: row.contactName,
     contactMobile: row.contactMobile,
     evaluationFingerprint: row.evaluationFingerprint,
+    writingContextFingerprint: row.writingContextFingerprint,
+    revision: row.revision,
     storeLocation: row.storeLocation
       ? mapStoreLocation(row.storeLocation)
       : null,
@@ -312,11 +320,96 @@ function mapStoreLocation(row: StoreLocationRow): BrandStoreLocation {
   };
 }
 
-function parseCharacteristics(value: Prisma.JsonValue): string[] {
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+function parseCharacteristics(value: Prisma.JsonValue): BrandCharacteristic[] {
+  if (!Array.isArray(value)) {
     throw new Error("Stored Brand characteristics are invalid");
   }
-  return value as string[];
+  const parsed = value.map((item) => {
+    if (
+      !item ||
+      typeof item !== "object" ||
+      Array.isArray(item) ||
+      !hasExactKeys(item, ["id", "title", "detail"]) ||
+      typeof item.id !== "string" ||
+      typeof item.title !== "string" ||
+      (item.detail !== null && typeof item.detail !== "string")
+    ) {
+      throw new Error("Stored Brand characteristic item is invalid");
+    }
+    return { id: item.id, title: item.title, detail: item.detail };
+  });
+  try {
+    const normalized = normalizeCharacteristics(parsed, parsed);
+    if (JSON.stringify(normalized) !== JSON.stringify(parsed)) {
+      throw new Error("Stored Brand characteristics are not normalized");
+    }
+    return normalized;
+  } catch {
+    throw new Error("Stored Brand characteristics are invalid");
+  }
+}
+
+function parseArticleInformation(
+  value: Prisma.JsonValue,
+): BrandArticleInformation {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("Stored Brand Article Information is invalid");
+  }
+  const price = value.price;
+  if (
+    !hasExactKeys(value, [
+      "price",
+      "suitableAudienceContexts",
+      "supplementalBackground",
+      "desiredPositioning",
+    ])
+  ) {
+    throw new Error("Stored Brand Article Information is invalid");
+  }
+  const validPrice =
+    price === null ||
+    (typeof price === "object" &&
+      !Array.isArray(price) &&
+      ((price.mode === "NEGOTIABLE" && hasExactKeys(price, ["mode"])) ||
+        (price.mode === "RANGE" &&
+          hasExactKeys(price, ["mode", "minimum", "maximum"]) &&
+          typeof price.minimum === "number" &&
+          typeof price.maximum === "number")));
+  if (
+    !validPrice ||
+    !Array.isArray(value.suitableAudienceContexts) ||
+    value.suitableAudienceContexts.some((item) => typeof item !== "string") ||
+    (value.supplementalBackground !== null &&
+      typeof value.supplementalBackground !== "string") ||
+    !Array.isArray(value.desiredPositioning) ||
+    value.desiredPositioning.some((item) => typeof item !== "string")
+  ) {
+    throw new Error("Stored Brand Article Information is invalid");
+  }
+  const parsed = {
+    price: price as BrandArticleInformation["price"],
+    suitableAudienceContexts: value.suitableAudienceContexts as string[],
+    supplementalBackground: value.supplementalBackground,
+    desiredPositioning: value.desiredPositioning as string[],
+  };
+  try {
+    const normalized = normalizeArticleInformation(parsed);
+    if (JSON.stringify(normalized) !== JSON.stringify(parsed)) {
+      throw new Error("Stored Brand Article Information is not normalized");
+    }
+    return normalized;
+  } catch {
+    throw new Error("Stored Brand Article Information is invalid");
+  }
+}
+
+function hasExactKeys(value: Record<string, unknown>, keys: string[]): boolean {
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return (
+    actual.length === expected.length &&
+    actual.every((key, index) => key === expected[index])
+  );
 }
 
 function parseOfficialPath(value: Prisma.JsonValue): OfficialRegionNode[] {
