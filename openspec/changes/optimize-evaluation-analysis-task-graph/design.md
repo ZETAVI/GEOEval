@@ -646,3 +646,33 @@ do not treat Schema/source acceptance as sufficient for report integration.
 Focus the next slice on distinct-brand records and source-backed name handoff;
 the source already carries observed wording, so a new alias taxonomy is not
 justified. Preserve the one-call, customer-level task boundary.
+
+### Brand records and a single absence decision
+
+Architecture readiness: `ready` for an owner-local 1.2.0 experiment, not runtime.
+Replay of the saved raw JSON distinguishes three hypotheses: local projection
+loss is disproved for the observed omissions; repeated name generation creates
+an unnecessary place for unsupported aliases; treating a multi-brand heading as
+one record may explain incomplete coverage but is not yet a proven model cause.
+Separately, root-level free-text summary can disagree with `target=null` because
+the same absence fact is expressed twice. Do not claim one universal root cause.
+
+Use one record per distinct other-brand subject, including separately named
+brands within one item at its shared position. Retain one readable `displayName`
+and source evidence; remove model-generated `observedForms`, since the restored
+excerpt already carries original spelling and aliases for later interpretation.
+Do not add a lexical name guard, invent aliases in code or merge uncertain brands.
+Move the model's summary into the present-target object: it summarizes the target
+portrayal. If that object is null, the diagnostic view displays the simple known
+fact “本条回答未提及目标品牌。” Program logic does not decide mention or repair
+an incorrect model decision. Raw model output and derived display stay separate.
+
+Current canonical Parser contracts still use observed forms and root card prose;
+this experiment does not remove their fields or fabricate an adapter. Verify
+that two brands can retain one source position/excerpt, original aliases survive
+the source-backed handoff, present summaries are unchanged and null yields only
+the absence display. Then freeze five calls: retained coffee/absent candidates,
+one natural acquisition without target injection, and matched 1.1.0/1.2.0 parses
+of that new answer. Keep existing routes, strict Parser mode and low effort.
+No retries or tuning; Provider/model/abnormal finish stops the batch and invalid
+acquisition stops dependents. Review semantic output locally; Langfuse IO only.

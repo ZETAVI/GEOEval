@@ -17,7 +17,6 @@ const evidence = z
   .min(1)
   .max(2)
   .describe("相关的连续原文行范围，程序还原片段。");
-const forms = z.array(text(120)).min(1).max(12);
 const sourcePosition = z.number().int().min(1).max(100);
 export const m4CustomerSummarySchema = z
   .object({
@@ -42,6 +41,7 @@ export const m4CustomerSummarySchema = z
               .strict(),
           )
           .max(8),
+        summary: text(500),
       })
       .strict()
       .nullable(),
@@ -50,7 +50,6 @@ export const m4CustomerSummarySchema = z
         z
           .object({
             displayName: text(120),
-            observedForms: forms,
             position: sourcePosition.nullable(),
             positiveRecommendation: z.boolean(),
             evidence,
@@ -58,7 +57,6 @@ export const m4CustomerSummarySchema = z
           .strict(),
       )
       .max(10),
-    summary: text(500),
   })
   .strict();
 
@@ -109,6 +107,8 @@ export function inspectM4CustomerSummaryOutput(
   return {
     output,
     sourceBackedOutput,
+    // Absence is already decided by the model; do not ask it to state it twice.
+    sampleSummary: output.target?.summary ?? "本条回答未提及目标品牌。",
     positiveCompetitors: output.otherBrands.filter(
       (b) => b.positiveRecommendation,
     ),

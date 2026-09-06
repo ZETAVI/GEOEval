@@ -32,31 +32,28 @@ const value = () => ({
       },
       { text: "消费偏高。", polarity: "NEGATIVE", evidence: [range(1)] },
     ],
+    summary: "回答认为青禾咖啡适合安静办公，但价格偏高，并提供了其他选择。",
   },
   otherBrands: [
     {
       displayName: "山岚咖啡",
-      observedForms: ["山岚咖啡"],
       position: 2,
       positiveRecommendation: true,
       evidence: [range(2)],
     },
     {
       displayName: "晴川咖啡",
-      observedForms: ["晴川咖啡"],
       position: 3,
       positiveRecommendation: false,
       evidence: [range(3)],
     },
     {
       displayName: "墨云咖啡",
-      observedForms: ["墨云咖啡"],
       position: null,
       positiveRecommendation: false,
       evidence: [range(4)],
     },
   ],
-  summary: "回答认为青禾咖啡适合安静办公，但价格偏高，并提供了其他选择。",
 });
 
 describe("M4 customer-value Parser experiment", () => {
@@ -73,20 +70,15 @@ describe("M4 customer-value Parser experiment", () => {
   it("actually removes role/category/condition obligations from the model contract", () => {
     const schema = buildM4CustomerSummaryTask(base).outputContract
       .jsonSchema as any;
-    expect(schema.required).toEqual(["target", "otherBrands", "summary"]);
+    expect(schema.required).toEqual(["target", "otherBrands"]);
     expect(Object.keys(schema.properties.target.anyOf[0].properties)).toEqual([
       "position",
       "evidence",
       "points",
+      "summary",
     ]);
     expect(Object.keys(schema.properties.otherBrands.items.properties)).toEqual(
-      [
-        "displayName",
-        "observedForms",
-        "position",
-        "positiveRecommendation",
-        "evidence",
-      ],
+      ["displayName", "position", "positiveRecommendation", "evidence"],
     );
     expect(JSON.stringify(schema)).not.toMatch(
       /targetRole|positionKind|category|CONDITIONALLY_RECOMMENDED/,
@@ -95,6 +87,7 @@ describe("M4 customer-value Parser experiment", () => {
   it("allows natural point summaries while restoring exact supporting source", () => {
     const result = inspectM4CustomerSummaryOutput(value(), originalAnswer);
     expect(result.output.target!.points[1]!.text).toBe("消费偏高。");
+    expect(result.sampleSummary).toBe(value().target.summary);
     const restored = result.sourceBackedOutput as any;
     expect(restored.target.points[1].evidence[0].exactText).toBe(
       originalAnswer.split("\r\n")[0],
@@ -116,17 +109,63 @@ describe("M4 customer-value Parser experiment", () => {
     const absent = {
       ...value(),
       target: null,
-      summary: "回答未提及目标品牌，列出了其他咖啡店选择。",
     };
     expect(
       inspectM4CustomerSummaryOutput(absent, originalAnswer).output.target,
     ).toBeNull();
+    const inspected = inspectM4CustomerSummaryOutput(absent, originalAnswer);
+    expect(inspected.sampleSummary).toBe("本条回答未提及目标品牌。");
+    expect(inspected.output).not.toHaveProperty("summary");
     expect(
       (
         inspectM4CustomerSummaryOutput(absent, originalAnswer)
           .sourceBackedOutput as any
       ).target,
     ).toBeNull();
+  });
+  it("preserves two brand subjects sharing one item, position and original name context", () => {
+    const answer =
+      "1. 山岚咖啡 (Hill Coffee) 或晴川咖啡 (River Coffee) 都值得考虑，虽然略贵。";
+    const output = {
+      target: null,
+      otherBrands: ["山岚咖啡", "晴川咖啡"].map((displayName) => ({
+        displayName,
+        position: 1,
+        positiveRecommendation: true,
+        evidence: [range(1)],
+      })),
+    };
+    const inspected = inspectM4CustomerSummaryOutput(output, answer);
+    expect(inspected.positiveCompetitors.map((b) => b.displayName)).toEqual([
+      "山岚咖啡",
+      "晴川咖啡",
+    ]);
+    const restored = inspected.sourceBackedOutput as any;
+    expect(restored.otherBrands.map((b: any) => b.position)).toEqual([1, 1]);
+    for (const brand of restored.otherBrands) {
+      expect(brand.evidence[0].exactText).toBe(answer);
+      expect(brand).not.toHaveProperty("observedForms");
+    }
+    expect(() =>
+      inspectM4CustomerSummaryOutput(
+        {
+          ...output,
+          otherBrands: [
+            { ...output.otherBrands[0], observedForms: ["虚构别名"] },
+          ],
+        },
+        answer,
+      ),
+    ).toThrow();
+    expect(() =>
+      inspectM4CustomerSummaryOutput(
+        {
+          ...output,
+          summary: "另一份可能矛盾的缺席判断",
+        },
+        answer,
+      ),
+    ).toThrow();
   });
   it("hands off target evidence without regenerating a known brand name", () => {
     const result = inspectM4CustomerSummaryOutput(value(), originalAnswer);
