@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: controlled merchant matrix complete, no selected runtime topology.
+Status: one complete composed preview; grouping repetition failed, no selected runtime topology.
 The [current proposal](proposal.md#current-evidence-and-next-decision) and
 [tasks](tasks.md) own the next action. Historical stages below explain prior
 decisions, not a queue of experiments to repeat. The owner accepts practical
@@ -40,6 +40,17 @@ separation plus unchanged assembly. The live uncertainty is whether focused
 grouping remains useful alongside an independently written target narrative;
 two complete previews discriminate the next runtime decision without selecting
 tables or recovery topology in advance.
+
+Result: four calls complete, but only the first round yields a report (71.255
+seconds). The second grouping repeats members and adds category groups in its
+raw output; it is rejected before assembly. Both actual component requests are
+identical across rounds. Program composition is not the source of this defect,
+and a good first preview does not establish repeat stability. Retain this
+experiment without runtime activation. The next uncertainty is whether a
+per-record single-assignment output reduces observed over-generation; changing
+that expression would be a separate bounded comparison, not a proven semantic
+fix or permission to auto-trim the failed groups. The current proposal/tasks
+own that next action; no additional calls are appended to this package.
 
 ### Approved input-layout comparison
 

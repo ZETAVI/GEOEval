@@ -2256,3 +2256,86 @@ production, merge or other-worktree change is claimed.
 | Result 1 | 25f41300045d725ed3fdbdee686d09186d755aa47fbd0c1207f09c9bcba6ebac |
 | Result 2 | 1a0ce7be67c62c20697237da21e82f13e5b5bf39bc9f6b0969aae58191e25cb6 |
 | Runner | d9754bc5dc51f626108712fdc77cad6bcdb5efb18a18b153dbd49a106afc7d58 |
+
+## Minimal report composition — one preview, repetition rejected
+
+The owner approves continuing the focused-role experiment and assessing later
+optimization against whole-evaluation time. At
+`d17f01aa13dfa693245bcfbc55d2c049b469bf51`, manifest
+`ca8c7240b85979eb8f00af52baef04274dfdc4a0e101c5709a57b3973c5ce3b8`
+freezes two parallel grouping/narrative pairs, maximum four calls and concurrency
+two. The retained 19-sample/45-brand handoff and all upstream ambiguities remain
+unchanged; there is no acquisition, Parser call, retry, fallback or tuning.
+
+The new experiment-only helper reuses the exact focused grouping instruction,
+brand records/excerpts and finite member Schema. Its asset version is now
+`experiment.m4.brand-grouping@1.0.0`; historical wire-name equality is not claimed.
+Target narrative `experiment.m4.target-narrative@1.0.0` gets target evidence,
+sample summaries, question/platform scope, owner context and program coverage,
+without the other-brand list. It writes the existing overview/themes/directions,
+not competitor grouping/ranking or numerical statistics. Both raw components
+must pass existing structure/reference rules before an unchanged program preview
+is assembled. Default synthesis, formal runtime and current contracts are intact.
+
+Execution runs 2026-09-06 15:21:05.381–15:23:18.282 UTC. All four Providers succeed.
+
+| Round | Grouping | Target narrative | Complete composition | Combined tokens |
+| --- | --- | --- | --- | --- |
+| 1 | 71,238 ms; 17,818 tokens | 19,754 ms; 7,015 tokens | 71,255 ms, preview produced | 24,833 |
+| 2 | 61,357 ms; 18,284 tokens; rejected | 11,293 ms; 6,119 tokens | Not assembled | 24,403 |
+
+Total 49,236 reported tokens and 132.901-second batch wall time, peak concurrency
+two. Round one reports no cached input; round two reports 11,264 grouping and
+4,096 narrative cached tokens. These are complete analysis-component costs,
+not billed amounts or a new four-by-five run. The only full-evaluation timing
+remains 352.014 seconds, with a 240.829-second acquisition/Parser barrier.
+Do not add historical stages and present the result as a measured new runtime.
+
+Local independent review accepts the first preview's seven concrete groups and
+practical narrative/count agreement under the retained input. The second raw
+grouping emits 30 groups and 40 repeated-membership occurrences, adding thematic
+categories after concrete brands. Its early groups are also not an exact clean
+copy of the first result. The ordinary membership validator rejects it before
+assembly; no second report exists. Keep the failed output, not only the good
+first preview, and do not trim its tail into an invented successful response.
+Detailed business review and upstream identity/unnamed-record limitations remain
+local, including their propagation into a target narrative. Neither semantic
+identity correctness nor formal customer-report acceptance is established.
+
+Offline replay confirms identical actual HTTP bodies for each component across
+rounds. The duplication is in the original model return, not created by code
+assembly or changed input. The model visibly expands name grouping into thematic
+classification; the causal contribution of long context, free group-list shape
+or nondeterminism remains unproven. Existing tests already reproduce duplicate
+rejection, while valid references deliberately do not certify brand identity.
+
+Next test only whether one assignment per supplied record is a better output
+expression than a free list of member groups. This may remove duplicate
+representation but cannot guarantee semantic identity. Keep the useful narrative
+scope, original evidence and single Parser; do not add an Agent, critic, category
+blacklist, strict alias store or runtime persistence. No fifth call is appended.
+Bring the supported candidate to another merchant/full timing only after this
+reachable report failure has a bounded resolution or an explicit disposition.
+
+40 focused tests, Backend typecheck/build, framework/links/diff and independent
+fixed-diff/runner review pass for the experiment. Independent semantic review
+separately confirms one useful preview and the second failure. Five private
+observations (root `0489f1b3b6368df7` plus four generations) match actual
+IO/settings/usage on readback; root IO and derived review are absent.
+[Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/0a89b77025df1f32eb8a0d89679c1753).
+Raw artifacts, local reports and review are retained under
+`apps/backend/.provider-evidence/m4-report-composition-LiCmha/`.
+Main remains observed at `5fb4400`; no merge, rebase, production, other-worktree
+change, #49 mirror, formal UI/DB/recovery or selected runtime is claimed.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 667e38cd1bb079ed5d44a00f91ab08a81f878da7892bd04b6ca9b8c47d10f389 |
+| Summary | 4f47d53358e72f24fb2beed0a04f9515b5a4808d0785f9d20d9b255b3c3e405c |
+| Composition handoff | 92ceeb0409661d586a41896130dd93c5fe323ef37c5f06618fe3c64807b0624f |
+| Grouping 1 | ae4cdaa03bb33f54a8d1d7bc8d604ce0f1e0bd87b132a6166267ef50b0489b5b |
+| Narrative 1 | 9d371b6139770623223fe03bf572fbc5777cbefbc7f35729692bfa07b1e335b8 |
+| Grouping 2 | 9967e9690e7c196119c13107c7a1f0c987a3a71d7c51cc3af5542a35dfd14ad8 |
+| Narrative 2 | 4f9ea3dc7ba1595c207a3fc351547238dbbb5ab9574d55852131aeae90f3742b |
+| Preview 1 | c5a2da959c7b9a7f0702fcc703e04c8ddfcfe420f9e178e208cc9d3d4f7c2d6a |
+| Runner | 1f928f0c247cdef62eabba830193b046234a2963baf35fb943e17995cd2e426b |

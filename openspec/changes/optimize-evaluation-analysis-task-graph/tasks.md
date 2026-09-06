@@ -40,9 +40,16 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
 - [x] Execute the separate final two-call grouping-only diagnostic on the same
       brand records. Confirm useful improvement and preserve the remaining
       store-name/member and incomplete-grouping differences; do not claim stability.
-- [ ] Freeze a minimal complete report-composition test using focused grouping,
-      target evidence/narrative and program-owned counts. Check agreement and
-      total token/time across all required calls before selecting runtime topology.
+- [x] Freeze and execute the four-call minimal report-composition test. One useful
+      preview takes 71.255 seconds/24,833 tokens; second grouping repeats members,
+      so no second report is assembled. Retain all outputs and measure both calls;
+      do not claim repeat stability, full-evaluation timing or selected topology.
+- [x] Diagnose the rejected raw grouping and verify identical repeated HTTP bodies;
+      program assembly/input drift are not the cause. Practical narrative scope
+      remains useful; actual IO readback matches and private review stays local.
+- [ ] Compare a per-record single-assignment grouping output with the existing
+      free group list on retained evidence. Freeze the smallest discriminating
+      batch; no automatic trim, category blacklist, retry or new runtime layer.
 - [ ] Review the remaining named/unnamed, member and direct-Parser failure cases
       by their actual report impact; retain imperfect results rather than silently
       repairing them or turning every historical case into an indefinite gate.

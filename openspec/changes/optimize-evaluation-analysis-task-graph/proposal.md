@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Layout candidate rejected; focused grouping supports the next report experiment
+- Status: One useful composed preview; grouping repetition failed, runtime not selected
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -104,10 +104,22 @@ The focused calls take 38.226/42.651 seconds, not full-report time. Task, contex
 and output scope change together; the result supports another bounded experiment,
 not proof of a layout root cause, stable quality or a selected two-Agent runtime.
 
-Next validate a minimal complete report composition: focused brand grouping,
-target narrative/evidence and program-owned statistics must agree. Measure the
-combined calls, token usage and elapsed time, then select the smallest supported
-execution arrangement with #41. Do not add queues/tables or preselect independent
+The four-call minimal composition package at `d17f01a` produces one useful
+complete preview in 71.255 seconds, using 24,833 tokens. Its repeated grouping
+then returns overlapping members and category groups; that component is rejected
+and no second report is assembled. Both target narratives pass references and
+meet the practical reading bar apart from preserved upstream ambiguities.
+The entire batch uses 49,236 tokens in 132.901 seconds. This is retained-input
+analysis, not a new full evaluation or evidence of a reliable runtime speedup.
+See the [composition result](research/chain-quality-experiment.md#minimal-report-composition--one-preview-repetition-rejected).
+
+Next test only the grouping output expression: one assignment per supplied brand
+record versus the current freely generated group list. Preserve the actual
+failure and source evidence; do not truncate bad groups, add category blacklists
+or treat structural uniqueness as correct identity. Keep the useful narrative
+scope and single Parser. After that bounded check, test another merchant and
+measure complete evaluation time before selecting execution with #41.
+Do not add queues/tables or preselect independent
 retry components merely because the diagnostic has two responsibilities. Keep
 the existing single-call Parser. The owner-confirmed alias remains accepted;
 another relation inferred only by the model is an observation, not a newly
