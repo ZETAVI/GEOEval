@@ -22,6 +22,8 @@
       Optimization without exposing internal guidance to Web.
 - [x] Verify Brand validation, CAS, migration, cross-account access and no-new-
       Evaluation-opportunity boundaries.
+- [x] Reconcile the accepted Brand writing foundation into the Brand Knowledge
+      current spec and remove its completed active delta.
 
 ## Stage 3 — GEO Optimization backend
 
