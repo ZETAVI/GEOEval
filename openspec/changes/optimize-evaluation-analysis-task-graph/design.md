@@ -676,3 +676,19 @@ one natural acquisition without target injection, and matched 1.1.0/1.2.0 parses
 of that new answer. Keep existing routes, strict Parser mode and low effort.
 No retries or tuning; Provider/model/abnormal finish stops the batch and invalid
 acquisition stops dependents. Review semantic output locally; Langfuse IO only.
+
+All five calls complete at `7fe7b58`. The code guarantees only that absence
+display follows the model's null decision, not that mention classification is
+always correct. Restored excerpts preserve original names without generated
+alias arrays. The new-answer pair has equivalent main-brand coverage, while
+the candidate costs more tokens/time. A retained shared-item brand is recognized
+but still loses eligibility/position in the raw output; restoration preserves
+those values unchanged. Structure simplification has not solved semantic binding.
+
+Stop changing Prompt/Schema for now. The next smallest discriminating diagnostic
+is one unchanged retained request plus one request differing only in the disputed
+brand's Chinese/English name. This can test whether the symptom repeats and is
+sensitive to the name while holding source structure and settings fixed. Two
+unseeded observations cannot prove training-prior causality or reliable rates;
+use them to choose the next action, not to claim a universal root cause. A larger
+Agent topology and formal report integration remain unjustified at this point.

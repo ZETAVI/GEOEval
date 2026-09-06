@@ -80,6 +80,17 @@ an experimental baseline, not an accepted customer-report input. The next small
 slice should check distinct-brand completeness and the minimum useful name
 handoff, not restore detailed condition annotation or add another Agent.
 
+The next 1.2.0 package at `7fe7b58` removes generated other-brand aliases, keeps
+original wording in source evidence, and derives absence display from the single
+null decision. Five calls completed: two retained candidates, one natural
+acquisition, and a matched new-answer 1.1.0/1.2.0 pair. The new pair has comparable
+useful coverage, but 1.2.0 takes 2,920 tokens/12.808 seconds versus 2,323/7.851.
+An existing shared-item eligibility/position residual remains in raw model output
+and is not introduced by source restoration. Do not promote the package or add
+more semantic prohibitions from this result. Next bound a fixed-request replay
+and name-only counterfactual before choosing another Prompt change; neither a
+unique model cause nor production stability is established.
+
 The following chronology explains earlier experiments, not additional current
 quality requirements. Conditions/part-wording findings must not silently regain
 blocking status after this recalibration.

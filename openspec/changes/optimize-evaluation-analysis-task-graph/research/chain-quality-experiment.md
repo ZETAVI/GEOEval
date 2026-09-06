@@ -1782,3 +1782,61 @@ production change, other-worktree write or #49 Prompt Management claim.
 | Plan | c7597f6627015401c1f4df51dff84fe4101e6a470194db578438a2c5c0bcb82f |
 | Summary | 42f17f0a7fdea68a53ca410cb9fc75fc4a3c8277eddb62bdb92de65d4db4bc5b |
 | Runner | 18671fd61ecd83154000cf23a3d6f0807dbfce34d783cd26343b331aadbbb38a |
+
+## Brand records and absence ownership — execution
+
+At `7fe7b58`, experiment 1.2.0 removes generated `observedForms`; restored source
+still carries actual wording. It moves model summary into non-null target and
+derives a simple absence display when target is null. No mention inference,
+semantic repair, alias lookup or legacy contract adapter is introduced.
+
+Manifest `135fea342b1580ed2b2b6af66e00e45d3c80de3d584fda0c867995a92ad663a4`
+froze at most five calls: retained coffee/absent candidates, one new natural
+Qwen3.7 Flash acquisition using the existing route, then Qwen3.8 Flash low/strict
+1.1.0/1.2.0 parses of the identical new answer. The target was fixed before
+sampling and absent from the acquisition wire. Exact old Schema/wire equality
+and fixed new-source recipes were verified before execution. No tuning, retry,
+fallback, sixth call or runtime activation.
+
+All five completed 2026-09-06 09:34:27–09:36:17 UTC, configured models and valid
+acquisition/experimental Schema/source results. The natural answer is preserved,
+not a statement of real-world brand or product accuracy. Detailed semantic review
+remains protected locally. Useful structural simplification does not establish
+overall quality gain; a raw shared-item eligibility/position residual remains.
+An offline equality check confirms source restoration does not change those
+identity/position/eligibility values. Do not promote this package on JSON success.
+
+| Stage | Tokens | Recorded latency |
+| --- | --- | --- |
+| Retained coffee candidate | 3,541 | 12,600 ms |
+| Retained absent candidate | 2,578 | 8,483 ms |
+| Natural acquisition | 4,276 | 67,907 ms |
+| New-answer 1.1.0 baseline | 2,323 | 7,851 ms |
+| New-answer 1.2.0 candidate | 2,920 | 12,808 ms |
+
+Total 15,638 tokens/109.649 seconds includes acquisition. Parser-only total is
+11,362/41.742; the candidate did not reduce new-pair token usage or latency.
+This is one matched, unseeded new-answer comparison, not a reliability, causal
+architecture, or billed-cost conclusion. Reasoning/cache are already included
+in provider totals and are not counted again.
+
+42 focused tests, Backend typecheck/build, independent fixed-diff review,
+framework/links/diff and private IO readback passed. The [private Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/9e6b5a348238f1f3a983ed6b734e6eb1)
+contains root `6187eb08e5a81f3b` plus exactly five generations. Actual model
+input/output/settings/usage match; trace is private, with no credentials,
+derived observations or semantic-review upload. Local evidence remains at
+`apps/backend/.provider-evidence/m4-brand-records-Xt8i2A/` (0700/0600), retained
+by #42. No actual synthesis/report/DB/migration/production acceptance or #49
+Prompt Management completion is claimed. Other worktrees remain untouched.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Retained coffee result | 994db115ea94aed96691ac66566d22003a65eaa3b59d7e793a46f81edabc7511 |
+| Retained absent result | aa381783e0c6c733263836a976701a5b5907656cb83f912530ce8107d93bff58 |
+| Acquisition result | 4aedec96cfc081e8969aa2daa9ae75d66574e615d1a12255d6c141fb6adb44ca |
+| New baseline result | 2ec2eac7a3435bf0a4bfa5bd449865882e4d9f9bdda7a82a2ecf0874d0eabdc8 |
+| New candidate result | 14c326696fc9269bf1cde1d798f5a03bc587e0bf3f319b482d629ec71ce0cc3f |
+| Plan | c23d28025ca35e6c733547111c0be1a2570d05172a5c3e1c7a793107ea4a5344 |
+| Answer lineage | 156df6dafbf78dbc691ae70a556b7d6e30325a88fc3dc198d041c491632e96a8 |
+| Summary | 9252eb24f3d88e584c283fd230c0fe4e503fd859dbe0a1e35799381d3c12bc57 |
+| Runner | fa415abb1e454bf0dadf0347eeab5c5dd255a3432723e4ea4230c7612faf76ce |

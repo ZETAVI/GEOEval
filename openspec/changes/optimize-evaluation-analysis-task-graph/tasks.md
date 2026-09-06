@@ -69,9 +69,13 @@ Completed chronology, exact manifests and failed candidates live in the
       remain eligible; explicit negative/non-recommendation and background do not.
 - [ ] Resolve material identity/position/polarity quality and verify held-out behavior
       before small report-path integration; no candidate is accepted yet.
-- [ ] Focus the next small Parser slice on distinct-brand coverage and grounded
-      name handoff plus null/summary consistency; do not expand alias generation
-      or revive fine role taxonomy. Do not ask synthesis to recover missing facts.
+- [x] Test independent brand records with source-backed names and a single null/
+      summary decision in 1.2.0; five frozen calls and private IO readback complete.
+- [x] Separate structural simplification from semantic quality: no net fresh-pair
+      benefit, and raw shared-item eligibility/position residual remains.
+- [ ] Diagnose that residual with a bounded unchanged-request replay/name-only
+      counterfactual before another Prompt edit. Do not expand alias generation,
+      revive fine roles or ask synthesis to recover missing facts.
 
 ## Synthesis comparison
 
