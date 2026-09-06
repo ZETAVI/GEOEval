@@ -10,7 +10,7 @@ import { useEffect, useId, useRef, useState } from "react";
 
 type Props = {
   apiBaseUrl: string;
-  brand?: Brand;
+  brand?: Pick<Brand, "id" | "storeLocation">;
   value: BrandMutation;
   onChange(value: BrandMutation): void;
 };

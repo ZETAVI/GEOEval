@@ -11,8 +11,122 @@ import {
   ArticlePanel,
   GenerationPanel,
 } from "../app/optimization/workspace.js";
+import {
+  workspaceReducer,
+  initialWorkspaceState,
+  isBrandDirty,
+  isArticleDirty,
+} from "../app/optimization/workspace-state.js";
 
 describe("GEO optimization customer workspace", () => {
+  it("preserves both dirty buffers and their exact base revisions while observing newer server content", () => {
+    const original = readyWorkspace();
+    let state = workspaceReducer(initialWorkspaceState, {
+      type: "observe",
+      workspace: original,
+    });
+    state = workspaceReducer(state, {
+      type: "editBrand",
+      value: { ...state.brand!.value, companyName: "本地尚未保存品牌" },
+    });
+    state = workspaceReducer(state, {
+      type: "editArticle",
+      title: "本地尚未保存文章",
+    });
+    const observed = {
+      ...original,
+      brand: { ...original.brand!, revision: 5, companyName: "他处保存品牌" },
+      article: { ...original.article!, revision: 4, title: "他处保存文章" },
+    };
+    state = workspaceReducer(state, { type: "observe", workspace: observed });
+    expect(state.brand).toMatchObject({
+      revision: 4,
+      value: { companyName: "本地尚未保存品牌" },
+    });
+    expect(state.article).toMatchObject({
+      revision: 3,
+      title: "本地尚未保存文章",
+    });
+    expect(state.workspace!.brand!.revision).toBe(5);
+    expect(isBrandDirty(state)).toBe(true);
+    expect(isArticleDirty(state)).toBe(true);
+  });
+
+  it("applies article mutations without rebasing a dirty Brand and ignores older server reads", () => {
+    const original = readyWorkspace();
+    let state = workspaceReducer(initialWorkspaceState, {
+      type: "observe",
+      workspace: original,
+    });
+    state = workspaceReducer(state, {
+      type: "editBrand",
+      value: { ...state.brand!.value, companyName: "未保存" },
+    });
+    const saved = { ...original.article!, revision: 4, title: "已保存第4版" };
+    state = workspaceReducer(state, { type: "articleSaved", article: saved });
+    state = workspaceReducer(state, { type: "observe", workspace: original });
+    expect(state.article).toMatchObject({ revision: 4, title: saved.title });
+    expect(state.brand!.value.companyName).toBe("未保存");
+    expect(state.brand!.revision).toBe(4);
+  });
+
+  it("saving a Brand never overwrites an unsaved article", () => {
+    const original = readyWorkspace();
+    let state = workspaceReducer(initialWorkspaceState, {
+      type: "observe",
+      workspace: original,
+    });
+    state = workspaceReducer(state, {
+      type: "editArticle",
+      body: "用户未保存正文",
+    });
+    const savedBrand = {
+      ...original.brand!,
+      revision: 5,
+      status: "ACTIVE" as const,
+      isCurrent: true,
+      createdAt: "2026-09-06T10:00:00.000Z",
+      updatedAt: "2026-09-06T11:00:00.000Z",
+    };
+    state = workspaceReducer(state, { type: "brandSaved", brand: savedBrand });
+    state = workspaceReducer(state, {
+      type: "observe",
+      workspace: { ...original, brand: savedBrand },
+    });
+    expect(state.article).toMatchObject({
+      body: "用户未保存正文",
+      revision: 3,
+    });
+    expect(isArticleDirty(state)).toBe(true);
+  });
+
+  it("does not transplant dirty content when the current Brand changes", () => {
+    const original = readyWorkspace();
+    let state = workspaceReducer(initialWorkspaceState, {
+      type: "observe",
+      workspace: original,
+    });
+    state = workspaceReducer(state, {
+      type: "editArticle",
+      title: "当前品牌的未保存文章",
+    });
+    const switched = {
+      ...original,
+      brand: { ...original.brand!, id: "brand-2" },
+      article: null,
+    };
+    state = workspaceReducer(state, { type: "observe", workspace: switched });
+    expect(state.contextChanged).toBe(true);
+    expect(state.workspace!.brand!.id).toBe("brand-1");
+    expect(state.article!.title).toBe("当前品牌的未保存文章");
+    state = workspaceReducer(state, {
+      type: "observe",
+      workspace: switched,
+      discard: true,
+    });
+    expect(state.workspace!.brand!.id).toBe("brand-2");
+    expect(state.article).toBeUndefined();
+  });
   it("extends the current Brand with free-form writing information", () => {
     const workspace = readyWorkspace();
     const form = writingBrandForm(workspace.brand!);

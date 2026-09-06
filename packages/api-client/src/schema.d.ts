@@ -2085,10 +2085,16 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                brandId: string;
+            };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateCoreArticleRequest"];
+            };
+        };
         responses: {
             201: {
                 headers: {
@@ -2104,7 +2110,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                generationId: string;
+                brandId: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -2123,10 +2132,17 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                articleId: string;
+                brandId: string;
+            };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveCoreArticleRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -2142,10 +2158,17 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                articleId: string;
+                brandId: string;
+            };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmCoreArticleRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {

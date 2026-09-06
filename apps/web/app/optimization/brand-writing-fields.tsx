@@ -4,16 +4,28 @@ import type {
   BrandMutation,
   GeoOptimizationWorkspace,
 } from "@geoeval/api-client";
+import { BrandIdentityFields } from "../brands/brand-profile-fields.js";
 
 export type WritingBrandForm = Pick<
   BrandMutation,
-  "flagshipProductOrService" | "characteristics" | "articleInformation"
+  | "companyName"
+  | "primaryIndustryId"
+  | "secondaryIndustryId"
+  | "otherProductOrService"
+  | "locationChange"
+  | "flagshipProductOrService"
+  | "characteristics"
+  | "articleInformation"
 >;
 
 type Brand = NonNullable<GeoOptimizationWorkspace["brand"]>;
 
 export function writingBrandForm(brand: Brand): WritingBrandForm {
   return {
+    companyName: brand.companyName,
+    primaryIndustryId: brand.primaryIndustryId,
+    secondaryIndustryId: brand.secondaryIndustryId,
+    otherProductOrService: brand.otherProductOrService,
     flagshipProductOrService: brand.flagshipProductOrService ?? null,
     characteristics: brand.characteristics.map((item) => ({ ...item })),
     articleInformation: {
@@ -30,6 +42,7 @@ export function writingBrandMutation(form: WritingBrandForm): WritingBrandForm {
   const articleInformation =
     form.articleInformation ?? emptyArticleInformation();
   return {
+    ...form,
     flagshipProductOrService: form.flagshipProductOrService ?? null,
     characteristics: (form.characteristics ?? []).filter(
       (item) => item.title.trim() || item.detail?.trim(),
@@ -48,9 +61,13 @@ export function writingBrandMutation(form: WritingBrandForm): WritingBrandForm {
 }
 
 export function BrandWritingFields({
+  apiBaseUrl = "",
+  brand,
   value,
   onChange,
 }: {
+  apiBaseUrl?: string;
+  brand?: Brand;
   value: WritingBrandForm;
   onChange(value: WritingBrandForm): void;
 }) {
@@ -83,6 +100,14 @@ export function BrandWritingFields({
 
   return (
     <div className="optimization-brand-form form-grid">
+      {brand && (
+        <BrandIdentityFields
+          apiBaseUrl={apiBaseUrl}
+          brand={brand}
+          value={value}
+          onChange={onChange}
+        />
+      )}
       <label className="wide">
         当前主推产品或服务 *
         <input
@@ -182,7 +207,7 @@ export function BrandWritingFields({
               checked={articleInformation.price?.mode === "RANGE"}
               onChange={() =>
                 updateArticle({
-                  price: { mode: "RANGE", minimum: 1, maximum: 1 },
+                  price: { mode: "RANGE", minimum: 0, maximum: 0 },
                 })
               }
             />
@@ -206,7 +231,7 @@ export function BrandWritingFields({
                 type="number"
                 min={1}
                 step={1}
-                value={rangePrice.minimum}
+                value={rangePrice.minimum || ""}
                 onChange={(event) =>
                   updateArticle({
                     price: {
@@ -224,7 +249,7 @@ export function BrandWritingFields({
                 type="number"
                 min={1}
                 step={1}
-                value={rangePrice.maximum}
+                value={rangePrice.maximum || ""}
                 onChange={(event) =>
                   updateArticle({
                     price: {

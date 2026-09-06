@@ -497,7 +497,27 @@
     "/brands/{brandId}/article-generations": {
       "post": {
         "operationId": "GeoOptimizationController_generate",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateCoreArticleRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "",
@@ -518,7 +538,26 @@
     "/brands/{brandId}/article-generations/{generationId}/retries": {
       "post": {
         "operationId": "GeoOptimizationController_retry",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "generationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -539,7 +578,36 @@
     "/brands/{brandId}/core-article/{articleId}": {
       "patch": {
         "operationId": "GeoOptimizationController_save",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "articleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveCoreArticleRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -560,7 +628,36 @@
     "/brands/{brandId}/core-article/{articleId}/confirmations": {
       "post": {
         "operationId": "GeoOptimizationController_confirm",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "articleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmCoreArticleRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",

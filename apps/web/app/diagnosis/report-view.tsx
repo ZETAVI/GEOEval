@@ -183,9 +183,12 @@ export function EvaluationReportView({
             </article>
           ))}
         </div>
-        <button className="primary-button" type="button" disabled>
-          进入搜索优化（后续开放）
-        </button>
+        <a
+          className="primary-button"
+          href={`/optimization?brandId=${encodeURIComponent(report.brandId)}`}
+        >
+          进入搜索优化
+        </a>
       </section>
 
       <section className="report-section sample-results">

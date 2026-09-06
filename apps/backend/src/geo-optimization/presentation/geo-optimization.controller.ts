@@ -8,15 +8,19 @@ import {
   Inject,
   NotFoundException,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from "@nestjs/common";
 import {
   ApiCreatedResponse,
+  ApiBody,
   ApiExtraModels,
   ApiOkResponse,
+  ApiParam,
   ApiTags,
 } from "@nestjs/swagger";
+import { z } from "zod";
 
 import { RequireAccountRoles } from "../../identity/access/access.metadata.js";
 import { CurrentPrincipal } from "../../identity/access/current-principal.js";
@@ -48,6 +52,26 @@ import {
   SaveCoreArticleRequest,
 } from "./geo-optimization.dto.js";
 
+const revision = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
+const generateBody = z.strictObject({
+  idempotencyKey: z.string().trim().min(8).max(120),
+  expectedBrandRevision: revision,
+  expectedArticleRevision: revision.optional(),
+});
+const saveBody = z.strictObject({
+  expectedRevision: revision,
+  title: z.string().trim().min(1).max(200),
+  bodyMarkdown: z.string().trim().min(1).max(100000),
+});
+const confirmBody = z.strictObject({ expectedRevision: revision });
+
+function parseBody<T>(schema: z.ZodType<T>, input: unknown): T {
+  const result = schema.safeParse(input);
+  if (!result.success)
+    throw new BadRequestException("提交内容格式不正确，请检查后重试");
+  return result.data;
+}
+
 @ApiTags("geo-optimization")
 @ApiExtraModels(
   GeoOptimizationWorkspaceResponse,
@@ -74,26 +98,39 @@ export class GeoOptimizationController {
   }
 
   @Post("brands/:brandId/article-generations")
+  @ApiParam({ name: "brandId", type: String, format: "uuid" })
   @ApiCreatedResponse({ type: GeoOptimizationGenerationResponse })
+  @ApiBody({ type: GenerateCoreArticleRequest })
   generate(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
-    @Param("brandId") brandId: string,
+    @Param("brandId", new ParseUUIDPipe()) brandId: string,
     @Body() input: GenerateCoreArticleRequest,
   ): Promise<GeoOptimizationGenerationResponse> {
-    return translate(() =>
-      this.optimization
-        .generate({ accountId: principal.accountId, brandId, ...input })
-        .then(presentGeneration),
-    );
+    return translate(() => {
+      const parsed = parseBody(generateBody, input);
+      return this.optimization
+        .generate({
+          idempotencyKey: parsed.idempotencyKey,
+          expectedBrandRevision: parsed.expectedBrandRevision,
+          ...(parsed.expectedArticleRevision === undefined
+            ? {}
+            : { expectedArticleRevision: parsed.expectedArticleRevision }),
+          accountId: principal.accountId,
+          brandId,
+        })
+        .then(presentGeneration);
+    });
   }
 
   @Post("brands/:brandId/article-generations/:generationId/retries")
+  @ApiParam({ name: "brandId", type: String, format: "uuid" })
+  @ApiParam({ name: "generationId", type: String, format: "uuid" })
   @HttpCode(200)
   @ApiOkResponse({ type: GeoOptimizationGenerationResponse })
   retry(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
-    @Param("brandId") brandId: string,
-    @Param("generationId") generationId: string,
+    @Param("brandId", new ParseUUIDPipe()) brandId: string,
+    @Param("generationId", new ParseUUIDPipe()) generationId: string,
   ): Promise<GeoOptimizationGenerationResponse> {
     return translate(() =>
       this.optimization
@@ -103,41 +140,47 @@ export class GeoOptimizationController {
   }
 
   @Patch("brands/:brandId/core-article/:articleId")
+  @ApiParam({ name: "brandId", type: String, format: "uuid" })
+  @ApiParam({ name: "articleId", type: String, format: "uuid" })
   @ApiOkResponse({ type: GeoOptimizationArticleResponse })
+  @ApiBody({ type: SaveCoreArticleRequest })
   save(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
-    @Param("brandId") brandId: string,
-    @Param("articleId") articleId: string,
+    @Param("brandId", new ParseUUIDPipe()) brandId: string,
+    @Param("articleId", new ParseUUIDPipe()) articleId: string,
     @Body() input: SaveCoreArticleRequest,
   ): Promise<GeoOptimizationArticleResponse> {
     return translate(() =>
       this.optimization
         .saveArticle({
+          ...parseBody(saveBody, input),
           accountId: principal.accountId,
           brandId,
           articleId,
-          ...input,
         })
         .then(presentArticle),
     );
   }
 
   @Post("brands/:brandId/core-article/:articleId/confirmations")
+  @ApiParam({ name: "brandId", type: String, format: "uuid" })
+  @ApiParam({ name: "articleId", type: String, format: "uuid" })
   @HttpCode(200)
   @ApiOkResponse({ type: GeoOptimizationArticleResponse })
+  @ApiBody({ type: ConfirmCoreArticleRequest })
   confirm(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
-    @Param("brandId") brandId: string,
-    @Param("articleId") articleId: string,
+    @Param("brandId", new ParseUUIDPipe()) brandId: string,
+    @Param("articleId", new ParseUUIDPipe()) articleId: string,
     @Body() input: ConfirmCoreArticleRequest,
   ): Promise<GeoOptimizationArticleResponse> {
     return translate(() =>
       this.optimization
         .confirmArticle({
+          ...parseBody(confirmBody, input),
           accountId: principal.accountId,
           brandId,
           articleId,
-          ...input,
         })
         .then(presentArticle),
     );

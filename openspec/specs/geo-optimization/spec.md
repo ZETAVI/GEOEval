@@ -203,6 +203,14 @@ Writer or persistence state.
 - **AND** polling or repeat submission observes durable execution state without
   another automatic Writer call.
 
+#### Scenario: An HTTP body attempts to change ownership
+
+- **WHEN** a submitted body contains account/resource identity, unknown fields,
+  invalid types or a route contains an invalid resource identifier
+- **THEN** the API rejects the command before service mutation or Writer invocation
+- **AND** only the authenticated Principal and route supply ownership and target
+  identity, independently of the declared TypeScript request shape.
+
 ### Requirement: One responsive page preserves explicit customer control
 
 The AI-search optimization page SHALL present current Brand completion,
@@ -220,6 +228,17 @@ journey without auto-saving customer input.
 - **AND** local changes remain visibly dirty until the customer selects Save
 - **AND** generation remains unavailable until the saved Brand is ready.
 
+#### Scenario: A refresh arrives while the customer is editing
+
+- **WHEN** a background read, generation response or independent save returns
+- **THEN** each dirty Brand/article buffer retains its content and saved base
+  revision, even when the observed server revision is newer
+- **AND** saving Brand cannot overwrite article edits, and saving an article
+  cannot overwrite Brand edits
+- **AND** older observations cannot regress an accepted mutation
+- **AND** switching to another current Brand never transfers unsaved content
+- **AND** explicit discard/reload and leaving the page warn about unsaved content.
+
 #### Scenario: Generation is running or fails
 
 - **WHEN** a generation is `RUNNING`
@@ -233,6 +252,14 @@ journey without auto-saving customer input.
 - **THEN** the page preserves and reloads the current article rather than trying
   to retry a discarded result.
 
+#### Scenario: A generation response is lost or a running execution is revisited
+
+- **WHEN** transport cannot establish the result of a submitted generation
+- **THEN** an explicit recheck reuses the same idempotency key and request
+- **AND** a revisited RUNNING record provides the existing explicit retry action
+  under the backend's bounded recovery policy
+- **AND** an unrelated Brand edit does not automatically invoke Writer again.
+
 #### Scenario: The customer regenerates an existing article
 
 - **WHEN** one current article already exists
@@ -240,6 +267,13 @@ journey without auto-saving customer input.
 - **AND** proceeds only after the customer authorizes its exact revision
 - **AND** keeps the article visible until replacement succeeds
 - **AND** never exposes a discarded result as candidate history.
+
+#### Scenario: A report links to optimization
+
+- **WHEN** the customer follows the report's optimization entry
+- **THEN** the entry preserves that report's Brand identity
+- **AND** a different current Brand requires an explicit switch before showing
+  editable optimization content, while an unavailable Brand shows an honest state.
 
 #### Scenario: The customer edits and confirms
 
