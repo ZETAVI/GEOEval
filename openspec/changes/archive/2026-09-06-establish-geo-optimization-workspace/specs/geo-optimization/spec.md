@@ -1,7 +1,7 @@
 # GEO Optimization Delta
 
 The accepted backend lifecycle is owned by the current
-[GEO Optimization specification](../../../../specs/geo-optimization/spec.md).
+[GEO Optimization specification](../../../../../specs/geo-optimization/spec.md).
 This remaining delta activates its terminal-customer HTTP and Web journey.
 
 ## ADDED Requirements

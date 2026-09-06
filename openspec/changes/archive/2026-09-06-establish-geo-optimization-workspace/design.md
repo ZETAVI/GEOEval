@@ -250,9 +250,10 @@ Brand Knowledge, Evaluation guidance reads and the accepted GEO Optimization
 backend lifecycle are reconciled into their current specs. Product Definition's
 activation marker now links the owner-local GEO Optimization contract, while the
 outdated Article Information/material and Writer-Skill assumptions have been
-removed from Product Definition, Vision and Glossary. The active delta now owns
-only the unfinished terminal-customer API and Web journey. Archive this Change
-only after that journey, final evidence and Issue state agree.
+removed from Product Definition, Vision and Glossary. The terminal-customer API
+and Web journey is now reconciled into the current GEO Optimization
+specification. This Change archives with the final delivery PR; post-integration
+Issue, Project and workspace state remain execution evidence.
 
 ## Verification strategy
 

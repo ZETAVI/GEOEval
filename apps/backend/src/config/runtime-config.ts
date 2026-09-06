@@ -110,6 +110,9 @@ const apiSchema = commonSchema.extend({
   STORE_LOCATION_MODE: z
     .enum(["disabled", "deterministic", "amap"])
     .default("disabled"),
+  GEO_OPTIMIZATION_WRITER_MODE: z
+    .enum(["disabled", "deterministic"])
+    .default("disabled"),
   STORE_LOCATION_RECEIPT_SIGNING_SECRET: z.string().default(""),
   STORE_LOCATION_RECEIPT_TTL_SECONDS: z.coerce
     .number()
@@ -212,6 +215,7 @@ export type ApiConfig = {
     touchIntervalMs: number;
   };
   storeLocation: StoreLocationRuntimeConfig;
+  geoOptimizationWriterMode: "disabled" | "deterministic";
 };
 
 export type IdentityCleanupPolicy = {
@@ -249,6 +253,8 @@ function withLocalDefaults(environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
     REDIS_URL: environment.REDIS_URL ?? localRedisUrl,
     AUTH_HASH_PEPPER: environment.AUTH_HASH_PEPPER ?? localAuthHashPepper,
     AUTH_DETERMINISTIC_CODE: environment.AUTH_DETERMINISTIC_CODE ?? "246810",
+    GEO_OPTIMIZATION_WRITER_MODE:
+      environment.GEO_OPTIMIZATION_WRITER_MODE ?? "deterministic",
   };
 }
 
@@ -292,6 +298,14 @@ export function loadApiConfig(
   ) {
     throw new Error(
       "Deterministic authentication challenge delivery is forbidden in production",
+    );
+  }
+  if (
+    parsed.NODE_ENV === "production" &&
+    parsed.GEO_OPTIMIZATION_WRITER_MODE === "deterministic"
+  ) {
+    throw new Error(
+      "Deterministic Core Article Writer is forbidden in production",
     );
   }
   if (
@@ -344,6 +358,7 @@ export function loadApiConfig(
       amapBaseUrl: parsed.AMAP_WEB_SERVICE_BASE_URL.replace(/\/$/, ""),
       amapWebServiceKey: parsed.AMAP_WEB_SERVICE_KEY,
     },
+    geoOptimizationWriterMode: parsed.GEO_OPTIMIZATION_WRITER_MODE,
   };
 }
 

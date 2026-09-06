@@ -473,213 +473,30 @@
         ]
       }
     },
-    "/brands/{brandId}/evaluation-report": {
+    "/geo-optimization/workspace": {
       "get": {
-        "operationId": "EvaluationController_currentReport",
-        "parameters": [
-          {
-            "name": "brandId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "operationId": "GeoOptimizationController_workspace",
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CurrentEvaluationReportResponse"
+                  "$ref": "#/components/schemas/GeoOptimizationWorkspaceResponse"
                 }
               }
             }
           }
         },
         "tags": [
-          "evaluation"
+          "geo-optimization"
         ]
       }
     },
-    "/brands/{brandId}/evaluation-reports": {
-      "get": {
-        "operationId": "EvaluationController_reportHistory",
-        "parameters": [
-          {
-            "name": "cursor",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "minimum": 1,
-              "maximum": 20,
-              "type": "number"
-            }
-          },
-          {
-            "name": "brandId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EvaluationReportHistoryResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "evaluation"
-        ]
-      }
-    },
-    "/brands/{brandId}/evaluation-reports/{reportId}": {
-      "get": {
-        "operationId": "EvaluationController_reportDetail",
-        "parameters": [
-          {
-            "name": "reportId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "brandId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EvaluationReportResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "evaluation"
-        ]
-      }
-    },
-    "/brands/{brandId}/evaluation-definition": {
-      "get": {
-        "operationId": "EvaluationController_observeDefinition",
-        "parameters": [
-          {
-            "name": "brandId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurrentEvaluationDefinitionPreparationResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "evaluation"
-        ]
-      },
-      "put": {
-        "operationId": "EvaluationController_prepareDefinition",
-        "parameters": [
-          {
-            "name": "brandId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EvaluationDefinitionPreparationResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "evaluation"
-        ]
-      }
-    },
-    "/evaluation-question-preparations/{preparationId}/retries": {
+    "/brands/{brandId}/article-generations": {
       "post": {
-        "operationId": "EvaluationController_retryDefinitionPreparation",
-        "parameters": [
-          {
-            "name": "preparationId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EvaluationDefinitionPreparationResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "evaluation"
-        ]
-      }
-    },
-    "/evaluation-definitions/{definitionId}/runs": {
-      "post": {
-        "operationId": "EvaluationController_startRun",
+        "operationId": "GeoOptimizationController_generate",
         "parameters": [],
         "responses": {
           "201": {
@@ -687,44 +504,77 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EvaluationRunResponse"
+                  "$ref": "#/components/schemas/GeoOptimizationGenerationResponse"
                 }
               }
             }
           }
         },
         "tags": [
-          "evaluation"
+          "geo-optimization"
         ]
       }
     },
-    "/evaluation-runs/{runId}/retries": {
+    "/brands/{brandId}/article-generations/{generationId}/retries": {
       "post": {
-        "operationId": "EvaluationController_retryRun",
-        "parameters": [
-          {
-            "name": "runId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "operationId": "GeoOptimizationController_retry",
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EvaluationRunResponse"
+                  "$ref": "#/components/schemas/GeoOptimizationGenerationResponse"
                 }
               }
             }
           }
         },
         "tags": [
-          "evaluation"
+          "geo-optimization"
+        ]
+      }
+    },
+    "/brands/{brandId}/core-article/{articleId}": {
+      "patch": {
+        "operationId": "GeoOptimizationController_save",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoOptimizationArticleResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "geo-optimization"
+        ]
+      }
+    },
+    "/brands/{brandId}/core-article/{articleId}/confirmations": {
+      "post": {
+        "operationId": "GeoOptimizationController_confirm",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoOptimizationArticleResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "geo-optimization"
         ]
       }
     },
@@ -1340,6 +1190,261 @@
         },
         "tags": [
           "notifications"
+        ]
+      }
+    },
+    "/brands/{brandId}/evaluation-report": {
+      "get": {
+        "operationId": "EvaluationController_currentReport",
+        "parameters": [
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentEvaluationReportResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/brands/{brandId}/evaluation-reports": {
+      "get": {
+        "operationId": "EvaluationController_reportHistory",
+        "parameters": [
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationReportHistoryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/brands/{brandId}/evaluation-reports/{reportId}": {
+      "get": {
+        "operationId": "EvaluationController_reportDetail",
+        "parameters": [
+          {
+            "name": "reportId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationReportResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/brands/{brandId}/evaluation-definition": {
+      "get": {
+        "operationId": "EvaluationController_observeDefinition",
+        "parameters": [
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentEvaluationDefinitionPreparationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      },
+      "put": {
+        "operationId": "EvaluationController_prepareDefinition",
+        "parameters": [
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationDefinitionPreparationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/evaluation-question-preparations/{preparationId}/retries": {
+      "post": {
+        "operationId": "EvaluationController_retryDefinitionPreparation",
+        "parameters": [
+          {
+            "name": "preparationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationDefinitionPreparationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/evaluation-definitions/{definitionId}/runs": {
+      "post": {
+        "operationId": "EvaluationController_startRun",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationRunResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/evaluation-runs/{runId}/retries": {
+      "post": {
+        "operationId": "EvaluationController_retryRun",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationRunResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "evaluation"
         ]
       }
     },
@@ -1978,78 +2083,129 @@
           "items"
         ]
       },
-      "EvaluationBrandSnapshotResponse": {
-        "type": "object",
-        "properties": {
-          "companyName": {
-            "type": "string"
-          },
-          "primaryIndustry": {
-            "type": "string"
-          },
-          "secondaryIndustry": {
-            "type": "string"
-          },
-          "characteristicOne": {
-            "type": "string"
-          },
-          "characteristicTwo": {
-            "type": "string"
-          },
-          "province": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "district": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "companyName",
-          "primaryIndustry",
-          "secondaryIndustry",
-          "characteristicOne",
-          "characteristicTwo",
-          "province",
-          "city",
-          "district"
-        ]
-      },
-      "EvaluationQuestionResponse": {
+      "BrandCharacteristicResponse": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
-          },
-          "kind": {
             "type": "string",
-            "enum": [
-              "BRAND_DIRECTED",
-              "INDUSTRY_RECOMMENDATION",
-              "CHARACTERISTIC_ONE",
-              "CHARACTERISTIC_TWO"
-            ]
+            "format": "uuid"
           },
-          "ordinal": {
-            "type": "number"
-          },
-          "content": {
+          "title": {
             "type": "string"
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "id",
-          "kind",
-          "ordinal",
-          "content"
+          "title",
+          "detail"
         ]
       },
-      "EvaluationPlatformResponse": {
+      "BrandArticleInformationRequest": {
         "type": "object",
         "properties": {
-          "key": {
+          "price": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "mode",
+                  "minimum",
+                  "maximum"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "RANGE"
+                    ]
+                  },
+                  "minimum": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "maximum": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "mode"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "NEGOTIABLE"
+                    ]
+                  }
+                }
+              }
+            ],
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "suitableAudienceContexts": {
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "supplementalBackground": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000
+          },
+          "desiredPositioning": {
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "price",
+          "suitableAudienceContexts",
+          "supplementalBackground",
+          "desiredPositioning"
+        ]
+      },
+      "StoreLocationCoordinateResponse": {
+        "type": "object",
+        "properties": {
+          "longitude": {
+            "type": "number"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "system": {
+            "type": "string",
+            "enum": [
+              "GCJ_02"
+            ]
+          }
+        },
+        "required": [
+          "longitude",
+          "latitude",
+          "system"
+        ]
+      },
+      "RegionLabelResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "string"
           },
           "label": {
@@ -2057,305 +2213,240 @@
           }
         },
         "required": [
-          "key",
+          "id",
           "label"
         ]
       },
-      "EvaluationRunResponse": {
+      "CityRegionResponse": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
-          "definitionId": {
+          "label": {
             "type": "string"
           },
-          "brandId": {
-            "type": "string"
-          },
-          "status": {
+          "identityKind": {
             "type": "string",
             "enum": [
-              "EVALUATING",
-              "COMPLETED",
-              "PLEASE_RETRY"
+              "OFFICIAL_DIVISION",
+              "MUNICIPALITY_REPEAT",
+              "PROVINCE_DIRECT_GROUP"
             ]
           },
-          "expectedSampleCount": {
-            "type": "number"
-          },
-          "processedSampleCount": {
-            "type": "number"
-          },
-          "validSampleCount": {
-            "type": "number"
-          },
-          "unavailableSampleCount": {
-            "type": "number"
-          },
-          "startedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "definitionId",
-          "brandId",
-          "status",
-          "expectedSampleCount",
-          "processedSampleCount",
-          "validSampleCount",
-          "unavailableSampleCount",
-          "startedAt",
-          "updatedAt"
-        ]
-      },
-      "EvaluationDefinitionResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "brandId": {
-            "type": "string"
-          },
-          "brandSnapshot": {
-            "$ref": "#/components/schemas/EvaluationBrandSnapshotResponse"
-          },
-          "questions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationQuestionResponse"
-            }
-          },
-          "platforms": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationPlatformResponse"
-            }
-          },
-          "run": {
-            "nullable": true,
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/EvaluationRunResponse"
-              }
-            ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "brandId",
-          "brandSnapshot",
-          "questions",
-          "platforms",
-          "createdAt"
-        ]
-      },
-      "EvaluationDefinitionPreparationResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "PREPARING",
-              "READY",
-              "PLEASE_RETRY"
-            ]
-          },
-          "preparationId": {
+          "officialDivisionId": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "identityKind"
+        ]
+      },
+      "OfficialRegionNodeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
           },
-          "definition": {
-            "nullable": true,
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/EvaluationDefinitionResponse"
-              }
+          "label": {
+            "type": "string"
+          },
+          "officialCode": {
+            "type": "string"
+          },
+          "officialLevel": {
+            "type": "string",
+            "enum": [
+              "PROVINCE",
+              "PREFECTURE",
+              "COUNTY",
+              "TOWNSHIP"
             ]
           }
         },
         "required": [
-          "status",
-          "preparationId",
-          "definition"
+          "id",
+          "label",
+          "officialCode",
+          "officialLevel"
         ]
       },
-      "CurrentEvaluationDefinitionPreparationResponse": {
+      "DerivedOfficialRegionResponse": {
         "type": "object",
         "properties": {
-          "preparation": {
-            "nullable": true,
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/EvaluationDefinitionPreparationResponse"
-              }
-            ]
+          "sourceReleaseId": {
+            "type": "string"
+          },
+          "province": {
+            "$ref": "#/components/schemas/RegionLabelResponse"
+          },
+          "city": {
+            "$ref": "#/components/schemas/CityRegionResponse"
+          },
+          "terminal": {
+            "$ref": "#/components/schemas/OfficialRegionNodeResponse"
+          },
+          "officialPath": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OfficialRegionNodeResponse"
+            }
           }
         },
         "required": [
-          "preparation"
+          "sourceReleaseId",
+          "province",
+          "city",
+          "terminal",
+          "officialPath"
         ]
       },
-      "EvaluationRecommendationIndexResponse": {
-        "type": "object",
-        "properties": {
-          "score": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 5
-          },
-          "stars": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 5
-          },
-          "mentionRate": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "mentionCount": {
-            "type": "number"
-          },
-          "validOpenSampleCount": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "score",
-          "stars",
-          "mentionRate",
-          "mentionCount",
-          "validOpenSampleCount"
-        ]
-      },
-      "EvaluationTypicalPositionResponse": {
+      "QueryLocalityResponse": {
         "type": "object",
         "properties": {
           "kind": {
             "type": "string",
             "enum": [
-              "NONE",
-              "SINGLE",
-              "RANGE"
+              "BUSINESS_AREA",
+              "ADDRESS_LOCALITY"
             ]
           },
-          "position": {
-            "type": "number",
-            "nullable": true
-          },
-          "first": {
-            "type": "number",
-            "nullable": true
-          },
-          "second": {
-            "type": "number",
-            "nullable": true
+          "label": {
+            "type": "string"
           }
         },
         "required": [
-          "kind"
+          "kind",
+          "label"
         ]
       },
-      "EvaluationCoverageResponse": {
+      "BrandStoreLocationResponse": {
         "type": "object",
         "properties": {
-          "validSampleCount": {
-            "type": "number"
+          "placeName": {
+            "type": "string"
           },
-          "totalSampleCount": {
-            "type": "number"
+          "formattedAddress": {
+            "type": "string"
           },
-          "missingSampleCount": {
-            "type": "number"
+          "coordinate": {
+            "$ref": "#/components/schemas/StoreLocationCoordinateResponse"
+          },
+          "officialRegion": {
+            "$ref": "#/components/schemas/DerivedOfficialRegionResponse"
+          },
+          "queryLocality": {
+            "$ref": "#/components/schemas/QueryLocalityResponse"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
-          "validSampleCount",
-          "totalSampleCount",
-          "missingSampleCount"
+          "placeName",
+          "formattedAddress",
+          "coordinate",
+          "officialRegion",
+          "queryLocality",
+          "verifiedAt"
         ]
       },
-      "EvaluationReportOverviewResponse": {
+      "GeoOptimizationBrandResponse": {
         "type": "object",
         "properties": {
-          "recommendationAssessment": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
             "type": "string"
           },
-          "brandPerception": {
-            "type": "string"
+          "primaryIndustryId": {
+            "type": "string",
+            "nullable": true
           },
-          "recommendationIndex": {
-            "$ref": "#/components/schemas/EvaluationRecommendationIndexResponse"
+          "secondaryIndustryId": {
+            "type": "string",
+            "nullable": true
           },
-          "typicalPosition": {
-            "$ref": "#/components/schemas/EvaluationTypicalPositionResponse"
+          "otherProductOrService": {
+            "type": "string",
+            "nullable": true
           },
-          "coverage": {
-            "$ref": "#/components/schemas/EvaluationCoverageResponse"
-          }
-        },
-        "required": [
-          "recommendationAssessment",
-          "brandPerception",
-          "recommendationIndex",
-          "typicalPosition",
-          "coverage"
-        ]
-      },
-      "EvaluationPlatformReportResponse": {
-        "type": "object",
-        "properties": {
-          "platformKey": {
-            "type": "string"
+          "flagshipProductOrService": {
+            "type": "string",
+            "nullable": true
           },
-          "platformLabel": {
-            "type": "string"
+          "characteristics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BrandCharacteristicResponse"
+            }
           },
-          "validSampleCount": {
-            "type": "number"
+          "articleInformation": {
+            "$ref": "#/components/schemas/BrandArticleInformationRequest"
           },
-          "totalSampleCount": {
-            "type": "number"
-          },
-          "validOpenSampleCount": {
-            "type": "number"
-          },
-          "mentionCount": {
-            "type": "number"
-          },
-          "mentionRate": {
+          "revision": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 1
+            "minimum": 1
           },
-          "typicalPosition": {
-            "$ref": "#/components/schemas/EvaluationTypicalPositionResponse"
+          "primaryIndustryLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "secondaryIndustryLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "storeLocation": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BrandStoreLocationResponse"
+              }
+            ]
+          },
+          "readyForEvaluation": {
+            "type": "boolean"
+          },
+          "missingFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "readyForArticleGeneration": {
+            "type": "boolean"
+          },
+          "articleInformationMissingFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
-          "platformKey",
-          "platformLabel",
-          "validSampleCount",
-          "totalSampleCount",
-          "validOpenSampleCount",
-          "mentionCount",
-          "mentionRate",
-          "typicalPosition"
+          "id",
+          "companyName",
+          "primaryIndustryId",
+          "secondaryIndustryId",
+          "otherProductOrService",
+          "flagshipProductOrService",
+          "characteristics",
+          "articleInformation",
+          "revision",
+          "primaryIndustryLabel",
+          "secondaryIndustryLabel",
+          "storeLocation",
+          "readyForEvaluation",
+          "missingFields",
+          "readyForArticleGeneration",
+          "articleInformationMissingFields"
         ]
       },
       "EvaluationEvidenceSummaryResponse": {
@@ -2374,80 +2465,6 @@
         "required": [
           "sampleCount",
           "platforms"
-        ]
-      },
-      "EvaluationThemeResponse": {
-        "type": "object",
-        "properties": {
-          "themeId": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "summary": {
-            "type": "string"
-          },
-          "evidence": {
-            "$ref": "#/components/schemas/EvaluationEvidenceSummaryResponse"
-          }
-        },
-        "required": [
-          "themeId",
-          "label",
-          "summary",
-          "evidence"
-        ]
-      },
-      "EvaluationThemesResponse": {
-        "type": "object",
-        "properties": {
-          "positive": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationThemeResponse"
-            }
-          },
-          "negative": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationThemeResponse"
-            }
-          }
-        },
-        "required": [
-          "positive",
-          "negative"
-        ]
-      },
-      "EvaluationCompetitorResponse": {
-        "type": "object",
-        "properties": {
-          "groupId": {
-            "type": "string"
-          },
-          "displayName": {
-            "type": "string"
-          },
-          "occurrenceCount": {
-            "type": "number"
-          },
-          "platforms": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "typicalPosition": {
-            "$ref": "#/components/schemas/EvaluationTypicalPositionResponse"
-          }
-        },
-        "required": [
-          "groupId",
-          "displayName",
-          "occurrenceCount",
-          "platforms",
-          "typicalPosition"
         ]
       },
       "EvaluationDirectionResponse": {
@@ -2477,315 +2494,299 @@
           "evidence"
         ]
       },
-      "EvaluationReportDocumentResponse": {
+      "GeoOptimizationGuidanceResponse": {
         "type": "object",
         "properties": {
-          "overview": {
-            "$ref": "#/components/schemas/EvaluationReportOverviewResponse"
-          },
-          "platforms": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationPlatformReportResponse"
-            }
-          },
-          "themes": {
-            "$ref": "#/components/schemas/EvaluationThemesResponse"
-          },
-          "competitors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationCompetitorResponse"
-            }
-          },
-          "directions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationDirectionResponse"
-            }
-          },
-          "limitations": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "overview",
-          "platforms",
-          "themes",
-          "competitors",
-          "directions",
-          "limitations"
-        ]
-      },
-      "EvaluationHighlightRangeResponse": {
-        "type": "object",
-        "properties": {
-          "start": {
-            "type": "number"
-          },
-          "end": {
-            "type": "number"
-          },
-          "exactText": {
-            "type": "string"
-          },
-          "kind": {
+          "guidanceId": {
             "type": "string",
-            "enum": [
-              "TARGET",
-              "POSITIVE",
-              "NEGATIVE",
-              "MIXED"
-            ]
-          }
-        },
-        "required": [
-          "start",
-          "end",
-          "exactText",
-          "kind"
-        ]
-      },
-      "EvaluationReportSampleResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "platformKey": {
-            "type": "string"
-          },
-          "platformLabel": {
-            "type": "string"
-          },
-          "availability": {
-            "type": "string",
-            "enum": [
-              "INCLUDED",
-              "NOT_INCLUDED"
-            ]
-          },
-          "mentioned": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "position": {
-            "type": "number",
-            "nullable": true
-          },
-          "cardInterpretation": {
-            "type": "string",
-            "nullable": true
-          },
-          "originalAnswer": {
-            "type": "string",
-            "nullable": true
-          },
-          "highlightUnavailable": {
-            "type": "boolean"
-          },
-          "highlights": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationHighlightRangeResponse"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "platformKey",
-          "platformLabel",
-          "availability",
-          "mentioned",
-          "position",
-          "cardInterpretation",
-          "originalAnswer",
-          "highlightUnavailable",
-          "highlights"
-        ]
-      },
-      "EvaluationReportQuestionResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "kind": {
-            "type": "string",
-            "enum": [
-              "BRAND_DIRECTED",
-              "INDUSTRY_RECOMMENDATION",
-              "CHARACTERISTIC_ONE",
-              "CHARACTERISTIC_TWO"
-            ]
-          },
-          "ordinal": {
-            "type": "number"
-          },
-          "content": {
-            "type": "string"
-          },
-          "samples": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationReportSampleResponse"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "kind",
-          "ordinal",
-          "content",
-          "samples"
-        ]
-      },
-      "EvaluationReportResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "runId": {
-            "type": "string"
-          },
-          "definitionId": {
-            "type": "string"
-          },
-          "brandId": {
-            "type": "string"
-          },
-          "brandSnapshot": {
-            "$ref": "#/components/schemas/EvaluationBrandSnapshotResponse"
-          },
-          "brandInformationChanged": {
-            "type": "boolean"
-          },
-          "startedAt": {
-            "type": "string",
-            "format": "date-time"
+            "format": "uuid"
           },
           "acceptedAt": {
             "type": "string",
             "format": "date-time"
           },
-          "document": {
-            "$ref": "#/components/schemas/EvaluationReportDocumentResponse"
+          "brandInformationChanged": {
+            "type": "boolean"
           },
-          "questions": {
+          "customerDirections": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/EvaluationReportQuestionResponse"
+              "$ref": "#/components/schemas/EvaluationDirectionResponse"
             }
           }
         },
         "required": [
-          "id",
-          "runId",
-          "definitionId",
-          "brandId",
-          "brandSnapshot",
-          "brandInformationChanged",
-          "startedAt",
+          "guidanceId",
           "acceptedAt",
-          "document",
-          "questions"
+          "brandInformationChanged",
+          "customerDirections"
         ]
       },
-      "CurrentEvaluationReportResponse": {
+      "GeoOptimizationGenerationFailureResponse": {
         "type": "object",
         "properties": {
-          "report": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "GeoOptimizationGenerationResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RUNNING",
+              "SUCCEEDED",
+              "FAILED",
+              "NOT_APPLIED"
+            ]
+          },
+          "attemptCount": {
+            "type": "number",
+            "minimum": 1
+          },
+          "failure": {
             "nullable": true,
             "type": "object",
             "allOf": [
               {
-                "$ref": "#/components/schemas/EvaluationReportResponse"
+                "$ref": "#/components/schemas/GeoOptimizationGenerationFailureResponse"
+              }
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "brandId",
+          "status",
+          "attemptCount",
+          "failure",
+          "startedAt",
+          "finishedAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "GeoOptimizationArticleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "bodyMarkdown": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "CONFIRMED"
+            ]
+          },
+          "revision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "confirmedRevision": {
+            "type": "number",
+            "nullable": true
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "brandId",
+          "title",
+          "bodyMarkdown",
+          "status",
+          "revision",
+          "confirmedRevision",
+          "confirmedAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "GeoOptimizationFreshnessResponse": {
+        "type": "object",
+        "properties": {
+          "brandInformationChanged": {
+            "type": "boolean"
+          },
+          "guidanceChanged": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "brandInformationChanged",
+          "guidanceChanged"
+        ]
+      },
+      "GeoOptimizationWorkspaceResponse": {
+        "type": "object",
+        "properties": {
+          "brand": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoOptimizationBrandResponse"
+              }
+            ]
+          },
+          "guidance": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoOptimizationGuidanceResponse"
+              }
+            ]
+          },
+          "latestGeneration": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoOptimizationGenerationResponse"
+              }
+            ]
+          },
+          "article": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoOptimizationArticleResponse"
+              }
+            ]
+          },
+          "articleFreshness": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoOptimizationFreshnessResponse"
               }
             ]
           }
         },
         "required": [
-          "report"
+          "brand",
+          "guidance",
+          "latestGeneration",
+          "article",
+          "articleFreshness"
         ]
       },
-      "EvaluationReportSummaryResponse": {
+      "GenerateCoreArticleRequest": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "runId": {
-            "type": "string"
-          },
-          "brandId": {
-            "type": "string"
-          },
-          "brandName": {
-            "type": "string"
-          },
-          "brandInformationChanged": {
-            "type": "boolean"
-          },
-          "startedAt": {
+          "idempotencyKey": {
             "type": "string",
-            "format": "date-time"
+            "minLength": 8,
+            "maxLength": 120
           },
-          "acceptedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "recommendationIndex": {
+          "expectedBrandRevision": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 5
+            "minimum": 1
           },
-          "mentionRate": {
+          "expectedArticleRevision": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "validSampleCount": {
-            "type": "number"
-          },
-          "totalSampleCount": {
-            "type": "number"
+            "minimum": 1
           }
         },
         "required": [
-          "id",
-          "runId",
-          "brandId",
-          "brandName",
-          "brandInformationChanged",
-          "startedAt",
-          "acceptedAt",
-          "recommendationIndex",
-          "mentionRate",
-          "validSampleCount",
-          "totalSampleCount"
+          "idempotencyKey",
+          "expectedBrandRevision"
         ]
       },
-      "EvaluationReportHistoryResponse": {
+      "SaveCoreArticleRequest": {
         "type": "object",
         "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EvaluationReportSummaryResponse"
-            }
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
           },
-          "nextCursor": {
+          "title": {
             "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "bodyMarkdown": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100000
           }
         },
         "required": [
-          "items",
-          "nextCursor"
+          "expectedRevision",
+          "title",
+          "bodyMarkdown"
+        ]
+      },
+      "ConfirmCoreArticleRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "expectedRevision"
         ]
       },
       "MediaCatalogRevisionResponse": {
@@ -3960,276 +3961,769 @@
           "unreadCount"
         ]
       },
-      "BrandCharacteristicResponse": {
+      "EvaluationBrandSnapshotResponse": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "title": {
+          "companyName": {
             "type": "string"
           },
-          "detail": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "title",
-          "detail"
-        ]
-      },
-      "BrandArticleInformationRequest": {
-        "type": "object",
-        "properties": {
-          "price": {
-            "oneOf": [
-              {
-                "type": "object",
-                "required": [
-                  "mode",
-                  "minimum",
-                  "maximum"
-                ],
-                "additionalProperties": false,
-                "properties": {
-                  "mode": {
-                    "type": "string",
-                    "enum": [
-                      "RANGE"
-                    ]
-                  },
-                  "minimum": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "maximum": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                }
-              },
-              {
-                "type": "object",
-                "required": [
-                  "mode"
-                ],
-                "additionalProperties": false,
-                "properties": {
-                  "mode": {
-                    "type": "string",
-                    "enum": [
-                      "NEGOTIABLE"
-                    ]
-                  }
-                }
-              }
-            ],
-            "additionalProperties": false,
-            "nullable": true
-          },
-          "suitableAudienceContexts": {
-            "maxItems": 5,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "supplementalBackground": {
-            "type": "string",
-            "nullable": true,
-            "maxLength": 2000
-          },
-          "desiredPositioning": {
-            "maxItems": 5,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "price",
-          "suitableAudienceContexts",
-          "supplementalBackground",
-          "desiredPositioning"
-        ]
-      },
-      "StoreLocationCoordinateResponse": {
-        "type": "object",
-        "properties": {
-          "longitude": {
-            "type": "number"
-          },
-          "latitude": {
-            "type": "number"
-          },
-          "system": {
-            "type": "string",
-            "enum": [
-              "GCJ_02"
-            ]
-          }
-        },
-        "required": [
-          "longitude",
-          "latitude",
-          "system"
-        ]
-      },
-      "RegionLabelResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
+          "primaryIndustry": {
             "type": "string"
           },
-          "label": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "label"
-        ]
-      },
-      "CityRegionResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
+          "secondaryIndustry": {
             "type": "string"
           },
-          "label": {
+          "characteristicOne": {
             "type": "string"
           },
-          "identityKind": {
-            "type": "string",
-            "enum": [
-              "OFFICIAL_DIVISION",
-              "MUNICIPALITY_REPEAT",
-              "PROVINCE_DIRECT_GROUP"
-            ]
-          },
-          "officialDivisionId": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "label",
-          "identityKind"
-        ]
-      },
-      "OfficialRegionNodeResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "officialCode": {
-            "type": "string"
-          },
-          "officialLevel": {
-            "type": "string",
-            "enum": [
-              "PROVINCE",
-              "PREFECTURE",
-              "COUNTY",
-              "TOWNSHIP"
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "label",
-          "officialCode",
-          "officialLevel"
-        ]
-      },
-      "DerivedOfficialRegionResponse": {
-        "type": "object",
-        "properties": {
-          "sourceReleaseId": {
+          "characteristicTwo": {
             "type": "string"
           },
           "province": {
-            "$ref": "#/components/schemas/RegionLabelResponse"
+            "type": "string"
           },
           "city": {
-            "$ref": "#/components/schemas/CityRegionResponse"
+            "type": "string"
           },
-          "terminal": {
-            "$ref": "#/components/schemas/OfficialRegionNodeResponse"
-          },
-          "officialPath": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OfficialRegionNodeResponse"
-            }
+          "district": {
+            "type": "string"
           }
         },
         "required": [
-          "sourceReleaseId",
+          "companyName",
+          "primaryIndustry",
+          "secondaryIndustry",
+          "characteristicOne",
+          "characteristicTwo",
           "province",
           "city",
-          "terminal",
-          "officialPath"
+          "district"
         ]
       },
-      "QueryLocalityResponse": {
+      "EvaluationQuestionResponse": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "kind": {
             "type": "string",
             "enum": [
-              "BUSINESS_AREA",
-              "ADDRESS_LOCALITY"
+              "BRAND_DIRECTED",
+              "INDUSTRY_RECOMMENDATION",
+              "CHARACTERISTIC_ONE",
+              "CHARACTERISTIC_TWO"
             ]
+          },
+          "ordinal": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "ordinal",
+          "content"
+        ]
+      },
+      "EvaluationPlatformResponse": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
           },
           "label": {
             "type": "string"
           }
         },
         "required": [
-          "kind",
+          "key",
           "label"
         ]
       },
-      "BrandStoreLocationResponse": {
+      "EvaluationRunResponse": {
         "type": "object",
         "properties": {
-          "placeName": {
+          "id": {
             "type": "string"
           },
-          "formattedAddress": {
+          "definitionId": {
             "type": "string"
           },
-          "coordinate": {
-            "$ref": "#/components/schemas/StoreLocationCoordinateResponse"
+          "brandId": {
+            "type": "string"
           },
-          "officialRegion": {
-            "$ref": "#/components/schemas/DerivedOfficialRegionResponse"
+          "status": {
+            "type": "string",
+            "enum": [
+              "EVALUATING",
+              "COMPLETED",
+              "PLEASE_RETRY"
+            ]
           },
-          "queryLocality": {
-            "$ref": "#/components/schemas/QueryLocalityResponse"
+          "expectedSampleCount": {
+            "type": "number"
           },
-          "verifiedAt": {
+          "processedSampleCount": {
+            "type": "number"
+          },
+          "validSampleCount": {
+            "type": "number"
+          },
+          "unavailableSampleCount": {
+            "type": "number"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
             "type": "string",
             "format": "date-time"
           }
         },
         "required": [
-          "placeName",
-          "formattedAddress",
-          "coordinate",
-          "officialRegion",
-          "queryLocality",
-          "verifiedAt"
+          "id",
+          "definitionId",
+          "brandId",
+          "status",
+          "expectedSampleCount",
+          "processedSampleCount",
+          "validSampleCount",
+          "unavailableSampleCount",
+          "startedAt",
+          "updatedAt"
+        ]
+      },
+      "EvaluationDefinitionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string"
+          },
+          "brandSnapshot": {
+            "$ref": "#/components/schemas/EvaluationBrandSnapshotResponse"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationQuestionResponse"
+            }
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationPlatformResponse"
+            }
+          },
+          "run": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationRunResponse"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "brandId",
+          "brandSnapshot",
+          "questions",
+          "platforms",
+          "createdAt"
+        ]
+      },
+      "EvaluationDefinitionPreparationResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PREPARING",
+              "READY",
+              "PLEASE_RETRY"
+            ]
+          },
+          "preparationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "definition": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationDefinitionResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "preparationId",
+          "definition"
+        ]
+      },
+      "CurrentEvaluationDefinitionPreparationResponse": {
+        "type": "object",
+        "properties": {
+          "preparation": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationDefinitionPreparationResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "preparation"
+        ]
+      },
+      "EvaluationRecommendationIndexResponse": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "stars": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "mentionRate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "mentionCount": {
+            "type": "number"
+          },
+          "validOpenSampleCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "score",
+          "stars",
+          "mentionRate",
+          "mentionCount",
+          "validOpenSampleCount"
+        ]
+      },
+      "EvaluationTypicalPositionResponse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "SINGLE",
+              "RANGE"
+            ]
+          },
+          "position": {
+            "type": "number",
+            "nullable": true
+          },
+          "first": {
+            "type": "number",
+            "nullable": true
+          },
+          "second": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "EvaluationCoverageResponse": {
+        "type": "object",
+        "properties": {
+          "validSampleCount": {
+            "type": "number"
+          },
+          "totalSampleCount": {
+            "type": "number"
+          },
+          "missingSampleCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "validSampleCount",
+          "totalSampleCount",
+          "missingSampleCount"
+        ]
+      },
+      "EvaluationReportOverviewResponse": {
+        "type": "object",
+        "properties": {
+          "recommendationAssessment": {
+            "type": "string"
+          },
+          "brandPerception": {
+            "type": "string"
+          },
+          "recommendationIndex": {
+            "$ref": "#/components/schemas/EvaluationRecommendationIndexResponse"
+          },
+          "typicalPosition": {
+            "$ref": "#/components/schemas/EvaluationTypicalPositionResponse"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/EvaluationCoverageResponse"
+          }
+        },
+        "required": [
+          "recommendationAssessment",
+          "brandPerception",
+          "recommendationIndex",
+          "typicalPosition",
+          "coverage"
+        ]
+      },
+      "EvaluationPlatformReportResponse": {
+        "type": "object",
+        "properties": {
+          "platformKey": {
+            "type": "string"
+          },
+          "platformLabel": {
+            "type": "string"
+          },
+          "validSampleCount": {
+            "type": "number"
+          },
+          "totalSampleCount": {
+            "type": "number"
+          },
+          "validOpenSampleCount": {
+            "type": "number"
+          },
+          "mentionCount": {
+            "type": "number"
+          },
+          "mentionRate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "typicalPosition": {
+            "$ref": "#/components/schemas/EvaluationTypicalPositionResponse"
+          }
+        },
+        "required": [
+          "platformKey",
+          "platformLabel",
+          "validSampleCount",
+          "totalSampleCount",
+          "validOpenSampleCount",
+          "mentionCount",
+          "mentionRate",
+          "typicalPosition"
+        ]
+      },
+      "EvaluationThemeResponse": {
+        "type": "object",
+        "properties": {
+          "themeId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/EvaluationEvidenceSummaryResponse"
+          }
+        },
+        "required": [
+          "themeId",
+          "label",
+          "summary",
+          "evidence"
+        ]
+      },
+      "EvaluationThemesResponse": {
+        "type": "object",
+        "properties": {
+          "positive": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationThemeResponse"
+            }
+          },
+          "negative": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationThemeResponse"
+            }
+          }
+        },
+        "required": [
+          "positive",
+          "negative"
+        ]
+      },
+      "EvaluationCompetitorResponse": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "occurrenceCount": {
+            "type": "number"
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "typicalPosition": {
+            "$ref": "#/components/schemas/EvaluationTypicalPositionResponse"
+          }
+        },
+        "required": [
+          "groupId",
+          "displayName",
+          "occurrenceCount",
+          "platforms",
+          "typicalPosition"
+        ]
+      },
+      "EvaluationReportDocumentResponse": {
+        "type": "object",
+        "properties": {
+          "overview": {
+            "$ref": "#/components/schemas/EvaluationReportOverviewResponse"
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationPlatformReportResponse"
+            }
+          },
+          "themes": {
+            "$ref": "#/components/schemas/EvaluationThemesResponse"
+          },
+          "competitors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationCompetitorResponse"
+            }
+          },
+          "directions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationDirectionResponse"
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "overview",
+          "platforms",
+          "themes",
+          "competitors",
+          "directions",
+          "limitations"
+        ]
+      },
+      "EvaluationHighlightRangeResponse": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "number"
+          },
+          "end": {
+            "type": "number"
+          },
+          "exactText": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "TARGET",
+              "POSITIVE",
+              "NEGATIVE",
+              "MIXED"
+            ]
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "exactText",
+          "kind"
+        ]
+      },
+      "EvaluationReportSampleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "platformKey": {
+            "type": "string"
+          },
+          "platformLabel": {
+            "type": "string"
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "INCLUDED",
+              "NOT_INCLUDED"
+            ]
+          },
+          "mentioned": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "position": {
+            "type": "number",
+            "nullable": true
+          },
+          "cardInterpretation": {
+            "type": "string",
+            "nullable": true
+          },
+          "originalAnswer": {
+            "type": "string",
+            "nullable": true
+          },
+          "highlightUnavailable": {
+            "type": "boolean"
+          },
+          "highlights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationHighlightRangeResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "platformKey",
+          "platformLabel",
+          "availability",
+          "mentioned",
+          "position",
+          "cardInterpretation",
+          "originalAnswer",
+          "highlightUnavailable",
+          "highlights"
+        ]
+      },
+      "EvaluationReportQuestionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "BRAND_DIRECTED",
+              "INDUSTRY_RECOMMENDATION",
+              "CHARACTERISTIC_ONE",
+              "CHARACTERISTIC_TWO"
+            ]
+          },
+          "ordinal": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationReportSampleResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "ordinal",
+          "content",
+          "samples"
+        ]
+      },
+      "EvaluationReportResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "definitionId": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string"
+          },
+          "brandSnapshot": {
+            "$ref": "#/components/schemas/EvaluationBrandSnapshotResponse"
+          },
+          "brandInformationChanged": {
+            "type": "boolean"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "acceptedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "document": {
+            "$ref": "#/components/schemas/EvaluationReportDocumentResponse"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationReportQuestionResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "runId",
+          "definitionId",
+          "brandId",
+          "brandSnapshot",
+          "brandInformationChanged",
+          "startedAt",
+          "acceptedAt",
+          "document",
+          "questions"
+        ]
+      },
+      "CurrentEvaluationReportResponse": {
+        "type": "object",
+        "properties": {
+          "report": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationReportResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "report"
+        ]
+      },
+      "EvaluationReportSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string"
+          },
+          "brandName": {
+            "type": "string"
+          },
+          "brandInformationChanged": {
+            "type": "boolean"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "acceptedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recommendationIndex": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "mentionRate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "validSampleCount": {
+            "type": "number"
+          },
+          "totalSampleCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "runId",
+          "brandId",
+          "brandName",
+          "brandInformationChanged",
+          "startedAt",
+          "acceptedAt",
+          "recommendationIndex",
+          "mentionRate",
+          "validSampleCount",
+          "totalSampleCount"
+        ]
+      },
+      "EvaluationReportHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationReportSummaryResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
         ]
       },
       "BrandResponse": {
