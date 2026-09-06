@@ -10,10 +10,14 @@ export function QuoteSummary({
   quote,
   balance,
   dirty,
+  busy = false,
+  onReview,
 }: {
   quote: PublishingQuote | null;
   balance: number;
   dirty: boolean;
+  busy?: boolean;
+  onReview?: () => void;
 }) {
   return (
     <section
@@ -99,8 +103,20 @@ export function QuoteSummary({
           {balance.toLocaleString()} 积分。
         </p>
       )}
-      <button className="primary-button" disabled>
-        提交购买（下一步接入）
+      <button
+        className="primary-button"
+        disabled={
+          busy ||
+          dirty ||
+          !onReview ||
+          !quote ||
+          !!quote.problems.length ||
+          !!quote.shortfall ||
+          !quote.totalPoints
+        }
+        onClick={onReview}
+      >
+        核对并购买
       </button>
       <p>
         <a href="/account">查看积分与流水 →</a>

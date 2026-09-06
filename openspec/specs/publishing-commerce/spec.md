@@ -4,9 +4,9 @@
 
 This owner currently implements maintained random-package configuration,
 administrator audit, terminal-customer offer visibility, account points,
-granted-only administrator adjustments/history, saved selections and advisory
-quotes. Purchase, payment and fulfilment are not activated by these slices.
-Their approved implementation work remains in
+granted-only administrator adjustments/history, saved selections, advisory quotes,
+atomic point-funded purchases and customer-safe pending orders. Real payment and
+fulfilment are not activated. Delivery acceptance remains in
 [`establish-publishing-commerce`](../../changes/establish-publishing-commerce/proposal.md).
 
 ### Requirement: Maintained publishing packages
@@ -48,8 +48,8 @@ the current Media Supply quote boundary, without copying sales availability.
 - **AND** changing precise unit prices does not change the package's own total
 - **AND** the response excludes administrator audit and supplier/procurement data
 - **AND** unavailable offers and an empty list are explained truthfully
-- **AND** purchase remains explicitly unavailable until its own implementation;
-  browsing cannot debit points, create an order or reserve a price.
+- **AND** browsing cannot debit points, create an order or reserve a price;
+  purchase requires a separately reviewed and explicitly confirmed submission.
 
 ### Requirement: Protected HTTP and media references
 
@@ -137,8 +137,9 @@ shared across Brands, with integer granted/funded balances and ordered history.
 #### Scenario: Customer considers payment or publishing
 
 - **WHEN** this stage shows available points and maintained packages
-- **THEN** recharge and purchasing remain explicitly unavailable
-- **AND** no payment success, order spending, invoice or fulfilment is fabricated.
+- **THEN** customers can explicitly buy publishing services using available points
+- **AND** recharge remains unavailable; no external payment success, invoice or
+  fulfilment is fabricated.
 
 ### Requirement: One explicitly saved publishing selection per Brand
 
@@ -188,5 +189,87 @@ owner-provided facts, not a price reservation, order, or authorization to debit.
   low quote; relevant problems are explicit rather than silently clamped
 - **AND** there is no stored quote entity, media reservation, point-account
   creation, point change, order or automatic purchase from these operations
-- **AND** final purchase must later recompute article and terms inside its
-  approved shared transaction before debiting; this read model is not that Gate.
+- **AND** final purchase recomputes article and terms inside its shared
+  transaction before debiting; this read model is not that Gate.
+
+### Requirement: Atomic purchase of the exact confirmed article and terms
+
+Commerce SHALL submit one purchase through a short PostgreSQL transaction.
+Owner-bound article/media readers SHALL participate on the same connection;
+the domain and application interface SHALL not expose a database transaction.
+
+#### Scenario: Customer confirms an affordable saved selection
+
+- **WHEN** the customer explicitly confirms the displayed article revision,
+  selection revision and complete relevant commercial terms with a request key
+- **THEN** the transaction locks wallet, selection, exact article, optional
+  package and sorted media identities in that order
+- **AND** it rechecks account/Brand/article ownership, current confirmation,
+  sale availability and accepted terms, not unrelated Brand/Evaluation freshness
+- **AND** random mode buys successful-publication quantity within named scope,
+  without promising specific platforms/accounts; precise mode buys the exact
+  named platform quantities at their summed unit prices
+- **AND** it consumes granted before funded points, advances the wallet sequence,
+  appends one origin-preserving negative change and creates one pending order
+- **AND** the order freezes article title/body and purchased agreement once,
+  references existing source identities and does not copy Brand/Writer/report data
+- **AND** it clears only the consumed intent and increments its selection revision;
+  the workspace exposes this revision even with no active selection, so the next
+  explicit save never resets to zero or admits an old page's conditional write
+- **AND** all writes commit together, with no network, Writer, queue, payment or
+  user interaction inside the transaction; generation/edit/confirmation remain free.
+
+#### Scenario: Source, balance, storage or competing request changes
+
+- **WHEN** article/terms have changed, a sale becomes unavailable, balance is
+  insufficient, values overflow or any write fails
+- **THEN** no partial wallet change, spending entry, order or consumed intent persists
+- **AND** changed article/price/scope requires fresh explicit customer confirmation,
+  never automatic submission at a new price
+- **AND** source locks prevent a concurrent edit from mixing old checks with new
+  content or price; wallet locks serialize both purchases and administrator adjustments
+- **AND** a failed purchase retains the unpaid selection; quotes/recharge hints
+  do not reserve inventory or automatically purchase after a later balance change.
+
+#### Scenario: Duplicate submit or lost response
+
+- **WHEN** an account-scoped key repeats the same normalized request
+- **THEN** an existing successful order is recovered before checking mutable
+  sources, even after later article, price or selection changes
+- **AND** changed intent or a key already used for another point operation conflicts
+- **AND** a different key cannot buy the same consumed selection again
+- **AND** the customer client stores its actor-bound exact pending request before
+  sending, restores it across reload and offers explicit same-key recovery
+- **AND** uncertain network/server outcomes do not enable a new purchase; inability
+  to retain the request prevents sending, and tab storage is not financial authority.
+
+### Requirement: Owned immutable pending orders and linked history
+
+Commerce SHALL expose a customer-owned order list and detail using safe DTOs.
+
+#### Scenario: Customer revisits a purchased order
+
+- **WHEN** the customer opens `/orders` or its order detail
+- **THEN** the list is scoped to the current Brand (or all owned Brands when none
+  is current), deterministically paginated by order sequence
+- **AND** detail shows number, submission time, pending-handling status, exact
+  purchased terms/points and safely rendered frozen article
+- **AND** later editing the current article or catalog does not alter the order;
+  the purchased article itself has no customer edit command
+- **AND** point history distinguishes purchase spending from adjustment and links
+  the related order; customers still see one unified balance without origin selection
+- **AND** origin composition remains internal for future settlement/returns;
+  this slice exposes neither funded credit nor commission/return behavior
+- **AND** foreign order IDs return not found, and internal actors, requests,
+  origin, procurement and audit notes never enter customer projections
+- **AND** there are no invented results, dates, progress, self-refund/cancellation,
+  or real fulfilment controls in the pending-only stage.
+
+#### Scenario: Media identity has been purchased
+
+- **WHEN** a platform referenced by any paid order is deleted
+- **THEN** the existing Media Supply gate returns a clear dependency conflict,
+  even after the platform is disabled or removed from a current package scope
+- **AND** restrictive database references protect article/account/Brand identity,
+  media identities and the unique spending-order relationship; retained orders
+  remain readable independently of source maintenance.

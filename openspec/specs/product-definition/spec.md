@@ -33,8 +33,10 @@
   [Publishing Commerce specification](../publishing-commerce/spec.md).
   Account-owned points, granted-only administrator adjustments and customer-safe
   history, explicitly saved random/precise selections and advisory quotes also
-  use that owner. Remaining purchase and real recharge activation stays under
-  this marker; their approved future scenarios below do not activate transactions.
+  use that owner. Exact-article purchase, atomic granted-first spending, immutable
+  paid agreement, linked history and pending-order reads also use that owner.
+  This marker remains for real recharge, returns, commission and fulfilment;
+  those future scenarios below do not activate their runtime capabilities.
 
 ## Requirements
 
@@ -1241,30 +1243,22 @@ service journey.
 
 #### Scenario: A customer moves from evaluation to publishing
 
-- **GIVEN** the customer has an evaluation and optimization direction
-- **WHEN** the customer chooses to continue with optimization
-- **THEN** a GEO promotional-article agent generates a core article using the
-  customer profile and relevant evaluation context
-- **AND** the customer can edit the core article and must confirm it before it is
-  submitted for publishing
-- **AND** core-article generation, editing, and confirmation do not consume points
-- **AND** after confirmation the customer can choose either a random publishing
-  package or precise publishing and review the resulting order
-- **AND** points are deducted when the customer submits that publishing order
-- **AND** the company operations team can accept and fulfil the resulting order
-- **AND** the publication results are returned and visible to the customer
+- **WHEN** a customer continues from optimization to a purchase
+- **THEN** article preparation/confirmation follows the
+  [GEO Optimization specification](../geo-optimization/spec.md), and saved
+  choices, explicit buying, spending and pending orders follow
+  [Publishing Commerce](../publishing-commerce/spec.md)
+- **AND** operational acceptance, fulfilment and result return below remain
+  future capabilities, not implied by a successfully paid pending order.
 
 #### Scenario: A customer edits around publishing-service selection
 
-- **GIVEN** the customer has confirmed a core article and entered
-  publishing-service selection
-- **WHEN** the paid publishing order has not yet been submitted successfully
-- **THEN** the customer can return to edit and reconfirm the current article
-- **BUT WHEN** the customer successfully submits the paid publishing order
-- **THEN** that confirmed article is fixed as the basis of the order
-- **AND** the customer cannot edit it afterwards
-- **AND** operations retains only the separately disclosed authority to adjust
-  publication variants during fulfilment
+- **WHEN** editing interacts with unpaid or paid publishing
+- **THEN** the owner-local Commerce specification governs article revision
+  reconfirmation and the immutable purchased snapshot, without freezing the
+  separately mutable current article forever
+- **AND** future operations retains only the separately disclosed authority to
+  adjust publication variants during fulfilment.
 
 ### Requirement: Variants and operational content adjustment
 
@@ -1296,48 +1290,32 @@ prepare those variants for publication.
 
 ### Requirement: Two peer publishing choices
 
-The product SHALL offer random publishing packages and precise publishing as two
-peer ways to configure the paid publishing service.
+The product SHALL use [Publishing Commerce](../publishing-commerce/spec.md) for
+peer random/precise selection, prices, explicit purchase and immutable scope.
+The following scenarios retain only not-yet-activated fulfilment semantics.
 
 #### Scenario: A customer chooses random publishing
 
-- **WHEN** the customer selects a random publishing package
-- **THEN** the package states its successful-publication quantity and total
-  point price
-- **AND** each quantity unit is one completed media publication based on a
+- **WHEN** a purchased random package enters future fulfilment
+- **THEN** each quantity unit is one completed media publication based on a
   variant of the confirmed core article, not one identical copy or a separately
   customer-confirmed core article
 - **AND** the platform assigns eligible media from the media library
-- **AND** the customer can inspect the media library but cannot select individual
-  destinations in this mode
-- **AND** professional media cards remain visible as eligible supporting context
-  while package quantity and total price remain the commercial focus rather than
-  individual-media prices
-- **AND** the presentation makes the random allocation clear before order
-  submission
-- **AND** the order promises the purchased quantity within the stated media
-  scope without promising particular platforms or accounts
 - **AND** an unavailable placement can be replaced by another eligible placement
   until the purchased quantity is fulfilled
 
 #### Scenario: A customer chooses precise publishing
 
-- **WHEN** the customer selects precise publishing
-- **THEN** the media library shows explicit point prices
-- **AND** the customer can select publishing platforms and quantities according
-  to need
-- **AND** the page keeps the running total point requirement visible
-- **AND** the order price is the sum of the listed selections
-- **AND** those selections form the order commitment and are not silently
-  replaced
-- **AND** if a selected publication cannot be completed, customer service calls
+- **WHEN** a purchased precise publication cannot be completed in future fulfilment
+- **THEN** customer service calls
   the customer to agree on a replacement or arranges for an administrator to
   return the corresponding points
 
 ### Requirement: Bounded points model
 
-Publishing-service transactions SHALL use points at a fixed conversion of ten
-points per renminbi.
+Current wallet, granted adjustments, spending order and customer history SHALL
+follow [Publishing Commerce](../publishing-commerce/spec.md). The following
+scenarios preserve future recharge, return and commission requirements.
 
 #### Scenario: A customer needs points for an order
 
@@ -1399,13 +1377,8 @@ points per renminbi.
 
 - **GIVEN** an account contains points funded by recharge and points granted by
   the platform or an administrator
-- **WHEN** the customer views the balance or pays for a publishing order
-- **THEN** the customer sees and uses one unified point balance
-- **AND** the customer does not select a point origin
-- **AND** internal records preserve the funded or granted origin needed for
-  commission and settlement
-- **AND** platform-granted consumption does not contribute to agent commission
-- **AND** an order consumes granted points before customer-funded points
+- **WHEN** a future point return or settlement uses the original Commerce spending
+- **THEN** platform-granted consumption does not contribute to agent commission
 - **AND** a full return restores the original consumed composition
 - **AND** a partial return restores funded and granted origins proportionally to
   that order's consumed composition
@@ -1417,14 +1390,9 @@ points per renminbi.
 
 #### Scenario: A customer reviews point history
 
-- **WHEN** the customer opens the unified point history
-- **THEN** each change shows its time, added or deducted points, resulting
-  balance, short customer-facing type and explanation, and a related recharge or
-  publishing-order entry when one exists
-- **AND** customer-facing types distinguish recharge credited,
-  publishing-order spending, order-point return, and point adjustment
-- **AND** the history does not expose funded-versus-granted composition,
-  internal handling notes, or agent-commission calculations
+- **WHEN** future recharge or point-return capabilities become active
+- **THEN** they extend the existing Commerce history with their truthful types
+  and related business entries while retaining the existing privacy boundary.
 
 #### Scenario: An administrator corrects a point balance
 

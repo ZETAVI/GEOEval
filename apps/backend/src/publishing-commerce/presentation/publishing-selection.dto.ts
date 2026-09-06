@@ -84,6 +84,7 @@ export class PublishingQuoteResponse {
   problems!: string[];
 }
 export class PublishingWorkspaceResponse {
+  @ApiProperty({ type: "integer", minimum: 0 }) selectionRevision!: number;
   @ApiProperty({ type: PublishingBrandResponse, nullable: true })
   brand!: PublishingBrandResponse | null;
   @ApiProperty({ type: PublishingArticleResponse, nullable: true })

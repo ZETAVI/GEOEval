@@ -131,6 +131,7 @@ describe("Publishing selection and quote vertical slice", () => {
       brand: null,
       article: null,
       selection: null,
+      selectionRevision: 0,
       quote: null,
       balance: 0,
     });

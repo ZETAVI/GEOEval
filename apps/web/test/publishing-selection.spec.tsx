@@ -18,6 +18,7 @@ const workspace: PublishingWorkspace = {
   },
   balance: 200,
   selection: null,
+  selectionRevision: 0,
   quote: null,
 };
 describe("publishing choice and quote UI contract", () => {
@@ -48,8 +49,11 @@ describe("publishing choice and quote UI contract", () => {
       },
     };
     expect(
-      selectionInput(selectionForm(selection), { ...workspace, selection })
-        .expectedRevision,
+      selectionInput(selectionForm(selection), {
+        ...workspace,
+        selection,
+        selectionRevision: 3,
+      }).expectedRevision,
     ).toBe(3);
     for (const quantity of ["0", "-1", "1.5", "1e3", "2147483648"])
       expect(() =>

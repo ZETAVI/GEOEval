@@ -17,8 +17,9 @@ reads on its own Prisma client. Calling those separately before a purchase does
 not freeze what was checked. Add narrow owner-provided transaction participants,
 not Commerce SQL over another owner's private tables.
 
-Commerce application sees one `runPurchase` boundary and a transaction-scoped
-session with operations for its wallet/order and the two owner readers. Concrete
+Commerce application sees one `runPurchase` boundary. The transaction-scoped
+wallet/order operations and two owner readers stay private to its PostgreSQL
+adapter, rather than becoming a general public session API. Concrete
 PostgreSQL composition binds all participants to the same Prisma transaction.
 The Prisma transaction handle stays in infrastructure; domain/application code
 does not receive it. Owner-exported factories build transaction-bound readers;
@@ -233,3 +234,26 @@ Verification targets: real HTTP ownership, two-brand isolation, first-save/updat
 CAS, article edit/reconfirmation, precise repricing versus random-price independence,
 deleted unpaid media, overflow and absence of point writes; normal browser save,
 leave/return, both modes and narrow layout; fresh/upgrade/restore migration.
+
+Fourth slice readiness: retain the same owner-participating transaction. Use pure
+domain rules for accepted commercial terms, comparison and granted-first spending;
+one Commerce transaction adapter performs replay lookup, source locks, order/ledger
+insertion and selection consumption. Only immutable order content/terms are copied;
+origin deltas live in the linked ledger, not a second editable consumption record.
+Order-platform references extend the Media deletion gate. Customer APIs expose
+pending order summaries, immutable content and a point-history link, never origin
+composition or internal administration detail.
+
+The client stores one account-bound exact submission request before sending and
+offers explicit same-key recovery after an uncertain response. Balance and freshness
+are not accepted commercial terms. Article/price/scope changes require reconfirmation;
+known rollback permits returning to selection, while an unknown outcome cannot turn
+into a new purchase key. Both publishing modes must be exercised through normal
+customer/admin pages with synthetic granted points, not a payment Provider.
+
+Migration source check (2026-09-06): PostgreSQL 18
+[ALTER TYPE](https://www.postgresql.org/docs/18/sql-altertype.html) requires an added
+enum value to commit before use. Add the spending kind in its own migration, then
+create order/restrictive references and checks. Keep consumed selection rows with
+null intent and increasing revision. Withdrawal must preserve ledgers/orders and
+use a forward-compatible reader; an old generated client may not read new kinds.

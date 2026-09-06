@@ -29,8 +29,10 @@ export class PointAdjustmentRequest {
 export class PointChangeResponse {
   @ApiProperty({ type: String, format: "uuid" }) id!: string;
   @ApiProperty({ type: "integer" }) sequence!: number;
-  @ApiProperty({ type: String, enum: ["ADMIN_ADJUSTMENT"] })
-  kind!: "ADMIN_ADJUSTMENT";
+  @ApiProperty({ type: String, enum: ["ADMIN_ADJUSTMENT", "PUBLISHING_ORDER"] })
+  kind!: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
+  @ApiProperty({ type: String, format: "uuid", nullable: true })
+  publishingOrderId!: string | null;
   @ApiProperty({ type: "integer" }) amount!: number;
   @ApiProperty({ type: "integer" }) balanceAfter!: number;
   @ApiProperty({ type: String }) reason!: string;

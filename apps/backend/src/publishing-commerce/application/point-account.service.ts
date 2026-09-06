@@ -118,6 +118,7 @@ function customerChange(row: PointChangeRecord) {
     id: row.id,
     sequence: row.sequence,
     kind: row.kind,
+    publishingOrderId: row.publishingOrderId,
     amount: row.grantedDelta + row.fundedDelta,
     balanceAfter: row.balanceAfter,
     reason: row.reason,

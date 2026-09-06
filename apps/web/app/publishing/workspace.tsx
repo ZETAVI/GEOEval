@@ -28,12 +28,23 @@ import {
   type SelectionForm,
 } from "./selection-form.js";
 import { QuoteSummary } from "./quote-summary.js";
+import {
+  decodePurchase,
+  purchaseIntent,
+  purchaseStorageKey,
+  type PurchaseIntent,
+} from "./pending-purchase.js";
+import { PurchaseConfirmation } from "./purchase-confirmation.js";
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
 export function PublishingWorkspace() {
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
   const [data, setData] = useState<Workspace>();
+  const [review, setReview] = useState<{
+    intent: PurchaseIntent;
+    recovering: boolean;
+  } | null>(null);
   const [packages, setPackages] = useState<PublishingPackage[]>([]);
   const [catalog, setCatalog] = useState<CustomerMediaPage>({
     items: [],
@@ -68,6 +79,15 @@ export function PublishingWorkspace() {
       return;
     }
     try {
+      const prior = decodePurchase(
+        sessionStorage.getItem(purchaseStorageKey(next.account.id)),
+        next.account.id,
+      );
+      if (prior) {
+        setReview({ intent: prior, recovering: true });
+        setSession(next);
+        return;
+      }
       const [workspace, offers, media, categories] = await Promise.all([
         getPublishingWorkspace(apiBaseUrl),
         listPublishingPackages(apiBaseUrl),
@@ -152,6 +172,26 @@ export function PublishingWorkspace() {
       setBusy(false);
     }
   }
+  if (session.kind === "ready" && review)
+    return (
+      <div className="app-shell">
+        <CustomerSidebar account={session.account} activePath="/publishing" />
+        <main className="workspace commerce-workspace">
+          <PurchaseConfirmation
+            intent={review.intent}
+            recovering={review.recovering}
+            apiBaseUrl={apiBaseUrl}
+            onBack={(message) => {
+              setReview(null);
+              if (message) {
+                setNotice(message);
+                void load();
+              }
+            }}
+          />
+        </main>
+      </div>
+    );
   if (session.kind !== "ready" || !data)
     return (
       <WorkspaceAccessPanel
@@ -217,7 +257,7 @@ export function PublishingWorkspace() {
           </a>
         </section>
         <div className="commerce-notice">
-          现在可保存选择并查看报价；提交购买与在线充值尚未接入。保存不会扣分、锁价或产生订单。
+          保存选择不会扣分、锁价或产生订单；只有明确确认购买后才会扣分并创建待处理订单。在线充值尚未接入。
         </div>
         {error && (
           <p className="form-error" role="alert">
@@ -439,7 +479,26 @@ export function PublishingWorkspace() {
             </button>
           </div>
         </section>
-        <QuoteSummary quote={data.quote} balance={data.balance} dirty={dirty} />
+        <QuoteSummary
+          quote={data.quote}
+          balance={data.balance}
+          dirty={dirty}
+          busy={busy}
+          onReview={() => {
+            try {
+              setReview({
+                intent: purchaseIntent(
+                  data,
+                  session.account.id,
+                  crypto.randomUUID(),
+                ),
+                recovering: false,
+              });
+            } catch (error) {
+              failure(error);
+            }
+          }}
+        />
         <p className="commerce-muted">
           服务不保证 AI
           提及或排名变化。后续履约可能围绕已确认核心文章调整表达、制作发布版本，不改变主要内容。

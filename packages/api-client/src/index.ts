@@ -23,6 +23,12 @@ export type PublishingSelection =
 export type SavePublishingSelection =
   components["schemas"]["SavePublishingSelectionRequest"];
 export type PublishingQuote = components["schemas"]["PublishingQuoteResponse"];
+export type PurchasedTerms = components["schemas"]["PurchasedTermsResponse"];
+export type SubmitPublishingOrder =
+  components["schemas"]["SubmitPublishingOrderRequest"];
+export type PublishingOrder = components["schemas"]["PublishingOrderResponse"];
+export type PublishingOrderPage =
+  components["schemas"]["PublishingOrderPageResponse"];
 export type CustomerMediaPlatform =
   components["schemas"]["MediaPlatformCustomerResponse"];
 export type CustomerMediaPage =
@@ -231,6 +237,35 @@ export function savePublishingSelection(
     `/publishing/brands/${encodeURIComponent(brandId)}/selection`,
     { method: "PUT", body: JSON.stringify(input) },
   );
+}
+export function submitPublishingOrder(
+  baseUrl: string,
+  input: SubmitPublishingOrder,
+): Promise<PublishingOrder> {
+  return apiRequest(baseUrl, "/publishing/orders", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+export function getPublishingOrder(
+  baseUrl: string,
+  id: string,
+): Promise<PublishingOrder> {
+  return apiRequest(baseUrl, `/publishing/orders/${encodeURIComponent(id)}`, {
+    cache: "no-store",
+  });
+}
+export function listPublishingOrders(
+  baseUrl: string,
+  input: { brandId?: string; beforeNumber?: number } = {},
+): Promise<PublishingOrderPage> {
+  const query = new URLSearchParams({
+    ...(input.brandId ? { brandId: input.brandId } : {}),
+    ...(input.beforeNumber ? { beforeNumber: String(input.beforeNumber) } : {}),
+  });
+  return apiRequest(baseUrl, `/publishing/orders?${query}`, {
+    cache: "no-store",
+  });
 }
 export function listCustomerMedia(
   apiBaseUrl: string,

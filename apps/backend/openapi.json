@@ -1185,6 +1185,112 @@
         ]
       }
     },
+    "/publishing/orders": {
+      "post": {
+        "operationId": "PublishingOrderController_submit",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitPublishingOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-orders"
+        ]
+      },
+      "get": {
+        "operationId": "PublishingOrderController_list",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "beforeNumber",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingOrderPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-orders"
+        ]
+      }
+    },
+    "/publishing/orders/{orderId}": {
+      "get": {
+        "operationId": "PublishingOrderController_detail",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-orders"
+        ]
+      }
+    },
     "/admin/publishing/packages": {
       "get": {
         "operationId": "PublishingPackageAdminController_list",
@@ -4313,6 +4419,283 @@
           "createdAt"
         ]
       },
+      "PublishingPackageScopeResponse": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "platformId",
+          "displayName"
+        ]
+      },
+      "PurchasedMediaLineResponse": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "unitPoints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "totalPoints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "available": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "platformId",
+          "displayName",
+          "quantity",
+          "unitPoints",
+          "totalPoints",
+          "available"
+        ]
+      },
+      "PurchasedTermsResponse": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RANDOM",
+              "PRECISE"
+            ]
+          },
+          "packageName": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingPackageScopeResponse"
+            }
+          },
+          "lines": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchasedMediaLineResponse"
+            }
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "totalPoints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "mode",
+          "packageName",
+          "scope",
+          "lines",
+          "quantity",
+          "totalPoints"
+        ]
+      },
+      "SubmitPublishingOrderRequest": {
+        "type": "object",
+        "properties": {
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "selectionRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "acceptedTerms": {
+            "$ref": "#/components/schemas/PurchasedTermsResponse"
+          }
+        },
+        "required": [
+          "idempotencyKey",
+          "brandId",
+          "articleId",
+          "articleRevision",
+          "selectionRevision",
+          "acceptedTerms"
+        ]
+      },
+      "PublishingOrderResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "bodyMarkdown": {
+            "type": "string"
+          },
+          "agreement": {
+            "$ref": "#/components/schemas/PurchasedTermsResponse"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "brandId",
+          "articleId",
+          "articleRevision",
+          "status",
+          "title",
+          "createdAt",
+          "bodyMarkdown",
+          "agreement"
+        ]
+      },
+      "PublishingOrderSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RANDOM",
+              "PRECISE"
+            ]
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "totalPoints": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "brandId",
+          "articleId",
+          "articleRevision",
+          "status",
+          "title",
+          "createdAt",
+          "mode",
+          "quantity",
+          "totalPoints"
+        ]
+      },
+      "PublishingOrderPageResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingOrderSummaryResponse"
+            }
+          },
+          "nextBeforeNumber": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextBeforeNumber"
+        ]
+      },
       "PublishingPackageAdminResponse": {
         "type": "object",
         "properties": {
@@ -4499,22 +4882,6 @@
           "afterState"
         ]
       },
-      "PublishingPackageScopeResponse": {
-        "type": "object",
-        "properties": {
-          "platformId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "displayName": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "platformId",
-          "displayName"
-        ]
-      },
       "PublishingPackageCustomerResponse": {
         "type": "object",
         "properties": {
@@ -4618,8 +4985,14 @@
           "kind": {
             "type": "string",
             "enum": [
-              "ADMIN_ADJUSTMENT"
+              "ADMIN_ADJUSTMENT",
+              "PUBLISHING_ORDER"
             ]
+          },
+          "publishingOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "amount": {
             "type": "integer"
@@ -4665,6 +5038,7 @@
           "id",
           "sequence",
           "kind",
+          "publishingOrderId",
           "amount",
           "balanceAfter",
           "reason",
@@ -4759,8 +5133,14 @@
           "kind": {
             "type": "string",
             "enum": [
-              "ADMIN_ADJUSTMENT"
+              "ADMIN_ADJUSTMENT",
+              "PUBLISHING_ORDER"
             ]
+          },
+          "publishingOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "amount": {
             "type": "integer"
@@ -4780,6 +5160,7 @@
           "id",
           "sequence",
           "kind",
+          "publishingOrderId",
           "amount",
           "balanceAfter",
           "reason",
@@ -5069,6 +5450,10 @@
       "PublishingWorkspaceResponse": {
         "type": "object",
         "properties": {
+          "selectionRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
           "brand": {
             "nullable": true,
             "type": "object",
@@ -5110,6 +5495,7 @@
           }
         },
         "required": [
+          "selectionRevision",
           "brand",
           "article",
           "balance",

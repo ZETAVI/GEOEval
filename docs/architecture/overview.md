@@ -94,7 +94,7 @@ closed. Article replacement, explicit save, confirmation and Future Order reads
 use exact revisions, while Brand/guidance freshness remains advisory. A
 terminal-customer combined read and explicit REST commands support one responsive
 Web journey; the client receives neither Writer/Snapshot internals nor contact
-facts. Real Writer, materials, Publishing Commerce, deployment and production
+facts. Real Writer, materials, real payment, deployment and production
 activation remain separate gates.
 
 Identity and Access owns fixed single-role Accounts, mobile Challenge lifecycle,
@@ -290,9 +290,19 @@ preview and Media quote interfaces to build an advisory current quote; catalogue
 IDs in unpaid intent are not reservations. The customer explicitly saves or
 discards edits, sees both publishing modes and shortage, and can return without
 losing the saved choice. Independent quote reads cannot authorize a debit.
-Order submission and real payment remain subsequent slices;
-the approved transaction direction is recorded in
-[ADR 0005](adr/0005-atomic-publishing-purchase.md), not claimed as implemented.
+Final purchase now uses one Commerce transaction adapter and transaction-bound
+article/media readers, following [ADR 0005](adr/0005-atomic-publishing-purchase.md).
+Wallet → selection → article → optional package → sorted platform locks keep
+accepted contents/terms coherent. Same-key success is recovered first; exact
+confirmation/terms checks, granted-first spending, order/ledger creation and
+selection consumption commit together. The cleared selection retains its next
+monotonic revision. Order article/terms are frozen; source identities and a unique
+spending relationship use restrictive references, not cascading deletion.
+Customer pages separately confirm the charge, retain uncertain requests across
+reload, and show owned pending orders plus linked point history. The current
+article can evolve without changing its purchased snapshot. Real payment,
+fulfilment, return/commission and production activation remain outside this owner
+slice; no speculative general-purpose transaction framework is introduced.
 
 ## Architecture qualities
 

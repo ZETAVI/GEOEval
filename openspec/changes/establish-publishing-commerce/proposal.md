@@ -3,7 +3,8 @@
 - Owner: [Issue #65](https://github.com/ZETAVI/GEOEval/issues/65)
 - Lane/class: product delivery / architectural
 - Baseline: accepted `main@5fb4400`, including #57 correction PR #71
-- State: owner approved; saved selection/advisory quote implemented with functional evidence; one narrow visual check remains before full slice acceptance
+- State: approved implementation and isolated end-to-end verification complete;
+  fixed-diff review, integration decision and final reconciliation remain
 
 ## Why
 
@@ -59,11 +60,12 @@ production money, deployment or activation.
   single writer for its Change and later approved schema/composition/client changes.
 - #39 stays independent. Recheck shared schema, generated client, composition and
   styles against main before each implementation slice. Use dedicated test data.
-- Current bounded package: administrator package maintenance, customer-safe
-  offer visibility, account-scoped granted-point adjustments and balance/history,
-  including schema, API, UI, audit, interruption recovery and evidence.
-  Saved selection/advisory quote now includes behavioral and browser evidence;
-  the outstanding narrow visual check remains in tasks. Atomic purchase follows
-  under this same Issue. Real recharge/payment stays outside this Change.
-- Exit: verified Partial PR, parent Change stays active; retain this branch for
-  the same outcome. No extra worktree or integration branch.
+- Current bounded package now reaches atomic purchase and owned pending orders.
+  Current specs own activated semantics; PR #72 owns the fixed revision, HTTP/
+  concurrency, browser, narrow-width and migration/recovery evidence. The prior
+  footer screenshot gap has been resolved in Chrome, and a discovered hidden
+  purchase-context paragraph was fixed and visually rechecked.
+- Exit: PR review/integration gate, not production activation. Retain this branch
+  for the same outcome; archive this Change at final acceptance, then reconcile
+  Issue/Project/workspace after an explicitly authorized integration. Do not use
+  the Change as a backlog for payment or fulfilment. No extra worktree or stack.

@@ -1,4 +1,8 @@
 import { Module, type DynamicModule } from "@nestjs/common";
+import { PublishingOrderController } from "./presentation/publishing-order.controller.js";
+import { PublishingOrderService } from "./application/publishing-order.service.js";
+import { PUBLISHING_ORDER_REPOSITORY } from "./domain/publishing-order.js";
+import { PostgresPublishingOrderRepository } from "./infrastructure/postgres-publishing-order.repository.js";
 import { PublishingSelectionService } from "./application/publishing-selection.service.js";
 import { PUBLISHING_SELECTION_REPOSITORY } from "./domain/publishing-selection.js";
 import { PostgresPublishingSelectionRepository } from "./infrastructure/postgres-publishing-selection.repository.js";
@@ -22,6 +26,7 @@ import {
 @Module({
   imports: [MediaSupplyModule],
   controllers: [
+    PublishingOrderController,
     PublishingPackageAdminController,
     PublishingPackageCustomerController,
     PointAdminController,
@@ -29,6 +34,12 @@ import {
     PublishingSelectionController,
   ],
   providers: [
+    PublishingOrderService,
+    PostgresPublishingOrderRepository,
+    {
+      provide: PUBLISHING_ORDER_REPOSITORY,
+      useExisting: PostgresPublishingOrderRepository,
+    },
     PostgresPublishingPackageRepository,
     {
       provide: PUBLISHING_PACKAGE_REPOSITORY,

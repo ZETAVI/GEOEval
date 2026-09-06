@@ -10,7 +10,9 @@ import {
   type PublishingPackageAuditView,
 } from "../domain/publishing-package.js";
 
-const includeScope = { platforms: { orderBy: { platformId: "asc" as const } } };
+export const includeScope = {
+  platforms: { orderBy: { platformId: "asc" as const } },
+};
 type StoredPackage = Prisma.PublishingPackageGetPayload<{
   include: typeof includeScope;
 }>;
@@ -160,7 +162,7 @@ export class PostgresPublishingPackageRepository implements PublishingPackageRep
   }
 }
 
-function present(row: StoredPackage): PublishingPackageView {
+export function present(row: StoredPackage): PublishingPackageView {
   return {
     id: row.id,
     name: row.name,

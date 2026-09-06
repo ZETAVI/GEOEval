@@ -182,7 +182,10 @@ export const PUBLISHING_SELECTION_REPOSITORY = Symbol(
   "PUBLISHING_SELECTION_REPOSITORY",
 );
 export interface PublishingSelectionRepository {
-  find(accountId: string, brandId: string): Promise<PublishingSelection | null>;
+  find(
+    accountId: string,
+    brandId: string,
+  ): Promise<{ revision: number; selection: PublishingSelection | null }>;
   save(
     accountId: string,
     brandId: string,

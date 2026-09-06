@@ -20,7 +20,9 @@ export function PointHistoryList({
         <li key={item.id}>
           <div className="commerce-card-heading">
             <div>
-              <strong>积分调整</strong>
+              <strong>
+                {item.kind === "PUBLISHING_ORDER" ? "发布服务购买" : "积分调整"}
+              </strong>
               <p>{item.reason}</p>
             </div>
             <b
@@ -34,6 +36,9 @@ export function PointHistoryList({
             {new Date(item.createdAt).toLocaleString()} · 记账后余额{" "}
             {item.balanceAfter.toLocaleString()} · 流水 {item.sequence}
           </p>
+          {!showInternal && item.publishingOrderId && (
+            <a href={`/orders/${item.publishingOrderId}`}>查看对应订单 →</a>
+          )}
           {showInternal && "actorAccountId" in item && (
             <details>
               <summary>内部处理记录</summary>

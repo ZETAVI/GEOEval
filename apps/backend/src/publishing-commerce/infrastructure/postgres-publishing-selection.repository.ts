@@ -15,7 +15,10 @@ export class PostgresPublishingSelectionRepository implements PublishingSelectio
     const row = await this.prisma.publishingSelection.findFirst({
       where: { accountId, brandId },
     });
-    return row ? present(row) : null;
+    return {
+      revision: row?.revision ?? 0,
+      selection: row && row.intent !== null ? present(row) : null,
+    };
   }
   save(accountId: string, brandId: string, input: SaveSelection) {
     return this.prisma.$transaction(async (tx) => {

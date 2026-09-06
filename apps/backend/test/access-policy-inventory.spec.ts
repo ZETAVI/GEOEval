@@ -100,6 +100,7 @@ const expectedControllerPolicies: Record<
   }),
   BrandController: customerOnly,
   PublishingPackageCustomerController: customerOnly,
+  PublishingOrderController: customerOnly,
   PointCustomerController: customerOnly,
   PointAdminController: () => ({
     publicAccess: false,

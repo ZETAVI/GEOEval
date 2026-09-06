@@ -288,10 +288,20 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
           where: { id: platformId },
           include: {
             ...PLATFORM_INCLUDE,
-            _count: { select: { resources: true, publishingScopes: true } },
+            _count: {
+              select: {
+                resources: true,
+                publishingScopes: true,
+                purchasedReferences: true,
+              },
+            },
           },
         });
         if (!before) throw new MediaSupplyNotFoundError("未找到该媒体平台");
+        if (before._count.purchasedReferences > 0)
+          throw new MediaSupplyConflictError(
+            "该媒体已有已购订单引用，不能删除；可停用媒体停止新购买",
+          );
         if (before._count.publishingScopes > 0) {
           throw new MediaSupplyConflictError(
             "该媒体已有套餐范围引用，不能删除；可停用媒体停止新购买",
@@ -1037,7 +1047,7 @@ function toJson(value: unknown): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 }
 
-function platformQuote(platform: {
+export function platformQuote(platform: {
   id: string;
   displayName: string;
   status: string;

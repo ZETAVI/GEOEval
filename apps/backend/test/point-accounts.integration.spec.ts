@@ -147,6 +147,7 @@ describe("point account atomic adjustments and safe read models", () => {
         "id",
         "sequence",
         "kind",
+        "publishingOrderId",
         "amount",
         "balanceAfter",
         "reason",

@@ -293,6 +293,15 @@ textarea {
   font-size: 0.9rem;
   line-height: 1.7;
 }
+.publishing-quote .point-history > li,
+.purchased-media > li {
+  display: grid;
+  gap: 8px;
+}
+.commerce-workspace .workspace-header > div > p.purchase-context {
+  display: block;
+  overflow-wrap: anywhere;
+}
 .point-increase {
   color: var(--green);
   font-size: 1.3rem;

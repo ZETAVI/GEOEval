@@ -3,8 +3,8 @@
 - Status: Accepted for implementation
 - Date: 2026-09-06
 - Owner decision: [Issue #65 approval](https://github.com/ZETAVI/GEOEval/issues/65#issuecomment-5558502117)
-- Activation: maintained packages first; this ADR does not claim the later
-  wallet/order runtime has already been implemented.
+- Activation: implemented by the Commerce purchase adapter and owner-bound
+  readers in Issue #65; production/commercial enablement remains a separate gate.
 
 ## Context
 

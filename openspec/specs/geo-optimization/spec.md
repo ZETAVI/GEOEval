@@ -181,9 +181,21 @@ Commerce without creating an order or freezing commercial data.
   ID/title/status/revision/confirmed revision, or an honest empty context
 - **AND** the projection excludes full article body, Writer request, sources,
   evaluation report and internal diagnostics
-- **AND** the confirmed optimization page links to publishing selection without
-  claiming that purchase or order submission is already enabled
+- **AND** the confirmed optimization page links to the Commerce selection and
+  explicit purchase path without implying automatic submission
 - **AND** this preview does not freeze content for a later paid order.
+
+#### Scenario: Commerce purchases an exact article revision
+
+- **WHEN** Commerce opens its purchase transaction
+- **THEN** the GEO Optimization owner binds a narrow confirmed-article reader to
+  that transaction and reads title/body with a shared row lock
+- **AND** account, Brand, article ID, current revision and confirmed revision must
+  all match; draft or changed content returns no purchasable article
+- **AND** the lock lasts through the purchase commit so later edits cannot mix
+  the checked revision with another version's content
+- **AND** this adapter does not call Writer, copy its inputs or block solely on
+  current Brand/Evaluation freshness.
 
 ### Requirement: Customer API exposes the current optimization workspace
 

@@ -913,7 +913,9 @@ export function ArticlePanel({
         <div className="future-order-handoff">
           <div>
             <b>文章已准备好选择发布方案</b>
-            <p>可选择随机套餐或精确媒体并保存报价；提交购买仍在后续接入。</p>
+            <p>
+              选择随机套餐或精确媒体，核对报价并确认购买后，将创建待处理发布订单。
+            </p>
           </div>
           <a className="primary-button" href="/publishing">
             选择发布方案 →

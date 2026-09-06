@@ -214,7 +214,8 @@ export function supportingRoleConfig(
         },
         {
           title: "订单与结算",
-          description: "购买订单、异常处理、真实支付和代理结算由后续能力接入。",
+          description:
+            "运营履约、异常订单治理、真实支付和代理结算由后续能力接入。",
           status: "FUTURE_CAPABILITY",
         },
       ],

@@ -39,12 +39,14 @@ export class PublishingSelectionService {
       this.articles.publishingContext(accountId),
       this.points.customerBalance(accountId),
     ]);
-    const selection = context.brand
+    const state = context.brand
       ? await this.selections.find(accountId, context.brand.id)
-      : null;
+      : { revision: 0, selection: null };
+    const selection = state.selection;
     return {
       ...context,
       balance: wallet.balance,
+      selectionRevision: state.revision,
       selection,
       quote: selection
         ? await this.quote(selection, context.article, wallet.balance)

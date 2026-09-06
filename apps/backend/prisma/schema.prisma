@@ -758,6 +758,7 @@ model ArticleGeneration {
 }
 
 model CoreArticle {
+  publishingOrders     PublishingOrder[]
   publishingSelections PublishingSelection[]
   id                   String                @id @default(uuid()) @db.Uuid
   accountId            String                @map("account_id") @db.Uuid
@@ -835,21 +836,22 @@ model Notification {
 }
 
 model MediaPlatform {
-  id               String                      @id @default(uuid()) @db.Uuid
-  normalizedName   String                      @unique @map("normalized_name") @db.VarChar(160)
-  displayName      String                      @map("display_name") @db.VarChar(160)
-  aliases          String[]                    @default([])
-  description      String?
-  logoUrl          String?                     @map("logo_url") @db.VarChar(2048)
-  regionScope      MediaRegionScope            @default(DOMESTIC) @map("region_scope")
-  status           MediaPlatformStatus         @default(INACTIVE)
-  pointPrice       Int?                        @map("point_price")
-  revision         Int                         @default(1)
-  createdAt        DateTime                    @default(now()) @map("created_at")
-  updatedAt        DateTime                    @updatedAt @map("updated_at")
-  categories       MediaPlatformCategory[]
-  resources        MediaResource[]
-  publishingScopes PublishingPackagePlatform[]
+  purchasedReferences PublishingOrderPlatform[]
+  id                  String                      @id @default(uuid()) @db.Uuid
+  normalizedName      String                      @unique @map("normalized_name") @db.VarChar(160)
+  displayName         String                      @map("display_name") @db.VarChar(160)
+  aliases             String[]                    @default([])
+  description         String?
+  logoUrl             String?                     @map("logo_url") @db.VarChar(2048)
+  regionScope         MediaRegionScope            @default(DOMESTIC) @map("region_scope")
+  status              MediaPlatformStatus         @default(INACTIVE)
+  pointPrice          Int?                        @map("point_price")
+  revision            Int                         @default(1)
+  createdAt           DateTime                    @default(now()) @map("created_at")
+  updatedAt           DateTime                    @updatedAt @map("updated_at")
+  categories          MediaPlatformCategory[]
+  resources           MediaResource[]
+  publishingScopes    PublishingPackagePlatform[]
 
   @@index([status, displayName, id])
   @@map("media_platforms")
@@ -935,6 +937,49 @@ model MediaCatalogAudit {
 
 enum PointChangeKind {
   ADMIN_ADJUSTMENT
+  PUBLISHING_ORDER
+}
+
+enum PublishingOrderStatus {
+  PENDING_HANDLING
+}
+
+model PublishingOrder {
+  id                String                    @id @default(uuid()) @db.Uuid
+  number            Int                       @unique @default(autoincrement())
+  accountId         String                    @map("account_id") @db.Uuid
+  brandId           String                    @map("brand_id") @db.Uuid
+  articleId         String                    @map("article_id") @db.Uuid
+  articleRevision   Int                       @map("article_revision")
+  selectionRevision Int                       @map("selection_revision")
+  idempotencyKey    String                    @map("idempotency_key") @db.Uuid
+  submissionRequest Json                      @map("submission_request")
+  status            PublishingOrderStatus     @default(PENDING_HANDLING)
+  title             String                    @db.VarChar(200)
+  bodyMarkdown      String                    @map("body_markdown")
+  agreement         Json
+  packageId         String?                   @map("package_id") @db.Uuid
+  createdAt         DateTime                  @default(now()) @map("created_at")
+  article           CoreArticle               @relation(fields: [articleId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict, map: "publishing_orders_article_owner_fkey")
+  package           PublishingPackage?        @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  platforms         PublishingOrderPlatform[]
+  pointChange       PointChange?
+
+  @@unique([accountId, idempotencyKey])
+  @@unique([id, accountId])
+  @@index([accountId, brandId, number])
+  @@map("publishing_orders")
+}
+
+model PublishingOrderPlatform {
+  orderId    String          @map("order_id") @db.Uuid
+  platformId String          @map("platform_id") @db.Uuid
+  order      PublishingOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  platform   MediaPlatform   @relation(fields: [platformId], references: [id], onDelete: Restrict)
+
+  @@id([orderId, platformId])
+  @@index([platformId])
+  @@map("publishing_order_platforms")
 }
 
 model PublishingSelection {
@@ -943,7 +988,7 @@ model PublishingSelection {
   articleId       String      @map("article_id") @db.Uuid
   articleRevision Int         @map("article_revision")
   revision        Int         @default(1)
-  intent          Json
+  intent          Json?
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
   article         CoreArticle @relation(fields: [articleId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict, map: "publishing_selections_article_owner_fkey")
@@ -966,24 +1011,27 @@ model PointAccount {
 }
 
 model PointChange {
-  id                String          @id @default(uuid()) @db.Uuid
-  accountId         String          @map("account_id") @db.Uuid
+  publishingOrderId String?          @unique @map("publishing_order_id") @db.Uuid
+  publishingOrder   PublishingOrder? @relation(fields: [publishingOrderId, accountId], references: [id, accountId], onDelete: Restrict, map: "point_changes_order_owner_fkey")
+  id                String           @id @default(uuid()) @db.Uuid
+  accountId         String           @map("account_id") @db.Uuid
   sequence          Int
   kind              PointChangeKind
-  grantedDelta      Int             @map("granted_delta")
-  fundedDelta       Int             @default(0) @map("funded_delta")
-  balanceAfter      Int             @map("balance_after")
-  actorAccountId    String          @map("actor_account_id") @db.Uuid
-  idempotencyKey    String          @map("idempotency_key") @db.Uuid
-  reason            String          @db.VarChar(160)
-  internalNote      String?         @map("internal_note") @db.VarChar(320)
-  businessReference String?         @map("business_reference") @db.VarChar(160)
-  createdAt         DateTime        @default(now()) @map("created_at")
-  wallet            PointAccount    @relation(fields: [accountId], references: [accountId], onDelete: Restrict)
-  actor             Account         @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
+  grantedDelta      Int              @map("granted_delta")
+  fundedDelta       Int              @default(0) @map("funded_delta")
+  balanceAfter      Int              @map("balance_after")
+  actorAccountId    String           @map("actor_account_id") @db.Uuid
+  idempotencyKey    String           @map("idempotency_key") @db.Uuid
+  reason            String           @db.VarChar(160)
+  internalNote      String?          @map("internal_note") @db.VarChar(320)
+  businessReference String?          @map("business_reference") @db.VarChar(160)
+  createdAt         DateTime         @default(now()) @map("created_at")
+  wallet            PointAccount     @relation(fields: [accountId], references: [accountId], onDelete: Restrict)
+  actor             Account          @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
 
   @@unique([accountId, sequence])
   @@unique([accountId, idempotencyKey])
+  @@unique([publishingOrderId, accountId])
   @@map("point_changes")
 }
 
@@ -993,6 +1041,7 @@ enum PublishingPackageStatus {
 }
 
 model PublishingPackage {
+  orders         PublishingOrder[]
   id             String                      @id @default(uuid()) @db.Uuid
   name           String                      @db.VarChar(120)
   normalizedName String                      @unique @map("normalized_name") @db.VarChar(120)

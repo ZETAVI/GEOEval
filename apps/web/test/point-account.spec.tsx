@@ -66,6 +66,7 @@ describe("point adjustment intent and projections", () => {
       actorAccountId: "internal-actor",
       sequence: 1,
       kind: "ADMIN_ADJUSTMENT",
+      publishingOrderId: null,
       amount: 500,
       grantedDelta: 500,
       fundedDelta: 0,

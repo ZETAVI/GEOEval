@@ -113,7 +113,7 @@ export function AccountPointsWorkspace() {
           </button>
         </section>
         <div className="commerce-notice">
-          目前可查看平台赠送与调整记录。充值支付和发布购买尚未接入，不会自动扣分或下单。
+          可查看平台赠送、调整及发布购买记录。确认购买前不会自动扣分或下单；在线充值尚未接入。
           <a href="/publishing">浏览发布方案 →</a>
         </div>
         <section>

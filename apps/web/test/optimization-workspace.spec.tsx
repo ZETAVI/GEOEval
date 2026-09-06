@@ -224,7 +224,7 @@ describe("GEO optimization customer workspace", () => {
     expect(markup).not.toContain("<script");
   });
 
-  it("links a confirmed article to saved publishing choices without claiming an active purchase", () => {
+  it("links a confirmed article to explicit publishing purchase without automatic submission", () => {
     const workspace = readyWorkspace();
     workspace.article = {
       ...workspace.article!,
@@ -248,7 +248,8 @@ describe("GEO optimization customer workspace", () => {
     );
     expect(markup).toContain('href="/publishing"');
     expect(markup).toContain("选择发布方案");
-    expect(markup).toContain("提交购买仍在后续接入");
+    expect(markup).toContain("核对报价并确认购买后");
+    expect(markup).toContain("待处理发布订单");
   });
 });
 

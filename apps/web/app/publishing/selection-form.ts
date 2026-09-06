@@ -64,7 +64,7 @@ export function selectionInput(
     };
   }
   return {
-    expectedRevision: workspace.selection?.revision ?? 0,
+    expectedRevision: workspace.selectionRevision,
     articleId: article.id,
     articleRevision: article.revision,
     intent,

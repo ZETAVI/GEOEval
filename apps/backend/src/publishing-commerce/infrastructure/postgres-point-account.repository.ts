@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
+import { lockPointAccount } from "./point-account-lock.js";
 import {
   adjustGranted,
   PointAccountError,
@@ -39,21 +40,7 @@ export class PostgresPointAccountRepository implements PointAccountRepository {
     targetActive: boolean,
   ) {
     return this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`
-        INSERT INTO point_accounts(account_id,updated_at) VALUES(CAST(${accountId} AS UUID),CURRENT_TIMESTAMP)
-        ON CONFLICT(account_id) DO NOTHING
-      `;
-      const [wallet] = await tx.$queryRaw<
-        Array<{
-          granted_balance: number;
-          funded_balance: number;
-          revision: number;
-        }>
-      >`
-        SELECT granted_balance,funded_balance,revision FROM point_accounts
-        WHERE account_id=CAST(${accountId} AS UUID) FOR UPDATE
-      `;
-      if (!wallet) throw new Error("Point account disappeared");
+      const wallet = await lockPointAccount(tx, accountId);
       const prior = await tx.pointChange.findUnique({
         where: {
           accountId_idempotencyKey: {
@@ -83,14 +70,7 @@ export class PostgresPointAccountRepository implements PointAccountRepository {
           "TARGET_INACTIVE",
           "账号已停用，不能新增积分调整",
         );
-      const next = adjustGranted(
-        {
-          grantedBalance: wallet.granted_balance,
-          fundedBalance: wallet.funded_balance,
-          revision: wallet.revision,
-        },
-        input.amount,
-      );
+      const next = adjustGranted(wallet, input.amount);
       await tx.pointAccount.update({ where: { accountId }, data: next });
       return tx.pointChange.create({
         data: {
