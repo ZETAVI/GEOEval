@@ -487,3 +487,12 @@ new answer not used in the examples. Direct raw-response replay excludes local
 JSON decoding/projection as its origin; the Prompt/model/structured-output cause
 remains unresolved. Stop rewriting semantic instructions until a minimal output
 reproduction distinguishes it. No additional guard or mode switch is adopted.
+
+The next diagnostic stays in a protected runner, not a new application module.
+It reuses ProviderHttpTransport to compare two documented response_format modes
+on a minimal name-only task and exact preserved full request. Direct transport
+is necessary because the product adapter intentionally fixes strict Schema mode;
+changing that adapter would mix diagnosis with implementation. Both bodies and
+all other parameters are frozen, no business Attempt is written, and diagnostic
+telemetry remains private. JSON Object's missing out-of-band Schema is a disclosed
+limitation, not implicit approval to weaken the production contract.

@@ -1221,3 +1221,38 @@ Verification: 5 files / 48 tests, Backend typecheck/build; after the wire-name
 correction, affected 15 tests/typecheck reran. Independent fixed-diff/semantic
 review and framework/links/format/diff passed. No DB/migration, actual synthesis/
 report/browser, runtime, Hy3, #49 mirror or other worktree change is included.
+
+## Name-array output-mode diagnosis — protocol
+
+Owner approved continuing the bounded anomaly diagnosis. Freeze at most six
+Qwen3.8 Flash / thinking=true / low calls, with the current endpoint and transport.
+First a minimal fictional target/other-brand name-only task in strict JSON Schema
+and JSON Object modes. Then replay the preserved failed shoe-answer request twice
+per mode in alternating order: full strict A, full object A, full strict B, full
+object B. Strict full bodies must exactly match the preserved request; each pair
+changes only response_format. Replications are preplanned, not retries or tuning.
+
+The name-only Schema reuses the actual name leaves and their constraints. Its
+Prompt states the JSON shape and its tiny input has two named brands with aliases.
+The full Prompt already includes complete output examples; no schema text or
+semantic instruction is added during the comparison. JSON Object does not carry
+the out-of-band Schema/descriptions, so this diagnoses the configured output-mode
+package, not constrained decoding alone or a fair quality-equivalent deployment.
+
+Use existing ProviderHttpTransport directly in the protected diagnostic runner;
+do not alter ModelStudioProviderAdapter, routes or runtime. Preserve wire body,
+raw message content, parsed output, name-array defects, code projection/rejection,
+usage and latency separately. Readback must verify mode/settings and actual messages.
+Primary observations are whether meaningful names are generated and whether the
+preserved anomaly reproduces; secondary semantics cannot be inferred from names.
+
+Timeout 180 seconds, no acquisition, retries, fallback, model/effort change,
+post-result edits or later calls. HTTP/transport/model-identity/abnormal-finish
+failure stops the batch. Invalid JSON/name values remain results, not triggers
+for another request. Reuse unchanged runtime tests; preflight asserts exact full
+replay, pair-only response_format difference and deterministic minimal expectation.
+
+Ranked hypotheses: mode-sensitive upstream generation; full task/context load;
+Prompt/example interaction; stochastic failure. Local transformation already
+excluded by raw replay. These six observations can narrow, not establish universal
+Provider behavior, production reliability or a model-internal mechanism.

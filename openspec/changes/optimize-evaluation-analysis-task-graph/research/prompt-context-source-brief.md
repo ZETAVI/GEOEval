@@ -80,3 +80,11 @@ while the overview still lists fewer models. This does not explain punctuation-
 only names: those values are valid JSON strings, and support for a mode is not
 semantic correctness. Raw response replay and matched wire evidence narrow the
 failure to an upstream generation boundary, not a proven unsupported-mode defect.
+
+For the bounded name-array diagnosis, the same official page documents
+response_format=json_object (JSON validity, JSON keyword required) versus strict
+json_schema (structure enforcement); its detailed list includes the configured
+model. The comparison removes out-of-band Schema in object mode and therefore
+does not isolate a particular decoder implementation. Keep model/thinking/effort
+unchanged and measure on the actual account. Context7's project-local CLI was
+unavailable; official primary documentation was used without installing tools.
