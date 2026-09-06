@@ -42,6 +42,22 @@ The test does not establish long-run reliability or a full-evaluation SLA;
 additional topology is not presumed, and an unchanged semantic failure should
 not trigger an automatic third pair or more naming rules.
 
+The layout package stops after its first pair: the original arm duplicates
+brand membership, and the flat arm places every supplied record in one group.
+Do not adopt flat layout as the fix or continue the stopped repetition.
+
+One separate, at-most-two-call diagnostic now tests a narrower responsibility:
+provide the same 45 brand records with all their excerpts and ask only for name
+groups, without target narrative, target context or sample-theme generation.
+Reuse the existing finite brand-ID choice shape and configured medium model.
+Both calls are independently generated from the same focused task; this changes
+task/context/output scope together, not a layout-only causal comparison. No new
+runtime Agent, queue, persistence or selected topology follows. The ordinary
+single Parser is unchanged. Review grouping membership and the owner-confirmed
+valid/invalid cases; do not judge output shape as semantic success or silently
+repair a result. Maximum concurrency two, no retry/fallback/resampling, actual-IO
+telemetry only. This is the final real-call package in the current turn.
+
 ### Owner correction and bounded Prompt replay — 2026-09-06
 
 The owner confirms the two names behind the prior target-identity finding refer
