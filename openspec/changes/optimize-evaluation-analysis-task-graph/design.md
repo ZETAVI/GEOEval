@@ -589,11 +589,9 @@ inclusion and materially misleading summaries remain relevant. Historical raw
 results and their original reviews stay immutable; their old quality thresholds
 are not silently carried forward. PR #48 is reference, not the normative target.
 
-One product frontier is pending: an otherwise positive recommendation with an
-ordinary drawback. The owner has been asked whether overall recommendation or
-any negative wording determines eligibility. The isolated probe provisionally
-uses the current overall-recommendation reading; no production metric policy is
-changed. Resolve this before runtime/statistical acceptance.
+The owner subsequently confirms: an otherwise positive recommendation with an
+ordinary drawback remains eligible. This resolves the product question; it does
+not itself activate a new production metric policy.
 
 Implement one owner-local experimental task with target points/position/evidence,
 sample summary, and other-brand name/position/positiveRecommendation/evidence.
@@ -616,6 +614,25 @@ The three-call package at `0f99bc3` is completed. Retain the reduced task as an
 experimental working baseline with a remaining internal target-name field defect;
 schema/source validity is not canonical acceptance. Next reduce or resolve that
 redundant generated representation without reviving old conditional-role tasks.
-No reviewed outcome enters formal statistics until the owner's mixed-praise
-decision and report-contract integration are resolved. The separate semantic
-review is local only following an automated upload-authorization rejection.
+No reviewed outcome enters formal statistics before report-contract integration.
+The owner confirms independent semantic review stays local. Subsequent Langfuse
+logging contains actual model IO and operational metadata only, not derived
+reviews or program projections; the prior blocked upload is not retried.
+
+### Known target identity — next bounded slice
+
+Architecture readiness: `ready` for the isolated 1.1.0 experiment. Remove the
+redundant model-generated `target.displayedForms`; the request already owns
+`companyName`. A non-null target refers to that known identity, while source
+excerpts retain the actually observed wording. Do not treat the input label as
+proof of mention, invent a target when output is null, or generate aliases in a
+program fallback. Other-brand names remain a model responsibility because the
+consumer does not know them beforehand. The existing source-backed diagnostic
+output travels with its request identity; no new report adapter or shared API.
+
+Verify source/point/position handoff and null preservation offline, then replay
+the three retained answers with this fixed task package. Keep model, low effort,
+strict mode and full source unchanged. At most three calls, no retries or new
+acquisition; stop on transport/model/finish failure. New outputs and local review
+are compared to saved 1.0.0 evidence, without claiming a Prompt-only change,
+unique upstream cause, held-out validation or formal report compatibility.

@@ -53,19 +53,23 @@ obligations hidden behind it. Its output is a diagnostic view, not an adapter
 that fabricates missing legacy semantics or modifies the report metric policy.
 Evaluate retained robot/coffee/absent-target answers under the same recalibrated
 customer rubric as the retained baselines. Existing raw evidence stays immutable.
-Mixed positive recommendations with ordinary drawbacks have one open owner
-question; provisional experimental interpretation follows overall recommendation,
-and formal statistical acceptance waits for that decision.
+The owner confirms that overall positive recommendations with ordinary drawbacks
+remain eligible; this is no longer a pending product question. Formal statistics
+still require an explicitly owned implementation and report integration.
 
 All three frozen calls are complete at `0f99bc3`. Aggregate tokens are 9,024
 versus 16,890 in the retained non-contemporaneous baselines; recorded elapsed call
 time is 40.708 versus 81.992 seconds. This supports continuing the smaller task
 as an experimental working baseline, not a reliability or production claim.
 One raw internal target-name field remains malformed despite schema/source
-validity. Resolve that representation and the open eligibility decision before
-canonical integration. Separate semantic-review upload was blocked by automated
-safety review; detailed review stays local pending explicit authority, without
-substituting another external publication route.
+validity. The next 1.1.0 experiment removes the redundant generated target-name
+field: the request supplies identity, while the model still decides actual
+mention, source position and points. This does not establish why the former raw
+output was malformed. Verify the existing source-backed handoff without a legacy
+report adapter, then replay the same three answers under the confirmed policy.
+The owner elects to keep independent semantic reviews local. Langfuse receives
+only actual model IO and operational call metadata, not reviews or projections;
+the prior blocked upload is not retried or treated as an outstanding approval.
 
 The following chronology explains earlier experiments, not additional current
 quality requirements. Conditions/part-wording findings must not silently regain

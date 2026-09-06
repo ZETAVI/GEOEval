@@ -60,11 +60,12 @@ Completed chronology, exact manifests and failed candidates live in the
       preserve aggregate efficiency evidence and an internal name-field residual.
 - [ ] Resolve the redundant target-name output field before canonical integration;
       no detailed condition taxonomy or new Agent layer is required.
-- [ ] Obtain explicit authorization before uploading the separate semantic-review
-      payload to Langfuse; automated safety review blocked it, so retain it locally.
-- [ ] Resolve whether an overall positive recommendation with an ordinary drawback
-      stays eligible before formal statistical-policy acceptance.
-- [ ] Resolve material identity/role/position quality and verify held-out behavior
+- [x] Owner confirms independent semantic review stays local; Langfuse records
+      actual model input/output and operational call metadata only, not review
+      summaries or program projections. This is no longer an authorization gate.
+- [x] Owner confirms overall positive recommendations with ordinary drawbacks
+      remain eligible; explicit negative/non-recommendation and background do not.
+- [ ] Resolve material identity/position/polarity quality and verify held-out behavior
       before small report-path integration; no candidate is accepted yet.
 
 ## Synthesis comparison

@@ -7,7 +7,7 @@ import {
 } from "../src/ai-execution/controlled-validation/m4-parser-customer-summary.js";
 
 const originalAnswer =
-  "1. 青禾咖啡：安静适合办公，但价格较高。\r\n2. 山岚咖啡值得考虑。\r\n3. 不建议去晴川咖啡，环境嘈杂。\r\n墨云咖啡仅作为背景提及。";
+  "1. 青禾咖啡：安静适合办公，但价格较高。\r\n2. 山岚咖啡虽然略贵，但仍值得考虑。\r\n3. 不建议去晴川咖啡，环境嘈杂。\r\n墨云咖啡仅作为背景提及。";
 const base = buildSampleParserTask({
   companyName: "青禾咖啡",
   primaryIndustry: "餐饮",
@@ -22,7 +22,6 @@ const base = buildSampleParserTask({
 const range = (line: number) => ({ startLine: line, endLine: line });
 const value = () => ({
   target: {
-    displayedForms: ["青禾咖啡"],
     position: 1,
     evidence: [range(1)],
     points: [
@@ -76,7 +75,6 @@ describe("M4 customer-value Parser experiment", () => {
       .jsonSchema as any;
     expect(schema.required).toEqual(["target", "otherBrands", "summary"]);
     expect(Object.keys(schema.properties.target.anyOf[0].properties)).toEqual([
-      "displayedForms",
       "position",
       "evidence",
       "points",
@@ -104,8 +102,11 @@ describe("M4 customer-value Parser experiment", () => {
     expect(result).not.toHaveProperty("projected");
     expect(restored).not.toHaveProperty("targetRole");
   });
-  it("projects only explicitly positive flags into the diagnostic competitor list", () => {
+  it("retains overall recommendations with drawbacks and excludes negative/background mentions", () => {
     const result = inspectM4CustomerSummaryOutput(value(), originalAnswer);
+    expect(buildM4CustomerSummaryTask(base).systemInstruction).toContain(
+      "整体仍推荐但带普通缺点的品牌仍为true",
+    );
     expect(result.output.otherBrands).toHaveLength(3);
     expect(result.positiveCompetitors.map((b) => b.displayName)).toEqual([
       "山岚咖啡",
@@ -120,6 +121,37 @@ describe("M4 customer-value Parser experiment", () => {
     expect(
       inspectM4CustomerSummaryOutput(absent, originalAnswer).output.target,
     ).toBeNull();
+    expect(
+      (
+        inspectM4CustomerSummaryOutput(absent, originalAnswer)
+          .sourceBackedOutput as any
+      ).target,
+    ).toBeNull();
+  });
+  it("hands off target evidence without regenerating a known brand name", () => {
+    const result = inspectM4CustomerSummaryOutput(value(), originalAnswer);
+    const handoff = JSON.parse(
+      JSON.stringify({
+        companyName: base.userContext.companyName,
+        sample: result.sourceBackedOutput,
+      }),
+    );
+    expect(handoff.companyName).toBe("青禾咖啡");
+    expect(handoff.sample.target.position).toBe(1);
+    expect(handoff.sample.target.points).toHaveLength(2);
+    expect(handoff.sample.target.evidence[0].exactText).toBe(
+      originalAnswer.split("\r\n")[0],
+    );
+    expect(handoff.sample.target).not.toHaveProperty("displayedForms");
+    expect(() =>
+      inspectM4CustomerSummaryOutput(
+        {
+          ...value(),
+          target: { ...value().target, displayedForms: ["],"] },
+        },
+        originalAnswer,
+      ),
+    ).toThrow();
   });
   it("rejects unreachable source references without repairing them", () => {
     const bad = value();

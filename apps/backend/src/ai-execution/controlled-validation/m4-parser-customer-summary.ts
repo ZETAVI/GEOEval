@@ -23,7 +23,6 @@ export const m4CustomerSummarySchema = z
   .object({
     target: z
       .object({
-        displayedForms: forms,
         position: sourcePosition,
         evidence,
         points: z
@@ -99,6 +98,8 @@ export function buildM4CustomerSummaryTask(
 }
 
 // A diagnostic view, not a canonical report adapter or a production score input.
+// The caller already owns companyName; a non-null target refers to that identity.
+// Do not regenerate its label here or infer target presence from that known input.
 export function inspectM4CustomerSummaryOutput(
   value: unknown,
   originalAnswer: string,
