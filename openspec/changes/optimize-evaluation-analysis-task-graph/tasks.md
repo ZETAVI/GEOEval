@@ -52,8 +52,14 @@ Completed chronology, exact manifests and failed candidates live in the
       fresh candidate has a part-identity error and higher tokens without net gain.
 - [x] Isolate actual model omission from per-span name filtering in three offline
       reference-only replays; a complete contiguous context survives unchanged.
-- [ ] Bound the next experimental evidence handoff around identity anchoring and
-      qualifying context; do not append similar examples or weaken runtime guards.
+- [x] Supersede prospective detailed condition-handoff work with the owner's
+      customer-value scope; preserve old evidence without inheriting its rubric.
+- [x] Prepare a smaller target-points/summary and competitor-eligibility contract,
+      reusing full context and source restoration without a legacy report adapter.
+- [ ] Verify the smaller package on retained robot/coffee/absent-target answers
+      using recalibrated customer quality plus tokens/time; no runtime acceptance.
+- [ ] Resolve whether an overall positive recommendation with an ordinary drawback
+      stays eligible before formal statistical-policy acceptance.
 - [ ] Resolve material identity/role/position quality and verify held-out behavior
       before small report-path integration; no candidate is accepted yet.
 

@@ -40,6 +40,27 @@ Langfuse input/output export. Four questions, five platforms, metric meaning,
 
 ## Current evidence and next decision
 
+The owner's latest annotated review supersedes the preceding prospective
+condition-handoff work: single-call target points with sentiment and a sample
+summary; other brands need identity, source position and positive-recommendation
+eligibility, not detailed opinions or conditional-role analysis. Retain useful
+source excerpts through the existing line restorer. Ordinary paraphrases and
+minor component wording do not independently fail customer-quality acceptance.
+PR #48 remains historical reference, not the required synthesis design.
+
+Prepare one smaller Prompt/model-contract package with no legacy category/role
+obligations hidden behind it. Its output is a diagnostic view, not an adapter
+that fabricates missing legacy semantics or modifies the report metric policy.
+Evaluate retained robot/coffee/absent-target answers under the same recalibrated
+customer rubric as the retained baselines. Existing raw evidence stays immutable.
+Mixed positive recommendations with ordinary drawbacks have one open owner
+question; provisional experimental interpretation follows overall recommendation,
+and formal statistical acceptance waits for that decision.
+
+The following chronology explains earlier experiments, not additional current
+quality requirements. Conditions/part-wording findings must not silently regain
+blocking status after this recalibration.
+
 The [experiment record](research/chain-quality-experiment.md) owns all frozen manifests,
 results and limits; the proposal does not repeat their chronology. Natural sampling
 remains isolated from target/profile injection. Diagnostic messages, metadata,

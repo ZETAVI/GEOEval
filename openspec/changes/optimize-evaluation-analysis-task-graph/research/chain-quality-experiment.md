@@ -1623,3 +1623,39 @@ absent. No raw envelope/reasoning is exported and no further model call occurred
 | Answer lineage | 2a48c99958563bca6be1f267cb7abb16db4a73cf417440fc7e1161f296b63847 |
 | Offline handoff | 268fabc40a9672ef5c1fec4c692d978842e60866a70b346f05eada99ca044827 |
 | Runner | ef15f47c7b05dfb501977b4ec7e312a968cce9c69027c2fe474f68f932152598 |
+
+## Customer-value scope — owner recalibration and bounded protocol
+
+The owner confirms: no inventory→judgment split; target prominent points and
+sentiment plus sample summary; other brands only recognizable subjects, source
+positions and positive-recommendation eligibility. Do not demand competitor
+condition/opinion extraction, exhaustive role categories or independent target
+condition fields. Pure negative/non-recommendations stay out of competitor counts.
+Keep useful excerpts, with natural summary wording; existing exact source-range
+restoration is a program capability and does not require model quote copying.
+Minor part-wording such as the discussed main-unit/base-station phrasing is not
+an independent rejection gate under this customer reading level. PR #48 is past
+reference; synthesis need not adopt its compact context or strict candidate form.
+
+Historical raw results and original verdicts are not rewritten. The new rubric
+prioritizes omitted/invented brands, unsupported positions, wrong dominant
+positive/negative meaning, negative-only eligibility and materially misleading
+summaries. The previous conditional-role and tiny wording gates no longer own
+the frontier. An explicit question remains for overall positive recommendations
+with ordinary drawbacks; the reversible probe uses the existing overall-reading
+assumption and does not activate any statistical policy.
+
+Freeze at most three Qwen3.8 Flash/low/strict calls on retained robot, coffee and
+absent-target agency answers. Compare with saved baseline outputs under this same
+rubric, not the old verdict labels. This is a smaller Prompt plus model-contract
+task package, not a Prompt-only or contemporaneous performance comparison.
+Full answer, question and target identity stay available; no new sampling,
+retry, fallback, parameter sweep or runtime import. Timeout 180 seconds. Stop on
+Provider/model failure, record invalid structured/source output without retries.
+Keep actual input/output, diagnostic source restoration, positive-list view,
+usage/latency and human-level review distinct in protected evidence and Trace.
+
+The task deliberately has no old-role/category translator and no canonical
+report acceptance. Formal implementation/consumer reconciliation remains later.
+Main observed at start is `189e1cc` (#69 article backend); it does not alter this
+Parser/metric path or the project process. No rebase or other-worktree write.

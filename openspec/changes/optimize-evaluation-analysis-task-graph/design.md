@@ -569,3 +569,45 @@ passes the remaining semantic record directly. Any next experiment should make
 brand identity anchoring and qualifying evidence responsibilities explicit,
 without changing current runtime acceptance, automatically guessing context or
 reviving a multi-Agent topology.
+
+## Customer-value scope recalibration — 2026-09-06
+
+The owner's annotated review supersedes the preceding prospective qualifier-
+handoff work. Confirmed intent: keep one Parser call; for the target, extract
+prominent points with sentiment and a concise sample summary, not separate
+condition/role taxonomies. For other brands, identify the recognizable subject,
+source position and positive-recommendation eligibility only; do not perform
+competitor opinion/condition analysis. Pure negative or non-recommendation
+mentions do not enter competitor statistics. Keep useful source excerpts, using
+the already tested line restoration rather than asking the model to copy text.
+
+Acceptance is customer usefulness, not exhaustive semantic annotation. Ordinary
+paraphrase and small component-word differences are not standalone blockers;
+avoid unnecessary specificity where a broader expression is enough. Missing
+brands, unsupported positions, reversed polarity, negative-only statistical
+inclusion and materially misleading summaries remain relevant. Historical raw
+results and their original reviews stay immutable; their old quality thresholds
+are not silently carried forward. PR #48 is reference, not the normative target.
+
+One product frontier is pending: an otherwise positive recommendation with an
+ordinary drawback. The owner has been asked whether overall recommendation or
+any negative wording determines eligibility. The isolated probe provisionally
+uses the current overall-recommendation reading; no production metric policy is
+changed. Resolve this before runtime/statistical acceptance.
+
+Implement one owner-local experimental task with target points/position/evidence,
+sample summary, and other-brand name/position/positiveRecommendation/evidence.
+It replaces the old experimental role/category requirements rather than retaining
+them behind shorter instructions. It reuses full task context and source-range
+restoration, with no dependency on #41's compact-input candidate. Schema/source
+checks are diagnostic acceptance only: do not invent legacy targetRole/categories
+or activate a hidden adapter to the canonical report contract.
+
+Architecture readiness: `ready` for this reversible experiment under #42. No
+runtime import, public API/schema, persistence, migration, new Provider, retry or
+formal report projection. Independent module ownership here is justified by a
+different model contract, not another Agent layer. Verify the simple output and
+source round-trip, explicit-negative exclusion and unchanged legacy builder;
+then freeze a small retained-sample batch, evaluating new and old results under
+the same user-calibrated rubric. Formal Parser delivery still needs an owning
+scope and reconciliation; current glossary/specs/history remain unchanged.
