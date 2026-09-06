@@ -76,7 +76,10 @@ export function BrandWorkspace() {
       let saved: Brand | undefined;
       if (editing === "new") saved = await createBrand(apiBaseUrl, input);
       else if (editing)
-        saved = await updateBrand(apiBaseUrl, editing.id, input);
+        saved = await updateBrand(apiBaseUrl, editing.id, {
+          ...input,
+          expectedRevision: editing.revision,
+        });
       await Promise.all([
         refresh(),
         saved

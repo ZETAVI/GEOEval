@@ -24,11 +24,29 @@ import {
 } from "../../identity/access/current-principal.js";
 import type { AuthenticatedPrincipal } from "../../identity/domain/identity.types.js";
 import { BrandService } from "../application/brand.service.js";
-import type { BrandMutationInput, BrandView } from "../domain/brand.types.js";
-import { BrandMutationRequest, BrandResponse } from "./brand.dto.js";
+import type {
+  BrandMutationInput,
+  BrandUpdateInput,
+  BrandView,
+} from "../domain/brand.types.js";
+import {
+  BrandArticleInformationRequest,
+  BrandCharacteristicMutationRequest,
+  BrandCharacteristicResponse,
+  BrandMutationRequest,
+  BrandResponse,
+  BrandUpdateRequest,
+} from "./brand.dto.js";
 
 @ApiTags("brands")
-@ApiExtraModels(BrandResponse)
+@ApiExtraModels(
+  BrandResponse,
+  BrandMutationRequest,
+  BrandUpdateRequest,
+  BrandCharacteristicMutationRequest,
+  BrandCharacteristicResponse,
+  BrandArticleInformationRequest,
+)
 @RequireAccountRoles("TERMINAL_CUSTOMER")
 @Controller("brands")
 export class BrandController {
@@ -70,15 +88,15 @@ export class BrandController {
   }
 
   @Patch(":id")
-  @ApiBody({ type: BrandMutationRequest })
+  @ApiBody({ type: BrandUpdateRequest })
   @ApiOkResponse({ type: BrandResponse })
   update(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
     @Param("id") id: string,
-    @Body() input: BrandMutationRequest,
+    @Body() input: BrandUpdateRequest,
   ): Promise<BrandResponse> {
     return this.brands
-      .update(principal.accountId, id, input as BrandMutationInput)
+      .update(principal.accountId, id, input as BrandUpdateInput)
       .then(presentBrand);
   }
 
@@ -104,6 +122,8 @@ function presentBrand(brand: BrandView): BrandResponse {
     otherProductOrService: brand.otherProductOrService,
     flagshipProductOrService: brand.flagshipProductOrService,
     characteristics: brand.characteristics,
+    articleInformation: brand.articleInformation,
+    revision: brand.revision,
     contactName: brand.contactName,
     contactMobile: brand.contactMobile,
     primaryIndustryLabel: brand.primaryIndustryLabel,
@@ -120,6 +140,8 @@ function presentBrand(brand: BrandView): BrandResponse {
       : null,
     readyForEvaluation: brand.readyForEvaluation,
     missingFields: brand.missingFields,
+    readyForArticleGeneration: brand.readyForArticleGeneration,
+    articleInformationMissingFields: brand.articleInformationMissingFields,
     isCurrent: brand.isCurrent,
     createdAt: brand.createdAt,
     updatedAt: brand.updatedAt,

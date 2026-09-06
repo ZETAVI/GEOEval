@@ -23,14 +23,16 @@ export interface BrandRepository {
     fields: BrandProfileFields;
     storeLocation: BrandStoreLocationWrite | null;
     evaluationFingerprint: string;
+    writingContextFingerprint: string;
   }): Promise<BrandProfileView>;
   update(input: {
     accountId: string;
     brandId: string;
-    expectedLocationVerificationId: string | null;
+    expectedRevision: number;
     fields: BrandProfileFields;
     storeLocation: BrandStoreLocationWrite | null;
     evaluationFingerprint: string;
+    writingContextFingerprint: string;
   }): Promise<BrandProfileView | undefined>;
   selectCurrent(
     accountId: string,

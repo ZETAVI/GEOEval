@@ -2,6 +2,7 @@
 
 import type { Brand, BrandMutation } from "@geoeval/api-client";
 import { useState } from "react";
+import { brandMutationForSave } from "./brand-mutation.js";
 import { BrandProfileFields } from "./brand-profile-fields.js";
 
 type Props = {
@@ -29,7 +30,7 @@ export function BrandEditor({
     characteristics:
       brand?.characteristics && brand.characteristics.length > 0
         ? brand.characteristics
-        : ["", ""],
+        : [{ title: "" }, { title: "" }],
     contactName: text(brand?.contactName),
     contactMobile: text(brand?.contactMobile),
   });
@@ -76,7 +77,7 @@ export function BrandEditor({
             className="primary-button"
             type="button"
             disabled={busy || !text(form.companyName).trim()}
-            onClick={() => void onSave(form)}
+            onClick={() => void onSave(brandMutationForSave(form))}
           >
             {busy ? "保存中…" : "保存品牌资料"}
           </button>

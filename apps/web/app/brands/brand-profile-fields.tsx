@@ -28,7 +28,7 @@ export function BrandProfileFields({
 
   function updateCharacteristic(index: number, nextValue: string) {
     const next = [...characteristics];
-    next[index] = nextValue;
+    next[index] = { ...next[index]!, title: nextValue };
     update({ characteristics: next });
   }
 
@@ -76,13 +76,13 @@ export function BrandProfileFields({
         </p>
         <div className="characteristic-list">
           {characteristics.map((characteristic, index) => (
-            <div key={index}>
+            <div key={characteristic.id ?? `new-${index}`}>
               <label htmlFor={`characteristic-${index}`}>
                 特色 {index + 1}
               </label>
               <input
                 id={`characteristic-${index}`}
-                value={characteristic}
+                value={characteristic.title}
                 minLength={2}
                 maxLength={120}
                 onChange={(event) =>
@@ -116,7 +116,7 @@ export function BrandProfileFields({
             type="button"
             className="text-button characteristic-add"
             onClick={() =>
-              update({ characteristics: [...characteristics, ""] })
+              update({ characteristics: [...characteristics, { title: "" }] })
             }
           >
             ＋ 添加一项特色
@@ -144,8 +144,10 @@ export function BrandProfileFields({
   );
 }
 
-function withTwoCharacteristics(values: string[] | undefined): string[] {
+function withTwoCharacteristics(
+  values: BrandMutation["characteristics"],
+): NonNullable<BrandMutation["characteristics"]> {
   const next = [...(values ?? [])];
-  while (next.length < 2) next.push("");
+  while (next.length < 2) next.push({ title: "" });
   return next.slice(0, 6);
 }

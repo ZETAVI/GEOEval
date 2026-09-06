@@ -124,7 +124,18 @@ describe("Brand Knowledge executable reference data", () => {
       secondaryIndustryId: "IND-01-02",
       otherProductOrService: null,
       flagshipProductOrService: "精品手冲咖啡",
-      characteristics: ["安静办公", "精品手冲"],
+      characteristics: [
+        {
+          id: "00000000-0000-4000-8000-000000000301",
+          title: "安静办公",
+          detail: null,
+        },
+        {
+          id: "00000000-0000-4000-8000-000000000302",
+          title: "精品手冲",
+          detail: null,
+        },
+      ],
       contactName: "林先生",
       contactMobile: "+8613900000101",
     };
@@ -166,7 +177,13 @@ describe("Brand Knowledge executable reference data", () => {
     ).not.toBe(first);
     expect(
       evaluationFingerprint(
-        { ...fields, characteristics: ["适合朋友聚会", "精品手冲"] },
+        {
+          ...fields,
+          characteristics: [
+            { ...fields.characteristics[0]!, title: "适合朋友聚会" },
+            fields.characteristics[1]!,
+          ],
+        },
         storeLocation,
       ),
     ).not.toBe(first);

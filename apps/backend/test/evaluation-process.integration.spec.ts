@@ -234,8 +234,17 @@ describe("resumable evaluation evidence", () => {
       expect(publicProjection).not.toContain(privateField);
     }
 
+    const brandBeforeReportChange = await brands.current(accountId);
+    expect(brandBeforeReportChange?.id).toBe(brandId);
     await brands.update(accountId, brandId, {
-      characteristics: ["适合会议", "精品手冲"],
+      expectedRevision: brandBeforeReportChange!.revision,
+      characteristics: [
+        {
+          ...brandBeforeReportChange!.characteristics[0]!,
+          title: "适合会议",
+        },
+        brandBeforeReportChange!.characteristics[1]!,
+      ],
     });
     expect(await reports.current(accountId, brandId)).toMatchObject({
       id: currentReport?.id,
@@ -581,8 +590,17 @@ describe("resumable evaluation evidence", () => {
       (await reports.history(accountId, first.brandId)).items,
     ).toHaveLength(0);
 
+    const brandBeforeNextEvaluation = await brands.current(accountId);
+    expect(brandBeforeNextEvaluation?.id).toBe(first.brandId);
     await brands.update(accountId, first.brandId, {
-      characteristics: ["安静办公", "适合商务交流"],
+      expectedRevision: brandBeforeNextEvaluation!.revision,
+      characteristics: [
+        brandBeforeNextEvaluation!.characteristics[0]!,
+        {
+          ...brandBeforeNextEvaluation!.characteristics[1]!,
+          title: "适合商务交流",
+        },
+      ],
     });
     const nextDefinition = await questionPreparation.prepareReadyDefinition(
       evaluations,

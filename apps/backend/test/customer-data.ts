@@ -2,17 +2,14 @@ import { randomUUID } from "node:crypto";
 
 import type { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { StoreLocationReceiptCodec } from "../src/brand/application/store-location-receipt.js";
-import type {
-  BrandMutationInput,
-  EditableBrandFields,
-} from "../src/brand/domain/brand.types.js";
+import type { BrandMutationInput } from "../src/brand/domain/brand.types.js";
 import { BrandReferenceData } from "../src/brand/reference-data/brand-reference-data.js";
 
-export const READY_COFFEE_BRAND_FIELDS: EditableBrandFields = {
+export const READY_COFFEE_BRAND_FIELDS: BrandMutationInput = {
   primaryIndustryId: "IND-01",
   secondaryIndustryId: "IND-01-02",
   flagshipProductOrService: "精品手冲咖啡",
-  characteristics: ["安静办公", "精品手冲"],
+  characteristics: [{ title: "安静办公" }, { title: "精品手冲" }],
   contactName: "林先生",
   contactMobile: "+8613900000101",
 };

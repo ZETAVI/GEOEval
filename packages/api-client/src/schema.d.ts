@@ -1360,6 +1360,26 @@ export interface components {
         NotificationReadAllResponse: {
             unreadCount: number;
         };
+        BrandCharacteristicResponse: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            detail: string | null;
+        };
+        BrandArticleInformationRequest: {
+            price: ({
+                /** @enum {string} */
+                mode: "RANGE";
+                minimum: number;
+                maximum: number;
+            } | {
+                /** @enum {string} */
+                mode: "NEGOTIABLE";
+            }) | null;
+            suitableAudienceContexts: string[];
+            supplementalBackground: string | null;
+            desiredPositioning: string[];
+        };
         StoreLocationCoordinateResponse: {
             longitude: number;
             latitude: number;
@@ -1414,7 +1434,9 @@ export interface components {
             secondaryIndustryId?: string | null;
             otherProductOrService?: string | null;
             flagshipProductOrService?: string | null;
-            characteristics: string[];
+            characteristics: components["schemas"]["BrandCharacteristicResponse"][];
+            articleInformation: components["schemas"]["BrandArticleInformationRequest"];
+            revision: number;
             contactName?: string | null;
             contactMobile?: string | null;
             primaryIndustryLabel?: string | null;
@@ -1422,11 +1444,19 @@ export interface components {
             storeLocation?: components["schemas"]["BrandStoreLocationResponse"] | null;
             readyForEvaluation: boolean;
             missingFields: string[];
+            readyForArticleGeneration: boolean;
+            articleInformationMissingFields: string[];
             isCurrent: boolean;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        BrandCharacteristicMutationRequest: {
+            /** Format: uuid */
+            id?: string;
+            title: string;
+            detail?: string | null;
         };
         BrandLocationChangeRequest: {
             /** @enum {string} */
@@ -1439,10 +1469,24 @@ export interface components {
             secondaryIndustryId?: string | null;
             otherProductOrService?: string | null;
             flagshipProductOrService?: string | null;
-            characteristics?: string[];
+            characteristics?: components["schemas"]["BrandCharacteristicMutationRequest"][];
+            articleInformation?: components["schemas"]["BrandArticleInformationRequest"];
             contactName?: string | null;
             contactMobile?: string | null;
             locationChange?: components["schemas"]["BrandLocationChangeRequest"];
+        };
+        BrandUpdateRequest: {
+            companyName?: string | null;
+            primaryIndustryId?: string | null;
+            secondaryIndustryId?: string | null;
+            otherProductOrService?: string | null;
+            flagshipProductOrService?: string | null;
+            characteristics?: components["schemas"]["BrandCharacteristicMutationRequest"][];
+            articleInformation?: components["schemas"]["BrandArticleInformationRequest"];
+            contactName?: string | null;
+            contactMobile?: string | null;
+            locationChange?: components["schemas"]["BrandLocationChangeRequest"];
+            expectedRevision: number;
         };
         IndustrySecondaryOptionResponse: {
             id: string;
@@ -2582,7 +2626,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["BrandMutationRequest"];
+                "application/json": components["schemas"]["BrandUpdateRequest"];
             };
         };
         responses: {

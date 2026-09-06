@@ -1431,7 +1431,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BrandMutationRequest"
+                "$ref": "#/components/schemas/BrandUpdateRequest"
               }
             }
           }
@@ -3960,6 +3960,103 @@
           "unreadCount"
         ]
       },
+      "BrandCharacteristicResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "detail"
+        ]
+      },
+      "BrandArticleInformationRequest": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "mode",
+                  "minimum",
+                  "maximum"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "RANGE"
+                    ]
+                  },
+                  "minimum": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "maximum": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "mode"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "NEGOTIABLE"
+                    ]
+                  }
+                }
+              }
+            ],
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "suitableAudienceContexts": {
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "supplementalBackground": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000
+          },
+          "desiredPositioning": {
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "price",
+          "suitableAudienceContexts",
+          "supplementalBackground",
+          "desiredPositioning"
+        ]
+      },
       "StoreLocationCoordinateResponse": {
         "type": "object",
         "properties": {
@@ -4170,8 +4267,15 @@
           "characteristics": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/BrandCharacteristicResponse"
             }
+          },
+          "articleInformation": {
+            "$ref": "#/components/schemas/BrandArticleInformationRequest"
+          },
+          "revision": {
+            "type": "number",
+            "minimum": 1
           },
           "contactName": {
             "type": "string",
@@ -4207,6 +4311,15 @@
               "type": "string"
             }
           },
+          "readyForArticleGeneration": {
+            "type": "boolean"
+          },
+          "articleInformationMissingFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "isCurrent": {
             "type": "boolean"
           },
@@ -4224,11 +4337,38 @@
           "status",
           "companyName",
           "characteristics",
+          "articleInformation",
+          "revision",
           "readyForEvaluation",
           "missingFields",
+          "readyForArticleGeneration",
+          "articleInformationMissingFields",
           "isCurrent",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "BrandCharacteristicMutationRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 2,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "title"
         ]
       },
       "BrandLocationChangeRequest": {
@@ -4276,12 +4416,14 @@
             "maxLength": 80
           },
           "characteristics": {
-            "minItems": 2,
             "maxItems": 6,
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/BrandCharacteristicMutationRequest"
             }
+          },
+          "articleInformation": {
+            "$ref": "#/components/schemas/BrandArticleInformationRequest"
           },
           "contactName": {
             "type": "string",
@@ -4295,6 +4437,62 @@
             "$ref": "#/components/schemas/BrandLocationChangeRequest"
           }
         }
+      },
+      "BrandUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryIndustryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "secondaryIndustryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "otherProductOrService": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 60
+          },
+          "flagshipProductOrService": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "characteristics": {
+            "maxItems": 6,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BrandCharacteristicMutationRequest"
+            }
+          },
+          "articleInformation": {
+            "$ref": "#/components/schemas/BrandArticleInformationRequest"
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactMobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationChange": {
+            "$ref": "#/components/schemas/BrandLocationChangeRequest"
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "expectedRevision"
+        ]
       },
       "IndustrySecondaryOptionResponse": {
         "type": "object",

@@ -58,16 +58,84 @@ describe("account-scoped brand context", () => {
       }),
     );
     const contactEdit = await service.update(firstAccountId, brand.id, {
+      expectedRevision: brand.revision,
       contactName: "陈女士",
     });
     expect(contactEdit.evaluationFingerprint).toBe(brand.evaluationFingerprint);
     expect(contactEdit.readyForEvaluation).toBe(true);
     const contextEdit = await service.update(firstAccountId, brand.id, {
-      characteristics: ["安静办公与会议", "精品手冲"],
+      expectedRevision: contactEdit.revision,
+      characteristics: [
+        { ...contactEdit.characteristics[0]!, title: "安静办公与会议" },
+        contactEdit.characteristics[1]!,
+      ],
     });
     expect(contextEdit.evaluationFingerprint).not.toBe(
       brand.evaluationFingerprint,
     );
+  });
+
+  it("keeps one Brand revision while writing-only details use their own fingerprint", async () => {
+    const brand = await service.create(
+      firstAccountId,
+      readyCoffeeBrandInput(firstAccountId, { companyName: "星河咖啡" }),
+    );
+    expect(brand).toMatchObject({
+      revision: 1,
+      readyForEvaluation: true,
+      readyForArticleGeneration: false,
+      articleInformation: {
+        price: null,
+        suitableAudienceContexts: [],
+        supplementalBackground: null,
+        desiredPositioning: [],
+      },
+    });
+
+    const completed = await service.update(firstAccountId, brand.id, {
+      expectedRevision: brand.revision,
+      characteristics: [
+        { ...brand.characteristics[0]!, detail: "提供安静座位与稳定网络" },
+        brand.characteristics[1]!,
+      ],
+      articleInformation: {
+        price: { mode: "RANGE", minimum: 28, maximum: 68 },
+        suitableAudienceContexts: [
+          "需要安静办公的顾客",
+          "关注手冲风味的咖啡爱好者",
+        ],
+        supplementalBackground: "团队持有专业咖啡师认证",
+        desiredPositioning: ["本地精品咖啡代表"],
+      },
+    });
+
+    expect(completed.revision).toBe(2);
+    expect(completed.evaluationFingerprint).toBe(brand.evaluationFingerprint);
+    expect(completed.writingContextFingerprint).not.toBe(
+      brand.writingContextFingerprint,
+    );
+    expect(completed.characteristics.map((item) => item.id)).toEqual(
+      brand.characteristics.map((item) => item.id),
+    );
+    expect(completed.readyForArticleGeneration).toBe(true);
+    await expect(
+      service.writerPurposeView(firstAccountId, brand.id),
+    ).resolves.toMatchObject({
+      revision: 2,
+      writingContextFingerprint: completed.writingContextFingerprint,
+      characteristics: [
+        { title: "安静办公", detail: "提供安静座位与稳定网络" },
+        { title: "精品手冲", detail: null },
+      ],
+    });
+
+    await expect(
+      service.update(firstAccountId, brand.id, {
+        expectedRevision: brand.revision,
+        contactName: "陈女士",
+      }),
+    ).rejects.toThrow("品牌资料已被更新");
+    expect((await service.current(firstAccountId))?.contactName).toBe("林先生");
   });
 
   it("never exposes or selects another account's brand", async () => {
@@ -76,7 +144,10 @@ describe("account-scoped brand context", () => {
     });
     expect(await service.list(secondAccountId)).toEqual([]);
     await expect(
-      service.update(secondAccountId, brand.id, { companyName: "越权修改" }),
+      service.update(secondAccountId, brand.id, {
+        expectedRevision: brand.revision,
+        companyName: "越权修改",
+      }),
     ).rejects.toThrow("未找到该品牌");
     await expect(
       service.selectCurrent(secondAccountId, brand.id),
@@ -92,35 +163,40 @@ describe("account-scoped brand context", () => {
     const originalFingerprint = brand.evaluationFingerprint;
 
     const sameMeaning = replacementStoreLocationInput(firstAccountId, brand.id);
-    const refreshed = await service.update(
-      firstAccountId,
-      brand.id,
-      sameMeaning,
-    );
+    const refreshed = await service.update(firstAccountId, brand.id, {
+      ...sameMeaning,
+      expectedRevision: brand.revision,
+    });
     expect(refreshed.storeLocation?.semanticFactId).toBe(originalFactId);
     expect(refreshed.evaluationFingerprint).toBe(originalFingerprint);
     await expect(
-      service.update(firstAccountId, brand.id, sameMeaning),
+      service.update(firstAccountId, brand.id, {
+        ...sameMeaning,
+        expectedRevision: refreshed.revision,
+      }),
     ).rejects.toThrow("门店验证凭证已使用");
 
-    const changedLocality = await service.update(
-      firstAccountId,
-      brand.id,
-      replacementStoreLocationInput(
+    const changedLocality = await service.update(firstAccountId, brand.id, {
+      ...replacementStoreLocationInput(
         firstAccountId,
         brand.id,
         "business-area-2",
       ),
-    );
+      expectedRevision: refreshed.revision,
+    });
     expect(changedLocality.storeLocation?.semanticFactId).not.toBe(
       originalFactId,
     );
     expect(changedLocality.evaluationFingerprint).not.toBe(originalFingerprint);
     await expect(
-      service.update(firstAccountId, brand.id, sameMeaning),
+      service.update(firstAccountId, brand.id, {
+        ...sameMeaning,
+        expectedRevision: changedLocality.revision,
+      }),
     ).rejects.toThrow("门店验证凭证已过期");
 
     const removed = await service.update(firstAccountId, brand.id, {
+      expectedRevision: changedLocality.revision,
       locationChange: { action: "REMOVE" },
     });
     expect(removed.storeLocation).toBeNull();
@@ -164,8 +240,14 @@ describe("account-scoped brand context", () => {
     );
     const replacement = replacementStoreLocationInput(firstAccountId, brand.id);
     const updateResults = await Promise.allSettled([
-      service.update(firstAccountId, brand.id, replacement),
-      service.update(firstAccountId, brand.id, replacement),
+      service.update(firstAccountId, brand.id, {
+        ...replacement,
+        expectedRevision: brand.revision,
+      }),
+      service.update(firstAccountId, brand.id, {
+        ...replacement,
+        expectedRevision: brand.revision,
+      }),
     ]);
     expect(
       updateResults.filter((result) => result.status === "fulfilled"),
