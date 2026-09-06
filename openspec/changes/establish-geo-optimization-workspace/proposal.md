@@ -69,12 +69,11 @@ GEOEval 已能让终端客户维护当前 Brand、完成 Evaluation 并查看报
 
 ## Control State
 
-- Documentation impact: active Change and future `geo-optimization` current
-  spec remain `add`; Product Definition、Product Vision、Glossary 和
-  Architecture Overview remain `update`. The accepted Brand foundation and
-  Evaluation guidance read are reconciled directly into their current specs and
-  removed from the proposed deltas; Product Definition's `split-on-activation`
-  marker is resolved when the GEO Optimization owner activates.
+- Documentation impact: the current `geo-optimization` spec is added and the
+  activated backend boundary is reconciled into Product Definition、Product
+  Vision、Glossary 和 Architecture Overview. Brand foundation and Evaluation
+  guidance reads remain in their current specs. The active Change now retains
+  only the unfinished customer API/Web delta and final closeout work.
 - ADR: none proposed; owner、CAS、purpose fingerprint 和 snapshot 选择属于本能力
   激活设计，可在 owner-local specs/contracts 中表达。
 - Workspace: Issue #57 uses bounded direct-to-`main` pull requests. Each PR or

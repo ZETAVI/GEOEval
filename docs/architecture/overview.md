@@ -1,8 +1,9 @@
 # Architecture Overview
 
 - Status: S1-S6 evaluation behavior, AI-generated Query preparation, the Media
-  Supply backend foundation, and the Identity and Access foundation are
-  integrated after one
+  Supply backend foundation, Identity and Access, Brand writing information,
+  protected Evaluation guidance reads, and the GEO Optimization backend
+  foundation are integrated after one
   fictional real 4-by-5 Worker evaluation, authenticated customer-report
   inspection, fixed-revision review, and product-owner confirmation. Production
   activation and commercial customer data remain separate gates.
@@ -82,6 +83,18 @@ The Web receives only the domain-restricted Amap JS Key. Next owns the bounded
 remain in separate server runtimes. The Brand API completes provider calls before
 the aggregate transaction, stores no raw provider response, serializes Brand
 writes, and rejects expired, replayed, cross-account, or stale receipts.
+
+GEO Optimization owns immutable WriterInputSnapshot records, idempotent
+ArticleGeneration execution, and at most one current CoreArticle per Brand. It
+consumes only the Brand Writer-purpose projection and Evaluation Report's latest
+accepted guidance service, freezes the actual versioned Writer Request, and runs
+Writer outside database transactions. The current Adapter is deterministic and
+local/test-only; unknown modes and deterministic production composition fail
+closed. Article replacement, explicit save, confirmation and Future Order reads
+use exact revisions, while Brand/guidance freshness remains advisory. The
+backend module is not yet mounted in the customer API, and real Writer,
+materials, Publishing Commerce, deployment and production activation remain
+separate gates.
 
 Identity and Access owns fixed single-role Accounts, mobile Challenge lifecycle,
 opaque server-side Sessions, declarative HTTP access, administrator account

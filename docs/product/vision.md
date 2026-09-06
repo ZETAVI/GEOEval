@@ -308,17 +308,17 @@ not retain earlier profile versions or provide profile rollback.
 
 The required basic brand profile contains:
 
-| Field | Product rule |
-| --- | --- |
-| Primary industry | Selected from the approved GEOEval-owned [industry catalog](industry-catalog.md) according to the product or service for which the brand most wants to be found and recommended |
-| Secondary industry | One dependent option under the selected primary industry that fixes the current recommendation context |
-| Other industry description | Required only when the selected secondary industry is `Other`; it names the concrete product or service and participates in question generation |
-| Verified store location | One concrete customer-selected POI verified by the server; it derives the official region and one customer-confirmed business area or honestly labelled address locality without device/IP positioning or a second region selector |
-| Flagship product or service | One concrete 2–80 character offer that the brand most wants customers to find and recommend |
-| Brand characteristics | Two to six distinct peer free-text values; two inputs are shown by default and presentation order does not imply priority |
-| Company or store name | The business, brand, company, or storefront being evaluated |
-| Contact person | Customer contact name |
-| Mobile number | Initially copied from the registration mobile number and editable |
+| Field                       | Product rule                                                                                                                                                                                                                       |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary industry            | Selected from the approved GEOEval-owned [industry catalog](industry-catalog.md) according to the product or service for which the brand most wants to be found and recommended                                                    |
+| Secondary industry          | One dependent option under the selected primary industry that fixes the current recommendation context                                                                                                                             |
+| Other industry description  | Required only when the selected secondary industry is `Other`; it names the concrete product or service and participates in question generation                                                                                    |
+| Verified store location     | One concrete customer-selected POI verified by the server; it derives the official region and one customer-confirmed business area or honestly labelled address locality without device/IP positioning or a second region selector |
+| Flagship product or service | One concrete 2–80 character offer that the brand most wants customers to find and recommend                                                                                                                                        |
+| Brand characteristics       | Two to six distinct peer free-text values; two inputs are shown by default and presentation order does not imply priority                                                                                                          |
+| Company or store name       | The business, brand, company, or storefront being evaluated                                                                                                                                                                        |
+| Contact person              | Customer contact name                                                                                                                                                                                                              |
+| Mobile number               | Initially copied from the registration mobile number and editable                                                                                                                                                                  |
 
 The approved [industry catalog](industry-catalog.md) contains 13 primary
 categories, dependent secondary categories, stable identifiers, one `Other`
@@ -339,74 +339,43 @@ when available, and access to brand creation, editing, deletion, and archive
 actions. **AI-search diagnosis** uses the current brand's basic information to
 generate and review questions, run free evaluations, and present their reports;
 it does not maintain a separate copy of the brand profile. **AI-search
-optimization** directly presents the richer brand-information and material form,
-prefilled from the same current brand, and saves all additions back to that one
-record before article generation, editing, and confirmation. It does not send
-the customer to a second copy of the form or maintain task-local brand
-information. After registration, a complete saved first brand leads directly
+optimization** presents the same current Brand with its existing facts,
+characteristic details and small set of writing supplements, then saves explicit
+changes back to that one record before article generation, editing, and
+confirmation. It does not send the customer to a second profile or maintain
+task-local Brand information. After registration, a complete saved first brand leads directly
 into AI-search diagnosis, while a skipped first-brand step leads into the no-
 brand state of My brands. Later ordinary sign-ins open My brands.
 
-The optimization experience contains a more complete article-information form
-(working name) based on the current brand profile:
+The optimization experience extends the current Brand through a deliberately
+small Article Information surface: optional detail under the existing peer
+characteristics, one whole-renminbi range or negotiable-price choice, suitable
+customer/context phrases, optional supplemental background, and optional
+customer-authored desired positioning. Company/store name, industry, verified
+location and the flagship product/service remain the same existing Brand facts.
+There is no second company introduction, brand introduction, business-district,
+industry-position or core-strength collection. The page uses visible explicit
+Save rather than auto-save, and writing-only changes do not force another
+Evaluation.
 
-| Field                                     | Product rule                                                                                                                                                                                                                                                                    |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Company or store name                     | Synchronized from the current brand                                                                                                                                                                                                                                             |
-| Company introduction                      | Customer-provided text supported by high-quality examples                                                                                                                                                                                                                       |
-| Brand introduction                        | Customer-provided text supported by high-quality examples                                                                                                                                                                                                                       |
-| Region                                    | Synchronized from the current brand                                                                                                                                                                                                                                             |
-| Business districts                        | Multi-select with a customer-entered fallback; the choices must be relevant to the selected region                                                                                                                                                                              |
-| Industry position                         | Multi-select starting with industry leader, regional leader, emerging brand, community reputation, time-honored brand, chain brand, and other                                                                                                                                   |
-| Core strengths                            | Multi-select starting with technical patents, experienced team, price advantage, service quality, customer reputation, supply-chain advantage, brand awareness, and other                                                                                                       |
-| Flagship product or service category      | One coherent part of the brand profile containing the promoted name, main characteristic description, price or price range, and suitable audiences; it is not a separate product catalog or a profile shared across brands                                                      |
-| Existing promotional materials and images | Optional PDFs, supported images, and text materials that are prepared automatically into writing context; customers see processing success or failure and can delete or replace the original files, while exact file formats and size limits remain later product-design inputs |
+The first end-to-end framework keeps prepared material absent and sends
+`preparedMaterialDigest: null` to Writer. Upload, parsing and Prepared Material
+Digest remain a future capability with their own lifecycle; the current product
+does not fabricate processing success or require placeholder material fields.
+The Writer boundary is provider-neutral, but the current implementation uses a
+deterministic local Adapter only to verify generation, failure, retry, editing,
+confirmation and replacement. Real Writer quality, Provider, Prompt/Skill and
+claim-policy work remains a later gate behind the same boundary.
 
-Business-district examples discussed for Guangzhou are illustrative. The source
-and maintenance of region-specific choices remain open. Completing this form
-updates the same current brand information used throughout the product rather
-than creating a separate copy for an article task. The form supports draft
-saving and enables the customer to generate a core article from the current
-information. Generating again may produce a different article from that same
-information. One generation produces exactly one editable title and one complete
-editable article body. The initial product does not also generate title choices,
-summaries, keywords, platform-specific versions, or several article candidates.
-Edits to the generated title or body do not change the brand profile. After
-confirmation, submitting it leads into publishing-service selection.
-
-The optional materials are not passed to the writer as an unexamined file pile.
-A material-preparation step extracts and organizes usable text, interprets
-relevant images or document pages, preserves a reference to the source material,
-and produces one structured digest for later article generation. The digest
-separates supported facts and descriptions from uncertain, conflicting, or
-unreadable content and does not silently overwrite the customer's structured
-brand fields. Material preparation belongs to the current brand, and the writer
-receives the latest successfully prepared digest together with the same current
-brand profile and evaluation guidance.
-
-The customer does not confirm the prepared interpretation because it is an
-internal aid derived from information the customer already supplied. The
-customer instead sees whether each uploaded material was prepared successfully
-or failed. Failed material can be deleted, replaced, or uploaded again; it is
-excluded from the writing context and does not block article generation when the
-required structured brand information is otherwise complete. A successful
-preparation produces a structured Markdown digest attached to the brand profile
-and reused by later article generations rather than being regenerated each time.
-The original uploaded materials remain visible in brand-profile editing and can
-be deleted or replaced. Either action updates which source material and prepared
-content future generations may use. Server-side storage, access control,
-retention, cleanup, and source-to-digest consistency are mandatory later
-architecture concerns rather than additional customer workflows.
-
-The customer does not choose article length, tone, target media platform, writing
-template, or writer style in the initial product. The system selects one writer
-Skill from the currently available set for that generation; the first release
-may intentionally expose only a small curated set and does not expose the
-selection to the customer. The writer-Skill inventory, selection policy,
-editorial rules, factual-claim rules, and quality evaluation belong to the
-separate writing-agent workstream and will be researched and integrated when its
-owner supplies an approved capability. This product-definition work does not
-duplicate or pre-approve those detailed writing standards.
+One generation produces exactly one editable title and one complete editable
+Markdown body. The initial product does not produce title choices, summaries,
+keywords, platform variants or several candidates. Brand and guidance inputs are
+frozen for the generation; a later input change produces a non-blocking freshness
+notice rather than silently regenerating. Edits use an exact article revision,
+and regenerating an existing article requires explicit authorization for the
+revision that may be replaced. Failure or a revision conflict preserves the
+current article and creates no candidate history. After explicit confirmation,
+the exact confirmed revision can lead into publishing-service selection.
 
 Before paid order submission, each brand has only one current unsubmitted core
 article rather than a collection of candidate drafts. If the customer has

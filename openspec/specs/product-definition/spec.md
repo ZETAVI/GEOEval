@@ -24,7 +24,10 @@
   Bootstrap, and fixed role entry are owned by the
   [Identity and Access specification](../identity-and-access/spec.md). This
   marker remains for product capabilities that have not yet gained an activated
-  owner.
+  owner. Writer input snapshots, deterministic generation execution, the one
+  current Core Article and confirmed-article handoff are owned by the
+  [GEO Optimization specification](../geo-optimization/spec.md); its customer
+  API and page remain in the active Issue #57 Change until activated.
 
 ## Requirements
 
@@ -329,77 +332,31 @@ are outside the initial product boundary.
 #### Scenario: A customer completes article information
 
 - **WHEN** the customer wants to generate an article for the current brand
-- **THEN** AI-search optimization directly presents the richer brand-information
-  and material form without redirecting the customer to a separate profile form
-- **AND** the form synchronizes company or store name and region from that brand
-- **AND** supports company introduction, brand introduction, region-relevant
-  business districts with an other-value fallback, industry position, core
-  strengths, a flagship product or service category containing its name, main
-  characteristic description, price or price range, and suitable audiences,
-  and optional existing PDFs, supported images, or text materials
-- **AND** the flagship category remains one part of the complete current brand
-  profile rather than becoming a separate catalog or a cross-brand object
-- **AND** supplied high-quality examples help the customer complete descriptive
-  fields
-- **AND** the completed information is saved with the current brand
-- **AND** the optimization page updates that same current-brand information
-  rather than creating a separate task-specific copy or second brand form
-
-#### Scenario: Optional materials become writing context
-
-- **GIVEN** the customer has attached supported materials to the current brand
-- **WHEN** the product prepares those materials for article generation
-- **THEN** it extracts and organizes usable text
-- **AND** interprets relevant images or document pages
-- **AND** preserves references from the prepared content to its source material
-- **AND** produces one structured digest that distinguishes supported facts and
-  descriptions from uncertain, conflicting, or unreadable content
-- **AND** the digest does not silently overwrite structured brand-profile fields
-- **AND** the latest successfully prepared digest is available to the writer
-  together with the current brand profile and evaluation guidance
-- **AND** successful preparation produces a structured Markdown digest attached
-  to the brand and reused for later article generation without preparing the
-  same unchanged material again
-- **AND** the customer does not complete a separate confirmation of the prepared
-  interpretation
-- **AND** the customer sees whether each original material was prepared
-  successfully or failed
-- **AND** failed material is excluded from writing context and does not prevent
-  article generation when required structured brand information is complete
-- **AND** the customer can delete, replace, or upload failed material again
-- **AND** the original uploads remain visible in brand-profile editing and can
-  also be deleted or replaced after successful preparation
-- **AND** deleting or replacing a source updates which original material and
-  prepared content future generations may use
-- **AND** exact accepted formats and size limits remain later product-design
-  inputs, while server storage, access, retention, cleanup, and source-to-digest
-  consistency remain architecture responsibilities
+- **THEN** the same current Brand is progressively completed under the
+  [Brand Knowledge specification](../brand-knowledge/spec.md)
+- **AND** article readiness uses characteristic details, an integer RMB range or
+  negotiable price, suitable customer/context items and optional supplemental
+  background and desired positioning
+- **AND** no company-introduction, brand-introduction, business-district,
+  industry-position or second core-strength collection is required
+- **AND** materials remain an absent future input rather than a fabricated upload
+  or parsing capability
+- **AND** the optimization page updates the same Brand through an explicit save
+  rather than creating another profile or auto-saving.
 
 #### Scenario: A customer generates and edits an article
 
 - **GIVEN** the current brand has complete article information
 - **WHEN** the customer generates or regenerates a core promotional article
-- **THEN** each generation uses the current brand information and may produce a
-  different article
-- **AND** one generation produces exactly one editable title and one complete
-  editable article body
-- **AND** the initial product does not also produce title choices, summaries,
-  keywords, platform-specific versions, or several article candidates
-- **AND** title or body edits do not change the current brand profile
-- **AND** the customer does not choose length, tone, target media platform,
-  writing template, or writer style
-- **AND** the system assigns one currently available writer Skill without
-  exposing that selection to the customer
-- **AND** the first release may use a small curated writer-Skill set
-- **AND** detailed writer-Skill inventory, selection policy, editorial rules,
-  factual-claim rules, and quality evaluation remain owned by the separate
-  writing-agent workstream rather than being pre-approved by this definition
-- **AND** the brand has only one current unsubmitted core article rather than
-  several candidate drafts
-- **AND** if the customer has edited the current article, regeneration warns that
-  it will be replaced and requires confirmation before replacement
-- **AND** the initial product does not retain the replaced candidate as article
-  history
+- **THEN** exact Snapshot, generation, retry, replacement, revision, confirmation,
+  freshness and Future Order handoff behavior is owned by the
+  [GEO Optimization specification](../geo-optimization/spec.md)
+- **AND** one generation produces exactly one title and one complete body rather
+  than choices, summaries, keywords, platform variants or candidate history
+- **AND** title or body edits never change the Brand
+- **AND** real Writer selection, quality and Provider policy remain a separate
+  future workstream rather than being inferred from the deterministic local
+  Adapter.
 
 ### Requirement: Controlled industry classification
 
