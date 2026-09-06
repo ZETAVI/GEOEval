@@ -556,3 +556,16 @@ robot-vacuum answer and matched baseline/candidate on that answer (four calls).
 The new answer is obtained only after the Prompt freezes; no target injection or
 answer-driven editing. Acceptance requires meaningful condition/identity/position
 quality and reports actual usage/latency, not merely JSON or code acceptance.
+
+Result: retained condition roles improve locally but selected shared context stays
+incomplete. The independent robot candidate provides no overall gain and changes
+main-unit cleaning into base-station cleaning. Stop extending these demonstrations.
+
+The next seam is now concrete. In a reference-only offline replay, actual Nike
+18+22 omits the discount; 18+20 restores it but the current per-span name filter
+drops line 20; contiguous 18–20 retains it. These are separate generation and
+projection paths, not proof of one universal root cause. Synthesis construction
+passes the remaining semantic record directly. Any next experiment should make
+brand identity anchoring and qualifying evidence responsibilities explicit,
+without changing current runtime acceptance, automatically guessing context or
+reviving a multi-Agent topology.

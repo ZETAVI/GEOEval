@@ -87,8 +87,14 @@ exercises several brands sharing an upper-level qualifier, not new fields or
 Agent layers. Its complete fictional example replaces only the absent-target
 demonstration, leaving two examples and the baseline field order. Freeze four
 calls: retained shoe candidate (reuse prior baseline), independent robot-vacuum
-acquisition, and a new matched baseline/candidate pair. Runtime and current
-semantics stay unchanged; this is not a production stability claim.
+acquisition, and a new matched baseline/candidate pair. All completed: some shoe
+roles improve, but shared evidence is still missing; the new candidate changes a
+main-unit fact to a base-station fact and costs 24% more tokens without net gain.
+Stop adding similar demonstrations. A zero-call replay separately proves raw
+selection omission and the existing per-span name filter's loss of a detached
+qualifier; a complete contiguous context passes. Next bound identity anchoring
+and qualifying-context handoff at this concrete seam, not a larger Agent design.
+Runtime and current semantics stay unchanged; this is not production acceptance.
 
 ## Impact and exit
 

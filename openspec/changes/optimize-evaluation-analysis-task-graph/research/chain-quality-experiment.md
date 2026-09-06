@@ -1534,3 +1534,92 @@ describes both examples as the same source. Correct only that candidate phrase
 to different source/target situations alongside the replaced example. Baseline
 and the positive demonstration remain byte-value unchanged; this necessary
 introduction correction is part of the declared Prompt-only package.
+
+## Shared-condition demonstration — observed result
+
+Four calls completed 2026-09-06 07:02:53–07:05:31 UTC at `64152c6`, confirmation
+`5f77ed42ba422254152624cf6e4473e456ea5fbe8641b0a51ddbe89221f5372e`.
+All return their configured models and code acceptance. No retry, fallback,
+post-result Prompt edit or fifth call. New source has 35 lines; target Ecovacs
+appears naturally, source hash
+`09ca8909cccc47bd522e3d62b926ff72104ba32c6988cf33ded5628393437275`.
+Search observation is UNKNOWN; platform product/store claims were not separately
+fact-checked. Existing acquisition/objectivity and privacy boundaries are reused.
+
+| Stage | Total tokens | Latency | Finding |
+| --- | --- | --- | --- |
+| Retained shoe candidate | 8,137 | 57,543 ms | Nine brands; useful condition roles, but Nike/Adidas shared evidence still missing |
+| Independent acquisition | 3,666 | 50,253 ms | Natural robot-vacuum answer matching the frozen Shanghai question |
+| New baseline | 4,575 | 23,894 ms | Core brands/order and target facts retained; line 30 already represented |
+| New candidate | 5,681 | 25,893 ms | Same core coverage; main-unit/base-station fact error, no overall quality gain |
+
+Total 22,059 tokens. New candidate adds 1,106 (about 24%) and 1,999 ms in this
+pair. It has 1,024 cached input tokens versus baseline zero; these observations
+do not establish causal timing, a cost percentage or reliability. Reasoning,
+cache and acquisition x_details are included, not counted again. The historical
+shoe baseline comparison is not a newly matched timing experiment.
+
+Independent semantic review confirms useful retained role changes: Nike, Adidas,
+New Balance and ASICS become conditional; New Balance line 24 and ASICS line 28
+support conditions. FILA remains. Nike/Adidas still omit shared discount line 20.
+Other-brand positions all become 1; this is not established improvement, nor does
+the nested source prove one uniquely correct alternative ranking.
+
+On the independent answer, both arms retain target Ecovacs, table position 2 and
+the three other robot brands. The candidate changes source line 9's **main-unit**
+cleaning convenience to **base-station** cleaning in its card. Line 8's base-station
+dust-box description belongs to Roborock; the changed part is not paraphrase.
+Target preference line 30 already exists in baseline recommendationReasons;
+moving it to conditions is not recovering lost evidence. All brands becoming
+conditional is not automatically better: general recommendations at 3–11 are
+followed by preference situations at 30–32, not uniform necessary preconditions.
+Other-brand references still omit those later preference passages.
+
+The batch ends here. Keep local gains and counterexamples, do not promote the
+candidate or append more similar examples. No real synthesis/report acceptance.
+
+### Zero-call handoff diagnosis
+
+The retained actual output is immutable. Only Nike's evidence references vary in
+two separately labelled offline counterfactuals; role, position and program code
+stay fixed. Existing result hash is checked before and after.
+
+| Reference selection | Restored condition | Final Nike anchor condition |
+| --- | --- | --- |
+| Actual lines 18 + 22 | No | No |
+| Counterfactual lines 18 + 20 | Yes | No |
+| Counterfactual continuous 18–20 | Yes | Yes |
+
+This distinguishes actual model omission from the existing projector's per-span
+brand-name filter. It disproves that the current contract cannot carry any shared
+context. Synthesis repository/task construction passes the semantic record without
+rewriting these anchors; that is inspected path evidence, not a DB-backed or live
+synthesis test. Next address identity anchoring versus qualifying-context handoff
+at this concrete boundary, not automatic source guessing or a global guard change.
+Independent narrow review confirms the three-arm replay and original result hash.
+
+[Private Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/97c570393db7c71fb2238c3009b3e50c),
+root `aeae094e2580aa30`. Protected directory
+`apps/backend/.provider-evidence/m4-shared-condition-KlTRQ4/`, 0700 / files 0600,
+ignored and retained by #42 until decision/review. Raw envelopes/reasoning remain
+local, outside Trace/Git. Verification: 33 focused tests, Backend typecheck/build,
+independent pre-call and semantic review; after the introduction fix, all 33 and
+typecheck reran. Framework/links/diff and both CI checks at `64152c6` passed.
+No DB/migration, actual report/browser, runtime, #49 mirror or other-worktree change.
+
+Nine private observations read back with actual wire messages/settings, outputs,
+source/program projections, usage and complete semantic/diagnostic review equality.
+The new pair differs only in system instruction on the actual wire; acquisition
+input contains no target name. Review `c3ba3207d22e7041`, public=false and credentials
+absent. No raw envelope/reasoning is exported and no further model call occurred.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Retained candidate result | 2da625ec1b1459592518f802438beabc944c4d6b7cad0ca4a3cf9c5c807742b8 |
+| Acquisition result | 3f75f6beab125a7c8093c977fb1c00db926b21fff59149f509720fdefb674ff8 |
+| New baseline result | b67bba0c903bc558db5fdc12d030d4ed581465559cd3c2e2aaec97b69cc337aa |
+| New candidate result | bfbbaf3b0cc25cc0a30839af2fdf67148184c92dc11601a55706e8a9e8fdd8f5 |
+| Plan | 9cc50cecf55455d289cd70d11c52f1a42b6fdc7e3cd22416208b7b611fb49f91 |
+| Answer lineage | 2a48c99958563bca6be1f267cb7abb16db4a73cf417440fc7e1161f296b63847 |
+| Offline handoff | 268fabc40a9672ef5c1fec4c692d978842e60866a70b346f05eada99ca044827 |
+| Runner | ef15f47c7b05dfb501977b4ec7e312a968cce9c69027c2fe474f68f932152598 |

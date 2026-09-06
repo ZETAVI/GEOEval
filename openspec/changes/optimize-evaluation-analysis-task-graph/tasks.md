@@ -48,8 +48,12 @@ Completed chronology, exact manifests and failed candidates live in the
       remain missing and FILA is lost; candidates take longer. Do not promote.
 - [x] Add a shared-condition demonstration and prove two distinct brand records
       retain the same complete qualifying evidence and current metric eligibility.
-- [ ] Freeze and execute one retained candidate plus independently acquired answer
-      with matched baseline/candidate (four calls); inspect quality and efficiency.
+- [x] Execute all four calls: retained role improvements do not complete evidence;
+      fresh candidate has a part-identity error and higher tokens without net gain.
+- [x] Isolate actual model omission from per-span name filtering in three offline
+      reference-only replays; a complete contiguous context survives unchanged.
+- [ ] Bound the next experimental evidence handoff around identity anchoring and
+      qualifying context; do not append similar examples or weaken runtime guards.
 - [ ] Resolve material identity/role/position quality and verify held-out behavior
       before small report-path integration; no candidate is accepted yet.
 

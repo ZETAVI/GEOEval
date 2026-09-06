@@ -268,3 +268,24 @@ remain pending. This review is not approval for a runtime merge.
 - Verdict: `ready with follow-up` for the experimental record, `not ready` for
   runtime adoption. Stop property-order tuning; retain the concrete shared-brand
   qualifier failure as the next bounded test case, without expanding topology.
+
+## Shared-condition transfer checkpoint
+
+- `3482617..64152c6` changes one demonstration and its necessary introduction,
+  retaining the original baseline, positive example, Schema/order, full input,
+  projector and low route. Independent review's introduction mismatch was fixed
+  before calls; Shanghai acquisition metadata was also aligned before freezing.
+- Four actual calls complete the declared plan, including independent acquisition.
+  Retained role improvements do not complete Nike/Adidas evidence; the new candidate
+  changes a part fact and adds tokens without an overall quality gain. Do not adopt.
+- A zero-call, reference-only replay separates raw model omission from current
+  per-span name filtering; a complete contiguous range survives. Original evidence
+  and runtime semantics remain unchanged; inspected synthesis input is a passthrough.
+- Verification: 33 focused tests, Backend typecheck/build, framework/links/diff,
+  independent scope/semantic/diagnostic review and both fixed-implementation CI
+  checks. No new contract is accepted and no live report integration is claimed.
+- Nine private Trace observations match actual input/settings, output/projection,
+  usage and full review; actual new wire differs only in Prompt, public=false.
+- Verdict: `ready with follow-up` for this evidence checkpoint, `not ready` for
+  runtime adoption. The next boundary is identity anchoring and qualifying-context
+  handoff, not additional similar examples, Agent layers or automatic source repair.
