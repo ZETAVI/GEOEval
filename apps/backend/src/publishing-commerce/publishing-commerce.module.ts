@@ -1,4 +1,8 @@
-import { Module } from "@nestjs/common";
+import { Module, type DynamicModule } from "@nestjs/common";
+import { PublishingSelectionService } from "./application/publishing-selection.service.js";
+import { PUBLISHING_SELECTION_REPOSITORY } from "./domain/publishing-selection.js";
+import { PostgresPublishingSelectionRepository } from "./infrastructure/postgres-publishing-selection.repository.js";
+import { PublishingSelectionController } from "./presentation/publishing-selection.controller.js";
 import { MediaSupplyModule } from "../media-supply/media-supply.module.js";
 import { PublishingPackageService } from "./application/publishing-package.service.js";
 import { PointAccountService } from "./application/point-account.service.js";
@@ -22,6 +26,7 @@ import {
     PublishingPackageCustomerController,
     PointAdminController,
     PointCustomerController,
+    PublishingSelectionController,
   ],
   providers: [
     PostgresPublishingPackageRepository,
@@ -36,6 +41,16 @@ import {
       useExisting: PostgresPointAccountRepository,
     },
     PointAccountService,
+    PublishingSelectionService,
+    PostgresPublishingSelectionRepository,
+    {
+      provide: PUBLISHING_SELECTION_REPOSITORY,
+      useExisting: PostgresPublishingSelectionRepository,
+    },
   ],
 })
-export class PublishingCommerceModule {}
+export class PublishingCommerceModule {
+  static register(optimizationModule: DynamicModule): DynamicModule {
+    return { module: PublishingCommerceModule, imports: [optimizationModule] };
+  }
+}

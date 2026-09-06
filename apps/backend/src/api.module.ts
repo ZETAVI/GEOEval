@@ -16,19 +16,20 @@ import { PublishingCommerceModule } from "./publishing-commerce/publishing-comme
 @Module({})
 export class ApiModule {
   static register(config: ApiConfig): DynamicModule {
+    const optimization = GeoOptimizationModule.register({
+      writerMode: config.geoOptimizationWriterMode,
+      runtimeEnvironment: config.runtimeEnvironment,
+      storeLocation: config.storeLocation,
+    });
     return {
       module: ApiModule,
       imports: [
         PersistenceModule.register(config.databaseUrl),
         TelemetryModule.register(config.telemetryShouldFail),
         IdentityModule.register(config),
-        GeoOptimizationModule.register({
-          writerMode: config.geoOptimizationWriterMode,
-          runtimeEnvironment: config.runtimeEnvironment,
-          storeLocation: config.storeLocation,
-        }),
+        optimization,
         MediaSupplyModule,
-        PublishingCommerceModule,
+        PublishingCommerceModule.register(optimization),
         NotificationApiModule,
         ReadinessModule,
         FoundationModule,

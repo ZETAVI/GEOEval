@@ -3,9 +3,9 @@
 ## Activation boundary
 
 This owner currently implements maintained random-package configuration,
-administrator audit, terminal-customer offer visibility, account points and
-granted-only administrator adjustments/history. Saved selections, purchase,
-payment and fulfilment are not activated by these slices.
+administrator audit, terminal-customer offer visibility, account points,
+granted-only administrator adjustments/history, saved selections and advisory
+quotes. Purchase, payment and fulfilment are not activated by these slices.
 Their approved implementation work remains in
 [`establish-publishing-commerce`](../../changes/establish-publishing-commerce/proposal.md).
 
@@ -139,3 +139,54 @@ shared across Brands, with integer granted/funded balances and ordered history.
 - **WHEN** this stage shows available points and maintained packages
 - **THEN** recharge and purchasing remain explicitly unavailable
 - **AND** no payment success, order spending, invoice or fulfilment is fabricated.
+
+### Requirement: One explicitly saved publishing selection per Brand
+
+Publishing Commerce SHALL own one unpaid selection for each account/Brand,
+referencing its exact confirmed article and either a random package or precise
+platform quantities. It SHALL use the existing owner APIs for article and media
+facts, without reading their private persistence or duplicating Writer context.
+
+#### Scenario: Customer saves a publishing choice
+
+- **WHEN** the current Brand owns the named exact confirmed article and the
+  customer explicitly saves one available package or 1–200 unique media targets
+- **THEN** the selection is persisted with a conditional revision, using zero
+  only for first creation and positive whole-number quantities
+- **AND** both first-save races and stale updates reject without overwriting
+  another saved intention; article/account/Brand identity has a composite FK
+- **AND** no client-provided account, price or balance override is accepted
+- **AND** a customer can leave and return to the saved choice, while changing
+  current Brand exposes only that Brand's separate choice.
+
+#### Scenario: Customer changes or returns to an unpaid choice
+
+- **WHEN** an article is edited or reconfirmed after a selection was saved
+- **THEN** the selection remains available and the quote identifies unconfirmed
+  or changed article content; explicit save rebinds it to the new confirmed revision
+- **AND** current Brand or Evaluation freshness alone does not invalidate it
+- **AND** newly unavailable selections are rejected on save, without deleting
+  the previous selection; removed unpaid media remain identifiable as unavailable
+- **AND** unsaved page edits require explicit save or discard, with a leaving
+  warning, and are not represented as already saved or purchased.
+
+### Requirement: Advisory quote is distinct from a paid agreement
+
+The system SHALL calculate an observation of the saved choice using current
+owner-provided facts, not a price reservation, order, or authorization to debit.
+
+#### Scenario: Customer reviews quantity, terms and shortage
+
+- **WHEN** the customer loads or explicitly refreshes the publishing workspace
+- **THEN** random mode shows package quantity/total/scope and non-guaranteed
+  destinations; precise mode shows each named platform, quantity, unit and total
+- **AND** the quote shows unified balance, shortfall and a whole-renminbi
+  suggested recharge amount at ten points per yuan, with recharge still unavailable
+- **AND** precise prices refresh without rewriting intent; random totals do not
+  change merely because precise platform unit prices changed
+- **AND** unavailable media or checked-integer overflow cannot produce a usable
+  low quote; relevant problems are explicit rather than silently clamped
+- **AND** there is no stored quote entity, media reservation, point-account
+  creation, point change, order or automatic purchase from these operations
+- **AND** final purchase must later recompute article and terms inside its
+  approved shared transaction before debiting; this read model is not that Gate.

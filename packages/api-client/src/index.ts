@@ -16,6 +16,18 @@ export type PointAdminHistory =
   components["schemas"]["PointAdminHistoryResponse"];
 export type PublishingPackage =
   components["schemas"]["PublishingPackageCustomerResponse"];
+export type PublishingWorkspace =
+  components["schemas"]["PublishingWorkspaceResponse"];
+export type PublishingSelection =
+  components["schemas"]["PublishingSelectionResponse"];
+export type SavePublishingSelection =
+  components["schemas"]["SavePublishingSelectionRequest"];
+export type PublishingQuote = components["schemas"]["PublishingQuoteResponse"];
+export type CustomerMediaPlatform =
+  components["schemas"]["MediaPlatformCustomerResponse"];
+export type CustomerMediaPage =
+  components["schemas"]["MediaPlatformPageResponse"];
+export type MediaCategory = components["schemas"]["MediaCategoryResponse"];
 export type PublishingPackageAdmin =
   components["schemas"]["PublishingPackageAdminResponse"];
 export type PublishingPackageCreate =
@@ -202,6 +214,39 @@ export function listPublishingPackages(
   baseUrl: string,
 ): Promise<PublishingPackage[]> {
   return apiRequest(baseUrl, "/publishing/packages");
+}
+
+export function getPublishingWorkspace(
+  apiBaseUrl: string,
+): Promise<PublishingWorkspace> {
+  return apiRequest(apiBaseUrl, "/publishing/workspace", { cache: "no-store" });
+}
+export function savePublishingSelection(
+  apiBaseUrl: string,
+  brandId: string,
+  input: SavePublishingSelection,
+): Promise<PublishingSelection> {
+  return apiRequest(
+    apiBaseUrl,
+    `/publishing/brands/${encodeURIComponent(brandId)}/selection`,
+    { method: "PUT", body: JSON.stringify(input) },
+  );
+}
+export function listCustomerMedia(
+  apiBaseUrl: string,
+  input: { category?: string; cursor?: string } = {},
+): Promise<CustomerMediaPage> {
+  const query = new URLSearchParams({ limit: "20", ...input });
+  return apiRequest(apiBaseUrl, `/media-catalog/platforms?${query}`, {
+    cache: "no-store",
+  });
+}
+export function listMediaCategories(
+  apiBaseUrl: string,
+): Promise<MediaCategory[]> {
+  return apiRequest(apiBaseUrl, "/media-catalog/categories", {
+    cache: "no-store",
+  });
 }
 export function listAdminPublishingPackages(
   baseUrl: string,

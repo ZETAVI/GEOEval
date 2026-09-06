@@ -82,6 +82,11 @@ const expectedControllerPolicies: Record<
     handler: string,
   ) => Pick<RoutePolicy, "publicAccess" | "csrfExempt" | "roles">
 > = {
+  PublishingSelectionController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["TERMINAL_CUSTOMER"],
+  }),
   HealthController: () => ({ publicAccess: true, csrfExempt: false }),
   FoundationController: () => ({ publicAccess: true, csrfExempt: true }),
   IdentityController: (handler) => ({

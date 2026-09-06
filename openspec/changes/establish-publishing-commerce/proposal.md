@@ -3,7 +3,7 @@
 - Owner: [Issue #65](https://github.com/ZETAVI/GEOEval/issues/65)
 - Lane/class: product delivery / architectural
 - Baseline: accepted `main@5fb4400`, including #57 correction PR #71
-- State: owner approved; package and granted-point slices verified for Partial PR review
+- State: owner approved; saved selection/advisory quote implemented with functional evidence; one narrow visual check remains before full slice acceptance
 
 ## Why
 
@@ -62,7 +62,8 @@ production money, deployment or activation.
 - Current bounded package: administrator package maintenance, customer-safe
   offer visibility, account-scoped granted-point adjustments and balance/history,
   including schema, API, UI, audit, interruption recovery and evidence.
-  Saved selection, quote and atomic purchase remain subsequent slices under this
-  same Issue. Real recharge/payment stays outside this Change.
+  Saved selection/advisory quote now includes behavioral and browser evidence;
+  the outstanding narrow visual check remains in tasks. Atomic purchase follows
+  under this same Issue. Real recharge/payment stays outside this Change.
 - Exit: verified Partial PR, parent Change stays active; retain this branch for
   the same outcome. No extra worktree or integration branch.

@@ -5,8 +5,8 @@
 Define the accepted GEO Optimization boundary that freezes one Writer input,
 executes a deterministic local Writer outside database transactions, owns one
 current Core Article per Brand, preserves explicit customer revisions, presents
-the terminal-customer optimization workspace, and exposes only a confirmed
-article reference to future Publishing Commerce.
+the terminal-customer optimization workspace, and exposes a minimal article
+preview and exact confirmed reference to Publishing Commerce.
 
 ## Requirements
 
@@ -173,6 +173,17 @@ Commerce without creating an order or freezing commercial data.
 - **THEN** GEO Optimization returns account ID, Brand ID, article ID and revision
 - **AND** draft, edited, stale-revision or cross-account references are rejected
 - **AND** freshness does not block the confirmed reference.
+
+#### Scenario: Commerce prepares an unpaid publishing choice
+
+- **WHEN** the account opens its current Brand's publishing workspace
+- **THEN** GEO Optimization provides the Brand ID/name and current article
+  ID/title/status/revision/confirmed revision, or an honest empty context
+- **AND** the projection excludes full article body, Writer request, sources,
+  evaluation report and internal diagnostics
+- **AND** the confirmed optimization page links to publishing selection without
+  claiming that purchase or order submission is already enabled
+- **AND** this preview does not freeze content for a later paid order.
 
 ### Requirement: Customer API exposes the current optimization workspace
 

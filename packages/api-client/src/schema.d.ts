@@ -676,6 +676,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/publishing/workspace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingSelectionController_workspace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/publishing/brands/{brandId}/selection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["PublishingSelectionController_save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications": {
         parameters: {
             query?: never;
@@ -1649,6 +1681,84 @@ export interface components {
         PointHistoryResponse: {
             items: components["schemas"]["PointChangeResponse"][];
             nextBeforeSequence: number | null;
+        };
+        PublishingBrandResponse: {
+            /** Format: uuid */
+            id: string;
+            companyName: string;
+        };
+        PublishingArticleResponse: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            revision: number;
+            /** @enum {string} */
+            status: "DRAFT" | "CONFIRMED";
+            confirmedRevision: number | null;
+        };
+        RandomPublishingIntent: {
+            /** @enum {string} */
+            mode: "RANDOM";
+            /** Format: uuid */
+            packageId: string;
+        };
+        PrecisePublishingLine: {
+            /** Format: uuid */
+            platformId: string;
+            quantity: number;
+        };
+        PrecisePublishingIntent: {
+            /** @enum {string} */
+            mode: "PRECISE";
+            lines: components["schemas"]["PrecisePublishingLine"][];
+        };
+        PublishingSelectionResponse: {
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            intent: components["schemas"]["RandomPublishingIntent"] | components["schemas"]["PrecisePublishingIntent"];
+            /** Format: uuid */
+            brandId: string;
+            revision: number;
+        };
+        PublishingQuoteLineResponse: {
+            /** Format: uuid */
+            platformId: string;
+            quantity: number;
+            displayName: string;
+            unitPoints: number | null;
+            totalPoints: number | null;
+            available: boolean;
+        };
+        PublishingQuoteResponse: {
+            selectionRevision: number;
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            /** @enum {string} */
+            mode: "RANDOM" | "PRECISE";
+            packageName: string | null;
+            scope: components["schemas"]["PublishingPackageScopeResponse"][];
+            lines: components["schemas"]["PublishingQuoteLineResponse"][];
+            quantity: number;
+            totalPoints: number | null;
+            shortfall: number | null;
+            suggestedRechargeYuan: number | null;
+            problems: ("ARTICLE_CHANGED" | "ARTICLE_UNCONFIRMED" | "OFFER_UNAVAILABLE" | "TOTAL_OUT_OF_RANGE")[];
+        };
+        PublishingWorkspaceResponse: {
+            brand: components["schemas"]["PublishingBrandResponse"] | null;
+            article: components["schemas"]["PublishingArticleResponse"] | null;
+            balance: number;
+            selection: components["schemas"]["PublishingSelectionResponse"] | null;
+            quote: components["schemas"]["PublishingQuoteResponse"] | null;
+        };
+        SavePublishingSelectionRequest: {
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            intent: components["schemas"]["RandomPublishingIntent"] | components["schemas"]["PrecisePublishingIntent"];
+            expectedRevision: number;
         };
         EvaluationReportNotificationTargetResponse: {
             /** @enum {string} */
@@ -3077,6 +3187,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PointHistoryResponse"];
+                };
+            };
+        };
+    };
+    PublishingSelectionController_workspace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingWorkspaceResponse"];
+                };
+            };
+        };
+    };
+    PublishingSelectionController_save: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brandId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePublishingSelectionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingSelectionResponse"];
                 };
             };
         };

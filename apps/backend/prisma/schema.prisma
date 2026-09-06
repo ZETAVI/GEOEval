@@ -758,20 +758,21 @@ model ArticleGeneration {
 }
 
 model CoreArticle {
-  id                 String            @id @default(uuid()) @db.Uuid
-  accountId          String            @map("account_id") @db.Uuid
-  brandId            String            @map("brand_id") @db.Uuid
-  title              String            @db.VarChar(200)
-  bodyMarkdown       String            @map("body_markdown")
-  status             CoreArticleStatus @default(DRAFT)
-  revision           Int               @default(1)
-  sourceGenerationId String            @map("source_generation_id") @db.Uuid
-  confirmedRevision  Int?              @map("confirmed_revision")
-  confirmedAt        DateTime?         @map("confirmed_at")
-  createdAt          DateTime          @default(now()) @map("created_at")
-  updatedAt          DateTime          @updatedAt @map("updated_at")
-  brand              BrandProfile      @relation("BrandCoreArticle", fields: [brandId, accountId], references: [id, accountId], onDelete: Restrict, map: "core_articles_brand_fkey")
-  sourceGeneration   ArticleGeneration @relation("CoreArticleSourceGeneration", fields: [sourceGenerationId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict, map: "core_articles_source_generation_fkey")
+  publishingSelections PublishingSelection[]
+  id                   String                @id @default(uuid()) @db.Uuid
+  accountId            String                @map("account_id") @db.Uuid
+  brandId              String                @map("brand_id") @db.Uuid
+  title                String                @db.VarChar(200)
+  bodyMarkdown         String                @map("body_markdown")
+  status               CoreArticleStatus     @default(DRAFT)
+  revision             Int                   @default(1)
+  sourceGenerationId   String                @map("source_generation_id") @db.Uuid
+  confirmedRevision    Int?                  @map("confirmed_revision")
+  confirmedAt          DateTime?             @map("confirmed_at")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  brand                BrandProfile          @relation("BrandCoreArticle", fields: [brandId, accountId], references: [id, accountId], onDelete: Restrict, map: "core_articles_brand_fkey")
+  sourceGeneration     ArticleGeneration     @relation("CoreArticleSourceGeneration", fields: [sourceGenerationId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict, map: "core_articles_source_generation_fkey")
 
   @@unique([id, accountId, brandId], map: "core_articles_id_account_brand_key")
   @@unique([brandId, accountId], map: "core_articles_brand_account_key")
@@ -934,6 +935,21 @@ model MediaCatalogAudit {
 
 enum PointChangeKind {
   ADMIN_ADJUSTMENT
+}
+
+model PublishingSelection {
+  brandId         String      @id @map("brand_id") @db.Uuid
+  accountId       String      @map("account_id") @db.Uuid
+  articleId       String      @map("article_id") @db.Uuid
+  articleRevision Int         @map("article_revision")
+  revision        Int         @default(1)
+  intent          Json
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  article         CoreArticle @relation(fields: [articleId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict, map: "publishing_selections_article_owner_fkey")
+
+  @@index([accountId])
+  @@map("publishing_selections")
 }
 
 model PointAccount {

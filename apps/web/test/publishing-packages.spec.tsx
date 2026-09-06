@@ -7,7 +7,7 @@ import {
 import { PublishingPackageCards } from "../app/publishing/workspace.js";
 
 describe("publishing package customer and editor contract", () => {
-  it("does not invent commercial configuration or a usable purchase button", () => {
+  it("keeps configuration explicit and enables selection without presenting a purchase action", () => {
     expect(packageForm()).toMatchObject({
       quantity: "",
       pointPrice: "",
@@ -15,10 +15,13 @@ describe("publishing package customer and editor contract", () => {
       platformIds: [],
     });
     expect(
-      renderToStaticMarkup(<PublishingPackageCards packages={[]} />),
+      renderToStaticMarkup(
+        <PublishingPackageCards packages={[]} onSelect={() => undefined} />,
+      ),
     ).toContain("发布方案正在准备中");
     const html = renderToStaticMarkup(
       <PublishingPackageCards
+        onSelect={() => undefined}
         packages={[
           {
             id: "package",
@@ -32,14 +35,16 @@ describe("publishing package customer and editor contract", () => {
         ]}
       />,
     );
-    expect(html).toContain("购买入口准备中");
-    expect(html).toContain("disabled");
+    expect(html).toContain("选择 区域发布");
+    expect(html).not.toContain("disabled");
+    expect(html).not.toContain("提交购买");
     expect(html).toContain("不指定单个平台或账号");
     expect(html).toContain("媒体甲");
   });
   it("keeps unavailable maintained offers truthful", () => {
     const html = renderToStaticMarkup(
       <PublishingPackageCards
+        onSelect={() => undefined}
         packages={[
           {
             id: "package",

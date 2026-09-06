@@ -22,8 +22,11 @@
 - [ ] Extend the existing deletion gate and restrictive references for paid orders.
 - [ ] Add transaction-bound article and media readers and verify their shared
       connection/locking against actual concurrent edits before purchase activation.
-- [ ] Deliver saved selection, server quote and both publishing modes as one
+- [x] Deliver saved selection, server quote and both publishing modes as one
       customer path; preserve intent through article changes and shortage.
+- [ ] Complete narrow-width footer visual inspection; DOM width/overflow and
+      functional browser paths passed, but the screenshot surface did not provide
+      a reliable full footer image. Do not report that visual claim as passed.
 - [ ] Deliver atomic submit/debit/freeze and same-key recovery, plus pending order
       list/detail and safe projections. Verify every failure-matrix row.
 - [ ] Verify full customer/admin browser paths at desktop/narrow widths without

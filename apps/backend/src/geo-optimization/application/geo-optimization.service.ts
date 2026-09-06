@@ -226,6 +226,27 @@ export class GeoOptimizationService {
     return this.repository.findLatestGeneration({ accountId, brandId });
   }
 
+  async publishingContext(accountId: string) {
+    const brand = await this.brands.current(accountId);
+    if (!brand) return { brand: null, article: null };
+    const article = await this.repository.findCurrentArticle({
+      accountId,
+      brandId: brand.id,
+    });
+    return {
+      brand: { id: brand.id, companyName: brand.companyName },
+      article: article
+        ? {
+            id: article.id,
+            title: article.title,
+            revision: article.revision,
+            status: article.status,
+            confirmedRevision: article.confirmedRevision,
+          }
+        : null,
+    };
+  }
+
   currentArticle(
     accountId: string,
     brandId: string,

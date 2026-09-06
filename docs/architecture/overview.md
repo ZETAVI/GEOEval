@@ -284,7 +284,13 @@ serializes request replay checks, balance bounds and ledger insertion in the sam
 transaction. Customer projections expose one balance and public reasons only.
 An actor-bound pending tab request survives an interrupted response/reload and
 reuses its key; tab storage is not financial truth.
-Saved selection, order submission and real payment remain subsequent slices;
+One saved selection per account/Brand now uses a revision-conditional write and
+composite article-owner reference. Commerce reads the minimal GEO Optimization
+preview and Media quote interfaces to build an advisory current quote; catalogue
+IDs in unpaid intent are not reservations. The customer explicitly saves or
+discards edits, sees both publishing modes and shortage, and can return without
+losing the saved choice. Independent quote reads cannot authorize a debit.
+Order submission and real payment remain subsequent slices;
 the approved transaction direction is recorded in
 [ADR 0005](adr/0005-atomic-publishing-purchase.md), not claimed as implemented.
 

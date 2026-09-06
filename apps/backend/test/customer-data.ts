@@ -102,6 +102,7 @@ function issueStoreLocationReceipt(input: {
 }
 
 export async function clearCustomerData(prisma: PrismaService): Promise<void> {
+  await prisma.publishingSelection.deleteMany();
   await prisma.pointChange.deleteMany();
   await prisma.pointAccount.deleteMany();
   await prisma.publishingPackageAudit.deleteMany();

@@ -912,12 +912,12 @@ export function ArticlePanel({
       {article.status === "CONFIRMED" && (
         <div className="future-order-handoff">
           <div>
-            <b>文章已准备好进入购买与发布流程</b>
-            <p>发布服务购买入口正在准备中，已确认的文章会保留在这里。</p>
+            <b>文章已准备好选择发布方案</b>
+            <p>可选择随机套餐或精确媒体并保存报价；提交购买仍在后续接入。</p>
           </div>
-          <button className="primary-button" type="button" disabled>
-            购买发布服务（后续接入）
-          </button>
+          <a className="primary-button" href="/publishing">
+            选择发布方案 →
+          </a>
         </div>
       )}
     </div>

@@ -19,6 +19,14 @@ type StoredPackage = Prisma.PublishingPackageGetPayload<{
 export class PostgresPublishingPackageRepository implements PublishingPackageRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
+  async find(id: string) {
+    const row = await this.prisma.publishingPackage.findUnique({
+      where: { id },
+      include: includeScope,
+    });
+    return row ? present(row) : null;
+  }
+
   async list(onlyActive: boolean): Promise<PublishingPackageView[]> {
     const rows = await this.prisma.publishingPackage.findMany({
       where: onlyActive ? { status: "ACTIVE" } : {},

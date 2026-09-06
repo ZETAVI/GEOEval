@@ -49,6 +49,7 @@ export const PUBLISHING_PACKAGE_REPOSITORY = Symbol(
   "PUBLISHING_PACKAGE_REPOSITORY",
 );
 export interface PublishingPackageRepository {
+  find(id: string): Promise<PublishingPackageView | null>;
   list(onlyActive: boolean): Promise<PublishingPackageView[]>;
   create(
     actorAccountId: string,

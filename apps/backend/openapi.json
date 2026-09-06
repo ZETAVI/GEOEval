@@ -1510,6 +1510,67 @@
         ]
       }
     },
+    "/publishing/workspace": {
+      "get": {
+        "operationId": "PublishingSelectionController_workspace",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingWorkspaceResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-selection"
+        ]
+      }
+    },
+    "/publishing/brands/{brandId}/selection": {
+      "put": {
+        "operationId": "PublishingSelectionController_save",
+        "parameters": [
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavePublishingSelectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingSelectionResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-selection"
+        ]
+      }
+    },
     "/notifications": {
       "get": {
         "operationId": "NotificationController_list",
@@ -4742,6 +4803,352 @@
         "required": [
           "items",
           "nextBeforeSequence"
+        ]
+      },
+      "PublishingBrandResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "companyName"
+        ]
+      },
+      "PublishingArticleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "CONFIRMED"
+            ]
+          },
+          "confirmedRevision": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "revision",
+          "status",
+          "confirmedRevision"
+        ]
+      },
+      "RandomPublishingIntent": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RANDOM"
+            ]
+          },
+          "packageId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "mode",
+          "packageId"
+        ]
+      },
+      "PrecisePublishingLine": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "platformId",
+          "quantity"
+        ]
+      },
+      "PrecisePublishingIntent": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "PRECISE"
+            ]
+          },
+          "lines": {
+            "minItems": 1,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrecisePublishingLine"
+            }
+          }
+        },
+        "required": [
+          "mode",
+          "lines"
+        ]
+      },
+      "PublishingSelectionResponse": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "intent": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RandomPublishingIntent"
+              },
+              {
+                "$ref": "#/components/schemas/PrecisePublishingIntent"
+              }
+            ]
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "articleId",
+          "articleRevision",
+          "intent",
+          "brandId",
+          "revision"
+        ]
+      },
+      "PublishingQuoteLineResponse": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "unitPoints": {
+            "type": "integer",
+            "nullable": true
+          },
+          "totalPoints": {
+            "type": "integer",
+            "nullable": true
+          },
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "platformId",
+          "quantity",
+          "displayName",
+          "unitPoints",
+          "totalPoints",
+          "available"
+        ]
+      },
+      "PublishingQuoteResponse": {
+        "type": "object",
+        "properties": {
+          "selectionRevision": {
+            "type": "integer"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RANDOM",
+              "PRECISE"
+            ]
+          },
+          "packageName": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingPackageScopeResponse"
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingQuoteLineResponse"
+            }
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "totalPoints": {
+            "type": "integer",
+            "nullable": true
+          },
+          "shortfall": {
+            "type": "integer",
+            "nullable": true
+          },
+          "suggestedRechargeYuan": {
+            "type": "integer",
+            "nullable": true
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ARTICLE_CHANGED",
+                "ARTICLE_UNCONFIRMED",
+                "OFFER_UNAVAILABLE",
+                "TOTAL_OUT_OF_RANGE"
+              ]
+            }
+          }
+        },
+        "required": [
+          "selectionRevision",
+          "articleId",
+          "articleRevision",
+          "mode",
+          "packageName",
+          "scope",
+          "lines",
+          "quantity",
+          "totalPoints",
+          "shortfall",
+          "suggestedRechargeYuan",
+          "problems"
+        ]
+      },
+      "PublishingWorkspaceResponse": {
+        "type": "object",
+        "properties": {
+          "brand": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingBrandResponse"
+              }
+            ]
+          },
+          "article": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingArticleResponse"
+              }
+            ]
+          },
+          "balance": {
+            "type": "integer"
+          },
+          "selection": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingSelectionResponse"
+              }
+            ]
+          },
+          "quote": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingQuoteResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "brand",
+          "article",
+          "balance",
+          "selection",
+          "quote"
+        ]
+      },
+      "SavePublishingSelectionRequest": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "intent": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RandomPublishingIntent"
+              },
+              {
+                "$ref": "#/components/schemas/PrecisePublishingIntent"
+              }
+            ]
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483646
+          }
+        },
+        "required": [
+          "articleId",
+          "articleRevision",
+          "intent",
+          "expectedRevision"
         ]
       },
       "EvaluationReportNotificationTargetResponse": {

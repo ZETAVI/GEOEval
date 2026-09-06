@@ -98,7 +98,9 @@ Submission in one short transaction:
    unavailable or changed terms before any debit.
 5. Validate balance and bounded integer totals; consume granted before funded.
    Append one spending change, update balance and create the immutable order in
-   this same transaction. Clear only the consumed selection revision.
+   this same transaction. Clear only the consumed intention while retaining a
+   monotonically increasing selection revision; deleting/recreating it at revision
+   one would permit an old page to overwrite a later intention (ABA).
 6. Commit before returning the order. All failures roll back together. No user
    prompt, Writer call, Provider, queue or network request inside the transaction.
 
@@ -208,3 +210,26 @@ the pending intent. Customer history excludes origin, actor and internal reasons
 Validate cross-account HTTP, concurrent grants/negative deltas, exact-key replay,
 failed-ledger rollback, integer caps, safe pagination, browser reload/retry and
 backup restoration. No funded credit or purchase endpoint is introduced here.
+
+Third slice: an account/Brand has one explicitly saved selection, bound by a
+composite foreign key to its own article identity. A conditional revision also
+serializes concurrent first saves. Catalogue IDs live in the typed intent, not
+as reservations: removing an unpaid precise target preserves the selection and
+returns an unavailable quote; paid-order restrictive references remain later.
+GEO Optimization exposes a minimal current-brand/article preview without Writer,
+report or full-content payload. API composition passes the same configured module
+instance to Commerce rather than making Writer configuration global or querying
+private article/Brand tables.
+
+Independent source reads are appropriate only for this advisory quote. Saving
+requires a currently confirmed exact article and available offers; later changes
+retain the intention and produce a current quote with explicit article/availability
+problems. The quote never reserves price and its fields cannot authorize a debit.
+The atomic purchase participants and final terms comparison in section 3 remain
+mandatory before adding any submit endpoint. No new order or spending schema is
+introduced in this slice.
+
+Verification targets: real HTTP ownership, two-brand isolation, first-save/update
+CAS, article edit/reconfirmation, precise repricing versus random-price independence,
+deleted unpaid media, overflow and absence of point writes; normal browser save,
+leave/return, both modes and narrow layout; fresh/upgrade/restore migration.

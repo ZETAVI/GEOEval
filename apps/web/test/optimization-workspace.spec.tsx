@@ -223,6 +223,33 @@ describe("GEO optimization customer workspace", () => {
     );
     expect(markup).not.toContain("<script");
   });
+
+  it("links a confirmed article to saved publishing choices without claiming an active purchase", () => {
+    const workspace = readyWorkspace();
+    workspace.article = {
+      ...workspace.article!,
+      status: "CONFIRMED",
+      confirmedRevision: 3,
+    };
+    const markup = renderToStaticMarkup(
+      <ArticlePanel
+        workspace={workspace}
+        title={workspace.article.title}
+        body={workspace.article.bodyMarkdown}
+        dirty={false}
+        articleSaving={false}
+        confirming={false}
+        generationRunning={false}
+        onTitleChange={() => undefined}
+        onBodyChange={() => undefined}
+        onSave={() => undefined}
+        onConfirm={() => undefined}
+      />,
+    );
+    expect(markup).toContain('href="/publishing"');
+    expect(markup).toContain("选择发布方案");
+    expect(markup).toContain("提交购买仍在后续接入");
+  });
 });
 
 function readyWorkspace(): GeoOptimizationWorkspace {

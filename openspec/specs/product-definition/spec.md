@@ -32,8 +32,9 @@
   configuration, audit and customer offer visibility are now owned by the
   [Publishing Commerce specification](../publishing-commerce/spec.md).
   Account-owned points, granted-only administrator adjustments and customer-safe
-  history also use that owner. Remaining selection, purchase and real recharge
-  activation stays under this marker.
+  history, explicitly saved random/precise selections and advisory quotes also
+  use that owner. Remaining purchase and real recharge activation stays under
+  this marker; their approved future scenarios below do not activate transactions.
 
 ## Requirements
 
