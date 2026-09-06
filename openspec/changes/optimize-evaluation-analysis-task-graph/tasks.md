@@ -38,8 +38,13 @@ Completed chronology, exact manifests and failed candidates live in the
       answer with baseline/candidate; record useful changes and substantial failures.
 - [x] Confirm fresh requests differ only in Prompt, including wire Schema name;
       raw model JSON already contains malformed names, before local processing.
-- [ ] Minimize the name-array anomaly and distinguish remaining Prompt/model/
-      structured-output interaction before further semantic wording changes.
+- [x] Complete six-call name/mode diagnosis: minimal arrays work, identical full
+      strict replay is intermittently malformed, and JSON Object breaks contract.
+- [x] Confirm documented low budget saturation and execute a separate two-call
+      medium counterfactual: names improve, but semantic gaps/latency remain.
+- [ ] Reconcile these findings into one bounded single-call delivery decision on
+      necessary semantic output and complete evidence handoff; do not continue
+      ad hoc Prompt/mode/effort sweeps or claim a uniquely proven root cause.
 - [ ] Resolve material identity/role/position quality and verify held-out behavior
       before small report-path integration; no candidate is accepted yet.
 

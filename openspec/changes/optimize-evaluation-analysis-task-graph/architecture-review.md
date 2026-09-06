@@ -223,3 +223,27 @@ remain pending. This review is not approval for a runtime merge.
 - Verdict: `ready with follow-up` for the evidence package, `not ready` for the
   candidate. Next minimize the output anomaly instead of adding another Prompt
   patch, Agent or silent repair. No further call is part of this ended batch.
+
+## Name-mode and reasoning-budget diagnosis checkpoint
+
+- Protocols frozen separately at `702bef5` (six mode calls) and `fc5ffff` (two
+  budget calls). Independent protocol review preceded each; semantic review
+  assessed meaningful identity, conditions and evidence after each batch.
+- Existing HTTP transport is used only by protected ignored diagnostic runners.
+  No application adapter, public contract, persistence, retry, dependency or
+  runtime setting changes. Mode pairs differ only in response_format; the
+  separate budget pair differs from the retained strict request only in effort.
+  JSON Object's missing out-of-band Schema is an explicit comparison limitation.
+- Full strict replay reproduces intermittent raw name corruption, while both
+  minimal modes form names. Object full outputs fail the complete contract.
+  Official budget documentation and actual usage show all four full low calls
+  consume the 4,096 cap; medium forms names in both observations, but semantics
+  remain imperfect and latency is 90.4/178.6 seconds. No unique root cause follows.
+- Fourteen mode and six budget private observations read back with actual
+  inputs/settings, outputs/checks, usage and full review equality. Credentials
+  and raw reasoning are not exported. Unchanged runtime test/build/display
+  evidence is reused; no actual synthesis/report acceptance is claimed.
+- Verdict: `ready with follow-up` for recording the diagnostic evidence;
+  `not ready` for runtime adoption. Stop parameter probes and reconcile the
+  smallest useful single-call semantic/evidence delivery slice. Do not infer
+  better quality from program recovery or add Agent layers and repair guards.

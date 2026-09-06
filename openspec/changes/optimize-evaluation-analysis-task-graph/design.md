@@ -496,3 +496,12 @@ changing that adapter would mix diagnosis with implementation. Both bodies and
 all other parameters are frozen, no business Attempt is written, and diagnostic
 telemetry remains private. JSON Object's missing out-of-band Schema is a disclosed
 limitation, not implicit approval to weaken the production contract.
+
+The diagnostic shows intermittent, not universal, upstream name corruption on
+identical full strict requests. Both object-mode full results violate the current
+contract; code acceptance can also conceal strict-name recovery. Four full low
+calls reach the documented thinking maximum. The separate medium counterfactual
+forms names but leaves condition/evidence issues and takes 90.4/178.6 seconds.
+Keep strict runtime and default effort unchanged. These observations do not
+establish one decoder cause or justify more Agent layers; stop parameter probes
+and reconcile the smallest semantic/evidence obligations before the next slice.

@@ -1277,3 +1277,123 @@ the two already observed low strict replications; do not replay low just to fill
 a table. Two unseeded medium observations are diagnostic, not reliability or
 causality proof. End after these two calls; any further scope requires a new
 decision checkpoint rather than a continuing parameter sweep.
+
+## Name-array output-mode diagnosis — observed result
+
+Six calls completed 2026-09-06 05:30:51–05:33:54 UTC at `702bef5`, confirmation
+`bbd5da1440b2221c959be8b7df0f5a69f3035fe62057e2aead725256aa81f1cb`.
+Strict full request hash `39526f05e7b20d656b5dac379ebc58aad578e42fd9a4214835649a88bd757bd3`
+matches the preserved failed body. All calls returned the configured model,
+HTTP 200 and finish_reason=stop; no acquisition, retry or fallback occurred.
+
+| Request | Tokens | Latency | Name/contract observation |
+| --- | --- | --- | --- |
+| Minimal strict | 358 | 3,912 ms | Real names formed; target English alias omitted |
+| Minimal object | 393 | 2,509 ms | Both brands and Chinese/English forms present |
+| Full strict A | 7,990 | 44,130 ms | Names formed; code accepted, condition/evidence gaps remain |
+| Full object A | 7,773 | 41,893 ms | Names formed; LIST/REASON enum values cause rejection |
+| Full strict B | 7,889 | 42,694 ms | Raw target name becomes punctuation; projector restores target and accepts |
+| Full object B | 7,970 | 47,768 ms | Names formed; REASON and evidence-count violations cause rejection |
+
+Total 32,373 tokens. Both minimal modes can form names, so there is no universal
+unsupported-array result. Identical full strict A/B bodies produce different
+name quality; B reproduces the upstream punctuation symptom. Its final restored
+`迪卡侬` does not turn raw failure into model success. B also omits 361°; role,
+coverage and selected conditions remain separate review dimensions in all arms.
+Neither full JSON Object output satisfies the unchanged complete contract.
+
+Four full calls report 4,096 reasoning tokens, the documented low budget maximum;
+both normal and malformed names occur at that value. This is a budget-saturation
+observation, not proof it causes the anomaly. Full strict A has zero cache hits;
+the other full calls have 2,048 cached input tokens. Counts already include cache
+and reasoning; fixed-order samples do not establish pure mode timing or billed cost.
+
+Decision: preserve strict runtime and raw/projection separation. Do not switch to
+JSON Object or add a string-repair guard. A particular decoder mechanism remains
+unproven. The separately frozen two-call budget probe addresses the remaining
+load/effort hypothesis; it does not resume this ended mode batch.
+
+[Private Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/fe524fdae3bba565a0159f7b93805fa0),
+root `bc4b9726af5436c7`, review `cf96aacdfd1516c1`. Fourteen observations read back
+with exact messages/settings, raw outputs/checks, usage and full review equality;
+pair-only response_format difference confirmed, public=false, credentials absent.
+Protected directory `apps/backend/.provider-evidence/m4-name-mode-g8ccbv/`, 0700 /
+files 0600, ignored and retained by #42 until decision/review. Raw envelopes and
+reasoning remain local, not exported to Trace or Git. Existing runtime test/build
+and browser evidence are unchanged and reused; runner preflight and independent
+scope/evidence review are the discriminating checks for this diagnostic.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Minimal strict result | d7c538cd51ac5c354456f7f27f4ba8580cb09449f5647877879f722eef1d8f82 |
+| Minimal object result | 7bf9a7bc4e7c133586a3a86b20c181a94b6b7d5e5a2f75a3aad59ecfbc9fe1cc |
+| Full strict A result | dc9506880ff475b48685f584790491666a2180d33adcc71a1a32ee09420bc950 |
+| Full object A result | d7797e7cd6a4bcad99ad83fe0a139114b41ad32bd3b15d4ebb7ff4f70f08c36a |
+| Full strict B result | 6db12b3a3d6e95914332ba38c8fbde22a5f41723bfa48ebd641b05f2b936e771 |
+| Full object B result | 2c2dc513d188e8c861031e479c522158681e9785373fdd96d3724c0aefb2aa8f |
+| Plan | 884f646a541803d8a4638ad09a0ee60ba7b6e2ad2b7f4c16340742a8c8f7cf0f |
+| Runner | 3105816da733b608658cde44f64cf8d07c4e62af6aaaf4071e7fa3282ee38184 |
+
+## Reasoning-budget counterfactual — observed result
+
+Two separately frozen calls completed 2026-09-06 05:42:28–05:46:57 UTC at
+`fc5ffff`, confirmation
+`866114f61e9c70e41b6b9bcb7f51a24a90f2041abf8adf2b187b765e9b7e47ac`.
+Both request bodies hash to
+`64275594dbfb22408863ecb5b4a7625737f1214828e9cd244623708bbf1a90a8`;
+only reasoning_effort differs from the preserved strict-low request. Both return
+the configured model, HTTP 200 and finish_reason=stop, without retry or fallback.
+
+| Request | Input / output / total tokens | Reasoning tokens | Latency | Observation |
+| --- | --- | --- | --- | --- |
+| Full medium A | 2,964 / 5,508 / 8,472 | 4,202 | 90,363 ms | Names formed, all nine other brands, target position 4; accepted by code |
+| Full medium B | 2,964 / 10,784 / 13,748 | 9,883 | 178,590 ms | Names formed, all nine other brands, target position 4; accepted by code |
+
+Total 22,220 tokens; both batches together use 54,593 across eight calls.
+Reasoning is included in output, not added again. Provider-reported input is
+2,964 versus the earlier 2,990 despite unchanged visible messages; no hidden
+Provider accounting explanation is assumed. A has zero cache hits, B has 2,048.
+These fixed-order observations establish neither pure effort-related latency
+nor monetary cost. B approaches the diagnostic 180-second timeout.
+
+Independent semantic review confirms useful name, coverage and target-position
+results, and a natural, faithful customer card in B. It also identifies material
+residuals rather than demanding verbatim prose:
+
+- A says 199–399 completely covers and is below the 300–600 budget's lower bound;
+  that interval inference is false, even though the source supports the price.
+- B calls ASICS recommended while its selected evidence requires an older season
+  or a discount. The role does not preserve that explicit condition.
+- Both call Adidas conditionally recommended, but their selected evidence omits
+  the discount premise on source line 20. A correct role label alone does not
+  provide complete evidence for the downstream semantic handoff.
+
+Names are normal in 2/2 medium observations, and both reasoning counts exceed
+the documented low cap. This supports investigating budget/task-load interaction,
+not a unique causal conclusion: low already produced both normal and malformed
+names. No reliability estimate or default medium promotion follows two unseeded
+calls. Better surface structure is not semantic or runtime acceptance.
+
+Decision: end parameter probes. Keep strict output and runtime effort unchanged;
+neither JSON Object nor blanket medium is an accepted replacement. Next reconcile
+one bounded single-call delivery slice around necessary semantic judgments and
+complete source-evidence handoff, before another implementation or call batch.
+Do not add Agent layers, source clipping, repair guards or a parameter sweep.
+
+[Private Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/edfcffd50b384cc2e03d480da8b1e687),
+root `80ef667387956de8`, review `0a7f742921842676`. Six observations read back
+with exact messages/settings, raw outputs/checks, usage and complete review;
+only-reasoning_effort difference confirmed, public=false and credentials absent.
+Protected directory `apps/backend/.provider-evidence/m4-budget-counterfactual-AYgftT/`,
+0700 / files 0600, ignored and retained by #42 until decision/review. Raw envelopes
+and reasoning remain local, outside Trace and Git. Runner preflight, independent
+protocol/semantic review and readback cover this diagnostic; unchanged runtime
+test/build/browser evidence is reused. No runtime, current spec, DB/migration,
+actual synthesis/report, #49 mirror or other-worktree change is claimed.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Medium A result | 5f2760fe5c94a10bfc9dfaa849ada7291b29467e2fdb50970e7b384d2feb9a1d |
+| Medium B result | aea4530e260db7aa74a3b2e50622bd070755f174e078c420c1eabc96ddefa076 |
+| Plan | 7d08ccfc979961cfc25a04da454c87a325030ce8af6dbd88bdae3ac201856914 |
+| Runner | ee669632f52d01dbcc54fca5498b1788d8a3dc629fa6c98de13cd362d3797f54 |

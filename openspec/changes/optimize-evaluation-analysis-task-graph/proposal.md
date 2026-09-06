@@ -65,9 +65,18 @@ natural answer and matched baseline/candidate. Some roles and prose improve, but
 the candidate produces punctuation-only name arrays in two cases, misattributes
 an absent target, and cites an empty source line. Raw model JSON already contains
 the anomalies; local decoding and display did not introduce them. Do not activate
-this candidate or keep adding semantic wording. Next minimize the name-output
-anomaly and isolate the remaining model/Prompt/structured-output interaction
-before further generation changes; its upstream cause is not yet proven.
+this candidate or keep adding semantic wording.
+
+The subsequent name/mode diagnosis reproduces intermittent punctuation on an
+identical full strict request, while both minimal modes can form names. JSON
+Object avoids that symptom in two observations but violates the complete output
+contract. All four full low calls reach the documented 4,096 thinking-token budget.
+A separately frozen two-call medium counterfactual forms names but retains
+condition/evidence errors and takes 90.4/178.6 seconds. Neither mode relaxation
+nor a blanket effort increase is an accepted solution; the unique upstream cause
+is still unproven. End this parameter exploration and make a bounded single-call
+delivery decision around necessary semantic output and complete evidence handoff
+before more implementation or calls. Runtime and current semantics stay unchanged.
 
 ## Impact and exit
 
