@@ -46,7 +46,7 @@ const output = () => ({
 describe("M4 real-chain synthesis preview", () => {
   it("hands off actual parsed facts and restored excerpts without legacy fabrication", () => {
     const task = buildM4ChainSynthesisTask("青禾咖啡", inputs);
-    expect(task.userContext.coverage).toEqual({
+    expect(task.userContext.coverage).toMatchObject({
       sampleCount: 2,
       mentionedSampleCount: 0,
     });
@@ -64,6 +64,77 @@ describe("M4 real-chain synthesis preview", () => {
     expect(JSON.stringify(task.userContext)).not.toMatch(
       /contentHash|targetRole|observedForms/,
     );
+  });
+  it("keeps direct descriptions while excluding direct and unavailable samples from open counts", () => {
+    const originalAnswer = "青禾咖啡提供现磨咖啡。山岚咖啡也值得比较。";
+    const evidence = [{ exactText: "青禾咖啡提供现磨咖啡。", occurrence: 1 }];
+    const directed = {
+      family: "BRAND_DIRECTED",
+      mentioned: true,
+      position: null,
+      semantic: {
+        profile: "BRAND_DIRECTED",
+        answerStructure: "PARAGRAPHS",
+        targetDisplayedForms: ["青禾咖啡"],
+        targetMentionEvidence: evidence,
+        targetObservations: [
+          {
+            category: "OFFERING",
+            label: "现磨咖啡",
+            detail: "提供现磨咖啡。",
+            polarity: "POSITIVE",
+            evidence,
+          },
+        ],
+        otherBrands: [
+          {
+            displayName: "山岚咖啡",
+            observedForms: ["山岚咖啡"],
+            role: "RECOMMENDED",
+            relativePosition: 1,
+            positionKind: "RECOMMENDATION",
+            evidence: [{ exactText: "山岚咖啡也值得比较。", occurrence: 1 }],
+          },
+        ],
+        cardInterpretation: "回答介绍了青禾咖啡的现磨咖啡。",
+        limitations: [],
+        contextualTargetPosition: null,
+        contextualPositionEvidence: [],
+      },
+    };
+    const task = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      [
+        {
+          ...inputs[0]!,
+          questionKind: "BRAND_DIRECTED",
+          originalAnswer,
+          parsedOutput: directed,
+        },
+        inputs[1]!,
+      ],
+      4,
+    );
+    expect(task.userContext.coverage).toEqual({
+      expectedSampleCount: 4,
+      sampleCount: 2,
+      unavailableSampleCount: 2,
+      mentionedSampleCount: 1,
+      openSampleCount: 1,
+      mentionedOpenSampleCount: 0,
+    });
+    const sample = task.userContext.samples[0]!;
+    expect(sample.target!.position).toBeNull();
+    expect(sample.target!.points[0]!.text).toBe("提供现磨咖啡。");
+    expect(sample.target!.points[0]!.evidence[0]!.exactText).toBe(
+      evidence[0]!.exactText,
+    );
+    expect(sample.otherBrands).toEqual([]);
+    expect(
+      inspectM4ChainSynthesisOutput({ ...output(), brandGroups: [] }, task)
+        .competitorPreview,
+    ).toHaveLength(1);
+    expect(() => buildM4ChainSynthesisTask("青禾咖啡", inputs, 1)).toThrow();
   });
   it("leaves target points and summary unchanged when present", () => {
     const target = {

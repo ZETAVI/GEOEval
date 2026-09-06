@@ -729,3 +729,34 @@ the next synthesis iteration; do not revive the superseded name counterfactual.
 The measured time distribution puts natural acquisition ahead of parsing as this
 batch's main cost/latency contributor. Reuse unchanged local evidence; a formal
 report integration, broader platform run and #41 acceptance remain separate.
+
+### New-merchant four-question matrix
+
+The owner accepts the current practical quality level, retains the coffee case
+for observation, and authorizes another real merchant with broader concurrency.
+Use the supplied 头家顺 / 广州天河猎德 / 潮汕私房菜 identity. Freeze four natural
+consumer questions; dining-party and local-flavour wording are test needs, not
+claims that the merchant has unverified facilities or positioning. Do not reuse
+the old withdrawn restaurant fixture as verified Brand/Amap evidence.
+
+Readiness: `ready` for a bounded experimental four-question/five-platform matrix,
+not production. Existing provider credentials/routes are reused without enabling
+billing, buying credits, changing models or invoking fallback. At most 20
+acquisitions, one Parser per successful answer and one synthesis (41 calls),
+with at most five external requests in flight. Each answer proceeds directly to
+parsing in its work slot. Nonretryable access/model failures and rate-limit/quota
+responses stop queued work for that platform; already-started calls finish and
+other platforms continue. A Parser access gate stops queued interpretation work.
+No automatic retry or resampling. Missing/invalid samples remain unavailable,
+never false absence, and no partial preview is labelled a successful 17/20 report.
+
+Open Parser 1.2.0 stays unchanged. The brand-directed question uses the existing
+accepted Parser/contract and projects its validated target descriptions and source
+anchors into the experimental synthesis context. It has no recommendation rank
+and contributes no competitor records/counts. No old roles are fabricated for
+open parses. Expose question family and separate total/open coverage; synthesis
+still gives broad practical directions. This extension needs focused tests for
+direct-question exclusion, missing samples, source fidelity and valid references.
+Actual calls, raw answers, parsed output and a readable preview remain auditable;
+Langfuse receives only model IO and operational metadata. Formal service/UI,
+persisted lifecycle and failure-recovery acceptance remain later delivery work.

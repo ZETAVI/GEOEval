@@ -1,5 +1,8 @@
 import { readFileSync } from "node:fs";
 import { z } from "zod";
+import { parseAndProjectSampleParserModelOutput } from "../../geo-intelligence/domain/sample-parser-model.contract.js";
+import { collectSampleSemanticObservations } from "../../geo-intelligence/domain/sample-parser.contract.js";
+import type { EvaluationQuestionKind } from "../../geo-intelligence/domain/evaluation.types.js";
 import {
   inspectM4CustomerSummaryOutput,
   m4CustomerSummarySchema,
@@ -83,31 +86,84 @@ export type M4ChainSample = {
   platformLabel: string;
   originalAnswer: string;
   parsedOutput: unknown;
+  questionKind?: EvaluationQuestionKind;
 };
+
+function sourceView(companyName: string, sample: M4ChainSample) {
+  if (sample.questionKind !== "BRAND_DIRECTED") {
+    const inspected = inspectM4CustomerSummaryOutput(
+      sample.parsedOutput,
+      sample.originalAnswer,
+    );
+    return {
+      ...sourceBackedSchema.parse(inspected.sourceBackedOutput),
+      sampleSummary: inspected.sampleSummary,
+    };
+  }
+  const accepted = parseAndProjectSampleParserModelOutput(sample.parsedOutput, {
+    companyName,
+    questionKind: "BRAND_DIRECTED",
+    originalAnswer: sample.originalAnswer,
+  });
+  if (accepted.family !== "BRAND_DIRECTED")
+    throw new Error("Wrong direct-question family");
+  const anchors = new Map(
+    accepted.semantic.evidenceAnchors.map((a) => [a.anchorId, a]),
+  );
+  const evidenceFor = (ids: string[]) =>
+    ids.map((anchorId) => {
+      const anchor = anchors.get(anchorId);
+      if (!anchor) throw new Error("Missing direct-question evidence");
+      return { exactText: anchor.exactText, occurrence: anchor.occurrence };
+    });
+  return {
+    target: accepted.mentioned
+      ? {
+          position: null,
+          evidence: evidenceFor(
+            accepted.semantic.evidenceAnchors
+              .filter((a) => a.purposes.includes("TARGET_MENTION"))
+              .map((a) => a.anchorId),
+          ),
+          points: collectSampleSemanticObservations(accepted.semantic).map(
+            (observation) => ({
+              text: observation.detail,
+              polarity: observation.polarity,
+              evidence: evidenceFor(observation.evidenceAnchorIds),
+            }),
+          ),
+          summary: accepted.semantic.cardInterpretation,
+        }
+      : null,
+    // Direct questions describe the target; their other mentions are not competitors.
+    otherBrands: [],
+    sampleSummary: accepted.semantic.cardInterpretation,
+  };
+}
 
 // Controlled analysis preview only. No legacy semantic adapter or official score.
 export function buildM4ChainSynthesisTask(
   companyName: string,
   inputs: M4ChainSample[],
+  expectedSampleCount = inputs.length,
 ) {
   if (!companyName.trim() || inputs.length < 2)
     throw new Error("Brand and multiple real samples required");
+  z.number().int().min(inputs.length).parse(expectedSampleCount);
   const seen = new Set<string>();
   const samples = inputs.map((sample) => {
     id.parse(sample.sampleId);
     if (seen.has(sample.sampleId)) throw new Error("Duplicate sample ID");
     seen.add(sample.sampleId);
-    const inspected = inspectM4CustomerSummaryOutput(
-      sample.parsedOutput,
-      sample.originalAnswer,
-    );
-    const restored = sourceBackedSchema.parse(inspected.sourceBackedOutput);
+    const questionKind = sample.questionKind ?? "INDUSTRY_RECOMMENDATION";
+    const restored = sourceView(companyName, { ...sample, questionKind });
     return {
       sampleId: sample.sampleId,
       question: sample.question,
       platformLabel: sample.platformLabel,
+      questionKind,
       target: restored.target,
-      sampleSummary: inspected.sampleSummary,
+      sampleSummary: restored.sampleSummary,
       otherBrands: restored.otherBrands.map((brand, index) => ({
         ...brand,
         id: id.parse(`${sample.sampleId}-b${index + 1}`),
@@ -120,8 +176,16 @@ export function buildM4ChainSynthesisTask(
     userContext: {
       companyName,
       coverage: {
+        expectedSampleCount,
         sampleCount: samples.length,
+        unavailableSampleCount: expectedSampleCount - samples.length,
         mentionedSampleCount: samples.filter((s) => s.target !== null).length,
+        openSampleCount: samples.filter(
+          (s) => s.questionKind !== "BRAND_DIRECTED",
+        ).length,
+        mentionedOpenSampleCount: samples.filter(
+          (s) => s.questionKind !== "BRAND_DIRECTED" && s.target !== null,
+        ).length,
       },
       samples,
     },
