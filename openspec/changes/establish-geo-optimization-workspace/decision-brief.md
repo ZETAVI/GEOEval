@@ -23,7 +23,7 @@ Writer 得到一篇可编辑、可显式保存和确认的核心文章，并为�
 | 介绍字段 | 无必填整体介绍；只有品牌补充背景（选填） | Writer 从结构化资料组织介绍，减少重复填写 | Product owner |
 | 适用客户 | 1–5 条客户自填短语，每条 2–80 字，无固定词条 | 同时覆盖消费者、企业客户与场景 | Product owner |
 | 价格 | 人民币整数完整区间或面议，无小数、单边值或单位说明 | 满足首期写作需要而不建设报价系统 | Product owner |
-| 期望定位 | 可选建议与自定义汇入同一组内容 | 保留曝光意图而不建立多套字段 | Product owner |
+| 期望定位 | 0–5 条客户自填内容；输入框只给不入库的多视角提示 | 保留曝光意图，不预设词条或建立多套字段 | Product owner |
 | 并发 | 一个 Brand revision；Evaluation/Writer 各自 purpose fingerprint | CAS 与输入语义职责分离 | Architecture owner |
 | 输入依据 | 一份 WriterInputSnapshot 冻结可变 Brand 投影并引用不可变输入 | 保留历史依据且不多处硬拷贝 | Product + architecture owners |
 | 保存 | Brand 资料和文章均使用保存按钮，不自动保存 | 未保存输入不应静默进入生成或覆盖服务器记录 | Product owner |

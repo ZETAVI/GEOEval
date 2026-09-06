@@ -2,7 +2,7 @@
 
 - Review base: `main@975f2d2e761578494f3450513f09b225d064103f`
 - Reviewed Change payload SHA-256:
-  `2288559f1243c716a52063bf9e7c7cbe5e582bc9c28416ea3abbd9a6b3c38313`
+  `1dea9eba02116cd2c2d500a1543bbd7f5449fadf762ded96468e224d30ce9845`
 - Scope: proposal, decision brief, design, tasks and four delta specifications;
   this review file is excluded from the payload hash
 - Review type: pre-implementation `Propose → Approve` gate
@@ -34,6 +34,10 @@ points, purchase, order, fulfilment, deployment or Provider activity.
 5. **Incorrect delta-owner names.** Product Definition delta headings now match
    the current requirement owners `Progressive brand-profile completion` and
    `Customer-confirmed optimization and publishing service`.
+6. **Preset positioning suggestions contradicted the accepted input model.**
+   The Decision Brief now states that customers add their own positioning items;
+   multi-perspective prompts are input hints only and never stored or selected
+   on the customer's behalf.
 
 ## Product intent review
 
