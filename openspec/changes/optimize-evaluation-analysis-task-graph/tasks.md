@@ -34,9 +34,14 @@ Completed chronology, exact manifests and failed candidates live in the
       subject/condition/role fidelity, full split cost and actual downstream value.
 - [x] Complete both positive/negative comparisons: split has no useful advantage,
       higher full cost and material final-output defects. Stop advancing it.
-- [ ] Narrow the full-source single-call baseline's material identity/role/position
-      errors; validate an independently held-out answer before small report-path
-      integration. Do not preselect another Prompt/model or repeat topology probes.
+- [x] Run one frozen single-call worked-example probe and one natural held-out
+      answer with baseline/candidate; record useful changes and substantial failures.
+- [x] Confirm fresh requests differ only in Prompt, including wire Schema name;
+      raw model JSON already contains malformed names, before local processing.
+- [ ] Minimize the name-array anomaly and distinguish remaining Prompt/model/
+      structured-output interaction before further semantic wording changes.
+- [ ] Resolve material identity/role/position quality and verify held-out behavior
+      before small report-path integration; no candidate is accepted yet.
 
 ## Synthesis comparison
 

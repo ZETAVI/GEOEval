@@ -57,10 +57,17 @@ The split costs more tokens/time in both cases and does not improve overall
 quality. Its negative final task turns source lines into recommendation positions;
 its positive task drops four brands present in both inventory and full source.
 Single-call output has useful coverage but still misstates material conditions.
-Stop advancing this inventory/judgment split. Keep a full-source single-call
-working baseline, not an accepted runtime Prompt; focus next on material
-identity/role/position fidelity, then a small actual report-path check. Do not
-add task layers or select production semantics from this small diagnostic batch.
+Stop advancing this inventory/judgment split; keep a full-source single-call
+working baseline, not an accepted runtime Prompt.
+
+The next Prompt-only worked-example probe completed five calls, including a new
+natural answer and matched baseline/candidate. Some roles and prose improve, but
+the candidate produces punctuation-only name arrays in two cases, misattributes
+an absent target, and cites an empty source line. Raw model JSON already contains
+the anomalies; local decoding and display did not introduce them. Do not activate
+this candidate or keep adding semantic wording. Next minimize the name-output
+anomaly and isolate the remaining model/Prompt/structured-output interaction
+before further generation changes; its upstream cause is not yet proven.
 
 ## Impact and exit
 

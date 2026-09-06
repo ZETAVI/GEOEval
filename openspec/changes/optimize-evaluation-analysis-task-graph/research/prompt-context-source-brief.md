@@ -72,3 +72,11 @@ quality. No automatic optimizer, example-retrieval service or new dependency is
 introduced. Compare against the unchanged full-source input/Schema/projector,
 then use a new natural answer not copied into the examples. Reuse this guidance
 while that prompt-only decision and existing routes remain unchanged.
+
+The probe did not establish an overall improvement. The
+[structured-output guide](https://www.alibabacloud.com/help/en/model-studio/qwen-structured-output)
+was rechecked on 2026-09-06: its detailed JSON Schema list includes Qwen3.8 Flash,
+while the overview still lists fewer models. This does not explain punctuation-
+only names: those values are valid JSON strings, and support for a mode is not
+semantic correctness. Raw response replay and matched wire evidence narrow the
+failure to an upstream generation boundary, not a proven unsupported-mode defect.

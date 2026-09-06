@@ -1130,3 +1130,94 @@ parsers. No automatic retry, fallback, tuning, second acquisition, Hy3 or runtim
 Preserve actual source, raw output, projected records and useful/rejected meanings.
 Evaluate material identity/condition/position errors, not exact paraphrase wording.
 The new answer is held out from Prompt design, not statistical reliability proof.
+
+## Worked-example single-call probe — observed result
+
+Five of five calls completed 2026-09-06 04:42:49–04:45:49 UTC at `72930d4`.
+Confirmation `1886b16f5afb399ab69762aa95be711c07884eec5bb268d1b389a2a1f2986b8b`.
+Independent pre-call review found that changing outputContract.version also changes
+the actual JSON Schema name. The correction preserves the entire baseline contract;
+the new-answer wire bodies now differ only in the system instruction. Prompt
+identity/version/hash is diagnostic metadata, not another model input variable.
+
+| Stage | Input / output / total tokens | Latency | Result |
+| --- | --- | --- | --- |
+| Retained negative candidate | 2,472 / 3,796 / 6,268 | 31,659 ms | Code rejected; false target attribution and punctuation-only names |
+| Retained positive candidate | 2,990 / 3,807 / 6,797 | 34,997 ms | Code accepted; local improvements, semantic review failed |
+| New natural acquisition | 445 / 3,350 / 3,795 | 46,481 ms | Accepted natural answer; no target in actual acquisition request |
+| New-answer baseline | 2,465 / 3,511 / 5,976 | 28,679 ms | Code accepted; useful facts, incomplete conditions/card |
+| New-answer candidate | 2,990 / 4,309 / 7,299 | 38,461 ms | Code rejected; punctuation-only names and blank evidence line |
+
+Total 30,135 tokens. Reasoning, cached tokens and acquisition nested x_details
+are not added twice. Positive/new candidates each report 1,024 cached input tokens.
+The fresh pair is fixed-order; historical retained baselines are semantic controls,
+not new paired timing observations. No retry, fallback, tuning or additional call.
+
+The new question asks about trying running shoes in Beijing Chaoyang on a 300–600
+budget. Its 68-line answer naturally mentions 迪卡侬 as the fourth shopping stop;
+answer hash `e4efad4a5a4cd56804a51567a199d77ae01427dc41be2e16432e579090c256bd`.
+Neither that answer nor its names were used in the two fictional demonstrations.
+Acquisition source claims about products/stores are not independent reality checks.
+
+Independent semantic review distinguishes useful changes from acceptance:
+
+- Negative candidate assigns 元创互动/蓝色光标 facts to the absent target and outputs
+  punctuation in name arrays. Existing rejection is justified, not a wording issue.
+- Coffee candidate keeps all five other-brand records and correct presentation
+  positions; Manner becomes conditional. Its target observations survive as two
+  recommendation reasons and three characteristics. However Manner's evidence
+  selects the heading/value rather than office conditions, leaving only the
+  heading after projection. Maxwell becomes mention-only; unsupported Reserve
+  taste claims remain. A role label improvement is not complete evidence handoff.
+- New baseline correctly identifies the target/position 4 and nine sports brands;
+  target descriptions are grounded, but the card is only a mention statement and
+  the international brands' discount/old-season budget conditions are flattened.
+- New candidate's target card is more useful and mostly faithful, but names again
+  become punctuation; source line 56 is empty and cannot support the appearance
+  observation. Natural paraphrase and readable names were not failure criteria.
+
+### Bounded diagnosis, not another Prompt patch
+
+All four parsed raw Provider message contents exactly equal `result.output`, with
+matching returned model and finish_reason=stop. Name corruption therefore precedes
+local JSON decoding, projection and diagnostic display. Actual acquisition has
+no target injection; final baseline/candidate wire settings and Schema name match.
+
+Ranked hypotheses: (1) Prompt/model/structured-generation interaction remains
+unresolved; a minimal name-output reproduction should precede another semantic
+Prompt revision. (2) Forwarded-input/Schema-name drift is excluded for this batch.
+(3) Local decoder/projector/display corruption is excluded for these name values.
+(4) Merely excessive verbatim requirements cannot explain false attribution,
+punctuation-only names or an empty reference. JSON Schema mode support alone does
+not prove value quality or establish a specific upstream defect.
+
+Do not activate this candidate or add a repair guard, Agent or automatic optimizer.
+The single-call direction remains; its implementation outcome is still unaccepted.
+The held-out failure prevents a claim that these demonstrations generalize.
+
+[Private Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/8404c95d220f92e6c0549eccde80aa79),
+root `fffa2690d5492c35`, review `cdda761e2bd54d83`. Generation IDs in stage order:
+`c18455be53bb5e99`, `5c3586aa976412c1`, `b41db8540cfbd218`,
+`57999bde6497e47f`, `bc1dc449f0f9cb41`.
+Protected directory `apps/backend/.provider-evidence/m4-worked-examples-cfxHbl/`,
+0700 / files 0600, ignored and retained by #42 until decision/review.
+Eleven private observations read back: actual messages/Schema, raw output,
+program projection or rejection, usage and complete semantic review match.
+The matched wire comparison includes Schema name; Trace public=false and no
+credential values were found. Unchanged browser display evidence was reused.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Negative candidate result | 5697d53a3d05065e5f09d06105b9cea1d238d007a47e5486259db68e21dfaddc |
+| Positive candidate result | b8f38d62718b91a9adc8c6138760ed240e4d314f936a7db579912bf8d3af110c |
+| Acquisition result | 1d96d8496e4ae37a848d7b23e4d8df5f0afcf6c877feb8f843420609efc94eae |
+| Fresh baseline result | f8478da4f36f9ff31dea6730b8d89e246300705d7305c3d6e5d4aa6d3e6df941 |
+| Fresh candidate result | 35d07ca17dd399611b283ffa9240d73ff4ba5468b444e2a0a0bba4c32119e182 |
+| Plan | 553b2e653f057c0cf3b392a20fb577b7c762148e12b5c8ed477eba6315da6c32 |
+| Answer lineage | 85cbe811747b7f0488676b2dc255934249d1fda2c3c082ae487159f132f988cb |
+| Runner | 63295b9d667a7a6423485835500cc788896949b0a2517f61396d64080f5fcc85 |
+
+Verification: 5 files / 48 tests, Backend typecheck/build; after the wire-name
+correction, affected 15 tests/typecheck reran. Independent fixed-diff/semantic
+review and framework/links/format/diff passed. No DB/migration, actual synthesis/
+report/browser, runtime, Hy3, #49 mirror or other worktree change is included.

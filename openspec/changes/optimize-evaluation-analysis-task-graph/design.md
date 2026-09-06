@@ -479,3 +479,11 @@ The isolated builder is owner-local and reversible. Existing route/adapter and
 privacy evidence apply. Tests check unchanged input/Schema, valid complete examples
 and their final projection; independent review focuses on example consistency and
 test contamination. Model success still needs actual source/meaning review.
+
+Five calls complete this probe. The candidate improves some conditional roles
+and prose but is not accepted: false target attribution, punctuation-only name
+arrays and blank-line references remain. The same name anomaly appears on a
+new answer not used in the examples. Direct raw-response replay excludes local
+JSON decoding/projection as its origin; the Prompt/model/structured-output cause
+remains unresolved. Stop rewriting semantic instructions until a minimal output
+reproduction distinguishes it. No additional guard or mode switch is adopted.

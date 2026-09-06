@@ -204,3 +204,22 @@ remain pending. This review is not approval for a runtime merge.
 - Verdict: `ready with follow-up` for this evidence package, `not ready` for
   runtime. Stop advancing the inventory/judgment split; do not expand Agent layers
   or treat program recovery as model quality. No further call follows this batch.
+
+## Single-call worked-example checkpoint
+
+- Fixed diff `de0d518..01749c8` reviewed for complete demonstrations, shared Schema,
+  source context and contamination. Review identified a wire Schema-name variable;
+  `72930d4` removes the version override and strengthens whole-contract equality.
+  Actual fresh request bodies prove only system instruction differs.
+- 5 files / 48 tests, Backend typecheck/build passed; affected 15 tests/typecheck
+  reran after correction. No new runtime interface, dependency or acceptance guard.
+- Five calls completed, including an independently acquired answer. Examples
+  improve some roles and prose but candidate acceptance fails on both retained
+  and held-out cases. Name-array punctuation is already in raw model content;
+  local decode/projection/display are not its origin. Root cause upstream remains
+  unresolved, so no production fix or unsupported-mode claim follows.
+- Eleven private Trace observations read back with wire messages/Schema name,
+  output, projection/rejection, usage and complete review equality; public=false.
+- Verdict: `ready with follow-up` for the evidence package, `not ready` for the
+  candidate. Next minimize the output anomaly instead of adding another Prompt
+  patch, Agent or silent repair. No further call is part of this ended batch.
