@@ -1906,3 +1906,96 @@ other worktrees are not modified.
 | Readable report | 944d29cb9edb57f0d0145d2f6e5f4231d62a3613df5592a12c452d57be9fd264 |
 | Synthesis result | f04040ca90e46be4fcd5119bd22991304e391405d9d30488e41d7512ca2984f6 |
 | Runner | a5a2c60476a3bf11ea224e4e24958ac78179b8343221ce67025f219cbcd4c634 |
+
+## Owner-directed four-question merchant matrix — execution
+
+The owner accepts practical directions, retains the historical shared-item case
+for observation and explicitly approves real merchant four-question/five-platform
+testing with reasonable concurrency. This supersedes mandatory fine-wording
+calibration and further hypothetical name replacement. No earlier raw review is
+rewritten as passing evidence.
+
+At `9e62f8408d1b29f3e7d3200166905a8b9893bb8c`, manifest
+`400eb8dc1bf4087b8112de30b23075f15adfd3213749745cee8a3794892c3c12`
+freezes one owner-specified real restaurant, four ordinary consumer questions,
+the existing five acquisition routes, current direct Parser, unchanged open
+Parser 1.2.0 and experiment synthesis 1.1.0. The consumer needs do not establish
+merchant facilities; withdrawn/manual POI fixtures are not promoted into accepted
+Brand/Query truth. No business record is written.
+
+The bounded pool permits five external requests globally. Each acquired answer
+is parsed immediately within its slot; started calls settle on failure. Quota or
+nonretryable access failure stops queued work at the affected boundary. The
+reviewed runner permits at most 41 calls with no retries, fallback, billing
+activation, route changes or second batch. Pool success/exception settlement is
+checked offline before execution.
+
+Execution completes 2026-09-06 12:46:24.863–12:52:16.877 UTC. All 41 Provider
+calls return their configured models. All 20 acquisitions pass; 19 parses pass
+stage checks, one direct parse is rejected for malformed generated name fields.
+Four direct and fifteen open samples enter synthesis. Coverage preserves one
+unavailable sample, not an absent target. No access gate fires. A previous
+unavailable-route observation does not describe this batch's successful routes.
+
+| Stage | Calls | Tokens | Cumulative call time |
+| --- | --- | --- | --- |
+| Natural acquisition, five existing platforms | 20 | 292,692 | 809,173 ms |
+| Parser, Qwen3.8 Flash low | 20 | 44,000 | 210,082 ms |
+| Synthesis, Qwen3.8 Flash medium | 1 | 23,026 | 109,705 ms |
+
+Total 359,718 provider-reported tokens, peak concurrency five. Wall time is
+352.014 seconds; sampling/parsing reaches its barrier at 240.829 seconds and
+synthesis takes another 109.705 seconds. The small remainder includes local
+processing and telemetry shutdown. This run misses the owner's three-to-five-
+minute preference. It is neither a production SLA nor a linear scaling or billed
+cost estimate. Eighteen acquisitions report triggered search; two report UNKNOWN,
+not proof of either search success or failure. Nested/cache/reasoning totals are
+not counted again.
+
+Local practical-quality review finds mostly useful readable per-sample results,
+but rejects final identity/statistics acceptance: target identity confusion,
+unnamed descriptions counted as brands, category-based grouping of distinct
+brands, and model prose contradicting program coverage. One direct Parser
+malformed-name failure remains separate. These are material statistical errors,
+not fine wording. The final suggestions remain useful for discussion. Detailed
+business-level review and raw output stay protected locally, not copied here.
+
+Offline replays verify all source hashes, every accepted parse, the complete
+synthesis handoff and preview. The direct path uses the existing canonical
+projector and can lose raw observations; it is not claimed to be unprocessed.
+The open path retains actual parsed values and restored excerpts. Independent
+review confirms the identity/grouping failures exist in raw model outputs, not
+file transfer. Schema and valid member IDs do not establish same-brand identity.
+
+34 focused tests across the synthesis handoff, customer Parser and canonical
+Parser contracts pass, along with Backend typecheck/build, framework/links/diff
+and scoped independent code/runner review. This is not a full runtime/UI/DB or
+recovery test suite. The [private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/b20ab4409bea560d66d2a29eda65464e)
+contains root `bd1d29be2f40a57f` and exactly 41 generations. Readback confirms
+actual model IO/settings/usage equality, private visibility and no credentials,
+derived observations or independent semantic-review upload.
+
+Next use the retained real failures and an unaffected control for a small
+identity/statistics replay, frozen separately. Keep full source, single-call
+parsing and broad directions; do not automatically introduce a critic, alias
+database, extra tables or a mandatory one-call/two-call comparison. Another
+merchant matrix follows discriminating repair evidence, with measured timing.
+The current candidate is not accepted for runtime or formal 17/20 reporting.
+
+Evidence owner #42 retains
+`apps/backend/.provider-evidence/m4-merchant-matrix-LeoVP1/` (0700/0600).
+#41 keeps synthesis/customer-report ownership, #32 remains completed, #39 stays
+open and #43 awaits the stable execution projection. #49 Prompt Management
+mirroring is not completed by call logging. Main observed at `5fb4400`; no rebase,
+merge, production change or other-worktree mutation occurs in this package.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 2b0b2aadc594012adaddbbe16153aaa3d5dd809243bd474ddfc9a96350a11c63 |
+| Summary | f731131550b00524102f8394329c1933f2d085db62edf55c02a1fc05c084a9a6 |
+| Sample lineage | eff67e4e0b4c55f7fc5d3bb35df28277dafcd5418b04c41bbea22517a8a17e81 |
+| Actual synthesis handoff | 175266349b10465a00b35add4be6f6e180c80c5966d8f01d5927b4f2b932d91c |
+| Preview | 956c384d6c3bb76c7cdfa85ee96b8af2b045f6656e3a959ba2ffafd09ebb20ac |
+| Readable report | c81760a94a68c1644d7cd984be37f6c4be9636351cef8a0397da7f0110cf4a06 |
+| Synthesis result | b39120e68509c3f9800b97365db64f45559de7f6c21b01bb2ae8efe913266351 |
+| Runner | c9102fbc066d00f7606f988cd612428fbef20be2e6b873eb10b177830f1ab5f8 |

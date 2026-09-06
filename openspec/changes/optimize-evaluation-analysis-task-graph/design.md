@@ -2,9 +2,14 @@
 
 ## Decision state and owners
 
-Status: experimental alignment, no selected runtime topology. The owner's
-2026-09-05 feedback supersedes selection of two tasks before real comparison.
-Baseline: `main@ddadf77`; PR #48 at `2905937` is an unaccepted reference.
+Status: controlled merchant matrix complete, no selected runtime topology.
+The [current proposal](proposal.md#current-evidence-and-next-decision) and
+[tasks](tasks.md) own the next action. Historical stages below explain prior
+decisions, not a queue of experiments to repeat. The owner accepts practical
+directions and retains single-call parsing; identity/statistics defects from the
+real matrix, not minor wording, now drive the next bounded repair.
+Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
+PR #48 at `2905937` remains an unaccepted historical reference.
 
 #39 owns end-to-end acceptance. #41 owns synthesis semantics and customer
 quality. #42 owns the bounded comparison needed to choose task boundaries,
@@ -42,7 +47,7 @@ observed claims with short resolvable source excerpts, and brand-name candidates
 with context. Generated card prose cannot replace evidence. Compression preserves
 negation, attribution, qualifiers and contradictions; token reduction is not a Gate.
 
-## Staged comparison
+## Historical staged comparison — not a mandatory remaining checklist
 
 See [protocol](research/chain-quality-experiment.md) and
 [primary-source implications](research/prompt-context-source-brief.md).
@@ -59,6 +64,10 @@ See [protocol](research/chain-quality-experiment.md) and
 Freeze each batch and its authority. No automatic Cartesian sweep or tuning
 until a fixture passes. Examples are not holdouts. Small successes establish a
 candidate, not reliability statistics or a production SLA.
+
+The owner has since stopped advancing the tested Parser split and selected
+real-chain verification. Reopen a synthesis topology comparison only when a
+specific remaining failure makes it discriminate the next decision.
 
 ## Runtime choice after evidence
 

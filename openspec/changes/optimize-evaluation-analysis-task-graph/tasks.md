@@ -1,116 +1,56 @@
 # Tasks
 
-## Current experiment checkpoint
+## Current checkpoint
 
-Completed chronology, exact manifests and failed candidates live in the
-[experiment record](research/chain-quality-experiment.md), not this current checklist.
+Exact historical packages, failed candidates and manifests live in the
+[experiment record](research/chain-quality-experiment.md). Completed probes are
+not a remaining backlog. The owner wants practical, stable, efficient analysis
+of real answers, with no fine-condition or minor-wording acceptance gate.
 
-Current owner direction: use the accepted real Interaction Pie questions through
-acquisition → unchanged Parser 1.2.0 → one synthesis → readable local preview.
-The name-only counterfactual is superseded and will not be run in this package.
+- [x] Audit main, Issue/PR/Project ownership and actual sampling/Parser/synthesis
+      consumers; keep natural acquisition and accepted metric meaning.
+- [x] Compare bounded Parser Prompt/context/contract candidates, separately retain
+      raw/model and program output, and stop advancing the tested Parser split.
+- [x] Retain single-call open Parser 1.2.0, full answers and source-restored excerpts.
+      Overall-positive recommendations with ordinary drawbacks remain eligible.
+- [x] Verify actual model IO presentation and private Langfuse readback; independent
+      semantic review, program projections and readable reports stay local.
+- [x] Run the Interaction Pie three-open-question chain and inspect the final output.
+- [x] Supersede strict action-wording calibration and name-only hypotheses with
+      the owner's practical direction and representative real-merchant validation.
+- [x] Freeze and execute one new-merchant four-question × five-platform matrix:
+      41 calls, peak concurrency five, no retry/fallback, original outputs retained.
+- [x] Keep direct-question descriptions separate from open-question competitors;
+      mark unavailable parses separately instead of treating them as absence.
+- [x] Rebuild the recorded handoff/preview offline, inspect real source and final
+      result, and separate Provider, structure, semantic and timing conclusions.
 
-- [x] Audit main, Issue/PR/Project owners and the actual sampling/Parser/synthesis
-      inputs and consumers; preserve natural acquisition and current metric meaning.
-- [x] Test frozen Prompt/context/contract candidates and preserve raw/projected
-      quality separately; do not adopt the failed minimal-context arm.
-- [x] Separate actual model messages from diagnostic metadata and program projection;
-      verify wire equality, masking and browser presentation without runtime changes.
-- [x] Verify source-range restoration and isolate shared-prose name deduplication
-      loss offline, preserving the original failure and accepted history.
-- [x] Freeze P6 identity/role meaning and execute the four-call transfer package:
-      retained P6, independent natural acquisition, independent P5/P6. Positive
-      target evidence is now observed; all three Parser arms still fail quality.
-- [x] Independently review implementation and semantic outputs; reconcile protected
-      evidence and private Trace readback without activating candidates.
-- [x] Design and freeze one bounded task-load comparison: source-grounded subject/
-      evidence extraction followed by judgment/expression versus a frozen one-call
-      candidate. Specify information completeness and no unsupported additions at
-      the handoff; do not preselect a production split or merely rename fields.
-- [x] Execute the frozen package on both retained answers: 5/6 calls, negative
-      full comparison fails; positive judgment skipped by the original inventory
-      guard. Preserve this incomplete result, costs and exact failure ownership.
-- [x] Correct shared-source name visibility offline with a red-to-green regression;
-      retain hidden-source rejection, original outputs and the skipped sixth call.
-- [x] Simplify the next comparison under the 2026-09-06 owner confirmation: full
-      source in both final tasks, same Prompt/Schema/context/projector, optional
-      inventory only. Do not build a clipping algorithm or resume P7.
-- [x] Execute at most six calls on the two retained answers; assess meaningful
-      subject/condition/role fidelity, full split cost and actual downstream value.
-- [x] Complete both positive/negative comparisons: split has no useful advantage,
-      higher full cost and material final-output defects. Stop advancing it.
-- [x] Run one frozen single-call worked-example probe and one natural held-out
-      answer with baseline/candidate; record useful changes and substantial failures.
-- [x] Confirm fresh requests differ only in Prompt, including wire Schema name;
-      raw model JSON already contains malformed names, before local processing.
-- [x] Complete six-call name/mode diagnosis: minimal arrays work, identical full
-      strict replay is intermittently malformed, and JSON Object breaks contract.
-- [x] Confirm documented low budget saturation and execute a separate two-call
-      medium counterfactual: names improve, but semantic gaps/latency remain.
-- [x] Recheck actual consumers: no field removal is justified. Select one local
-      evidence-before-judgment candidate, keeping full source and current semantics.
-- [x] Complete four frozen calls: coffee evidence improves, shoe shared conditions
-      remain missing and FILA is lost; candidates take longer. Do not promote.
-- [x] Add a shared-condition demonstration and prove two distinct brand records
-      retain the same complete qualifying evidence and current metric eligibility.
-- [x] Execute all four calls: retained role improvements do not complete evidence;
-      fresh candidate has a part-identity error and higher tokens without net gain.
-- [x] Isolate actual model omission from per-span name filtering in three offline
-      reference-only replays; a complete contiguous context survives unchanged.
-- [x] Supersede prospective detailed condition-handoff work with the owner's
-      customer-value scope; preserve old evidence without inheriting its rubric.
-- [x] Prepare a smaller target-points/summary and competitor-eligibility contract,
-      reusing full context and source restoration without a legacy report adapter.
-- [x] Complete the three frozen retained-sample calls and local recalibrated review;
-      preserve aggregate efficiency evidence and an internal name-field residual.
-- [x] Remove the redundant generated target-name field in experiment 1.1.0;
-      preserve source-backed points/position and null without name recovery.
-- [x] Execute the fixed three-call replay and verify private IO-only telemetry;
-      keep prior evidence, local semantic findings and efficiency limits separate.
-- [x] Owner confirms independent semantic review stays local; Langfuse records
-      actual model input/output and operational call metadata only, not review
-      summaries or program projections. This is no longer an authorization gate.
-- [x] Owner confirms overall positive recommendations with ordinary drawbacks
-      remain eligible; explicit negative/non-recommendation and background do not.
-- [ ] Resolve material identity/position/polarity quality and verify held-out behavior
-      before small report-path integration; no candidate is accepted yet.
-- [x] Test independent brand records with source-backed names and a single null/
-      summary decision in 1.2.0; five frozen calls and private IO readback complete.
-- [x] Separate structural simplification from semantic quality: no net fresh-pair
-      benefit, and raw shared-item eligibility/position residual remains.
-- [x] Supersede the planned name-only counterfactual with the owner's real-chain
-      direction; preserve previous failures without adding hypothetical samples.
+## Next bounded package
 
-## Current real-chain verification
+- [ ] Repair only demonstrated brand-identity/statistics boundaries: target versus
+      similar independent brand; named subject versus unnamed description;
+      same-brand grouping versus thematic grouping; one program-owned count.
+      Diagnose the retained direct-Parser malformed-name output at its own seam.
+- [ ] Freeze a small replay on the retained real failures plus an unaffected
+      control. Keep original failed outputs and actual model IO. No new sampling,
+      alias database, critic or silent program repair is required by this step.
+- [ ] Recheck the final readable report and core statistics at the practical
+      quality bar. The historical coffee case remains an observation/regression,
+      not an indefinite tuning gate. Do not resume every old topology comparison.
+- [ ] After targeted evidence supports the candidate, test another real merchant
+      with the same four-question matrix and measure full wall time. Use the
+      measured sampling/parsing and synthesis components to choose a bounded
+      concurrency change; do not promise three-to-five minutes in advance.
 
-- [x] Reuse the three accepted #26 open questions and existing natural Qwen route.
-- [x] Keep Parser 1.2.0 unchanged; prepare a source-backed synthesis handoff with
-      reference checks and program-owned preview counts, not a legacy adapter.
-- [x] Execute the seven-call chain and retain actual input/output at every stage.
-- [x] Review the final readable result alongside original answers and actual parses;
-      distinguish missing source information, Parser loss and synthesis additions.
-- [x] Verify IO-only Langfuse readback and reconcile next work from this real result.
-- [ ] Calibrate synthesis guidance from this retained real case: distinguish
-      platform descriptions from current brand facts and grounded next actions;
-      reuse the same raw/parsed evidence instead of hypothetical replacements.
+## Actual delivery — still outstanding
 
-## Synthesis comparison
-
-- [ ] Reuse useful #41 code/evidence without treating its rejected head as accepted.
-- [ ] Construct compact evidence retaining source excerpts and candidate context.
-- [ ] Freeze current-main and improved one-call packages; disclose changed variables.
-- [ ] Compare matched one-call/split candidates and test narrative/group dependency.
-- [ ] Freeze each later batch within the owner's controlled real-call authority;
-      obtain new authority for a different data, cost, Provider or production gate.
-- [ ] Select topology and budget from evidence, then obtain architecture approval.
-
-## Actual delivery
-
-- [ ] Route any new Parser implementation to an explicit owner; preserve #32 history.
-- [ ] #41 implements approved semantics; #42 implements only required execution.
-- [ ] Verify integration, retries, duplicate delivery and immutable reports;
-      rehearse migrations only if the chosen design requires them.
-- [ ] Close #41 after actual customer report acceptance, not a detached probe.
-- [ ] Hand truthful stable progress to #43.
-- [ ] Measure fixed-input timing and lightweight cost, disclosing model/config differences.
-- [ ] Complete fixed-version #39 end-to-end/browser evidence; reuse unaffected evidence.
-- [ ] Reconcile current owners, archive when complete and record exact worktree exit.
+- [ ] Confirm the smallest supported runtime design and explicit Parser delivery
+      ownership; keep #32 completed and #41's final semantic/report ownership.
+- [ ] #41 integrates the accepted semantics; #42 implements only required execution,
+      recovery and timing. Add tables/migrations only if the selected design needs them.
+- [ ] Verify actual report/UI, retries, duplicate delivery and immutable history;
+      controlled probes do not close #41 or prove formal 17/20 readiness.
+- [ ] Hand truthful server-owned progress to #43 and complete fixed-version #39
+      end-to-end acceptance, reusing unaffected passing evidence.
+- [ ] Reconcile current owners and the active Change at completion; keep PR #62
+      Draft Partial and this worktree retained until the appropriate review/merge.

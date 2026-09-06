@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Experimental alignment; runtime topology unselected
+- Status: Real merchant matrix reviewed; identity/statistics repair remains experimental
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -13,15 +13,16 @@ model output. The owner's 2026-09-05 feedback requires examining the entire
 sampling/parsing/synthesis context chain and improving normal generation before
 selecting topology. Each layer receives task-relevant context; the first Parser
 focuses on recognizable brand subjects, not unnamed teams or organization detail.
-Source evidence still preserves branch scope and conditional meaning. Earlier
+Source evidence preserves enough meaning for the customer-level task. Earlier
 failures reject those candidates, not all one-call designs. Projection recovery
 is a safety boundary, not the quality being optimized.
 
 ## Outcome and scope
 
-Compare Prompt, evidence context and task structure reproducibly. Start with a
-Parser Prompt-only control, then compare synthesis input and topology without
-changing all variables together. Preserve raw output, projected output, useful
+Use real acquisition, parsing and synthesis results to select the smallest useful
+improvement. Retain the single-call open Parser; neither further Parser splitting
+nor a one-call/two-call synthesis comparison is mandatory without a new reason.
+Preserve raw output, projected output, useful
 evidence, quality findings, token usage and latency separately. Select the
 smallest supported runtime only after evidence and architecture approval.
 
@@ -40,13 +41,13 @@ Langfuse input/output export. Four questions, five platforms, metric meaning,
 
 ## Current evidence and next decision
 
-The owner redirects the next step to a real analysis chain, not further
-name-replacement hypotheses. Use Interaction Pie's three accepted open questions
-from the archived #26 real-query review, acquire fresh natural answers, parse
-each with unchanged experiment 1.2.0, and synthesize the actual parses and source
-excerpts into one readable preview. No manual correction or synthetic replacement
-enters these calls. The bounded package contains seven calls on the existing Qwen
-routes, with at most two in flight and no retries or fallback.
+The owner accepts practical, readable directions and requests another real
+merchant and measured four-question/five-platform concurrency. The first full
+controlled matrix at `9e62f84` is complete: 20 acquisitions, 20 Parser calls and
+one synthesis, actual peak concurrency five, without retries or fallback.
+All Provider calls succeed; 19 parses pass their stage checks, including four
+direct and fifteen open samples. One direct parse is rejected, not counted absent.
+This is controlled analysis evidence, not the formal application/report path.
 
 The current Parser is an experiment, not a canonical report adapter. It retains
 target points/position/evidence and a target summary, while other brands have
@@ -56,12 +57,14 @@ null decision. The owner confirms ordinary drawbacks do not disqualify an
 overall-positive recommendation. Keep the customer-level quality bar and do not
 revive fine condition/role or minor wording gates.
 
-Previous real tests show useful structural simplification but no stable quality
-or efficiency advantage. Shared-item eligibility/position errors remain, and
-Schema/source acceptance alone does not establish customer usefulness. Those
-findings now inform review of the real final result; they do not justify another
-round of hypothetical Prompt changes. All immutable manifests, historical
-results and limits remain in the [experiment record](research/chain-quality-experiment.md).
+The historical coffee shared-item case stays a retained observation/regression,
+not a reason to keep tuning indefinitely. The new matrix provides higher-priority
+reachable failures: a target-identity false positive, unnamed entities entering
+competitors, direct-Parser malformed names, and synthesis grouping distinct brands
+by category. Synthesis also contradicts the program's available direct count.
+These affect identity/statistics, unlike minor wording. Preserve the failed output;
+Schema/source/reference acceptance is not semantic acceptance. Exact manifests,
+results and limits live in the [experiment record](research/chain-quality-experiment.md).
 
 The experiment-only synthesis handoff preserves actual parsed facts and restored
 excerpts, assigns short local reference IDs, and leaves counts with code. A
@@ -69,20 +72,24 @@ single synthesis generates overview, themes, proposed brand groups and practical
 directions. It does not invent legacy Parser roles or satisfy the formal report
 contract. #41 retains final synthesis/customer-report ownership.
 
-Langfuse contains actual model input/output and operational metadata only.
-Independent semantic review and the readable preview remain local. This package
-covers three open questions on one platform, not a brand-directed question,
-4×5 readiness, actual UI/database/recovery or production activation. Review the
-visible result first, then choose the smallest evidence-backed next improvement.
+Wall time is 352.014 seconds: sampling/parsing reaches its barrier at 240.829
+seconds, then synthesis takes 109.705 seconds. This run misses the owner's
+three-to-five-minute preference. Use these measured components to choose the
+next bounded concurrency or synthesis experiment; do not claim an SLA, linear
+scaling, billed cost, or a proven benefit from splitting.
 
-The seven-call chain is now complete at `a75a5be`, including an unedited readable
-preview. Local review finds the Parser-to-synthesis handoff intact and the final
-result useful for discussion, but action guidance still crosses from platform
-descriptions into insufficiently supported business assertions. Next calibrate
-that synthesis boundary using the same retained real evidence, under #41's final
-semantic ownership. The batch takes 227.304 seconds wall time; natural sampling
-dominates its duration and tokens. This is measured evidence for this package,
-not a universal performance conclusion or an accepted runtime.
+Next repair only the demonstrated identity/statistics boundaries using retained
+real answers, and freeze any new call package separately. Keep full source,
+ordinary recommendation tolerance and broad practical directions. Do not add
+alias databases, critics, workflow tables or word-for-word proof gates. A second
+merchant matrix follows the targeted replay; it is not a repeated sweep of an
+unchanged failing package. #41 retains final synthesis/customer-report ownership.
+
+Langfuse contains actual model input/output and operational metadata only;
+42 private observations have been read back against the wire. Independent review
+and the raw readable preview remain local. Actual UI/database/recovery, runtime
+activation and formal 17/20 report acceptance remain unverified. Trace logging
+does not complete #49 Prompt Management mirroring.
 
 ## Impact and exit
 
