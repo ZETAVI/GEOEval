@@ -32,8 +32,12 @@ export const m4ChainSynthesisSchema = z
       .array(
         z
           .object({
-            displayName: text(120),
-            members: z.array(id).min(2).max(100),
+            displayName: text(120).describe("归并后的一个具体消费者品牌名。"),
+            members: z
+              .array(id)
+              .min(2)
+              .max(100)
+              .describe("该品牌对应的 otherBrands 记录 id，不是 sampleId。"),
           })
           .strict(),
       )
@@ -171,6 +175,41 @@ export function buildM4ChainSynthesisTask(
       })),
     };
   });
+  // The model selects existing references; it has no reason to invent identifiers.
+  const sampleIds = samples.map((sample) => sample.sampleId);
+  const brandIds = samples.flatMap((sample) =>
+    sample.otherBrands.map((brand) => brand.id),
+  );
+  const sampleRefs = z
+    .array(z.enum(sampleIds as [string, ...string[]]))
+    .min(1)
+    .max(20);
+  const groupShape = m4ChainSynthesisSchema.shape.brandGroups.element;
+  const boundSchema = m4ChainSynthesisSchema.extend({
+    positiveThemes: z.array(theme.extend({ sampleIds: sampleRefs })).max(5),
+    negativeThemes: z.array(theme.extend({ sampleIds: sampleRefs })).max(5),
+    directions: z
+      .array(
+        m4ChainSynthesisSchema.shape.directions.element.extend({
+          sampleIds: sampleRefs,
+        }),
+      )
+      .max(3),
+    brandGroups:
+      brandIds.length < 2
+        ? z.array(groupShape).max(0)
+        : z
+            .array(
+              groupShape.extend({
+                members: z
+                  .array(z.enum(brandIds as [string, ...string[]]))
+                  .min(2)
+                  .max(100)
+                  .describe("从所给其他品牌记录 id 中选择同一品牌的成员。"),
+              }),
+            )
+            .max(30),
+  });
   return {
     taskKind: "STRUCTURED_OUTPUT" as const,
     systemInstruction: prompt.content,
@@ -195,7 +234,7 @@ export function buildM4ChainSynthesisTask(
     },
     outputContract: {
       version: `${prompt.id}@${prompt.version}`,
-      jsonSchema: z.toJSONSchema(m4ChainSynthesisSchema, {
+      jsonSchema: z.toJSONSchema(boundSchema, {
         target: "draft-2020-12",
       }),
     },

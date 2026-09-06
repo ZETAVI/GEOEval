@@ -44,6 +44,28 @@ reduce actual synthesis time without losing useful conclusions. Focused context
 pass-through tests, fixed-wire comparison, raw-output review and measured repeat
 timing discriminate these questions; further architecture is not presumed.
 
+The frozen package stops after five calls: both synthesis arms reference unknown
+brand-record IDs, so the planned repetition/other-brand call does not run. The
+broader Parser instruction also changes a retained sample's positions without
+source support. Do not promote either result or interpret shorter failed-call
+latency as a successful speedup.
+
+The next smaller repair returns the Parser to its prior instruction plus the
+optional owner-context explanation (1.4.0). Synthesis 1.3.0 retains concise
+instruction and binds JSON Schema reference choices to the exact sample/brand
+IDs already present in the input; it does not validate legal identity or force
+names to match character-for-character. Existing post-output reference checks
+remain. With fewer than two brand records, no grouping is requested.
+
+Freeze four calls separately: two retained Parser checks (confirmed alias and
+the observed position regression), then two identical full-input synthesis
+calls after those actual outputs enter the handoff. No new sampling, different
+model/effort, extra Agent, new persistence, retry or extended first batch.
+The specific unknown-reference failure, finite-choice wire tests and independent
+repeat determine whether this package is useful; semantic grouping remains a
+separate real-output check, not guaranteed by Schema. No causal speed claim
+against the changed-input, failed earlier pair is justified.
+
 #39 owns end-to-end acceptance. #41 owns synthesis semantics and customer
 quality. #42 owns the bounded comparison needed to choose task boundaries,
 then execution, recovery, timing and progress. #32 remains completed; Parser

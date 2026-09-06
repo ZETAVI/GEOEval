@@ -44,6 +44,26 @@ const output = () => ({
 });
 
 describe("M4 real-chain synthesis preview", () => {
+  it("bounds wire references to actual samples and brand records, with no invented identifiers", () => {
+    const schema = buildM4ChainSynthesisTask("青禾咖啡", inputs).outputContract
+      .jsonSchema as any;
+    expect(
+      schema.properties.positiveThemes.items.properties.sampleIds.items.enum,
+    ).toEqual(["s1", "s2"]);
+    expect(
+      schema.properties.directions.items.properties.sampleIds.items.enum,
+    ).toEqual(["s1", "s2"]);
+    expect(
+      schema.properties.brandGroups.items.properties.members.items.enum,
+    ).toEqual(["s1-b1", "s1-b2", "s2-b1", "s2-b2"]);
+    const noBrands = inputs.map((s) => ({
+      ...s,
+      parsedOutput: { target: null, otherBrands: [] },
+    }));
+    const empty = buildM4ChainSynthesisTask("青禾咖啡", noBrands).outputContract
+      .jsonSchema as any;
+    expect(empty.properties.brandGroups.maxItems).toBe(0);
+  });
   it("keeps optional owner context separate from unmodified parsed records and counts", () => {
     const plain = buildM4ChainSynthesisTask("青禾咖啡", inputs);
     const contextual = buildM4ChainSynthesisTask(

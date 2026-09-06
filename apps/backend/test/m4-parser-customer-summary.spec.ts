@@ -112,7 +112,7 @@ describe("M4 customer-value Parser experiment", () => {
   it("retains overall recommendations with drawbacks and excludes negative/background mentions", () => {
     const result = inspectM4CustomerSummaryOutput(value(), originalAnswer);
     expect(buildM4CustomerSummaryTask(base).systemInstruction).toContain(
-      "带普通缺点但整体仍推荐时为true",
+      "整体仍推荐但带普通缺点的品牌仍为true",
     );
     expect(result.output.otherBrands).toHaveLength(3);
     expect(result.positiveCompetitors.map((b) => b.displayName)).toEqual([
