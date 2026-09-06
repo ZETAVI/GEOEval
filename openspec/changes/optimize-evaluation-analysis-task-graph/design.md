@@ -692,3 +692,29 @@ sensitive to the name while holding source structure and settings fixed. Two
 unseeded observations cannot prove training-prior causality or reliable rates;
 use them to choose the next action, not to claim a universal root cause. A larger
 Agent topology and formal report integration remain unjustified at this point.
+
+### Owner-directed real analysis chain
+
+The owner supersedes the proposed name counterfactual: use real questions and
+natural answers through the whole analysis chain, then inspect the actual result.
+Reuse Interaction Pie's three accepted open questions from #26 unchanged. Run
+three Qwen acquisitions, the unchanged Parser 1.2.0 on each answer, then one
+single-call synthesis of those actual parses and restored source excerpts.
+No edited brand names, fabricated semantic fixtures or manual repair enters it.
+
+Architecture readiness: `ready` for this bounded experiment under #42, with #41
+retaining final synthesis/report ownership. A small experiment-only handoff is
+needed because Parser 1.2.0 is not the canonical legacy contract. It assigns
+local reference IDs, preserves all parsed points/brand flags/source excerpts,
+and computes preview counts without inventing old roles or official metrics.
+One synthesis produces overview, themes, optional name groups and directions;
+code checks reference integrity and counts distinct eligible sample occurrences.
+This is not a selected runtime topology or #41 acceptance.
+
+Freeze seven calls, existing Qwen acquisition/Parser/synthesis routes and effort,
+maximum two in flight, no retry/fallback/tuning. Invalid acquisition or structured
+output stops dependent work. Log actual model IO and operational metadata only;
+keep independent review and the readable result local. Deliver the real source,
+parse and synthesized preview together. Three open questions on one platform
+cover the analysis stages, not the direct question, 4×5 readiness, DB/recovery,
+official report UI or production. Those boundaries remain separately verifiable.
