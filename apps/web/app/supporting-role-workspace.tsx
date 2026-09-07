@@ -243,8 +243,7 @@ export function supportingRoleConfig(
       cards: [
         {
           title: "待领取订单",
-          description:
-            "发布订单能力尚未激活，因此当前不展示虚构数量或模拟订单。",
+          description: "客户已可购买并查看待处理订单；运营认领与履约尚未接入。",
           status: "FUTURE_CAPABILITY",
         },
         {

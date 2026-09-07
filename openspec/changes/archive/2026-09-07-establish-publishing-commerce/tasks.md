@@ -38,11 +38,14 @@
       Product Definition marker and retain unactivated commercial scenarios.
 - [x] Review the fixed implementation diff and run required tests/build/generated-
       contract checks; PR owns the review scope and exact evidence.
-- [ ] Complete final review/acceptance and archive this Change before changing
-      the PR to Final; retain Partial semantics while that gate remains.
-- [ ] Integrate only under applicable authorization; reconcile exact tree,
-      Issue/Project, test-resource shutdown and workspace exit independently.
+- [x] Complete bounded business acceptance and final incremental review; correct
+      the two stale capability descriptions, add the operations-boundary regression
+      and archive this Change for a Final PR. No full-site visual acceptance claim.
+- [x] Transfer authorized integration and post-merge verification to PR #72's
+      live checkpoint: exact tree, checks, Issue/Project and deliberately retained
+      human-review workspace/resources. These actions are not implied complete
+      by this archived checklist.
 
-Continue on this branch within approval. Each implementation slice includes its
-own API/UI/permissions/evidence; do not create horizontal layer-only Issues or
-reopen the completed #57. Tracker/PR own live status and evidence, not this file.
+This change is no longer an active plan. PR #72 owns remaining integration and
+workspace evidence; independent fulfilment, recharge preparation and UI/UX work
+use their own Issues. Do not reopen #57 or extend this archive as a backlog.

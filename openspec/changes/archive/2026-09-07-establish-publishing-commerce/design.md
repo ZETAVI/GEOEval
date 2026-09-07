@@ -1,7 +1,8 @@
 # Publishing Commerce design
 
-Status: owner approved on 2026-09-06. Implementation is staged; unimplemented
-sections are not current product truth or a framework for future payments.
+Status: archived implementation rationale for the accepted Issue #65 scope.
+The staged notes below are historical; current owner-local specifications and
+executable contracts own accepted behavior. Future payments remain separate.
 
 ## 1. Ownership and public boundary
 

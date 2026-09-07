@@ -6,8 +6,9 @@ This owner currently implements maintained random-package configuration,
 administrator audit, terminal-customer offer visibility, account points,
 granted-only administrator adjustments/history, saved selections, advisory quotes,
 atomic point-funded purchases and customer-safe pending orders. Real payment and
-fulfilment are not activated. Delivery acceptance remains in
-[`establish-publishing-commerce`](../../changes/establish-publishing-commerce/proposal.md).
+fulfilment are not activated. Historical delivery rationale is retained in
+the [archived change](../../changes/archive/2026-09-07-establish-publishing-commerce/proposal.md);
+this specification and executable contracts own current behavior.
 
 ### Requirement: Maintained publishing packages
 

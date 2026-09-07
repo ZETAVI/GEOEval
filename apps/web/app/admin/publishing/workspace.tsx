@@ -108,7 +108,7 @@ export function AdminPublishingWorkspace() {
           </p>
         )}
         <div className="commerce-notice">
-          停用只停止新购买，不删除套餐记录；可在客户积分管理赠送额度，购买提交仍待接入。
+          停用只影响新购买，不改变已购订单；客户确认购买后扣减积分并生成待处理订单。
         </div>
         {editor && (
           <PackageEditor

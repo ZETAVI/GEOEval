@@ -30,7 +30,7 @@ describe("supporting role homes", () => {
     });
   });
 
-  it("exposes activated commerce entry points without implying order or payment support", () => {
+  it("exposes activated commerce entry points without implying fulfilment or real payment support", () => {
     const cards = supportingRoleConfig("ADMINISTRATOR").cards;
     expect(cards).toEqual(
       expect.arrayContaining([
@@ -53,6 +53,17 @@ describe("supporting role homes", () => {
     expect(
       cards.find((card) => card.title === "订单与结算")?.href,
     ).toBeUndefined();
+  });
+
+  it("distinguishes customer purchase support from future operations claiming", () => {
+    const pending = supportingRoleConfig("OPERATIONS").cards.find(
+      (card) => card.title === "待领取订单",
+    );
+    expect(pending).toMatchObject({
+      description: "客户已可购买并查看待处理订单；运营认领与履约尚未接入。",
+      status: "FUTURE_CAPABILITY",
+    });
+    expect(pending?.href).toBeUndefined();
   });
 
   it.each(["ADMINISTRATOR", "OPERATIONS", "AGENT"] as const)(

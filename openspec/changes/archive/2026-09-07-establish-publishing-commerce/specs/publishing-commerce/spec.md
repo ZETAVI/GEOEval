@@ -1,3 +1,7 @@
+# Archived behavior delta
+
+Accepted behavior is reconciled into the current Publishing Commerce owner.
+
 ## ADDED Requirements
 
 ### Requirement: Administratively prepared sales and points
