@@ -2,8 +2,8 @@
 
 ## Decision state and owners
 
-Status: effort comparison complete; retain medium for cross-merchant controlled validation.
-The earlier duplicate-grouping failure remains unresolved; no runtime topology is selected.
+Status: second full matrix reproduces grouping failure; retained-input repairs come next.
+No runtime topology or successful full-report timing is accepted.
 The [current proposal](proposal.md#current-evidence-and-next-decision) and
 [tasks](tasks.md) own the next action. Historical stages below explain prior
 decisions, not a queue of experiments to repeat. The owner accepts practical
@@ -47,6 +47,20 @@ Provider, structure, semantic and timing results. IO/operational metadata alone
 goes to private Langfuse; independent review and readable preview stay local.
 Stop after this one matrix and review the actual bottleneck before changing
 concurrency. This is not formal UI/DB/recovery or #41/#42 acceptance.
+
+Result at `9c78932`: all 42 Providers and 20 Parser structures succeed, but the
+grouping component repeats and mixes record members and is rejected. Full wall
+time is 292.527 seconds, with no complete preview; this is a failed attempt's
+timing, not successful report readiness. Local review also finds specific Parser
+coverage/position defects, a malformed name leaking into readable detail, and
+directions drifting from GEO information/content needs toward business operations.
+These are real delivery effects, not a stricter wording or legal-identity bar.
+
+Prioritize single-assignment grouping on both retained handoffs, then focused
+single-Parser regressions and the narrative's content-purpose instruction.
+No more sampling or concurrency/effort changes precede that repair evidence.
+Do not trim malformed groups or silently alter retained parses. The current
+proposal/tasks own the bounded follow-up; no extra call is added to this matrix.
 
 ### Owner-requested grouping effort comparison
 

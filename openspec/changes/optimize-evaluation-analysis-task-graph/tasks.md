@@ -51,17 +51,26 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       changed and no analysis search. Retain medium for the next controlled
       matrix: two consistent member partitions in 41.812–54.230 seconds; neither
       low nor xhigh gives a better overall result in this batch.
-- [ ] Test another merchant's four-question/five-platform complete chain with
-      the retained candidate; measure acquisition, Parser, synthesis and total
-      time before a bounded concurrency change. Do not add historical timings
-      or turn six repeated grouping calls into a full-evaluation measurement.
+- [x] Run the second merchant's complete four-question/five-platform matrix:
+      42 Provider calls and 20 Parser structures succeed, but grouping repeats
+      members and no complete preview is formed. Record 219.361-second
+      sampling/Parser, 72.828-second synthesis and 292.527-second failed-attempt
+      wall time; this is not successful report/SLA acceptance.
+- [ ] Prioritize one-assignment-per-record grouping expression on both retained
+      merchant handoffs. Preserve singleton and grouped identities; compare actual
+      memberships without trimming, source correction, extra Agents or resampling.
+- [ ] Replay the observed single-Parser omissions, incorrect/shared positions and
+      readable malformed-name detail. Keep full sources and practical quality;
+      do not blanket-raise effort or treat every internal field anomaly as failure.
+- [ ] Clarify narrative directions' GEO information/content purpose for the
+      promotional-article consumer, while retaining useful overview/themes.
+      Do not add a critic, strict wording gate or business-operation consultancy.
 - [ ] Before formal delivery, explicitly resolve or disposition the retained
-      duplicate-grouping report failure. Single-assignment output is a candidate,
-      not a prerequisite for the next controlled matrix. Keep failed evidence
-      and rejection; no tail trimming or claim that two good outputs fix it.
-- [ ] Review the remaining named/unnamed, member and direct-Parser failure cases
-      by their actual report impact; retain imperfect results rather than silently
-      repairing them or turning every historical case into an indefinite gate.
+      duplicate-grouping report failure. Keep both merchants' failed evidence
+      and rejection; no tail trimming or claim that good repetitions fix it.
+- [x] Review the remaining named/unnamed, member and direct-Parser cases by their
+      actual report impact; distinguish raw-field anomalies from visible detail
+      and isolate the new bounded regressions above instead of an indefinite backlog.
 - [ ] Recheck the final readable report and core statistics at the practical
       quality bar. The historical coffee case remains an observation/regression,
       not an indefinite tuning gate. Do not resume every old topology comparison.

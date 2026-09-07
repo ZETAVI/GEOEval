@@ -2419,3 +2419,101 @@ change occurred. #41/#42 ownership and #39/#43 ordering remain intact.
 | Grouping handoff | ff2570294c94597438a719a47b1f2abbad2d097780b7710c2fde3c46174b7432 |
 | Wire comparison | 026b7894424173fb012326e310f7aadcfeb4c7515518017d83273535b572c3ff |
 | Runner | 16094a3dc9905c217651148f23100c3390f17c9cdb6bb60e9be15a62fee0bcd6 |
+
+## Second merchant matrix — grouping failure reproduced
+
+The owner approves the planned cross-merchant full-chain test without further
+Prompt/contract/effort changes. At `9c7893206f0973fde20fba8ff9d37de47c66d768`,
+manifest `98dc9b3c5a6e836515072c17cfdadadf466b8e047416597bd9132446d1193478`
+freezes a second public restaurant subject, four ordinary consumer questions and
+the same five acquisition platforms. Name/area/needs are the selected test scope,
+not newly verified business claims or saved Brand/Query records. Open queries do
+not include the target name. No external business lookup or analysis search is
+added; acquisition retains its ordinary configured tools.
+
+Maximum 42 calls, global concurrency five and 180-second request wait: twenty
+acquisitions feed twenty single Parser calls, followed by two parallel medium
+synthesis components. Direct Parser and open 1.4.0 remain unchanged; grouping
+and narrative reuse the exact 1.0.0 assets and current dynamic reference builder.
+The runner freezes routes, recipes, assets and builder hash, checks pool draining
+and both-required composition offline, and preserves all original outputs.
+No retry, fallback, mid-batch tuning, runtime activation or database write occurs.
+
+The run executes 2026-09-07 03:20:17.678–03:25:10.205 UTC (September 6 local).
+All 42 Providers succeed and all twenty parses pass structure/source acceptance.
+There are no access/quota gates, skipped samples or unavailable positions.
+These twenty parses still contain the semantic residuals below; code acceptance
+does not mean all twenty are correct.
+
+| Stage | Actual result | Reported tokens |
+| --- | --- | --- |
+| Acquisition | 20/20 returned | 231,456 |
+| Parser | 20/20 structure/source accepted | 55,657 |
+| Grouping | 72.822 s; repeated members rejected | 18,377 |
+| Target narrative | 39.666 s; structure accepted | 17,935 |
+
+The acquisition/Parser barrier is 219.361 seconds; parallel synthesis is 72.828
+seconds; full batch wall time is **292.527 seconds**. `previewReadyMs` is null
+and no complete preview exists. This is the measured duration of a failed full
+attempt, not a successful three-to-five-minute report or a measured recovery SLA.
+Total usage is 323,425 reported tokens, not a bill. Preserve native cache/search/
+reasoning accounting without counting reasoning twice. Different merchant
+answers and task composition prevent a causal speed comparison with the earlier
+352.014-second matrix; neither should be presented as formal report readiness.
+
+The grouping input contains 72 retained brand records. Raw output has fourteen
+groups; one group's members array reaches 100 entries with only 21 distinct IDs,
+mixing already-used brands and repetitions. Across output there are 98 repeated
+membership occurrences. Raw and normalized model output match and finish reason
+is stop. The existing validator rejects it before assembly. This reproduces the
+known failure on another merchant; do not salvage early groups or silently trim
+the malformed array into a successful report. The role of the array boundary in
+generation remains a hypothesis, not a proven decoder defect.
+
+Independent local review identifies material but bounded upstream residuals:
+one open sample omits two clearly recommended main-list brands; another shifts
+the target and subsequent positions by one; a shared-heading position is lost.
+One malformed direct-Parser name also leaks into readable accepted detail,
+unlike a separate internal-only name anomaly. Actual Parser input preserves the
+original answer and contains the missing names; raw output already has the
+defects, so program filtering/assembly did not introduce them. The omitted case
+uses one of ten available slots, finishes normally and uses 479 reasoning tokens;
+do not claim proven truncation or budget exhaustion. Other examined open samples
+do not show an equivalent major-brand whole-block omission.
+
+The narrative's overview and main positive/negative signals remain useful, but
+its proposed directions center on business-operation changes rather than the
+GEO information/content work intended for the promotional-article consumer.
+Clarifying that purpose follows current product meaning; it is not a new fine
+wording, legal-identity or SEO-keyword gate. Business names, raw findings and
+independent semantic detail stay in local review, not this engineering record.
+
+Next use the two retained grouping handoffs to test one assignment per record,
+then focused single-Parser regressions and the narrative's content purpose.
+Do not raise concurrency, sweep effort, add an Agent/critic/table or resample
+before these demonstrated failures have a bounded disposition. Keep program
+counts, source records and good/bad raw outputs unchanged. The 42-call package
+ends here; no extra repair call is appended this turn. Formal UI/DB/recovery and
+success timing remain outstanding under #41/#42 and the #39 integration outcome.
+
+Unchanged 40-test and runtime evidence is reused; new pool/recipe/composition
+preflight and independent fixed-diff/runner review pass. Independent semantic
+review confirms the failures, not a successful report. The tested commit's
+framework and full CI pass. Forty-three private Langfuse observations (root
+`68dc65b25949255a` and 42 generations) match actual IO/settings/usage on readback;
+no derived review/program observation or root IO is uploaded.
+[Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/db6749d5804f88046409b07e0ffc55d7).
+Local source lineage, failed outputs and readable diagnostic report remain at
+`apps/backend/.provider-evidence/m4-merchant-composition-y9YMgH/`.
+Main is observed at `5fb4400`; no merge, rebase, production, #49 mirror or other-
+worktree modification occurs. PR #62 remains Draft Partial and does not close #42.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 153ee898e0d33010d444886e82ddb2bb3964bbcadc6bfe6ceca78fe9b87ec4cb |
+| Summary | 61bc7e30ff096ca48b9597a7c628a32fdaf6d3196d9cafdb2ddb15540a4a8609 |
+| Source lineage | 3a92e28ea0fe7c31cdf53a5086709b6903461d68f42f2ba9ac1634e3f24e75eb |
+| Actual handoff | 9cf122559a9f6f20a094a89d9cfd1b187c18e496d344e5f07d3ba842cd0830f2 |
+| Grouping output | 02b588bfb8f5ca899673b305997f81a28afb4b99f06f8bcc53403ea7c7fc4207 |
+| Narrative output | f4e8dee6690f994b1b76320ba6b50fec18690384d174c14fa0708765d2b2ad00 |
+| Runner | 8169bdd0cb441f9e0ec60eece3d88cc1f32e5681ee0afc05204feff4239f7fdf |

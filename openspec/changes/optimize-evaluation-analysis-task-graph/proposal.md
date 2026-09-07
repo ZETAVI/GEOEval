@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Retain medium after effort comparison; next cross-merchant full-chain validation
+- Status: Second matrix rejected at grouping; retained-input stability repairs next
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -122,22 +122,29 @@ No analysis search is enabled; no external facts correct the retained answers.
 Natural acquisition and the current spec's optional-search capability remain
 unchanged. See the [effort result](research/chain-quality-experiment.md#grouping-effort-comparison--retain-medium-without-contract-expansion).
 
-Next test another merchant's complete chain and measure total time before
-selecting execution with #41. Retain the useful narrative scope and single
-Parser. The per-record single-assignment expression remains a candidate, not
-a prerequisite to further controlled validation. This does not close the prior
-duplicate-member defect: preserve its raw failure, existing rejection and an
-explicit disposition before formal delivery. Two good repetitions do not prove
-repair, and another reproduction is not required to acknowledge it. Do not trim
-bad groups, add category blacklists or treat structural uniqueness as identity.
+The second merchant's full matrix at `9c78932` now completes all 42 calls and
+20 Parser structures in 292.527 seconds, but grouping duplicates/mixes members
+and is rejected. No complete preview exists, so this is not a successful
+three-to-five-minute report. Actual sampling/Parser time is 219.361 seconds and
+parallel synthesis takes 72.828 seconds; no throughput change is the current
+priority. See the [second-matrix result](research/chain-quality-experiment.md#second-merchant-matrix--grouping-failure-reproduced).
+
+This cross-merchant result makes single-assignment grouping the next priority
+experiment on the two retained handoffs. Keep a single Parser and add only
+the observed coverage/position and visible malformed-name cases to its focused
+regressions. Retain the readable narrative but clarify its GEO information/content
+purpose rather than general business-operation advice. Reuse actual input;
+do not resample, sweep effort, add a critic or trim failed groups. A changed
+expression cannot certify identity by structure alone. No runtime activation or
+formal report acceptance follows until these failures have an explicit disposition.
 Do not add queues/tables or preselect independent
 retry components merely because the diagnostic has two responsibilities. Keep
 the existing single-call Parser. The owner-confirmed alias remains accepted;
 another relation inferred only by the model is an observation, not a newly
 confirmed fact or a reason for a master identity system. Keep full source,
 ordinary recommendation tolerance and broad practical directions. Do not add
-alias databases, critics, workflow tables or word-for-word proof gates. The next
-merchant matrix tests transfer and full elapsed time, not a parameter sweep.
+alias databases, critics, workflow tables or word-for-word proof gates. Further
+merchant matrices are not the next step after this demonstrated report failure.
 #41 retains final synthesis/customer-report ownership.
 
 Langfuse contains actual model input/output and operational metadata only;
