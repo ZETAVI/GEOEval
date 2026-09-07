@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   buildM4ChainSynthesisTask,
+  buildM4BrandAssignmentTask,
   buildM4ReportCompositionTasks,
   composeM4ReportPreview,
+  composeM4AssignedReportPreview,
   flattenM4ChainSynthesisTask,
   inspectM4BrandGroupingOutput,
+  inspectM4BrandAssignmentOutput,
   inspectM4ChainSynthesisOutput,
   inspectM4TargetNarrativeOutput,
 } from "../src/ai-execution/controlled-validation/m4-chain-synthesis.js";
@@ -49,6 +52,163 @@ const output = () => ({
 });
 
 describe("M4 real-chain synthesis preview", () => {
+  it("binds one required assignment slot to every unchanged brand record", () => {
+    const task = buildM4ChainSynthesisTask("青禾咖啡", inputs);
+    const before = structuredClone(task);
+    const assignment = buildM4BrandAssignmentTask(task);
+    expect(assignment.userContext).toEqual(
+      buildM4ReportCompositionTasks(task).grouping.userContext,
+    );
+    const schema = assignment.outputContract.jsonSchema as any;
+    expect(schema.required).toEqual(["assignments"]);
+    expect(schema.additionalProperties).toBe(false);
+    expect(schema.properties.assignments.required).toEqual([
+      "s1-b1",
+      "s1-b2",
+      "s2-b1",
+      "s2-b2",
+    ]);
+    expect(schema.properties.assignments.additionalProperties).toBe(false);
+    expect(schema.properties.assignments.properties["s1-b1"]).toMatchObject({
+      type: "string",
+      minLength: 1,
+      maxLength: 120,
+    });
+    expect(task).toEqual(before);
+  });
+  it("preserves singleton labels, eligibility, distinct-sample counts and raw assignments", () => {
+    const task = buildM4ChainSynthesisTask("青禾咖啡", inputs);
+    const assignment = {
+      assignments: {
+        "s1-b1": "山岚咖啡",
+        "s1-b2": "山岚咖啡",
+        "s2-b1": "Hill Coffee",
+        "s2-b2": "晴川咖啡",
+      },
+    };
+    const before = structuredClone({ task, assignment });
+    const inspected = inspectM4BrandAssignmentOutput(assignment, task);
+    expect(inspected.competitorPreview).toEqual([
+      {
+        displayName: "山岚咖啡",
+        members: ["s1-b1", "s1-b2"],
+        positiveSampleCount: 1,
+      },
+      {
+        displayName: "Hill Coffee",
+        members: ["s2-b1"],
+        positiveSampleCount: 1,
+      },
+    ]);
+    // A wrong identity still passes structure. Neither the count projector nor
+    // composition silently repairs it or discards the negative source record.
+    expect(inspected.output).toEqual(assignment);
+    const { brandGroups: _groups, ...narrative } = output();
+    expect(composeM4AssignedReportPreview(assignment, narrative, task)).toEqual(
+      {
+        output: { ...assignment, ...narrative },
+        coverage: task.userContext.coverage,
+        competitorPreview: inspected.competitorPreview,
+      },
+    );
+    expect({ task, assignment }).toEqual(before);
+  });
+  it("rejects missing, unknown or invalid assignment slots and missing narrative", () => {
+    const task = buildM4ChainSynthesisTask("青禾咖啡", inputs);
+    const valid = Object.fromEntries(
+      flattenM4ChainSynthesisTask(task).userContext.otherBrands.map((b) => [
+        b.id,
+        b.displayName,
+      ]),
+    );
+    const { "s1-b1": _first, ...missing } = valid;
+    for (const assignments of [
+      missing,
+      { ...valid, "s9-b1": "山岚" },
+      { ...valid, "s1-b1": " " },
+      { ...valid, "s1-b1": null },
+      { ...valid, "s1-b1": "长".repeat(121) },
+    ]) {
+      expect(() =>
+        inspectM4BrandAssignmentOutput({ assignments }, task),
+      ).toThrow();
+    }
+    expect(() =>
+      inspectM4BrandAssignmentOutput(
+        { assignments: valid, brandGroups: [] },
+        task,
+      ),
+    ).toThrow();
+    expect(() =>
+      composeM4AssignedReportPreview({ assignments: valid }, undefined, task),
+    ).toThrow();
+    expect(() =>
+      composeM4AssignedReportPreview(undefined, output(), task),
+    ).toThrow();
+    const duplicate = structuredClone(task);
+    duplicate.userContext.samples[1]!.otherBrands[0]!.id = "s1-b1";
+    expect(() => buildM4BrandAssignmentTask(duplicate)).toThrow(
+      "Duplicate input brand id",
+    );
+  });
+  it("supports empty, singleton and more-than-30 unique-brand partitions", () => {
+    const empty = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      inputs.map((s) => ({
+        ...s,
+        parsedOutput: { target: null, otherBrands: [] },
+      })),
+    );
+    expect(
+      inspectM4BrandAssignmentOutput({ assignments: {} }, empty)
+        .competitorPreview,
+    ).toEqual([]);
+    const single = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      inputs.map((s, i) => ({
+        ...s,
+        parsedOutput: {
+          target: null,
+          otherBrands: i ? [] : [parsedOutput.otherBrands[0]],
+        },
+      })),
+    );
+    expect(
+      inspectM4BrandAssignmentOutput(
+        { assignments: { "s1-b1": "Hill Coffee" } },
+        single,
+      ).competitorPreview,
+    ).toEqual([
+      {
+        displayName: "Hill Coffee",
+        members: ["s1-b1"],
+        positiveSampleCount: 1,
+      },
+    ]);
+    const many = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      Array.from({ length: 20 }, (_, i) => ({
+        ...inputs[0]!,
+        sampleId: `s${i + 1}`,
+        parsedOutput: {
+          ...parsedOutput,
+          otherBrands: parsedOutput.otherBrands.map((b) => ({
+            ...b,
+            positiveRecommendation: true,
+          })),
+        },
+      })),
+    );
+    const assignments = Object.fromEntries(
+      flattenM4ChainSynthesisTask(many).userContext.otherBrands.map((b) => [
+        b.id,
+        b.id,
+      ]),
+    );
+    expect(
+      inspectM4BrandAssignmentOutput({ assignments }, many).competitorPreview,
+    ).toHaveLength(40);
+  });
   it("separates component contexts without changing evidence, scope or bounded schemas", () => {
     const task = buildM4ChainSynthesisTask(
       "青禾咖啡",

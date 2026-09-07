@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: second full matrix reproduces grouping failure; retained-input repairs come next.
+Status: owner-approved fixed-slot grouping and GEO-purpose narrative probes are prepared.
 No runtime topology or successful full-report timing is accepted.
 The [current proposal](proposal.md#current-evidence-and-next-decision) and
 [tasks](tasks.md) own the next action. Historical stages below explain prior
@@ -11,6 +11,48 @@ directions and retains single-call parsing; identity/statistics defects from the
 real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
 PR #48 at `2905937` remains an unaccepted historical reference.
+
+### Fixed-slot assignment and GEO-purpose replay
+
+The owner approves testing one name per brand record, brief GEO/media directions,
+and recovery that reuses acquired answers and retries only failed analysis.
+This does not approve partial-report presentation or treating partial results as
+complete. First-layer omissions remain first-layer defects; synthesis must not
+invent records it never received.
+
+Readiness: this standard owner-local experiment reuses the current synthesis
+helper, strict structured-output adapter, source handoffs and deterministic count
+projector. A new task supplies the same brand records and asks for an object with
+one required string slot per existing record ID. The program groups equal names,
+including singleton names, and counts only positive distinct samples. No generated
+member arrays, identity rules, silent clipping or new Agent are needed. Missing
+or unknown slots fail local validation; correct names still require real review.
+Default grouping, runtime imports, public contracts and persistence are unchanged.
+The many-key Schema is an account-specific capability to verify, not presumed
+correct from prior JSON acceptance. No dependency or new Provider is introduced.
+
+Freeze four assignment-only requests: two per retained merchant handoff, 45 and
+72 records respectively, in two concurrent pairs at unchanged medium effort.
+Retain all source fields, recommendation flags, positions and excerpts. Existing
+free-group outputs are historical failure evidence, not a contemporaneous latency
+control. Separately freeze two narrative-only requests on the second handoff,
+changing only the narrative instruction/version to orient a few broad directions
+toward publicity content. Other narrative context and Schema remain identical.
+Maximum six calls, concurrency two, 180-second wait; no acquisition, Parser,
+automatic retry/fallback, search, effort sweep or additional rounds. A Provider,
+finish, JSON or unexpected structural failure stops queued pairs after started
+calls settle. Actual model IO and operational metadata alone goes to private
+Langfuse; raw outputs, projections and independent review stay local. This batch
+does not measure full-evaluation time or implement runtime recovery.
+
+Keep the owner's deformatting suggestion independent: original answers are
+immutable, and numbered lists, headings and tables carry position information.
+First inspect a minimal structure-preserving text view and the observed malformed
+name case; do not globally erase syntax or combine this variable with assignment.
+The malformed name was generated despite being absent from its input, so input
+formatting is a hypothesis, not an established cause. Runtime retry granularity
+and source-preserving Parser changes remain subsequent bounded implementation
+decisions, not permission to create a task table or weaken report completion.
 
 ### Second-merchant full-chain controlled run
 

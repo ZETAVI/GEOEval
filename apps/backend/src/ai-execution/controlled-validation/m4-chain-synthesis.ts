@@ -87,6 +87,7 @@ function loadPrompt(fileName: string) {
 }
 const prompt = loadPrompt("m4-chain-synthesis");
 const groupingPrompt = loadPrompt("m4-brand-grouping");
+const assignmentPrompt = loadPrompt("m4-brand-assignment");
 const narrativePrompt = loadPrompt("m4-target-narrative");
 const groupingSchema = m4ChainSynthesisSchema.pick({ brandGroups: true });
 const narrativeSchema = m4ChainSynthesisSchema.omit({ brandGroups: true });
@@ -308,6 +309,43 @@ export function buildM4ReportCompositionTasks(
   };
 }
 
+// A fixed slot per retained record replaces model-authored member lists. This
+// constrains assignment structure, not whether the chosen identity is correct.
+function brandAssignmentSchema(
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
+  const ids = task.userContext.samples.flatMap((s) =>
+    s.otherBrands.map((b) => b.id),
+  );
+  if (new Set(ids).size !== ids.length)
+    throw new Error("Duplicate input brand id");
+  return z
+    .object({
+      assignments: z
+        .object(Object.fromEntries(ids.map((key) => [key, text(120)])))
+        .strict(),
+    })
+    .strict();
+}
+
+export function buildM4BrandAssignmentTask(
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
+  return {
+    taskKind: "STRUCTURED_OUTPUT" as const,
+    systemInstruction: assignmentPrompt.content,
+    userContext: {
+      otherBrands: flattenM4ChainSynthesisTask(task).userContext.otherBrands,
+    },
+    outputContract: {
+      version: `${assignmentPrompt.id}@${assignmentPrompt.version}`,
+      jsonSchema: z.toJSONSchema(brandAssignmentSchema(task), {
+        target: "draft-2020-12",
+      }),
+    },
+  };
+}
+
 function validateNarrativeReferences(
   output: z.infer<typeof narrativeSchema>,
   task: ReturnType<typeof buildM4ChainSynthesisTask>,
@@ -369,6 +407,27 @@ export function inspectM4BrandGroupingOutput(
   return { output, competitorPreview: projectBrandGroups(output, task) };
 }
 
+export function inspectM4BrandAssignmentOutput(
+  value: unknown,
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
+  const output = brandAssignmentSchema(task).parse(value);
+  const groups = new Map<string, string[]>();
+  for (const [member, displayName] of Object.entries(output.assignments)) {
+    const members = groups.get(displayName) ?? [];
+    members.push(member);
+    groups.set(displayName, members);
+  }
+  const brandGroups = Array.from(groups, ([displayName, members]) => ({
+    displayName,
+    members,
+  }));
+  return {
+    output,
+    competitorPreview: projectBrandGroups({ brandGroups }, task),
+  };
+}
+
 export function inspectM4TargetNarrativeOutput(
   value: unknown,
   task: ReturnType<typeof buildM4ChainSynthesisTask>,
@@ -401,4 +460,20 @@ export function composeM4ReportPreview(
     { ...groupingSchema.parse(grouping), ...narrativeSchema.parse(narrative) },
     task,
   );
+}
+
+// Experiment-only composition; every assignment and the narrative must pass.
+// Singleton labels are retained too, without forcing the old group-list limits.
+export function composeM4AssignedReportPreview(
+  assignment: unknown,
+  narrative: unknown,
+  task: ReturnType<typeof buildM4ChainSynthesisTask>,
+) {
+  const brands = inspectM4BrandAssignmentOutput(assignment, task);
+  const target = inspectM4TargetNarrativeOutput(narrative, task);
+  return {
+    output: { ...brands.output, ...target.output },
+    coverage: task.userContext.coverage,
+    competitorPreview: brands.competitorPreview,
+  };
 }
