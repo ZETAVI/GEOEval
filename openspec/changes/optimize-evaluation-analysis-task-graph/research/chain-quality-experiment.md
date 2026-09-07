@@ -2699,3 +2699,87 @@ worktree change occurs. Worktree/branch and all evidence are retained.
 | Handoff | 23906365820c4641a62899d865059c72d9ef742c1257a07c6f6795d84b580add |
 | Matched wire check | fb11d3de8f256b144290430a010a48a4ac071a99a0d825f018450aaa3e588c52 |
 | Runner | 90c23f440eb316f6a3a7c0fefb14ed31d9ddb86616db2add042ada62d44ca328 |
+
+## Source-located brand rows — partial improvement with repeatability residuals
+
+The owner approves continuing the single-Parser representation work. At
+`329cc48c7bfbf4a229658bc1a5583a175e3f42b7`, manifest
+`876651a6d4cfc2e4ba9812c649a2485c9f272baa8cdc7867f7cce694dbb26cab`
+freezes eight candidate-only calls: two on each of the previous four retained
+cases, maximum concurrency two, unchanged Qwen low and 180-second wait. Inputs
+retain the exact full answer lines, brand context and question. No acquisition,
+deformatting, synthesis/grouping, search, parameter sweep, retry or fallback.
+
+One brand-row table co-locates identity, target membership, original-item line,
+position, eligibility and evidence. Target prose remains a small separate
+description. The program only projects into the existing customer-summary shape:
+no sorting, position filling, identity normalization or deduplication. Shared
+items may use the same source line and position. A valid pointer is not semantic
+proof. Exact duplicate names, conflicting target rows, target-description
+incoherence, old capacity limits and source validity are checked without repair.
+Default Parser 1.4.0, fixed assignment and narrative 1.2.0 are unchanged.
+
+Raw, old-shape projection and semantic review stay separate. Basic Schema/Provider
+failure would stop queued pairs after settling already-started requests; expected
+projection/coherence rejection is measured and allows the remaining preplanned
+cases, never extra calls. This protocol was fixed before execution. All eight
+basic checks pass, and all eight planned calls finish without a fatal boundary.
+Raw Provider JSON matches normalized model output throughout.
+
+Run: 2026-09-07 07:10:29.542–07:12:04.429 UTC, 94.887 seconds and 25,691 reported
+tokens for eight experiments. Some repetitions use cached input. Historical 1.4.0
+outputs are quality references, not same-time latency or causal controls. This
+whole-interface change does not isolate the effect of sourceItemLine or prove a
+full-evaluation SLA, billed cost, reliability rate or formal Parser acceptance.
+
+| Case | First / second latency | Actual outcome |
+| --- | --- | --- |
+| Main-list coverage | 29.560 / 21.219 s | Both find the main brands; first repeats closing-summary brands and creates conflicting target rows, so projection rejects; second projects |
+| Unnumbered source order | 27.642 / 16.305 s | Both correctly preserve six brands and target fourth, followed by fifth/sixth; no program renumbering |
+| Shared numbered item | 21.809 / 21.885 s | First recovers both named co-listed brands at the shared third position; second omits both despite projection passing |
+| Unnamed description | 16.587 / 10.788 s | Both retain target absence; first includes the unnamed description and repeats comparison-table brands, so rejects; second retains only the two named brands |
+
+Six calls project successfully. This is not a 6/8 semantic success rate: the
+shared-item repetition still loses two explicit brands. The two rejected outputs
+contain real repeated rows and conflicting target position, not merely variant
+spellings or store suffixes. Both raw failures remain intact. Do not trim the
+closing/table rows or relax target consistency to manufacture success.
+
+Independent semantic review confirms the repeat source-order improvement and the
+one shared-item improvement. The remaining instability concerns one brand appearing
+in several parts of an answer and complete coverage of co-listed names. Existing
+target prose is broadly useful at the practical bar; names need not be legal or
+word-for-word forms. The candidate is worth retaining, but cannot replace the
+default Parser or justify another whole-matrix acquisition yet.
+
+Next hold this interface/input steady, inspect the existing alternate route's
+actual access/protocol/billing gate, and prepare one small route/model comparison
+on the remaining cases. Catalog presence alone does not authorize billing or
+prove a callable structured endpoint. No such call, default switch or new Agent
+is part of this package. Do not keep reshaping the Schema or appending Prompt
+prohibitions without a discriminating reason. Generation cause remains uncertain.
+
+Verification: 50 focused tests, backend typecheck/build, framework/link/diff
+checks and independent fixed-implementation/runner review pass. Tests preserve
+incorrect model-authored position as incorrect rather than repairing it, permit
+shared source lines/positions, exercise target and capacity boundaries, reuse
+CR/LF/CRLF evidence restoration, and keep full source fields out of downstream
+synthesis. Nine private Langfuse observations (root `78a5b34173cfd2a1` plus eight
+generations) read back actual IO/settings/usage exactly, with no root IO or
+independent review/program output uploaded.
+[Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/f6b585fb494285989d379c453673e3c4).
+Protected local evidence: `apps/backend/.provider-evidence/m4-brand-rows-FpTe8H/`.
+
+The eight-call package is finished. Formal source/Parser recovery, direct
+malformed text, report/UI/DB and 3–5-minute completion evidence are still pending.
+#42 remains In Progress/P1, PR #62 Draft Partial, #41 final report ownership and
+#39/#43/#49 boundaries unchanged. Main observed at `5fb4400`; no merge, rebase,
+production, current-spec or other-worktree change. Worktree/branch retained.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | ad3b16864068e098493295a39cc9f70413ef0340dace76f011e4210afbc02a32 |
+| Summary | ecb711fa7423177764d94de7ef09dea5819be4d725df7095c4974e83d004fbf4 |
+| Handoff | f07d421441435be8eb77ed022c704a3f958d5ceeae183df7add4a5a638638640 |
+| Matched wire check | 15d849fccea76544d52ca15a1942ab2dedb69e285b9d4eb5cc0802ec8637681c |
+| Runner | 201045d91662fbe1b88cdd73f1658a1e921e04b40d63214a6e0648ea4d28962f |

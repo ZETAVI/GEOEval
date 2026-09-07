@@ -63,9 +63,14 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
 - [x] Replay four observed open-Parser cases with 1.4.0/1.5.0 Prompt-version
       packages at unchanged input/Schema/low effort. Reject 1.5.0 after persistent
       position/coverage errors and eight repeated unnamed records; restore 1.4.0.
-- [ ] Review the single-call representation of brand identity, source items and
-      positions before another bounded experiment. Preserve complete Parser
-      input and source mapping; do not blanket-raise effort or add more rules.
+- [x] Review and test source-located single-call brand rows on four cases twice:
+      source-order improves twice, shared-item coverage once; two duplicate-row
+      projections reject and the shared-item repeat still omits named brands.
+      Retain the candidate, default Parser unchanged; no silent dedup/renumbering.
+- [ ] Hold interface/input fixed, verify the existing alternate route's actual
+      access/protocol/billing boundary, and prepare a small model/route comparison
+      for multiple occurrences and shared named items. No default switch, billing
+      activation, new Agent, parameter sweep or additional call in the ended batch.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on
@@ -86,11 +91,12 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       quality bar. The historical coffee case remains an observation/regression,
       not an indefinite tuning gate. Do not resume every old topology comparison.
 
-The next Parser decision concerns observed identity/duplication, omitted brands
-and shared/shifted positions, not another rewrite of every Prompt. A light
+The next Parser decision concerns repeatability of brand-identity/occurrence and
+shared-brand coverage, not another rewrite of every Prompt. Source-order evidence
+has improved in the located-row candidate but formal integration is unverified. A light
 formatting view remains an independent hypothesis, not a proven fix: retain
 original answers and evidence mapping, list/heading/table structure and full
-content. No extra call is appended to either completed six/ten-call package.
+content. No extra call is appended to the completed six/ten/eight-call packages.
 
 ## Actual delivery — still outstanding
 

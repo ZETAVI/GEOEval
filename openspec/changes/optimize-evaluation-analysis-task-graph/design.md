@@ -2,8 +2,9 @@
 
 ## Decision state and owners
 
-Status: narrative 1.2.0 and fixed-slot grouping are retained candidates. The
-ten-call Parser/direction package rejects Parser 1.5.0; restore Parser 1.4.0.
+Status: retain source-located rows as an experimental candidate after partial
+semantic improvement; default Parser remains 1.4.0. Narrative 1.2.0 and fixed-slot
+grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
 The [current proposal](proposal.md#current-evidence-and-next-decision) and
 [tasks](tasks.md) own the next action. Historical stages below explain prior
@@ -50,6 +51,24 @@ fallback. 180-second wait; IO/metadata only to existing private Langfuse, review
 and program projections local. End this package after its fixed cases and decide
 from actual outputs; formal report, recovery, direct malformed text and timing
 remain unverified. Do not infer a selected production Schema from a passing probe.
+
+Result at `329cc48`: all eight Provider/basic-Schema checks pass; six project into
+the existing parsed shape. Both source-order cases now give the correct six-brand
+sequence, and one shared-item result recovers both previously omitted brands at
+the shared position. The repetition misses them again. Two other calls repeat
+brands from a closing summary/comparison table and are rejected; the later
+repetitions avoid those duplicates. All raw evidence is retained without repair.
+These observations justify retaining the candidate, not replacing the default
+Parser or claiming a 6/8 semantic success rate. sourceItemLine's individual effect
+is not isolated by this interface package. See the [result](research/chain-quality-experiment.md#source-located-brand-rows--partial-improvement-with-repeatability-residuals).
+
+Hold this interface still before further tuning. The next bounded check should
+distinguish remaining model/route behavior from interface assumptions using the
+same retained input and interface, after checking the existing fallback route's
+access/protocol/billing boundary. The catalog is not proof of callable access.
+Do not switch runtime defaults, enable billing, add Agents or resume a parameter
+sweep. Multi-occurrence brands and shared named items are the narrow cases; no
+extra call is appended to the eight-call package.
 
 ### Parser coverage and article-direction scope
 

@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Retain parsed synthesis input and article directions; reject Parser 1.5.0 package
+- Status: Retain single-call brand-row candidate with repeatability residuals; default Parser unchanged
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -41,7 +41,22 @@ Langfuse input/output export. Four questions, five platforms, metric meaning,
 
 ## Current evidence and next decision
 
-Latest: the [ten-call Parser/direction package](research/chain-quality-experiment.md#parser-coverage-and-article-directions--reject-parser-package-retain-direction-scope)
+Latest: the [eight-call located-row package](research/chain-quality-experiment.md#source-located-brand-rows--partial-improvement-with-repeatability-residuals)
+at `329cc48` improves the source-order case in both repetitions and recovers two
+co-listed brands once. The shared-item repetition still omits them; two calls also
+repeat existing brands when reading summaries/tables and are rejected. Six old-
+shape projections pass, not six semantic approvals. Retain this owner-local
+single-call candidate without changing default Parser 1.4.0 or downstream input.
+
+The next discriminating check keeps this interface/input fixed and first verifies
+the existing alternate execution route's account/protocol/billing boundary, then
+prepares a small comparison of the remaining occurrence/coverage cases. Do not
+assume a callable model from catalog presence, switch defaults, enable billing,
+or keep changing Prompt and Schema together. Precise generation cause is still
+unproven. Direct malformed text, formal failure-only recovery and complete-report
+timing remain outstanding; the current eight-call package is finished.
+
+Previous: the [ten-call Parser/direction package](research/chain-quality-experiment.md#parser-coverage-and-article-directions--reject-parser-package-retain-direction-scope)
 at `7b3ba0d` retains narrative 1.2.0, but rejects Parser 1.5.0 and restores the
 existing 1.4.0 asset. All ten structural checks pass; actual coverage/position
 errors persist and one candidate repeats an unnamed entity eight times. This is
