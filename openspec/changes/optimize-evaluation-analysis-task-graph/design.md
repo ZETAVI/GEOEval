@@ -11,6 +11,41 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
+### Owner-requested grouping effort comparison
+
+Before changing the output expression, the owner asks whether thinking level
+changes actual grouping quality. Freeze six grouping-only calls: two each at
+low, medium and xhigh, maximum concurrency two, 180-second request timeout.
+Keep the exact 45-record task, instruction, strict Schema, endpoint and model;
+only `reasoning_effort` differs. Use the existing Model Studio adapter with an
+experiment-local copied route definition, not a runtime catalog change. Check
+offline that its request matches the retained wire except that parameter.
+
+No model web-search tool is supplied; search is not needed to reinterpret the
+retained answers. This does not disable natural acquisition search or rewrite
+the current spec's optional-search allowance. Provider documentation is interface
+research only, never added to model business context. Source, Parser findings,
+program counts, narrative and output grouping contract stay unchanged.
+
+The fixed order is low/medium, xhigh/low, medium/xhigh, with each pair concurrent.
+Transport, HTTP/model, abnormal finish, malformed JSON or unexpected Schema
+failure stops queued pairs after started calls settle. The already observed
+duplicate/unknown-member rejection and semantic errors are measured outcomes;
+they do not trigger retries or alter the remaining preplanned cases. This is
+a new comparison protocol, not continuation of the prior stopped package.
+Preserve every output; compare members, reported reasoning/total tokens and
+latency without assuming the larger budget improves quality. Timeout is a
+client wait limit, not a guarantee that Provider work or billing ceases.
+
+Architecture readiness: ready for this reversible owner-local experiment, with
+no application, contract, persistence or production change. Reuse passing
+inspector/runtime tests; the discriminating new checks are exact wire equality,
+search absence, hard call/concurrency/stop boundaries and real per-level results.
+Only actual model IO/operational metadata goes to private Langfuse. If parameter
+evidence is sufficient, defer an unnecessary output-contract change; otherwise
+test the single-assignment expression separately. Neither result alone selects
+runtime topology or establishes a full-evaluation SLA.
+
 ### Approved minimal report-composition experiment
 
 The owner approves continuing from the focused grouping evidence and judging

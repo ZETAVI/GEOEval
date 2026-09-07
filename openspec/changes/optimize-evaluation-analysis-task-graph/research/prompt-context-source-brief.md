@@ -97,3 +97,26 @@ This establishes that the observed low calls reached their documented thinking
 budget, not that it caused name corruption (both good and bad names occurred).
 A separate two-call strict-medium counterfactual can change only that parameter;
 do not change Prompt, Schema, model, endpoint or production defaults.
+
+## Grouping effort and search boundary — 2026-09-06
+
+The owner explicitly requests an effort comparison before further contract
+changes. Rechecked the same [Chat Completions reference](https://www.alibabacloud.com/help/en/model-studio/qwen-api-via-openai-chat-completions):
+Qwen3.8 supports low, medium and xhigh; their documented thinking maxima are
+4,096, 16,384 and 262,144 tokens. These are budgets, not promised usage, latency
+or quality. Do not also set `thinking_budget`. The current adapter already
+represents these three values and sends `enable_thinking:true`.
+
+The reference states `enable_search` defaults to false. The structured adapter
+sends neither search enablement nor tools, unlike the separate natural
+acquisition route. Verify this in every actual controlled request. The owner
+wants answer interpretation, not external correction; no search evidence enters
+this comparison. Preserve current product-spec optional-search wording because
+choosing not to search this batch does not revise that accepted capability.
+
+Reuse the model/endpoint/strict-mode evidence and unchanged adapter. The new
+account-specific uncertainty is actual quality/time at each effort, so compare
+the same retained grouping task twice per level, without tuning or a model change.
+Documented xhigh support is not proof it will finish within the controlled wait
+budget. Refresh on model/mode/interface changes or contradictory actual wire;
+there is no new library, route-default change or pricing claim.

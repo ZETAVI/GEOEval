@@ -47,7 +47,11 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
 - [x] Diagnose the rejected raw grouping and verify identical repeated HTTP bodies;
       program assembly/input drift are not the cause. Practical narrative scope
       remains useful; actual IO readback matches and private review stays local.
-- [ ] Compare a per-record single-assignment grouping output with the existing
+- [ ] First execute the owner's six-call low/medium/xhigh grouping comparison,
+      twice per level with identical task/wire except effort and no analysis
+      search. Preserve failures, actual tokens/time and planned stop boundaries.
+      A useful parameter result may avoid an unnecessary contract change.
+- [ ] If still needed, compare a per-record single-assignment grouping output with the existing
       free group list on retained evidence. Freeze the smallest discriminating
       batch; no automatic trim, category blacklist, retry or new runtime layer.
 - [ ] Review the remaining named/unnamed, member and direct-Parser failure cases

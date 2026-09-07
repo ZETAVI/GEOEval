@@ -113,8 +113,14 @@ The entire batch uses 49,236 tokens in 132.901 seconds. This is retained-input
 analysis, not a new full evaluation or evidence of a reliable runtime speedup.
 See the [composition result](research/chain-quality-experiment.md#minimal-report-composition--one-preview-repetition-rejected).
 
-Next test only the grouping output expression: one assignment per supplied brand
-record versus the current freely generated group list. Preserve the actual
+The owner now requests a thinking-level comparison and no analysis web search.
+First test the same grouping task twice each at low, medium and xhigh, changing
+only effort. Use the actual results to decide whether an output-contract change
+is still necessary; documented budget size is not a quality ranking. The current
+natural acquisition and optional-search product capability are unchanged.
+
+If still needed, next test only the grouping output expression: one assignment
+per supplied brand record versus the current freely generated group list. Preserve the actual
 failure and source evidence; do not truncate bad groups, add category blacklists
 or treat structural uniqueness as correct identity. Keep the useful narrative
 scope and single Parser. After that bounded check, test another merchant and
