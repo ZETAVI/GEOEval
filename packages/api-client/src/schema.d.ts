@@ -532,6 +532,214 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/publishing/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingOrderController_list"];
+        put?: never;
+        post: operations["PublishingOrderController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/publishing/orders/{orderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingOrderController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/publishing/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingPackageAdminController_list"];
+        put?: never;
+        post: operations["PublishingPackageAdminController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/publishing/packages/{packageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["PublishingPackageAdminController_update"];
+        trace?: never;
+    };
+    "/admin/publishing/packages/{packageId}/audits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingPackageAdminController_audits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/publishing/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingPackageCustomerController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/points/accounts/{accountId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PointAdminController_balance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/points/accounts/{accountId}/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PointAdminController_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/points/accounts/{accountId}/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PointAdminController_adjust"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PointCustomerController_balance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/points/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PointCustomerController_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/publishing/workspace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublishingSelectionController_workspace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/publishing/brands/{brandId}/selection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["PublishingSelectionController_save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications": {
         parameters: {
             query?: never;
@@ -1382,6 +1590,282 @@ export interface components {
             afterState?: Record<string, never> | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        PublishingPackageScopeResponse: {
+            /** Format: uuid */
+            platformId: string;
+            displayName: string;
+        };
+        PurchasedMediaLineResponse: {
+            /** Format: uuid */
+            platformId: string;
+            displayName: string;
+            quantity: number;
+            unitPoints: number;
+            totalPoints: number;
+            /** @enum {boolean} */
+            available: true;
+        };
+        PurchasedTermsResponse: {
+            /** @enum {string} */
+            mode: "RANDOM" | "PRECISE";
+            packageName: string | null;
+            scope: components["schemas"]["PublishingPackageScopeResponse"][];
+            lines: components["schemas"]["PurchasedMediaLineResponse"][];
+            quantity: number;
+            totalPoints: number;
+        };
+        SubmitPublishingOrderRequest: {
+            /** Format: uuid */
+            idempotencyKey: string;
+            /** Format: uuid */
+            brandId: string;
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            selectionRevision: number;
+            acceptedTerms: components["schemas"]["PurchasedTermsResponse"];
+        };
+        PublishingOrderResponse: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            /** Format: uuid */
+            brandId: string;
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            /** @enum {string} */
+            status: "PENDING_HANDLING";
+            title: string;
+            /** Format: date-time */
+            createdAt: string;
+            bodyMarkdown: string;
+            agreement: components["schemas"]["PurchasedTermsResponse"];
+        };
+        PublishingOrderSummaryResponse: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            /** Format: uuid */
+            brandId: string;
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            /** @enum {string} */
+            status: "PENDING_HANDLING";
+            title: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** @enum {string} */
+            mode: "RANDOM" | "PRECISE";
+            quantity: number;
+            totalPoints: number;
+        };
+        PublishingOrderPageResponse: {
+            items: components["schemas"]["PublishingOrderSummaryResponse"][];
+            nextBeforeNumber: number | null;
+        };
+        PublishingPackageAdminResponse: {
+            name: string;
+            quantity: number;
+            pointPrice: number;
+            /** @enum {string} */
+            status: "INACTIVE" | "ACTIVE";
+            platformIds: string[];
+            /** Format: uuid */
+            id: string;
+            revision: number;
+        };
+        PublishingPackageCreateRequest: {
+            name: string;
+            quantity: number;
+            pointPrice: number;
+            /** @enum {string} */
+            status: "INACTIVE" | "ACTIVE";
+            platformIds: string[];
+        };
+        PublishingPackageUpdateRequest: {
+            name: string;
+            quantity: number;
+            pointPrice: number;
+            /** @enum {string} */
+            status: "INACTIVE" | "ACTIVE";
+            platformIds: string[];
+            expectedRevision: number;
+            reason: string;
+        };
+        PublishingPackageAuditResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            actorAccountId: string;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+            beforeState: components["schemas"]["PublishingPackageAdminResponse"] | null;
+            afterState: components["schemas"]["PublishingPackageAdminResponse"];
+        };
+        PublishingPackageCustomerResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            quantity: number;
+            pointPrice: number;
+            revision: number;
+            buyable: boolean;
+            scope: components["schemas"]["PublishingPackageScopeResponse"][];
+        };
+        PointCustomerIdentityResponse: {
+            /** Format: uuid */
+            id: string;
+            mobile: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+        };
+        PointAdminBalanceResponse: {
+            balance: number;
+            revision: number;
+            customer: components["schemas"]["PointCustomerIdentityResponse"];
+            grantedBalance: number;
+            fundedBalance: number;
+        };
+        PointAdminChangeResponse: {
+            /** Format: uuid */
+            id: string;
+            sequence: number;
+            /** @enum {string} */
+            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
+            /** Format: uuid */
+            publishingOrderId: string | null;
+            amount: number;
+            balanceAfter: number;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            accountId: string;
+            /** Format: uuid */
+            actorAccountId: string;
+            /** Format: uuid */
+            idempotencyKey: string;
+            grantedDelta: number;
+            fundedDelta: number;
+            internalNote: string | null;
+            businessReference: string | null;
+        };
+        PointAdminHistoryResponse: {
+            items: components["schemas"]["PointAdminChangeResponse"][];
+            nextBeforeSequence: number | null;
+        };
+        PointAdjustmentRequest: {
+            /** Format: uuid */
+            idempotencyKey: string;
+            amount: number;
+            reason: string;
+            internalNote?: string | null;
+            businessReference?: string | null;
+        };
+        PointBalanceResponse: {
+            balance: number;
+            revision: number;
+        };
+        PointChangeResponse: {
+            /** Format: uuid */
+            id: string;
+            sequence: number;
+            /** @enum {string} */
+            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
+            /** Format: uuid */
+            publishingOrderId: string | null;
+            amount: number;
+            balanceAfter: number;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PointHistoryResponse: {
+            items: components["schemas"]["PointChangeResponse"][];
+            nextBeforeSequence: number | null;
+        };
+        PublishingBrandResponse: {
+            /** Format: uuid */
+            id: string;
+            companyName: string;
+        };
+        PublishingArticleResponse: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            revision: number;
+            /** @enum {string} */
+            status: "DRAFT" | "CONFIRMED";
+            confirmedRevision: number | null;
+        };
+        RandomPublishingIntent: {
+            /** @enum {string} */
+            mode: "RANDOM";
+            /** Format: uuid */
+            packageId: string;
+        };
+        PrecisePublishingLine: {
+            /** Format: uuid */
+            platformId: string;
+            quantity: number;
+        };
+        PrecisePublishingIntent: {
+            /** @enum {string} */
+            mode: "PRECISE";
+            lines: components["schemas"]["PrecisePublishingLine"][];
+        };
+        PublishingSelectionResponse: {
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            intent: components["schemas"]["RandomPublishingIntent"] | components["schemas"]["PrecisePublishingIntent"];
+            /** Format: uuid */
+            brandId: string;
+            revision: number;
+        };
+        PublishingQuoteLineResponse: {
+            /** Format: uuid */
+            platformId: string;
+            quantity: number;
+            displayName: string;
+            unitPoints: number | null;
+            totalPoints: number | null;
+            available: boolean;
+        };
+        PublishingQuoteResponse: {
+            selectionRevision: number;
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            /** @enum {string} */
+            mode: "RANDOM" | "PRECISE";
+            packageName: string | null;
+            scope: components["schemas"]["PublishingPackageScopeResponse"][];
+            lines: components["schemas"]["PublishingQuoteLineResponse"][];
+            quantity: number;
+            totalPoints: number | null;
+            shortfall: number | null;
+            suggestedRechargeYuan: number | null;
+            problems: ("ARTICLE_CHANGED" | "ARTICLE_UNCONFIRMED" | "OFFER_UNAVAILABLE" | "TOTAL_OUT_OF_RANGE")[];
+        };
+        PublishingWorkspaceResponse: {
+            selectionRevision: number;
+            brand: components["schemas"]["PublishingBrandResponse"] | null;
+            article: components["schemas"]["PublishingArticleResponse"] | null;
+            balance: number;
+            selection: components["schemas"]["PublishingSelectionResponse"] | null;
+            quote: components["schemas"]["PublishingQuoteResponse"] | null;
+        };
+        SavePublishingSelectionRequest: {
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            intent: components["schemas"]["RandomPublishingIntent"] | components["schemas"]["PrecisePublishingIntent"];
+            expectedRevision: number;
         };
         EvaluationReportNotificationTargetResponse: {
             /** @enum {string} */
@@ -2592,6 +3076,335 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MediaCatalogAuditResponse"][];
+                };
+            };
+        };
+    };
+    PublishingOrderController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                beforeNumber?: number;
+                brandId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingOrderPageResponse"];
+                };
+            };
+        };
+    };
+    PublishingOrderController_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitPublishingOrderRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingOrderResponse"];
+                };
+            };
+        };
+    };
+    PublishingOrderController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingOrderResponse"];
+                };
+            };
+        };
+    };
+    PublishingPackageAdminController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageAdminResponse"][];
+                };
+            };
+        };
+    };
+    PublishingPackageAdminController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishingPackageCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageAdminResponse"];
+                };
+            };
+        };
+    };
+    PublishingPackageAdminController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishingPackageUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageAdminResponse"];
+                };
+            };
+        };
+    };
+    PublishingPackageAdminController_audits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                packageId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageAuditResponse"][];
+                };
+            };
+        };
+    };
+    PublishingPackageCustomerController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingPackageCustomerResponse"][];
+                };
+            };
+        };
+    };
+    PointAdminController_balance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                accountId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointAdminBalanceResponse"];
+                };
+            };
+        };
+    };
+    PointAdminController_history: {
+        parameters: {
+            query?: {
+                beforeSequence?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                accountId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointAdminHistoryResponse"];
+                };
+            };
+        };
+    };
+    PointAdminController_adjust: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                accountId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PointAdjustmentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointAdminChangeResponse"];
+                };
+            };
+        };
+    };
+    PointCustomerController_balance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointBalanceResponse"];
+                };
+            };
+        };
+    };
+    PointCustomerController_history: {
+        parameters: {
+            query?: {
+                beforeSequence?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointHistoryResponse"];
+                };
+            };
+        };
+    };
+    PublishingSelectionController_workspace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingWorkspaceResponse"];
+                };
+            };
+        };
+    };
+    PublishingSelectionController_save: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brandId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePublishingSelectionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishingSelectionResponse"];
                 };
             };
         };

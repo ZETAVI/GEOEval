@@ -415,12 +415,26 @@ revision.
 
 #### Scenario: Commerce requests a current quote
 
-- **WHEN** future Publishing Commerce requests a quote before deducting points
+- **WHEN** Publishing Commerce requests a quote before deducting points
 - **THEN** Media Supply returns the platform identity, current customer display
   name, buyability, whole-number point price, and platform revision
 - **AND** Commerce rejects or reconfirms an unavailable or changed quote and
-  owns the paid platform, price, revision, and quantity snapshot
+  owns the paid platform, price and quantity agreement
+- **AND** its package-display consumer may batch the same quote projection;
+  buyability still uses the single Media Supply platform rule
+- **AND** current Publishing Package scope and paid-order references are durable platform-deletion
+  dependency, checked under a platform lock before the existing delete path.
 - **AND** catalog polling never substitutes for this synchronous check.
+
+#### Scenario: Commerce requires an atomic purchase read
+
+- **WHEN** Commerce binds the Media purchase reader to its PostgreSQL transaction
+- **THEN** the Media-owned adapter reads sorted distinct platform IDs with shared
+  row locks and uses the same existing buyability projection
+- **AND** price/status/name changes or deletion cannot race through that read
+  before the purchase commits; independent advisory reads provide no such guarantee
+- **AND** existing purchased references prevent later deletion, with a clear
+  dependency error and restrictive FK as the final boundary.
 
 ### Requirement: Non-blocking fulfilment candidates
 

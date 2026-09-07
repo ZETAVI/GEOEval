@@ -280,14 +280,33 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
   ): Promise<void> {
     return this.withErrors(() =>
       this.prisma.$transaction(async (tx) => {
+        // Serialize deletion with new foreign-key references before checking them.
+        await tx.$queryRaw`
+          SELECT id FROM media_platforms WHERE id = CAST(${platformId} AS UUID) FOR UPDATE
+        `;
         const before = await tx.mediaPlatform.findUnique({
           where: { id: platformId },
           include: {
             ...PLATFORM_INCLUDE,
-            _count: { select: { resources: true } },
+            _count: {
+              select: {
+                resources: true,
+                publishingScopes: true,
+                purchasedReferences: true,
+              },
+            },
           },
         });
         if (!before) throw new MediaSupplyNotFoundError("未找到该媒体平台");
+        if (before._count.purchasedReferences > 0)
+          throw new MediaSupplyConflictError(
+            "该媒体已有已购订单引用，不能删除；可停用媒体停止新购买",
+          );
+        if (before._count.publishingScopes > 0) {
+          throw new MediaSupplyConflictError(
+            "该媒体已有套餐范围引用，不能删除；可停用媒体停止新购买",
+          );
+        }
         if (before.status === "ACTIVE" || before._count.resources > 0) {
           throw new MediaSupplyConflictError(
             "该平台正在使用或已有业务依赖，请先停用",
@@ -764,17 +783,14 @@ export class PostgresMediaSupplyRepository implements MediaSupplyRepository {
       where: { id: platformId },
     });
     if (!platform) throw new MediaSupplyNotFoundError("未找到该媒体平台");
-    const buyable =
-      platform.status === "ACTIVE" &&
-      typeof platform.pointPrice === "number" &&
-      platform.pointPrice > 0;
-    return {
-      platformId,
-      displayName: platform.displayName,
-      buyable,
-      pointPrice: platform.pointPrice,
-      revision: platform.revision,
-    };
+    return platformQuote(platform);
+  }
+
+  async quotePlatforms(platformIds: string[]): Promise<MediaPlatformQuote[]> {
+    const platforms = await this.prisma.mediaPlatform.findMany({
+      where: { id: { in: platformIds } },
+    });
+    return platforms.map(platformQuote);
   }
 
   async fulfillmentCandidates(
@@ -1029,6 +1045,25 @@ async function audit(
 
 function toJson(value: unknown): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
+}
+
+export function platformQuote(platform: {
+  id: string;
+  displayName: string;
+  status: string;
+  pointPrice: number | null;
+  revision: number;
+}): MediaPlatformQuote {
+  return {
+    platformId: platform.id,
+    displayName: platform.displayName,
+    buyable:
+      platform.status === "ACTIVE" &&
+      platform.pointPrice !== null &&
+      platform.pointPrice > 0,
+    pointPrice: platform.pointPrice,
+    revision: platform.revision,
+  };
 }
 
 function prismaErrorCode(error: unknown): string | undefined {

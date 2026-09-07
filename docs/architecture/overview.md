@@ -94,7 +94,7 @@ closed. Article replacement, explicit save, confirmation and Future Order reads
 use exact revisions, while Brand/guidance freshness remains advisory. A
 terminal-customer combined read and explicit REST commands support one responsive
 Web journey; the client receives neither Writer/Snapshot internals nor contact
-facts. Real Writer, materials, Publishing Commerce, deployment and production
+facts. Real Writer, materials, real payment, deployment and production
 activation remain separate gates.
 
 Identity and Access owns fixed single-role Accounts, mobile Challenge lifecycle,
@@ -269,6 +269,40 @@ acceptance count for the final projector. Four low-reasoning Parser-only real
 calls on the earlier model contract were accepted on their first attempt at
 about nineteen seconds average latency; the latest contract and final integrated
 4-by-5 remain separately unverified. The 17/20 report boundary is unchanged.
+
+Publishing Commerce begins with administrator-maintained random packages and
+customer-safe offer visibility. Package configuration, explicit platform scope
+and administrator audit save atomically with expected revisions. Media Supply
+continues to own platform buyability; a batched quote read derives package
+availability without resource counts or copied status. Scope foreign keys join
+the Media-owned deletion gate. Its current boundary is specified by
+[`publishing-commerce`](../../openspec/specs/publishing-commerce/spec.md).
+Point accounts now own zero-initialized balances, granted-only administrator
+adjustment and append-only account-sequenced history. Identity provides a narrow
+terminal-account directory; Commerce does not query role tables. One wallet lock
+serializes request replay checks, balance bounds and ledger insertion in the same
+transaction. Customer projections expose one balance and public reasons only.
+An actor-bound pending tab request survives an interrupted response/reload and
+reuses its key; tab storage is not financial truth.
+One saved selection per account/Brand now uses a revision-conditional write and
+composite article-owner reference. Commerce reads the minimal GEO Optimization
+preview and Media quote interfaces to build an advisory current quote; catalogue
+IDs in unpaid intent are not reservations. The customer explicitly saves or
+discards edits, sees both publishing modes and shortage, and can return without
+losing the saved choice. Independent quote reads cannot authorize a debit.
+Final purchase now uses one Commerce transaction adapter and transaction-bound
+article/media readers, following [ADR 0005](adr/0005-atomic-publishing-purchase.md).
+Wallet → selection → article → optional package → sorted platform locks keep
+accepted contents/terms coherent. Same-key success is recovered first; exact
+confirmation/terms checks, granted-first spending, order/ledger creation and
+selection consumption commit together. The cleared selection retains its next
+monotonic revision. Order article/terms are frozen; source identities and a unique
+spending relationship use restrictive references, not cascading deletion.
+Customer pages separately confirm the charge, retain uncertain requests across
+reload, and show owned pending orders plus linked point history. The current
+article can evolve without changing its purchased snapshot. Real payment,
+fulfilment, return/commission and production activation remain outside this owner
+slice; no speculative general-purpose transaction framework is introduced.
 
 ## Architecture qualities
 

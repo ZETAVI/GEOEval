@@ -9,6 +9,7 @@ import { CORE_ARTICLE_WRITER } from "./domain/writer.port.js";
 import { DeterministicCoreArticleWriter } from "./infrastructure/deterministic-core-article.writer.js";
 import { DisabledCoreArticleWriter } from "./infrastructure/disabled-core-article.writer.js";
 import { PostgresGeoOptimizationRepository } from "./infrastructure/postgres-geo-optimization.repository.js";
+import { PostgresArticlePurchaseReaderFactory } from "./infrastructure/postgres-article-purchase-reader.js";
 
 export type GeoOptimizationRuntimeConfig = {
   writerMode: "disabled" | "deterministic";
@@ -38,6 +39,7 @@ export class GeoOptimizationModule {
       module: GeoOptimizationModule,
       imports: [GeoIntelligenceModule.register(config.storeLocation)],
       providers: [
+        PostgresArticlePurchaseReaderFactory,
         PostgresGeoOptimizationRepository,
         DeterministicCoreArticleWriter,
         DisabledCoreArticleWriter,
@@ -55,7 +57,7 @@ export class GeoOptimizationModule {
         GeoOptimizationService,
       ],
       controllers: [GeoOptimizationController],
-      exports: [GeoOptimizationService],
+      exports: [GeoOptimizationService, PostgresArticlePurchaseReaderFactory],
     };
   }
 }

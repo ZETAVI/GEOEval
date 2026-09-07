@@ -5,6 +5,7 @@ import type { ApiConfig } from "../config/runtime-config.js";
 import { AccessGuard } from "./access/access.guard.js";
 import { CsrfGuard } from "./access/csrf.guard.js";
 import { AccountGovernanceService } from "./application/account-governance.service.js";
+import { AccountDirectoryService } from "./application/account-directory.service.js";
 import { AuthenticationService } from "./application/authentication.service.js";
 import { IDENTITY_CONFIG } from "./application/identity.config.js";
 import { SessionService } from "./application/session.service.js";
@@ -38,11 +39,13 @@ export class IdentityModule {
         },
         SessionService,
         AccountGovernanceService,
+        AccountDirectoryService,
         CsrfGuard,
         AccessGuard,
         { provide: APP_GUARD, useExisting: CsrfGuard },
         { provide: APP_GUARD, useExisting: AccessGuard },
       ],
+      exports: [AccountDirectoryService],
     };
   }
 }

@@ -11,22 +11,25 @@ import { MediaSupplyModule } from "./media-supply/media-supply.module.js";
 import { TelemetryModule } from "./infrastructure/telemetry.js";
 import { NotificationApiModule } from "./notification/notification-api.module.js";
 import { ReadinessModule } from "./readiness.module.js";
+import { PublishingCommerceModule } from "./publishing-commerce/publishing-commerce.module.js";
 
 @Module({})
 export class ApiModule {
   static register(config: ApiConfig): DynamicModule {
+    const optimization = GeoOptimizationModule.register({
+      writerMode: config.geoOptimizationWriterMode,
+      runtimeEnvironment: config.runtimeEnvironment,
+      storeLocation: config.storeLocation,
+    });
     return {
       module: ApiModule,
       imports: [
         PersistenceModule.register(config.databaseUrl),
         TelemetryModule.register(config.telemetryShouldFail),
         IdentityModule.register(config),
-        GeoOptimizationModule.register({
-          writerMode: config.geoOptimizationWriterMode,
-          runtimeEnvironment: config.runtimeEnvironment,
-          storeLocation: config.storeLocation,
-        }),
+        optimization,
         MediaSupplyModule,
+        PublishingCommerceModule.register(optimization),
         NotificationApiModule,
         ReadinessModule,
         FoundationModule,

@@ -82,6 +82,11 @@ const expectedControllerPolicies: Record<
     handler: string,
   ) => Pick<RoutePolicy, "publicAccess" | "csrfExempt" | "roles">
 > = {
+  PublishingSelectionController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["TERMINAL_CUSTOMER"],
+  }),
   HealthController: () => ({ publicAccess: true, csrfExempt: false }),
   FoundationController: () => ({ publicAccess: true, csrfExempt: true }),
   IdentityController: (handler) => ({
@@ -94,6 +99,19 @@ const expectedControllerPolicies: Record<
     roles: ["ADMINISTRATOR"],
   }),
   BrandController: customerOnly,
+  PublishingPackageCustomerController: customerOnly,
+  PublishingOrderController: customerOnly,
+  PointCustomerController: customerOnly,
+  PointAdminController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["ADMINISTRATOR"],
+  }),
+  PublishingPackageAdminController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["ADMINISTRATOR"],
+  }),
   BrandReferenceController: customerOnly,
   StoreLocationVerificationController: customerOnly,
   EvaluationController: customerOnly,

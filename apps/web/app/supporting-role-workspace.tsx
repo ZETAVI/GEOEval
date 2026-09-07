@@ -183,7 +183,7 @@ export function supportingRoleConfig(
       eyebrow: "管理员工作区",
       title: "管理总览",
       introduction:
-        "集中进入需要系统管理员权限的治理能力；账号与访问和媒体供给保持独立模块。",
+        "集中进入需要系统管理员权限的账号治理、媒体供给和发布商业配置。",
       boundary:
         "管理员治理账号、角色与平台级资料，不代替运营履约，也不拥有客户品牌内容。",
       cards: [
@@ -201,9 +201,21 @@ export function supportingRoleConfig(
           href: "/admin/media",
         },
         {
-          title: "商业与履约治理",
+          title: "发布套餐",
+          description: "维护随机发布套餐的数量、积分价格、媒体范围与启用状态。",
+          status: "AVAILABLE",
+          href: "/admin/publishing",
+        },
+        {
+          title: "客户积分",
+          description: "查看终端客户积分与流水，并按原因赠送或调整赠送积分。",
+          status: "AVAILABLE",
+          href: "/admin/points",
+        },
+        {
+          title: "订单与结算",
           description:
-            "套餐、积分、异常订单和代理结算由各自后续 Capability 激活。",
+            "运营履约、异常订单治理、真实支付和代理结算由后续能力接入。",
           status: "FUTURE_CAPABILITY",
         },
       ],
@@ -231,8 +243,7 @@ export function supportingRoleConfig(
       cards: [
         {
           title: "待领取订单",
-          description:
-            "发布订单能力尚未激活，因此当前不展示虚构数量或模拟订单。",
+          description: "客户已可购买并查看待处理订单；运营认领与履约尚未接入。",
           status: "FUTURE_CAPABILITY",
         },
         {

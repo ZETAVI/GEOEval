@@ -1185,6 +1185,498 @@
         ]
       }
     },
+    "/publishing/orders": {
+      "post": {
+        "operationId": "PublishingOrderController_submit",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitPublishingOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-orders"
+        ]
+      },
+      "get": {
+        "operationId": "PublishingOrderController_list",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "beforeNumber",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingOrderPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-orders"
+        ]
+      }
+    },
+    "/publishing/orders/{orderId}": {
+      "get": {
+        "operationId": "PublishingOrderController_detail",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-orders"
+        ]
+      }
+    },
+    "/admin/publishing/packages": {
+      "get": {
+        "operationId": "PublishingPackageAdminController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-publishing"
+        ]
+      },
+      "post": {
+        "operationId": "PublishingPackageAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishingPackageCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-publishing"
+        ]
+      }
+    },
+    "/admin/publishing/packages/{packageId}": {
+      "patch": {
+        "operationId": "PublishingPackageAdminController_update",
+        "parameters": [
+          {
+            "name": "packageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishingPackageUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-publishing"
+        ]
+      }
+    },
+    "/admin/publishing/packages/{packageId}/audits": {
+      "get": {
+        "operationId": "PublishingPackageAdminController_audits",
+        "parameters": [
+          {
+            "name": "packageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublishingPackageAuditResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-publishing"
+        ]
+      }
+    },
+    "/publishing/packages": {
+      "get": {
+        "operationId": "PublishingPackageCustomerController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublishingPackageCustomerResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing"
+        ]
+      }
+    },
+    "/admin/points/accounts/{accountId}": {
+      "get": {
+        "operationId": "PointAdminController_balance",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointAdminBalanceResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-points"
+        ]
+      }
+    },
+    "/admin/points/accounts/{accountId}/changes": {
+      "get": {
+        "operationId": "PointAdminController_history",
+        "parameters": [
+          {
+            "name": "beforeSequence",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointAdminHistoryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-points"
+        ]
+      }
+    },
+    "/admin/points/accounts/{accountId}/adjustments": {
+      "post": {
+        "operationId": "PointAdminController_adjust",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PointAdjustmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointAdminChangeResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-points"
+        ]
+      }
+    },
+    "/points": {
+      "get": {
+        "operationId": "PointCustomerController_balance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointBalanceResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "points"
+        ]
+      }
+    },
+    "/points/changes": {
+      "get": {
+        "operationId": "PointCustomerController_history",
+        "parameters": [
+          {
+            "name": "beforeSequence",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointHistoryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "points"
+        ]
+      }
+    },
+    "/publishing/workspace": {
+      "get": {
+        "operationId": "PublishingSelectionController_workspace",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingWorkspaceResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-selection"
+        ]
+      }
+    },
+    "/publishing/brands/{brandId}/selection": {
+      "put": {
+        "operationId": "PublishingSelectionController_save",
+        "parameters": [
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavePublishingSelectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingSelectionResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-selection"
+        ]
+      }
+    },
     "/notifications": {
       "get": {
         "operationId": "NotificationController_list",
@@ -3925,6 +4417,1124 @@
           "action",
           "reason",
           "createdAt"
+        ]
+      },
+      "PublishingPackageScopeResponse": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "platformId",
+          "displayName"
+        ]
+      },
+      "PurchasedMediaLineResponse": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "unitPoints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "totalPoints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "available": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "platformId",
+          "displayName",
+          "quantity",
+          "unitPoints",
+          "totalPoints",
+          "available"
+        ]
+      },
+      "PurchasedTermsResponse": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RANDOM",
+              "PRECISE"
+            ]
+          },
+          "packageName": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingPackageScopeResponse"
+            }
+          },
+          "lines": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchasedMediaLineResponse"
+            }
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "totalPoints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "mode",
+          "packageName",
+          "scope",
+          "lines",
+          "quantity",
+          "totalPoints"
+        ]
+      },
+      "SubmitPublishingOrderRequest": {
+        "type": "object",
+        "properties": {
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "selectionRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "acceptedTerms": {
+            "$ref": "#/components/schemas/PurchasedTermsResponse"
+          }
+        },
+        "required": [
+          "idempotencyKey",
+          "brandId",
+          "articleId",
+          "articleRevision",
+          "selectionRevision",
+          "acceptedTerms"
+        ]
+      },
+      "PublishingOrderResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "bodyMarkdown": {
+            "type": "string"
+          },
+          "agreement": {
+            "$ref": "#/components/schemas/PurchasedTermsResponse"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "brandId",
+          "articleId",
+          "articleRevision",
+          "status",
+          "title",
+          "createdAt",
+          "bodyMarkdown",
+          "agreement"
+        ]
+      },
+      "PublishingOrderSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RANDOM",
+              "PRECISE"
+            ]
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "totalPoints": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "brandId",
+          "articleId",
+          "articleRevision",
+          "status",
+          "title",
+          "createdAt",
+          "mode",
+          "quantity",
+          "totalPoints"
+        ]
+      },
+      "PublishingOrderPageResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingOrderSummaryResponse"
+            }
+          },
+          "nextBeforeNumber": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextBeforeNumber"
+        ]
+      },
+      "PublishingPackageAdminResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "pointPrice": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INACTIVE",
+              "ACTIVE"
+            ]
+          },
+          "platformIds": {
+            "minItems": 1,
+            "maxItems": 200,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "pointPrice",
+          "status",
+          "platformIds",
+          "id",
+          "revision"
+        ]
+      },
+      "PublishingPackageCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "pointPrice": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INACTIVE",
+              "ACTIVE"
+            ]
+          },
+          "platformIds": {
+            "minItems": 1,
+            "maxItems": 200,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "pointPrice",
+          "status",
+          "platformIds"
+        ]
+      },
+      "PublishingPackageUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "pointPrice": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INACTIVE",
+              "ACTIVE"
+            ]
+          },
+          "platformIds": {
+            "minItems": 1,
+            "maxItems": 200,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 320
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "pointPrice",
+          "status",
+          "platformIds",
+          "expectedRevision",
+          "reason"
+        ]
+      },
+      "PublishingPackageAuditResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "beforeState": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+              }
+            ]
+          },
+          "afterState": {
+            "$ref": "#/components/schemas/PublishingPackageAdminResponse"
+          }
+        },
+        "required": [
+          "id",
+          "actorAccountId",
+          "reason",
+          "createdAt",
+          "beforeState",
+          "afterState"
+        ]
+      },
+      "PublishingPackageCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "pointPrice": {
+            "type": "integer"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "buyable": {
+            "type": "boolean"
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingPackageScopeResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "quantity",
+          "pointPrice",
+          "revision",
+          "buyable",
+          "scope"
+        ]
+      },
+      "PointCustomerIdentityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "mobile",
+          "status"
+        ]
+      },
+      "PointAdminBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "integer"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/PointCustomerIdentityResponse"
+          },
+          "grantedBalance": {
+            "type": "integer"
+          },
+          "fundedBalance": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "balance",
+          "revision",
+          "customer",
+          "grantedBalance",
+          "fundedBalance"
+        ]
+      },
+      "PointAdminChangeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequence": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ADMIN_ADJUSTMENT",
+              "PUBLISHING_ORDER"
+            ]
+          },
+          "publishingOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "balanceAfter": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grantedDelta": {
+            "type": "integer"
+          },
+          "fundedDelta": {
+            "type": "integer"
+          },
+          "internalNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "businessReference": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "sequence",
+          "kind",
+          "publishingOrderId",
+          "amount",
+          "balanceAfter",
+          "reason",
+          "createdAt",
+          "accountId",
+          "actorAccountId",
+          "idempotencyKey",
+          "grantedDelta",
+          "fundedDelta",
+          "internalNote",
+          "businessReference"
+        ]
+      },
+      "PointAdminHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PointAdminChangeResponse"
+            }
+          },
+          "nextBeforeSequence": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextBeforeSequence"
+        ]
+      },
+      "PointAdjustmentRequest": {
+        "type": "object",
+        "properties": {
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": -2147483647,
+            "maximum": 2147483647
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "internalNote": {
+            "type": "string",
+            "maxLength": 320,
+            "nullable": true
+          },
+          "businessReference": {
+            "type": "string",
+            "maxLength": 160,
+            "nullable": true
+          }
+        },
+        "required": [
+          "idempotencyKey",
+          "amount",
+          "reason"
+        ]
+      },
+      "PointBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "integer"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "balance",
+          "revision"
+        ]
+      },
+      "PointChangeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequence": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ADMIN_ADJUSTMENT",
+              "PUBLISHING_ORDER"
+            ]
+          },
+          "publishingOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "balanceAfter": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "sequence",
+          "kind",
+          "publishingOrderId",
+          "amount",
+          "balanceAfter",
+          "reason",
+          "createdAt"
+        ]
+      },
+      "PointHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PointChangeResponse"
+            }
+          },
+          "nextBeforeSequence": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextBeforeSequence"
+        ]
+      },
+      "PublishingBrandResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "companyName"
+        ]
+      },
+      "PublishingArticleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "CONFIRMED"
+            ]
+          },
+          "confirmedRevision": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "revision",
+          "status",
+          "confirmedRevision"
+        ]
+      },
+      "RandomPublishingIntent": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RANDOM"
+            ]
+          },
+          "packageId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "mode",
+          "packageId"
+        ]
+      },
+      "PrecisePublishingLine": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "platformId",
+          "quantity"
+        ]
+      },
+      "PrecisePublishingIntent": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "PRECISE"
+            ]
+          },
+          "lines": {
+            "minItems": 1,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrecisePublishingLine"
+            }
+          }
+        },
+        "required": [
+          "mode",
+          "lines"
+        ]
+      },
+      "PublishingSelectionResponse": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "intent": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RandomPublishingIntent"
+              },
+              {
+                "$ref": "#/components/schemas/PrecisePublishingIntent"
+              }
+            ]
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "articleId",
+          "articleRevision",
+          "intent",
+          "brandId",
+          "revision"
+        ]
+      },
+      "PublishingQuoteLineResponse": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "unitPoints": {
+            "type": "integer",
+            "nullable": true
+          },
+          "totalPoints": {
+            "type": "integer",
+            "nullable": true
+          },
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "platformId",
+          "quantity",
+          "displayName",
+          "unitPoints",
+          "totalPoints",
+          "available"
+        ]
+      },
+      "PublishingQuoteResponse": {
+        "type": "object",
+        "properties": {
+          "selectionRevision": {
+            "type": "integer"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RANDOM",
+              "PRECISE"
+            ]
+          },
+          "packageName": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingPackageScopeResponse"
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingQuoteLineResponse"
+            }
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "totalPoints": {
+            "type": "integer",
+            "nullable": true
+          },
+          "shortfall": {
+            "type": "integer",
+            "nullable": true
+          },
+          "suggestedRechargeYuan": {
+            "type": "integer",
+            "nullable": true
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ARTICLE_CHANGED",
+                "ARTICLE_UNCONFIRMED",
+                "OFFER_UNAVAILABLE",
+                "TOTAL_OUT_OF_RANGE"
+              ]
+            }
+          }
+        },
+        "required": [
+          "selectionRevision",
+          "articleId",
+          "articleRevision",
+          "mode",
+          "packageName",
+          "scope",
+          "lines",
+          "quantity",
+          "totalPoints",
+          "shortfall",
+          "suggestedRechargeYuan",
+          "problems"
+        ]
+      },
+      "PublishingWorkspaceResponse": {
+        "type": "object",
+        "properties": {
+          "selectionRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "brand": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingBrandResponse"
+              }
+            ]
+          },
+          "article": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingArticleResponse"
+              }
+            ]
+          },
+          "balance": {
+            "type": "integer"
+          },
+          "selection": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingSelectionResponse"
+              }
+            ]
+          },
+          "quote": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublishingQuoteResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "selectionRevision",
+          "brand",
+          "article",
+          "balance",
+          "selection",
+          "quote"
+        ]
+      },
+      "SavePublishingSelectionRequest": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "intent": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RandomPublishingIntent"
+              },
+              {
+                "$ref": "#/components/schemas/PrecisePublishingIntent"
+              }
+            ]
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483646
+          }
+        },
+        "required": [
+          "articleId",
+          "articleRevision",
+          "intent",
+          "expectedRevision"
         ]
       },
       "EvaluationReportNotificationTargetResponse": {

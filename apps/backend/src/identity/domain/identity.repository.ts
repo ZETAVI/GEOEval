@@ -15,6 +15,7 @@ import type {
 export const IDENTITY_REPOSITORY = Symbol("IDENTITY_REPOSITORY");
 
 export interface IdentityRepository {
+  findAccount(accountId: string): Promise<AccountView | undefined>;
   issueChallenge(input: {
     id: string;
     mobile: string;

@@ -4,6 +4,44 @@ export type FoundationRecord =
   components["schemas"]["FoundationRecordResponse"];
 export type Challenge = components["schemas"]["ChallengeResponse"];
 export type Account = components["schemas"]["AccountResponse"];
+export type PointBalance = components["schemas"]["PointBalanceResponse"];
+export type PointAdminBalance =
+  components["schemas"]["PointAdminBalanceResponse"];
+export type PointAdjustment = components["schemas"]["PointAdjustmentRequest"];
+export type PointChange = components["schemas"]["PointChangeResponse"];
+export type PointAdminChange =
+  components["schemas"]["PointAdminChangeResponse"];
+export type PointHistory = components["schemas"]["PointHistoryResponse"];
+export type PointAdminHistory =
+  components["schemas"]["PointAdminHistoryResponse"];
+export type PublishingPackage =
+  components["schemas"]["PublishingPackageCustomerResponse"];
+export type PublishingWorkspace =
+  components["schemas"]["PublishingWorkspaceResponse"];
+export type PublishingSelection =
+  components["schemas"]["PublishingSelectionResponse"];
+export type SavePublishingSelection =
+  components["schemas"]["SavePublishingSelectionRequest"];
+export type PublishingQuote = components["schemas"]["PublishingQuoteResponse"];
+export type PurchasedTerms = components["schemas"]["PurchasedTermsResponse"];
+export type SubmitPublishingOrder =
+  components["schemas"]["SubmitPublishingOrderRequest"];
+export type PublishingOrder = components["schemas"]["PublishingOrderResponse"];
+export type PublishingOrderPage =
+  components["schemas"]["PublishingOrderPageResponse"];
+export type CustomerMediaPlatform =
+  components["schemas"]["MediaPlatformCustomerResponse"];
+export type CustomerMediaPage =
+  components["schemas"]["MediaPlatformPageResponse"];
+export type MediaCategory = components["schemas"]["MediaCategoryResponse"];
+export type PublishingPackageAdmin =
+  components["schemas"]["PublishingPackageAdminResponse"];
+export type PublishingPackageCreate =
+  components["schemas"]["PublishingPackageCreateRequest"];
+export type PublishingPackageUpdate =
+  components["schemas"]["PublishingPackageUpdateRequest"];
+export type PublishingPackageAudit =
+  components["schemas"]["PublishingPackageAuditResponse"];
 export type SessionAuthenticationError =
   components["schemas"]["SessionAuthenticationErrorResponse"];
 export type SessionAuthenticationFailureCode =
@@ -130,6 +168,154 @@ async function apiRequest<T>(
   }
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
+}
+
+export function getPointBalance(baseUrl: string): Promise<PointBalance> {
+  return apiRequest(baseUrl, "/points", { cache: "no-store" });
+}
+export function getPointHistory(
+  baseUrl: string,
+  beforeSequence?: number,
+): Promise<PointHistory> {
+  return apiRequest(
+    baseUrl,
+    `/points/changes${beforeSequence ? `?beforeSequence=${beforeSequence}` : ""}`,
+    { cache: "no-store" },
+  );
+}
+export function getAdminPointBalance(
+  baseUrl: string,
+  accountId: string,
+): Promise<PointAdminBalance> {
+  return apiRequest(
+    baseUrl,
+    `/admin/points/accounts/${encodeURIComponent(accountId)}`,
+    { cache: "no-store" },
+  );
+}
+export function getAdminPointHistory(
+  baseUrl: string,
+  accountId: string,
+  beforeSequence?: number,
+): Promise<PointAdminHistory> {
+  return apiRequest(
+    baseUrl,
+    `/admin/points/accounts/${encodeURIComponent(accountId)}/changes${beforeSequence ? `?beforeSequence=${beforeSequence}` : ""}`,
+    { cache: "no-store" },
+  );
+}
+export function adjustGrantedPoints(
+  baseUrl: string,
+  accountId: string,
+  input: PointAdjustment,
+): Promise<PointAdminChange> {
+  return apiRequest(
+    baseUrl,
+    `/admin/points/accounts/${encodeURIComponent(accountId)}/adjustments`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function listPublishingPackages(
+  baseUrl: string,
+): Promise<PublishingPackage[]> {
+  return apiRequest(baseUrl, "/publishing/packages");
+}
+
+export function getPublishingWorkspace(
+  apiBaseUrl: string,
+): Promise<PublishingWorkspace> {
+  return apiRequest(apiBaseUrl, "/publishing/workspace", { cache: "no-store" });
+}
+export function savePublishingSelection(
+  apiBaseUrl: string,
+  brandId: string,
+  input: SavePublishingSelection,
+): Promise<PublishingSelection> {
+  return apiRequest(
+    apiBaseUrl,
+    `/publishing/brands/${encodeURIComponent(brandId)}/selection`,
+    { method: "PUT", body: JSON.stringify(input) },
+  );
+}
+export function submitPublishingOrder(
+  baseUrl: string,
+  input: SubmitPublishingOrder,
+): Promise<PublishingOrder> {
+  return apiRequest(baseUrl, "/publishing/orders", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+export function getPublishingOrder(
+  baseUrl: string,
+  id: string,
+): Promise<PublishingOrder> {
+  return apiRequest(baseUrl, `/publishing/orders/${encodeURIComponent(id)}`, {
+    cache: "no-store",
+  });
+}
+export function listPublishingOrders(
+  baseUrl: string,
+  input: { brandId?: string; beforeNumber?: number } = {},
+): Promise<PublishingOrderPage> {
+  const query = new URLSearchParams({
+    ...(input.brandId ? { brandId: input.brandId } : {}),
+    ...(input.beforeNumber ? { beforeNumber: String(input.beforeNumber) } : {}),
+  });
+  return apiRequest(baseUrl, `/publishing/orders?${query}`, {
+    cache: "no-store",
+  });
+}
+export function listCustomerMedia(
+  apiBaseUrl: string,
+  input: { category?: string; cursor?: string } = {},
+): Promise<CustomerMediaPage> {
+  const query = new URLSearchParams({ limit: "20", ...input });
+  return apiRequest(apiBaseUrl, `/media-catalog/platforms?${query}`, {
+    cache: "no-store",
+  });
+}
+export function listMediaCategories(
+  apiBaseUrl: string,
+): Promise<MediaCategory[]> {
+  return apiRequest(apiBaseUrl, "/media-catalog/categories", {
+    cache: "no-store",
+  });
+}
+export function listAdminPublishingPackages(
+  baseUrl: string,
+): Promise<PublishingPackageAdmin[]> {
+  return apiRequest(baseUrl, "/admin/publishing/packages");
+}
+export function createAdminPublishingPackage(
+  baseUrl: string,
+  input: PublishingPackageCreate,
+): Promise<PublishingPackageAdmin> {
+  return apiRequest(baseUrl, "/admin/publishing/packages", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+export function updateAdminPublishingPackage(
+  baseUrl: string,
+  id: string,
+  input: PublishingPackageUpdate,
+): Promise<PublishingPackageAdmin> {
+  return apiRequest(
+    baseUrl,
+    `/admin/publishing/packages/${encodeURIComponent(id)}`,
+    { method: "PATCH", body: JSON.stringify(input) },
+  );
+}
+export function listPublishingPackageAudits(
+  baseUrl: string,
+  id: string,
+): Promise<PublishingPackageAudit[]> {
+  return apiRequest(
+    baseUrl,
+    `/admin/publishing/packages/${encodeURIComponent(id)}/audits`,
+  );
 }
 
 export function requestLoginChallenge(

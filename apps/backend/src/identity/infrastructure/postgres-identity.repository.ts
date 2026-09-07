@@ -31,6 +31,12 @@ type GovernanceTransaction = Prisma.TransactionClient;
 
 @Injectable()
 export class PostgresIdentityRepository implements IdentityRepository {
+  async findAccount(accountId: string): Promise<AccountView | undefined> {
+    const account = await this.prisma.account.findUnique({
+      where: { id: accountId },
+    });
+    return account ? presentAccount(account) : undefined;
+  }
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async bootstrapAdministrator(input: {

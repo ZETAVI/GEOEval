@@ -234,6 +234,10 @@ export class MediaSupplyService {
     return this.execute(() => this.repository.quotePlatform(platformId));
   }
 
+  quotePlatforms(platformIds: string[]) {
+    return this.repository.quotePlatforms(platformIds);
+  }
+
   fulfillmentCandidates(platformId: string) {
     return this.execute(() =>
       this.repository.fulfillmentCandidates(platformId),
