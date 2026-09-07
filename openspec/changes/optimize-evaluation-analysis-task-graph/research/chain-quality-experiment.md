@@ -2612,3 +2612,90 @@ no merge, rebase, other-worktree edit, current-spec or production change.
 | Summary | efaf6ff09c712065a0946d68a680b2eed829840fd3011f1db81174539fad3c3d |
 | Handoff | 00b899f06615c1b950eab9f493e396897f43155bbd453831afae4ef538efe8e4 |
 | Runner | 7b92224a79a5f143f5dcd36ab1b311707c4db62e207f742c264d3e2fe2c834b2 |
+
+## Parser coverage and article directions — reject Parser package, retain direction scope
+
+The owner confirms two boundaries: full answers are first-Parser input only;
+synthesis keeps parsed records, summaries and necessary source excerpts. Its
+directions are one or two valuable topics for subsequent promotional writing,
+reinforcing existing strengths or addressing information gaps, not campaign plans.
+No current internal-guidance/writer contract or runtime activation is inferred.
+
+Tested revision `7b3ba0d018bd4715042707cfe7cbfb143613bdf2`, manifest
+`df7c98bfcfc194fa1e5773130d67071e86cdd0f3b56656ede2ab3dedab0877c6`.
+Ten requests, concurrency two, 180-second wait. First run narrative 1.2.0 twice
+on the unchanged second-merchant parsed handoff; then four real open cases each
+at Parser 1.4.0 and candidate 1.5.0. Input, Schema and low Parser/medium narrative
+routes stay fixed. Instruction and wire version name change: this is a Prompt
+version-package comparison, not a causal isolation of wording order. The first
+merchant's historical 1.2.0 request is rebaselined to 1.4.0 for this comparison.
+
+The candidate makes named-brand coverage and source-item order explicit before
+target summarization. No source cleaning, quote-format change, grouping call,
+acquisition, search, retry/fallback or in-batch tuning occurs. Narrative does not
+consume the new Parser results; the two concerns are independently tested.
+Every actual body matches its frozen wire; source lines and original hashes
+match. Raw JSON and normalized output agree across all ten responses.
+
+All ten Provider/finish/JSON/structure/source checks pass. Run interval:
+2026-09-07 06:37:03.173–06:38:39.932 UTC, 96.759 seconds for the entire experiment,
+56,997 reported tokens (23,443 Parser; 33,554 narrative). This is not one complete
+evaluation's timing, a bill, successful component recovery or a stability rate.
+
+| Case | Baseline / candidate latency | Actual semantic observation |
+| --- | --- | --- |
+| Main-list coverage | 14.107 / 14.924 s | Both cover the formerly omitted main brands; no candidate-only improvement |
+| Unnumbered source order | 13.436 / 14.655 s | Baseline restarts category positions and repeats target as competitor; candidate removes that duplicate but still shifts the actual fourth brand to fifth |
+| Shared numbered item | 14.584 / 24.449 s | Both omit two explicit co-listed brands; candidate also omits a supplementary brand retained by baseline |
+| Unnamed description | 13.209 / 17.539 s | Baseline misattributes another brand to target; candidate restores absence but repeats the same unnamed description eight times |
+
+The unnamed candidate returns ten other-brand records, including eight identical
+copies of the unrecognized description. These are raw model records, not program
+filtering or projection effects. Do not claim eightfold final statistics from
+that fact: distinct-sample counting and later grouping have their own boundaries.
+Both old and candidate outputs have material errors; restoring 1.4.0 means rejecting
+an unsupported replacement, not declaring the baseline semantically reliable.
+
+Decision: reject the 1.5.0 Parser package and restore the existing 1.4.0 asset.
+Keep the actual candidate in tested Git history and protected evidence, not a
+second active Prompt file. No result is trimmed or repaired. The retained input
+already has the relevant names and source order, so adding full original answers
+to synthesis is not the remedy. Next inspect the single-call output expression
+for identity/source-item/position correspondence before choosing a small new
+experiment; no new Agent, runtime Schema, model switch or instruction checklist
+is selected. Earlier mode/effort probes remain completed evidence, not a sweep
+to repeat. The precise model-generation cause remains unproven.
+
+Narrative 1.2.0 takes 24.359/24.911 seconds; both give two practical writing topics
+covering brand strengths and content/information needs. Retain this direction
+scope. Independent review distinguishes real source-supported details from
+invented facts. One overview still describes brand-directed content as ranked,
+although that question has no ranking; the second overview avoids it. Keep this
+visible residual for final report review without reopening generic stylistic
+policing or claiming formal synthesis acceptance. Do not pass these experimental
+directions directly into production article generation.
+
+Verification: 44 focused tests, backend typecheck/build, framework/link/diff
+checks and independent fixed-diff/runner review pass. New regression assertions
+keep full-answer fields out of synthesis samples. Independent semantic review
+agrees with rejecting Parser 1.5.0 while retaining the direction scope.
+Eleven private Langfuse observations (root `c605b612896ff18d` and ten generations)
+match actual messages/output/settings/usage on readback; no root IO, independent
+review or program output is uploaded.
+[Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/32780efa82da2273d52060cba713ade1).
+Protected local evidence: `apps/backend/.provider-evidence/m4-parser-direction-LWRUZX/`.
+
+This ten-call package ends here. Grouping assignment stays retained; direct
+malformed text, real failure-only recovery and formal report/UI/DB/3–5-minute
+acceptance remain unverified. Issue #42 stays In Progress, PR #62 Draft Partial,
+#41 final report ownership, #32 completion and #39/#43/#49 boundaries unchanged.
+Main observed at `5fb4400`; no merge/rebase, production, current-spec or other-
+worktree change occurs. Worktree/branch and all evidence are retained.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 71953c844e3151dcf201437339e902e740d898ee87bbec4114a7087d7de33c23 |
+| Summary | 22da4f8d6d805b77c4171ea7280563cdee8cdad2a7e4c3c5f30b69e11457f633 |
+| Handoff | 23906365820c4641a62899d865059c72d9ef742c1257a07c6f6795d84b580add |
+| Matched wire check | fb11d3de8f256b144290430a010a48a4ac071a99a0d825f018450aaa3e588c52 |
+| Runner | 90c23f440eb316f6a3a7c0fefb14ed31d9ddb86616db2add042ada62d44ca328 |

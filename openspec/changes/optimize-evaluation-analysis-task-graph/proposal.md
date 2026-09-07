@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Fixed-slot grouping candidate retained; focused Parser and concise GEO-direction residuals remain
+- Status: Retain parsed synthesis input and article directions; reject Parser 1.5.0 package
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -41,7 +41,23 @@ Langfuse input/output export. Four questions, five platforms, metric meaning,
 
 ## Current evidence and next decision
 
-Current checkpoint: the [six-call fixed-slot package](research/chain-quality-experiment.md#fixed-slot-assignment--structural-reliability-with-bounded-semantic-residuals)
+Latest: the [ten-call Parser/direction package](research/chain-quality-experiment.md#parser-coverage-and-article-directions--reject-parser-package-retain-direction-scope)
+at `7b3ba0d` retains narrative 1.2.0, but rejects Parser 1.5.0 and restores the
+existing 1.4.0 asset. All ten structural checks pass; actual coverage/position
+errors persist and one candidate repeats an unnamed entity eight times. This is
+not a reason to lengthen Prompt prohibitions or feed full raw answers to synthesis.
+The owner's confirmed boundary remains parsed records, summaries and necessary
+excerpts into synthesis, with one or two useful article topics for the writing
+consumer. Direct-question overview ranking language remains a known residual,
+not a reason to reopen every narrative wording or design a new critic.
+
+Next address single-Parser output representation of brand identity, source items
+and positions at the existing experimental seam before freezing another small
+comparison. No new Agent, selected runtime Schema, model switch, deformatting or
+extra call is approved by this result itself. Direct malformed text and formal
+component recovery remain unverified; no 3–5-minute report claim follows.
+
+Previous checkpoint: the [six-call fixed-slot package](research/chain-quality-experiment.md#fixed-slot-assignment--structural-reliability-with-bounded-semantic-residuals)
 at `548d4d2` completes without a structural report blocker. Four assignment calls
 cover both retained merchant handoffs twice; the second merchant's 72 values are
 identical across repetitions. Keep fixed-slot assignment as the next candidate,

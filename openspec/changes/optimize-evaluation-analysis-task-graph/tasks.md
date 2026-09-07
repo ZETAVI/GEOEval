@@ -60,15 +60,22 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       handoff: all four structures pass, and the second merchant's 72 assignments
       agree exactly. Retain this candidate without claiming general stability;
       one first-merchant output still guesses an unnamed record's identity.
-- [ ] Replay the observed single-Parser omissions, incorrect/shared positions and
-      readable malformed-name detail. Keep full sources and practical quality;
-      do not blanket-raise effort or treat every internal field anomaly as failure.
+- [x] Replay four observed open-Parser cases with 1.4.0/1.5.0 Prompt-version
+      packages at unchanged input/Schema/low effort. Reject 1.5.0 after persistent
+      position/coverage errors and eight repeated unnamed records; restore 1.4.0.
+- [ ] Review the single-call representation of brand identity, source items and
+      positions before another bounded experiment. Preserve complete Parser
+      input and source mapping; do not blanket-raise effort or add more rules.
+- [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
+      no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on
       unchanged retained input. Both orient toward publicity, but one still
       over-expands into a problematic concrete promotion example.
-- [ ] Keep directions to one or two broad content priorities, not detailed
-      campaign prescriptions. Recheck the remaining visible subject/claim error,
-      without a critic, strict wording gate or new business requirements.
+- [x] Test narrative 1.2.0 twice on the unchanged parsed handoff. Retain its
+      one-or-two article-topic scope for strengths and information gaps, with
+      useful ~25-second outputs. Do not send full original answers downstream.
+- [ ] Retain the observed direct-question/ranking overview residual for final
+      report checks; do not turn it into a new critic or broad wording gate.
 - [ ] Before formal delivery, explicitly resolve or disposition the retained
       duplicate-grouping report failure. Keep both merchants' failed evidence
       and rejection; no tail trimming or claim that good repetitions fix it.
@@ -79,11 +86,11 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       quality bar. The historical coffee case remains an observation/regression,
       not an indefinite tuning gate. Do not resume every old topology comparison.
 
-Next Parser package owns the observed omissions, shared/shifted positions,
-unnamed-entity eligibility and visible malformed name. A light formatting view is
-an independent hypothesis, not a proven fix: retain original answers and evidence
-mapping, list/heading/table structure and full content. No extra call is appended
-to the completed six-call assignment/narrative batch.
+The next Parser decision concerns observed identity/duplication, omitted brands
+and shared/shifted positions, not another rewrite of every Prompt. A light
+formatting view remains an independent hypothesis, not a proven fix: retain
+original answers and evidence mapping, list/heading/table structure and full
+content. No extra call is appended to either completed six/ten-call package.
 
 ## Actual delivery — still outstanding
 

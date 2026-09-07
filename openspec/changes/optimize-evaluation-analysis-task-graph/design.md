@@ -2,8 +2,8 @@
 
 ## Decision state and owners
 
-Status: fixed-slot grouping is the retained candidate; focused Parser and concise
-direction residuals remain. The six-call retained-input package is complete.
+Status: narrative 1.2.0 and fixed-slot grouping are retained candidates. The
+ten-call Parser/direction package rejects Parser 1.5.0; restore Parser 1.4.0.
 No runtime topology or successful full-report timing is accepted.
 The [current proposal](proposal.md#current-evidence-and-next-decision) and
 [tasks](tasks.md) own the next action. Historical stages below explain prior
@@ -21,7 +21,7 @@ records, short summaries and necessary source excerpts. Its directions name one
 or two valuable article topics: strengthen existing advantages or explain/fill
 information gaps for the later writing Agent. They are not campaign plans.
 
-Readiness: owner-local Prompt-only experiment, with no new module, Agent,
+Readiness: owner-local Prompt-version package experiment, with no new module, Agent,
 reference representation, output Schema or public/runtime contract. Open Parser
 1.5.0 makes its working sequence explicit: cover the actual named recommendation
 items, map their source positions, then summarize the target. Keep original full
@@ -48,6 +48,20 @@ to private Langfuse; reviews and program results stay local. Retain current
 source/adapter capability evidence; code/config inputs are frozen before calls.
 Direct-Parser malformed text and formal failed-analysis recovery remain separate
 unverified work; no production state or partial-completion meaning changes.
+
+Result at `7b3ba0d`: ten calls pass Provider and structural checks, but Parser
+1.5.0 does not improve the two unresolved position/coverage cases and introduces
+an eightfold repeated unnamed record. Restore 1.4.0; preserve both arms and the
+candidate in tested Git history, not a new active asset copy. Both narrative
+outputs provide practical article topics in about 25 seconds. Retain 1.2.0 with
+one overview residual (direct-question content described as ranked); this does
+not negate the clarified direction scope or establish formal report acceptance.
+The unchanged parsed handoff, not full answers or new Parser outputs, was used.
+Do not attribute the outcome to a single wording factor: instruction and wire
+version name both changed. Next inspect the single-call representation of brand
+identity, source items and position before proposing one bounded experiment;
+do not add more Prompt rules, Agents, full-source synthesis or automatic repair.
+See the [result](research/chain-quality-experiment.md#parser-coverage-and-article-directions--reject-parser-package-retain-direction-scope).
 
 ### Fixed-slot assignment and GEO-purpose replay
 
