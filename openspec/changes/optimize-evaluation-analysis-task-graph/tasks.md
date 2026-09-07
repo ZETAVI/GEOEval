@@ -47,23 +47,24 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
 - [x] Diagnose the rejected raw grouping and verify identical repeated HTTP bodies;
       program assembly/input drift are not the cause. Practical narrative scope
       remains useful; actual IO readback matches and private review stays local.
-- [ ] First execute the owner's six-call low/medium/xhigh grouping comparison,
-      twice per level with identical task/wire except effort and no analysis
-      search. Preserve failures, actual tokens/time and planned stop boundaries.
-      A useful parameter result may avoid an unnecessary contract change.
-- [ ] If still needed, compare a per-record single-assignment grouping output with the existing
-      free group list on retained evidence. Freeze the smallest discriminating
-      batch; no automatic trim, category blacklist, retry or new runtime layer.
+- [x] Complete the owner's six-call low/medium/xhigh comparison with only effort
+      changed and no analysis search. Retain medium for the next controlled
+      matrix: two consistent member partitions in 41.812–54.230 seconds; neither
+      low nor xhigh gives a better overall result in this batch.
+- [ ] Test another merchant's four-question/five-platform complete chain with
+      the retained candidate; measure acquisition, Parser, synthesis and total
+      time before a bounded concurrency change. Do not add historical timings
+      or turn six repeated grouping calls into a full-evaluation measurement.
+- [ ] Before formal delivery, explicitly resolve or disposition the retained
+      duplicate-grouping report failure. Single-assignment output is a candidate,
+      not a prerequisite for the next controlled matrix. Keep failed evidence
+      and rejection; no tail trimming or claim that two good outputs fix it.
 - [ ] Review the remaining named/unnamed, member and direct-Parser failure cases
       by their actual report impact; retain imperfect results rather than silently
       repairing them or turning every historical case into an indefinite gate.
 - [ ] Recheck the final readable report and core statistics at the practical
       quality bar. The historical coffee case remains an observation/regression,
       not an indefinite tuning gate. Do not resume every old topology comparison.
-- [ ] After targeted evidence supports the candidate, test another real merchant
-      with the same four-question matrix and measure full wall time. Use the
-      measured sampling/parsing and synthesis components to choose a bounded
-      concurrency change; do not promise three-to-five minutes in advance.
 
 ## Actual delivery — still outstanding
 

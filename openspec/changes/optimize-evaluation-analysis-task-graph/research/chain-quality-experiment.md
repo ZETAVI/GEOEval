@@ -2339,3 +2339,83 @@ change, #49 mirror, formal UI/DB/recovery or selected runtime is claimed.
 | Narrative 2 | 4f9ea3dc7ba1595c207a3fc351547238dbbb5ab9574d55852131aeae90f3742b |
 | Preview 1 | c5a2da959c7b9a7f0702fcc703e04c8ddfcfe420f9e178e208cc9d3d4f7c2d6a |
 | Runner | 1f928f0c247cdef62eabba830193b046234a2963baf35fb943e17995cd2e426b |
+
+## Grouping effort comparison — retain medium without contract expansion
+
+The owner asks whether thinking level changes actual results and prefers
+interpreting supplied answers without external correction. At
+`d86d3fba603a45e163fd40f353cbe83b722b25cc`, manifest
+`8f1b0bca570380d47a8e31928d99f50a336edf9d11cfd5d0455a5cc39b40101b`
+freezes two grouping calls each at low, medium and xhigh. The existing Model
+Studio adapter receives experiment-local copied route definitions; runtime
+defaults/catalog, Prompt, Schema and model are unchanged. Offline capture and
+all actual requests match the prior composition grouping wire except effort.
+All 45 brand records and source excerpts remain. No search/tools, new sampling,
+Parser/narrative calls, retry, fallback or mid-batch tuning are introduced.
+
+The three concurrent pairs are low/medium, xhigh/low, medium/xhigh. Maximum
+concurrency is two and request wait is 180 seconds. Known member-validation
+failures would be measured outcomes, not triggers for extra calls; Provider,
+finish or unexpected Schema failures would stop queued pairs. All six finish
+successfully with valid structure/references and finish_reason=stop, without
+triggering the stop condition. Time is 2026-09-07 02:49:41.917–02:55:55.693 UTC
+(September 6 local), 373.776 seconds for the entire six-call comparison.
+
+| Effort | Latency, repeat 1 / 2 | Reasoning tokens, repeat 1 / 2 | Combined total tokens | Local practical finding |
+| --- | --- | --- | --- | --- |
+| low | 58.898 / 54.755 s | 4,096 / 4,096 | 32,140 | Main named groups reasonable; one uncertain unnamed grouping, one omitted member |
+| medium | 41.812 / 54.230 s | 4,320 / 6,009 | 34,086 | Same seven member partitions, consistent with retained context |
+| xhigh | 158.858 / 155.727 s | 14,331 / 13,915 | 52,111 | One same partition as medium, one extra uncertain unnamed grouping; no added quality benefit |
+
+Total 118,337 Provider-reported tokens. Every first repetition reports zero
+cached input; each second repetition reports 11,264 cached input tokens. Input
+usage is 11,439/11,413/11,451 for low/medium/xhigh despite only effort changing
+in the visible request; do not invent an explanation of Provider accounting.
+Reasoning is already included in output tokens. This is not a bill comparison,
+a reliability estimate or a full-evaluation timing; fixed order, cache and small
+sample size remain limitations. The prior full matrix's 352.014 seconds remains
+the only complete four-question/five-platform wall-time observation.
+
+Independent member-level review agrees with keeping medium for the next
+controlled candidate, not selecting a new runtime default. Display-name
+abbreviations and group order are not failures. No output has repeated members
+or broad category groups in this batch, but the earlier identical-medium
+repeated-member report failure remains unresolved. Neither this batch nor the
+two good medium outputs establish that it has been repaired. Retain its raw
+evidence, current rejection and an explicit disposition before formal delivery.
+
+Next test a different real merchant's complete chain for transfer and total
+elapsed time. Single-assignment output remains a candidate, not a mandatory
+prerequisite to that controlled run; further evidence and delivery impact guide
+its timing. Another reproduction is not required to acknowledge the known defect.
+Keep the single Parser, useful target narrative and program-owned statistics;
+do not introduce a search tool, critic, category blacklist or runtime table.
+This closes the six-call package only; no seventh call or output-contract change
+is appended this turn.
+
+The current structured adapter has no search tool or enablement, consistent with
+the [checked parameter source](prompt-context-source-brief.md#grouping-effort-and-search-boundary--2026-09-06).
+No business web lookup was performed. Natural acquisition and current product
+spec optional-search behavior remain unchanged. Interface research is not model
+input and does not authorize correcting retained business evidence.
+
+No tracked executable code changed, so the prior 40 focused tests and affected
+runtime checks remain applicable. New evidence covers offline adapter capture,
+wire-only effort change, existing data integrity, six-call/concurrency/stop
+boundaries, independent fixed-diff/runner review and real semantic/timing review.
+Framework/links/diff checks pass; latest repository CI is visible on PR #62.
+Seven private observations (root `d6b2248846b5d176` plus six generations) match
+actual IO/settings/usage on readback, with no root IO or derived review.
+[Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/bc21e65866a76f38099179a6e6caf713).
+Raw results and independent business review stay local in
+`apps/backend/.provider-evidence/m4-group-effort-Aqp5z5/`.
+No merge, rebase, production, runtime activation, #49 mirror or other-worktree
+change occurred. #41/#42 ownership and #39/#43 ordering remain intact.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | d0d15c76eb13c13352e8d2f13a681b98d3ec5c0b6d46b20a6dcb3fea5305f4f9 |
+| Summary | 12a1573466f81cfc50f74e20e1cc3ff62b1820d4d65ebf7a8e3458ce15eed48f |
+| Grouping handoff | ff2570294c94597438a719a47b1f2abbad2d097780b7710c2fde3c46174b7432 |
+| Wire comparison | 026b7894424173fb012326e310f7aadcfeb4c7515518017d83273535b572c3ff |
+| Runner | 16094a3dc9905c217651148f23100c3390f17c9cdb6bb60e9be15a62fee0bcd6 |

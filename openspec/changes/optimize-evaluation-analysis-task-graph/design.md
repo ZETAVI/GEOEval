@@ -2,7 +2,8 @@
 
 ## Decision state and owners
 
-Status: one complete composed preview; grouping repetition failed, no selected runtime topology.
+Status: effort comparison complete; retain medium for cross-merchant controlled validation.
+The earlier duplicate-grouping failure remains unresolved; no runtime topology is selected.
 The [current proposal](proposal.md#current-evidence-and-next-decision) and
 [tasks](tasks.md) own the next action. Historical stages below explain prior
 decisions, not a queue of experiments to repeat. The owner accepts practical
@@ -45,6 +46,16 @@ Only actual model IO/operational metadata goes to private Langfuse. If parameter
 evidence is sufficient, defer an unnecessary output-contract change; otherwise
 test the single-assignment expression separately. Neither result alone selects
 runtime topology or establishes a full-evaluation SLA.
+
+Result: all six return successfully. Low takes 54.755–58.898 seconds with an
+omission or uncertain unnamed grouping; medium takes 41.812–54.230 seconds with
+identical seven-group member partitions; xhigh takes 155.727–158.858 seconds with
+no additional practical quality benefit. Retain medium for the next controlled
+merchant matrix, not a newly accepted runtime default. Do not make the
+single-assignment contract experiment a prerequisite to that matrix. Its
+candidate status remains; the earlier repeated-member report failure remains
+open with original evidence and existing rejection, and needs an explicit
+delivery disposition. Two good medium repetitions do not prove it fixed.
 
 ### Approved minimal report-composition experiment
 

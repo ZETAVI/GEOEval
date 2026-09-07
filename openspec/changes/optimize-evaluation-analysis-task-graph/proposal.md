@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: One useful composed preview; grouping repetition failed, runtime not selected
+- Status: Retain medium after effort comparison; next cross-merchant full-chain validation
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -113,27 +113,32 @@ The entire batch uses 49,236 tokens in 132.901 seconds. This is retained-input
 analysis, not a new full evaluation or evidence of a reliable runtime speedup.
 See the [composition result](research/chain-quality-experiment.md#minimal-report-composition--one-preview-repetition-rejected).
 
-The owner now requests a thinking-level comparison and no analysis web search.
-First test the same grouping task twice each at low, medium and xhigh, changing
-only effort. Use the actual results to decide whether an output-contract change
-is still necessary; documented budget size is not a quality ranking. The current
-natural acquisition and optional-search product capability are unchanged.
+The owner's thinking-level comparison is now complete: six unchanged-task
+grouping calls, two each at low/medium/xhigh. Medium's two member partitions
+agree and take 41.812–54.230 seconds. Low is not faster here and has an omitted
+member or uncertain unnamed grouping; xhigh takes 155.727–158.858 seconds without
+better practical quality. Keep medium for the next controlled candidate.
+No analysis search is enabled; no external facts correct the retained answers.
+Natural acquisition and the current spec's optional-search capability remain
+unchanged. See the [effort result](research/chain-quality-experiment.md#grouping-effort-comparison--retain-medium-without-contract-expansion).
 
-If still needed, next test only the grouping output expression: one assignment
-per supplied brand record versus the current freely generated group list. Preserve the actual
-failure and source evidence; do not truncate bad groups, add category blacklists
-or treat structural uniqueness as correct identity. Keep the useful narrative
-scope and single Parser. After that bounded check, test another merchant and
-measure complete evaluation time before selecting execution with #41.
+Next test another merchant's complete chain and measure total time before
+selecting execution with #41. Retain the useful narrative scope and single
+Parser. The per-record single-assignment expression remains a candidate, not
+a prerequisite to further controlled validation. This does not close the prior
+duplicate-member defect: preserve its raw failure, existing rejection and an
+explicit disposition before formal delivery. Two good repetitions do not prove
+repair, and another reproduction is not required to acknowledge it. Do not trim
+bad groups, add category blacklists or treat structural uniqueness as identity.
 Do not add queues/tables or preselect independent
 retry components merely because the diagnostic has two responsibilities. Keep
 the existing single-call Parser. The owner-confirmed alias remains accepted;
 another relation inferred only by the model is an observation, not a newly
 confirmed fact or a reason for a master identity system. Keep full source,
 ordinary recommendation tolerance and broad practical directions. Do not add
-alias databases, critics, workflow tables or word-for-word proof gates. A second
-merchant matrix follows the targeted replay; it is not a repeated sweep of an
-unchanged failing package. #41 retains final synthesis/customer-report ownership.
+alias databases, critics, workflow tables or word-for-word proof gates. The next
+merchant matrix tests transfer and full elapsed time, not a parameter sweep.
+#41 retains final synthesis/customer-report ownership.
 
 Langfuse contains actual model input/output and operational metadata only;
 each completed batch's private observations have been read back against the wire. Independent review
