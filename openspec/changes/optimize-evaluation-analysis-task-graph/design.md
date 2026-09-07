@@ -12,6 +12,42 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
+### Second-merchant full-chain controlled run
+
+The owner approves proceeding to another merchant. Select a public restaurant
+subject and four ordinary consumer questions before sampling: one directed,
+one category and two independent needs. The frozen runner owns the exact name,
+area and questions; these are test scope, not newly verified business facts.
+Do not write Brand/Query/evaluation records or add researched aliases.
+
+Reuse the existing five-platform acquisition adapters and global five-request
+pool. Each acquired answer feeds its one Parser call immediately; keep current
+direct parsing and experimental open Parser 1.4.0, without Prompt/Schema/effort
+changes. After the sampling/Parser barrier, run the existing grouping and target
+narrative components in parallel on the same actual handoff, both at medium.
+Only compose a preview after both pass existing checks. Maximum 42 calls:
+20 acquisition, 20 Parser, two synthesis components; no retry/fallback or tuning.
+The old duplicate-member report failure remains open, not assumed fixed.
+
+Freeze adapter routes, recipes, assets/builder identity and 180-second request
+wait. Preserve the prior matrix's access/quota stopping: platform-specific
+acquisition gates stop queued work there, Parser access gates stop queued work
+globally, and already-started calls settle. Invalid local output stays recorded
+and unavailable, not repaired or counted as target absence. A failed synthesis
+component means no complete preview. No model analysis search or external
+correction is added; native acquisition behavior remains unchanged.
+
+Architecture readiness: ready for this owner-local controlled runner, with no
+new runtime module, queue, persistence or public contract. Reuse unchanged tests
+and Provider evidence; verify pool draining, frozen recipe/asset consistency,
+real request scope, complete source lineage and both-required composition.
+Measure sampling/Parser barrier, synthesis-component interval and actual full
+wall time, not the sum of previous runs or single-request latencies. Separate
+Provider, structure, semantic and timing results. IO/operational metadata alone
+goes to private Langfuse; independent review and readable preview stay local.
+Stop after this one matrix and review the actual bottleneck before changing
+concurrency. This is not formal UI/DB/recovery or #41/#42 acceptance.
+
 ### Owner-requested grouping effort comparison
 
 Before changing the output expression, the owner asks whether thinking level
