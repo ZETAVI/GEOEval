@@ -56,15 +56,19 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       members and no complete preview is formed. Record 219.361-second
       sampling/Parser, 72.828-second synthesis and 292.527-second failed-attempt
       wall time; this is not successful report/SLA acceptance.
-- [ ] Prioritize one-assignment-per-record grouping expression on both retained
-      merchant handoffs. Preserve singleton and grouped identities; compare actual
-      memberships without trimming, source correction, extra Agents or resampling.
+- [x] Test one-assignment-per-record expression twice on each retained merchant
+      handoff: all four structures pass, and the second merchant's 72 assignments
+      agree exactly. Retain this candidate without claiming general stability;
+      one first-merchant output still guesses an unnamed record's identity.
 - [ ] Replay the observed single-Parser omissions, incorrect/shared positions and
       readable malformed-name detail. Keep full sources and practical quality;
       do not blanket-raise effort or treat every internal field anomaly as failure.
-- [ ] Clarify narrative directions' GEO information/content purpose for the
-      promotional-article consumer, while retaining useful overview/themes.
-      Do not add a critic, strict wording gate or business-operation consultancy.
+- [x] Clarify narrative directions' GEO/media-content purpose and test twice on
+      unchanged retained input. Both orient toward publicity, but one still
+      over-expands into a problematic concrete promotion example.
+- [ ] Keep directions to one or two broad content priorities, not detailed
+      campaign prescriptions. Recheck the remaining visible subject/claim error,
+      without a critic, strict wording gate or new business requirements.
 - [ ] Before formal delivery, explicitly resolve or disposition the retained
       duplicate-grouping report failure. Keep both merchants' failed evidence
       and rejection; no tail trimming or claim that good repetitions fix it.
@@ -75,12 +79,22 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       quality bar. The historical coffee case remains an observation/regression,
       not an indefinite tuning gate. Do not resume every old topology comparison.
 
+Next Parser package owns the observed omissions, shared/shifted positions,
+unnamed-entity eligibility and visible malformed name. A light formatting view is
+an independent hypothesis, not a proven fix: retain original answers and evidence
+mapping, list/heading/table structure and full content. No extra call is appended
+to the completed six-call assignment/narrative batch.
+
 ## Actual delivery — still outstanding
 
 - [ ] Confirm the smallest supported runtime design and explicit Parser delivery
       ownership; keep #32 completed and #41's final semantic/report ownership.
 - [ ] #41 integrates the accepted semantics; #42 implements only required execution,
       recovery and timing. Add tables/migrations only if the selected design needs them.
+- [ ] Implement the owner's approved recovery outcome in the selected runtime:
+      reuse retained acquisition and successful analysis, retry failed analysis
+      only, and invalidate dependent results if an upstream parse changes. This
+      does not authorize partial-report display or marking partial work complete.
 - [ ] Verify actual report/UI, retries, duplicate delivery and immutable history;
       controlled probes do not close #41 or prove formal 17/20 readiness.
 - [ ] Hand truthful server-owned progress to #43 and complete fixed-version #39

@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Second matrix rejected at grouping; retained-input stability repairs next
+- Status: Fixed-slot grouping candidate retained; focused Parser and concise GEO-direction residuals remain
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -40,6 +40,25 @@ Langfuse input/output export. Four questions, five platforms, metric meaning,
 17/20 readiness and immutable accepted records remain unchanged.
 
 ## Current evidence and next decision
+
+Current checkpoint: the [six-call fixed-slot package](research/chain-quality-experiment.md#fixed-slot-assignment--structural-reliability-with-bounded-semantic-residuals)
+at `548d4d2` completes without a structural report blocker. Four assignment calls
+cover both retained merchant handoffs twice; the second merchant's 72 values are
+identical across repetitions. Keep fixed-slot assignment as the next candidate,
+not a general semantic-stability or runtime-delivery claim. One unnamed record
+is still guessed into a named brand in one first-merchant reply. Two separately
+tested narrative replies now address publicity content; one remains overly
+specific and includes a problematic promotion example. The next package targets
+the observed Parser omissions/positions/visible name and brief GEO directions,
+with deformatting kept as an independent source-preserving hypothesis.
+
+The owner approves retaining acquisition and successful analysis while retrying
+only failed analysis. The implementation must follow selected boundaries and
+dependent-result invalidation; no automatic retries are added to completed
+experiments. Partial-report presentation is not newly approved, and incomplete
+work must not be labeled a completed report. No runtime table or added Agent is
+inferred from this decision. Earlier stages below are evidence history, not a
+list of comparisons to reopen.
 
 The owner accepts practical, readable directions and requests another real
 merchant and measured four-question/five-platform concurrency. The first full

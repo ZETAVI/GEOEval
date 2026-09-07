@@ -120,3 +120,14 @@ the same retained grouping task twice per level, without tuning or a model chang
 Documented xhigh support is not proof it will finish within the controlled wait
 budget. Refresh on model/mode/interface changes or contradictory actual wire;
 there is no new library, route-default change or pricing claim.
+
+## Fixed required assignment slots — 2026-09-07
+
+Reuse the same strict JSON Schema adapter/model/account evidence. The new
+uncertainty is the many-key output shape: one required string property for each
+of 45 or 72 existing records, not a changed Provider API or library. Four real
+calls at `548d4d2` return every expected slot once in raw JSON and pass local
+validation; both raw and normalized outputs agree. This establishes capability
+for those requests, not perfect identity selection or a universal Schema limit.
+One semantic misassignment remains. See the [controlled result](chain-quality-experiment.md#fixed-slot-assignment--structural-reliability-with-bounded-semantic-residuals).
+No documentation/analysis web search, new dependency or runtime mode is added.

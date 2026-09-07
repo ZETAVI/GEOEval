@@ -2517,3 +2517,98 @@ worktree modification occurs. PR #62 remains Draft Partial and does not close #4
 | Grouping output | 02b588bfb8f5ca899673b305997f81a28afb4b99f06f8bcc53403ea7c7fc4207 |
 | Narrative output | f4e8dee6690f994b1b76320ba6b50fec18690384d174c14fa0708765d2b2ad00 |
 | Runner | 8169bdd0cb441f9e0ec60eece3d88cc1f32e5681ee0afc05204feff4239f7fdf |
+
+## Fixed-slot assignment — structural reliability with bounded semantic residuals
+
+The owner approves testing per-record brand assignment, short GEO/media content
+directions and failed-analysis-only recovery using retained acquisition. At
+`548d4d21ee1151d94ecdb95a936d243a64814b85`, manifest
+`bb7aafca4330e6e6854b0ca777bf8b1ba0d953d6ac32c32eeccef30289bd4bc0`
+freezes six requests in three pairs, maximum concurrency two and 180-second wait.
+Four assignment requests cover both retained merchant handoffs twice (45/72
+records); two separate narrative requests use the second handoff. No acquisition,
+Parser, automatic retry/fallback, search, effort sweep or runtime activation.
+All pairs complete, so no queued request is skipped and no extra call is added.
+
+The assignment helper keeps the exact existing brand context and replaces free
+member arrays with one required name string per record ID. A strict object schema
+rejects absent/unknown slots, and the existing program computes positive distinct
+sample counts from retained eligibility. Equal filled names form groups; singleton
+labels are preserved. Model identity is not repaired or inferred by program code.
+The old grouping builder/default runtime path is unchanged. The new narrative
+1.1.0 changes instruction and version only; actual context, Schema and request
+settings match the retained narrative apart from that instruction/version name.
+Offline and actual wire checks confirm these boundaries.
+
+Run: 2026-09-07 06:02:04.634–06:04:25.520 UTC. All six Provider/finish/JSON and
+structure/reference checks pass. Independent raw checks find every assignment
+key exactly once and raw JSON equal to normalized output. Program counts match
+an independent recomputation; no record, flag, position or excerpt is rewritten.
+
+| Request | Latency | Reported tokens | Result |
+| --- | --- | --- | --- |
+| Merchant A assignment 1 | 55.348 s | 18,048 | All 45 slots; one unnamed-record inference remains |
+| Merchant B assignment 1 | 41.580 s | 17,358 | All 72 slots; useful named groups and singletons |
+| Merchant A assignment 2 | 55.153 s | 17,419 | All 45 slots; unnamed record kept separate |
+| Merchant B assignment 2 | 44.357 s | 17,961 | All 72 assignments identical to B1 |
+| Merchant B narrative 1 | 30.068 s | 17,327 | Publicity purpose restored, but over-expanded concrete example |
+| Merchant B narrative 2 | 21.005 s | 16,792 | Two practical publicity/content directions |
+
+The whole six-call batch takes 140.886 seconds and reports 104,905 tokens, not a
+bill or one evaluation's latency. Assignment repetitions and one narrative call
+use cached input. Historical free-group outputs are failure references, not a
+simultaneous latency control. Grouping and narrative were tested in separate
+pairs, so the two local composed previews do not measure concurrent report
+readiness. Neither preview proves formal report/UI/DB/recovery or the owner's
+three-to-five-minute complete-evaluation preference.
+
+Local semantic review finds that B's 72 values and partitions agree exactly in
+both outputs; the previous large cross-brand array no longer occurs. A's named
+brand partitions agree despite harmless label shortening. Its sole member-level
+disagreement assigns one explicitly unnamed record to a named brand in A1 but
+keeps it separate in A2, changing that brand's positive count by one. The retained
+context does not establish that identity. Do not erase this residual, rewrite old
+Parser output or call four structurally valid outputs four perfect reports.
+First-layer filtering/omissions remain distinct from fixed assignment structure.
+
+Both narratives move from operational consultancy to publicity content, with
+two directions each. One reply still over-expands into specific campaign wording,
+including an inappropriate other-brand expression and unsupported convenience
+example. The next change should reduce that action granularity to one or two
+broad content priorities, not add a long prohibition list or stricter generic
+wording review. Real details already present in shared sample context are not
+automatically inventions; independent review remains local.
+
+Retain the fixed-slot interface as the next candidate and stop grouping-only
+repetition here. The next bounded package uses the observed Parser omissions,
+shifted/shared positions, unnamed eligibility and visible malformed-name case.
+The owner's deformatting suggestion is separately diagnosed: the malformed name
+is absent from the actual input; Markdown influence remains unproven. A text view
+must preserve full content, line/evidence identity, meaningful headings/lists and
+table relations. Do not globally strip syntax or confound that candidate with
+the assignment change. No Parser call or input normalization occurs this batch.
+
+Failed-analysis-only recovery is the accepted outcome, but runtime boundaries and
+dependent-result invalidation still need implementation under #41/#42. Original
+acquisition and successful components must be reusable; the owner did not newly
+approve partial-report presentation, and partial work is not complete. No new
+table, Agent, critic or endless identity tuning follows. #32 remains completed;
+#39/#43 ordering and #49's separate Prompt mirror boundary are unchanged.
+
+Verification: 44 focused tests, backend typecheck/build, framework/link validation
+and diff checks pass. Independent fixed-diff/runner review finds no blocker.
+Seven private Langfuse observations (root `be466a0826bde077` and six generations)
+match actual messages/output/settings/usage on readback; root IO and derived
+review/program output are absent.
+[Private IO Trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/b6e96a5c4d9213bb2da0e9ad479fea4f).
+Raw evidence and business-level review stay at
+`apps/backend/.provider-evidence/m4-fixed-assignment-lEaDGB/`; formatting diagnosis
+stays local alongside the evidence. PR #62 remains Draft Partial, worktree retained;
+no merge, rebase, other-worktree edit, current-spec or production change.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 881045535cc3d0a2476d7edd2e6934a0378e07ac29b97abb162f647c04bd138c |
+| Summary | efaf6ff09c712065a0946d68a680b2eed829840fd3011f1db81174539fad3c3d |
+| Handoff | 00b899f06615c1b950eab9f493e396897f43155bbd453831afae4ef538efe8e4 |
+| Runner | 7b92224a79a5f143f5dcd36ab1b311707c4db62e207f742c264d3e2fe2c834b2 |

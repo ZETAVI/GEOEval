@@ -2,7 +2,8 @@
 
 ## Decision state and owners
 
-Status: owner-approved fixed-slot grouping and GEO-purpose narrative probes are prepared.
+Status: fixed-slot grouping is the retained candidate; focused Parser and concise
+direction residuals remain. The six-call retained-input package is complete.
 No runtime topology or successful full-report timing is accepted.
 The [current proposal](proposal.md#current-evidence-and-next-decision) and
 [tasks](tasks.md) own the next action. Historical stages below explain prior
@@ -53,6 +54,17 @@ The malformed name was generated despite being absent from its input, so input
 formatting is a hypothesis, not an established cause. Runtime retry granularity
 and source-preserving Parser changes remain subsequent bounded implementation
 decisions, not permission to create a task table or weaken report completion.
+
+Result at `548d4d2`: all six calls return and pass structure/reference checks.
+The four assignment calls contain every slot once in raw JSON; the second
+merchant's 72 assignments agree exactly. First-merchant named partitions also
+agree, but one output guesses an unnamed record into a named brand, changing its
+count. Keep this observed semantic residual, not the old duplicate-array failure,
+as the next boundary. Both narratives turn toward publicity; one still expands
+into an inappropriate specific promotion example. Retain the assignment candidate
+and focus the next package on actual Parser residuals and concise content intent,
+not more grouping rounds. This is not a selected/activated runtime or successful
+full-evaluation timing. See the [fixed-slot result](research/chain-quality-experiment.md#fixed-slot-assignment--structural-reliability-with-bounded-semantic-residuals).
 
 ### Second-merchant full-chain controlled run
 
