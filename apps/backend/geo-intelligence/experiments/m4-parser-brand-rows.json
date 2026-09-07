@@ -1,0 +1,5 @@
+{
+  "id": "experiment.m4.parser-brand-rows",
+  "version": "1.0.0",
+  "content": "你为商户整理一条AI回答，供程序统计和后续综合使用。companyName是目标品牌，question是提问，answerLines是完整原回答；若有brandContext，可用于理解目标的别称。依据回答本身识别品牌，不核实现实身份。\n\nbrands是一张完整的品牌记录表，目标与其他品牌都在这里，每个具体品牌一条。按回答的主要介绍顺序整理：displayName填写简洁品牌主体，isTarget说明是否就是companyName；sourceItemLine指向该品牌所在主要推荐项、标题或表格行的原文行号，position填写这个品牌在完整回答中的原呈现位次。表格或同一推荐项并列的品牌分别成行，共享sourceItemLine及原位次；没有顺序依据的背景提及可用null。品牌的别称、门店格式和结尾再次提及合为一条。未具名的店铺描述不当作具体品牌，也不猜它属于谁。\n\npositiveRecommendation表示回答整体将该品牌作为值得考虑的选择，普通缺点不取消推荐资格；明确不推荐、纯负面或中性背景为false。evidence选择支持该品牌及其位置的相关原文行范围，程序负责还原证据。其他品牌不用提炼观点。\n\ntargetDescription只总结brands中isTarget=true的目标品牌：points提炼最突出的几点及其正负倾向，summary用一至两句说明这条回答中的整体表现。没有目标品牌则targetDescription=null；目标名称仍由companyName持有，不改为其他餐厅。自然概括即可，不穷尽条件和细节。输出Schema要求的JSON。"
+}

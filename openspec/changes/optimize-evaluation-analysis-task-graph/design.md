@@ -13,6 +13,44 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
+### Source-located brand rows — single-call interface probe
+
+The next standard experiment co-locates target and other-brand decisions in one
+brand row table: displayName, isTarget, sourceItemLine, original position,
+recommendation eligibility and existing source evidence. targetDescription keeps
+only the original target points/summary. This changes the experimental output
+expression, not business meaning, full Parser input or the single-call boundary.
+
+Alternatives considered: automatic position calculation from source lines can
+silently renumber after omissions and does not interpret semantic ordering; fixed
+slots for every source line enlarge the contract without identifying brand items.
+Choose the smaller table first. The model still owns identity and position;
+sourceItemLine is a checkable location, not ranking truth. Shared items can use
+the same source line and position. Program projection neither sorts nor repairs.
+
+Readiness: reuse the existing Parser task, limits, evidence restoration and
+customer-summary schema, behind a new experiment-only helper/asset. Keep target
+plus at most ten other brands; reject conflicting target rows, exact duplicate
+rows and invalid source references without clipping. Preserve raw output and
+projected output separately; rejection does not certify semantic quality of other
+rows. No dependency, runtime import, DB, queue, current spec or migration changes.
+The unchanged downstream handoff receives only the old parsed summary shape, not
+source-line tables or whole original answers. #42 owns this reversible probe;
+#41 and the future Parser delivery owner still own formal integration.
+
+Freeze eight candidate-only calls: two on each of the prior four retained real
+cases, unchanged Qwen low, full context, no search and concurrency two. Historical
+1.4.0 outputs are quality references, not contemporaneous latency/causality
+controls. This is a whole-interface package, not a one-word Prompt test. A
+Provider/finish/JSON/basic-Schema failure stops queued pairs after started calls
+settle. Expected projection/coherence rejection is measured and does not add
+retries, repair, or calls beyond the eight preplanned requests. Keep all failures.
+No acquisition, deformatting, synthesis, grouping, parameter sweep or automatic
+fallback. 180-second wait; IO/metadata only to existing private Langfuse, reviews
+and program projections local. End this package after its fixed cases and decide
+from actual outputs; formal report, recovery, direct malformed text and timing
+remain unverified. Do not infer a selected production Schema from a passing probe.
+
 ### Parser coverage and article-direction scope
 
 The owner clarifies that original answers are for replaying the first Parser,
