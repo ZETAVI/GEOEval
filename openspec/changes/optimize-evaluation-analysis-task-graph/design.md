@@ -13,6 +13,42 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
+### Parser coverage and article-direction scope
+
+The owner clarifies that original answers are for replaying the first Parser,
+not bulk input to synthesis. Synthesis continues to consume accepted Parser
+records, short summaries and necessary source excerpts. Its directions name one
+or two valuable article topics: strengthen existing advantages or explain/fill
+information gaps for the later writing Agent. They are not campaign plans.
+
+Readiness: owner-local Prompt-only experiment, with no new module, Agent,
+reference representation, output Schema or public/runtime contract. Open Parser
+1.5.0 makes its working sequence explicit: cover the actual named recommendation
+items, map their source positions, then summarize the target. Keep original full
+answerLines and source restoration. Unnamed descriptions are not identified
+brands; do not infer their identities. Narrative 1.2.0 sets the writing consumer
+and one-sentence direction granularity. Current internal-guidance requirements
+and final writer/report integration remain #41's responsibility.
+
+Freeze at most ten requests at concurrency two: four retained open cases, each
+with Parser 1.4.0 and 1.5.0 at the unchanged low route, plus two narrative 1.2.0
+requests at medium on the exact retained second-merchant parsed handoff. The
+Parser cases cover omitted main brands, unnumbered presentation order, shared
+numbered positions and unnamed-entity inclusion. Rebaseline the first merchant's
+older request to 1.4.0 for both-arm comparison; preserve its input/Schema/source.
+Narrative requests are an independent pair, not consumers of new Parser outputs
+in this batch, so neither a full-chain quality nor timing claim follows.
+
+Only instruction and its version/name vary in matched Parser requests. No
+acquisition, deformatting, search, grouping call, effort sweep, automatic retry
+or fallback. 180-second wait; Provider/finish/JSON/structure failure stops queued
+pairs after started work settles. Semantic errors remain measured outputs, never
+silently repaired or triggers for more calls. IO/operational metadata only goes
+to private Langfuse; reviews and program results stay local. Retain current
+source/adapter capability evidence; code/config inputs are frozen before calls.
+Direct-Parser malformed text and formal failed-analysis recovery remain separate
+unverified work; no production state or partial-completion meaning changes.
+
 ### Fixed-slot assignment and GEO-purpose replay
 
 The owner approves testing one name per brand record, brief GEO/media directions,

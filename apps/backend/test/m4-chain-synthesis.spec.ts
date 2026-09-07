@@ -223,6 +223,17 @@ describe("M4 real-chain synthesis preview", () => {
     expect(grouping.userContext).toEqual({ otherBrands });
     expect(narrative.userContext).toEqual(targetContext);
     expect(narrative.userContext.samples[0]).not.toHaveProperty("otherBrands");
+    for (const sample of narrative.userContext.samples) {
+      expect(sample).not.toHaveProperty("originalAnswer");
+      expect(sample).not.toHaveProperty("answerLines");
+      expect(sample).toHaveProperty("sampleSummary");
+    }
+    expect(narrative.userContext.samples[0]).toEqual(
+      expect.objectContaining({
+        sampleSummary: task.userContext.samples[0]!.sampleSummary,
+        target: task.userContext.samples[0]!.target,
+      }),
+    );
     expect(grouping.outputContract.jsonSchema.properties).toEqual({
       brandGroups: task.outputContract.jsonSchema.properties!.brandGroups,
     });
