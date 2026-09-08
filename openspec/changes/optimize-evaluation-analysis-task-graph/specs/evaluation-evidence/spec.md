@@ -68,20 +68,25 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 
 ### Requirement: Whole-answer controlled Parser input
 
-The controlled Parser SHALL receive one complete originalAnswer string rather
-than an array of numbered source-line objects, without changing the current
-target-aware task or activating a formal Parser/runtime contract.
+The controlled Parser SHALL receive one complete algorithmically prepared
+answerText string rather than numbered source-line objects, while retaining
+the immutable original answer and target-aware task without formal activation.
 
 #### Scenario: A whole original answer is interpreted
 
 - **WHEN** the experimental task is prepared from an authorized source
-- **THEN** its question, original Markdown, whitespace and line endings are retained
+- **THEN** its canonical original answer remains unchanged
+- **AND** AST-based reading cleanup removes only recognised emphasis delimiters,
+  preserving headings, lists, tables, non-delimiter content and line endings
 - **AND** neither answerLines nor artificial source line numbers enter model input
-- **AND** model evidence uses source quotations rather than inferred line numbers
-- **AND** program lookup adapts valid quotations to the existing internal evidence
-  representation without fuzzy repair or semantic brand/order decisions
-- **AND** actual model output remains distinct from expanded source-line evidence
-- **AND** synthesis still receives parsed records and excerpts, not the full answer.
+- **AND** brand mentionContext and target points carry concise interpretation,
+  without mandatory quotations, occurrence counts or character locations
+- **AND** the target row's mentionContext also supplies its sample summary
+- **AND** program projection assigns positions without semantic brand/order repair
+- **AND** an explicit BRAND_CONTENT handoff identifies paraphrases as such and
+  creates no synthetic source anchors, quotes or source-validation success
+- **AND** synthesis receives parsed contents, not the full answer
+- **AND** legacy source-backed consumers still reject the new untagged shape.
 
 ### Requirement: Concise customer progress
 

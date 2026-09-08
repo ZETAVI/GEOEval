@@ -48,7 +48,7 @@ The current role and decisions live in [the proposal](proposal.md).
       total handoff latency/tokens and failure reuse before fresh transfer.
       No automatic extra round or new model/Agent.
 
-## Current package — whole-answer input
+## Previous package — whole-answer input
 
 - [x] Follow the owner's narrower instruction: remove line-object input, keep
       target/context/model/business task and existing synthesis responsibilities.
@@ -62,10 +62,23 @@ The current role and decisions live in [the proposal](proposal.md).
       separately, and verify private Langfuse actual IO readback.
 - [x] Report exact before/after input and measured outputs; keep target-independent
       matching and all-subject token/time comparison as later work, not this batch.
-- [ ] Before integration, resolve the two observed quotation-format failures
-      (Markdown omissions and ellipsis joining) at the source handoff. Keep original
-      whole-answer input; do not call source-location failure fabricated content,
-      silently repair references, or automatically start another candidate batch.
+- [x] Supersede exact-quote repair with the owner's approved content interpretation
+      direction. Preserve the old failures; do not relabel them as repaired.
+
+## Current package — algorithmic reading and content interpretation
+
+- [x] Reuse locked Markdown/GFM parsing and deterministic AST delimiter removal;
+      preserve original answers, list/table structure, code and literal content.
+- [x] Replace mandatory quotations with concise mentionContext and target points;
+      reuse target context as summary and keep program-owned array positions.
+- [x] Add independent/co-listed, alias, repeat and tail examples to the same asset.
+- [x] Verify explicit BRAND_CONTENT handoff with no fake source evidence or raw
+      answers passed to synthesis; legacy consumers remain strict and unchanged.
+- [ ] Complete six frozen Qwen low calls: three retained cases twice, concurrency
+      two, no sampling/synthesis/retry/within-batch edits. Report semantic failures
+      independently of structure and private Langfuse actual IO readback.
+- [ ] Decide the next bounded step from real brand identity, coverage/order and
+      portrayal; do not claim exact-match gate removal is semantic success.
 
 ## Retained report-level work
 

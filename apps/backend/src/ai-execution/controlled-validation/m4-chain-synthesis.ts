@@ -7,6 +7,10 @@ import {
   inspectM4CustomerSummaryOutput,
   m4CustomerSummarySchema,
 } from "./m4-parser-customer-summary.js";
+import { m4BrandContentSummarySchema } from "./m4-parser-brand-rows.js";
+
+const contentNote =
+  "\n\n标记为PARSER_CONTENT的样本由首层整理而来：mentionContext、points和summary是内容概括，不是逐字引文或已核验事实。结合这些语境理解品牌和目标表现；不假定拿到了完整原回答或精确引用。";
 
 const text = (max: number) => z.string().trim().min(1).max(max);
 const id = z.string().regex(/^[a-z][a-z0-9-]{0,63}$/);
@@ -99,9 +103,19 @@ export type M4ChainSample = {
   originalAnswer: string;
   parsedOutput: unknown;
   questionKind?: EvaluationQuestionKind;
+  interpretationFormat?: "BRAND_CONTENT";
 };
 
 function sourceView(companyName: string, sample: M4ChainSample) {
+  if (sample.interpretationFormat === "BRAND_CONTENT") {
+    if (sample.questionKind === "BRAND_DIRECTED")
+      throw new Error("Brand-content format is open-question only");
+    const parsed = m4BrandContentSummarySchema.parse(sample.parsedOutput);
+    return {
+      ...parsed,
+      sampleSummary: parsed.target?.summary ?? "本条回答未提及目标品牌。",
+    };
+  }
   if (sample.questionKind !== "BRAND_DIRECTED") {
     const inspected = inspectM4CustomerSummaryOutput(
       sample.parsedOutput,
@@ -175,6 +189,9 @@ export function buildM4ChainSynthesisTask(
       question: sample.question,
       platformLabel: sample.platformLabel,
       questionKind,
+      ...(sample.interpretationFormat === "BRAND_CONTENT"
+        ? { interpretationBasis: "PARSER_CONTENT" as const }
+        : {}),
       target: restored.target,
       sampleSummary: restored.sampleSummary,
       otherBrands: restored.otherBrands.map((brand, index) => ({
@@ -220,7 +237,11 @@ export function buildM4ChainSynthesisTask(
   });
   return {
     taskKind: "STRUCTURED_OUTPUT" as const,
-    systemInstruction: prompt.content,
+    systemInstruction:
+      prompt.content +
+      (inputs.some((s) => s.interpretationFormat === "BRAND_CONTENT")
+        ? contentNote
+        : ""),
     userContext: {
       companyName,
       ...(brandContext === undefined
@@ -241,7 +262,7 @@ export function buildM4ChainSynthesisTask(
       samples,
     },
     outputContract: {
-      version: `${prompt.id}@${prompt.version}`,
+      version: `${prompt.id}@${prompt.version}${inputs.some((s) => s.interpretationFormat === "BRAND_CONTENT") ? "+parser-content@1" : ""}`,
       jsonSchema: z.toJSONSchema(boundSchema, {
         target: "draft-2020-12",
       }),
@@ -277,6 +298,11 @@ export function flattenM4ChainSynthesisTask(
 export function buildM4ReportCompositionTasks(
   task: ReturnType<typeof buildM4ChainSynthesisTask>,
 ) {
+  const note = task.userContext.samples.some(
+    (s) => s.interpretationBasis === "PARSER_CONTENT",
+  )
+    ? contentNote
+    : "";
   const { otherBrands, ...narrativeContext } =
     flattenM4ChainSynthesisTask(task).userContext;
   const { brandGroups, ...narrativeProperties } =
@@ -285,7 +311,7 @@ export function buildM4ReportCompositionTasks(
     asset: typeof prompt,
     properties: NonNullable<typeof task.outputContract.jsonSchema.properties>,
   ) => ({
-    version: `${asset.id}@${asset.version}`,
+    version: `${asset.id}@${asset.version}${note ? "+parser-content@1" : ""}`,
     jsonSchema: {
       type: "object" as const,
       properties,
@@ -296,13 +322,13 @@ export function buildM4ReportCompositionTasks(
   return {
     grouping: {
       taskKind: "STRUCTURED_OUTPUT" as const,
-      systemInstruction: groupingPrompt.content,
+      systemInstruction: groupingPrompt.content + note,
       userContext: { otherBrands },
       outputContract: contract(groupingPrompt, { brandGroups: brandGroups! }),
     },
     narrative: {
       taskKind: "STRUCTURED_OUTPUT" as const,
-      systemInstruction: narrativePrompt.content,
+      systemInstruction: narrativePrompt.content + note,
       userContext: narrativeContext,
       outputContract: contract(narrativePrompt, narrativeProperties),
     },
@@ -331,14 +357,19 @@ function brandAssignmentSchema(
 export function buildM4BrandAssignmentTask(
   task: ReturnType<typeof buildM4ChainSynthesisTask>,
 ) {
+  const note = task.userContext.samples.some(
+    (s) => s.interpretationBasis === "PARSER_CONTENT",
+  )
+    ? contentNote
+    : "";
   return {
     taskKind: "STRUCTURED_OUTPUT" as const,
-    systemInstruction: assignmentPrompt.content,
+    systemInstruction: assignmentPrompt.content + note,
     userContext: {
       otherBrands: flattenM4ChainSynthesisTask(task).userContext.otherBrands,
     },
     outputContract: {
-      version: `${assignmentPrompt.id}@${assignmentPrompt.version}`,
+      version: `${assignmentPrompt.id}@${assignmentPrompt.version}${note ? "+parser-content@1" : ""}`,
       jsonSchema: z.toJSONSchema(brandAssignmentSchema(task), {
         target: "draft-2020-12",
       }),

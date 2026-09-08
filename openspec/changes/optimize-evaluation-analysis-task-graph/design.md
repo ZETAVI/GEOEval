@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: whole-answer input verified; quote handoff unresolved; 3.1 not selected;
+Status: algorithmic reading and content interpretation under controlled validation;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,65 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — whole-answer input
+### Current package — algorithmic reading and content interpretation
+
+The owner explicitly approves deterministic cleanup, no mandatory per-point exact
+quotations, and three discriminating brand-unit examples. The scope remains the
+single target-aware first layer; the target-independent proposal remains deferred.
+
+Architecture readiness: ready for controlled experiment, not runtime acceptance.
+GEO retains the original source and owns later acceptance; this local experimental
+adapter emits one derived answerText string and content interpretations only.
+No persistence, official metric or highlighted-source contract is relaxed.
+
+#### Source brief and algorithm
+
+Reuse locked MIT/ESM packages as explicit backend dependencies: mdast-util-from-
+markdown 2.0.3, mdast-util-gfm 3.1.0 and micromark-extension-gfm 3.0.0. Their package
+graph already existed for web Markdown; only three backend importer entries are
+added. Frozen-lockfile installation succeeds; no global tool or dependency upgrade.
+Context7 CLI was unavailable locally, so primary official references were used:
+[parser API](https://github.com/syntax-tree/mdast-util-from-markdown#api),
+[GFM integration](https://github.com/syntax-tree/mdast-util-gfm#use), and
+[UTF-16 source offsets](https://github.com/syntax-tree/unist#point), accessed 2026-09-08.
+Reuse this brief while package versions and transformation scope are unchanged.
+
+Parse Markdown/GFM into its syntax tree, locate strong/emphasis delimiter ranges,
+then remove those delimiters from the source in order without serializing the
+whole tree. This keeps headings, list markers/nesting, table separators/alignment,
+CRLF and all non-delimiter text unchanged. Code, literal symbols, links and raw
+HTML are not executed or stripped; strikethrough is retained because it can express
+withdrawal. This is a bounded readability transform, not sanitization or semantic
+normalization. Unknown syntax stays untouched. Tests include nested emphasis,
+tables/lists, escaped symbols, URLs, code, Unicode, negation and trailing CRLF.
+
+#### Content and handoff
+
+Prompt 4.0 keeps displayName, recommendation eligibility and target ownership.
+Each row's mentionContext supplies a short portrayal (including useful alias or
+relationship context); targetDescription keeps points only. Program reuses the
+target's mentionContext as its summary. No duplicate quote, occurrence or model
+position is required. No minimum point count or word-count quality rubric is added.
+
+The new projected format is explicitly BRAND_CONTENT. The synthesis adapter only
+accepts it when the caller declares that format, marks PARSER_CONTENT in the model
+input, and says these are paraphrases rather than verbatim/exactly verified source.
+It creates no synthetic quotes, anchors or source ranges. Existing source-backed
+consumers remain unchanged and reject the untagged new shape. Summary, grouping
+and program metric ownership stay the same; no source is handed wholesale to
+synthesis. This is not a formal report adapter or implicit acceptance of new
+evidence/ready states. Failed real interpretation is retained; no live retry or
+queue semantics change in this experimental slice.
+
+Verify the algorithm and actual wire, no-quote output, target/order projection and
+explicit handoff offline; then freeze six real Qwen low requests over the retained
+restaurant/coffee/absent-target cases twice. No provider retries, resampling,
+synthesis or edits during the batch. Real semantic review must check identities,
+coverage/order and useful portrayal independently of shape success. Exact-match
+errors no longer occur by design; that alone is not quality improvement. The
+official Parser/highlight/report and #41/#42 integration gates remain separate.
+
+### Previous package — whole-answer input
 
 The owner selects this narrower change before the target-independent proposal:
 send the original answer as one complete string rather than numbered line objects.

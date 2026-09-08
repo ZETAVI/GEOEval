@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Whole-answer input verified; quote handoff unresolved, no runtime activation
+- Status: Algorithmic reading and content interpretation under controlled validation
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -44,53 +44,43 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
-The owner now explicitly prioritizes whole-answer first-layer input. The previous
-target-independent two-layer proposal is deferred, not approved or rejected;
-record-constrained second-layer identity and all-subject content/latency comparison
-remain later directions. This slice keeps target information, the business task,
-one Parser call, inline target description, model and synthesis responsibilities.
+The owner approves algorithmic formatting cleanup that retains lists/tables,
+removal of mandatory exact quotations/occurrences, and clear Prompt examples of
+independent brands, aliases, repeats and tail additions. This is a coherent
+first-layer task revision, not the deferred target-independent architecture.
 
-Replace the experimental answerLines array with one originalAnswer string. Keep
-the complete original question and answer, including Markdown, tables, whitespace
-and line endings. The provider still serializes its normal JSON user context;
-this is not a plain-text transport migration. No per-line objects or artificial
-source numbering are sent to the model.
+The original answer remains immutable. A derived whole reading string is built
+using the already locked Markdown/GFM parser and AST source positions. Remove only
+recognised strong/emphasis delimiters; preserve headings, list numbers/nesting,
+table cells/alignment, line endings, links, literal/code content and strikethrough
+meaning. This is not a regex character stripper, a new LLM call, or HTML sanitization.
 
-The coupled evidence change removes model-generated startLine/endLine and uses
-source quotations with occurrence instead. Program code locates literal quotations
-and adapts their containing lines to the existing parsed-only synthesis handoff.
-Raw model quotations remain separate from the expanded source-line projection.
-There is no fuzzy quote repair, name correction, source filtering or use of quote
-offsets as brand positions. This input/reference change is not a pure input-only
-causal experiment. Current formal contracts and historical records are untouched.
+The existing brand-row asset advances to 4.0.0. Each brand has a concise
+mentionContext; the target additionally has its positive/negative points. The
+same target mentionContext becomes the sample summary, avoiding duplicate prose.
+There are no mandatory evidence, exactText, occurrence, line or character fields.
+The program still derives positions from model-array order and does not repair
+brand identity, grouping or omissions. Structure is not semantic acceptance.
 
-Update the existing versioned asset to 3.2.0 rather than creating another Prompt
-copy. Verify full-source equality, actual provider messages, repeated quotations,
-CRLF/multiline references, unresolved quotation rejection, unchanged positions
-and target/other split, and the parsed-only synthesis handoff. Readiness is scoped
-to this reversible controlled-validation seam, not formal activation.
+The explicit BRAND_CONTENT handoff identifies these as model interpretations,
+not source quotations. The experimental second layer receives parsed contents and
+program-assigned references, never complete raw answers or fabricated evidence.
+Legacy quoted/line-based consumers still require their old contracts; current
+runtime, score formula, readiness and historical interpretations are unchanged.
 
-Freeze a separate maximum four-call package: two existing rich restaurant/coffee
-answers twice each, Qwen3.8 Flash low, concurrency two, no resampling, synthesis,
-retry, fallback, target ablation or mid-batch instruction edit. Preserve all
-semantic/source failures. Actual model IO/settings/usage may use the existing
-private Langfuse authorization; review and projection stay local. Stop after this
-package without automatically adding another Prompt candidate.
+The [current design](design.md#current-package--algorithmic-reading-and-content-interpretation)
+owns the implementation and source-research boundary. Freeze six authorized Qwen
+low calls: retained restaurant, coffee and absent-target answers twice each,
+concurrency two. No sampling/synthesis/retry/fallback, within-batch tuning, target
+removal, additional Agent or runtime activation. Preserve actual IO and all semantic
+failures; private Langfuse receives actual IO/settings/usage only, review stays local.
+These repeatedly used cases are developer regression evidence, not fresh transfer.
+Stop the package after six calls; choose the next action from measured meaning,
+not a new label that counts previously unvalidated content as correct.
 
-The [current design](design.md#current-package--whole-answer-input) and
-[tasks](tasks.md) own the bounded next steps. Previous 3.1 evidence and unchanged
-repetitions remain in the [research record](research/chain-quality-experiment.md).
-They do not prove the new representation improves stability or total report time.
-
-At `acfdcd8`, all four real requests contain the exact single originalAnswer
-string. All four model JSON structures pass, but only two quote lookups pass:
-one response drops Markdown markers and another uses ellipses/non-contiguous
-quotes. These are reference-format failures, not automatically fabricated claims.
-Subject merging/omissions also remain. Keep the requested whole-answer input;
-do not adopt 3.2 as a stable complete candidate or automatically append a repair.
-The [whole-answer result](research/chain-quality-experiment.md#whole-answer-input-and-quotation-handoff)
-owns the next evidence boundary. Any subsequent evidence-format repair stays
-separate from the deferred target-independent architecture comparison.
+Previous whole-answer and quote-location failures remain in the
+[research record](research/chain-quality-experiment.md); removing their exact-match
+gate does not retroactively repair those results or prove the new task accurate.
 
 ## Impact and exit
 

@@ -151,59 +151,6 @@ export function restoreM4SourceReferences(
   return restore(value);
 }
 
-const sourceQuoteSchema = z
-  .object({
-    exactText: z
-      .string()
-      .min(1)
-      .refine((text) => text.trim().length > 0),
-    occurrence: z.number().int().positive(),
-  })
-  .strict();
-
-// Inverse input adapter for whole-answer experiments. A literal source quote
-// selects its containing lines for the existing parsed-only handoff. Never
-// normalize/fuzzily recover a quote, or infer a brand/position from its offset.
-export function locateM4SourceQuotes(value: unknown, originalAnswer: string) {
-  const lines = indexAnswer(originalAnswer);
-  const lineAt = (offset: number) => {
-    const next = lines.findIndex((line) => line.start > offset);
-    const line = lines[next === -1 ? lines.length - 1 : next - 1];
-    if (!line) throw new Error("Source quote does not resolve");
-    return line.line;
-  };
-  const locate = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(locate);
-    if (!isObject(value)) return value;
-    return Object.fromEntries(
-      Object.entries(value).map(([key, child]) => {
-        if (!evidenceFields.has(key)) return [key, locate(child)];
-        if (!Array.isArray(child))
-          throw new Error("Evidence quotes must be an array");
-        return [
-          key,
-          child.map((raw) => {
-            const quote = sourceQuoteSchema.parse(raw);
-            let start = -1,
-              offset = 0;
-            for (
-              let occurrence = 0;
-              occurrence < quote.occurrence;
-              occurrence++
-            ) {
-              start = originalAnswer.indexOf(quote.exactText, offset);
-              if (start < 0) throw new Error("Source quote does not resolve");
-              offset = start + quote.exactText.length;
-            }
-            return { startLine: lineAt(start), endLine: lineAt(offset - 1) };
-          }),
-        ];
-      }),
-    );
-  };
-  return locate(value);
-}
-
 // P6 changes semantic instructions/descriptions only; P5 inputs, constraints,
 // source restoration and the production acceptance/metric owners stay frozen.
 export function buildM4IdentityRoleTask(
