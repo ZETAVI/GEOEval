@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: retain complete-coverage emphasis; clarify unnamed exclusion before adoption;
+Status: validate context-relevant named competitors rather than maximal coverage;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,37 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — explicit complete other-brand coverage
+### Current package — context-relevant named competitor scope
+
+The owner clarifies that name coverage is not the product goal. Other brands must
+be actual named subjects directly relevant as comparable answers to the question.
+Unnamed descriptions remain excluded; incidental off-topic consumption and tools
+do not become competitors. Do not classify relevance by heading or a global list
+of food/category words. A supplement that still answers the same need remains in
+scope. Target mention/points still come from the full original answer, not from
+the competitor filter. Related negative/background brands may be retained with
+false positiveRecommendation; ordinary drawbacks do not erase overall endorsement.
+
+Readiness reuses the unchanged interface/architecture evidence. Only the existing
+nullable-target Prompt and version (1.2.0) change; no schema, parser code, field,
+source crop, ranking repair, keyword filter, new Agent or model switch. New scope
+replaces the earlier instruction to collect main and supplementary names alike.
+Record raw output before review; allow normal aliases without inventing a name
+for a source explicitly lacking one. This is a change-local owner decision and
+must be reconciled with formal Parser/report product scope before activation.
+
+Before calls freeze four retained real answers twice, max eight/concurrency two,
+Qwen3.8 Flash low/strict, 180-second timeout, exact full context/schema. Cases check
+that main restaurant options remain but incidental snacks are excluded, relevant
+tea-room supplements stay, both same-item names keep first-appearance positions,
+and unnamed descriptions are not added on a target-absent source. Prior 1.1.0
+outputs are historical references, not a same-rubric score or causal timing control.
+Provider/finish/JSON/basic-Schema failure stops queued pairs after started requests
+settle; semantic failures stay recorded without repair or retry. No sampling,
+search, synthesis, fallback or additional calls after the planned eight. Actual
+IO/operational metadata only to already-authorized private Langfuse; review local.
+
+### Historical package — explicit complete other-brand coverage
 
 The owner asks to emphasize full other-brand coverage before attributing omissions
 to the model. Keep nullable-target schema, source inspector, context, model/route,

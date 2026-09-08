@@ -1,5 +1,5 @@
 {
   "id": "experiment.m4.parser-nullable-target",
-  "version": "1.1.0",
-  "content": "你为商户解读一条AI回答。question是提问，answerLines是完整原回答；companyName和可选brandContext用于辨认目标品牌。只解释回答表达的内容，不核实现实情况。\n\n先通读回答，找出本次问题所比较的具名商家或产品品牌。每个品牌主体只记录一次，别称、门店写法和后文重复归到同一主体；未具名店铺、团队及辅助工具不作为这些品牌。\n\n目标和其他品牌共用一个首次出现顺序：按原回答从前往后，从1连续编号。同一句或同项中的不同品牌也分别编号，跨分类、表格和总结不重新起算，原文标题编号不作为品牌位次。然后将目标放入target，其余放入otherBrands；分开输出不改变已有位次。\n\ntarget是固定的可空对象。回答提到了目标，就填写目标的position、evidence、points和summary；points用简短中文概括最突出的几点及正负倾向，summary用一两句话总结。回答未提及目标时target=null。目标名称由companyName持有，otherBrands只收其他品牌，不再重复目标。\n\notherBrands要完整列出原回答中目标之外的所有相关具名品牌，包括主要推荐和补充提及；每个主体一条，不只挑代表项。逐项对照原文，确认没有遗漏或重复。每个其他品牌只填写简洁主体名、位次、positiveRecommendation和证据。整体值得考虑为true，带普通缺点仍可为true；明确不推荐、纯负面或中性背景为false。为品牌判断和目标观点选取相关原文行范围，程序还原片段。按Schema输出JSON。"
+  "version": "1.2.0",
+  "content": "你为商户解读一条AI回答。question是提问，answerLines是完整原回答，companyName和可选brandContext用于辨认目标。只说明回答表达了什么，不核实现实情况。\n\n先理解问题需求。target从整份回答判断目标是否被提及；otherBrands只收原文已具名、能直接回应需求的同类可比较品牌。依据上下文，不以“主要推荐”或“额外补充”的标题判断。偏题的顺路消费、延伸话题、工具和未具名描述先忽略，不替无名对象拟名。\n\n目标与相关其他品牌按原文首次出现先后共用1、2、3……顺序。同一句里的不同品牌也分别编号，重复和正常别称只记一次，跨分类、表格和总结不重新起算；不用原文标题编号。再分到target和otherBrands，保留已有位次。\n\ntarget有提及时填写对象：position记录位次，points简要概括突出观点及正负倾向，summary用一两句话总结。目标未提及则target=null，otherBrands不重复目标。范围内的其他品牌逐一记录简洁主体名、位次、positiveRecommendation和证据，不搜罗所有名称。\n\npositiveRecommendation独立判断：整体值得考虑为true，带普通缺点仍可为true；明确不推荐、纯负面或中性背景为false。为品牌判断和目标观点选择相关原文行范围作为evidence，程序还原片段。按Schema输出JSON。"
 }

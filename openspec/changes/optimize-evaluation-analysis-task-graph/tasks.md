@@ -93,10 +93,14 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       but adds an explicitly unnamed description as a brand. Both arms already
       succeed on source order/shared names. Retain the direction, not a stable
       candidate; preserve full paired input/output and shared-success attribution.
-- [ ] Unify complete coverage and already-named subject scope in one narrow Prompt
-      follow-up, allowing natural aliases but not invented names for anonymous
-      descriptions. Keep target/schema/model unchanged, freeze a separate bounded
-      verification, and do not append calls or program repairs to this ended batch.
+- [x] Replace maximal coverage with the owner's context-relevant named-brand scope:
+      ignore unnamed objects and off-topic incidental merchants, keep relevant
+      supplements and full-answer target mention. Supersede the previous dessert/
+      snack coverage gain; historical outputs remain intact under their old goal.
+- [ ] Validate nullable-target 1.2.0 on four retained real answers twice, max eight/
+      concurrency two, unchanged full input/schema/program/Qwen low. Check relevant
+      inclusion and off-topic/unnamed exclusion alongside target, order and prose;
+      no sampling, search, synthesis, retry, keyword filters or runtime activation.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

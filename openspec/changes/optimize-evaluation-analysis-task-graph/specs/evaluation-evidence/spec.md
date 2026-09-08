@@ -36,6 +36,19 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 - **AND** current product/spec/report consumers are reconciled before formal
   activation; this probe does not rewrite accepted samples or report history.
 
+#### Scenario: Competitor scope follows the question and answer context
+
+- **WHEN** the owner-approved experimental Parser selects other-brand records
+- **THEN** it keeps actual named subjects relevant as comparable responses to
+  the question, rather than collecting every named merchant
+- **AND** off-topic incidental consumption, supporting tools and unnamed
+  descriptions are excluded without inventing names
+- **AND** a relevant supplementary option remains eligible; headings and global
+  keyword/category lists are not the inclusion rule
+- **AND** target mention is still assessed from the full original answer
+- **AND** first-appearance order and positive recommendation eligibility keep
+  their separate meanings; source history and formal runtime are not rewritten.
+
 ### Requirement: Concise customer progress
 
 The diagnosis view SHALL project truthful durable progress.

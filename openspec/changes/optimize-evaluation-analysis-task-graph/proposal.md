@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Coverage emphasis shows matched gains; unnamed over-inclusion remains unresolved
+- Status: Validate context-relevant named competitors, not maximal name coverage
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -52,7 +52,23 @@ The owner now approves testing one fixed nullable target object instead of a
 separate target-marked row and nullable description. Preserve first-appearance
 positions across target and other brands; splitting output does not restart rank.
 
-Current package: compare nullable-target 1.0.0 with 1.1.0 on the same four retained
+Current decision: the owner excludes unnamed non-brand descriptions and off-topic
+incidental merchants from competitor identification. Relevance follows the question
+and answer context, not the presence of a name or a main/supplement heading.
+The prior restaurant-answer dessert/snack additions are therefore not retained as
+desired gains. Relevant supplemental restaurants still belong; target mention is
+assessed over the entire original answer independently of competitor filtering.
+
+Current package: nullable-target 1.2.0 combines semantic relevance and named-subject
+scope, removes maximal coverage wording and retains first-appearance ordering,
+nullable target, positive eligibility, full input, schema/program and Qwen low.
+Freeze four retained real answers twice (eight maximum, concurrency two), without
+new sampling, search, synthesis, retries or program filters. This is a new-scope
+candidate repetition, not a same-rubric accuracy comparison with the old 1.1.0 goal.
+Keep current specs/runtime/history unchanged; formal integration must reconcile
+the owner's competitor-scope clarification alongside the position decision.
+
+Previous package: compare nullable-target 1.0.0 with 1.1.0 on the same four retained
 real inputs, one baseline/candidate pair each (eight maximum, concurrency two).
 Only the coverage paragraph and version change: otherBrands is a complete
 brand-by-brand list including main and supplementary mentions, not selected
@@ -62,7 +78,8 @@ Compare actual inputs/outputs pairwise; a single reply per arm is not repeatabil
 evidence, a stable success rate or proof of a model capability ceiling.
 
 Completed at `3f674cd1`: [matched coverage evidence](research/chain-quality-experiment.md#matched-complete-coverage--gains-and-unnamed-over-inclusion)
-supports retaining the coverage emphasis, not adopting the whole 1.1.0 candidate.
+was assessed against the earlier coverage emphasis; the off-topic supplement
+conclusion is superseded by the owner's current relevance boundary above.
 Core brands already return in the baseline this round; candidate-only gains are
 supplementary subjects and named restaurants in the absent-target case. It also
 turns an explicitly unnamed description into a brand. Next unify completeness
