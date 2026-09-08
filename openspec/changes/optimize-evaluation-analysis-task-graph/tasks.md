@@ -97,10 +97,15 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       ignore unnamed objects and off-topic incidental merchants, keep relevant
       supplements and full-answer target mention. Supersede the previous dessert/
       snack coverage gain; historical outputs remain intact under their old goal.
-- [ ] Validate nullable-target 1.2.0 on four retained real answers twice, max eight/
-      concurrency two, unchanged full input/schema/program/Qwen low. Check relevant
-      inclusion and off-topic/unnamed exclusion alongside target, order and prose;
-      no sampling, search, synthesis, retry, keyword filters or runtime activation.
+- [x] Validate nullable-target 1.2.0 on four retained real answers twice, eight/
+      concurrency two, unchanged full input/schema/program/Qwen low. Both exclusion
+      cases repeat correctly, but related options remain omitted and one complete
+      six-subject reply skips a position. Preserve actual IO; no general stability
+      claim, sampling, search, synthesis, retry or runtime activation.
+- [ ] In a separately frozen small Prompt follow-up, clarify the original answer's
+      same-question comparison role (related supplements included) and distinct-
+      subject counting unit. Keep schema/model/full source and no program repair;
+      do not reopen maximal name coverage or strict minor-wording acceptance.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

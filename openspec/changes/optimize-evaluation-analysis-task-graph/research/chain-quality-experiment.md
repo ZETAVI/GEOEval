@@ -3112,3 +3112,84 @@ Main observed `0552aa7`; exit retain, no merge/rebase/deployment/current-spec wr
 | Actual IO check | 3f188ee2475f56044c4c4137bd5cc97de10d816af92cd4d2b53b8966e019df9e |
 | Langfuse readback | 425f73d1b7d1c4b0d0a1a7f3f162b94ecc977f74cce66b1887c470f95c6f4770 |
 | Runner | d37e84f6c66ceadf0430d5758955fb86b51b03e4834b450c9b11ee259360bbed |
+
+## Contextual brand scope — correct exclusions with related-option omissions
+
+The owner excludes unnamed non-brand descriptions and off-topic incidental
+merchants, while retaining same-question comparison options. This supersedes the
+previous dessert/snack coverage gain; historical outputs remain intact under their
+old goal. Target mention is still assessed over the full original answer, not
+through the competitor filter. Relevant supplements and related negative/background
+subjects remain eligible for identification; positiveRecommendation is separate.
+
+Code `db4933e864621e93d1db10d02ac65d4dc275fa2c` revises only the nullable-target
+experimental Prompt (1.1.0 to 1.2.0, 680 to 615 characters) and version expectation,
+plus the approved change-local scope. It replaces maximal coverage with contextual
+named subjects. Full original input, schema, program and Qwen3.8 Flash / low remain
+unchanged. No generated source inventory, keyword filter, name repair, renumbering,
+extra Agent, external search or runtime activation.
+
+Manifest `5ccc8578aca8e298352ad8238288695caa404b35bf4c8b615500830e435cc793`
+freezes the four explicitly authorized retained answers twice, eight maximum,
+concurrency two and 180-second timeout. Repeated actual wires are identical; the
+same input/schema and route are preserved from the previous hashed handoff. This
+is repetition under a clarified goal, not a same-rubric or causal timing comparison
+with 1.1.0. All eight finish normally; no sampling, synthesis, retry or fallback.
+
+| Input role | First / second actual result | First / second latency |
+| --- | --- | --- |
+| Main-meal list with off-topic incidental snacks | Both retain the target at 2 and the three main other brands at 1/3/4; exclude the three off-topic extras. Different array order in repeat two does not change correct position fields. | 13.022 / 9.605 s |
+| Six distinct introductions across categories | First correct; second retains all six subjects but sets target to 5 and later subjects to 6/7, leaving no position 4. This is a definite numeric error. | 9.576 / 11.945 s |
+| Tea-room comparisons with co-listed subjects and a relevant supplement | First returns only one of four other brands; second adds the relevant supplemental brand but still omits both co-listed named options. | 14.106 / 14.612 s |
+| Target absent, two named options and explicitly unnamed description | Both target=null, both named options at 1/2, no invented third brand. Normal short names are accepted. | 7.336 / 5.333 s |
+
+The new exclusions work in both repeated cases; that does not establish general
+stability. The co-listed subjects are presented by the source as the third class
+of comparison options, not merely incidental names. Mixed food descriptions do
+not by themselves erase that comparison role. The relevant supplement is also
+an explicit same-question suggestion. Its shifted position in the second reply
+follows the omitted subjects and is not counted as a second independent numeric
+failure. The complete six-subject case above has a distinct numbering failure.
+All omissions/errors already exist in raw Provider JSON, not program filtering.
+
+Target prose generally conveys useful highlights. One repeat strengthens the
+source into an unsupported scoring adjective, another into a superlative. One
+reply puts mixed positive/negative details under POSITIVE points, though drawbacks
+remain in the text. Retain these as light prose/polarity observations; do not
+introduce word-specific bans, a Critic or an exact-quotation quality gate.
+
+Keep contextual scope, nullable target and Qwen low, not unconditional adoption
+of 1.2.0. Next test a narrower explanation of the comparison role assigned by the
+original answer, including related supplements, and the distinct-subject counting
+unit. Wording is a testable contributor, not a proven exclusive cause. Preserve
+full input and raw failures; do not add fields, Agents, name lists or program
+repairs. This batch is complete, with no further calls appended.
+
+Run 2026-09-08 06:06:06.749–06:07:00.733 UTC, 53.984 seconds, 20,765 reported
+tokens. Single calls take 5.333–14.612 seconds; some repeats report cached input.
+These are not full-evaluation timing, stable latency, a success rate or billing.
+53 focused tests and framework/link/diff checks pass. Production TypeScript,
+dependencies and schema did not change, so previous typecheck/build evidence is
+reused. Independent fixed-diff/runner and semantic review complete. All eight
+actual wires match frozen requests; raw JSON equals saved/inspected output.
+
+Nine private Langfuse observations (root `1fc5d6afb426fb01` and eight generations)
+read back actual IO, settings and usage consistently, without root IO, derived
+reports or independent review upload.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/6e3c978b16f1c9990b59e0e7892f3b29).
+Full actual inputs, both original outputs and separate review notes stay in
+protected local `apps/backend/.provider-evidence/m4-contextual-brand-scope-cTrexQ/input-output-review.md`.
+Formal position/relevance reconciliation, whole-chain/report/UI/recovery and
+successful 3–5-minute acceptance remain pending. #42 In Progress, PR #62 Draft
+Partial; #73 shared surfaces untouched. Main observed `0552aa7`; exit retain,
+no merge, rebase, deployment, migration or current-spec change.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 2c08fdf07dcfb49a9280e9409b986a861156eccdef8733f0b6cfa859ff9c3587 |
+| Summary | 8c445ae3facf9579a5d82a9b57b25d31e346b91cc88cfdc81660ac8fe6b7d8ea |
+| Handoff | be3bb7e30a0d22be57bca5587849bf1c33a6bc73dc12ad3402e36edd1f85a169 |
+| Matched wire check | 15d849fccea76544d52ca15a1942ab2dedb69e285b9d4eb5cc0802ec8637681c |
+| Actual IO check | c603488bca6ed1e0759e94c0aa96e10eff4442dd26d9bae38888dcaf9624e262 |
+| Langfuse readback | bb96886089dc107de22a8f64aa0c8b8fa6c37c4de6dc37fbf6b0f6428c1bc336 |
+| Runner | dc91c7f43457ae1b8a6cbedbf62bbb6929d798c61f45b2f82aa60760ff0417da |

@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Validate context-relevant named competitors, not maximal name coverage
+- Status: Retain contextual scope; related-option omissions and one position error remain
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -62,11 +62,20 @@ assessed over the entire original answer independently of competitor filtering.
 Current package: nullable-target 1.2.0 combines semantic relevance and named-subject
 scope, removes maximal coverage wording and retains first-appearance ordering,
 nullable target, positive eligibility, full input, schema/program and Qwen low.
-Freeze four retained real answers twice (eight maximum, concurrency two), without
+Completed four retained real answers twice (eight calls, concurrency two), without
 new sampling, search, synthesis, retries or program filters. This is a new-scope
 candidate repetition, not a same-rubric accuracy comparison with the old 1.1.0 goal.
 Keep current specs/runtime/history unchanged; formal integration must reconcile
 the owner's competitor-scope clarification alongside the position decision.
+
+At `db4933e8`, [contextual-scope evidence](research/chain-quality-experiment.md#contextual-brand-scope--correct-exclusions-with-related-option-omissions)
+confirms both repeated off-topic and unnamed exclusions while keeping core options
+and correct absent target. Related tea-room options are still omitted, and one
+separate six-subject reply skips a position. Retain the scope, not an adopted
+candidate. Next clarify the source's same-question comparison role, including
+related supplements, and the distinct-subject counting unit; do not broaden into
+new fields, keyword filters, Agents, models or minor-wording rejection rules.
+This eight-call batch is complete; any further test needs its own frozen package.
 
 Previous package: compare nullable-target 1.0.0 with 1.1.0 on the same four retained
 real inputs, one baseline/candidate pair each (eight maximum, concurrency two).
@@ -82,9 +91,9 @@ was assessed against the earlier coverage emphasis; the off-topic supplement
 conclusion is superseded by the owner's current relevance boundary above.
 Core brands already return in the baseline this round; candidate-only gains are
 supplementary subjects and named restaurants in the absent-target case. It also
-turns an explicitly unnamed description into a brand. Next unify completeness
-and named-subject scope in one clear instruction at the unchanged schema/model;
-do not fix this with program-generated names or restart broad architecture work.
+turns an explicitly unnamed description into a brand. That historical next action
+is superseded by the current contextual-scope package above, not another pending
+experiment or a reason to generate missing names in program code.
 
 Previous package: an explicit nullable-target experiment reuses the existing
 customer-summary schema/inspector and full-source builder. Its new Prompt explains

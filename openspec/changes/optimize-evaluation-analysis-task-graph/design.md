@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: validate context-relevant named competitors rather than maximal coverage;
+Status: retain contextual scope; related-option omissions and one position error remain;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -43,6 +43,16 @@ Provider/finish/JSON/basic-Schema failure stops queued pairs after started reque
 settle; semantic failures stay recorded without repair or retry. No sampling,
 search, synthesis, fallback or additional calls after the planned eight. Actual
 IO/operational metadata only to already-authorized private Langfuse; review local.
+
+Executed at `db4933e8`: [eight-call evidence](research/chain-quality-experiment.md#contextual-brand-scope--correct-exclusions-with-related-option-omissions)
+supports the owner's two exclusion boundaries in both repeats, but not overall
+candidate adoption. One related-option case still loses named comparison subjects;
+a separate complete six-subject reply skips one position. Next simplify relevance
+around the comparison role assigned by the original answer, not literal category
+purity, and clarify the distinct-subject counting unit without program repair.
+Light prose overstatement remains an observation, not a new strict acceptance
+gate. No more calls are appended to this completed batch; schema/model/runtime
+and shared #73 surfaces remain unchanged.
 
 ### Historical package — explicit complete other-brand coverage
 
