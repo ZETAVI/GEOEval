@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Whole-answer input slice; controlled validation, no runtime activation
+- Status: Whole-answer input verified; quote handoff unresolved, no runtime activation
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -81,6 +81,16 @@ The [current design](design.md#current-package--whole-answer-input) and
 [tasks](tasks.md) own the bounded next steps. Previous 3.1 evidence and unchanged
 repetitions remain in the [research record](research/chain-quality-experiment.md).
 They do not prove the new representation improves stability or total report time.
+
+At `acfdcd8`, all four real requests contain the exact single originalAnswer
+string. All four model JSON structures pass, but only two quote lookups pass:
+one response drops Markdown markers and another uses ellipses/non-contiguous
+quotes. These are reference-format failures, not automatically fabricated claims.
+Subject merging/omissions also remain. Keep the requested whole-answer input;
+do not adopt 3.2 as a stable complete candidate or automatically append a repair.
+The [whole-answer result](research/chain-quality-experiment.md#whole-answer-input-and-quotation-handoff)
+owns the next evidence boundary. Any subsequent evidence-format repair stays
+separate from the deferred target-independent architecture comparison.
 
 ## Impact and exit
 

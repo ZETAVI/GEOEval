@@ -57,11 +57,15 @@ The current role and decisions live in [the proposal](proposal.md).
 - [x] Verify original/wire equality, CRLF, Markdown, repeated/multiline quotes,
       source mismatch and unresolved reference rejection, unchanged index semantics
       and parsed-only synthesis. No formal runtime/shared contract activation.
-- [ ] Complete four bounded real calls on two retained answers twice, no sampling,
+- [x] Complete four bounded real calls on two retained answers twice, no sampling,
       retry or synthesis; record raw output, quote validity and semantic quality
       separately, and verify private Langfuse actual IO readback.
-- [ ] Report exact before/after input and measured outputs; keep target-independent
+- [x] Report exact before/after input and measured outputs; keep target-independent
       matching and all-subject token/time comparison as later work, not this batch.
+- [ ] Before integration, resolve the two observed quotation-format failures
+      (Markdown omissions and ellipsis joining) at the source handoff. Keep original
+      whole-answer input; do not call source-location failure fabricated content,
+      silently repair references, or automatically start another candidate batch.
 
 ## Retained report-level work
 

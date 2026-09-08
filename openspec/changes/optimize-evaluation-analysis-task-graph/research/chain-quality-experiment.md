@@ -3525,3 +3525,65 @@ repetition boundary, diagnosis and document links.
 | Summary | 953d8f9255ff2e2a660146aead23a03ace32cc64df85fb1a0bf94a707b40df4e |
 | Langfuse readback | 1956b9d54f32ba535fb31257565bd817009c1a91d2b5371f72ffabb3744c88ce |
 | Runner | 7c1cba60dd63589c48dad2d1f360d826112fe3e419ec0f6c866ffb37a0f6cc60 |
+
+## Whole-answer input and quotation handoff
+
+The owner prioritizes preserving the first-layer answer as one whole context
+before the proposed target-independent architecture. At `acfdcd8a50a3873b98630129e8c5979fa3135938`,
+the existing experimental asset advances to 3.2.0: originalAnswer is one exact
+string, not answerLines objects. The normal provider JSON user-context envelope
+remains. Target information, question, business task, Qwen low and synthesis
+responsibilities are unchanged. Markdown, tables, whitespace and line endings
+are retained; no content is cropped or de-formatted.
+
+Because invisible source line numbers must not become a model counting task,
+evidence becomes source quotes/occurrence. A controlled adapter locates literal
+quotes and projects their containing source lines into the existing parsed-only
+synthesis handoff. Raw quotes are preserved separately from expanded line context.
+This is an input-plus-reference-encoding slice, not a pure input-only experiment.
+
+Manifest `042b28c7bdc32c2afc63e175001a1d3b2d5063430d85b594ea1e769c196dbaf6`
+freezes two retained rich answers twice, four calls/concurrency two, without
+acquisition, retries, fallback, synthesis or within-batch edits. Full request
+equality, unique sample IDs and original Provider JSON versus saved model output
+are checked for all four. These are developer regressions, not fresh transfer.
+
+| Call | Actual result | Latency |
+| --- | --- | --- |
+| Restaurant 1 | Useful target portrayal, but two dish quotes omit source Markdown; literal lookup rejects. Two merchants replaced by a generic tea-room label, tail merchant omitted | 24.556 s |
+| Restaurant 2 | Useful target portrayal and five separate merchants; quote lookup passes | 13.684 s |
+| Coffee 1 | Useful target portrayal; quote lookup passes. Two coffee brands remain combined and tail alternatives omitted | 25.216 s |
+| Coffee 2 | Target portrayal has source support, but quotes use ellipses or omit formatting; lookup rejects. Independent coffee/convenience-store subjects still combined | 36.292 s |
+
+All four Provider/basic schemas succeed, only two source lookups pass. Literal
+matching failure is not automatically an invented fact: one case has formatting
+loss, the other produces condensed rather than continuous quotations. No output
+is repaired to pass, and no rejected source output is sent to synthesis. The
+requested whole-answer input is verified; 3.2 as an entire candidate is not
+accepted as stable. Keep this representation, report source-reference compatibility
+as a remaining prerequisite, and do not automatically add formatting rules, fuzzy
+matching, another Agent or a new call batch. The target-independent second layer
+and its all-subject content/time comparison remain deferred.
+
+Run 2026-09-08 09:38:54.390–09:39:56.393 UTC, 62.003 seconds, 13,657 reported
+tokens. Input tokens are 1,801 for the restaurant and 1,712 for coffee, compared
+with 2,103/2,023 in the prior same-source 3.1 repetition (about 14–15% lower).
+Prompt/reference Schema and cache behavior also differ; this does not prove
+total latency/cost improvement or the formal 20-sample 3–5-minute report gate.
+59 focused tests, Backend typecheck/build, framework/links/diff and scoped fixed-
+diff review pass for the experimental input/reference seam. No independent-agent
+review or formal runtime/UI/recovery verification is claimed.
+
+Five private Langfuse observations read back actual IO/settings/usage consistently;
+semantic review and program projection stay local.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/11856132e979f089bfde408e33b8a2ca).
+Full original inputs, raw outputs and the distinct source failures are at
+`apps/backend/.provider-evidence/m4-whole-answer-snHUKA/input-output-review.md`.
+Formal Parser, shared provider transport, current specs, database, main and other
+worktrees remain unchanged. The existing Draft Partial PR and evidence are retained.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 6694d9e737648bdb6d8a8cd5dd918d8b650f34435c092f2c1ba20119461f773b |
+| Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
+| Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |

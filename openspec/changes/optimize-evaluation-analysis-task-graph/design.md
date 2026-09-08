@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: whole-answer input slice under controlled validation; 3.1 not selected;
+Status: whole-answer input verified; quote handoff unresolved; 3.1 not selected;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -48,6 +48,15 @@ Actual IO-only private Langfuse logging and local review separation are unchange
 This tests the whole-source plus evidence-encoding package, not a claim that JSON
 formatting alone caused prior semantic defects. The previous two-layer direction
 and its all-subject output/time comparison are deferred until this slice is reviewed.
+
+Result at `acfdcd8`: four exact whole-answer request bodies and valid model JSON,
+two accepted quote lookups. Omitted Markdown markers and ellipsis-joined quotes
+fail the deliberately literal locator even where the underlying portrayal has
+source support. Do not equate source-location failure with hallucination or
+silently loosen the check. Subject unit/coverage residuals persist. The bounded
+batch is closed; keep whole-answer input, not full 3.2 stability/adoption. Source
+handoff must be resolved before integration, without reviving numbered input or
+mixing in target-independent synthesis work.
 
 ### Current decision frontier — target-independent evidence
 
