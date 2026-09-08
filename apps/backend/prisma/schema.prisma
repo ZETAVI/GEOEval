@@ -1204,3 +1204,47 @@ model WorkEffect {
 
   @@map("work_effects")
 }
+
+// Recharge owns authenticated notification facts; no local order or points claim.
+model RechargePaymentObservation {
+  id                    String                        @id @default(uuid()) @db.Uuid
+  provider              String                        @db.VarChar(16)
+  merchantId            String                        @map("merchant_id") @db.VarChar(128)
+  notificationId        String                        @map("notification_id") @db.VarChar(36)
+  factsSha256           String                        @map("facts_sha256") @db.VarChar(64)
+  factsVersion          Int                           @map("facts_version")
+  appId                 String                        @map("app_id") @db.VarChar(128)
+  merchantOrderNo       String                        @map("merchant_order_no") @db.VarChar(128)
+  transactionId         String                        @map("transaction_id") @db.VarChar(128)
+  tradeType             String                        @map("trade_type") @db.VarChar(16)
+  orderTotalFen         BigInt                        @map("order_total_fen")
+  currency              String                        @db.VarChar(3)
+  payerTotalFen         BigInt                        @map("payer_total_fen")
+  payerCurrency         String                        @map("payer_currency") @db.VarChar(3)
+  successAt             DateTime                      @map("success_at") @db.Timestamptz(3)
+  notificationCreatedAt DateTime                      @map("notification_created_at") @db.Timestamptz(3)
+  verificationKeyId     String                        @map("verification_key_id") @db.VarChar(128)
+  signedAtSeconds       BigInt                        @map("signed_at_seconds")
+  receivedAt            DateTime                      @map("received_at") @db.Timestamptz(3)
+  bodySha256            String                        @map("body_sha256") @db.VarChar(64)
+  createdAt             DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
+  receipts              RechargeNotificationReceipt[]
+
+  @@unique([provider, merchantId, notificationId, factsSha256], map: "recharge_observation_facts_key")
+  @@map("recharge_payment_observations")
+}
+
+model RechargeNotificationReceipt {
+  provider             String                     @db.VarChar(16)
+  merchantId           String                     @map("merchant_id") @db.VarChar(128)
+  notificationId       String                     @map("notification_id") @db.VarChar(36)
+  canonicalFactsSha256 String                     @map("canonical_facts_sha256") @db.VarChar(64)
+  hasConflict          Boolean                    @default(false) @map("has_conflict")
+  processedAt          DateTime?                  @map("processed_at") @db.Timestamptz(3)
+  createdAt            DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+  canonical            RechargePaymentObservation @relation(fields: [provider, merchantId, notificationId, canonicalFactsSha256], references: [provider, merchantId, notificationId, factsSha256], onDelete: Restrict, onUpdate: Restrict, map: "recharge_receipt_canonical_fkey")
+
+  @@id([provider, merchantId, notificationId], map: "recharge_notification_receipt_pkey")
+  @@index([hasConflict, processedAt, createdAt], map: "recharge_receipt_pending_idx")
+  @@map("recharge_notification_receipts")
+}

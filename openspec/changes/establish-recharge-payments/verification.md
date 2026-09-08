@@ -1,6 +1,6 @@
 # Recharge verification
 
-Date: 2026-09-08. A0 base: remote main@0552aa7. The approved bounded implementation is tracked by [A0 Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258). The current #73 result/points ownership is [0a88a5b](https://github.com/ZETAVI/GEOEval/pull/76#issuecomment-5581859806); this package does not consume or change its shared code.
+Date: 2026-09-08. Accepted main: a550fc4. A0 rebased without code changes to dfe98bc; exact-head [full CI](https://github.com/ZETAVI/GEOEval/actions/runs/34215243310) and [framework CI](https://github.com/ZETAVI/GEOEval/actions/runs/34215243277) passed. B0 is a linear stack under the [explicit schema window](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643). The unmerged points extraction [producer checkpoint](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5583740565) changes readiness, not accepted Commerce behavior.
 
 ## A0 implementation evidence
 
@@ -48,8 +48,25 @@ Ordinary query page 4012791838 is now read in full; its earlier fetch limitation
 
 The preparation artifacts are retained locally under their research owner and are not imported or copied wholesale into this product-code transaction. Durable source references and public regression fixtures above carry the reusable evidence. The old 42-case teaching model is not a completion gate.
 
+## B0 implementation evidence
+
+| Claim | Evidence | Result / limitation |
+| --- | --- | --- |
+| Real framework reception | 21 `recharge-notification.integration.spec.ts` cases: real Nest 11.2.2, actual IdentityModule, actual Prisma 7.9.1 and PostgreSQL 18.6 | Passed; raw-body/duplicate headers, 204 after commit, 8-way duplicates, conflict retention, bad signature/GCM/fields, body/encoding limits, missing rawBody, private route session/CSRF |
+| Durable failure/recovery | Same suite: PostgreSQL trigger commit barrier, injected receipt failure, real lock timeout, host/connection replacement after discarded ACK, late commit without watermark, safe projection, immutable DML and same-identity FK | Passed; no simulated DB replaces persistence. Host reconstruction is not OS-process SIGKILL or storage crash recovery |
+| Bounded response and unknown commit | 4 `receive-payment-notification.spec.ts` cases | Passed; application timeout uses controlled promises/fake time and does not claim transaction cancellation; real lock timeout separately proved above |
+| Current API stays unactivated | Existing access-policy inventory: 2 cases using full current ApiModule | Passed; B0 is tested only in an opt-in host. Existing guards were not stubbed |
+| Canonical facts and compatibility | 68 gateway tests rerun after shared V1 serialization extraction; unchanged 20 HTTPS tests covered by A0 exact-head CI | Passed; provider adapter remains independent of Nest/Prisma/Commerce |
+| Migration and compiler | Fresh owned database replayed all 33 migrations after final SQL constraint change; workspace typecheck, backend build | Passed; no production or another owner's database used |
+| Schema alignment | Prisma migrate diff against current model and accepted main model | B0 tables have no drift. Whole-database zero-diff check failed on 20 existing non-Recharge index/FK statements; all 20 are identical against main@a550fc4. No unrelated schema changes made |
+| Format and project contracts | Full format check, framework/Markdown link validator, git diff --check | Passed |
+
+Local targets: `geoeval_issue77_notifications` on loopback PostgreSQL 55432 and exclusive Redis 56577. Receipt tests have no Redis dependency and originally passed with that endpoint unavailable. Only B0 tables are truncated between B0 tests. Temporary barrier functions are test-local and removed. All crypto material is generated in memory by the existing fixture; no merchant keys or provider requests.
+
+Reproduce with the named isolated test DATABASE_URL and REDIS_URL: `pnpm db:generate`, `pnpm db:migrate`, then `pnpm --filter @geoeval/backend test test/recharge-notification.integration.spec.ts test/receive-payment-notification.spec.ts test/access-policy-inventory.spec.ts`. Current PR owns the fixed revision, review and CI outcomes.
+
 ## Remaining verification and exit
 
-A0 has targeted implementation evidence. The whole recharge change remains **partially verified**: Nest rawBody/Identity exemptions, durable production inbox, Worker lease/retry, local-order matching, reservation/ledger atomicity, real merchant keys/TLS/204, Native/H5 browsers, reconciliation, money and production enablement remain not run. A receiver-process SIGKILL in P0 does not prove database/storage crash recovery.
+A0 and isolated B0 have implementation evidence; the whole recharge change remains **partially verified**. Current API raw-body activation, Worker lease/retry and conflict operations, local-order matching, reservation/ledger atomicity, process/storage crash recovery, real merchant keys/TLS/204, Native/H5 browsers, reconciliation, money and production enablement remain not run. Historical P0 receiver SIGKILL does not prove B0 process or database/storage crash recovery.
 
-The existing product-definition/Commerce activation markers are unchanged because no customer recharge or funded writer is enabled. A0's executed public interface lives with code; the remaining orchestration/points interfaces in this change are proposals. Retain the unique #77 branch/worktree and research material; deliver this bounded diff through PR, without closing #77 or claiming main/production activation.
+Existing product-definition/Commerce activation markers are unchanged because no customer recharge or funded writer is enabled. Executable Recharge ports/repository/schema own A0/B0 behavior; remaining orchestration/points proposals stay in this change. Retain this worktree, A0/B0 branches, pre-rebase tag and research artifacts. Deliver B0 through a linear stacked PR, return its scoped schema window to #73, and keep #77 open. No main merge or production activation is inferred.

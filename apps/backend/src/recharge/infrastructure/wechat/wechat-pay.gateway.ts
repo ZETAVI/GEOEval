@@ -1,4 +1,5 @@
 import { randomBytes, type KeyObject } from "node:crypto";
+import { paymentFactsSha256 } from "../../application/payment-facts.js";
 import type {
   AuthenticatedPaymentNotification,
   GatewayResult,
@@ -11,7 +12,6 @@ import type {
 } from "../../application/payment-gateway.js";
 import {
   decryptResource,
-  sha256,
   signRequest,
   verifyMessage,
 } from "./wechat-crypto.js";
@@ -290,7 +290,7 @@ export class WechatPayGateway
           notificationId,
           createdAt,
           factsVersion: 1,
-          factsSha256: sha256(JSON.stringify(facts)),
+          factsSha256: paymentFactsSha256(facts),
           facts,
           proof,
         },

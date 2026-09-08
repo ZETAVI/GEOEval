@@ -4,7 +4,7 @@
 
 ## 结论与用户批注
 
-**A0 独立适配器：implemented, ready for fixed-diff review；充值全链路与渠道启用：not ready。**
+**A0 适配器与 B0 独立通知接收：implemented，作者审查 ready；充值全链路与渠道启用：not ready。**
 
 用户已确认按上一轮独立模块范围构建并做初步测试，[A0 Decision checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258)开启当前非冲突写入窗口。范围只有 Recharge provider port、微信协议实现、针对性测试和所属契约；不触碰共享 schema/API/Commerce 或应用启用。此前准备阶段的写入等待不再阻挡这一包。
 
@@ -14,9 +14,9 @@
 
 ## 审查基线
 
-- main/工作区：`0552aa7e60d5aa6b99645692e6090e64544087d5`；当前真实充值未启用。
-- 履约：[PR #76 固定提交 2658295](https://github.com/ZETAVI/GEOEval/blob/2658295805238bef7a09d8047c6aafdf3632edc8/openspec/changes/establish-publication-delivery/design.md)，已批准在研设计，尚非 main 事实。
-- 最新协调核查：#73 的 [0a88a5b 固定结果 checkpoint](https://github.com/ZETAVI/GEOEval/pull/76#issuecomment-5581859806)及 live head 一致；owner 确认 points 提取仍未执行，不将结果提交或 CI 本身当作共享写入窗口。
+- accepted main：a550fc4（#76 已合并）；A0 同步后 dfe98bc，准确 head 两项 CI 均通过。
+- 履约积分装配：[PR #79@770a764](https://github.com/ZETAVI/GEOEval/pull/79)已实现但未合并；其验证由 [producer checkpoint](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5583740565)持有，不等于 funded writer/reservation 已存在。
+- B0 只使用 [通知新表 schema 窗口](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643)，独立叠加 A0；API/Identity/Commerce 保持原 owner。
 - 当前 Commerce：`publishing-commerce.module.ts` 把积分与媒体/文章/HTTP 装配在一起；`point-account.ts` 同时限制余额和账务序号；`point-account-lock.ts` 提供 wallet lock；原购买与拟议退点都是 wallet-first。
 - 当前 HTTP：`api-app.ts` 未保留 raw body；AccessGuard、CsrfGuard 默认限制外部回调，已有精确豁免元数据可复用。
 - 官方规范：普通商户 APIv3、普通 H5 API、回调/关单/验签正文、微信官方 SDK/示例与支付宝官方 Node SDK。
@@ -81,3 +81,18 @@
 用户已认可 CommercePointsModule 重构方向；#73 owner 已确认结果片稳定后的单 writer 短窗口。正式 proposal/design/spec/tasks 已建立，旧本地候选迁入本 change，避免双重设计 owner。14/14 官方原语、23 项离线响应、37/37 受控 HTTP 和 20/20 通知/PG 持久性证据边界详见 [verification](verification.md)，一条失败页面样例仍单独保留。
 
 复盘结论：A0 已在用户确认的独立窗口完成实现，88 项实际代码验证覆盖官方固定输入、操作字段差异、安全投影和受控 HTTPS。接口/实现不导入 Commerce、Prisma、Nest 或旧 probe，不读取环境、不注册 Controller；全工作区类型检查和后端构建通过。固定 Diff 的意图、工程及证据复核由 PR 记录。B0 框架接收、C0/N1 积分事务、Native/H5 客户旅程和运营恢复分别推进；生产 repository、Nest parser/Identity、Worker、预留/账本、真实渠道/浏览器/资金仍须对应验证。
+
+## B0 实现复核
+
+范围：main@a550fc4 → A0@dfe98bc → B0。按意图、工程、证据三个角度自行复核，不冒充独立 reviewer。
+
+| 角度 | 结论和可核查边界 |
+| --- | --- |
+| 意图/模块 | 只增加通知验真后的可靠接收；现有 API 不注册模块，handler 豁免与业务入账权限分开。新端口不接触 Commerce；没有钱包、通用支付平台或新队列抽象 |
+| 持久性/并发 | 观察及 receipt 同事务；复合 FK 固定首份同身份观察，冲突变体只追加；READ COMMITTED 后续语句读取并发胜者；同事务失败不 ACK |
+| 安全/隐私 | 真实原始字节验签/GCM；多值签名头不合并；仅投影必要字段；精确 Identity 元数据、报文和等待上限；原始密文与付款人标识不入库 |
+| 修正后的完整性 | 内部调用传入非标准化时间可能使入库再读的事实摘要不一致，已补充规范化时间不变量及负例；数据库金额下界与 Adapter 的正整数规则一致 |
+| 恢复/迁移 | 新表迁移重放通过；待处理扫描不持久推进时间水位；过期响应不声称取消提交。只有完整 settlement 事务未来可设置 processedAt/推进余额 |
+| 证据 | 21 真实 Nest/Identity/PostgreSQL + 4 应用预算测试通过；现有 API 权限清单 2 项通过；类型、构建、格式/框架结果见 verification |
+
+当前没有未解决的本片 material finding。实际应用装配、进程/存储崩溃、Worker 领取/结算、冲突运营处置与公网商户回调仍属于各自后续验收；扫描结果不能直接授权入账。固定 PR、CI 和 schema 交还回执由该 PR/Issue 持有。

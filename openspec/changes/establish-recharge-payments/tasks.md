@@ -1,6 +1,6 @@
 # Tasks
 
-Owner #77. Completed boxes distinguish P0 evidence from A0 product implementation. The A0 execution window is approved; shared composition, money and activation remain outside this package.
+Owner #77. Completed boxes distinguish P0 experiments, A0 adapter and B0 unregistered notification module. The B0 window permits only additive Recharge schema; shared API/Commerce composition, money and activation remain outside this package.
 
 ## Remaining work and actual dependencies
 
@@ -9,13 +9,13 @@ The approved route stays account recharge → verified payment → funded credit
 | Package | Concrete acceptance | Actual dependency / current action |
 | --- | --- | --- |
 | A0: WeChat operation adapter | Native initiate, query and close interpret authenticated protocol results; notification decrypts to a safe observation; exact required fields and frozen identity are validated; no activation | Technically independent of C0 and merchant credentials. A0 window approved and implementation/tests complete locally; confined to Recharge and its tests, no shared composition/schema writes |
-| B0: Notification acceptance and recovery | Actual application raw-body handling and precise Identity exemptions; observation + processing record commit before ACK; restart/DB scan recovery | Controlled HTTP/PostgreSQL receipt experiment now passed. Production Nest route/config and actual repository still require the shared composition window; neither merchant assets nor points extraction blocks the isolated receipt contract |
+| B0: Notification acceptance and recovery | Real Nest handler and Identity exemptions; observation + receipt commit before ACK; host/connection replacement and DB scans | Implemented under the B0 schema window: 25 new tests plus 2 current API inventory tests passed. Module remains unregistered in the current application; no settlement/worker claim |
 | C0/N1: Points seam and first atomic credit | Reserve amount/sequence capacity, unique payment settlement and ledger, concurrent grant/purchase/return/recharge, crash rollback | #73 is sole points extraction writer. Consume its stable revision and re-read return rules before modifying shared points/schema; financial amount defaults are required before enabling new real orders, not for synthetic DB cases |
 | Native/H5 customer journey | Own-order access/history, QR/local polling, saved publishing choice and reconfirmation; external-mobile H5 IP/domain/return | UI/API contracts can be prepared now. Executable journey needs N1; real browser launch additionally needs the named product entitlement, domain and controlled merchant environment |
 | Recovery and reconciliation | Same-order query/close, persisted due state/lease, stop-new-orders, T+1 discrepancy handling | Recovery and bill parsing can be implemented/tested with controlled inputs in their write package. Real bill/download and money-exception handling require account/finance decisions |
 | Activation | Limits, support, merchant/domain/secret rotation owners, bounded money test, financial reconciliation | Finance/product/operations supply these only before the corresponding live test or enablement. No production value is inferred from test configuration |
 
-Current planning: the user approved A0 construction while finance proceeds, recorded in [Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258). #77 entered In Progress for this bounded non-conflicting package; #73 keeps all points/shared composition writes. Return #77 to Review / Decision with its fixed A0 PR. Alipay follows the first WeChat journey; H5, JSAPI and funds activation are not implied by the Native gateway.
+Current planning: A0 has passed fixed-head CI on accepted main@a550fc4. #77 entered In Progress for the [B0 window](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643). Deliver its linear stacked PR, return the schema window with an exact checkpoint and move #77 to Review / Decision. The extraction is in unmerged PR #79; accepted integration and the funded-writer design remain next. Alipay follows the first WeChat journey; H5, JSAPI and funds activation are not implied by these packages.
 
 ## P0: Fixed inputs and reviewable contracts
 
@@ -40,12 +40,23 @@ Current planning: the user approved A0 construction while finance proceeds, reco
 - [x] Verify this actual adapter with fixed vectors, malformed fields, wrong merchant/app/order/amount, unknown request outcome and no implicit retries. Reuse unchanged research evidence as rationale rather than importing the experiment harness as production code.
 - [x] Deliver [PR #78](https://github.com/ZETAVI/GEOEval/pull/78) with no customer activation. Implementation checkpoint 35732ae has 88 targeted checks; B0 and C0/N1 consumers and real-merchant limits remain explicit. Draft/review and CI state live in the PR, not an implied #77 completion.
 
+## B0: Real durable notification acceptance
+
+- [x] Fix the schema window with #73 and stack linearly on rebased A0 without touching current API/Identity/Commerce composition.
+- [x] Add immutable safe observations, unique receipt with same-identity canonical FK, conflict preservation and additive migration.
+- [x] Implement raw-body handler, handler-only Identity metadata and Prisma acceptance; commit before 204, retry on failed/unknown commit and bound waiting.
+- [x] Verify canonical facts, concurrent duplicates/conflicts, no pre-commit ACK, rollback, host/connection replacement, late commit discovery, projection privacy and database immutability.
+- [x] Verify existing real Identity guards and current API route inventory remain effective and unchanged.
+- [ ] Publish the fixed B0 PR/evidence, inspect exact-head CI and return the schema window. No money, settlement, worker lease or application activation is included.
+
 ## C0: Coordinate the smallest points extraction
+
+Producer state: [PR #79](https://github.com/ZETAVI/GEOEval/pull/79) implements the assembly-only extraction at 770a764; [producer checkpoint](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5583740565). Boxes below are consumer acceptance, not a claim that extraction is absent or already integrated here.
 
 - [x] #73 fulfilment agent explicitly accepted sole CommercePointsModule extraction ownership: results-stable → extraction → point return. #77 owns recharge protocol/adapter and consumes its result.
 - [ ] Consume #73's stable result-slice revision and confirm no intervening module/point-return change before extraction.
 - [ ] Extract CommercePointsModule within publishing-commerce. Keep customer/admin point controllers at API composition; export only necessary points providers/factory to purchase, return and Recharge consumers.
-- [ ] Preserve #73's PublicationDeliveryModule import, purchase admission hook and PublishingOrderService export. Do not remove them because the 0552aa7 baseline lacks them.
+- [ ] Preserve #73's PublicationDeliveryModule import, purchase admission hook and PublishingOrderService export. when consuming the extraction.
 - [ ] Keep schemas, URLs, grant-only restrictions, source allocation, idempotency, DTO privacy and wallet-first order unchanged in this extraction.
 - [ ] Verify existing points + publishing purchase + accepted delivery-admission integration suites and module construction; show Worker can obtain only point infrastructure without media/article/HTTP dependencies.
 - [ ] #73 records the stable extraction revision and evidence; #77 verifies and consumes it without a parallel duplicate.
@@ -53,9 +64,9 @@ Current planning: the user approved A0 construction while finance proceeds, reco
 ## N1: First Native recharge vertical slice
 
 - [ ] Freeze single-yuan input, maintained shortcut-amount owner, account activity rules, configured min/max and bounded unresolved exposure. Specific values come from product/finance; test fixtures stay clearly synthetic.
-- [ ] Add RechargeOrder, safe immutable observations/processing state, Commerce credit reservations and dedicated RECHARGE ledger relation; include amount and future sequence capacity in all relevant point operations, including returns.
+- [ ] Add RechargeOrder, Commerce credit reservations and dedicated RECHARGE ledger relation; reuse B0 observations/receipts and include amount and future sequence capacity in all relevant point operations, including returns.
 - [ ] Implement stable merchant identity and idempotency, UNSENT/MAY_EXIST, cancel intent, query/close convergence and visible unresolved obligations.
-- [ ] Implement exact notification route authentication, raw bytes, durable acceptance before ACK and database-driven inbox/query recovery.
+- [ ] Register B0 in the approved API composition with raw-body parser limits; implement settlement/query recovery with in-transaction receipt rechecks. Do not recreate the inbox.
 - [ ] Build Native QR + order status + recharge history and account/publishing shortage entry; preserve saved publishing intent and reprice/reconfirm on return.
 - [ ] Prove transaction rollback, concurrent callback/query, different-key duplicate, key rotation, delayed dispatch versus cancel, stopped customer, revision/amount limits, ACK-after-crash and Redis loss in isolated DB/HTTP/browser evidence.
 - [ ] Verify a controlled Native merchant environment when products and credentials are ready. Distinguish a generated QR from a verified paid/funded result.

@@ -1,6 +1,6 @@
 # Change: Establish reliable recharge and WeChat web payment
 
-- Status: A0 implemented and submitted in [PR #78](https://github.com/ZETAVI/GEOEval/pull/78); no application/payment activation
+- Status: A0 in [PR #78](https://github.com/ZETAVI/GEOEval/pull/78); B0 isolated notification acceptance implemented and locally verified; no application/payment activation
 - Issue: [#77](https://github.com/ZETAVI/GEOEval/issues/77)
 - Owner: ZETAVI
 - Lane/class: product delivery / architectural; Critical money boundary
@@ -34,15 +34,15 @@ Documentation impact: move the former local architecture, review and API brief i
 
 ## Coordination and workspace
 
-Baseline main remains 0552aa7. The #73 owner's [fixed result checkpoint](https://github.com/ZETAVI/GEOEval/pull/76#issuecomment-5581859806) is PR #76@0a88a5b after result-review fixes. It explicitly retains browser/recovery work and confirms points extraction is not implemented. The #73 owner retains the single-writer extraction window after its stable result slice and before point-return implementation; a new result commit alone does not open that window.
+Accepted main is a550fc4 after [#76 integration](https://github.com/ZETAVI/GEOEval/pull/76#issuecomment-5583603102). A0 was rebased without code changes to dfe98bc; its new exact-head CI passed. The points extraction is implemented in unmerged [PR #79](https://github.com/ZETAVI/GEOEval/pull/79), with its own [producer evidence](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5583740565). It is not yet accepted main and does not expose reservations or a transaction-bound funded writer.
 
 The [A0 approval](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258) starts a bounded non-conflicting code package on codex/issue-77-wechat-adapter from 0552aa7, reusing this workspace. Scope is Recharge protocol/business ports, the Native gateway, targeted tests/public fixtures and this owner-local change. No schema, application composition, customer API/UI, Commerce or environment activation changes. Existing locked project dependencies are installed; no new payment dependency is introduced.
 
-P0 experiments remain local research material; the PR carries their durable checkpoints, primary sources and the fixed public inputs now exercised by the actual implementation. Executable types own A0 behavior; the remaining points/orchestration sections are proposed behavior. #73 retains the extraction and shared write window.
+P0 experiments remain local research material. Executable types own A0/B0 behavior; the remaining points/orchestration sections are proposed behavior. Existing locked dependencies are reused without new payment packages.
 
-The #73 fulfilment agent has explicitly accepted sole execution ownership of the behavior-preserving extraction, after its stable result slice and before point-return implementation. It retains the receipt hook and exported order service, runs existing purchase/points/delivery checks and supplies a stable revision. #77 owns recharge protocol/adapter and consumes that extraction. Recharge schema and funded operations remain a later #77 write with the point-return contract re-read. The existing A0 branch targets protected main through PR; no implicit merge/deploy approval.
+The [B0 window](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643) assigns only additive Recharge observation/receipt schema and owned code to #77. #73 retains points/module/return ownership and defers later return-schema work until B0 hands back its fixed checkpoint. B0 uses a linear stacked branch `codex/issue-77-recharge-notification-inbox` against A0; it does not edit current API/Identity composition or any Commerce table. Host composition is exercised only by a real Nest/Identity integration test. Neither PR is implicitly authorized to merge or deploy.
 
-Workspace exit: retain the existing #77 preparation worktree with this P0 record and evidence; its exact local location is recorded in the Issue, not this design. No other worktree, database or recovery material is changed. The A0 PR owns its fixed implementation and evidence; this does not activate Recharge in main or production.
+Workspace exit: retain this #77 worktree, A0/B0 branches, the pre-rebase A0 recovery tag and local research artifacts. Only the named #77 test database/Redis are used. PRs own fixed diffs/evidence; this does not activate Recharge in main or production.
 
 ## Acceptance
 
