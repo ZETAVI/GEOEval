@@ -25,6 +25,11 @@ Do not infer quality ranking or reuse heading numbers. This changes experimental
 position meaning relative to the current product-definition/spec and glossary;
 it does not merely improve accuracy under the prior shared-item rule.
 
+Scope clarified before any call: identify the merchants/product brands compared
+by the question. Incidental payment/review-tool names in the retained restaurant
+answer are not restaurant subjects and do not consume their appearance positions.
+Keep this same scope for both repetitions; do not revise it after seeing output.
+
 Readiness: only edit the existing experimental Prompt (1.2.0) and its fixture
 expectations. Keep schema, projector, full answerLines, target context, evidence,
 model/route and downstream projection unchanged. targetDescription remains a

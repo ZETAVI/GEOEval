@@ -25,6 +25,8 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 
 - **WHEN** the first-appearance Parser candidate interprets a retained raw answer
 - **THEN** it records one row per actually mentioned recognizable brand subject
+- **AND** subjects belong to the merchants/products compared by the question;
+  incidental supporting-tool names do not consume those positions
 - **AND** positions follow distinct subjects' first appearances as 1,2,3,...,
   including separate positions for brands co-listed inside one sentence/item
 - **AND** later aliases or repeated mentions reuse the first brand record
