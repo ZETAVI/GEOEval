@@ -284,6 +284,12 @@ serializes request replay checks, balance bounds and ledger insertion in the sam
 transaction. Customer projections expose one balance and public reasons only.
 An actor-bound pending tab request survives an interrupted response/reload and
 reuses its key; tab storage is not financial truth.
+The Commerce-owned `CommercePointsModule` assembles these existing controllers
+and providers and exports only `PointAccountService`. A points-only consumer
+imports it without the Publishing/Delivery/Media/GEO graph; root-global Identity
+and Persistence still provide their existing dependencies. Publishing Commerce
+imports the same module rather than declaring duplicate services or routes.
+This does not introduce a separate wallet owner or a real-payment writer.
 One saved selection per account/Brand now uses a revision-conditional write and
 composite article-owner reference. Commerce reads the minimal GEO Optimization
 preview and Media quote interfaces to build an advisory current quote; catalogue

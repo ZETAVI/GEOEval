@@ -10,13 +10,7 @@ import { PostgresPublishingSelectionRepository } from "./infrastructure/postgres
 import { PublishingSelectionController } from "./presentation/publishing-selection.controller.js";
 import { MediaSupplyModule } from "../media-supply/media-supply.module.js";
 import { PublishingPackageService } from "./application/publishing-package.service.js";
-import { PointAccountService } from "./application/point-account.service.js";
-import { POINT_ACCOUNT_REPOSITORY } from "./domain/point-account.js";
-import { PostgresPointAccountRepository } from "./infrastructure/postgres-point-account.repository.js";
-import {
-  PointAdminController,
-  PointCustomerController,
-} from "./presentation/point-account.controller.js";
+import { CommercePointsModule } from "./commerce-points.module.js";
 import { PUBLISHING_PACKAGE_REPOSITORY } from "./domain/publishing-package.js";
 import { PostgresPublishingPackageRepository } from "./infrastructure/postgres-publishing-package.repository.js";
 import {
@@ -25,14 +19,12 @@ import {
 } from "./presentation/publishing-package.controller.js";
 
 @Module({
-  imports: [MediaSupplyModule, PublicationDeliveryModule],
+  imports: [CommercePointsModule, MediaSupplyModule, PublicationDeliveryModule],
   exports: [PublishingOrderService],
   controllers: [
     PublishingOrderController,
     PublishingPackageAdminController,
     PublishingPackageCustomerController,
-    PointAdminController,
-    PointCustomerController,
     PublishingSelectionController,
   ],
   providers: [
@@ -48,12 +40,6 @@ import {
       useExisting: PostgresPublishingPackageRepository,
     },
     PublishingPackageService,
-    PostgresPointAccountRepository,
-    {
-      provide: POINT_ACCOUNT_REPOSITORY,
-      useExisting: PostgresPointAccountRepository,
-    },
-    PointAccountService,
     PublishingSelectionService,
     PostgresPublishingSelectionRepository,
     {
