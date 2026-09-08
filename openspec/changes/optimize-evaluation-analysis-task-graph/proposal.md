@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Test query-category examples and array-owned order without model ranks
+- Status: Retain array-owned order; category/target coherence candidate not selected
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -52,6 +52,18 @@ target points/summary, source excerpts and positive eligibility. This supersedes
 the next step of refining numeric instructions in nullable-target 1.2.0; it does
 not change current runtime or retrospectively repair old outputs. Read the
 [bounded interface and verification plan](design.md#current-package--category-examples-and-ordered-brand-rows).
+
+The [eight-call result](research/chain-quality-experiment.md#query-category-examples-and-array-owned-order--mixed-results)
+at `dd40a50` confirms the model no longer emits numeric positions, but not overall
+quality. Three present-target replies omit the description, an absent-target
+reply invents a target row, and category over-inclusion, co-listed subject merging
+and unnamed additions remain. Retain array-derived positions; do not adopt the
+whole candidate. Next test one complete target-present output demonstration at
+the unchanged contract, focusing on correctly identified targets whose description
+is missing. Keep category/order instructions fixed and other failures as retained
+regressions, instead of changing all dimensions together. If duplicate target-state expression
+still fails, simplify that interface before further repeated tuning. No more
+calls are part of this completed batch.
 
 Current decision: the owner explicitly simplifies ordering to first appearance of
 distinct brands, irrespective of categories, numbered headings or co-listing.

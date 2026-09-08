@@ -104,13 +104,18 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       claim, sampling, search, synthesis, retry or runtime activation.
 - [x] Supersede further numeric Prompt rules with the owner's ordered-output
       decision; confirm exact query input and same-category competitor examples.
-- [ ] Reuse the brand-row experiment without a model position field; derive array
+- [x] Reuse the brand-row experiment without a model position field; derive array
       indices before target/other splitting and eligibility filtering. Preserve
       raw order/errors, full input, target description and parsed-only synthesis.
-- [ ] Freeze and execute four retained real answers twice on that package, max
-      eight/concurrency two/Qwen low. Review query-category inclusion, absence,
-      duplicate/order and target prose separately from continuous program indices;
-      no sampling/search/retry, runtime activation or extra Agent.
+- [x] Complete eight frozen Qwen low calls: no model position fields, but four
+      target-state rejections; category over-inclusion, merged subjects, unnamed
+      additions and false target remain. Preserve exact IO and distinguish
+      mechanically continuous indices from semantic quality; no candidate adoption.
+- [ ] Test one complete target-present output example for the observed missing
+      description at unchanged contract/category/order. Retain absence, merged
+      subjects and scope cases as regressions, not simultaneous new adjustments.
+      If duplicate target state still fails, simplify it before more repeats;
+      no extra Agent or repair.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

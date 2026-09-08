@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: test query-category examples and array-owned order without model ranks;
+Status: retain array-owned order; category/target coherence candidate not selected;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -47,6 +47,20 @@ unchanged parsed-only synthesis handoff. Then freeze four authorized retained
 answers twice, max eight/concurrency two, Qwen low, no sampling/search/synthesis/
 retry/fallback. Actual IO only to private Langfuse; semantic review remains local.
 This tests the requested example/representation package, not either isolated cause.
+
+Result at `dd40a50`: [eight real replies](research/chain-quality-experiment.md#query-category-examples-and-array-owned-order--mixed-results)
+have no model position fields; four project, four reject target-state disagreement.
+Raw replies retain category over-inclusion, an independent-brand merge, unnamed
+additions and an invented target. Present-target summary omission is the known
+redundant-state weakness of this reused row structure, not evidence of a new model
+limit. Selection examples also demonstrate only lists, not a complete valid result.
+Next test one complete target-present output demonstration at the unchanged
+contract, not a numeric rule patch or another Agent. Target completion is the
+single changed dimension; retain other cases as regressions without changing
+category/order instructions. If coherence remains unreliable, simplify duplicate
+state before more repeats.
+The ordered-index program contract remains useful but does not approve the whole
+model candidate. No retry or additional call extends this ended package.
 
 ### Previous package — context-relevant named competitor scope
 

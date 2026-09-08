@@ -3193,3 +3193,96 @@ no merge, rebase, deployment, migration or current-spec change.
 | Actual IO check | c603488bca6ed1e0759e94c0aa96e10eff4442dd26d9bae38888dcaf9624e262 |
 | Langfuse readback | bb96886089dc107de22a8f64aa0c8b8fa6c37c4de6dc37fbf6b0f6428c1bc336 |
 | Runner | dc91c7f43457ae1b8a6cbedbf62bbb6929d798c61f45b2f82aa60760ff0417da |
+
+## Query-category examples and array-owned order — mixed results
+
+The owner confirms that query-category competitors, not all answer-related
+merchants, are the selection unit, asks for question/answer/expected-selection
+examples, and removes numeric model ranks. The first-layer wire already contains
+the exact question, questionKind, companyName and complete answerLines. No brand
+inventory or expected positions are supplied. Target mention remains assessed
+over the complete answer even when other-category competitors are excluded.
+
+Code `dd40a500aa5d87d3302fcda1c14d59f2ea0c3297` reuses the existing brand-row
+experiment as 2.0.0, removing position from the strict wire schema. Its 820-character
+Prompt adds three fictional examples of category inclusion/exclusion, ordinary
+drawbacks versus rejection, and one record per repeated subject. No real test
+merchant answers are placed in those examples. The model returns one ordered
+list; code derives index + 1 before separating target/others or filtering positive
+competitors. No sorting, deduplication, missing-brand inference or repair of old
+numeric outputs. Existing isTarget/nullable targetDescription, source restoration
+and downstream parsed-summary interface are retained. Baseline nullable-target
+1.2.0/customer-summary 1.4.0 and formal runtime are unchanged.
+
+Architecture and independent fixed-diff/runner review are ready for this bounded
+probe, not runtime delivery. Tests prove absent/present target behavior, obsolete
+position rejection, indexing before filtering, preservation of wrong raw order,
+duplicate rejection and parsed-only synthesis handoff. All 53 focused tests,
+backend typecheck/build and framework/link/diff checks pass.
+
+Manifest `9ca9a6abb8684f5f08a0a28470bdb06ee397a3c39e90f4af20b2c36a8c25a40b`
+freezes four authorized retained answers twice, eight maximum, concurrency two,
+Qwen3.8 Flash low/strict and 180-second timeout. Input and repeated actual wires
+match; Schema and Prompt change together, so this is not isolated few-shot causal
+evidence. The new category rubric is frozen before calls: the main-meal case no
+longer requires the extra breakfast-only other brands, whereas an actual breakfast
+question keeps its tea-room options. No external category verification or keyword
+filter. All eight Provider/basic-schema calls complete; four pass coherence/source
+projection, four reject target-row/description disagreement. No sampling, search,
+synthesis, retry, fallback or appended calls.
+
+| Retained input | First / second raw result | First / second latency |
+| --- | --- | --- |
+| Cantonese restaurants plus incidental snacks | Both ordered main lists correct and incidental snacks excluded; first target description null, second complete and useful | 12.068 / 11.140 s |
+| Family main meal plus breakfast section | Target fourth in both raw arrays, but both descriptions null; both still include two breakfast-only other brands outside the newly clarified scope | 12.451 / 9.771 s |
+| Breakfast comparisons with co-listed names | First complete five-brand list and useful target prose; second combines two independent names into one row and omits the closing relevant supplement | 18.260 / 11.995 s |
+| Absent target and unnamed description | Both promote the unnamed description to a positive brand; first also invents a target row with null description; second projects but is semantically wrong | 9.491 / 6.347 s |
+
+The absence of numeric fields removes one redundant model responsibility, not
+the need to recognize independent subjects in correct order. Do not advertise
+four projections or continuous indices as semantic passes. Three actually
+mentioned targets have no description; the separate absent-target reply invents
+a target row even though its recommendation flag is false. Rejecting that
+contradiction does not recover a valid sample. All errors already exist in raw
+Provider JSON. No brand is split at punctuation, removed, renamed or supplied by
+the program to manufacture success. Independent semantic review checks the new
+category meaning, rather than treating old six-brand coverage as acceptance.
+
+Keep array-owned order and query-aware category selection, not unconditional
+adoption of this package. Reusing the older row structure re-exposes its known
+target-state disagreement; list-only examples do not demonstrate the complete
+target result. Next test one complete target-present output demonstration at the
+unchanged contract/category/order, targeting missing descriptions rather than
+appending numeric rules or word bans. Retain other cases as regressions, not
+simultaneous new scope/structure adjustments.
+If coherence remains unreliable, simplify the duplicate state before further
+repetition. Prompt framing and representation are candidates, not a proven model
+capability ceiling or justification for an added Agent. Minor prose is not a new
+rejection gate. This ended batch is not extended.
+
+Run 2026-09-08 06:48:13.919–06:49:08.212 UTC, 54.293 seconds, 21,381 reported
+tokens, single calls 6.347–18.260 seconds with some cached repeated input. Not a
+stable speed distribution, bill or successful full-evaluation 3–5-minute result.
+Eight actual wires and original JSON replies match their frozen/saved outputs;
+all emitted brand rows lack position, and the four projections preserve array
+indices. Nine private Langfuse observations (root `96bd29df4320b941` plus eight
+generations) read back IO/settings/usage consistently without independent review
+or program projections uploaded.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/4db127302aad4e486076c60e1726f2bb).
+
+Full actual input/output, separate program results and review stay in protected
+local `apps/backend/.provider-evidence/m4-category-ordered-rows-KQb0As/input-output-review.md`.
+Formal owner/position/category reconciliation, whole-chain/report/UI/recovery and
+successful full timing remain pending. #42 In Progress / PR #62 Draft Partial;
+#73 shared surfaces untouched. Exit retain; no merge, rebase, deployment,
+migration or current-spec change.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 749f9984c966fc2f3fd0318cc38208c30e2baea3157270b3b5bbaf0f514850f6 |
+| Summary | e6829bb9497b72d01a71bccd83be6970b999f86f3a4ce651d6357c6ed6cf9d72 |
+| Handoff | 0df5b8079077be4df6e98d0e0ffe0e10390e836677de471505d75abf74d0fd7e |
+| Matched wire check | 69cbfade0e748ae210bc658225c7fdecccf5abb27b81a8b8a07d12c5f5ac239c |
+| Actual IO check | c06202ed0829f7e0b5d3100224278c48f529b676f3210b57b8b7b623624a3f35 |
+| Langfuse readback | 89209aca1324fbc9bac32a212a0ede135c1f32571f7b2f3baf4359e59728e98f |
+| Runner | c5f92f264e61889a7a66351b05491be43beb2c915c80da4afdc9bf16f9226f9d |
