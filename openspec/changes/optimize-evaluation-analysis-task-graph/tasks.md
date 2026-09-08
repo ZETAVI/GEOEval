@@ -79,10 +79,15 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       distinct brands; keep the required nullable targetDescription slot and
       no target row on absence. Record this as changed experimental meaning,
       not an already-activated current spec or old-policy accuracy improvement.
-- [ ] Validate rows 1.2.0 at fixed input/schema/program/Qwen low on four retained
-      real cases twice, maximum eight/concurrency two. Check first-appearance
-      sequence, target absence, duplicate coverage and concise target prose;
-      no sampling, synthesis, search, retries or automatic batch extension.
+- [x] Validate rows 1.2.0 on four real cases twice at fixed input/schema/program/
+      Qwen low: correct six-brand order and target absence repeat, but three
+      present targets lack descriptions, one result repeats brands, and one
+      omits four other brands. Reject the Prompt package, retain the new meaning.
+- [ ] Validate the owner's fixed nullable target representation using the existing
+      customer-summary target object and otherBrands, without duplicate target
+      state or a new Agent. A structurally valid false-null target is still a
+      failure on known target-present source; keep coverage/order/repeat checks.
+      Freeze a separate small package; do not extend the ended eight calls.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

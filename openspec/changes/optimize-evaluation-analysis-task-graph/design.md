@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: validate first-appearance ordering and explicit target absence at Qwen low;
+Status: reject rows 1.2 Prompt package, retain first-appearance meaning at Qwen low;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -53,6 +53,23 @@ formal activation, reconcile product-definition/glossary, Parser contracts/tests
 and report position consumers under the selected delivery owner; keep the score
 formula and existing reports unchanged. This reversible #42 probe creates no new
 runtime module, dependency, DB, queue, public API or current-spec write.
+
+Result at `8bfadc1`: six-brand ordering and target absence are each correct twice,
+but three target-present results leave the separate description null, one repeats
+four closing brands, and one drops four other brands. The package is not adopted.
+All eight raw Provider JSON outputs equal the normalized result, and unchanged
+repeated wires rule out input drift as the observed cause. New ordering semantics
+remain the owner's decision; do not silently restore the old shared-item policy.
+See [evidence](research/chain-quality-experiment.md#first-appearance-order--retain-meaning-reject-the-prompt-package).
+
+Next candidate: reuse customer-summary's existing target:null|object + otherBrands
+shape. The nullable target object owns mention/position/points/summary together;
+otherBrands owns only other subjects. This removes the separate target-row/nullable-
+description agreement but does not prove source fidelity. A source-known present
+target returned as null is still a semantic failure, not acceptable absence.
+Verify that boundary, complete other-brand coverage and repeats on retained real
+answers before any adoption. No next package, additional call or formal activation
+is implied by this completed probe; precise generation cause is unproven.
 
 ### Historical concise brand-subject rows
 

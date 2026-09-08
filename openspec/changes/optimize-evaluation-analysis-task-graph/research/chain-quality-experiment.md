@@ -2867,3 +2867,88 @@ rebase, production, current-spec or other-worktree change. Worktree retained.
 | Raw output check | 01b283d045ddee21a20d04052136e41f34c77eeb9fe04ef22c09ff54dd2edcd0 |
 | Langfuse readback | 55335da26cdec142f3f81a9e59e6790147ece0b55cad093122386ce4c1bd5981 |
 | Runner | 95facbd7e0098802ba0f52dc5c531591e333b2b4531ab1ea01414f2730121fbf |
+
+## First-appearance order — retain meaning, reject the Prompt package
+
+The owner simplifies open-answer position meaning: identify relevant distinct
+merchant/product brands in first-appearance order, assign consecutive positions,
+and do not share positions merely because names are co-listed. Repeats/aliases
+reuse the first subject. This supersedes the previous experiment's shared-item
+rule, not historical accepted data. Recommendation eligibility is independent.
+Before calling, review identifies incidental payment/review-tool names in a
+retained answer; Prompt/design/delta clarify that these are outside the compared
+merchant subjects. The scope is not changed after observing output.
+
+The existing brand-row schema, full source input and projector remain unchanged.
+Prompt 1.2.0 makes targetDescription a required nullable slot: actual target
+mention gets description, absent target gets null and no target row. This does
+not implement the alternative single target object yet. Current product-definition,
+glossary, formal Parser/report consumers and accepted histories remain unchanged;
+their reconciliation is required before the new position meaning activates.
+
+Initial preparation `89c2871` does not call Providers. Executed code
+`8bfadc11310b0f334140a0b45c25445e174852f1`, manifest
+`8510cc659bda55bfe796a57a747dcd96a544e81222918ed51e5d4e743f86c799`,
+freezes eight calls (four retained real cases twice), Qwen3.8 Flash / low,
+concurrency two, strict schema, 180-second wait. Input/schema are asserted equal
+to the previous frozen handoff. Only instruction/version change. No acquisition,
+synthesis/grouping, search, deformatting, retry, fallback or runtime activation.
+Provider/finish/JSON/basic-Schema failure stops queued pairs after started work
+settles; expected projection rejection remains a recorded outcome, not a retry.
+
+| Case | First / second latency | Actual result under the new meaning |
+| --- | --- | --- |
+| Main list plus repeated closing text | 16.812 / 20.633 s | First has seven correct subjects/positions but null description despite target row; second starts correctly then adds four repeated closing brands and another target row; both reject |
+| Six introductions across categories | 10.747 / 11.665 s | Both correctly output 1–6, including target fourth, but both leave targetDescription null and reject |
+| Originally co-listed named pair | 11.014 / 21.041 s | First keeps only target and omits four other subjects despite projecting; second has all five subjects ordered 1–5 and useful summary, but a stated drawback point is NEUTRAL |
+| Target absent from named and unnamed restaurants | 7.608 / 6.653 s | Both retain the two named subjects ordered 1,2 and null targetDescription, without inventing target presence |
+
+All eight Provider/basic structures succeed, four project successfully. This is
+not a 4/8 semantic success rate: a projected reply omits four competitors, and
+another preserves drawback text but misclassifies its polarity. Three rejects
+truly lack target prose; this is not overly strict validation. The repeated-brand
+reply remains untrimmed. Do not adopt the 1.2 Prompt package. Retain the owner's
+first-appearance meaning and the useful individual observations, without calling
+this a stable Parser or restoring old ties as a silent rollback.
+
+Diagnostic evidence: all eight raw Provider message.contents parse identically
+to result.output; complete source and actual repeat HTTP bodies match the frozen
+handoff. Input loss and program assembly are not supported as the observed cause.
+Null-emphasis in the instruction and split target-state expression are hypotheses,
+not proven root causes. This package changes several instruction clauses and the
+evaluation meaning; it is not a same-rubric causal accuracy or latency comparison.
+
+Run 2026-09-08 02:29:58.507–02:31:08.496 UTC, 69.989-second batch, 20,601 reported
+tokens, single requests 6.653–21.041 seconds, with some cached input. These numbers
+are not a successful full-evaluation SLA or billing calculation. 51 focused tests,
+typecheck/build/framework pass; the pre-call scope clarification reruns seven
+relevant tests and framework. Independent fixed-diff/runner review and actual
+semantic review complete. Nine private Langfuse observations (root
+`662ff77a484bb081` plus eight generations) match actual IO/settings/usage on readback,
+without root IO, code projection or independent-review upload.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/e6ff07911235d579fa08921d372bffbe).
+
+The eight-call batch is finished. Next prefer the owner's fixed nullable target
+candidate using the existing customer-summary schema: target owns its complete
+result or null; otherBrands owns the other subjects. Avoid duplicate target-state
+expression, but do not assume that removing a consistency check improves truth:
+a known target-present source returned as target=null is still a semantic failure.
+Keep missing/duplicate subjects and first-order cases in the next bounded review.
+No extra Agent or formal/default change follows. Retain experimental baseline
+customer-summary 1.4.0 and the failed 1.2 asset as distinct evidence, not new runtime
+defaults. Full chain/report/UI/recovery and 3–5-minute successful acceptance remain
+outstanding; #42 stays In Progress and PR #62 Draft Partial.
+
+Local evidence: `apps/backend/.provider-evidence/m4-first-appearance-oA9JGa/`.
+Business examples/review remain local. Current main observed `0552aa7`; no merge,
+rebase, deployment, migration, current-spec or other-worktree change. Exit retain.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 0d85d87c24839609251daef756decd5a23b83210c3078b32b43b253648de8857 |
+| Summary | 6e0c2637e2d3bfc76cc3a7d8188ff6994d4ea7bf977e6b3667742ab7d260acbc |
+| Handoff | 27e310b1aac7b5623051f48d6de897295fd56b60a9d88763857a2af2db122277 |
+| Matched wire check | 15d849fccea76544d52ca15a1942ab2dedb69e285b9d4eb5cc0802ec8637681c |
+| Raw output check | abb3d6eb76d7ff5a9be27fc05c677977d85d73629130288ab17f8d7f93e8c59f |
+| Langfuse readback | 9ec6a4fda0c75f8cc49bf1e2e9eacc2f86ba3799e4979bbd0add2588cc366da8 |
+| Runner | 12e534c7144d6ecfc2237c8b031bab094eb6f08ad1de595b1a8372367afa17bd |

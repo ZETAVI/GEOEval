@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Validate owner-approved first-appearance ordering and explicit target absence; runtime unchanged
+- Status: Retain first-appearance meaning, reject rows 1.2 Prompt package; runtime unchanged
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -52,11 +52,25 @@ Keep the existing nullable targetDescription slot: actual target mention receive
 points/summary; absence yields null and no target row. Both forms discussed by
 the owner are feasible; this keeps the current schema and projector unchanged.
 
-Freeze eight calls, four retained real answers twice, unchanged Qwen3.8 Flash / low
+The completed [first-appearance package](research/chain-quality-experiment.md#first-appearance-order--retain-meaning-reject-the-prompt-package)
+at `8bfadc1` yields correct six-brand order twice and correct target absence twice,
+but three results omit targetDescription despite a present target row, one repeats
+four closing brands, and another omits four other brands. All eight basic schemas
+pass, four projections pass; neither count proves semantic quality. Do not adopt
+this 1.2 Prompt package. Keep its failed evidence and the owner's new meaning.
+
+Next evaluate the owner's nullable target idea using the existing customer-summary
+shape: target contains the complete target result or null, and otherBrands contains
+only other subjects. Reuse the current schema rather than inventing a new Agent
+or another duplicate target-state field. This is a candidate simplification, not
+a proven repair: source-known target-present cases must reject a false null even
+when structurally valid. Preserve coverage, first-order and duplicate regressions.
+
+The batch froze eight calls, four retained real answers twice, unchanged Qwen3.8 Flash / low
 and concurrency two. Only instruction/version changes from rows 1.1.0 to 1.2.0;
-input/schema/program stay fixed. Evaluate using the new first-appearance rubric,
+input/schema/program stayed fixed. It used the new first-appearance rubric,
 not old shared ranks. No sampling, synthesis, search, retries or activation.
-Formal reconciliation must cover product-definition/glossary, Parser and reporting
+No call is appended to this ended batch. Formal reconciliation must cover product-definition/glossary, Parser and reporting
 position consumers before the new meaning can enter an official run; historical
 evaluations remain on their accepted interpretation.
 
