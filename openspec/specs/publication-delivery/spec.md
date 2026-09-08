@@ -71,6 +71,9 @@ read all orders and perform reassignment, without impersonating customers.
 - **THEN** the page composes authorized Delivery facts and Commerce's bounded
   immutable-order reader, retaining one owner for each fact
 - **AND** list reads are bounded to 50 plus one lookahead row and exclude body text
+- **AND** internal work and work-history reads check current Identity and
+  responsibility inside the same consistent snapshot as the returned data, so
+  an earlier permission check cannot reveal a new assignee's later private work
 - **AND** detail shows the frozen article, paid scope and internal responsibility
 - **AND** customer reads expose current status but no operator identities/audit
 - **AND** return/payment capability is not fabricated by this stage.

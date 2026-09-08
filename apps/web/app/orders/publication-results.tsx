@@ -53,6 +53,47 @@ export function PublicationResultsView({
   );
 }
 
+export function PublicationProgressView({
+  page,
+  fallbackStatus,
+}: {
+  page: CustomerPublicationPage | undefined;
+  fallbackStatus: PublishingOrder["status"];
+}) {
+  const status = page?.status ?? fallbackStatus;
+  return (
+    <>
+      <div className="commerce-card-heading">
+        <h2>发布进度</h2>
+        <span className="current-badge">{deliveryStatusLabel[status]}</span>
+      </div>
+      <p>
+        {status === "COMPLETED"
+          ? "已购发布已全部完成，无需再次确认验收。"
+          : status === "PUBLISHING"
+            ? "运营已接手处理本订单。"
+            : "购买已完成，订单等待平台处理。"}
+      </p>
+      {page && (
+        <>
+          <p>
+            已发布 {page.publishedQuantity} / {page.quantity} 篇
+            {page.delayed ? " · 已延期，平台仍在处理中" : ""}
+          </p>
+          <progress
+            aria-label="已发布数量"
+            value={page.publishedQuantity}
+            max={page.quantity}
+          />
+          <p>
+            预计完成时间：{new Date(page.expectedCompletionAt).toLocaleString()}
+          </p>
+        </>
+      )}
+    </>
+  );
+}
+
 export function CustomerPublicationResults({
   order,
   children,
@@ -96,29 +137,7 @@ export function CustomerPublicationResults({
         aria-label="发布进度"
         aria-busy={loading}
       >
-        <div className="commerce-card-heading">
-          <h2>发布进度</h2>
-          <span className="current-badge">
-            {deliveryStatusLabel[page?.status ?? order.status]}
-          </span>
-        </div>
-        {page && (
-          <>
-            <p>
-              已发布 {page.publishedQuantity} / {page.quantity} 篇
-              {page.delayed ? " · 已延期，平台仍在处理中" : ""}
-            </p>
-            <progress
-              aria-label="已发布数量"
-              value={page.publishedQuantity}
-              max={page.quantity}
-            />
-            <p>
-              预计完成时间：
-              {new Date(page.expectedCompletionAt).toLocaleString()}
-            </p>
-          </>
-        )}
+        <PublicationProgressView page={page} fallbackStatus={order.status} />
         {loading && <p role="status">正在读取最新发布结果…</p>}
         <button
           className="secondary-button"

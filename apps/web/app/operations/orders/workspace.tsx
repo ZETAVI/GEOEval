@@ -526,6 +526,7 @@ export function DeliveryWorkspace({
               )}
             </section>
             <PublicationWorkPanel
+              key={order.id}
               order={order}
               canWrite={
                 !admin &&

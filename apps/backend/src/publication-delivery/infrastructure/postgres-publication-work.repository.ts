@@ -50,8 +50,40 @@ export class PostgresPublicationWorkRepository {
     private readonly identities: PostgresOperationsIdentityReader,
   ) {}
 
-  /** Caller first proves internal responsibility or original customer ownership. */
+  private async readAccess(
+    tx: Prisma.TransactionClient,
+    orderId: string,
+    actor: AuthenticatedPrincipal | null,
+  ) {
+    let administrator = false;
+    if (actor) {
+      const [current] = await this.identities.lockAccounts(tx, [
+        actor.accountId,
+      ]);
+      if (
+        current?.status !== "ACTIVE" ||
+        !["OPERATIONS", "ADMINISTRATOR"].includes(current.role)
+      )
+        throw new ForbiddenException("当前账号无权读取发布工作");
+      administrator = current.role === "ADMINISTRATOR";
+    }
+    const delivery = await tx.publicationDelivery.findUnique({
+      where: { orderId },
+    });
+    if (
+      !delivery ||
+      (actor &&
+        !administrator &&
+        delivery.assigneeAccountId !== null &&
+        delivery.assigneeAccountId !== actor.accountId)
+    )
+      throw new NotFoundException("未找到可处理的履约订单");
+    return delivery;
+  }
+
+  /** Null is the public composition whose immutable customer ownership was checked by Commerce. */
   read(
+    actor: AuthenticatedPrincipal | null,
     orderId: string,
     afterSlot: number,
     limit: number,
@@ -59,10 +91,7 @@ export class PostgresPublicationWorkRepository {
   ) {
     return this.prisma.$transaction(
       async (tx) => {
-        const delivery = await tx.publicationDelivery.findUnique({
-          where: { orderId },
-        });
-        if (!delivery) throw new NotFoundException("未找到履约订单");
+        const delivery = await this.readAccess(tx, orderId, actor);
         const rows = await tx.publicationWorkItem.findMany({
           where: {
             orderId,
@@ -83,20 +112,26 @@ export class PostgresPublicationWorkRepository {
     );
   }
 
-  async history(orderId: string, slot: number) {
-    return this.prisma.publicationWorkAudit.findMany({
-      where: { orderId, slot },
-      orderBy: { revision: "desc" },
-      take: 20,
-      select: {
-        revision: true,
-        actorAccountId: true,
-        request: true,
-        beforeState: true,
-        afterState: true,
-        createdAt: true,
+  async history(actor: AuthenticatedPrincipal, orderId: string, slot: number) {
+    return this.prisma.$transaction(
+      async (tx) => {
+        await this.readAccess(tx, orderId, actor);
+        return tx.publicationWorkAudit.findMany({
+          where: { orderId, slot },
+          orderBy: { revision: "desc" },
+          take: 20,
+          select: {
+            revision: true,
+            actorAccountId: true,
+            request: true,
+            beforeState: true,
+            afterState: true,
+            createdAt: true,
+          },
+        });
       },
-    });
+      { isolationLevel: "RepeatableRead" },
+    );
   }
 
   private async guard(

@@ -21,6 +21,18 @@ Scope: normal per-publication work and results after responsibility baseline
 
 ## Isolation and limits
 
+Independent fixed-diff review of `2658295..08ee06f` found three reachable races:
+internal work/history read authorization separated from its snapshot, late
+history shown under another selected item, and stale customer-header status
+conflicting with refreshed progress. Corrections move internal Identity/current
+assignee checks into the same RepeatableRead snapshot, bind history responses
+to order/slot/read epoch, and keep one customer status projection. Two controlled
+HTTP read interleavings now deny the former owner; the affected backend checks
+pass 2 files / 25 tests. Web tests now pass 17 files / 94 tests, including late
+history rejection and refreshed Completed replacing the stale status. The
+original full-suite evidence remains distinct from this targeted rerun; exact
+head CI and bounded review closure belong in the PR.
+
 The backend suite used `geoeval_issue73_delivery_suite` at PostgreSQL 55432 and
 Redis 56573/1. Browser testing reused `geoeval_issue73_delivery_test`, Redis
 56573/0, API 3309 and Web 3209; both databases applied the additive results

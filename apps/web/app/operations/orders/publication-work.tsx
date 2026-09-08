@@ -34,6 +34,18 @@ function localDate(value = new Date().toISOString()) {
     .slice(0, 16);
 }
 
+type WorkHistoryKey = { orderId: string; slot: number; epoch: number };
+export function acceptsWorkHistory(
+  request: WorkHistoryKey,
+  current: WorkHistoryKey,
+) {
+  return (
+    request.orderId === current.orderId &&
+    request.slot === current.slot &&
+    request.epoch === current.epoch
+  );
+}
+
 export function PublicationWorkPanel({
   order,
   canWrite,
@@ -62,6 +74,23 @@ export function PublicationWorkPanel({
     [reason, setReason] = useState("");
   const [history, setHistory] = useState<PublicationWorkHistory>();
   const [uncertain, setUncertain] = useState(false);
+  const historyKey = useRef<WorkHistoryKey>({
+    orderId: order.id,
+    slot: 0,
+    epoch: 0,
+  });
+  function invalidateHistory(slot = 0) {
+    historyKey.current = {
+      orderId: order.id,
+      slot,
+      epoch: historyKey.current.epoch + 1,
+    };
+    setHistory(undefined);
+  }
+  function clearSelection() {
+    setSelected(undefined);
+    invalidateHistory();
+  }
   const epoch = useRef(0),
     lock = useRef(false),
     dirty = useRef(false);
@@ -86,6 +115,10 @@ export function PublicationWorkPanel({
     void load();
     return () => {
       epoch.current += 1;
+      historyKey.current = {
+        ...historyKey.current,
+        epoch: historyKey.current.epoch + 1,
+      };
     };
   }, [order.id, order.delivery.revision, after]);
   function discardEdits() {
@@ -97,7 +130,7 @@ export function PublicationWorkPanel({
     if (busy || uncertain || !discardEdits()) return;
     setSelected(item);
     setTab("result");
-    setHistory(undefined);
+    invalidateHistory(item.slot);
     setReason("");
     setPlatform(item.platformId ?? "");
     setDraftTitle(item.preparation?.title ?? order.title);
@@ -159,8 +192,7 @@ export function PublicationWorkPanel({
       pending.current = null;
       setUncertain(false);
       dirty.current = false;
-      setSelected(undefined);
-      setHistory(undefined);
+      clearSelection();
       setNotice(
         action === "PREPARE_MOCK"
           ? "Mock 内容已保存，不代表真实生成或发布。选择该条目可查看、继续编辑。"
@@ -186,18 +218,24 @@ export function PublicationWorkPanel({
   async function showHistory() {
     if (!selected || busy) return;
     const slot = selected.slot;
+    const request = {
+      orderId: order.id,
+      slot,
+      epoch: historyKey.current.epoch + 1,
+    };
+    historyKey.current = request;
     try {
       const items = await getPublicationWorkHistory(apiBaseUrl, order.id, slot);
-      setHistory(items);
+      if (acceptsWorkHistory(request, historyKey.current)) setHistory(items);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "处理记录读取失败");
+      if (acceptsWorkHistory(request, historyKey.current))
+        setError(error instanceof Error ? error.message : "处理记录读取失败");
     }
   }
   function turnPage(cursor: number) {
     if (busy || uncertain || loading || !discardEdits()) return;
     dirty.current = false;
-    setSelected(undefined);
-    setHistory(undefined);
+    clearSelection();
     setAfter(cursor);
   }
   const disabled = busy || loading || uncertain || !canWrite;
@@ -296,7 +334,7 @@ export function PublicationWorkPanel({
           onClick={() => {
             if (discardEdits()) {
               dirty.current = false;
-              setSelected(undefined);
+              clearSelection();
               void load();
             }
           }}

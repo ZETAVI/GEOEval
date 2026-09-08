@@ -27,6 +27,7 @@ import {
   type VariantPreparer,
 } from "../src/publication-delivery/domain/publication-item.js";
 import { MockVariantPreparer } from "../src/publication-delivery/infrastructure/mock-variant-preparer.js";
+import { PostgresPublicationWorkRepository } from "../src/publication-delivery/infrastructure/postgres-publication-work.repository.js";
 import { clearCustomerData } from "./customer-data.js";
 import { publishingContextFixture } from "./publishing-context.fixture.js";
 import { loginWithDevelopmentChallenge } from "./identity-http-fixtures.js";
@@ -774,6 +775,89 @@ describe("purchase admission and exclusive delivery responsibility", () => {
       }),
     ).rejects.toThrow("尚未接入");
   });
+
+  it.each(["work", "history"])(
+    "does not disclose a new owner's internal content through a stale %s read",
+    async (route) => {
+      const order = await buy();
+      await action(order.id, "claim", 2, 1);
+      await work(order.id, 1, "SAVE_DRAFT", {
+        title: "原责任人的草稿",
+        bodyMarkdown: "旧正文",
+      });
+      const repository = app.get(PostgresPublicationWorkRepository);
+      const read = repository.read.bind(repository),
+        history = repository.history.bind(repository);
+      const entered = Promise.withResolvers<void>(),
+        release = Promise.withResolvers<void>();
+      const pause = async () => {
+        entered.resolve();
+        await release.promise;
+      };
+      const spy =
+        route === "work"
+          ? vi
+              .spyOn(repository, "read")
+              .mockImplementationOnce(async (...args) => {
+                await pause();
+                return read(...args);
+              })
+          : vi
+              .spyOn(repository, "history")
+              .mockImplementationOnce(async (...args) => {
+                await pause();
+                return history(...args);
+              });
+      const pending = http(
+        `/delivery/orders/${order.id}/work${route === "history" ? "/1/history" : ""}`,
+        2,
+      );
+      try {
+        await Promise.race([
+          entered.promise,
+          pending.then(async (response) => {
+            throw new Error(
+              `Read did not pause: ${response.status} ${await response.clone().text()}`,
+            );
+          }),
+        ]);
+        expect(
+          (
+            await action(order.id, "reassign", 0, 3, {
+              reason: "读取期间改派",
+              assigneeAccountId: ids[3],
+            })
+          ).status,
+        ).toBe(200);
+        expect(
+          (
+            await work(
+              order.id,
+              1,
+              "RECORD_RESULT",
+              {
+                result: {
+                  title: "新责任人结果",
+                  url: "https://example.com/new-owner",
+                  publishedAt: "2026-09-01T12:00:00Z",
+                  internalNote: "新责任人内部内容",
+                },
+              },
+              3,
+            )
+          ).status,
+        ).toBe(200);
+        release.resolve();
+        const response = await pending;
+        expect(response.status).toBe(404);
+        expect(await response.text()).not.toContain("新责任人");
+      } finally {
+        release.resolve();
+        spy.mockRestore();
+        await pending;
+      }
+    },
+  );
 
   async function buyAdditional(kind: "PRECISE" | "MAX") {
     const context = await publishingContextFixture(app, prisma, ids[1]!);

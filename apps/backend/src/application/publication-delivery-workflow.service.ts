@@ -76,17 +76,17 @@ export class PublicationDeliveryWorkflowService {
     @Inject(VARIANT_PREPARER) private readonly preparer: VariantPreparer,
   ) {}
   async work(actor: AuthenticatedPrincipal, id: string, raw: unknown) {
-    await this.deliveries.detail(actor, id);
-    const [order] = await this.orders.forDelivery([id]);
-    if (!order) throw new NotFoundException("未找到已购订单");
     const query = workQuery(raw);
-    const logical = publicationWorkPage(
-      commitment(order.agreement),
+    const snapshot = await this.workItems.read(
+      actor,
+      id,
       query.afterSlot,
       query.limit,
     );
-    const snapshot = await this.workItems.read(
-      id,
+    const [order] = await this.orders.forDelivery([id]);
+    if (!order) throw new NotFoundException("未找到已购订单");
+    const logical = publicationWorkPage(
+      commitment(order.agreement),
       query.afterSlot,
       query.limit,
     );
@@ -112,8 +112,7 @@ export class PublicationDeliveryWorkflowService {
   async workHistory(actor: AuthenticatedPrincipal, id: string, slot: number) {
     if (!Number.isSafeInteger(slot) || slot < 1 || slot > 2_147_483_647)
       throw new BadRequestException("发布条目不正确");
-    await this.deliveries.detail(actor, id);
-    return this.workItems.history(id, slot);
+    return this.workItems.history(actor, id, slot);
   }
   async actWork(
     actor: AuthenticatedPrincipal,
@@ -170,6 +169,7 @@ export class PublicationDeliveryWorkflowService {
     const query = workQuery(raw);
     const random = order.agreement.mode === "RANDOM";
     const snapshot = await this.workItems.read(
+      null,
       id,
       query.afterSlot,
       query.limit,

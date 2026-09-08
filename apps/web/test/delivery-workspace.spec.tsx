@@ -7,8 +7,10 @@ import {
 import { OrderDetail } from "../app/orders/workspace.js";
 import {
   PublicationResultsView,
+  PublicationProgressView,
   deliveryStatusLabel,
 } from "../app/orders/publication-results.js";
+import { acceptsWorkHistory } from "../app/operations/orders/publication-work.js";
 import type {
   CustomerPublicationPage,
   DeliveryOrderPage,
@@ -128,6 +130,45 @@ describe("delivery pagination read baseline", () => {
 });
 
 describe("delivery entry and customer status", () => {
+  it("discards delayed history after switching item, order or read revision", async () => {
+    const request = { orderId: "order-a", slot: 1, epoch: 1 };
+    let current = request;
+    let shown: string[] | undefined;
+    let finish!: (items: string[]) => void;
+    const response = new Promise<string[]>((resolve) => {
+      finish = resolve;
+    });
+    const pending = response.then((items) => {
+      if (acceptsWorkHistory(request, current)) shown = items;
+    });
+    current = { orderId: "order-a", slot: 2, epoch: 2 };
+    finish(["第一项的旧历史"]);
+    await pending;
+    expect(shown).toBeUndefined();
+    expect(
+      acceptsWorkHistory(request, { ...request, orderId: "order-b" }),
+    ).toBe(false);
+    expect(acceptsWorkHistory(request, { ...request, epoch: 2 })).toBe(false);
+    expect(acceptsWorkHistory(request, request)).toBe(true);
+  });
+  it("uses refreshed completion as the only status source instead of stale order status", () => {
+    const page: CustomerPublicationPage = {
+      status: "COMPLETED",
+      quantity: 3,
+      publishedQuantity: 3,
+      expectedCompletionAt: "2026-09-15T00:00:00Z",
+      delayed: false,
+      nextAfterSlot: null,
+      items: [],
+    };
+    const html = renderToStaticMarkup(
+      <PublicationProgressView page={page} fallbackStatus="PUBLISHING" />,
+    );
+    expect(html).toContain("已完成");
+    expect(html).toContain("已发布 3 / 3 篇");
+    expect(html).not.toContain("发布中");
+    expect(html).not.toContain("运营已接手处理本订单");
+  });
   it("renders accessible public results and precise pending targets without a customer acceptance action", () => {
     const page: CustomerPublicationPage = {
       status: "PUBLISHING",
@@ -205,6 +246,7 @@ describe("delivery entry and customer status", () => {
     const html = renderToStaticMarkup(<OrderDetail order={order} />);
     expect(html).toContain("发布中");
     expect(html).toContain("运营已接手处理本订单");
+    expect(html.match(/>发布中<\/span>/g)).toHaveLength(1);
     expect(html).toContain("冻结正文");
     expect(html).not.toContain("assignee");
     expect(html).not.toContain("已发布 3/3");

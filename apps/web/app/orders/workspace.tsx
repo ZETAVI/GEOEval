@@ -185,9 +185,6 @@ export function OrderDetail({ order }: { order: PublishingOrder }) {
     <>
       <section className="commerce-intro">
         <div>
-          <span className="current-badge">
-            {deliveryStatusLabel[order.status]}
-          </span>
           <h2>{order.title}</h2>
           <p>
             购买时间：{new Date(order.createdAt).toLocaleString()} · 文章版本{" "}
@@ -197,11 +194,6 @@ export function OrderDetail({ order }: { order: PublishingOrder }) {
         <a href="/account">查看积分流水 →</a>
       </section>
       <p className="commerce-notice">
-        {order.status === "COMPLETED"
-          ? "已购发布已全部完成，无需再次确认验收。"
-          : order.status === "PUBLISHING"
-            ? "运营已接手处理本订单。"
-            : "购买已完成，订单等待平台处理。"}
         此处保留购买时的文章及服务约定；后续修改品牌、文章或媒体价格不会改变本订单。
       </p>
       <CustomerPublicationResults order={order}>
