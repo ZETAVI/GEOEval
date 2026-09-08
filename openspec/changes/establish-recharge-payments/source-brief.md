@@ -119,3 +119,7 @@ A0 的实际代码测试和 P0 历史证据在 [verification](verification.md)�
 [微信回调注意事项](https://pay.wechatpay.cn/doc/v3/merchant/4012075420)要求无登录态验证、5 秒内应答、重复通知幂等与验签失败返回失败。3.5 秒应用处理预算、冲突事实持久化后 ACK 是项目实现选择，不是官方保证；不涵盖前置网络/正文读取耗时，部署入口仍需命名环境验证。
 
 Prisma 官网 transactions 页面本轮抓取失败，未作为已读证据。实际使用的 Prisma 7.9.1 生成声明支持 createMany/skipDuplicates 和 transaction 的 isolationLevel/maxWait/timeout；真实 PostgreSQL 测试验证后续语句看见并发胜者，以及 lock_timeout 引发整笔回滚。升级 Prisma、Nest/parser、隔离级别或入口代理时重新验证这些边界。当前证据由 [verification](verification.md)持有，不证明数据库存储崩溃、正式 Worker 或商户连通。
+
+## C1 数据库约束推导（2026-09-08）
+
+本轮新增决策只涉及系统入账键与未来容量约束；不重新选择微信 SDK 或重跑旧协议实验。[PostgreSQL 18 约束文档](https://www.postgresql.org/docs/18/ddl-constraints.html)明确：普通 UNIQUE 对 NULL 默认互不相等，CHECK 为 NULL 也满足约束，普通 CHECK 不能保证其他行的数据不变量。因此 design 6.3 的候选系统键 NULL 必须与 kind-specific 非空关联/旧行非空检查配套，R/S 汇总一致性不能伪装为跨行 CHECK。[显式锁文档](https://www.postgresql.org/docs/18/explicit-locking.html)支持用一致获取顺序减少死锁；实际 account → order → reservation → receipt 顺序及任务锁释放仍须用 C1/N1 并发测试证明。上述迁移尚未实施。

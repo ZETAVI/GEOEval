@@ -74,6 +74,19 @@ The system SHALL authenticate provider-originated messages before business use, 
 - **THEN** it returns a retryable failure without claiming the database rolled back
 - **AND** a later commit is safely discovered by duplicate acceptance and database scans without a persistent timestamp watermark.
 
+#### Scenario: A pending scan becomes stale before settlement
+
+- **WHEN** a receipt becomes conflicting after a worker's scan and before its credit transaction
+- **THEN** settlement rechecks the receipt under the agreed lock order and does not credit from the stale scan
+- **AND** acquiring a task lease never leaves a receipt/task lock held while later acquiring the point-account lock.
+
+#### Scenario: Unresolvable notifications precede valid work
+
+- **WHEN** authenticated but unknown or mismatched notifications cannot automatically settle
+- **THEN** they retain a visible restricted review reason without being presented as paid
+- **AND** they do not permanently prevent later valid receipts from being selected
+- **AND** transient infrastructure failure remains distinguishable from a business discrepancy.
+
 #### Scenario: Notification module is constructed before application activation
 
 - **WHEN** the isolated module is tested with real Nest, Identity and PostgreSQL

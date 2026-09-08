@@ -72,3 +72,9 @@ Reproduce with the named isolated test DATABASE_URL and REDIS_URL: `pnpm db:gene
 A0 and isolated B0 have implementation evidence; the whole recharge change remains **partially verified**. Current API raw-body activation, Worker lease/retry and conflict operations, local-order matching, reservation/ledger atomicity, process/storage crash recovery, real merchant keys/TLS/204, Native/H5 browsers, reconciliation, money and production enablement remain not run. Historical P0 receiver SIGKILL does not prove B0 process or database/storage crash recovery.
 
 Existing product-definition/Commerce activation markers are unchanged because no customer recharge or funded writer is enabled. Executable Recharge ports/repository/schema own A0/B0 behavior; remaining orchestration/points proposals stay in this change. Retain this worktree, A0/B0 branches, pre-rebase tag and research artifacts. Deliver B0 through a linear stacked PR, return its scoped schema window to #73, and keep #77 open. No main merge or production activation is inferred.
+
+## 本轮设计审查证据
+
+审阅 #79 固定 a550fc4..770a764 的实际声明、2 项装配测试及未变化的账务代码路径；在线确认其 63 项针对性证据与准确 head 两项 CI。结论适用于装配提取，不声称 C1 结算已实现。当前设计的容量/序号算例、系统键空间及 receipt 竞争反例属于下一实现的验收定义，未计入通过测试数。
+
+本轮只改 #77 自有 proposal/design/delta/tasks/review/source/verification；不改 #79、runtime、schema 或未合并依赖。复用未变化实现的 A0/B0 证据，执行文档框架/链接与 Diff 检查。新的共享账务写入窗口、C1 runtime、组合迁移/回滚和实际浏览器仍需对应实施证据；本轮不新建钱包框架或替代履约 owner。

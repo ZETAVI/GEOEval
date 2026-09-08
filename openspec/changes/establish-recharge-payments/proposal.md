@@ -40,7 +40,7 @@ The [A0 approval](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-55822
 
 P0 experiments remain local research material. Executable types own A0/B0 behavior; the remaining points/orchestration sections are proposed behavior. Existing locked dependencies are reused without new payment packages.
 
-The [B0 window](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643) assigns only additive Recharge observation/receipt schema and owned code to #77. #73 retains points/module/return ownership and defers later return-schema work until B0 hands back its fixed checkpoint. B0 uses a linear stacked branch `codex/issue-77-recharge-notification-inbox` against A0; it does not edit current API/Identity composition or any Commerce table. Host composition is exercised only by a real Nest/Identity integration test. Neither PR is implicitly authorized to merge or deploy.
+The [B0 window](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643) assigns only additive Recharge observation/receipt schema and owned code to #77. #73 retains points/module/return ownership; the [B0 handoff](https://github.com/ZETAVI/GEOEval/pull/80#issuecomment-5584078408) ended that window, and later shared writes require a new coordination checkpoint. B0 uses a linear stacked branch `codex/issue-77-recharge-notification-inbox` against A0; it does not edit current API/Identity composition or any Commerce table. Host composition is exercised only by a real Nest/Identity integration test. Neither PR is implicitly authorized to merge or deploy.
 
 Workspace exit: retain this #77 worktree, A0/B0 branches, the pre-rebase A0 recovery tag and local research artifacts. Only the named #77 test database/Redis are used. PRs own fixed diffs/evidence; this does not activate Recharge in main or production.
 
@@ -52,5 +52,7 @@ Workspace exit: retain this #77 worktree, A0/B0 branches, the pre-rebase A0 reco
 - [x] Published WeChat request-signature and official Java AES-256-GCM vectors are checked offline, with tamper negatives and clear limits.
 - [ ] Runtime contracts, DB constraints, concurrent idempotency, inbox recovery and Native/H5 journeys are implemented and tested in their named slices.
 - [ ] Required merchant products/environment, business amount limits and operational cash-exception handling are settled before dependent activation.
+
+Current refinement: consumer review of #79 is complete; its bounded extraction is adequate. C1 design now defines the transaction-bound points seam, balance/sequence capacity and system settlement identity. The user defers integration until later; this owner-local refinement does not reopen the returned B0 schema window or authorize edits to #79.
 
 Concrete architecture, failure cases and verification: [design](design.md), [review](architecture-review.md), [source brief](source-brief.md), [verification](verification.md), [tasks](tasks.md).
