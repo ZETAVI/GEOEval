@@ -71,13 +71,24 @@ executable declaration in `publishing-commerce/commerce-points.module.ts`.
 This completed extraction is not a reservation, funded-credit or order-return
 implementation and is not reopened as a larger wallet refactor.
 
-The [C1 single-writer checkpoint](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5587081614)
-now owns the shared write window: #77 provides the common capacity policy,
-accounting/schema changes and recharge transaction entry; #73 owns order-side
-resolution, fulfilment eligibility and pages. During that window, #73 prepares
-the behavior/acceptance below without changing shared accounting, Prisma or
-generated public contracts. Order-return persistence/transaction integration
-requires the fixed #77 contract and an explicitly reconciled next write window.
+The [C1 producer handoff](https://github.com/ZETAVI/GEOEval/pull/82#issuecomment-5588365460)
+fixes the contract at `59930dd` and explicitly returns the shared write window to
+#73. It supersedes the earlier in-flight window, but PR #78 → #80 → #82 remains
+unmerged; accepted main and this branch do not yet contain that implementation.
+Keep the current design-only PR main-direct. Prefer consuming C1 from accepted
+main after its separately authorized integration; if earlier dependent runtime
+work is required, first agree an explicit stack/base and review the changed Diff.
+Do not copy the implementation or silently mix the unmerged payment stack into
+the order PR. Reconcile the exact next shared schema/generated write window with
+#77 before starting it.
+
+Consumer impact: order returns use the locked account's reservation snapshot in
+the common capacity check, restore original consumption sources, and define a
+dedicated return kind with a real administrator and business uniqueness. The
+recharge-only transaction binding is not a return command. Delivery still owns
+the agreement, eligibility and terminal decision; Commerce owns ledger/balance
+writes in the same transaction. The producer checkpoint owns the detailed ABI
+and evidence; receiving it is not order-return runtime verification.
 
 ## 4. Fulfilment and settlement are separate facts
 

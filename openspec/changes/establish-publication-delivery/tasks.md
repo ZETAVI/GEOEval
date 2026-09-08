@@ -35,9 +35,10 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 
 ## 2. Vertical slice: manual exception → continued service or settled termination
 
-- [x] Reconcile order-side decisions and activation seams against the integrated normal-delivery baseline; keep the #77 C1 shared-accounting/schema window exclusive.
+- [x] Reconcile order-side decisions and activation seams against the integrated normal-delivery baseline; preserve the #77 C1 exclusive window until its explicit handback.
 - [ ] Confirm whether zero-point termination is permitted and who may close it; do not infer this from zero compensation on continuing service.
-- [ ] Consume the #77 fixed capacity/transaction contract and close or renew the shared write window before persistence/API/settlement implementation.
+- [x] Inspect the fixed #77 C1 contract at `59930dd`, verify the live unmerged stack and receive its explicit shared-window handback; reference the producer checkpoint without copying its contract/evidence.
+- [ ] Consume C1 from accepted main after authorized integration, or agree an explicit dependent stack before runtime work; reconcile the next shared write window before persistence/API/settlement changes. The design-only PR remains main-direct.
 - [ ] Implement precise replacement/history and ordinary random reallocation distinction; continue operation without waiting for admin credit.
 - [ ] Implement explicitly saved order-level negotiated amount/version, eligibility from finished/stopped work and dedicated administrator unpaid-agreement list; no separate finalization workflow.
 - [ ] Implement one administrator confirmation/credit action, return kind/original consumption link/source allocation and exact actor-bound reload recovery.
