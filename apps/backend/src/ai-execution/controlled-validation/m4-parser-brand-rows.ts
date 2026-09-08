@@ -12,7 +12,6 @@ const brandRow = z
   .object({
     displayName: otherBrand.shape.displayName,
     isTarget: z.boolean(),
-    position: otherBrand.shape.position,
     positiveRecommendation: otherBrand.shape.positiveRecommendation,
     evidence: otherBrand.shape.evidence,
   })
@@ -22,7 +21,12 @@ const targetDescription = m4CustomerSummarySchema.shape.target
   .omit({ position: true, evidence: true });
 export const m4BrandRowsSchema = z
   .object({
-    brands: z.array(brandRow).max(11),
+    brands: z
+      .array(brandRow)
+      .max(11)
+      .describe(
+        "目标与同品类其他品牌共用一个列表，按原回答首次出现顺序，每个主体一次。",
+      ),
     targetDescription: targetDescription.nullable(),
   })
   .strict();
@@ -76,8 +80,8 @@ export function buildM4BrandRowsTask(
   };
 }
 
-// This is a shape projection, not identity resolution or position recovery.
-// Keep raw rows, reject contradictory/repeated rows, and never sort or renumber.
+// The ordered wire contract owns sequence; position is now an array index,
+// not a model field to repair. Never sort, deduplicate or infer missing brands.
 export function inspectM4BrandRowsOutput(
   value: unknown,
   originalAnswer: string,
@@ -93,7 +97,12 @@ export function inspectM4BrandRowsOutput(
     if (names.has(brand.displayName)) throw new Error("Duplicate brand row");
     names.add(brand.displayName);
   }
-  const target = targets[0];
+  // Assign before splitting or recommendation filtering: neither changes order.
+  const indexed = output.brands.map((brand, index) => ({
+    ...brand,
+    position: index + 1,
+  }));
+  const target = indexed.find((brand) => brand.isTarget);
   const projected = inspectM4CustomerSummaryOutput(
     {
       target: target
@@ -103,7 +112,7 @@ export function inspectM4BrandRowsOutput(
             ...output.targetDescription!,
           }
         : null,
-      otherBrands: output.brands
+      otherBrands: indexed
         .filter((brand) => !brand.isTarget)
         .map(({ isTarget: _target, ...brand }) => brand),
     },

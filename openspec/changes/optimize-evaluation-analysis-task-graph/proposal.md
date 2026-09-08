@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Retain contextual scope; related-option omissions and one position error remain
+- Status: Test query-category examples and array-owned order without model ranks
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -44,6 +44,15 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
+Current package: the owner now requests query-category positive/negative selection
+examples and no model-generated rank. The query is already present in first-layer
+input. Reuse the ordered brand-row experiment, removing its position field and
+deriving indices before target/other splitting. Keep full-answer target mention,
+target points/summary, source excerpts and positive eligibility. This supersedes
+the next step of refining numeric instructions in nullable-target 1.2.0; it does
+not change current runtime or retrospectively repair old outputs. Read the
+[bounded interface and verification plan](design.md#current-package--category-examples-and-ordered-brand-rows).
+
 Current decision: the owner explicitly simplifies ordering to first appearance of
 distinct brands, irrespective of categories, numbered headings or co-listing.
 Repeated mentions do not consume another position. This supersedes shared-item
@@ -59,7 +68,7 @@ The prior restaurant-answer dessert/snack additions are therefore not retained a
 desired gains. Relevant supplemental restaurants still belong; target mention is
 assessed over the entire original answer independently of competitor filtering.
 
-Current package: nullable-target 1.2.0 combines semantic relevance and named-subject
+Previous package: nullable-target 1.2.0 combines semantic relevance and named-subject
 scope, removes maximal coverage wording and retains first-appearance ordering,
 nullable target, positive eligibility, full input, schema/program and Qwen low.
 Completed four retained real answers twice (eight calls, concurrency two), without

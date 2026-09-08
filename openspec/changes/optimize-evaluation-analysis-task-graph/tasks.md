@@ -102,10 +102,15 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       cases repeat correctly, but related options remain omitted and one complete
       six-subject reply skips a position. Preserve actual IO; no general stability
       claim, sampling, search, synthesis, retry or runtime activation.
-- [ ] In a separately frozen small Prompt follow-up, clarify the original answer's
-      same-question comparison role (related supplements included) and distinct-
-      subject counting unit. Keep schema/model/full source and no program repair;
-      do not reopen maximal name coverage or strict minor-wording acceptance.
+- [x] Supersede further numeric Prompt rules with the owner's ordered-output
+      decision; confirm exact query input and same-category competitor examples.
+- [ ] Reuse the brand-row experiment without a model position field; derive array
+      indices before target/other splitting and eligibility filtering. Preserve
+      raw order/errors, full input, target description and parsed-only synthesis.
+- [ ] Freeze and execute four retained real answers twice on that package, max
+      eight/concurrency two/Qwen low. Review query-category inclusion, absence,
+      duplicate/order and target prose separately from continuous program indices;
+      no sampling/search/retry, runtime activation or extra Agent.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

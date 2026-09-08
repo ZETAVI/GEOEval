@@ -39,8 +39,8 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 #### Scenario: Competitor scope follows the question and answer context
 
 - **WHEN** the owner-approved experimental Parser selects other-brand records
-- **THEN** it keeps actual named subjects relevant as comparable responses to
-  the question, rather than collecting every named merchant
+- **THEN** it keeps actual named competitors in the question's requested category,
+  using the original answer's offering rather than collecting every named merchant
 - **AND** off-topic incidental consumption, supporting tools and unnamed
   descriptions are excluded without inventing names
 - **AND** a relevant supplementary option remains eligible; headings and global
@@ -48,6 +48,20 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 - **AND** target mention is still assessed from the full original answer
 - **AND** first-appearance order and positive recommendation eligibility keep
   their separate meanings; source history and formal runtime are not rewritten.
+
+#### Scenario: Output sequence owns experimental positions
+
+- **WHEN** the ordered-brand candidate interprets an open answer
+- **THEN** the wire output lists target and eligible-category other subjects
+  together in first-appearance order without a position field
+- **AND** program projection derives index + 1 before separating target/others
+  and filtering positive recommendations
+- **AND** it does not sort, invent, deduplicate or correct the model's brand list
+- **AND** a mentioned target retains points and summary, and absence has no target
+  row and a null description
+- **AND** raw order and completeness require semantic review independently of
+  valid structure and mechanically continuous indices
+- **AND** legacy numeric outputs and formal report history are not rewritten.
 
 ### Requirement: Concise customer progress
 

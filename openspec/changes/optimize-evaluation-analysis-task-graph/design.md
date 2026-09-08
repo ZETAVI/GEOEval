@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: retain contextual scope; related-option omissions and one position error remain;
+Status: test query-category examples and array-owned order without model ranks;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,41 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — context-relevant named competitor scope
+### Current package — category examples and ordered brand rows
+
+The owner confirms query-category competitors and removes explicit model ranks.
+The first Parser already receives the exact question and complete answer. Add
+short fictional question/answer/selection examples: Cantonese main-meal options
+versus incidental breakfast/dessert, breakfast options for a breakfast question,
+and negative recommendations without changing first-appearance order. Categories
+follow what the original answer offers for this query, not an external merchant
+taxonomy or a global blacklist. Target mention remains full-answer based.
+
+Architecture readiness: `ready` for this reversible controlled experiment, not
+runtime integration. Reuse the existing owner-local brand-row builder/inspector,
+remove position from its versioned wire schema, and derive position as array
+index + 1 before splitting target/others and filtering positive competitors.
+Separate target/other arrays cannot locate the target globally without another
+ordering fact; a second name/reference list would duplicate identity. Reusing
+one ordered list is the smaller interface. Keep isTarget and the existing nullable
+targetDescription, source restoration and downstream summary representation.
+Target-row/description disagreement and duplicate rows still reject, not repair.
+The model can still omit or misorder subjects; continuous program indices are
+not proof of correct source order. Check these independently on raw outputs.
+
+No runtime import, public API, persistence, migration, new dependency, Agent or
+model change. Code-derived indices are authorized contract projection, not repair
+of legacy model positions; old experiment outputs retain their original meaning.
+Current product/spec activation remains a separate owner/reconciliation boundary.
+Rollback is to leave this unselected experiment unused. Verify absent/present
+targets, indices before filtering, wrong-order preservation, duplicate rejection,
+strict rejection of obsolete position fields, full query/source input and the
+unchanged parsed-only synthesis handoff. Then freeze four authorized retained
+answers twice, max eight/concurrency two, Qwen low, no sampling/search/synthesis/
+retry/fallback. Actual IO only to private Langfuse; semantic review remains local.
+This tests the requested example/representation package, not either isolated cause.
+
+### Previous package — context-relevant named competitor scope
 
 The owner clarifies that name coverage is not the product goal. Other brands must
 be actual named subjects directly relevant as comparable answers to the question.
