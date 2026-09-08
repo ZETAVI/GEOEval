@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Review target-independent first-layer proposal; 3.1 not selected
+- Status: Whole-answer input slice; controlled validation, no runtime activation
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -44,73 +44,43 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
-The stable task is per-answer GEO interpretation: understand the consumer question,
-identify the business subjects actually introduced/evaluated in the answer,
-preserve first-appearance order and explain the target's portrayal. This is neither
-fine-category reselection nor named-entity collection. The owner rejected the
-agent-added platform/tool inclusion rule and its subsequent exception-list repair.
-A payment/lookup name used as context is not an extra merchant to count. This is
-a correction of agent task framing, not a new customer statistical decision.
+The owner now explicitly prioritizes whole-answer first-layer input. The previous
+target-independent two-layer proposal is deferred, not approved or rejected;
+record-constrained second-layer identity and all-subject content/latency comparison
+remain later directions. This slice keeps target information, the business task,
+one Parser call, inline target description, model and synthesis responsibilities.
 
-The completed 3.1 package kept single-call parsing, complete source/query, inline
-target interpretation, array-derived positions and Qwen3.8 Flash low. It changed
-the brand-row Prompt/version and removed the conflicting all-name scope from the
-array's description. Schema fields/types/limits, source inspector, program
-projection, downstream inputs and runtime remained unchanged. Legal false-null
-still requires semantic checking; simpler fields are not proof of correct mention.
+Replace the experimental answerLines array with one originalAnswer string. Keep
+the complete original question and answer, including Markdown, tables, whitespace
+and line endings. The provider still serializes its normal JSON user context;
+this is not a plain-text transport migration. No per-line objects or artificial
+source numbering are sent to the model.
 
-Completed 3.1 package:
-- Rewrite one coherent role/task/workflow and complete fictional example around
-  consumer-facing business subjects; no blacklist, source crop or program repair.
-- Reuse the old long-answer, supplemental-merchant and absence cases as regression
-  only. They have repeatedly informed Prompt design and are not independent tests.
-- Freeze the Prompt and protocol before obtaining two new open coffee answers.
-  Inspect/parse those unedited answers once each without intervening Prompt edits.
-  This is a fresh single-platform diagnostic, not formal Query or report acceptance.
-- Cap the whole package at eight Provider calls: four regression parses, two fresh
-  acquisitions and two fresh parses; concurrency two, no retries/fallback/synthesis.
-  Use existing Qwen acquisition and low interpretation routes and actual IO-only
-  private Langfuse logging. Keep all review and program outputs local.
-- Judge target state, business-subject completeness/order and useful target prose,
-  not proper-name coverage or polished wording. Retain both successes and failures.
-  Stop the package without another automatic Prompt candidate.
+The coupled evidence change removes model-generated startLine/endLine and uses
+source quotations with occurrence instead. Program code locates literal quotations
+and adapts their containing lines to the existing parsed-only synthesis handoff.
+Raw model quotations remain separate from the expanded source-line projection.
+There is no fuzzy quote repair, name correction, source filtering or use of quote
+offsets as brand positions. This input/reference change is not a pure input-only
+causal experiment. Current formal contracts and historical records are untouched.
 
-The [design](design.md#completed-package--business-subject-interpretation) records the
-unchanged interface/recovery boundary. [Tasks](tasks.md) own current next actions.
-The [completed eight-call result](research/chain-quality-experiment.md#business-portrayal-regression-and-fresh-transfer--identity-residual)
-improves merchant scope on the long regression but still fabricates target identity
-in the absent-target case, returns one vacuous target interpretation, and merges/
-omits subjects in one fresh coffee answer. Both fresh answers naturally mention
-the target and its main descriptions are faithful. Do not adopt 3.1 as a whole.
-That eight-call package is closed. The owner's subsequent proposal asks whether
-the first layer should stop receiving extra target context and instead retain
-each business subject's portrayal for target identification in the existing
-cross-sample second layer. This is a candidate responsibility change, not an
-approved topology or a revival of per-answer inventory-to-judgment splitting.
-The previous unchanged-structure next step is paused for this decision.
+Update the existing versioned asset to 3.2.0 rather than creating another Prompt
+copy. Verify full-source equality, actual provider messages, repeated quotations,
+CRLF/multiline references, unresolved quotation rejection, unchanged positions
+and target/other split, and the parsed-only synthesis handoff. Readiness is scoped
+to this reversible controlled-validation seam, not formal activation.
 
-A separately frozen four-call repetition keeps 3.1 exactly unchanged on two
-retained rich answers, twice each. Useful target descriptions return in all four;
-the thin summary is not reproduced, while independent-subject merging and tail
-omissions recur. This supports observing prose variability without new minimum
-length rules, not declaring the candidate stable. The
-[repetition and boundary review](research/chain-quality-experiment.md#unchanged-prompt-repetition-and-target-independent-boundary-review)
-records actual IO and the
-[current decision frontier](design.md#current-decision-frontier--target-independent-evidence)
-separates the proposed handoff from accepted runtime. No new blind candidate or
-runtime implementation precedes the owner's bounded decision.
-All previous protocols and outcomes remain in the
-[chronological experiment record](research/chain-quality-experiment.md), not as
-competing active instructions here. In particular, the prior long-answer result
-is corrected to three omitted merchants in the first reply, and complete merchant
-coverage plus a spurious lookup-platform row in the second. Missing payment names
-are not Parser defects.
+Freeze a separate maximum four-call package: two existing rich restaurant/coffee
+answers twice each, Qwen3.8 Flash low, concurrency two, no resampling, synthesis,
+retry, fallback, target ablation or mid-batch instruction edit. Preserve all
+semantic/source failures. Actual model IO/settings/usage may use the existing
+private Langfuse authorization; review and projection stay local. Stop after this
+package without automatically adding another Prompt candidate.
 
-Retained evidence supports inline target descriptions on six present/two absent
-replies, not stable overall quality. Grouping/narrative candidates and the direct
-Parser's readable-name residual still need actual report-path disposition.
-No current-spec change, formal Parser activation, merge, migration, #49 mirror
-delivery, or success timing/UI/recovery acceptance is part of this probe.
+The [current design](design.md#current-package--whole-answer-input) and
+[tasks](tasks.md) own the bounded next steps. Previous 3.1 evidence and unchanged
+repetitions remain in the [research record](research/chain-quality-experiment.md).
+They do not prove the new representation improves stability or total report time.
 
 ## Impact and exit
 

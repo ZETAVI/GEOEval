@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: review target-independent first-layer proposal; 3.1 not selected;
+Status: whole-answer input slice under controlled validation; 3.1 not selected;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,45 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
+### Current package — whole-answer input
+
+The owner selects this narrower change before the target-independent proposal:
+send the original answer as one complete string rather than numbered line objects.
+The existing experimental asset advances to 3.2.0. Input still includes the same
+target, question and optional brand context; scope, sequence-derived positions,
+inline target interpretation and Qwen low remain unchanged. The provider's existing
+JSON context serialization remains; no shared transport or formal task type changes.
+
+Architecture readiness: ready for this reversible experiment-only source seam.
+Model-facing source evidence must not require counting invisible line numbers.
+Replace those references with literal source quotes/occurrence, locate them against
+the original answer in program code, then pass their containing lines through the
+existing internal inspector and parsed-only synthesis handoff. This deliberately
+retains neighboring text on the selected lines; raw quotes and expanded excerpts
+are distinct evidence views, not claims that the model selected every word on a
+line. Invalid quotes remain rejected without fuzzy matching. Quote offsets locate
+source only and never sort, merge, infer or rank brands. No migration, runtime
+activation, dependency, additional Agent or second-layer input expansion.
+
+The authoritative original string is preserved byte-for-byte. Legacy indexed
+caller contexts require that string explicitly and must agree with it; never join
+indexed lines to reconstruct and silently normalize original CRLF. Focused tests
+cover actual Qwen wire input, Markdown/tables/blank lines, literal multi-line and
+repeated quotation lookup, source mismatch rejection and existing target/order/
+parsed-synthesis invariants. Existing unrelated runtime evidence is reused.
+
+Freeze four authorized retained-source calls, two answers twice, concurrency two,
+with no resampling/synthesis/retry/fallback or within-batch edits. Provider/finish/
+basic-schema failure stops later pairs; source/semantic failures remain visible.
+Actual IO-only private Langfuse logging and local review separation are unchanged.
+This tests the whole-source plus evidence-encoding package, not a claim that JSON
+formatting alone caused prior semantic defects. The previous two-layer direction
+and its all-subject output/time comparison are deferred until this slice is reviewed.
+
 ### Current decision frontier — target-independent evidence
+
+Deferred by the owner's subsequent whole-answer-input request; this is no longer
+the immediate implementation or approval gate.
 
 The owner proposes removing extra target identity/profile from first-layer input
 and letting the existing report-level second layer identify the target from

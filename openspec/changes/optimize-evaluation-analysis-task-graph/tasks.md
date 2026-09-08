@@ -30,7 +30,7 @@ The current role and decisions live in [the proposal](proposal.md).
       next action; the final GitHub checkpoint owns Issue/PR/parent synchronization
       and workspace exit status. No automatic sweep.
 
-## Current bounded decision
+## Previous bounded decision — deferred
 
 - [x] Recheck formal Parser, synthesis handoff, metric ordering and main owner
       revisions before interpreting the user's target-independent proposal.
@@ -47,6 +47,21 @@ The current role and decisions live in [the proposal](proposal.md).
       call budget; test target absence, aliases, record units, useful portrayal,
       total handoff latency/tokens and failure reuse before fresh transfer.
       No automatic extra round or new model/Agent.
+
+## Current package — whole-answer input
+
+- [x] Follow the owner's narrower instruction: remove line-object input, keep
+      target/context/model/business task and existing synthesis responsibilities.
+- [x] Keep originalAnswer as one exact string and replace model line pointers with
+      quotes, program-located into the existing internal source representation.
+- [x] Verify original/wire equality, CRLF, Markdown, repeated/multiline quotes,
+      source mismatch and unresolved reference rejection, unchanged index semantics
+      and parsed-only synthesis. No formal runtime/shared contract activation.
+- [ ] Complete four bounded real calls on two retained answers twice, no sampling,
+      retry or synthesis; record raw output, quote validity and semantic quality
+      separately, and verify private Langfuse actual IO readback.
+- [ ] Report exact before/after input and measured outputs; keep target-independent
+      matching and all-subject token/time comparison as later work, not this batch.
 
 ## Retained report-level work
 

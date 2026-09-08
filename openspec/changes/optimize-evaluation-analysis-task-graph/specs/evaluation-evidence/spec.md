@@ -66,6 +66,23 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
   valid structure and mechanically continuous indices
 - **AND** legacy numeric outputs and formal report history are not rewritten.
 
+### Requirement: Whole-answer controlled Parser input
+
+The controlled Parser SHALL receive one complete originalAnswer string rather
+than an array of numbered source-line objects, without changing the current
+target-aware task or activating a formal Parser/runtime contract.
+
+#### Scenario: A whole original answer is interpreted
+
+- **WHEN** the experimental task is prepared from an authorized source
+- **THEN** its question, original Markdown, whitespace and line endings are retained
+- **AND** neither answerLines nor artificial source line numbers enter model input
+- **AND** model evidence uses source quotations rather than inferred line numbers
+- **AND** program lookup adapts valid quotations to the existing internal evidence
+  representation without fuzzy repair or semantic brand/order decisions
+- **AND** actual model output remains distinct from expanded source-line evidence
+- **AND** synthesis still receives parsed records and excerpts, not the full answer.
+
 ### Requirement: Concise customer progress
 
 The diagnosis view SHALL project truthful durable progress.

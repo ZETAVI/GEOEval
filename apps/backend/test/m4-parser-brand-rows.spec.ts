@@ -12,6 +12,13 @@ import {
   buildM4ChainSynthesisTask,
   buildM4ReportCompositionTasks,
 } from "../src/ai-execution/controlled-validation/m4-chain-synthesis.js";
+import { locateM4SourceQuotes } from "../src/ai-execution/controlled-validation/m4-parser-line-references.js";
+import { ModelStudioProviderAdapter } from "../src/ai-execution/infrastructure/providers/model-studio-provider.adapter.js";
+import {
+  ProviderHttpTransport,
+  type ProviderHttpRequest,
+} from "../src/ai-execution/infrastructure/providers/provider-http.transport.js";
+import { REAL_AI_ROUTES } from "../src/ai-execution/infrastructure/providers/real-route.catalog.js";
 
 const source =
   "先看环境\r\n1. 青禾咖啡，安静但价格略高。\r\n3. 山岚或晴川都值得考虑。\r\n墨云只是背景。";
@@ -28,7 +35,12 @@ const prepared = buildM4CustomerSummaryTask(
     originalAnswer: source,
   }),
 );
-const evidence = (line: number) => [{ startLine: line, endLine: line }];
+const evidence = (line: number) => [
+  {
+    exactText: source.split("\r\n")[line - 1] ?? "missing source",
+    occurrence: 1,
+  },
+];
 const description = () => ({
   points: [{ text: "环境安静。", polarity: "POSITIVE", evidence: evidence(2) }],
   summary: "适合安静用餐，但消费偏高。",
@@ -50,7 +62,7 @@ const raw = () => ({
 
 describe("M4 single Parser brand-subject rows", () => {
   it("keeps the complete worked example valid with target after a negative merchant", () => {
-    const task = buildM4BrandRowsTask(prepared);
+    const task = buildM4BrandRowsTask(prepared, source);
     const example = JSON.parse(
       task.systemInstruction.split("输出：\n").at(-1)!,
     );
@@ -69,15 +81,22 @@ describe("M4 single Parser brand-subject rows", () => {
   });
   it("preserves full source input without supplying extracted brands or positions", () => {
     const before = structuredClone(prepared);
-    const candidate = buildM4BrandRowsTask(prepared);
-    expect(candidate.userContext).toEqual(prepared.userContext);
+    const candidate = buildM4BrandRowsTask(prepared, source);
+    const { answerLines: _lines, ...context } = prepared.userContext;
+    expect(candidate.userContext).toEqual({
+      ...context,
+      originalAnswer: source,
+    });
     expect(prepared).toEqual(before);
     for (const questionKind of ["CHARACTERISTIC_ONE", "CHARACTERISTIC_TWO"]) {
       expect(
-        buildM4BrandRowsTask({
-          ...prepared,
-          userContext: { ...prepared.userContext, questionKind },
-        }).userContext.questionKind,
+        buildM4BrandRowsTask(
+          {
+            ...prepared,
+            userContext: { ...prepared.userContext, questionKind },
+          },
+          source,
+        ).userContext.questionKind,
       ).toBe(questionKind);
     }
     const schema = candidate.outputContract.jsonSchema as any;
@@ -99,29 +118,37 @@ describe("M4 single Parser brand-subject rows", () => {
     expect(candidate.userContext.question).toBe("哪些咖啡值得考虑？");
     expect(candidate.userContext).not.toHaveProperty("brands");
     expect(candidate.userContext).not.toHaveProperty("positions");
-    expect(candidate.userContext.answerLines).toEqual(
-      source.split("\r\n").map((text, index) => ({ line: index + 1, text })),
-    );
+    expect(candidate.userContext).not.toHaveProperty("answerLines");
+    expect(candidate.userContext.originalAnswer).toBe(source);
+    expect(candidate.systemInstruction).not.toContain("answerLines");
+    expect(JSON.stringify(schema)).not.toContain("startLine");
+    expect(JSON.stringify(schema)).toContain("exactText");
     expect(candidate.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@3.1.0",
+      "experiment.m4.parser-brand-rows@3.2.0",
     );
     expect(() =>
-      buildM4BrandRowsTask({
-        ...prepared,
-        userContext: {
-          ...prepared.userContext,
-          questionKind: "BRAND_DIRECTED",
+      buildM4BrandRowsTask(
+        {
+          ...prepared,
+          userContext: {
+            ...prepared.userContext,
+            questionKind: "BRAND_DIRECTED",
+          },
         },
-      }),
+        source,
+      ),
     ).toThrow("Open-question");
     expect(() =>
-      buildM4BrandRowsTask({
-        ...prepared,
-        userContext: {
-          ...prepared.userContext,
-          answerLines: [{ line: 2, text: "cut" }],
+      buildM4BrandRowsTask(
+        {
+          ...prepared,
+          userContext: {
+            ...prepared.userContext,
+            answerLines: [{ line: 2, text: "cut" }],
+          },
         },
-      }),
+        source,
+      ),
     ).toThrow("contiguous");
   });
   it("projects first-appearance positions without reordering or changing eligibility", () => {
@@ -129,19 +156,24 @@ describe("M4 single Parser brand-subject rows", () => {
       before = structuredClone(value);
     const result = inspectM4BrandRowsOutput(value, source);
     expect(result.output).toEqual(value);
-    expect(result.projected.output).toEqual({
-      target: {
-        position: 1,
-        evidence: evidence(2),
-        ...value.brands[0]!.targetDescription,
-      },
-      otherBrands: value.brands
-        .slice(1)
-        .map(({ targetDescription: _t, ...b }, index) => ({
-          ...b,
-          position: index + 2,
-        })),
-    });
+    expect(result.projected.output).toEqual(
+      locateM4SourceQuotes(
+        {
+          target: {
+            position: 1,
+            evidence: evidence(2),
+            ...value.brands[0]!.targetDescription,
+          },
+          otherBrands: value.brands
+            .slice(1)
+            .map(({ targetDescription: _t, ...b }, index) => ({
+              ...b,
+              position: index + 2,
+            })),
+        },
+        source,
+      ),
+    );
     expect(result.projected.positiveCompetitors.map((b) => b.position)).toEqual(
       [2, 3],
     );
@@ -322,5 +354,103 @@ describe("M4 single Parser brand-subject rows", () => {
     expect(result.projected).toEqual(
       inspectM4CustomerSummaryOutput(result.projected.output, source),
     );
+  });
+  it("preserves a whole original string including Markdown, tables, blank lines and CRLF", () => {
+    const originalAnswer =
+      "  # 标题\r\n\r\n| 品牌 | 说明 |\r\n| --- | --- |\r\n| **青禾** | 安静 |\r\n> 引用\r\n";
+    const { answerLines: _lines, ...context } = prepared.userContext;
+    const task = buildM4BrandRowsTask({
+      ...prepared,
+      userContext: { ...context, originalAnswer },
+    });
+    expect(task.userContext.originalAnswer).toBe(originalAnswer);
+    expect(Object.keys(task.userContext)).toEqual([
+      ...Object.keys(context),
+      "originalAnswer",
+    ]);
+    expect(() => buildM4BrandRowsTask(prepared)).toThrow();
+    expect(() => buildM4BrandRowsTask(prepared, "different answer")).toThrow(
+      "match original",
+    );
+    expect(() =>
+      buildM4BrandRowsTask(
+        { ...prepared, userContext: { ...context, originalAnswer } },
+        "another",
+      ),
+    ).toThrow("mismatch");
+  });
+  it("locates exact quotes without asking the model for source line numbers", () => {
+    const original = "标题\r\n青禾安静。\r\n\r\n青禾安静。\r\n晴川也好。";
+    const value = {
+      evidence: [{ exactText: "青禾安静。", occurrence: 2 }],
+      nested: { evidence: [{ exactText: "安静。\r\n晴川", occurrence: 1 }] },
+    };
+    const before = structuredClone(value);
+    expect(locateM4SourceQuotes(value, original)).toEqual({
+      evidence: [{ startLine: 4, endLine: 4 }],
+      nested: { evidence: [{ startLine: 4, endLine: 5 }] },
+    });
+    expect(value).toEqual(before);
+    for (const quote of [
+      { exactText: "青禾安静。", occurrence: 3 },
+      { exactText: "青禾很安静", occurrence: 1 },
+      { exactText: " ", occurrence: 1 },
+      { exactText: "青禾安静。", occurrence: 0 },
+      { exactText: "安静。\n晴川", occurrence: 1 },
+    ])
+      expect(() =>
+        locateM4SourceQuotes({ evidence: [quote] }, original),
+      ).toThrow();
+  });
+  it("sends one whole answer string in the actual Qwen user message", async () => {
+    let body: Record<string, unknown> | undefined;
+    const route = REAL_AI_ROUTES.find(
+      (r) => r.routePolicyId === "evaluation.interpretation.qwen-primary@2",
+    )!;
+    class Capture extends ProviderHttpTransport {
+      override async send(request: ProviderHttpRequest) {
+        body = request.body;
+        return {
+          ok: true,
+          status: 200,
+          headers: {},
+          body: {
+            model: route.requestedModel,
+            choices: [
+              {
+                finish_reason: "stop",
+                message: { content: JSON.stringify(raw()) },
+              },
+            ],
+          },
+        };
+      }
+    }
+    const input = buildM4BrandRowsTask(prepared, source);
+    const adapter = new ModelStudioProviderAdapter(
+      { baseUrl: "http://offline.invalid/v1", apiKey: "offline-placeholder" },
+      new Capture(1000),
+    );
+    await adapter.execute(
+      {
+        ...route,
+        input,
+        runId: "42000000-0000-4000-8000-000000000001",
+        cycleId: "42000000-0000-4000-8000-000000000002",
+        sampleId: "42000000-0000-4000-8000-000000000003",
+        correlationId: "whole-answer-test",
+        attemptNumber: 1,
+      },
+      route,
+    );
+    const messages = body!.messages as Array<{ role: string; content: string }>;
+    expect(messages).toEqual([
+      { role: "system", content: input.systemInstruction },
+      { role: "user", content: JSON.stringify(input.userContext) },
+    ]);
+    expect(JSON.parse(messages[1]!.content).originalAnswer).toBe(source);
+    expect(JSON.parse(messages[1]!.content)).not.toHaveProperty("answerLines");
+    expect(body!.reasoning_effort).toBe("low");
+    expect(body).not.toHaveProperty("tools");
   });
 });
