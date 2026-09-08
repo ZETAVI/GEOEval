@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: keep business task; 3.1 candidate not selected after fresh transfer;
+Status: review target-independent first-layer proposal; 3.1 not selected;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,67 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — business-subject interpretation
+### Current decision frontier — target-independent evidence
+
+The owner proposes removing extra target identity/profile from first-layer input
+and letting the existing report-level second layer identify the target from
+parsed business subjects. The current decision is **Proposed**, not a runtime
+approval. Do not implement it by removing companyName while leaving the current
+targetDescription-as-identity schema or target-dependent synthesis input intact.
+The completed 3.1 package below is evidence, not the next active instruction.
+
+Code and main agree at `0552aa7` for the affected formal owners:
+- [Parser policy](../../../apps/backend/src/geo-intelligence/sample-parser.policy.ts)
+  supplies target identity and profile; the experimental brand-row projector
+  derives target identity from non-null targetDescription.
+- [Synthesis context loading](../../../apps/backend/src/geo-intelligence/infrastructure/postgres-evaluation-synthesis.repository.ts)
+  calculates target metrics from accepted per-sample interpretations before the
+  [synthesis task](../../../apps/backend/src/geo-intelligence/overall-synthesis.policy.ts).
+  The current synthesizer does not decide which first-layer row is the target.
+- [Metric policy](../../../apps/backend/src/geo-intelligence/domain/evaluation-report.policy.ts)
+  owns counts/scores, not identity inference. Moving identity downstream requires
+  moving metric calculation after accepted identity resolution, not model-generated
+  counts or coercing unresolved identity into absence.
+
+The smallest candidate to discuss keeps one interpretation call per answer and
+one existing report-level synthesis layer. First-layer input is the real question
+and complete answer, without extra target/profile fields. Each recognized business
+subject retains source order, a compact portrayal with positive/negative meaning,
+recommendation eligibility, and useful source excerpts. It does not decide target
+membership or write deep competitor analysis. These are handoff semantics, not a
+frozen new field schema. A brand-directed question naturally names the business;
+preserve it verbatim and do not describe that task as fully target-blind.
+
+The second layer receives target identity context plus these per-sample records
+and excerpts, not full raw answers. It identifies matching existing records per
+sample (or none), organizes cross-sample brand groups and produces target summaries
+and a small number of GEO writing directions. Program-assigned record references
+constrain where decisions point but cannot prove that the chosen identity is right.
+Program derives target positions/counts only after those decisions; background
+profile claims never become sampled portrayal. Valid absence remains distinct from
+failed or incomplete resolution. Failed synthesis reuses first-layer records;
+changed first-layer output invalidates its dependent synthesis. Persistence,
+17/20 readiness and historical migration remain later approved-runtime work.
+
+Tradeoff: target hints disappear from open-answer extraction, but compact content
+must be retained for every business subject and target matching moves, rather than
+vanishes. Compare against a small target-reference-only repair of 3.1 before
+choosing. The old per-answer two-call P7 experiment had target context in its first
+layer and another judgment call per answer; its failure does not settle this new
+report-level proposal. Do not add a third Agent or force full-source synthesis.
+
+The [four unchanged repetitions](research/chain-quality-experiment.md#unchanged-prompt-repetition-and-target-independent-boundary-review)
+do not reproduce vacuous target prose, but reproduce subject merging/omission.
+The target-free input hypothesis has **not** been tested. The owner's next gate
+is whether to prepare this bounded open-question comparison, not whether to deploy
+the architecture. Before any such calls, freeze both coherent task contracts,
+equal source inputs, model settings, call ceiling and end-to-end handoff checks.
+Check absence, reasonable aliases, distinct co-listed subjects, retained target
+meaning and total latency/tokens; do not judge only the first-layer JSON or count
+these tuned examples as unseen transfer. Formal owner #41 and execution owner #42
+remain unchanged; #32 stays closed.
+
+### Completed package — business-subject interpretation
 
 The owner-approved retrospective restores one stable purpose: interpret a sampled
 answer's business portrayal for a GEO report. Understand the consumer question and
@@ -75,8 +135,8 @@ do not simultaneously rework categories, coverage examples or model parameters.
 The six interpretations and two fresh samples have different roles in evidence,
 not an eight-sample accuracy score. No extra call extends this completed package.
 
-Historical material below records prior decisions and their context only; current
-instructions and next actions are owned by this section, the proposal and tasks.
+Historical material below records prior decisions and their context only. Current
+next actions are owned by the decision frontier above, the proposal and tasks.
 
 
 ### Previous package — category examples and ordered brand rows

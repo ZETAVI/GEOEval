@@ -15,7 +15,7 @@ The current role and decisions live in [the proposal](proposal.md).
 - [x] Keep historical raw outputs intact; reclassify the long-answer problem as
       merchant omissions/lookup-platform over-inclusion, not missing payment brands.
 
-## Current bounded package
+## Completed business-portrayal package
 
 - [x] Rewrite the experimental task spine and example; synchronize only the array
       description, retaining 3.0 wire fields/types/limits, input/model/projection.
@@ -29,10 +29,24 @@ The current role and decisions live in [the proposal](proposal.md).
 - [x] Prepare concrete input/output, preserved choices, failures and the bounded
       next action; the final GitHub checkpoint owns Issue/PR/parent synchronization
       and workspace exit status. No automatic sweep.
-- [ ] Next isolate unsupported target attribution at unchanged business task,
-      output structure and model, using the absent-target counterexample and a
-      real target-present input. Retain vacuous prose, merged subjects and tail
-      omissions as regressions; no simultaneous category/whole-Prompt redesign.
+
+## Current bounded decision
+
+- [x] Recheck formal Parser, synthesis handoff, metric ordering and main owner
+      revisions before interpreting the user's target-independent proposal.
+- [x] Complete a separately frozen four-call repetition at unchanged 3.1: two rich
+      retained answers twice, concurrency two, no acquisition/synthesis/retry.
+      Preserve useful target descriptions and repeated subject merging/omission;
+      inspect actual input/raw output and private Langfuse readback separately.
+- [x] Explain the proposed target-independent first layer and existing report-level
+      second layer, including all-subject compact content and later metric timing.
+      Keep it distinct from the stopped per-answer inventory/judgment split.
+- [ ] Owner confirms the bounded comparison frontier in the current conversation;
+      do not treat the proposal as a selected runtime or silently change schemas.
+- [ ] After confirmation, freeze coherent candidate/control inputs, contracts and
+      call budget; test target absence, aliases, record units, useful portrayal,
+      total handoff latency/tokens and failure reuse before fresh transfer.
+      No automatic extra round or new model/Agent.
 
 ## Retained report-level work
 

@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Keep business task; 3.1 candidate not selected after fresh transfer
+- Status: Review target-independent first-layer proposal; 3.1 not selected
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -52,14 +52,14 @@ agent-added platform/tool inclusion rule and its subsequent exception-list repai
 A payment/lookup name used as context is not an extra merchant to count. This is
 a correction of agent task framing, not a new customer statistical decision.
 
-Preserve single-call parsing, complete source/query, inline target interpretation,
-array-derived positions and Qwen3.8 Flash low. Change the brand-row Prompt/version
-and remove the conflicting all-name scope from the array's description. Schema
-fields/types/limits, source inspector, program projection, downstream inputs and
-runtime remain unchanged. Legal false-null
+The completed 3.1 package kept single-call parsing, complete source/query, inline
+target interpretation, array-derived positions and Qwen3.8 Flash low. It changed
+the brand-row Prompt/version and removed the conflicting all-name scope from the
+array's description. Schema fields/types/limits, source inspector, program
+projection, downstream inputs and runtime remained unchanged. Legal false-null
 still requires semantic checking; simpler fields are not proof of correct mention.
 
-Current package:
+Completed 3.1 package:
 - Rewrite one coherent role/task/workflow and complete fictional example around
   consumer-facing business subjects; no blacklist, source crop or program repair.
 - Reuse the old long-answer, supplemental-merchant and absence cases as regression
@@ -75,16 +75,30 @@ Current package:
   not proper-name coverage or polished wording. Retain both successes and failures.
   Stop the package without another automatic Prompt candidate.
 
-The [design](design.md#current-package--business-subject-interpretation) records the
+The [design](design.md#completed-package--business-subject-interpretation) records the
 unchanged interface/recovery boundary. [Tasks](tasks.md) own current next actions.
 The [completed eight-call result](research/chain-quality-experiment.md#business-portrayal-regression-and-fresh-transfer--identity-residual)
 improves merchant scope on the long regression but still fabricates target identity
 in the absent-target case, returns one vacuous target interpretation, and merges/
 omits subjects in one fresh coffee answer. Both fresh answers naturally mention
 the target and its main descriptions are faithful. Do not adopt 3.1 as a whole.
-Next isolate target context versus observed identity evidence at unchanged structure,
-model and business task; keep all other failures as regressions, not simultaneous
-Prompt rewrites. No ninth call or automatic next candidate follows this package.
+That eight-call package is closed. The owner's subsequent proposal asks whether
+the first layer should stop receiving extra target context and instead retain
+each business subject's portrayal for target identification in the existing
+cross-sample second layer. This is a candidate responsibility change, not an
+approved topology or a revival of per-answer inventory-to-judgment splitting.
+The previous unchanged-structure next step is paused for this decision.
+
+A separately frozen four-call repetition keeps 3.1 exactly unchanged on two
+retained rich answers, twice each. Useful target descriptions return in all four;
+the thin summary is not reproduced, while independent-subject merging and tail
+omissions recur. This supports observing prose variability without new minimum
+length rules, not declaring the candidate stable. The
+[repetition and boundary review](research/chain-quality-experiment.md#unchanged-prompt-repetition-and-target-independent-boundary-review)
+records actual IO and the
+[current decision frontier](design.md#current-decision-frontier--target-independent-evidence)
+separates the proposed handoff from accepted runtime. No new blind candidate or
+runtime implementation precedes the owner's bounded decision.
 All previous protocols and outcomes remain in the
 [chronological experiment record](research/chain-quality-experiment.md), not as
 competing active instructions here. In particular, the prior long-answer result

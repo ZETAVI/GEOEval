@@ -3442,3 +3442,86 @@ Exit retain; no merge, rebase, migration, deployment or current-spec activation.
 | Actual IO check | d98222746b03a09e59661b33a555607bb7ae249279e4e32811b671ca992e87eb |
 | Langfuse readback | 3e1a2a7fdfa849f79ba5c899f22b0bafba466e3c7b72921133bec24e09029d7c |
 | Runner | e2c5f1d208c11063afe6a6fbe1f1f4c409b2ffab900510bbf7ab31303d696c07 |
+
+## Unchanged Prompt repetition and target-independent boundary review
+
+The owner requests further observation of the vacuous target summary and proposes
+a first layer without extra target context, followed by target-aware synthesis.
+This turn tests only the former and reviews the latter; no target-independent
+candidate, output contract or runtime topology is implemented or tested.
+
+Manifest `296902d87f95fe6f29a519fa511f367e9386375414a25fc38f7210590a3a5192`
+at `9afc30e77cddfc43f4b697d4ff7289bb82f61e5e` freezes the previous rich restaurant
+and first coffee input exactly, two calls each, maximum four/concurrency two.
+Prompt 3.1.0, Schema, complete query/answer, projection and Qwen3.8 Flash low route
+are unchanged. A new batch is explicitly bounded; no retry, fallback, acquisition,
+search, synthesis, target-context ablation or official record write. These are
+retained developer repetitions, not fresh transfer or a population stability rate.
+
+| Call | Useful target content | Other-subject observations | Latency |
+| --- | --- | --- | --- |
+| Restaurant 1 | Four points and summary retain main positive/negative meaning | Five merchants separate and ordered | 21.858 s |
+| Restaurant 2 | Four points and useful summary | Two distinct merchants combined; closing merchant omitted | 14.916 s |
+| Coffee 1 | Two points and useful summary | Two distinct coffee brands combined; tail alternatives omitted | 17.368 s |
+| Coffee 2 | Two points and useful summary | Same coffee-brand combination; tail alternatives return as another combined row | 12.958 s |
+
+All four actual model outputs contain nonempty useful target points and summaries.
+The earlier one-word failure is not reproduced; this does not erase it or prove
+stability. One restaurant point names three source-backed dishes but selects only
+the first two dishes' lines: whole-answer fidelity and excerpt handoff sufficiency
+are separate facts. Record the partial-support gap without new word-count or
+literal-name rules. Recurrent merging/omission is a subject-unit defect, not a
+program sorting/filtering problem. No program repairs these outputs.
+
+Evidence narrows the following explanations without claiming a proven model cause:
+- Target-context priming: the prior absent result explicitly invokes question
+  background to assign a generic unnamed description to the target. Removing
+  extra target context is a falsifiable candidate, not yet tested evidence.
+- Output-role coupling: the current brand-row contract uses non-null
+  targetDescription as its sole target marker. Missing interpretation can also
+  hide an otherwise named target from downstream target selection. This is an
+  executable interface risk, not proof that it caused every observed failure.
+- Generation variability/record-unit misunderstanding: unchanged rich inputs now
+  produce useful descriptions but vary in merchant completeness and grouping.
+  The actual request/raw-output comparison rules out local filtering as the source
+  of these omissions; it does not identify one definitive Prompt or model cause.
+
+The formal Parser, synthesis policy/repository and metric policy blobs exactly
+match main `0552aa7e60d5aa6b99645692e6090e64544087d5` at review. Formal synthesis
+already receives target-dependent parses and precomputed metrics. The current
+experimental second layer likewise receives separated target/otherBrands and
+mentioned coverage. Removing companyName alone is therefore not a valid neutral
+candidate: its first-layer field roles and downstream identity/metric ordering
+would disagree. The old P7 first layer also received target context and its second
+call ran per answer, so its negative result does not answer the owner's proposed
+reuse of the existing cross-sample synthesis layer.
+
+The [current decision frontier](../design.md#current-decision-frontier--target-independent-evidence)
+keeps this as an owner proposal: neutral compact portrayal per business subject,
+target resolution from existing records in the report-level layer, then program
+metrics. It exposes larger all-subject content, moved identity risk, excerpt
+loss, direct questions' inherent target names and changed readiness/recovery as
+tradeoffs. No third Agent, full-source synthesis, exact-match identity rule or
+runtime activation is selected. The immediate next step is owner confirmation of
+the bounded comparison, not an automatic fifth call or new 3.2 Prompt.
+
+Run 2026-09-08 09:01:09.970–09:01:47.180 UTC, 37.210 seconds and 13,907 reported
+tokens with cached input in three calls. All four Provider/structure/source
+projections complete. This is not four complete semantic passes, a bill, or the
+formal 20-sample 3–5-minute report gate. Five private Langfuse observations
+(one root/four generations) read back actual IO/settings/usage consistently;
+independent review and derived projection remain local.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/23e7e8a6b6d8294d10cedf0bd09814ed).
+Protected local inputs, raw results and review are in
+`apps/backend/.provider-evidence/m4-portrayal-repetition-O3IKE8/`.
+No formal Parser/synthesis/current spec, main, database or other worktree changes.
+The existing 56-test/build evidence and CI for `9afc30e` remain prior engineering
+evidence, not a new candidate quality pass. This turn verifies only the new
+repetition boundary, diagnosis and document links.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 3164a40ba0298379f6054e2a0299977031f15e394860b996b2c9f61d247f1642 |
+| Summary | 953d8f9255ff2e2a660146aead23a03ace32cc64df85fb1a0bf94a707b40df4e |
+| Langfuse readback | 1956b9d54f32ba535fb31257565bd817009c1a91d2b5371f72ffabb3744c88ce |
+| Runner | 7c1cba60dd63589c48dad2d1f360d826112fe3e419ec0f6c866ffb37a0f6cc60 |
