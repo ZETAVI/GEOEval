@@ -71,10 +71,14 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       decision: unchanged Qwen3.8 Flash / low, one row per brand subject, first
       appearance position, no standalone sourceItemLine output. Full raw input
       and evidence excerpts remain, without pre-extracted brands or positions.
-- [ ] Verify the concise brand-row 1.1.0 package on the same four real answers
-      twice (max eight, concurrency two). Preserve raw failures and compare
-      coverage, duplicates and first positions; no sampling, synthesis, retry,
-      search, model switch or runtime activation. Stop and report concrete cases.
+- [x] Verify concise brand-row 1.1.0 on four real answers twice: all eight basic
+      structures pass, seven project, both shared-item replies cover named brands.
+      Retain the one wrong other-brand ordering and one unsupported absent-target
+      row; no raw repair or semantic-success rate from projection counts.
+- [ ] Clarify only absent-target row membership and distinct versus shared items
+      at fixed input/schema/Qwen low. Use retained failures and a shared-item
+      control in a separately frozen small package; no new sampling, model or
+      Agent. Stop rather than automatically extending the ended eight calls.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

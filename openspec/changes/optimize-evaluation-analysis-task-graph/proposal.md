@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Verify concise brand-subject rows at unchanged Qwen low; experimental baseline and runtime unchanged
+- Status: Concise brand-subject rows retained with two semantic residuals; experimental baseline and runtime unchanged
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -41,12 +41,23 @@ Langfuse input/output export. Four questions, five platforms, metric meaning,
 
 ## Current evidence and next decision
 
-Latest: the [eight-call located-row package](research/chain-quality-experiment.md#source-located-brand-rows--partial-improvement-with-repeatability-residuals)
+Latest: the [concise brand-subject package](research/chain-quality-experiment.md#concise-brand-subject-rows--better-coverage-with-position-and-absence-residuals)
+at `0f11208` completes all eight frozen calls. Main-list repetition handling and
+co-listed brand coverage are correct in both repeats. One source-order output
+mispositions two other brands; one absent-target output invents a target row
+while leaving its description null and is rejected. Seven projections pass,
+not a 7/8 semantic success rate. Retain experimental rows 1.1.0 as a candidate;
+customer-summary baseline 1.4.0 and formal Parser remain unchanged. This batch
+is ended; the next narrow test clarifies absent-target row membership and distinct
+versus shared recommendation items, keeping model/input/schema fixed. No new
+route comparison, automatic repair or larger acquisition matrix is justified yet.
+
+Previous: the [eight-call located-row package](research/chain-quality-experiment.md#source-located-brand-rows--partial-improvement-with-repeatability-residuals)
 at `329cc48` improves the source-order case in both repetitions and recovers two
 co-listed brands once. The shared-item repetition still omits them; two calls also
 repeat existing brands when reading summaries/tables and are rejected. Six old-
 shape projections pass, not six semantic approvals. Retain this owner-local
-single-call candidate without changing default Parser 1.4.0 or downstream input.
+single-call candidate without changing experimental customer-summary 1.4.0 or downstream input.
 
 The owner's latest decision supersedes the alternate-route proposal: keep
 Qwen3.8 Flash / low and test a concise, consistent Prompt. Remove the independent
@@ -56,11 +67,11 @@ and retain its first appearance position; subsequent passages/tables/summaries
 only supplement that brand. Input remains the full raw answer, question and
 target context, never pre-extracted brand or position answers.
 
-Freeze a new eight-call package (the same four real cases twice, concurrency two)
-before execution. This changes instruction and one experimental field together;
+The new eight-call package was frozen before execution (the same four real cases
+twice, concurrency two). This changes instruction and one experimental field together;
 it is not a Prompt-only causal test. Reuse historical results as qualitative
 references, not a speed/stability rate. No sampling, synthesis, retry, search,
-route change or activation. Stop after this package and inspect raw results.
+route change or activation. This package is finished; all raw results are retained.
 Direct malformed text, formal recovery and complete-report timing remain open.
 
 Previous: the [ten-call Parser/direction package](research/chain-quality-experiment.md#parser-coverage-and-article-directions--reject-parser-package-retain-direction-scope)

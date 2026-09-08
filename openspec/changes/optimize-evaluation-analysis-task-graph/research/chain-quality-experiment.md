@@ -2752,12 +2752,9 @@ target prose is broadly useful at the practical bar; names need not be legal or
 word-for-word forms. The candidate is worth retaining, but cannot replace the
 default Parser or justify another whole-matrix acquisition yet.
 
-Next hold this interface/input steady, inspect the existing alternate route's
-actual access/protocol/billing gate, and prepare one small route/model comparison
-on the remaining cases. Catalog presence alone does not authorize billing or
-prove a callable structured endpoint. No such call, default switch or new Agent
-is part of this package. Do not keep reshaping the Schema or appending Prompt
-prohibitions without a discriminating reason. Generation cause remains uncertain.
+The proposed alternate-route comparison was subsequently superseded by the owner's
+Prompt-first decision in the concise brand-subject package below. No alternate
+call, default switch or new Agent was executed. Generation cause remains uncertain.
 
 Verification: 50 focused tests, backend typecheck/build, framework/link/diff
 checks and independent fixed-implementation/runner review pass. Tests preserve
@@ -2783,3 +2780,90 @@ production, current-spec or other-worktree change. Worktree/branch retained.
 | Handoff | f07d421441435be8eb77ed022c704a3f958d5ceeae183df7add4a5a638638640 |
 | Matched wire check | 15d849fccea76544d52ca15a1942ab2dedb69e285b9d4eb5cc0802ec8637681c |
 | Runner | 201045d91662fbe1b88cdd73f1658a1e921e04b40d63214a6e0648ea4d28962f |
+
+## Concise brand-subject rows — better coverage with position and absence residuals
+
+The owner declines a model switch and approves a shorter, consistent Prompt:
+one recognizable brand subject per row, first appearance position, no independent
+sourceItemLine output. Evidence ranges remain solely for source-excerpt
+restoration. companyName is matching context; the full answer is still raw input,
+not an upstream-extracted list of brands or position answers. Existing synthesis
+receives only parsed records, summaries and necessary excerpts.
+
+Code `0f11208228d6798ea5bdf8c29d3a32cf68cd5aa6`, manifest
+`22cb12cf0ed93af8fea24f868a779362e5c7fe8e9449f67e8960eaca5c34b2e9`,
+freezes four retained cases twice (eight maximum, concurrency two), unchanged
+Qwen3.8 Flash / low, strict output and 180-second request timeout. Experimental
+brand-rows 1.1.0 removes the standalone pointer and its checks; instruction length
+is 521 versus 696 characters. Existing evidence, capacity, target coherence and
+exact-duplicate checks remain. The program projects shape only, without sorting,
+identity repair, renumbering, clipping or deduplication. Experimental customer-
+summary 1.4.0, fixed assignment, narrative 1.2.0 and formal runtime are unchanged.
+
+No acquisition, deformatting, synthesis/grouping, search, retry, fallback or
+parameter sweep. Provider/finish/JSON/basic-Schema failure stops queued pairs
+after started calls settle; expected projection failures are retained outcomes.
+Both repeats have identical actual HTTP bodies. All eight basic checks pass;
+seven project successfully. Seven projections are not seven semantic approvals.
+
+| Retained case | First / second latency | Actual result |
+| --- | --- | --- |
+| Main list plus repeated comparison/closing text | 12.947 / 15.623 s | Both retain the four main positions without duplicate rows; three supplemental positive brands are included with null position |
+| Six unnumbered introductions across categories | 11.474 / 11.522 s | First outputs positions 1,2,3,4,4,5 rather than 1,2,3,4,5,6; second is correct; target remains fourth in both |
+| Two explicit brands co-listed in the third numbered item | 15.440 / 14.402 s | Both now cover the named pair at shared third position; supplementary brand remains positive with null position |
+| Named restaurants plus unnamed description, target absent | 5.433 / 6.712 s | First keeps only the two named subjects; second adds unsupported target=true row citing unnamed text but leaves targetDescription=null; projection rejects |
+
+Target points and summaries are useful at the practical bar, including ordinary
+drawbacks alongside positive recommendation. Some readable subject names retain
+store qualifiers; that is not the same defect as wrong membership or position.
+Supplemental positive brands with null positions are not omissions, but do not
+prove complete position recovery. Their treatment remains visible, not silently
+renumbered or excluded to inflate quality. Both raw failures remain intact.
+
+Diagnostic hypotheses and evidence: (1) input drift or pre-extracted answers are
+not supported: complete source/context and actual repeated wires match; (2)
+program assembly is not the origin: all eight Provider message.contents parse
+identically to result.output, and the projector preserves model decisions; (3)
+ambiguity about target membership and distinct/shared items is a candidate for a
+small wording test, not a proven generation cause. Both repeats differ on the
+failure cases. The combined Prompt/field package does not isolate the effect of
+sourceItemLine removal, and does not establish any model capability ceiling.
+
+Run 2026-09-08 02:02:12.661–02:03:11.498 UTC: 58.837 seconds for eight experiments,
+20,444 reported tokens. Single requests take 5.433–15.623 seconds; some input is
+cached. Prior 94.887-second timing is non-contemporaneous historical reference,
+not a causal speedup, bill, stable reliability rate or full-report SLA.
+
+Verification: 50 focused tests, backend typecheck/build, framework/link/diff pass;
+independent fixed-diff/runner review is ready and independent semantic review
+confirms these findings. Tests reject the removed field, preserve full source
+without brand/position answers, retain shared positions and model-authored wrong
+positions, enforce target/capacity consistency and keep raw answers out of the
+synthesis handoff. Nine private Langfuse observations (root `ca0144da531ab634`
+and eight generations) match actual IO/settings/usage on readback, with no root
+IO, program result or independent review uploaded.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/0161f9302d9edaffe655bb958cddec8e).
+
+Retain 1.1.0 as a smaller candidate, not as a selected runtime or replacement
+baseline. The eight-call package is finished. Next only clarify actual target
+membership and separate introductions versus co-listed names at fixed schema,
+input and model; replay retained failures and a shared-item control in a separately
+frozen small package. No renewed route audit, extra Agent, source-line slot table
+or automatic repair. After a candidate clears the core checks, reuse the retained
+full sampling matrix for chain validation rather than reacquiring it by default.
+Formal report/UI/DB/recovery, direct malformed text and successful 3–5-minute
+acceptance remain outstanding. #42 stays In Progress; PR #62 is Draft Partial.
+
+Protected local evidence: `apps/backend/.provider-evidence/m4-brand-subject-T375nn/`;
+business examples and review remain local. Main observed `0552aa7`; no merge,
+rebase, production, current-spec or other-worktree change. Worktree retained.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 5a9f4e9442955d812bc1227760c0ba6f1f7cfdc35eec76ee5e4c284df070cf5c |
+| Summary | 81c6da3d75e276debc11b0e7eae1bb55cbbf90f1bef6da7c8b6cf7cbff57c4ad |
+| Handoff | c37e52d89fefd6827152d332ec566beda44086c9d586a923513ec571a8deb0e0 |
+| Matched wire check | 15d849fccea76544d52ca15a1942ab2dedb69e285b9d4eb5cc0802ec8637681c |
+| Raw output check | 01b283d045ddee21a20d04052136e41f34c77eeb9fe04ef22c09ff54dd2edcd0 |
+| Langfuse readback | 55335da26cdec142f3f81a9e59e6790147ece0b55cad093122386ce4c1bd5981 |
+| Runner | 95facbd7e0098802ba0f52dc5c531591e333b2b4531ab1ea01414f2730121fbf |

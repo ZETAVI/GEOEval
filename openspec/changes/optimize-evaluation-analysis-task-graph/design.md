@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: test concise brand-subject rows at unchanged Qwen3.8 Flash / low;
+Status: retain concise brand-subject rows with position/absence residuals at Qwen low;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -42,6 +42,23 @@ metadata enter existing private Langfuse. Historical outputs are qualitative
 references, not contemporaneous performance controls. Focused tests prove input,
 schema, projection and downstream boundaries; real repeated outputs decide
 whether coverage/first-position behavior improves. Stop at this batch's ceiling.
+
+Result at `0f11208`: all eight basic structures succeed, seven projections pass.
+Main-list repeats no longer duplicate rows, and both shared-item calls cover
+the named co-listed brands. One unnumbered order result mispositions two other
+brands; one absent-target repetition creates an unsupported target row alongside
+null targetDescription and is rejected. Raw Provider JSON equals the model output
+in all eight results. The 58.837-second experiment wall time is not full-report
+timing. Retain 1.1.0 as an unactivated candidate, not a quality pass. See the
+[engineering evidence](research/chain-quality-experiment.md#concise-brand-subject-rows--better-coverage-with-position-and-absence-residuals).
+
+Next test only the wording of target membership and distinct/shared introduction
+items on the retained failures plus a shared-item control. Keep schema/input/model
+fixed; do not restore standalone line pointers or assume they caused the residual.
+Target context is for matching an actually mentioned subject, not a required row.
+Separate introduction items occupy distinct positions even under one category;
+co-listed brands within one item share its position. Generation cause remains
+unproven; no further call is appended to this ended eight-call package.
 
 ### Historical source-located brand rows — single-call interface probe
 
