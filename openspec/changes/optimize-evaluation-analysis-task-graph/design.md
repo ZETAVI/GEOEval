@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: reject rows 1.2 Prompt package, retain first-appearance meaning at Qwen low;
+Status: verify the single nullable-target candidate at Qwen low;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,41 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — first-appearance ordering and nullable target
+### Current package — one nullable target with existing summary schema
+
+The owner approves this smallest alternative after the failed split target-state
+probe. Reuse customer-summary's target:null|object + otherBrands schema and source
+inspector. Add an explicit experiment-only builder alongside the existing 1.4.0
+builder; it reuses full-source preparation/schema and replaces only the instruction
+and candidate identity. Baseline and formal runtime imports remain unchanged.
+No new module boundary, public API, dependency, persistence, Agent, repair or guard.
+
+Prompt 1.0.0 keeps one first-appearance sequence for all relevant brand subjects,
+then places the target result in target and other subjects in otherBrands without
+renumbering. The target object owns position/evidence/points/summary together;
+absence is null. otherBrands does not repeat the target. Evidence restoration,
+capacity and recommendation eligibility retain their existing owners. The full
+raw input is preserved; the synthesis boundary remains parsed records/excerpts.
+
+Readiness: unit tests prove unchanged baseline, exact schema/context reuse and
+no injected brand inventory. A false-null target remains structurally possible;
+real known-present sources must detect it independently. This candidate changes
+Prompt and representation versus failed brand rows, not a one-variable causal
+test. Exact raw IO, code results and semantic review are retained separately.
+
+Freeze four retained real cases twice, max eight/concurrency two, Qwen3.8 Flash
+low/strict, 180-second timeout. Provider/finish/JSON/basic-Schema failure stops
+queued pairs after started work settles; semantic/source inspection failures are
+measured outcomes without retries. No sampling, synthesis, search, formatting
+cleanup, fallback or activation. Only actual model IO/operational metadata enter
+private Langfuse. Reports include actual input/output excerpts and links to full
+local evidence, not synthesized examples presented as real replies. Stop after
+eight requests and decide whether a retained full-matrix chain replay is justified.
+
+Formal Parser/report/product-definition/glossary reconciliation, history and score
+formula boundaries from the approved first-appearance decision still apply.
+
+### Historical first-appearance ordering and nullable description
 
 The owner now chooses a single order: read the full raw answer from beginning to
 end, identify each distinct brand subject once and number first appearances

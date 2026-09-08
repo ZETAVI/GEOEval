@@ -102,6 +102,38 @@ export function buildM4CustomerSummaryTask(
   };
 }
 
+const nullableTargetPrompt = z
+  .object({ id: z.string(), version: z.string(), content: z.string().min(1) })
+  .strict()
+  .parse(
+    JSON.parse(
+      readFileSync(
+        new URL(
+          "../../../geo-intelligence/experiments/m4-parser-nullable-target.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    ),
+  );
+
+// An explicit experimental entry point; the existing 1.4 builder stays unchanged.
+// Reuse its full-source context and target/otherBrands schema, not brand-row state.
+export function buildM4NullableTargetTask(
+  base: StructuredOutputAttemptInput,
+  brandContext?: string,
+): StructuredOutputAttemptInput {
+  const task = buildM4CustomerSummaryTask(base, brandContext);
+  return {
+    ...task,
+    systemInstruction: nullableTargetPrompt.content,
+    outputContract: {
+      ...task.outputContract,
+      version: `${nullableTargetPrompt.id}@${nullableTargetPrompt.version}`,
+    },
+  };
+}
+
 // A diagnostic view, not a canonical report adapter or a production score input.
 // The caller already owns companyName; a non-null target refers to that identity.
 // Do not regenerate its label here or infer target presence from that known input.

@@ -3,6 +3,7 @@ import { buildSampleParserTask } from "../src/geo-intelligence/sample-parser.pol
 import { buildM4WorkedExampleTask } from "../src/ai-execution/controlled-validation/m4-parser-task-split.js";
 import {
   buildM4CustomerSummaryTask,
+  buildM4NullableTargetTask,
   inspectM4CustomerSummaryOutput,
 } from "../src/ai-execution/controlled-validation/m4-parser-customer-summary.js";
 
@@ -57,6 +58,38 @@ const value = () => ({
 });
 
 describe("M4 customer-value Parser experiment", () => {
+  it("reuses the existing nullable-target contract and full input without replacing the baseline", () => {
+    const before = buildM4CustomerSummaryTask(base, "青禾是门店简称。");
+    const candidate = buildM4NullableTargetTask(base, "青禾是门店简称。");
+    expect(candidate.userContext).toEqual(before.userContext);
+    expect(candidate.outputContract.jsonSchema).toEqual(
+      before.outputContract.jsonSchema,
+    );
+    expect(candidate.outputContract.version).toBe(
+      "experiment.m4.parser-nullable-target@1.0.0",
+    );
+    expect(candidate.systemInstruction).not.toBe(before.systemInstruction);
+    expect(candidate.userContext).not.toHaveProperty("brands");
+    expect(candidate.userContext).not.toHaveProperty("sourceInventory");
+    expect(buildM4CustomerSummaryTask(base, "青禾是门店简称。")).toEqual(
+      before,
+    );
+  });
+  it("keeps false absence structurally representable so real-source review must check mention truth", () => {
+    const falseAbsence = { target: null, otherBrands: value().otherBrands };
+    expect(originalAnswer).toContain("青禾咖啡");
+    expect(
+      inspectM4CustomerSummaryOutput(falseAbsence, originalAnswer).output
+        .target,
+    ).toBeNull();
+    // This is NOT semantic approval: known target-present replays must flag it.
+    expect(() =>
+      inspectM4CustomerSummaryOutput(
+        { ...value(), target: { ...value().target, summary: null } },
+        originalAnswer,
+      ),
+    ).toThrow();
+  });
   it("passes optional owner brand context without changing the source or inferring output", () => {
     const plain = buildM4CustomerSummaryTask(base);
     const contextual = buildM4CustomerSummaryTask(

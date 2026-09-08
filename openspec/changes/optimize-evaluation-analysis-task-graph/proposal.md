@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Retain first-appearance meaning, reject rows 1.2 Prompt package; runtime unchanged
+- Status: Validate a single nullable target using the existing summary schema; runtime unchanged
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -48,9 +48,19 @@ Current decision: the owner explicitly simplifies ordering to first appearance o
 distinct brands, irrespective of categories, numbered headings or co-listing.
 Repeated mentions do not consume another position. This supersedes shared-item
 ties in the previous candidate; it is a meaning change, not solely a bug fix.
-Keep the existing nullable targetDescription slot: actual target mention receives
-points/summary; absence yields null and no target row. Both forms discussed by
-the owner are feasible; this keeps the current schema and projector unchanged.
+The owner now approves testing one fixed nullable target object instead of a
+separate target-marked row and nullable description. Preserve first-appearance
+positions across target and other brands; splitting output does not restart rank.
+
+Current package: an explicit nullable-target experiment reuses the existing
+customer-summary schema/inspector and full-source builder. Its new Prompt explains
+target:null|object and otherBrands without duplicate target-state expression;
+customer-summary baseline 1.4.0 and failed brand-row assets remain unchanged.
+Freeze eight Qwen low calls on four retained real answers twice, concurrency two,
+no sampling/synthesis/search/retry. Exact inputs and old-schema reuse are checked
+before calls. Source-known target presence/absence, coverage, duplicate subjects,
+first positions and readable target points are reviewed independently of schema
+success. Report concrete actual input/output excerpts, with full IO local.
 
 The completed [first-appearance package](research/chain-quality-experiment.md#first-appearance-order--retain-meaning-reject-the-prompt-package)
 at `8bfadc1` yields correct six-brand order twice and correct target absence twice,

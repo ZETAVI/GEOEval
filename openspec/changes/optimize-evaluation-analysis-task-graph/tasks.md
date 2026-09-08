@@ -87,7 +87,9 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       customer-summary target object and otherBrands, without duplicate target
       state or a new Agent. A structurally valid false-null target is still a
       failure on known target-present source; keep coverage/order/repeat checks.
-      Freeze a separate small package; do not extend the ended eight calls.
+      Freeze four retained real cases twice (max eight/concurrency two) as a
+      separate package; present actual input/output excerpts and full local IO.
+      Do not extend any ended batch or infer semantic truth from source validity.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on
