@@ -2,7 +2,7 @@
 
 方案日期：2026-09-08。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0 implemented in unmerged PRs; C1 and later contracts proposed with owner-confirmed module direction; no runtime activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
+Status: A0/B0 and unregistered C1 implemented; N1/H5/operational activation remain proposed; no live recharge activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
 
 本次批注已确认 PC Native → 手机外部浏览器 H5 的推进顺序，并明确认可在 Publishing Commerce 内独立装配积分能力。Node 实现已在协议例证验证后选用标准 crypto 与窄 HTTP Adapter；一个活动充值单和实际异常资金处置细节不视为自动获批。本文在原位置修正，不建立第二版架构文件；具体协议证据由 [微信 APIv3 接口简报](source-brief.md)持有。
 
@@ -21,7 +21,7 @@ Publishing Commerce 继续拥有积分账户和追加式积分流水，并向 Re
 
 ## 2. 当前项目事实与不变边界
 
-当前受保护 `main@a550fc471bdac2ceb468c645e4b0e7dc5769ba88` 的代码/规范与已批准产品方向形成以下边界；其中真实充值仍未激活：
+当前受保护 `main@bcb81db5f567c5f0c3bced0c57df7b3dd8b83aa6` 的代码/规范与已批准产品方向形成以下边界；其中真实充值仍未激活：
 
 - 客户充值人民币整数，按 `1 元 = 10 积分`增加 funded 积分；只有确认支付成功才入账；
 - 客户可见充值状态是 **待支付 / 确认中 / 充值成功 / 已关闭**；取消、失败和过期不入账；
@@ -138,7 +138,7 @@ apps/backend/src/recharge/
 
 ### 5.0 与现有模块的冲突及最小收束
 
-当前基线已包含 #76 正常履约。已核对 [PR #79@770a764](https://github.com/ZETAVI/GEOEval/pull/79)的实际模块和测试，以及该固定版本下的退点设计；#79 是待合并的装配提取，退点仍是拟议能力。
+当前基线已包含 #76 正常履约。已核对 [PR #79@770a764](https://github.com/ZETAVI/GEOEval/pull/79)的实际模块和测试，以及该固定版本下的退点设计；#79 已在 [bcb81db 集成](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726)，本任务已从主干消费；退点仍是其后续能力。
 
 | 责任 | 明确 owner / 入口 | 跨模块边界 |
 | --- | --- | --- |
@@ -189,7 +189,7 @@ A0 已实现的业务接口与类型由 [payment-gateway.ts](../../../apps/backe
 
 ### 6.2 积分写入端口与事务责任
 
-应用层继续只见 RechargeSettlementRepository：create/reserve、applyVerifiedPayment、closeVerifiedUnpaid；返回业务结果，不返回 Prisma client。以下是下一实施片合同，尚未激活。
+C1 已实现的应用合同由 [recharge-order.ts](../../../apps/backend/src/recharge/domain/recharge-order.ts)与 [RechargeCoreService](../../../apps/backend/src/recharge/application/recharge-core.service.ts)持有：创建、本人读取、UNSENT 取消、通知及已认证成功查单的应用。返回业务结果，不返回 Prisma client；当前应用未注册。可信关单与调度仍待 N1。
 
 | 入口 | 责任和前置事实 | 同一事务的效果 |
 | --- | --- | --- |
@@ -209,7 +209,7 @@ A0 已实现的业务接口与类型由 [payment-gateway.ts](../../../apps/backe
 
 推荐的最小 schema 方向：RECHARGE 流水的客户端 idempotencyKey 为 NULL，使用独立非空 rechargeOrderId 唯一约束与 account 复合外键；现有赠点/购买/未来管理员退点仍必须有各自真实客户端请求键。相比给所有历史键重分命名空间，这保留旧唯一索引和旧调用者语义。PostgreSQL 默认 UNIQUE 的 NULL 互不相等，须由 kind-specific CHECK 明确哪些行允许 NULL，不能仅移除 NOT NULL 后放松旧约束。
 
-同样明确自动到账的 actor：推荐新 actorKind=SYSTEM、actorAccountId=NULL，旧操作回填/保持 ACCOUNT 与非空 actor。客户发起身份留在 RechargeOrder；系统确认引用真实通知/查询证据。旧 kind 的约束必须显式要求 actor/request key 非空，避免 SQL CHECK 的 UNKNOWN 被当作通过。查询和客户 DTO 不得泄露内部预留或来源；管理员历史可表达系统到账。这是待共享 schema 窗口验证的候选迁移，不改当前 ledger。
+同样明确自动到账的 actor：推荐新 actorKind=SYSTEM、actorAccountId=NULL，旧操作回填/保持 ACCOUNT 与非空 actor。客户发起身份留在 RechargeOrder；系统确认引用真实通知/查询证据。旧 kind 的约束必须显式要求 actor/request key 非空，避免 SQL CHECK 的 UNKNOWN 被当作通过。查询和客户 DTO 不得泄露内部预留或来源；管理员历史可表达系统到账。这套迁移已在 C1 受控窗口实现并验证，当前应用未启用真实充值。
 
 ## 7. 数据模型与完整性约束
 
@@ -337,7 +337,7 @@ Provider 文档允许某些系统异常按原参数重试，是否重试由 Rech
 
 ### 10.1a 接收后的处理结果与公平恢复
 
-B0 的 ACCEPTED/204 只代表接收。下一片须在 receipt 的可变处理部分区分 PENDING、APPLIED/ALREADY_APPLIED、REVIEW_REQUIRED；准确字段由实际 repository 持有。验证成功却找不到本地订单、字段不匹配、冲突或已释放后迟到付款都进入具备原因的受限待核查记录，不通过设置 processedAt 虚报到账。已有成功后出现的新差异保留历史成功与新增告警事实，不自动撤销或再记分。
+B0 的 ACCEPTED/204 只代表接收。C1 使用 processedAt/appliedRechargeOrderId 与独立 reviewReason/hasConflict 表达处理结果：待处理扫描排除已处理或待核查记录；已成功后仍可以出现新增差异，两者不强制塞进互斥状态。准确字段由实际 repository/schema 持有。验证成功却找不到本地订单、字段不匹配、冲突或已释放后迟到付款都进入具备原因的受限待核查记录，不通过设置 processedAt 虚报到账。已有成功后出现的新差异保留历史成功与新增告警事实，不自动撤销或再记分。
 
 临时数据库/传输失败仍可按行级 due time 有界重试；不能把最早的 100 条无法处理通知永远留在 pending 队首、饿死后续有效付款。扫描每轮读取当前可执行状态，不持久推进只增时间水位；运营另能找回待核查义务。处理状态与 ledger/order 的关系必须由同一 settlement 事务或明确的无资金效果审查事务确定。
 
@@ -553,3 +553,13 @@ Repository 仅提供 accept、getReceipt、有限 listPending/listConflicts；�
 Controller 只在通知 handler 豁免 session/CSRF，使用 rawBody 与原始多值签名头。宿主须启用 Nest rawBody 和 JSON parser（2 MiB、inflate:false）；缺失 rawBody 为配置错误并拒绝 ACK。应用服务设置 3.5 秒处理预算，Prisma 事务限制等待和执行时间，PostgreSQL 另限制锁/语句等待。响应截止不声称撤销数据库事务；迟提交后渠道重试仍安全。
 
 多角度前置审查结论：边界 ready；验证须证明真实 HTTP 在提交前不 ACK、并发幂等/冲突保留、事务回滚、响应丢失后重试、连接重建后扫描、安全字段投影和已有身份规则。商户联调、当前 API 激活、Worker 与 funded 入账不属于本片完成主张。迁移只增表；有支付事实后不做丢表回滚。
+
+## 23. C1 实现与当前下一步
+
+[用户批准](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5587176110)及 [#73 窗口](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5587081614)覆盖本片。余额/流水/预留规则仍归 Commerce，订单/渠道匹配/receipt 处理归 Recharge；#73 不并发改共享账务文件，后续退点消费同一规则。当前绑定函数无需导入 HTTP-facing PointAccountService，也未新增通用钱包/UnitOfWork。
+
+执行契约的唯一实现位置：[容量检查](../../../apps/backend/src/publishing-commerce/domain/point-account.ts)、[事务绑定](../../../apps/backend/src/publishing-commerce/infrastructure/recharge-points-access.ts)、[充值 repository](../../../apps/backend/src/recharge/infrastructure/postgres-recharge.repository.ts)、[C1 migration](../../../apps/backend/prisma/migrations/20260908180100_atomic_recharge_core/migration.sql)。数据库行级 CHECK 保护总容量，延迟约束触发器核对 reservation 明细/汇总和订单/账本/支付事实的最终事务图；旧 actor/key 非空语义被保留。新 enum 在前一独立 migration 提交后再使用。
+
+QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字段 profile；查询没有 notificationId，不补造缺少的付款人金额/币种。观察不可改写，已确认 ledger/终态不可反向改写。可信差异使非终态进入 Confirming 并保存 reviewReason，Closed/Successful 保留原终态及新增差异；不自动处理已关闭后迟到资金。
+
+当前只有显式配置的测试宿主装配核心；API/Worker、Native 调起/查单恢复/关单、客户二维码和 H5 页面、真实商户/资金均未启用。核心测试使用合成真实签名与真实 PostgreSQL；不能把它称为已完成网页支付或真实商户联调。下一步按 tasks 的 N1 推进，真实限额、异常资金处置和生产 Gate 仍独立。

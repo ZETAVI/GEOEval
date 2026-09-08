@@ -1,6 +1,6 @@
 # Tasks
 
-Owner #77. Completed boxes distinguish P0 experiments, A0 adapter, B0 unregistered notification module and current C1 design. B0 has been handed back; no shared schema/Commerce/API write window is currently open for this refinement.
+Owner #77. Completed boxes distinguish P0 experiments, A0 adapter, B0 unregistered notification module and C1 core implementation. The explicit [C1 writer window](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5587081614) now owns the bounded shared changes; no current API/Worker or merchant activation is included.
 
 ## Remaining work and actual dependencies
 
@@ -15,7 +15,7 @@ The approved route stays account recharge → verified payment → funded credit
 | Recovery and reconciliation | Same-order query/close, persisted due state/lease, stop-new-orders, T+1 discrepancy handling | Recovery and bill parsing can be implemented/tested with controlled inputs in their write package. Real bill/download and money-exception handling require account/finance decisions |
 | Activation | Limits, support, merchant/domain/secret rotation owners, bounded money test, financial reconciliation | Finance/product/operations supply these only before the corresponding live test or enablement. No production value is inferred from test configuration |
 
-Current planning: A0/B0 have passed their fixed-head CI; [B0 handoff](https://github.com/ZETAVI/GEOEval/pull/80#issuecomment-5584078408) ended its schema window. #77 remains Review / Decision while refining its next atomic-core contract. The consumer review of unmerged #79 is complete. The user prefers continued preparation before later coordinated merges; no current merge is requested. C1 requires a new shared writer/window before implementation, not merchant credentials for synthetic tests. Alipay follows the first WeChat journey; H5, JSAPI and funds activation are not implied by these packages.
+Current planning: the user approved C1 implementation and cross-task coordination, recorded in [Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5587176110). #73 confirmed the single-writer window. #79 has since merged into accepted main@bcb81db, with [integration evidence](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726). A0/B0/C1 were synchronized linearly; only generated OpenAPI/client files conflicted and were regenerated from both accepted assembly and C1 DTO sources. C1 core is implemented and locally verified, pending its fixed PR/CI/window handback. No payment PR merge or actual money authorization is inferred.
 
 ## P0: Fixed inputs and reviewable contracts
 
@@ -55,24 +55,25 @@ Producer: [PR #79](https://github.com/ZETAVI/GEOEval/pull/79), fixed head 770a76
 
 - [x] Review actual module declarations, service/repository dependency paths, 2 assembly checks plus 61 existing checks and exact-head CI. The extraction is adequate for its unchanged-behavior scope; do not repeat or expand it here.
 - [x] Distinguish exported HTTP/Identity-facing PointAccountService from a transaction-bound writer. Prefer an infrastructure-only binding for the actual Recharge consumer; split another Nest CoreModule only if runtime dependencies require it.
-- [ ] At later authorized integration, reconcile #79 with the Recharge stack and recheck the affected composition/interfaces. Pending merge does not block owner-local design or independent core preparation, and is not authority to cherry-pick another owner's work.
+- [x] Consume #79 from accepted main@bcb81db, rebase the existing linear stack and regenerate only the conflicted generated contracts; 26 core/assembly/access checks passed. No #79 cherry-pick or duplicate extraction.
 
-## C1: First atomic recharge core — next implementation package
+## C1: First atomic recharge core
 
-- [x] Refine design 5.0/6.2/6.3/7.2/9.2/10.1a: ownership, finite capacity, system-versus-client idempotency, receipt rechecks and recovery classification. These are proposed implementation contracts, not runtime capabilities.
-- [ ] Before shared writes, confirm one writer/window for PointAccount, PointChange, the common capacity policy and #73 return interaction. The B0 window has ended; this design update does not reopen it or authorize edits to #79.
-- [ ] In one coherent unactivated slice, implement RechargeOrder, per-order reservation, shared account capacity checks, dedicated RECHARGE ledger ownership and the narrow transaction-bound writer. Leave the current HTTP PointAccountService public interface and granted-only semantics intact.
-- [ ] Demonstrate reserve → verified synthetic success → exactly one funded ledger result; safe UNSENT cancellation releases capacity. Provider calls and live customer APIs remain outside this first core transaction package.
-- [ ] Apply the same balance/sequence-capacity check to existing grant and purchase writers and the approved return writer when it exists. No separate recharge balance algorithm or arbitrary cross-module applyDelta.
-- [ ] Separate client creation retry from system settlement identity; preserve legacy request-key conflicts and require explicit non-null actor/key rules for old ledger kinds after any nullable migration.
-- [ ] Prove the discriminating matrix in architecture-review: concurrent grant/purchase/return against reservation; two success notifications/query versus one ledger; partial failure after each write; lost response; same client key used by another operation; terminal replay; receipt conflict race and pending queue starvation.
-- [ ] Keep quota/amount policy explicit and injected for synthetic tests. Live min/max, activity limits and exceptional money disposition require the named product/finance decision before dependent activation.
+- [x] User-approved design and the [#73 single-writer window](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5587081614) fix actual ownership, interfaces and stop conditions.
+- [x] Implement unregistered RechargeCoreModule/Service/Repository, immutable RechargeOrder, one reservation per order, common account capacity, dedicated RECHARGE ledger identity and narrow transaction-bound points access.
+- [x] Create/reserve, authenticated notification/query → one credit, safe UNSENT cancellation and review-needed outcomes are real PostgreSQL transactions; provider calls, worker loops and public customer APIs remain outside the core.
+- [x] Existing granted adjustments and purchases apply the same explicit capacity snapshot; purchase capacity exhaustion maps to its existing conflict family. #73 return execution is not implemented here and must consume these rules in its own slice.
+- [x] System settlement uses business uniqueness and NULL client key/actor with SYSTEM provenance; legacy actor/request constraints remain explicit. Public balance hides reservations; point history represents the new kind truthfully.
+- [x] Extend only successful QUERY observations, retaining real nullable payer fields; B0 notification profile remains mandatory. Processed receipts must match a successful order; review-needed records do not starve later pending work.
+- [x] Verify 22 core integration cases, 2 new purchase HTTP cases and 1 new Web presentation case. Focused affected backend suite: 73 passed; Web points suite: 5 passed. After #79 integration: 26 core/assembly/access cases passed. Detailed scope and reuse in verification.
+- [x] Rehearse B0 → C1 on a separate DB with old accounts, wallet, ledger and immutable B0 receipt data, preserving the old field projection exactly; 35 migrations applied in order. Validate generated contract changes: all 73 paths unchanged, only two point-history schemas extended.
+- [ ] Deliver fixed C1 PR/accurate CI and explicitly hand the schema window back to #73. Keep this same worktree and linear stack; do not merge or activate.
 
 ## N1: Native dispatch, recovery and customer journey
 
 - [ ] Implement stable merchant identity, UNSENT/MAY_EXIST, cancel intent, query/close convergence, generation fences and visible unresolved obligations. Do not infer remote cancellation from a local timeout or expired lease.
 - [ ] Register B0 and the verified core in the approved API/Worker composition with precise raw-body configuration and owner-bound customer commands. Recheck receipt state inside settlement; complete bounded due-state recovery and visible review-needed handling.
-- [ ] Expand actual QUERY/CLOSE observation shapes without fake notification IDs; preserve B0 immutable notification facts and real nullable query fields.
+- [ ] Add truthful non-success query/close/dispatch-attempt recovery records when dispatch is implemented; C1 already persists authenticated successful QUERY observations without fake notification IDs.
 - [ ] Build Native QR + local order status/history and publishing-shortage entry; preserve saved publishing intent and reprice/reconfirm on return.
 - [ ] Run real HTTP and desktop browser tests with a controlled adapter, missing callback, cancellation/late dispatch, expired QR and interrupted responses; distinguish them from real merchant proof.
 - [ ] Verify named Native merchant products, domain, secret handoff and separately approved minimum real-money test when ready.

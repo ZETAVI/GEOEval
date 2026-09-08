@@ -1,6 +1,6 @@
 # Recharge verification
 
-Date: 2026-09-08. Accepted main: a550fc4. A0 rebased without code changes to dfe98bc; exact-head [full CI](https://github.com/ZETAVI/GEOEval/actions/runs/34215243310) and [framework CI](https://github.com/ZETAVI/GEOEval/actions/runs/34215243277) passed. B0 is a linear stack under the [explicit schema window](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643). The unmerged points extraction [producer checkpoint](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5583740565) changes readiness, not accepted Commerce behavior.
+Date: 2026-09-08. Current accepted main: bcb81db after [#79 integration](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726). A0/B0 historical matrices below retain their original evidence; the current C1 implementation/combination is recorded in the C1 section. Rebased stack: A0@47fb404 → B0@8d39710 → C1 implementation@be89fe0. Exact-head CI belongs to the corresponding PR.
 
 ## A0 implementation evidence
 
@@ -69,12 +69,30 @@ Reproduce with the named isolated test DATABASE_URL and REDIS_URL: `pnpm db:gene
 
 ## Remaining verification and exit
 
-A0 and isolated B0 have implementation evidence; the whole recharge change remains **partially verified**. Current API raw-body activation, Worker lease/retry and conflict operations, local-order matching, reservation/ledger atomicity, process/storage crash recovery, real merchant keys/TLS/204, Native/H5 browsers, reconciliation, money and production enablement remain not run. Historical P0 receiver SIGKILL does not prove B0 process or database/storage crash recovery.
+A0, isolated B0 and C1 have implementation evidence; the whole recharge change remains **partially verified**. C1 now verifies order matching and reservation/ledger atomicity. Current API raw-body activation, Worker lease/retry and operational UI, process/storage crash recovery, real merchant keys/TLS/204, Native/H5 browsers, reconciliation, money and production enablement remain not run. Historical P0 receiver SIGKILL does not prove B0 process or database/storage crash recovery.
 
 Existing product-definition/Commerce activation markers are unchanged because no customer recharge or funded writer is enabled. Executable Recharge ports/repository/schema own A0/B0 behavior; remaining orchestration/points proposals stay in this change. Retain this worktree, A0/B0 branches, pre-rebase tag and research artifacts. Deliver B0 through a linear stacked PR, return its scoped schema window to #73, and keep #77 open. No main merge or production activation is inferred.
 
-## 本轮设计审查证据
+## 前序设计审查证据（fc4dcb0，C1 实施前）
 
 审阅 #79 固定 a550fc4..770a764 的实际声明、2 项装配测试及未变化的账务代码路径；在线确认其 63 项针对性证据与准确 head 两项 CI。结论适用于装配提取，不声称 C1 结算已实现。当前设计的容量/序号算例、系统键空间及 receipt 竞争反例属于下一实现的验收定义，未计入通过测试数。
 
-本轮只改 #77 自有 proposal/design/delta/tasks/review/source/verification；不改 #79、runtime、schema 或未合并依赖。复用未变化实现的 A0/B0 证据，执行文档框架/链接与 Diff 检查。新的共享账务写入窗口、C1 runtime、组合迁移/回滚和实际浏览器仍需对应实施证据；本轮不新建钱包框架或替代履约 owner。
+该设计轮只改 #77 自有 proposal/design/delta/tasks/review/source/verification；不改 #79、runtime、schema 或未合并依赖。复用未变化实现的 A0/B0 证据，执行文档框架/链接与 Diff 检查。新的共享账务写入窗口、C1 runtime、组合迁移/回滚和实际浏览器仍需对应实施证据；本轮不新建钱包框架或替代履约 owner。
+
+## C1 实现与组合证据（2026-09-08）
+
+固定代码：原 3457ee2，同步 accepted main@bcb81db 后 be89fe0；仅生成文件因 #79 的声明顺序移动发生冲突并重新生成。
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| Atomic core | 22 real Nest/Identity/A0-signed HTTP/PostgreSQL core tests | Passed: reservation/replay/limits, notify+query race, unique credit, separate system key, inactive obligation, capacity/sequence bounds, cancellation/review, four injected write failures, restart of host/connection, DB guards |
+| Existing money paths | Focused five backend files | 73 passed including 2 new real purchase HTTP cases; check new debit-capacity failure is an ordinary 409 rather than 500 |
+| Point history | Web points suite | 5 passed including new system-confirmed recharge/privacy rendering; not payment-browser evidence |
+| Accepted #79 combination | Core + points module assembly + access inventory | 26 passed after rebase; no copied/cherry-picked owner module |
+| API | Compare parsed OpenAPI to accepted bcb81db | All 73 paths and other schemas unchanged; only PointChangeResponse and PointAdminChangeResponse extended. No customer payment route registered |
+| Upgrade | Separate geoeval_issue77_upgrade_c1 DB: deploy 33 old migrations, insert synthetic historical accounts/wallet/ledger/B0 facts, deploy 2 C1 migrations | Passed; old fields identical before/after. SHA256 of both old-field projections: 4c35ca6ee8a48f164a2589341b196ac11720213d69e572da9b634f1c3a5b8b5f. This is schema/data upgrade proof, not an authenticated old-message or storage-crash proof |
+| Static | Workspace typecheck, backend build, full format/framework/link/diff checks | Passed; post-integration generated contracts use current source |
+
+No actual merchant key, provider request, money or production database was used. Main test resources are the #77-only database and Redis 56577; cleanup handles newly referenced immutable test tables, never production. Primary protocol fixtures/evidence are reused, not counted as newly implemented crypto.
+
+C1 has no dispatcher, verified-close command, worker/lease scheduler, payment UI or production activation. Its 22 tests replace planned core claims with evidence; they do not prove future return semantics, controller activation, OS process/storage crash, real merchant limits or H5. Exact PR head/CI/window handback is owned by the PR checkpoint; do not treat a local or pre-rebase result as current full CI.
