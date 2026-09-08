@@ -37,6 +37,37 @@ textarea {
 .commerce-workspace {
   min-width: 0;
 }
+.delivery-list {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+.delivery-workspace .commerce-editor form {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+  max-width: 640px;
+}
+.delivery-workspace .commerce-editor label {
+  display: grid;
+  gap: 8px;
+}
+.delivery-workspace textarea,
+.delivery-workspace select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+.delivery-workspace textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+.delivery-workspace summary {
+  cursor: pointer;
+  font-weight: 600;
+}
 .commerce-intro,
 .commerce-editor,
 .commerce-empty {

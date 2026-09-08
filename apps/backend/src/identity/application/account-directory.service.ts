@@ -17,4 +17,15 @@ export class AccountDirectoryService {
     if (!account || account.role !== "TERMINAL_CUSTOMER") return undefined;
     return { id: account.id, mobile: account.mobile, status: account.status };
   }
+  async internalAccount(accountId: string) {
+    const account = await this.repository.findAccount(accountId);
+    if (!account || account.role === "TERMINAL_CUSTOMER") return undefined;
+    return {
+      id: account.id,
+      mobile: account.mobile,
+      role: account.role,
+      status: account.status,
+      revision: account.revision,
+    };
+  }
 }

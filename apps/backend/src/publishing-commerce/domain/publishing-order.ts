@@ -2,6 +2,7 @@ import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
 import { MAX_POINTS, type PointBalance } from "./point-account.js";
 import type { PublishingQuote } from "./publishing-selection.js";
+import type { DeliveryStatus } from "../../publication-delivery/domain/delivery-assignment.js";
 
 const uuid = z
   .string()
@@ -74,7 +75,7 @@ export type PublishingOrderView = {
   brandId: string;
   articleId: string;
   articleRevision: number;
-  status: "PENDING_HANDLING";
+  status: DeliveryStatus;
   title: string;
   bodyMarkdown: string;
   agreement: CommercialTerms;
@@ -159,6 +160,10 @@ export const PUBLISHING_ORDER_REPOSITORY = Symbol(
   "PUBLISHING_ORDER_REPOSITORY",
 );
 export interface PublishingOrderRepository {
+  /** Internal immutable facts for the application-level Delivery composition. */
+  readPaidOrders(
+    ids: string[],
+  ): Promise<Array<Omit<PublishingOrderView, "status">>>;
   runPurchase(
     accountId: string,
     input: SubmitPurchase,

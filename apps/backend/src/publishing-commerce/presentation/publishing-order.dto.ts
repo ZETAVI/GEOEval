@@ -39,8 +39,8 @@ export class PublishingOrderIdentityResponse {
   @ApiProperty({ type: String, format: "uuid" }) brandId!: string;
   @ApiProperty({ type: String, format: "uuid" }) articleId!: string;
   @ApiProperty({ type: "integer" }) articleRevision!: number;
-  @ApiProperty({ type: String, enum: ["PENDING_HANDLING"] })
-  status!: "PENDING_HANDLING";
+  @ApiProperty({ type: String, enum: ["PENDING_HANDLING", "PUBLISHING"] })
+  status!: "PENDING_HANDLING" | "PUBLISHING";
   @ApiProperty({ type: String }) title!: string;
   @ApiProperty({ type: String, format: "date-time" }) createdAt!: Date;
 }

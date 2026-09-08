@@ -1,4 +1,5 @@
 import { Module, type DynamicModule } from "@nestjs/common";
+import { PublicationDeliveryModule } from "../publication-delivery/publication-delivery.module.js";
 import { PublishingOrderController } from "./presentation/publishing-order.controller.js";
 import { PublishingOrderService } from "./application/publishing-order.service.js";
 import { PUBLISHING_ORDER_REPOSITORY } from "./domain/publishing-order.js";
@@ -24,7 +25,8 @@ import {
 } from "./presentation/publishing-package.controller.js";
 
 @Module({
-  imports: [MediaSupplyModule],
+  imports: [MediaSupplyModule, PublicationDeliveryModule],
+  exports: [PublishingOrderService],
   controllers: [
     PublishingOrderController,
     PublishingPackageAdminController,

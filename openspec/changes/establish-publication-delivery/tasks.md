@@ -11,13 +11,15 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 
 ## 1. Vertical slice: paid order → responsible operator → visible results
 
-- [ ] Implement admission and historical migration; prove new purchase rollback and old-order idempotent backfill.
-- [ ] Implement claim/my-orders/unstarted-return/admin-reassignment with corresponding pages, current-actor checks and exclusive responsibility history.
+- [x] Implement admission and historical migration with original-consumption precheck, bounded conflict-safe inserts and atomic new-purchase rollback; empty/valid historical/invalid consumption cases verified.
+- [x] Implement claim/my-orders/explicit-start/unstarted-return/admin-reassignment with corresponding pages, transaction-local actor checks and exclusive responsibility history.
 - [ ] Implement bounded logical work pages and outside-transaction Mock/manual preparation; fence stale preparation and label capability honestly.
   - [x] Implement the owner-local bounded slot projection and 35 focused tests, including frozen order, invalid commitments and maximum quantity; HTTP/DB composition remains unstarted.
 - [ ] Record/correct valid results with one-slot counting, customer-safe order detail/progress and whole-order completion.
 - [ ] Verify two simultaneous claims, old owner after reassignment, maximum quantity pagination, duplicate results and immutable article/terms using isolated DB and HTTP tests.
+  - [x] Verify admission/claims/return/start/reassignment, exact replay, original snapshot retention and role/target errors; duplicate-result tests await result implementation.
 - [ ] Browser-check customer/operations/admin flows and narrow-screen layout. No direct DB writes as feature acceptance evidence.
+  - [x] Real browser login → operator claim/start → customer Publishing → administrator reassignment/history, plus 375px form/bottom checks; results remain unimplemented.
 - [ ] Reconcile activated specs/DTOs/architecture in a Partial PR; keep unavailable exception/financial actions visibly unavailable and #73 open.
 
 ## 2. Vertical slice: manual exception → continued service or settled termination

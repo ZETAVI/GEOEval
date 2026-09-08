@@ -45,25 +45,26 @@ describe("supporting role homes", () => {
           href: "/admin/points",
         }),
         expect.objectContaining({
-          title: "订单与结算",
-          status: "FUTURE_CAPABILITY",
+          title: "履约订单",
+          status: "AVAILABLE",
+          href: "/admin/delivery",
         }),
       ]),
     );
     expect(
-      cards.find((card) => card.title === "订单与结算")?.href,
-    ).toBeUndefined();
+      cards.find((card) => card.title === "履约订单")?.description,
+    ).toContain("退点与结算尚未接入");
   });
 
-  it("distinguishes customer purchase support from future operations claiming", () => {
+  it("exposes operations claiming without pretending result or settlement support", () => {
     const pending = supportingRoleConfig("OPERATIONS").cards.find(
       (card) => card.title === "待领取订单",
     );
     expect(pending).toMatchObject({
-      description: "客户已可购买并查看待处理订单；运营认领与履约尚未接入。",
-      status: "FUTURE_CAPABILITY",
+      status: "AVAILABLE",
+      href: "/operations/orders",
     });
-    expect(pending?.href).toBeUndefined();
+    expect(pending?.description).toContain("领取");
   });
 
   it.each(["ADMINISTRATOR", "OPERATIONS", "AGENT"] as const)(

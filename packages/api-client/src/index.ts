@@ -29,6 +29,14 @@ export type SubmitPublishingOrder =
 export type PublishingOrder = components["schemas"]["PublishingOrderResponse"];
 export type PublishingOrderPage =
   components["schemas"]["PublishingOrderPageResponse"];
+export type OperationalOrder =
+  components["schemas"]["OperationalOrderResponse"];
+export type DeliveryOrderPage = components["schemas"]["OperationalOrderPage"];
+export type DeliveryActionRequest =
+  components["schemas"]["AssignmentRequest"] & {
+    reason?: string;
+    assigneeAccountId?: string;
+  };
 export type CustomerMediaPlatform =
   components["schemas"]["MediaPlatformCustomerResponse"];
 export type CustomerMediaPage =
@@ -254,6 +262,39 @@ export function getPublishingOrder(
   return apiRequest(baseUrl, `/publishing/orders/${encodeURIComponent(id)}`, {
     cache: "no-store",
   });
+}
+export function listDeliveryOrders(
+  baseUrl: string,
+  scope: "POOL" | "MINE" | "ALL",
+  beforeSequence?: number,
+): Promise<DeliveryOrderPage> {
+  const query = new URLSearchParams({
+    scope,
+    ...(beforeSequence ? { beforeSequence: String(beforeSequence) } : {}),
+  });
+  return apiRequest(baseUrl, `/delivery/orders?${query}`, {
+    cache: "no-store",
+  });
+}
+export function getDeliveryOrder(
+  baseUrl: string,
+  id: string,
+): Promise<OperationalOrder> {
+  return apiRequest(baseUrl, `/delivery/orders/${encodeURIComponent(id)}`, {
+    cache: "no-store",
+  });
+}
+export function actOnDeliveryOrder(
+  baseUrl: string,
+  id: string,
+  action: "claim" | "start" | "return" | "reassign",
+  input: DeliveryActionRequest,
+): Promise<{ orderId: string; revision: number }> {
+  return apiRequest(
+    baseUrl,
+    `/delivery/orders/${encodeURIComponent(id)}/${action}`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
 }
 export function listPublishingOrders(
   baseUrl: string,

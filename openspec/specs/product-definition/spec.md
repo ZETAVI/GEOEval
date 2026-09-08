@@ -37,6 +37,10 @@
   paid agreement, linked history and pending-order reads also use that owner.
   This marker remains for real recharge, returns, commission and fulfilment;
   those future scenarios below do not activate their runtime capabilities.
+  Order admission, exclusive whole-order responsibility, explicit start/return
+  and administrator reassignment now use [Publication Delivery](../publication-delivery/spec.md).
+  The marker is retained for results, exceptions/settlement and other unactivated
+  capabilities, not a second owner of implemented responsibility rules.
 
 ## Requirements
 
@@ -1013,16 +1017,10 @@ confirmation, and paid-order decisions.
 
 #### Scenario: Operations returns or transfers responsibility
 
-- **GIVEN** one operations user has exclusively claimed a whole publishing order
-- **WHEN** actual handling has not started
-- **THEN** that operator can return the order to the shared pool with a concise
-  recorded reason
-- **BUT WHEN** actual handling has started
-- **THEN** reassignment requires an administrator and a recorded reason
-- **AND** return or reassignment retains existing variants, progress, exceptions,
-  and publication results
-- **AND** the customer sees only the order's business state and does not see the
-  operator identity or internal transfer history
+- **WHEN** responsibility changes for an admitted order
+- **THEN** the active rules use [Publication Delivery](../publication-delivery/spec.md)
+- **AND** later activation of variants, results and exceptions must preserve
+  those facts through responsibility changes, not reset the purchased work.
 
 #### Scenario: An operations user scans fulfilment work
 

@@ -13,6 +13,7 @@ import { CHALLENGE_DELIVERY } from "./domain/challenge-delivery.port.js";
 import { IDENTITY_REPOSITORY } from "./domain/identity.repository.js";
 import { DeterministicChallengeDelivery } from "./infrastructure/deterministic-challenge-delivery.js";
 import { PostgresIdentityRepository } from "./infrastructure/postgres-identity.repository.js";
+import { PostgresOperationsIdentityReader } from "./infrastructure/postgres-operations-identity-reader.js";
 import { AccountGovernanceController } from "./presentation/account-governance.controller.js";
 import { IdentityController } from "./presentation/identity.controller.js";
 
@@ -40,12 +41,13 @@ export class IdentityModule {
         SessionService,
         AccountGovernanceService,
         AccountDirectoryService,
+        PostgresOperationsIdentityReader,
         CsrfGuard,
         AccessGuard,
         { provide: APP_GUARD, useExisting: CsrfGuard },
         { provide: APP_GUARD, useExisting: AccessGuard },
       ],
-      exports: [AccountDirectoryService],
+      exports: [AccountDirectoryService, PostgresOperationsIdentityReader],
     };
   }
 }

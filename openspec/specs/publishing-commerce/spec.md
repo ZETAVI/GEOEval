@@ -5,8 +5,9 @@
 This owner currently implements maintained random-package configuration,
 administrator audit, terminal-customer offer visibility, account points,
 granted-only administrator adjustments/history, saved selections, advisory quotes,
-atomic point-funded purchases and customer-safe pending orders. Real payment and
-fulfilment are not activated. Historical delivery rationale is retained in
+atomic point-funded purchases and customer-safe order reads. Operational admission
+and responsibility are owned by [Publication Delivery](../publication-delivery/spec.md);
+results, returns and real payment are not activated. Historical delivery rationale is retained in
 the [archived change](../../changes/archive/2026-09-07-establish-publishing-commerce/proposal.md);
 this specification and executable contracts own current behavior.
 
@@ -219,6 +220,8 @@ the domain and application interface SHALL not expose a database transaction.
   explicit save never resets to zero or admits an old page's conditional write
 - **AND** all writes commit together, with no network, Writer, queue, payment or
   user interaction inside the transaction; generation/edit/confirmation remain free.
+- **AND** the owner-bound Delivery adapter initializes its one aggregate on that
+  transaction; an admission failure also rolls back the complete purchase.
 
 #### Scenario: Source, balance, storage or competing request changes
 
@@ -253,7 +256,7 @@ Commerce SHALL expose a customer-owned order list and detail using safe DTOs.
 - **WHEN** the customer opens `/orders` or its order detail
 - **THEN** the list is scoped to the current Brand (or all owned Brands when none
   is current), deterministically paginated by order sequence
-- **AND** detail shows number, submission time, pending-handling status, exact
+- **AND** detail shows number, submission time, current Delivery-owned status, exact
   purchased terms/points and safely rendered frozen article
 - **AND** later editing the current article or catalog does not alter the order;
   the purchased article itself has no customer edit command
@@ -263,8 +266,8 @@ Commerce SHALL expose a customer-owned order list and detail using safe DTOs.
   this slice exposes neither funded credit nor commission/return behavior
 - **AND** foreign order IDs return not found, and internal actors, requests,
   origin, procurement and audit notes never enter customer projections
-- **AND** there are no invented results, dates, progress, self-refund/cancellation,
-  or real fulfilment controls in the pending-only stage.
+- **AND** there are no invented results, dates, progress or self-refund/cancellation;
+  operator controls are owned by Delivery, not customer order pages.
 
 #### Scenario: Media identity has been purchased
 
