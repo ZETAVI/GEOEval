@@ -23,7 +23,8 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
   - [x] Result slice: actual form submission → partial customer result → full completion/correction → original customer page refresh, plus real 375px form/bottom/result checks; prior browser blockage is resolved for this path.
 - [x] Finish deadline/urgency workbench presentation and operational recovery rehearsal before requesting the normal-result slice merge gate.
   - [x] Keep database ordering and immutable-pair pagination coherent; separate Completed history; exercise normal/nearing/delayed ordering in HTTP and actual 375px browser views.
-- [ ] Reconcile activated specs/DTOs/architecture in a Partial PR; keep unavailable exception/financial actions visibly unavailable and #73 open.
+- [x] Reconcile activated specs/DTOs/architecture in a Partial PR; keep unavailable exception/financial actions visibly unavailable and #73 open.
+- [ ] Obtain the normal-result slice's merge authorization and verify its integrated revision; this does not close #73 or activate production.
 
 ## 2. Vertical slice: manual exception → continued service or settled termination
 
