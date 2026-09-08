@@ -3286,3 +3286,81 @@ migration or current-spec change.
 | Actual IO check | c06202ed0829f7e0b5d3100224278c48f529b676f3210b57b8b7b623624a3f35 |
 | Langfuse readback | 89209aca1324fbc9bac32a212a0ede135c1f32571f7b2f3baf4359e59728e98f |
 | Runner | c5f92f264e61889a7a66351b05491be43beb2c915c80da4afdc9bf16f9226f9d |
+
+## All-brand inline interpretation — target completion with coverage residual
+
+The owner removes relevance/category filtering and asks to colocate brand
+recognition and interpretation. Code `2fb0e7565aa0410f63b3fbef6a418166c11a58b7`
+reuses brand-rows as 3.0.0: each row has nullable targetDescription; non-null is
+the sole target declaration, carrying points and summary. Remove isTarget and
+the root description. Preserve complete query/source, array-owned positions,
+source restoration and the existing downstream parsed-summary shape. All actually
+named brands are in scope, including supplements and named tools/platforms;
+unnamed descriptions are still not brands. Recognition and recommendation remain
+separate. This supersedes the category rubric, not historical raw evidence.
+
+The 1,032-character instruction includes one complete fictional output, checked
+against the actual Schema and source inspector. No real test-answer names are
+encoded in it. New tests expose legal false-null instead of inventing target
+identity from a name; multiple described rows/duplicates/obsolete fields reject.
+55 focused tests, backend typecheck/build and framework/link/diff checks pass.
+Independent fixed-diff/runner review is ready for the probe, not runtime activation.
+
+Manifest `fe3ec1d0036c39b2da2a64d80d1795b787a57656a4e47e59b65d75dd899a169e`
+freezes four authorized retained answers twice, max eight/concurrency two,
+Qwen3.8 Flash low/strict, 180-second timeout. All eight Provider/schema/source
+projections complete without sampling, search, synthesis, retry or fallback.
+Prompt scope, representation and full example change together, so do not isolate
+a causal effect or compare different scope rubrics as one accuracy score.
+
+| Input | First / second actual result | First / second latency |
+| --- | --- | --- |
+| Main list plus supplements | Both seven-brand lists complete and ordered; target second, inline points/summary useful | 10.201 / 12.615 s |
+| Six brands across categories | Both lists complete and ordered; target fourth, inline descriptions no longer missing | 9.836 / 7.099 s |
+| Long tea-room answer with co-listed and background brands | First only two brands; second recovers the separate merchants and closing names but still omits two payment brands | 9.791 / 20.746 s |
+| Absent target plus unnamed description | Both retain only the two named merchants, no target and no invented unnamed brand | 6.615 / 8.434 s |
+
+Independent semantic review confirms all six actual target-present replies bind
+the right brand and provide readable interpretation; both target absences match
+the original answer. This is real semantic evidence, not merely removal of a
+contradictory flag. Nevertheless, long-answer coverage is unstable: first reply
+omits six named brands, second omits two. Output names keep relative source order,
+but missing records shift later derived positions; the indexing code is not the
+cause. One repeated target point labels pure drawbacks MIXED, while retaining the
+negative content; keep this as a light polarity observation, not a wording gate.
+
+The lookup platform is correctly recognized and marked positively recommended
+in the second reply. The source explicitly recommends using it to search, so this
+is not fabrication. Whether tool-use recommendation belongs in formal positive
+competitor statistics is a business boundary still to reconcile, not permission
+to delete that record or rewrite its raw flag. Keep all-brand recognition intact.
+
+Retain inline interpretation and the simple ordered list, not general stability
+or formal adoption. Next hold shape/model/scope fixed for one bounded long-answer
+coverage follow-up, then check transfer to other real brands rather than endlessly
+tune these four answers. No extra Agent, identity registry, source crop or repair.
+No further call extends this completed batch.
+
+Run 2026-09-08 07:15:42.604–07:16:37.185 UTC, 54.581 seconds, 21,315 reported
+tokens, individual 6.615–20.746 seconds with some cached repeated input. Not a bill,
+stable speed or successful full-evaluation 3–5-minute result. All eight actual
+wires match frozen requests; raw JSON equals saved/inspected output; indices come
+only from array order. Nine private Langfuse observations (root `5bb62b6423b525e3`
+plus eight generations) read back actual IO/settings/usage consistently with no
+independent review or program projection uploaded.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/65ffae3b65b230475bf8ccb75dd5c0c7).
+Full actual inputs/outputs, separate projections and review are protected locally
+in `apps/backend/.provider-evidence/m4-inline-brand-description-w30E1A/input-output-review.md`.
+Formal Parser/report scope reconciliation, whole-chain/UI/recovery and full timing
+remain pending; #42 In Progress / #62 Draft Partial, #73 shared files untouched.
+Exit retain; no merge, rebase, migration, deployment or current-spec activation.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 9b916ba9090730a17c6482e2473ccc81278976b223719597e78c9335e17a7d78 |
+| Summary | 718152acf3e3c47d8e291749443760018d75bee519801893c24a4593d8ccc56d |
+| Handoff | 8a132fff55d5a19ce025e1bfb92541480b988ec61c0d6dc4ad726ea08ed2f8ac |
+| Matched wire check | 69cbfade0e748ae210bc658225c7fdecccf5abb27b81a8b8a07d12c5f5ac239c |
+| Actual IO check | 72f4109eed0789166c6de64b5c1343cb0c01f6a768799c29d02a08a8f5dfcba3 |
+| Langfuse readback | 0ad7f674dfd6463c65827fd56c71f714ca7503c533d2270ee7b4518a062b189d |
+| Runner | 0e61969bf65341be675f7f444154873ddf7b57582c86fdb21abce546aa3a1544 |

@@ -113,12 +113,17 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       mechanically continuous indices from semantic quality; no candidate adoption.
 - [x] Supersede the fixed-category/example-only plan with the owner's all-brand
       scope and inline target description; retain order and positive eligibility.
-- [ ] Remove duplicate target state from the ordered-row experiment: one nullable
+- [x] Remove duplicate target state from the ordered-row experiment: one nullable
       description per row, no isTarget or root description. Verify old-field
       rejection, true absence, false-null preservation and unchanged projection.
-- [ ] Freeze four retained real answers twice, max eight/concurrency two/Qwen low;
-      review complete brands, inline target prose, absence, distinct subjects and
-      source order. No relevance filter, repair, extra Agent or runtime activation.
+- [x] Complete eight frozen calls: six correct present-target descriptions and
+      two correct absences; no invented unnamed brands. Complete lists repeat
+      twice on two cases, while the long answer retains definite omissions.
+      Raw/schema/projection/semantic conclusions and private IO are separate.
+- [ ] Keep inline structure, all-brand scope and Qwen low fixed for one bounded
+      long-answer coverage follow-up, then test transfer beyond these old cases.
+      Resolve tool-use recommendation versus formal competitor eligibility before
+      integration; do not silently restore filtering or expand the Agent graph.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

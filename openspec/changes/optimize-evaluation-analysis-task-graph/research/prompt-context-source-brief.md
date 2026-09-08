@@ -131,3 +131,13 @@ validation; both raw and normalized outputs agree. This establishes capability
 for those requests, not perfect identity selection or a universal Schema limit.
 One semantic misassignment remains. See the [controlled result](chain-quality-experiment.md#fixed-slot-assignment--structural-reliability-with-bounded-semantic-residuals).
 No documentation/analysis web search, new dependency or runtime mode is added.
+
+## Row-local nullable target — 2026-09-08
+
+Reuse the existing strict nullable-object route/adapter evidence. The uncertainty
+is moving target interpretation into each brand row, not a new external API or
+library. Controlled calls at `2fb0e75` produce the row-local shape; raw/saved Schema
+and IO agree. See the [bounded result](chain-quality-experiment.md#all-brand-inline-interpretation--target-completion-with-coverage-residual)
+for target quality and remaining coverage errors. Shape support does not prove
+semantic completeness or formal report support. Refresh on contract, route,
+model/mode changes or contradictory actual behavior; no pricing claim follows.

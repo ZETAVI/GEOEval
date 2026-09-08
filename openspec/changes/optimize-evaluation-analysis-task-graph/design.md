@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: test all named brands with target interpretation inside the brand record;
+Status: retain inline target candidate; long-answer coverage remains unstable;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -52,6 +52,17 @@ scope/representation package, not isolated causality or old-category accuracy.
 Rollback is non-selection; formal scope/position and owner reconciliation remain
 required before activation. Verify inline present/absent target, old field
 rejection, array indices before filtering and unchanged parsed-only handoff.
+
+Result at `2fb0e75`: [six target-present and two absent replies](research/chain-quality-experiment.md#all-brand-inline-interpretation--target-completion-with-coverage-residual)
+all interpret target state correctly, with useful inline prose where present.
+No unnamed object is invented. Two input cases repeat complete correct order;
+the long answer still misses named subjects. This supports retaining the package
+but does not isolate the effect of co-location from changed scope/example, nor
+establish general stability. Keep structure/model/scope fixed for one bounded
+coverage follow-up; transfer beyond these retained cases follows, rather than
+open-ended Prompt tuning. Recognized platform use can be positively recommended
+without being a merchant competitor: resolve that downstream business meaning
+before formal integration, not by deleting records or changing raw flags now.
 
 ### Previous package — category examples and ordered brand rows
 

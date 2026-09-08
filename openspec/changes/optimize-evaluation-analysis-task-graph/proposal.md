@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Test all named brands with inline target interpretation
+- Status: Retain inline target candidate; long-answer coverage remains unstable
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -53,6 +53,16 @@ become brands. This supersedes both the category scope and the previous plan to
 test an example without changing the old contract. See the
 [current bounded design](design.md#current-package--all-brands-and-inline-target-interpretation).
 No current-spec/history/runtime change or new Agent follows from this experiment.
+
+At `2fb0e75`, [eight-call evidence](research/chain-quality-experiment.md#all-brand-inline-interpretation--target-completion-with-coverage-residual)
+shows correct inline target interpretation in all six target-present replies and
+correct absence in both absent-target replies. Main-list coverage and order repeat
+correctly, but one long answer still loses several named brands. Retain this
+representation and all-brand scope, not a stable/runtime candidate. Next isolate
+complete mention coverage on that long answer, then check transfer to other real
+brands; do not keep changing target/category/rank meaning or tune these four cases
+indefinitely. Tool-use recommendation versus formal competitor eligibility needs
+an owner decision before integration; no filtering is silently restored.
 
 Previous package: the owner requests query-category positive/negative selection
 examples and no model-generated rank. The query is already present in first-layer
