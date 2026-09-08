@@ -312,7 +312,14 @@ explicit start, unstarted return and administrator reassignment with revision
 and atomic audit. The API composition service combines its authorized view with
 Commerce's immutable facts, without reverse calls or shared private-table reads.
 Customer status comes from Delivery; Commerce's old placeholder column is
-retired. Results and settlement remain in the active #73 change. The current
+retired. Sparse work items now retain separately validated current preparation
+and publication result values. A short aggregate transaction serializes work,
+effective-result count, normal completion and auditable correction. Preparation
+runs outside transactions through an async-capable port, with Identity and
+revision fences rechecked before save; no real provider or new background-work
+engine is introduced. Customer result subroutes reuse Commerce ownership and
+return only public projections. Negotiated exceptions and settlement remain in
+the active #73 change. The current
 bounded behavior is owned by [Publication Delivery](../../openspec/specs/publication-delivery/spec.md).
 
 ## Architecture qualities

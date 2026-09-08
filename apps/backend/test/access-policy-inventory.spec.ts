@@ -111,6 +111,12 @@ const expectedControllerPolicies: Record<
   BrandController: customerOnly,
   PublishingPackageCustomerController: customerOnly,
   PublishingOrderController: customerOnly,
+  CustomerPublicationResultsController: customerOnly,
+  PublicationWorkController: (handler) => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: handler === "act" ? ["OPERATIONS"] : ["OPERATIONS", "ADMINISTRATOR"],
+  }),
   PointCustomerController: customerOnly,
   PointAdminController: () => ({
     publicAccess: false,

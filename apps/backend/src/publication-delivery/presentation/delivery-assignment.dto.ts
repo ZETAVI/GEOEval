@@ -9,8 +9,12 @@ import {
 export class DeliveryAssignmentResponse {
   @ApiProperty({ type: String, format: "uuid" }) orderId!: string;
   @ApiProperty({ type: "integer" }) sequence!: number;
-  @ApiProperty({ type: String, enum: ["PENDING_HANDLING", "PUBLISHING"] })
-  status!: "PENDING_HANDLING" | "PUBLISHING";
+  @ApiProperty({
+    type: String,
+    enum: ["PENDING_HANDLING", "PUBLISHING", "COMPLETED"],
+  })
+  status!: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+  @ApiProperty({ type: "integer" }) publishedQuantity!: number;
   @ApiProperty({ type: String, format: "uuid", nullable: true })
   assigneeAccountId!: string | null;
   @ApiProperty({ type: "integer" }) revision!: number;

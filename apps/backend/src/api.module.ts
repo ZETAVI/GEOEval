@@ -15,6 +15,12 @@ import { PublishingCommerceModule } from "./publishing-commerce/publishing-comme
 import { PublicationDeliveryModule } from "./publication-delivery/publication-delivery.module.js";
 import { PublicationDeliveryWorkflowService } from "./application/publication-delivery-workflow.service.js";
 import { DeliveryAssignmentController } from "./publication-delivery/presentation/delivery-assignment.controller.js";
+import {
+  PublicationWorkController,
+  CustomerPublicationResultsController,
+} from "./publication-delivery/presentation/publication-work.controller.js";
+import { VARIANT_PREPARER } from "./publication-delivery/domain/publication-item.js";
+import { MockVariantPreparer } from "./publication-delivery/infrastructure/mock-variant-preparer.js";
 
 @Module({})
 export class ApiModule {
@@ -42,8 +48,17 @@ export class ApiModule {
         HealthController,
         FoundationController,
         DeliveryAssignmentController,
+        PublicationWorkController,
+        CustomerPublicationResultsController,
       ],
-      providers: [PublicationDeliveryWorkflowService],
+      providers: [
+        PublicationDeliveryWorkflowService,
+        {
+          provide: VARIANT_PREPARER,
+          useFactory: () =>
+            new MockVariantPreparer(config.runtimeEnvironment !== "production"),
+        },
+      ],
     };
   }
 }

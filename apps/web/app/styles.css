@@ -42,6 +42,54 @@ textarea {
   gap: 12px;
   margin: 20px 0;
 }
+.publication-item-list {
+  display: grid;
+  gap: 8px;
+  margin-block: 16px;
+}
+.publication-item-button {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.publication-item-button[aria-pressed="true"] {
+  border-color: var(--green);
+  outline: 1px solid var(--green);
+}
+.publication-item-editor {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.publication-item-editor form,
+.publication-item-editor label {
+  display: grid;
+  gap: 10px;
+}
+.publication-item-editor input,
+.publication-item-editor select,
+.publication-item-editor textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+.commerce-editor progress {
+  width: 100%;
+  accent-color: var(--green);
+}
 .delivery-workspace .commerce-editor form {
   display: grid;
   gap: 14px;

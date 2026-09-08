@@ -2,10 +2,10 @@
 
 ## Activation boundary
 
-This owner implements admission and whole-order responsibility only: shared pool,
-my orders, explicit start, unstarted return, administrator reassignment, audit and
-customer-safe pending/publishing status. Per-publication preparation/results,
-exceptions, completion and negotiated point settlement remain unactivated in the
+This owner implements admission, whole-order responsibility, sparse publication
+work, explicitly Mock/manual content preparation, result recording/correction,
+customer-safe progress and automatic normal completion. Negotiated exceptions,
+replacement, termination and point settlement remain unactivated in the
 [active change](../../changes/establish-publication-delivery/proposal.md).
 Local/branch verification is not integration or production enablement.
 
@@ -73,4 +73,89 @@ read all orders and perform reassignment, without impersonating customers.
 - **AND** list reads are bounded to 50 plus one lookahead row and exclude body text
 - **AND** detail shows the frozen article, paid scope and internal responsibility
 - **AND** customer reads expose current status but no operator identities/audit
-- **AND** result/return/payment capability is not fabricated by this stage.
+- **AND** return/payment capability is not fabricated by this stage.
+
+### Requirement: Bounded work with an honest preparation boundary
+
+One logical slot SHALL represent one purchased publication. Untouched slots
+SHALL remain unmaterialized, and reads SHALL expand at most 50 logical slots
+against the immutable agreement rather than current media prices or availability.
+
+#### Scenario: Operations prepares or starts one item
+
+- **WHEN** the responsible active operator selects a random in-scope target or
+  uses a precise slot's frozen target
+- **THEN** explicit handling may move that item to Publishing, or a direct valid
+  result may move it from Pending to Published without a separate start step
+- **AND** any actual work establishes the order's start fact and prevents return
+  to the unclaimed pool
+- **AND** preparing content alone never increments published quantity
+- **AND** manual and deterministic Mock content are distinguished; Mock remains
+  unavailable in production and has no external publication authority.
+
+#### Scenario: An asynchronous prepared response becomes obsolete
+
+- **WHEN** the preparer runs outside a database transaction
+- **THEN** saving its response rechecks ACTIVE/OPERATIONS through the Identity
+  owner, current assignee, aggregate revision, item revision and terminal state
+- **AND** a stale or unauthorized response does not create a work row, overwrite
+  later content, increase progress or retain database locks while waiting
+- **AND** already committed exact-actor requests recover their prior receipt
+  rather than invoking the preparer again.
+
+### Requirement: One effective result per purchased publication
+
+Results SHALL retain actual platform, title, HTTP(S) URL and publication time.
+Internal channel and notes SHALL remain optional operations-only information.
+No historical article-variant selection or catalog account match is required.
+
+#### Scenario: Operations records and repeats a successful publication
+
+- **WHEN** a valid result is explicitly submitted for an eligible slot
+- **THEN** the item, effective-result count, aggregate status and audit commit
+  together; audit failure leaves none of those writes behind
+- **AND** the same normalized URL cannot count in two active slots of one order
+  and URL fragments do not create additional publications
+- **AND** the result is immediately eligible for customer viewing, without
+  waiting for the other slots
+- **AND** the operator is responsible for checking actual link accessibility;
+  the application does not fetch arbitrary links or claim automated verification.
+
+#### Scenario: Operations corrects an ordinary entry error
+
+- **WHEN** the current operator supplies an explicit correction reason
+- **THEN** before/after history is retained without another completed count
+- **AND** neither the frozen precise target nor an already published platform
+  can change through ordinary correction
+- **AND** completed orders remain Completed through correction or administrator
+  reassignment; other ordinary assignment/start operations cannot reopen them.
+
+#### Scenario: All purchased publications have valid results
+
+- **WHEN** the effective-result count reaches the immutable purchased quantity
+- **THEN** the order becomes Completed automatically in the same transaction
+- **AND** the customer performs no manual acceptance action
+- **AND** result storage and count remain bounded by the original quantity.
+
+### Requirement: Safe progress-first customer results
+
+The result subroute under the existing paid-order route SHALL first prove the
+original customer's ownership through Commerce. It SHALL return only bounded
+public result fields and progress, never preparation, channels, notes or audit.
+
+#### Scenario: The customer follows partial publication
+
+- **WHEN** a random order is incomplete
+- **THEN** the customer sees aggregate progress and only actual published
+  results, not provisional media allocation
+- **WHEN** a precise order is incomplete
+- **THEN** paginated purchased targets remain visible as In handling or Published
+  while internal Pending/Publishing steps remain hidden
+- **AND** completed count, original quantity, expected completion date, purchased
+  terms and links remain distinguishable from the secondary frozen article.
+
+#### Scenario: The seven-day expected period passes
+
+- **WHEN** an unfinished order passes seven calendar days after purchase
+- **THEN** a delay marker accompanies its actual state
+- **AND** elapsed time alone never publishes, completes, closes or refunds it.

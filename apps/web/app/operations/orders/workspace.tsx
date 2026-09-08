@@ -15,6 +15,8 @@ import { AdminSidebar } from "../../admin/admin-sidebar.js";
 import { SafeMarkdown } from "../../diagnosis/safe-markdown.js";
 import { AgreementSummary } from "../../publishing/agreement-summary.js";
 import { SessionExitActions } from "../../session-exit-actions.js";
+import { PublicationWorkPanel } from "./publication-work.js";
+import { deliveryStatusLabel } from "../../orders/publication-results.js";
 import {
   loadRoleSession,
   sessionFailureState,
@@ -350,7 +352,7 @@ export function DeliveryWorkspace({
                   <div className="commerce-card-heading">
                     <h2>{item.title}</h2>
                     <span className="current-badge">
-                      {item.status === "PUBLISHING" ? "发布中" : "待领取"}
+                      {deliveryStatusLabel[item.status]}
                     </span>
                   </div>
                   <p>
@@ -390,7 +392,7 @@ export function DeliveryWorkspace({
             <section className="commerce-intro">
               <div>
                 <span className="current-badge">
-                  {order.status === "PUBLISHING" ? "发布中" : "待领取"}
+                  {deliveryStatusLabel[order.status]}
                 </span>
                 <h2>{order.title}</h2>
                 <p>
@@ -460,7 +462,9 @@ export function DeliveryWorkspace({
                 )}
               {!admin && order.delivery.startedAt && (
                 <p>
-                  你已开始处理此订单。发布结果录入将在本切片后续接入，目前不会显示虚构的完成进度。
+                  {order.status === "COMPLETED"
+                    ? "所有已购发布已完成。仍可按真实情况纠正录入错误，纠正不改变已购承诺。"
+                    : "可在下方逐项处理发布内容或直接录入已发布结果。"}
                 </p>
               )}
               {admin && order.delivery.assigneeAccountId && (
@@ -521,6 +525,14 @@ export function DeliveryWorkspace({
                 <p>订单尚未认领，请由运营从订单池领取。</p>
               )}
             </section>
+            <PublicationWorkPanel
+              order={order}
+              canWrite={
+                !admin &&
+                order.delivery.assigneeAccountId === session.account.id
+              }
+              onChanged={() => refresh()}
+            />
             <AgreementSummary terms={order.agreement} />
             <details className="commerce-editor">
               <summary>查看购买时的文章</summary>

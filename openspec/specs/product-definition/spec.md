@@ -39,8 +39,11 @@
   those future scenarios below do not activate their runtime capabilities.
   Order admission, exclusive whole-order responsibility, explicit start/return
   and administrator reassignment now use [Publication Delivery](../publication-delivery/spec.md).
-  The marker is retained for results, exceptions/settlement and other unactivated
-  capabilities, not a second owner of implemented responsibility rules.
+  Sparse work items, Mock/manual preparation, effective results/corrections,
+  customer-safe progress and normal automatic completion also use that owner.
+  The marker is retained for exceptions/settlement, deadline-priority workbench
+  presentation and other unactivated capabilities, not a second owner of
+  implemented responsibility or normal-result rules.
 
 ## Requirements
 
@@ -1721,22 +1724,11 @@ than internal operations detail.
   will contact the customer and retains the support entry
 - **AND** replacement and point return continue through the approved manual path
 
-#### Scenario: Operations returns a successful publication
-
-- **WHEN** operations records one successful publication
-- **THEN** the customer sees one result card containing the media platform,
-  published article title, directly accessible link, publication time, and
-  current status
-- **AND** the result does not expose the specific publishing account
-- **AND** the card appears without waiting for the entire order to complete
-- **AND** the order shows completed progress against the purchased publication
-  quantity
-
-#### Scenario: A random publishing order reaches its quantity
-
-- **WHEN** the order contains the purchased number of valid publication results
-- **THEN** the order completes automatically
-- **AND** the customer is not required to perform a separate acceptance action
+Normal result recording/correction, immediate customer visibility and automatic
+completion from actual purchased quantity are owned by
+[Publication Delivery](../publication-delivery/spec.md). The scenarios below
+retain the unactivated negotiation/termination boundaries, not a second result
+implementation.
 
 #### Scenario: A precise publishing order resolves every selection
 
@@ -1746,15 +1738,8 @@ than internal operations detail.
 - **THEN** the order completes automatically
 - **AND** the customer is not required to perform a separate acceptance action
 
-#### Scenario: An order exceeds the expected publishing period
-
-- **GIVEN** seven calendar days have elapsed since successful paid order
-  submission
-- **WHEN** the agreed publication work is not complete
-- **THEN** the customer can see that fulfilment is delayed
-- **AND** operations continues handling the order
-- **AND** elapsed time alone does not automatically complete, fail, or refund the
-  order
+The customer delay marker and its non-automatic consequences also use the
+Publication Delivery owner above; workbench urgency ordering remains pending.
 
 #### Scenario: A publication cannot be completed
 

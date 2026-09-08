@@ -115,6 +115,8 @@ export class PostgresDeliveryAssignmentRepository {
       }
       if (row.revision !== command.expectedRevision)
         throw new ConflictException("订单已被更新，请刷新后再操作");
+      if (row.status === "COMPLETED" && command.action !== "REASSIGN")
+        throw new ConflictException("订单已完成，不能重新认领、开始或退回");
       let assigneeAccountId = row.assigneeAccountId;
       let startedAt = row.startedAt;
       if (command.action === "CLAIM") {
@@ -147,7 +149,12 @@ export class PostgresDeliveryAssignmentRepository {
         data: {
           assigneeAccountId,
           startedAt,
-          status: assigneeAccountId ? "PUBLISHING" : "PENDING_HANDLING",
+          status:
+            row.status === "COMPLETED"
+              ? "COMPLETED"
+              : assigneeAccountId
+                ? "PUBLISHING"
+                : "PENDING_HANDLING",
           revision: { increment: 1 },
         },
       });

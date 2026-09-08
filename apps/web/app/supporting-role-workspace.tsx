@@ -227,7 +227,7 @@ export function supportingRoleConfig(
       eyebrow: "运营工作区",
       title: "履约工作台",
       introduction:
-        "从订单池认领已购服务，在我的订单中开始处理；异常与结果回传继续按履约切片接入。",
+        "从订单池认领已购服务，逐项准备内容或直接录入发布结果；客户可查看真实进度。",
       boundary:
         "运营负责已支付订单的发布履约与普通异常，不管理账号角色、平台价格或客户积分。",
       navigation: [
@@ -258,8 +258,9 @@ export function supportingRoleConfig(
           status: "FUTURE_CAPABILITY",
         },
         {
-          title: "异常与结果回传",
-          description: "后续在订单边界内处理发布异常并记录可访问的发布结果。",
+          title: "协商异常与退点",
+          description:
+            "协商替换、停止剩余工作与管理员退点将在下一切片接入；普通结果已在履约订单中处理。",
           status: "FUTURE_CAPABILITY",
         },
       ],

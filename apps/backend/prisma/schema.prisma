@@ -206,6 +206,7 @@ model Account {
   pointChangesActed         PointChange[]
   publicationDeliveries     PublicationDelivery[]           @relation("DeliveryAssignee")
   publicationDeliveryAudits PublicationDeliveryAudit[]
+  publicationWorkAudits     PublicationWorkAudit[]
   questionPreparations      EvaluationQuestionPreparation[]
   identityAuditsActed       IdentityGovernanceAudit[]       @relation("IdentityAuditActor")
   identityAuditsTargeted    IdentityGovernanceAudit[]       @relation("IdentityAuditTarget")
@@ -972,6 +973,7 @@ model PublishingOrder {
 enum PublicationDeliveryStatus {
   PENDING_HANDLING
   PUBLISHING
+  COMPLETED
 }
 
 model PublicationDelivery {
@@ -980,14 +982,51 @@ model PublicationDelivery {
   status            PublicationDeliveryStatus  @default(PENDING_HANDLING)
   assigneeAccountId String?                    @map("assignee_account_id") @db.Uuid
   revision          Int                        @default(1)
+  publishedQuantity Int                        @default(0) @map("published_quantity")
   startedAt         DateTime?                  @map("started_at")
   createdAt         DateTime                   @default(now()) @map("created_at")
   order             PublishingOrder            @relation(fields: [orderId], references: [id], onDelete: Restrict)
   assignee          Account?                   @relation("DeliveryAssignee", fields: [assigneeAccountId], references: [id], onDelete: Restrict)
   audits            PublicationDeliveryAudit[]
+  workItems         PublicationWorkItem[]
+  workAudits        PublicationWorkAudit[]
 
   @@index([assigneeAccountId, sequence])
   @@map("publication_deliveries")
+}
+
+model PublicationWorkItem {
+  orderId       String              @map("order_id") @db.Uuid
+  slot          Int
+  revision      Int                 @default(1)
+  platformId    String              @map("platform_id") @db.Uuid
+  startedAt     DateTime?           @map("started_at")
+  preparation   Json?
+  result        Json?
+  delivery      PublicationDelivery @relation(fields: [orderId], references: [orderId], onDelete: Restrict)
+
+  @@id([orderId, slot])
+  @@map("publication_work_items")
+}
+
+model PublicationWorkAudit {
+  id             String              @id @default(uuid()) @db.Uuid
+  orderId        String              @map("order_id") @db.Uuid
+  slot           Int
+  revision       Int
+  orderRevision  Int                 @map("order_revision")
+  actorAccountId String              @map("actor_account_id") @db.Uuid
+  idempotencyKey String              @map("idempotency_key") @db.Uuid
+  request        Json
+  beforeState    Json?               @map("before_state")
+  afterState     Json                @map("after_state")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  delivery       PublicationDelivery @relation(fields: [orderId], references: [orderId], onDelete: Restrict)
+  actor          Account             @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, idempotencyKey])
+  @@unique([orderId, slot, revision])
+  @@map("publication_work_audits")
 }
 
 model PublicationDeliveryAudit {

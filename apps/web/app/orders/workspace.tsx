@@ -11,6 +11,10 @@ import { CustomerSidebar } from "../customer-sidebar.js";
 import { SafeMarkdown } from "../diagnosis/safe-markdown.js";
 import { AgreementSummary } from "../publishing/agreement-summary.js";
 import {
+  CustomerPublicationResults,
+  deliveryStatusLabel,
+} from "./publication-results.js";
+import {
   loadRoleSession,
   sessionFailureState,
   WorkspaceAccessPanel,
@@ -139,7 +143,7 @@ export function OrderWorkspace({ orderId }: { orderId?: string }) {
                   <div className="commerce-card-heading">
                     <h2>{item.title}</h2>
                     <span className="current-badge">
-                      {item.status === "PUBLISHING" ? "发布中" : "待处理"}
+                      {deliveryStatusLabel[item.status]}
                     </span>
                   </div>
                   <p>
@@ -182,7 +186,7 @@ export function OrderDetail({ order }: { order: PublishingOrder }) {
       <section className="commerce-intro">
         <div>
           <span className="current-badge">
-            {order.status === "PUBLISHING" ? "发布中" : "待处理"}
+            {deliveryStatusLabel[order.status]}
           </span>
           <h2>{order.title}</h2>
           <p>
@@ -193,16 +197,20 @@ export function OrderDetail({ order }: { order: PublishingOrder }) {
         <a href="/account">查看积分流水 →</a>
       </section>
       <p className="commerce-notice">
-        {order.status === "PUBLISHING"
-          ? "运营已接手处理本订单。"
-          : "购买已完成，订单等待平台处理。"}
+        {order.status === "COMPLETED"
+          ? "已购发布已全部完成，无需再次确认验收。"
+          : order.status === "PUBLISHING"
+            ? "运营已接手处理本订单。"
+            : "购买已完成，订单等待平台处理。"}
         此处保留购买时的文章及服务约定；后续修改品牌、文章或媒体价格不会改变本订单。
       </p>
-      <AgreementSummary terms={order.agreement} />
-      <section className="commerce-editor" aria-label="购买时的文章">
-        <h2>购买时的文章</h2>
+      <CustomerPublicationResults order={order}>
+        <AgreementSummary terms={order.agreement} />
+      </CustomerPublicationResults>
+      <details className="commerce-editor" aria-label="购买时的文章">
+        <summary>查看购买时的文章</summary>
         <SafeMarkdown markdown={order.bodyMarkdown} highlights={[]} />
-      </section>
+      </details>
     </>
   );
 }

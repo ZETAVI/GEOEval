@@ -38,6 +38,21 @@ A reuses the accepted single-database transaction shape, with the human-approved
 - Use an async-capable `VariantPreparer` port with frozen purchased article and slot/placement context, initially deterministic Mock or explicit manual content. Run preparation outside database transactions and fence its later save by the relevant item revision. Do not require selecting a historical variant when reporting publication, and never infer actual publication from generated content.
 - Claiming marks the order publishing but not all slots as started. Recoverable slot exceptions do not force an overall exception when work can still meet the purchased promise. Seven-day delay is a marker, not automatic failure/refund.
 
+Implementation refinement: one sparse work-item row holds the currently prepared
+content and effective result as separately validated value objects; a work audit
+retains corrections and exact-request recovery. No separate result registry or
+generation-run state machine is introduced. The aggregate's published count is
+updated under the same lock as the result, and active canonical URLs are unique
+within an order (fragments cannot count as new publications). Actual work sets
+the order's start fact, even when a result is reported directly; Completed
+assignment changes preserve Completed. Async preparation preflights briefly,
+runs outside transactions, then rechecks current Identity role/status as well as
+assignee and both revisions at save. The deterministic preparer is unavailable
+in production; manual content/result recording is distinct from Mock generation.
+Content limits must accept the full supported purchased core article rather
+than impose a smaller hidden preparation limit. Customer result pages reuse
+Commerce's original-order ownership check and exclude all internal work data.
+
 ## 4. Fulfilment and settlement are separate facts
 
 | Scenario                                            | Fulfilment                                                | Settlement information                             |

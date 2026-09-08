@@ -23,3 +23,27 @@ A second bounded independent review, requested by the human, identified three co
 - Slice 1 persists only what its real caller uses; settlement structures belong to slice 2, and real-Writer orchestration tables remain outside the Issue.
 
 These reductions are adopted in the design and deltas. Status: ready for the approved bounded implementation, not a feature-completion or merge verdict.
+
+## Results-slice retrospective
+
+At the verified responsibility baseline `2658295`, the Issue was not complete:
+no per-publication result, completion or settlement existed. Existing 340-test
+backend, 91-test Web and browser evidence covered responsibility, not these new
+claims. Repeating that review would not establish result correctness.
+
+The bounded continuation keeps Delivery ownership, sparse work and a single
+transactional result count; there is no new workflow/queue/approval engine or
+payment adapter. Independent seam review identified async Identity changes as
+an additional save-time fence, and confirmed the required old/new interactions:
+direct work establishes startedAt; reassignment cannot reopen Completed. Lead
+also checked preparation limits against the accepted core article contract.
+These are concrete correctness adjustments, not a broader redesign.
+
+Result HTTP/DB and UI implementation evidence belongs in the PR and its results
+verification record. Full page submission and narrow-screen confirmation remain
+separate from automated tests, and the parent retains exception/settlement work.
+The workbench deadline-priority presentation and final operational recovery
+rehearsal are still slice acceptance follow-through, not implicitly delivered by
+adding result storage. #77 points-module extraction is coordinated after a
+stable results checkpoint and before return implementation; recharge behavior
+does not enter this results diff.

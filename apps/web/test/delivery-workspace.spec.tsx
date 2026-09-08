@@ -5,7 +5,15 @@ import {
   DeliveryWorkspace,
 } from "../app/operations/orders/workspace.js";
 import { OrderDetail } from "../app/orders/workspace.js";
-import type { DeliveryOrderPage, PublishingOrder } from "@geoeval/api-client";
+import {
+  PublicationResultsView,
+  deliveryStatusLabel,
+} from "../app/orders/publication-results.js";
+import type {
+  CustomerPublicationPage,
+  DeliveryOrderPage,
+  PublishingOrder,
+} from "@geoeval/api-client";
 
 function deliveryPage(first: number, last: number): DeliveryOrderPage {
   return {
@@ -34,6 +42,7 @@ function deliveryPage(first: number, last: number): DeliveryOrderPage {
           status: "PENDING_HANDLING",
           assigneeAccountId: null,
           revision: 1,
+          publishedQuantity: 0,
           startedAt: null,
           createdAt: "2026-09-08T00:00:00Z",
         },
@@ -119,6 +128,46 @@ describe("delivery pagination read baseline", () => {
 });
 
 describe("delivery entry and customer status", () => {
+  it("renders accessible public results and precise pending targets without a customer acceptance action", () => {
+    const page: CustomerPublicationPage = {
+      status: "PUBLISHING",
+      quantity: 2,
+      publishedQuantity: 1,
+      expectedCompletionAt: "2026-09-15T00:00:00Z",
+      delayed: false,
+      nextAfterSlot: null,
+      items: [
+        {
+          slot: 1,
+          state: "PUBLISHED",
+          targetName: "指定媒体 A",
+          result: {
+            platformId: "media-a",
+            displayName: "指定媒体 A",
+            title: "已发布标题",
+            url: "https://example.com/article",
+            publishedAt: "2026-09-08T00:00:00Z",
+          },
+        },
+        {
+          slot: 2,
+          state: "IN_HANDLING",
+          targetName: "指定媒体 B",
+          result: null,
+        },
+      ],
+    };
+    const html = renderToStaticMarkup(<PublicationResultsView page={page} />);
+    expect(html).toContain("已发布标题");
+    expect(html).toContain('href="https://example.com/article"');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).toContain("指定媒体 B");
+    expect(html).toContain("处理中");
+    expect(html).not.toMatch(
+      /确认验收|确认收货|preparation|internalChannel|internalNote/,
+    );
+    expect(deliveryStatusLabel.COMPLETED).toBe("已完成");
+  });
   it.each([false, true])(
     "protects the role-specific workspace before loading data (%s)",
     (admin) => {
