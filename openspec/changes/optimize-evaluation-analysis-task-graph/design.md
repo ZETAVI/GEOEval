@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: retain inline target candidate; long-answer coverage remains unstable;
+Status: validate stable business-subject interpretation and fresh transfer;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,55 +14,59 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — all brands and inline target interpretation
+### Current package — business-subject interpretation
 
-The owner explicitly removes relevance/category filtering and asks to place
-brand recognition and target interpretation together. Recognize each actually
-named brand in the complete answer, including supplementary categories and
-named platforms/tools; recommendation eligibility remains separate, with purely
-background mentions false. Unnamed descriptions, dishes and locations are not
-invented brands. Preserve distinct first-appearance order and normal aliases.
+The owner-approved retrospective restores one stable purpose: interpret a sampled
+answer's business portrayal for a GEO report. Understand the consumer question and
+the answer's actual merchant/product/service choices; do not turn the task into
+fine-category reselection or proper-name inventory. The prior platform/tool
+inclusion was an agent scope error, not an unresolved customer statistics choice.
+The historical long-answer first reply misses three merchants; the second includes
+all five merchants plus an erroneous lookup-platform row. Missing payment names
+are not failures. Preserve all original outputs and link the correction.
 
-Architecture readiness: `ready` for a reversible owner-local experiment, not
-runtime adoption. Reuse brand rows but place nullable targetDescription on each
-row and remove both isTarget and the top-level description. A non-null description
-is the one target declaration and contains its points/summary; every other row
-has null. This eliminates duplicate target-state expression, not false absence:
-a real target can still be incorrectly returned with null or omitted, requiring
-semantic review. Do not infer identity from exact names or fabricate descriptions.
-Multiple described target rows and duplicates reject; never merge or repair them.
+Readiness reuses the existing owner-local interface/architecture review. Only
+the experimental Prompt and array description change: remove competing scope
+instructions and use one complete fictional example of the same business task.
+Wire fields/types/limits, inline target description, source restoration, low
+interpretation route, index-before-split/filter projection and downstream parsed
+handoff remain unchanged. No runtime/public API/persistence/new Agent/dependency.
+The null-description identity convention is still an experimental risk: a false
+null may misclassify a real target. Verify semantic target presence/description,
+not only structure; do not infer identity or fill prose in program code.
 
-The alternative of retaining isTarget plus a per-row nullable description would
-co-locate fields but still permit contradictory state. A new discriminated row
-hierarchy is unnecessary for this bounded test. The existing nullable object
-schema, source restoration and downstream target/other summary are reused; indices
-are still assigned before splitting or positive filtering. No public API,
-persistence, dependency, runtime import, additional Agent or model change.
-Strict nullable support reuses controlled route evidence in the existing source
-brief; whether this row-local shape is handled well is measured, not assumed.
+Verification has two deliberately distinct groups. Four previously tuned restaurant
+answers are developer/regression evidence, not an independent test set. This
+bounded package replays the long answer twice and the supplementary/absence cases
+once each. Freeze Prompt, routes, acquisition questions and recipes before obtaining
+two new answers for a public coffee-brand diagnostic; replay neither the Prompt
+nor the fresh questions after seeing the answers. No target name enters either
+open acquisition wire. The newly generated answers are independent of this Prompt
+revision's design, not a population sample or multi-platform acceptance result.
 
-Use one small complete fictional output example without real test answers. Freeze
-the four authorized retained answers twice, max eight/concurrency two, Qwen low,
-strict mode and 180-second timeout. Input/query/source remain exact. Basic Provider/
-finish/JSON/schema failure stops remaining pairs after started requests settle;
-coherence/source/semantic failures are retained without retry or repair. No new
-sampling, search or synthesis. Actual IO/operational metadata only to private
-Langfuse, independent review and program results local. This tests a combined
-scope/representation package, not isolated causality or old-category accuracy.
-Rollback is non-selection; formal scope/position and owner reconciliation remain
-required before activation. Verify inline present/absent target, old field
-rejection, array indices before filtering and unchanged parsed-only handoff.
+Total cap eight calls, peak concurrency two: four regression interpretations,
+two Qwen acquisitions, two corresponding Qwen3.8 Flash low interpretations. Reuse
+the existing Qwen acquisition route and objectivity profile, with its native search;
+interpretation has no search. The two fresh questions express ordinary needs,
+not verified store facts or saved Brand/Query records. No new business lookup,
+automatic retry/fallback/synthesis, cross-worktree write or formal activation.
 
-Result at `2fb0e75`: [six target-present and two absent replies](research/chain-quality-experiment.md#all-brand-inline-interpretation--target-completion-with-coverage-residual)
-all interpret target state correctly, with useful inline prose where present.
-No unnamed object is invented. Two input cases repeat complete correct order;
-the long answer still misses named subjects. This supports retaining the package
-but does not isolate the effect of co-location from changed scope/example, nor
-establish general stability. Keep structure/model/scope fixed for one bounded
-coverage follow-up; transfer beyond these retained cases follows, rather than
-open-ended Prompt tuning. Recognized platform use can be positively recommended
-without being a merchant competitor: resolve that downstream business meaning
-before formal integration, not by deleting records or changing raw flags now.
+Freeze complete regression requests and fresh-input recipes before execution.
+Bind each fresh parser request exactly to its saved acquired answer and frozen
+instruction/schema; persist the actual request before calling. Provider/finish/
+JSON/basic-Schema failure stops new stages after in-flight requests settle.
+Retain semantic/source/coherence failures without repair. Actual model IO and
+operational metadata only to authorized private Langfuse, review/projections local.
+
+Stop after this package regardless of the outcome. If a core error persists,
+record the concrete failure and changed next action instead of an automatic next
+Prompt version. Any success supports retaining this candidate and proceeding to
+report-path verification, not production, UI/recovery or 3–5-minute acceptance.
+Current formal scope/position owners must still be reconciled before activation.
+
+Historical material below records prior decisions and their context only; current
+instructions and next actions are owned by this section, the proposal and tasks.
+
 
 ### Previous package — category examples and ordered brand rows
 

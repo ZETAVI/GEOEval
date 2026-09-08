@@ -25,8 +25,8 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 
 - **WHEN** the first-appearance Parser candidate interprets a retained raw answer
 - **THEN** it records one row per actually mentioned recognizable brand subject
-- **AND** the current all-brand experiment does not filter subjects by question
-  relevance, category or role; named supplementary/tool brands also retain order
+- **AND** records represent the answer's merchant/product/service subjects,
+  understood in the consumer-question context rather than a proper-name inventory
 - **AND** positions follow distinct subjects' first appearances as 1,2,3,...,
   including separate positions for brands co-listed inside one sentence/item
 - **AND** later aliases or repeated mentions reuse the first brand record
@@ -36,14 +36,15 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 - **AND** current product/spec/report consumers are reconciled before formal
   activation; this probe does not rewrite accepted samples or report history.
 
-#### Scenario: All named brands are recognized before recommendation eligibility
+#### Scenario: The Parser interprets business portrayal rather than collecting names
 
 - **WHEN** the owner-approved experimental Parser selects other-brand records
-- **THEN** it recognizes actual named brands across the complete answer without
-  question-relevance, category, supplementary-section or tool-brand filtering
-- **AND** unnamed descriptions, dishes and locations are not invented brands
-- **AND** a named background brand can be recognized with false recommendation
-  eligibility; recognition does not imply positive competitor statistics
+- **THEN** it identifies the business subjects actually introduced, compared or
+  evaluated in the answer and explains the target's portrayal
+- **AND** it preserves the answer's commercial choices rather than reselecting
+  fine categories or treating every proper name as a business subject
+- **AND** evidence-backed target mention, subject identity and recommendation
+  eligibility remain distinct judgments
 - **AND** target mention is still assessed from the full original answer
 - **AND** first-appearance order and positive recommendation eligibility keep
   their separate meanings; source history and formal runtime are not rewritten.
@@ -51,7 +52,7 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 #### Scenario: Output sequence owns experimental positions
 
 - **WHEN** the ordered-brand candidate interprets an open answer
-- **THEN** the wire output lists target and all named other brand subjects
+- **THEN** the wire output lists target and other identified business subjects
   together in first-appearance order without a position field
 - **AND** program projection derives index + 1 before separating target/others
   and filtering positive recommendations

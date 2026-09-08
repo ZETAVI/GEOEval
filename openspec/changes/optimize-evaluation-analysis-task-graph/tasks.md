@@ -2,154 +2,41 @@
 
 ## Current checkpoint
 
-Exact historical packages, failed candidates and manifests live in the
-[experiment record](research/chain-quality-experiment.md). Completed probes are
-not a remaining backlog. The owner wants practical, stable, efficient analysis
-of real answers, with no fine-condition or minor-wording acceptance gate.
+Historical probes are evidence, not a remaining backlog:
+[experiment record](research/chain-quality-experiment.md).
+The current role and decisions live in [the proposal](proposal.md).
 
-- [x] Audit main, Issue/PR/Project ownership and actual sampling/Parser/synthesis
-      consumers; keep natural acquisition and accepted metric meaning.
-- [x] Compare bounded Parser Prompt/context/contract candidates, separately retain
-      raw/model and program output, and stop advancing the tested Parser split.
-- [x] Retain the single-call open Parser scope, full answers and source-restored excerpts.
-      Overall-positive recommendations with ordinary drawbacks remain eligible.
-- [x] Verify actual model IO presentation and private Langfuse readback; independent
-      semantic review, program projections and readable reports stay local.
-- [x] Run the Interaction Pie three-open-question chain and inspect the final output.
-- [x] Supersede strict action-wording calibration and name-only hypotheses with
-      the owner's practical direction and representative real-merchant validation.
-- [x] Freeze and execute one new-merchant four-question × five-platform matrix:
-      41 calls, peak concurrency five, no retry/fallback, original outputs retained.
-- [x] Keep direct-question descriptions separate from open-question competitors;
-      mark unavailable parses separately instead of treating them as absence.
-- [x] Rebuild the recorded handoff/preview offline, inspect real source and final
-      result, and separate Provider, structure, semantic and timing conclusions.
+- [x] Retain single-call parsing, complete original answers, task-relevant
+      downstream evidence and program-owned statistics.
+- [x] Retain inline target interpretation and array-derived positions as candidates;
+      false-null remains a semantic failure even when shape validation passes.
+- [x] Correct the agent's all-name/platform interpretation and exception-list
+      response using the owner's consumer-facing business-subject goal.
+- [x] Keep historical raw outputs intact; reclassify the long-answer problem as
+      merchant omissions/lookup-platform over-inclusion, not missing payment brands.
 
-## Next bounded package
+## Current bounded package
 
-- [x] Correct the prior target-identity review using the owner's confirmed
-      same-brand meaning; do not make spelling or legal-entity rigor a new gate.
-- [x] Execute the frozen practical Prompt package; stop at 5/7 after unknown
-      brand references. Do not adopt the broader Parser instruction or label
-      planned-but-skipped repetition/other-business calls successful.
-- [x] Restore prior Parser scope plus optional owner context (1.4.0), constrain
-      synthesis reference choices (1.3.0), and complete the separately frozen
-      four calls. Both repeated synthesis references pass; semantic groups do not.
-- [x] Test the lossless input-layout candidate with unchanged task/model/Schema;
-      stop after 2/4, retain failed output and do not adopt the flat layout as a fix.
-- [x] Execute the separate final two-call grouping-only diagnostic on the same
-      brand records. Confirm useful improvement and preserve the remaining
-      store-name/member and incomplete-grouping differences; do not claim stability.
-- [x] Freeze and execute the four-call minimal report-composition test. One useful
-      preview takes 71.255 seconds/24,833 tokens; second grouping repeats members,
-      so no second report is assembled. Retain all outputs and measure both calls;
-      do not claim repeat stability, full-evaluation timing or selected topology.
-- [x] Diagnose the rejected raw grouping and verify identical repeated HTTP bodies;
-      program assembly/input drift are not the cause. Practical narrative scope
-      remains useful; actual IO readback matches and private review stays local.
-- [x] Complete the owner's six-call low/medium/xhigh comparison with only effort
-      changed and no analysis search. Retain medium for the next controlled
-      matrix: two consistent member partitions in 41.812–54.230 seconds; neither
-      low nor xhigh gives a better overall result in this batch.
-- [x] Run the second merchant's complete four-question/five-platform matrix:
-      42 Provider calls and 20 Parser structures succeed, but grouping repeats
-      members and no complete preview is formed. Record 219.361-second
-      sampling/Parser, 72.828-second synthesis and 292.527-second failed-attempt
-      wall time; this is not successful report/SLA acceptance.
-- [x] Test one-assignment-per-record expression twice on each retained merchant
-      handoff: all four structures pass, and the second merchant's 72 assignments
-      agree exactly. Retain this candidate without claiming general stability;
-      one first-merchant output still guesses an unnamed record's identity.
-- [x] Replay four observed open-Parser cases with 1.4.0/1.5.0 Prompt-version
-      packages at unchanged input/Schema/low effort. Reject 1.5.0 after persistent
-      position/coverage errors and eight repeated unnamed records; restore 1.4.0.
-- [x] Review and test source-located single-call brand rows on four cases twice:
-      source-order improves twice, shared-item coverage once; two duplicate-row
-      projections reject and the shared-item repeat still omits named brands.
-      Retain the candidate, default Parser unchanged; no silent dedup/renumbering.
-- [x] Supersede the alternate-route proposal with the owner's Prompt-first
-      decision: unchanged Qwen3.8 Flash / low, one row per brand subject, first
-      appearance position, no standalone sourceItemLine output. Full raw input
-      and evidence excerpts remain, without pre-extracted brands or positions.
-- [x] Verify concise brand-row 1.1.0 on four real answers twice: all eight basic
-      structures pass, seven project, both shared-item replies cover named brands.
-      Retain the one wrong other-brand ordering and one unsupported absent-target
-      row; no raw repair or semantic-success rate from projection counts.
-- [x] Supersede shared-item ties with the owner's first-appearance order for
-      distinct brands; keep the required nullable targetDescription slot and
-      no target row on absence. Record this as changed experimental meaning,
-      not an already-activated current spec or old-policy accuracy improvement.
-- [x] Validate rows 1.2.0 on four real cases twice at fixed input/schema/program/
-      Qwen low: correct six-brand order and target absence repeat, but three
-      present targets lack descriptions, one result repeats brands, and one
-      omits four other brands. Reject the Prompt package, retain the new meaning.
-- [x] Prepare the nullable-target representation with the existing summary schema,
-      freeze eight calls and obtain explicit source-content authorization. Execute
-      two; stop on Provider HTTP500/STOP_ENGINE_ABORT, without retries or starting
-      the remaining six. Preserve the one full target reply and its five missing
-      other brands, and publish actual input/output as protected local evidence.
-- [x] Complete the eight-call matched coverage comparison at fixed input/schema/
-      Qwen low. Candidate gains supplementary coverage and two named restaurants,
-      but adds an explicitly unnamed description as a brand. Both arms already
-      succeed on source order/shared names. Retain the direction, not a stable
-      candidate; preserve full paired input/output and shared-success attribution.
-- [x] Replace maximal coverage with the owner's context-relevant named-brand scope:
-      ignore unnamed objects and off-topic incidental merchants, keep relevant
-      supplements and full-answer target mention. Supersede the previous dessert/
-      snack coverage gain; historical outputs remain intact under their old goal.
-- [x] Validate nullable-target 1.2.0 on four retained real answers twice, eight/
-      concurrency two, unchanged full input/schema/program/Qwen low. Both exclusion
-      cases repeat correctly, but related options remain omitted and one complete
-      six-subject reply skips a position. Preserve actual IO; no general stability
-      claim, sampling, search, synthesis, retry or runtime activation.
-- [x] Supersede further numeric Prompt rules with the owner's ordered-output
-      decision; confirm exact query input and same-category competitor examples.
-- [x] Reuse the brand-row experiment without a model position field; derive array
-      indices before target/other splitting and eligibility filtering. Preserve
-      raw order/errors, full input, target description and parsed-only synthesis.
-- [x] Complete eight frozen Qwen low calls: no model position fields, but four
-      target-state rejections; category over-inclusion, merged subjects, unnamed
-      additions and false target remain. Preserve exact IO and distinguish
-      mechanically continuous indices from semantic quality; no candidate adoption.
-- [x] Supersede the fixed-category/example-only plan with the owner's all-brand
-      scope and inline target description; retain order and positive eligibility.
-- [x] Remove duplicate target state from the ordered-row experiment: one nullable
-      description per row, no isTarget or root description. Verify old-field
-      rejection, true absence, false-null preservation and unchanged projection.
-- [x] Complete eight frozen calls: six correct present-target descriptions and
-      two correct absences; no invented unnamed brands. Complete lists repeat
-      twice on two cases, while the long answer retains definite omissions.
-      Raw/schema/projection/semantic conclusions and private IO are separate.
-- [ ] Keep inline structure, all-brand scope and Qwen low fixed for one bounded
-      long-answer coverage follow-up, then test transfer beyond these old cases.
-      Resolve tool-use recommendation versus formal competitor eligibility before
-      integration; do not silently restore filtering or expand the Agent graph.
-- [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
-      no direct call or formatting change was part of this ten-call package.
-- [x] Clarify narrative directions' GEO/media-content purpose and test twice on
-      unchanged retained input. Both orient toward publicity, but one still
-      over-expands into a problematic concrete promotion example.
-- [x] Test narrative 1.2.0 twice on the unchanged parsed handoff. Retain its
-      one-or-two article-topic scope for strengths and information gaps, with
-      useful ~25-second outputs. Do not send full original answers downstream.
-- [ ] Retain the observed direct-question/ranking overview residual for final
-      report checks; do not turn it into a new critic or broad wording gate.
-- [ ] Before formal delivery, explicitly resolve or disposition the retained
-      duplicate-grouping report failure. Keep both merchants' failed evidence
-      and rejection; no tail trimming or claim that good repetitions fix it.
-- [x] Review the remaining named/unnamed, member and direct-Parser cases by their
-      actual report impact; distinguish raw-field anomalies from visible detail
-      and isolate the new bounded regressions above instead of an indefinite backlog.
-- [ ] Recheck the final readable report and core statistics at the practical
-      quality bar. The historical coffee case remains an observation/regression,
-      not an indefinite tuning gate. Do not resume every old topology comparison.
+- [ ] Rewrite the experimental Prompt task spine and full example, keeping the
+      3.0 Schema/program/input/model unchanged; verify the example and fixed diff.
+- [ ] Freeze up to eight calls at concurrency two: four old regression parses,
+      then two fresh coffee acquisitions and two corresponding parses. No Prompt
+      edits after seeing fresh answers, no retry/fallback/synthesis or record writes.
+- [ ] Review actual wire/raw output separately from projection. Compare real target
+      presence, business subjects, order, eligibility and useful prose; do not
+      call old developer cases an independent test set.
+- [ ] Reconcile current Issue/PR/parent pointers and publish concrete input/output,
+      preserved choices, failures and the bounded next action. No automatic sweep.
 
-The next Parser decision concerns repeatability of brand-identity/occurrence and
-shared-brand coverage, not another rewrite of every Prompt. Source-order evidence
-has improved in the located-row candidate but formal integration is unverified. A light
-formatting view remains an independent hypothesis, not a proven fix: retain
-original answers and evidence mapping, list/heading/table structure and full
-content. No extra call is appended to the completed six/ten/eight-call packages.
+## Retained report-level work
+
+- [ ] Disposition direct-Parser readable malformed names and the duplicate-grouping
+      report failure at their owning seams; do not trim raw output into success.
+- [ ] Retain useful short GEO article-topic directions and parsed-only synthesis
+      context; avoid fine wording or standalone criticism Agent requirements.
+- [ ] Validate cross-brand transfer and the assembled customer report, including
+      mention/order/statistics, source faithfulness, grouping and content direction.
+
 
 ## Actual delivery — still outstanding
 

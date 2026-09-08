@@ -49,6 +49,24 @@ const raw = () => ({
 });
 
 describe("M4 single Parser brand-subject rows", () => {
+  it("keeps the complete worked example valid with target after a negative merchant", () => {
+    const task = buildM4BrandRowsTask(prepared);
+    const example = JSON.parse(
+      task.systemInstruction.split("输出：\n").at(-1)!,
+    );
+    const result = inspectM4BrandRowsOutput(
+      example,
+      "山岚小馆服务差，不推荐。\n青禾粤菜出品稳定但价格偏高，值得考虑。\n饭后可以去甜园吃糖水，营业时间可在邻里指南上查询。",
+    );
+    expect(result.projected.output.target!.position).toBe(2);
+    expect(result.projected.output.target!.points[0]!.polarity).toBe("MIXED");
+    expect(
+      result.projected.output.otherBrands.map((b) => b.displayName),
+    ).toEqual(["山岚小馆", "甜园"]);
+    expect(result.projected.positiveCompetitors.map((b) => b.position)).toEqual(
+      [3],
+    );
+  });
   it("preserves full source input without supplying extracted brands or positions", () => {
     const before = structuredClone(prepared);
     const candidate = buildM4BrandRowsTask(prepared);
@@ -85,7 +103,7 @@ describe("M4 single Parser brand-subject rows", () => {
       source.split("\r\n").map((text, index) => ({ line: index + 1, text })),
     );
     expect(candidate.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@3.0.0",
+      "experiment.m4.parser-brand-rows@3.1.0",
     );
     expect(() =>
       buildM4BrandRowsTask({

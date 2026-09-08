@@ -28,9 +28,7 @@ export const m4BrandRowsSchema = z
     brands: z
       .array(brandRow)
       .max(11)
-      .describe(
-        "完整回答中的所有具名品牌共用一个列表，按首次出现顺序，每个主体一次。",
-      ),
+      .describe("按品牌主体首次出现顺序排列的记录。"),
   })
   .strict();
 
