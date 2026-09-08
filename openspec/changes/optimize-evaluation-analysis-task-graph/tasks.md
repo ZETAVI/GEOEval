@@ -67,10 +67,14 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       source-order improves twice, shared-item coverage once; two duplicate-row
       projections reject and the shared-item repeat still omits named brands.
       Retain the candidate, default Parser unchanged; no silent dedup/renumbering.
-- [ ] Hold interface/input fixed, verify the existing alternate route's actual
-      access/protocol/billing boundary, and prepare a small model/route comparison
-      for multiple occurrences and shared named items. No default switch, billing
-      activation, new Agent, parameter sweep or additional call in the ended batch.
+- [x] Supersede the alternate-route proposal with the owner's Prompt-first
+      decision: unchanged Qwen3.8 Flash / low, one row per brand subject, first
+      appearance position, no standalone sourceItemLine output. Full raw input
+      and evidence excerpts remain, without pre-extracted brands or positions.
+- [ ] Verify the concise brand-row 1.1.0 package on the same four real answers
+      twice (max eight, concurrency two). Preserve raw failures and compare
+      coverage, duplicates and first positions; no sampling, synthesis, retry,
+      search, model switch or runtime activation. Stop and report concrete cases.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

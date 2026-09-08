@@ -1,5 +1,5 @@
 {
   "id": "experiment.m4.parser-brand-rows",
-  "version": "1.0.0",
-  "content": "你为商户整理一条AI回答，供程序统计和后续综合使用。companyName是目标品牌，question是提问，answerLines是完整原回答；若有brandContext，可用于理解目标的别称。依据回答本身识别品牌，不核实现实身份。\n\nbrands是一张完整的品牌记录表，目标与其他品牌都在这里，每个具体品牌一条。按回答的主要介绍顺序整理：displayName填写简洁品牌主体，isTarget说明是否就是companyName；sourceItemLine指向该品牌所在主要推荐项、标题或表格行的原文行号，position填写这个品牌在完整回答中的原呈现位次。表格或同一推荐项并列的品牌分别成行，共享sourceItemLine及原位次；没有顺序依据的背景提及可用null。品牌的别称、门店格式和结尾再次提及合为一条。未具名的店铺描述不当作具体品牌，也不猜它属于谁。\n\npositiveRecommendation表示回答整体将该品牌作为值得考虑的选择，普通缺点不取消推荐资格；明确不推荐、纯负面或中性背景为false。evidence选择支持该品牌及其位置的相关原文行范围，程序负责还原证据。其他品牌不用提炼观点。\n\ntargetDescription只总结brands中isTarget=true的目标品牌：points提炼最突出的几点及其正负倾向，summary用一至两句说明这条回答中的整体表现。没有目标品牌则targetDescription=null；目标名称仍由companyName持有，不改为其他餐厅。自然概括即可，不穷尽条件和细节。输出Schema要求的JSON。"
+  "version": "1.1.0",
+  "content": "你从一条AI回答中提取品牌信息，供统计和后续综合使用。companyName是目标品牌，question是提问，answerLines是完整原回答；brandContext若提供，可帮助理解目标别称。依据回答解析，不核实现实身份。\n\nbrands记录回答中所有明确具名的品牌，包括同一条目并列的不同品牌。每个品牌主体只占一条；别称、门店写法和重复提及归到同一条。displayName用简洁主体名，isTarget标明是否为目标；未具名的店铺或团队不作为品牌。\n\nposition保留品牌第一次出现的原呈现位次：有明确推荐编号时沿用，否则按全文首次介绍顺序判断；同一推荐项并列的品牌共享位次。后文、表格、小结中的再次出现不新增品牌或改写首次位次，无顺序意义的背景提及用null。positiveRecommendation表示整体值得考虑；带普通缺点仍可为true，明确不推荐、纯负面或中性背景为false。\n\nevidence选取支持识别和判断的原文行范围，程序据此还原片段。targetDescription只写目标最突出的几点及正负倾向，并用一两句话总结本条回答；目标未提及则为null。其他品牌不提炼观点。按Schema输出JSON。"
 }

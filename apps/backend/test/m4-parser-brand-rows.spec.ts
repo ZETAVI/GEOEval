@@ -36,7 +36,6 @@ const row = (
   isTarget = false,
 ) => ({
   displayName,
-  sourceItemLine: position === null ? null : line,
   position,
   isTarget,
   positiveRecommendation: position !== null,
@@ -57,8 +56,8 @@ const raw = () => ({
   },
 });
 
-describe("M4 source-located single Parser rows", () => {
-  it("preserves the prepared input and default builder, binding source-line bounds", () => {
+describe("M4 single Parser brand-subject rows", () => {
+  it("preserves full source input without supplying extracted brands or positions", () => {
     const before = structuredClone(prepared);
     const candidate = buildM4BrandRowsTask(prepared);
     expect(candidate.userContext).toEqual(prepared.userContext);
@@ -74,9 +73,17 @@ describe("M4 source-located single Parser rows", () => {
     const schema = candidate.outputContract.jsonSchema as any;
     expect(schema.required).toEqual(["brands", "targetDescription"]);
     expect(schema.properties.brands.maxItems).toBe(11);
-    expect(
-      schema.properties.brands.items.properties.sourceItemLine.anyOf[0],
-    ).toMatchObject({ minimum: 1, maximum: 4 });
+    expect(schema.properties.brands.items.properties).not.toHaveProperty(
+      "sourceItemLine",
+    );
+    expect(candidate.userContext).not.toHaveProperty("brands");
+    expect(candidate.userContext).not.toHaveProperty("positions");
+    expect(candidate.userContext.answerLines).toEqual(
+      source.split("\r\n").map((text, index) => ({ line: index + 1, text })),
+    );
+    expect(candidate.outputContract.version).toBe(
+      "experiment.m4.parser-brand-rows@1.1.0",
+    );
     expect(() =>
       buildM4BrandRowsTask({
         ...prepared,
@@ -107,9 +114,7 @@ describe("M4 source-located single Parser rows", () => {
         evidence: evidence(2),
         ...value.targetDescription,
       },
-      otherBrands: value.brands
-        .slice(1)
-        .map(({ isTarget: _t, sourceItemLine: _l, ...b }) => b),
+      otherBrands: value.brands.slice(1).map(({ isTarget: _t, ...b }) => b),
     });
     expect(result.projected.positiveCompetitors.map((b) => b.position)).toEqual(
       [3, 3],
@@ -176,17 +181,15 @@ describe("M4 source-located single Parser rows", () => {
       inspectM4BrandRowsOutput(
         {
           ...value,
-          brands: [
-            { ...value.brands[0], position: null, sourceItemLine: null },
-          ],
+          brands: [{ ...value.brands[0], position: null }],
         },
         source,
       ),
     ).toThrow();
   });
-  it("rejects invalid source positions and evidence but preserves semantically wrong positions", () => {
+  it("rejects obsolete row pointers and invalid evidence but preserves model positions", () => {
     const value = raw();
-    for (const sourceItemLine of [99, null]) {
+    for (const sourceItemLine of [2, 99, null]) {
       expect(() =>
         inspectM4BrandRowsOutput(
           { ...value, brands: [{ ...value.brands[0], sourceItemLine }] },
@@ -200,7 +203,7 @@ describe("M4 source-located single Parser rows", () => {
         source,
       ),
     ).toThrow();
-    // A valid pointer is not semantic proof. In particular, never turn this 5
+    // Valid evidence is not semantic proof. In particular, never turn this 5
     // into 1 because the target happens to be the first extracted record.
     const wrong = { ...value, brands: [{ ...value.brands[0], position: 5 }] };
     expect(

@@ -2,8 +2,8 @@
 
 ## Decision state and owners
 
-Status: retain source-located rows as an experimental candidate after partial
-semantic improvement; default Parser remains 1.4.0. Narrative 1.2.0 and fixed-slot
+Status: test concise brand-subject rows at unchanged Qwen3.8 Flash / low;
+experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
 The [current proposal](proposal.md#current-evidence-and-next-decision) and
@@ -14,7 +14,36 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Source-located brand rows — single-call interface probe
+### Current package — concise brand-subject rows
+
+The owner approves keeping Qwen3.8 Flash / low, removing the independent
+sourceItemLine output and simplifying the Prompt around one row per brand
+subject. position retains the first appearance's original presentation position;
+later paragraphs/tables/summaries do not create another row or overwrite it.
+Distinct named brands sharing one recommendation item still have separate rows
+with a shared position. This is semantic source ordering, not a line/character
+offset. Full answerLines remains the raw answer with reference labels, not a
+pre-extracted brand/position list. Existing evidence ranges remain for excerpts.
+
+Readiness: modify only the existing experiment asset/helper/tests. Remove the
+standalone row-pointer schema/bounds/checks; keep target coherence, exact-duplicate
+rejection, evidence restoration and lossless old-shape projection. The model
+extracts identity/position; the program does not deduplicate or repair findings.
+No new module, dependency, current spec, runtime import, persistence or telemetry
+boundary. #42 owns this reversible probe; formal Parser and #41 integration stay
+separate. The simpler schema and Prompt are one package, not isolated causes.
+
+Freeze the four retained raw-answer cases twice, at most eight calls/concurrency
+two, unchanged low route and 180-second request timeout. Provider/finish/JSON/basic
+Schema failure stops queued pairs after started calls settle; projection failures
+are retained outcomes, never automatic retries. No sampling, synthesis, search,
+formatting cleanup, route switch or fallback. Only actual model IO/operational
+metadata enter existing private Langfuse. Historical outputs are qualitative
+references, not contemporaneous performance controls. Focused tests prove input,
+schema, projection and downstream boundaries; real repeated outputs decide
+whether coverage/first-position behavior improves. Stop at this batch's ceiling.
+
+### Historical source-located brand rows — single-call interface probe
 
 The next standard experiment co-locates target and other-brand decisions in one
 brand row table: displayName, isTarget, sourceItemLine, original position,
@@ -62,13 +91,8 @@ These observations justify retaining the candidate, not replacing the default
 Parser or claiming a 6/8 semantic success rate. sourceItemLine's individual effect
 is not isolated by this interface package. See the [result](research/chain-quality-experiment.md#source-located-brand-rows--partial-improvement-with-repeatability-residuals).
 
-Hold this interface still before further tuning. The next bounded check should
-distinguish remaining model/route behavior from interface assumptions using the
-same retained input and interface, after checking the existing fallback route's
-access/protocol/billing boundary. The catalog is not proof of callable access.
-Do not switch runtime defaults, enable billing, add Agents or resume a parameter
-sweep. Multi-occurrence brands and shared named items are the narrow cases; no
-extra call is appended to the eight-call package.
+The earlier proposed alternate-route check is superseded by the owner's current
+Prompt-first decision above. The ended eight-call package is not extended.
 
 ### Parser coverage and article-direction scope
 

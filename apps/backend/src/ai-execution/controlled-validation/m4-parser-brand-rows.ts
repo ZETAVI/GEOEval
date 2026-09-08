@@ -6,14 +6,12 @@ import {
   inspectM4CustomerSummaryOutput,
   m4CustomerSummarySchema,
 } from "./m4-parser-customer-summary.js";
-import { restoreM4SourceReferences } from "./m4-parser-line-references.js";
 
 const otherBrand = m4CustomerSummarySchema.shape.otherBrands.element;
 const brandRow = z
   .object({
     displayName: otherBrand.shape.displayName,
     isTarget: z.boolean(),
-    sourceItemLine: z.number().int().positive().nullable(),
     position: otherBrand.shape.position,
     positiveRecommendation: otherBrand.shape.positiveRecommendation,
     evidence: otherBrand.shape.evidence,
@@ -66,21 +64,14 @@ export function buildM4BrandRowsTask(
   if (lines.some((line, index) => line.line !== index + 1)) {
     throw new Error("Full contiguous source lines required");
   }
-  const boundSchema = m4BrandRowsSchema.extend({
-    brands: z
-      .array(
-        brandRow.extend({
-          sourceItemLine: z.number().int().min(1).max(lines.length).nullable(),
-        }),
-      )
-      .max(11),
-  });
   return {
     ...parserTask,
     systemInstruction: prompt.content,
     outputContract: {
       version: `${prompt.id}@${prompt.version}`,
-      jsonSchema: z.toJSONSchema(boundSchema, { target: "draft-2020-12" }),
+      jsonSchema: z.toJSONSchema(m4BrandRowsSchema, {
+        target: "draft-2020-12",
+      }),
     },
   };
 }
@@ -101,22 +92,6 @@ export function inspectM4BrandRowsOutput(
   for (const brand of output.brands) {
     if (names.has(brand.displayName)) throw new Error("Duplicate brand row");
     names.add(brand.displayName);
-    if (brand.sourceItemLine !== null) {
-      restoreM4SourceReferences(
-        {
-          evidence: [
-            {
-              startLine: brand.sourceItemLine,
-              endLine: brand.sourceItemLine,
-            },
-          ],
-        },
-        originalAnswer,
-      );
-    }
-    if (brand.position !== null && brand.sourceItemLine === null) {
-      throw new Error("Position requires a source item line");
-    }
   }
   const target = targets[0];
   const projected = inspectM4CustomerSummaryOutput(
@@ -130,7 +105,7 @@ export function inspectM4BrandRowsOutput(
         : null,
       otherBrands: output.brands
         .filter((brand) => !brand.isTarget)
-        .map(({ isTarget: _target, sourceItemLine: _line, ...brand }) => brand),
+        .map(({ isTarget: _target, ...brand }) => brand),
     },
     originalAnswer,
   );

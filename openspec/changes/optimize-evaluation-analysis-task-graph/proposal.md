@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Retain single-call brand-row candidate with repeatability residuals; default Parser unchanged
+- Status: Verify concise brand-subject rows at unchanged Qwen low; experimental baseline and runtime unchanged
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -48,13 +48,20 @@ repeat existing brands when reading summaries/tables and are rejected. Six old-
 shape projections pass, not six semantic approvals. Retain this owner-local
 single-call candidate without changing default Parser 1.4.0 or downstream input.
 
-The next discriminating check keeps this interface/input fixed and first verifies
-the existing alternate execution route's account/protocol/billing boundary, then
-prepares a small comparison of the remaining occurrence/coverage cases. Do not
-assume a callable model from catalog presence, switch defaults, enable billing,
-or keep changing Prompt and Schema together. Precise generation cause is still
-unproven. Direct malformed text, formal failure-only recovery and complete-report
-timing remain outstanding; the current eight-call package is finished.
+The owner's latest decision supersedes the alternate-route proposal: keep
+Qwen3.8 Flash / low and test a concise, consistent Prompt. Remove the independent
+sourceItemLine output, whose necessity was not established. Keep evidence line
+ranges for excerpt restoration. Extract one row per recognizable brand subject
+and retain its first appearance position; subsequent passages/tables/summaries
+only supplement that brand. Input remains the full raw answer, question and
+target context, never pre-extracted brand or position answers.
+
+Freeze a new eight-call package (the same four real cases twice, concurrency two)
+before execution. This changes instruction and one experimental field together;
+it is not a Prompt-only causal test. Reuse historical results as qualitative
+references, not a speed/stability rate. No sampling, synthesis, retry, search,
+route change or activation. Stop after this package and inspect raw results.
+Direct malformed text, formal recovery and complete-report timing remain open.
 
 Previous: the [ten-call Parser/direction package](research/chain-quality-experiment.md#parser-coverage-and-article-directions--reject-parser-package-retain-direction-scope)
 at `7b3ba0d` retains narrative 1.2.0, but rejects Parser 1.5.0 and restores the
