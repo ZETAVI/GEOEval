@@ -4,6 +4,12 @@ Issue: https://github.com/ZETAVI/GEOEval/issues/73
 Change ID: `establish-publication-delivery`
 Class / phase: architectural / approved for bounded implementation.
 
+Current activation: PR #76 integrated normal admission/responsibility, results,
+deadline lists and customer visibility at `main@a550fc4`. This Change remains
+active for the approved points-assembly enabling slice and manual exception/
+settlement outcome; its original rationale below is not a claim that the merged
+normal-delivery capability is still absent.
+
 ## Why
 
 `main@0552aa7` 已提供真实积分购买与不可变待处理订单，但没有运营接单、发布结果或订单退点运行时。客户需要看见所购服务被谁处理（内部责任）、实际发布进度和可访问结果；不能让异常订单只能永久停留在待处理。

@@ -1899,181 +1899,6 @@
         ]
       }
     },
-    "/admin/points/accounts/{accountId}": {
-      "get": {
-        "operationId": "PointAdminController_balance",
-        "parameters": [
-          {
-            "name": "accountId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PointAdminBalanceResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "admin-points"
-        ]
-      }
-    },
-    "/admin/points/accounts/{accountId}/changes": {
-      "get": {
-        "operationId": "PointAdminController_history",
-        "parameters": [
-          {
-            "name": "beforeSequence",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "accountId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PointAdminHistoryResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "admin-points"
-        ]
-      }
-    },
-    "/admin/points/accounts/{accountId}/adjustments": {
-      "post": {
-        "operationId": "PointAdminController_adjust",
-        "parameters": [
-          {
-            "name": "accountId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PointAdjustmentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PointAdminChangeResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "admin-points"
-        ]
-      }
-    },
-    "/points": {
-      "get": {
-        "operationId": "PointCustomerController_balance",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PointBalanceResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "points"
-        ]
-      }
-    },
-    "/points/changes": {
-      "get": {
-        "operationId": "PointCustomerController_history",
-        "parameters": [
-          {
-            "name": "beforeSequence",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PointHistoryResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "points"
-        ]
-      }
-    },
     "/publishing/workspace": {
       "get": {
         "operationId": "PublishingSelectionController_workspace",
@@ -2675,6 +2500,181 @@
         },
         "tags": [
           "brands"
+        ]
+      }
+    },
+    "/admin/points/accounts/{accountId}": {
+      "get": {
+        "operationId": "PointAdminController_balance",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointAdminBalanceResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-points"
+        ]
+      }
+    },
+    "/admin/points/accounts/{accountId}/changes": {
+      "get": {
+        "operationId": "PointAdminController_history",
+        "parameters": [
+          {
+            "name": "beforeSequence",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointAdminHistoryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-points"
+        ]
+      }
+    },
+    "/admin/points/accounts/{accountId}/adjustments": {
+      "post": {
+        "operationId": "PointAdminController_adjust",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PointAdjustmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointAdminChangeResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-points"
+        ]
+      }
+    },
+    "/points": {
+      "get": {
+        "operationId": "PointCustomerController_balance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointBalanceResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "points"
+        ]
+      }
+    },
+    "/points/changes": {
+      "get": {
+        "operationId": "PointCustomerController_history",
+        "parameters": [
+          {
+            "name": "beforeSequence",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointHistoryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "points"
         ]
       }
     }
@@ -6403,271 +6403,6 @@
           "scope"
         ]
       },
-      "PointCustomerIdentityResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "mobile": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "INACTIVE"
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "mobile",
-          "status"
-        ]
-      },
-      "PointAdminBalanceResponse": {
-        "type": "object",
-        "properties": {
-          "balance": {
-            "type": "integer"
-          },
-          "revision": {
-            "type": "integer"
-          },
-          "customer": {
-            "$ref": "#/components/schemas/PointCustomerIdentityResponse"
-          },
-          "grantedBalance": {
-            "type": "integer"
-          },
-          "fundedBalance": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "balance",
-          "revision",
-          "customer",
-          "grantedBalance",
-          "fundedBalance"
-        ]
-      },
-      "PointAdminChangeResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "sequence": {
-            "type": "integer"
-          },
-          "kind": {
-            "type": "string",
-            "enum": [
-              "ADMIN_ADJUSTMENT",
-              "PUBLISHING_ORDER"
-            ]
-          },
-          "publishingOrderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "amount": {
-            "type": "integer"
-          },
-          "balanceAfter": {
-            "type": "integer"
-          },
-          "reason": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "accountId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "actorAccountId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "idempotencyKey": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "grantedDelta": {
-            "type": "integer"
-          },
-          "fundedDelta": {
-            "type": "integer"
-          },
-          "internalNote": {
-            "type": "string",
-            "nullable": true
-          },
-          "businessReference": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "sequence",
-          "kind",
-          "publishingOrderId",
-          "amount",
-          "balanceAfter",
-          "reason",
-          "createdAt",
-          "accountId",
-          "actorAccountId",
-          "idempotencyKey",
-          "grantedDelta",
-          "fundedDelta",
-          "internalNote",
-          "businessReference"
-        ]
-      },
-      "PointAdminHistoryResponse": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PointAdminChangeResponse"
-            }
-          },
-          "nextBeforeSequence": {
-            "type": "integer",
-            "nullable": true
-          }
-        },
-        "required": [
-          "items",
-          "nextBeforeSequence"
-        ]
-      },
-      "PointAdjustmentRequest": {
-        "type": "object",
-        "properties": {
-          "idempotencyKey": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "amount": {
-            "type": "integer",
-            "minimum": -2147483647,
-            "maximum": 2147483647
-          },
-          "reason": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 160
-          },
-          "internalNote": {
-            "type": "string",
-            "maxLength": 320,
-            "nullable": true
-          },
-          "businessReference": {
-            "type": "string",
-            "maxLength": 160,
-            "nullable": true
-          }
-        },
-        "required": [
-          "idempotencyKey",
-          "amount",
-          "reason"
-        ]
-      },
-      "PointBalanceResponse": {
-        "type": "object",
-        "properties": {
-          "balance": {
-            "type": "integer"
-          },
-          "revision": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "balance",
-          "revision"
-        ]
-      },
-      "PointChangeResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "sequence": {
-            "type": "integer"
-          },
-          "kind": {
-            "type": "string",
-            "enum": [
-              "ADMIN_ADJUSTMENT",
-              "PUBLISHING_ORDER"
-            ]
-          },
-          "publishingOrderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "amount": {
-            "type": "integer"
-          },
-          "balanceAfter": {
-            "type": "integer"
-          },
-          "reason": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "sequence",
-          "kind",
-          "publishingOrderId",
-          "amount",
-          "balanceAfter",
-          "reason",
-          "createdAt"
-        ]
-      },
-      "PointHistoryResponse": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PointChangeResponse"
-            }
-          },
-          "nextBeforeSequence": {
-            "type": "integer",
-            "nullable": true
-          }
-        },
-        "required": [
-          "items",
-          "nextBeforeSequence"
-        ]
-      },
       "PublishingBrandResponse": {
         "type": "object",
         "properties": {
@@ -8314,6 +8049,271 @@
           "expiresAt",
           "locationPreview",
           "queryLocality"
+        ]
+      },
+      "PointCustomerIdentityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "mobile",
+          "status"
+        ]
+      },
+      "PointAdminBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "integer"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/PointCustomerIdentityResponse"
+          },
+          "grantedBalance": {
+            "type": "integer"
+          },
+          "fundedBalance": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "balance",
+          "revision",
+          "customer",
+          "grantedBalance",
+          "fundedBalance"
+        ]
+      },
+      "PointAdminChangeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequence": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ADMIN_ADJUSTMENT",
+              "PUBLISHING_ORDER"
+            ]
+          },
+          "publishingOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "balanceAfter": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grantedDelta": {
+            "type": "integer"
+          },
+          "fundedDelta": {
+            "type": "integer"
+          },
+          "internalNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "businessReference": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "sequence",
+          "kind",
+          "publishingOrderId",
+          "amount",
+          "balanceAfter",
+          "reason",
+          "createdAt",
+          "accountId",
+          "actorAccountId",
+          "idempotencyKey",
+          "grantedDelta",
+          "fundedDelta",
+          "internalNote",
+          "businessReference"
+        ]
+      },
+      "PointAdminHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PointAdminChangeResponse"
+            }
+          },
+          "nextBeforeSequence": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextBeforeSequence"
+        ]
+      },
+      "PointAdjustmentRequest": {
+        "type": "object",
+        "properties": {
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": -2147483647,
+            "maximum": 2147483647
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "internalNote": {
+            "type": "string",
+            "maxLength": 320,
+            "nullable": true
+          },
+          "businessReference": {
+            "type": "string",
+            "maxLength": 160,
+            "nullable": true
+          }
+        },
+        "required": [
+          "idempotencyKey",
+          "amount",
+          "reason"
+        ]
+      },
+      "PointBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "integer"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "balance",
+          "revision"
+        ]
+      },
+      "PointChangeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequence": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ADMIN_ADJUSTMENT",
+              "PUBLISHING_ORDER"
+            ]
+          },
+          "publishingOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "balanceAfter": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "sequence",
+          "kind",
+          "publishingOrderId",
+          "amount",
+          "balanceAfter",
+          "reason",
+          "createdAt"
+        ]
+      },
+      "PointHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PointChangeResponse"
+            }
+          },
+          "nextBeforeSequence": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextBeforeSequence"
         ]
       }
     }

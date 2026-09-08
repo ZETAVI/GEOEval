@@ -788,86 +788,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/points/accounts/{accountId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["PointAdminController_balance"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/points/accounts/{accountId}/changes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["PointAdminController_history"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/points/accounts/{accountId}/adjustments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PointAdminController_adjust"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/points": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["PointCustomerController_balance"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/points/changes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["PointCustomerController_history"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/publishing/workspace": {
         parameters: {
             query?: never;
@@ -1166,6 +1086,86 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["StoreLocationVerificationController_verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/points/accounts/{accountId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PointAdminController_balance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/points/accounts/{accountId}/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PointAdminController_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/points/accounts/{accountId}/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PointAdminController_adjust"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PointCustomerController_balance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/points/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PointCustomerController_history"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2156,78 +2156,6 @@ export interface components {
             buyable: boolean;
             scope: components["schemas"]["PublishingPackageScopeResponse"][];
         };
-        PointCustomerIdentityResponse: {
-            /** Format: uuid */
-            id: string;
-            mobile: string;
-            /** @enum {string} */
-            status: "ACTIVE" | "INACTIVE";
-        };
-        PointAdminBalanceResponse: {
-            balance: number;
-            revision: number;
-            customer: components["schemas"]["PointCustomerIdentityResponse"];
-            grantedBalance: number;
-            fundedBalance: number;
-        };
-        PointAdminChangeResponse: {
-            /** Format: uuid */
-            id: string;
-            sequence: number;
-            /** @enum {string} */
-            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
-            /** Format: uuid */
-            publishingOrderId: string | null;
-            amount: number;
-            balanceAfter: number;
-            reason: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: uuid */
-            accountId: string;
-            /** Format: uuid */
-            actorAccountId: string;
-            /** Format: uuid */
-            idempotencyKey: string;
-            grantedDelta: number;
-            fundedDelta: number;
-            internalNote: string | null;
-            businessReference: string | null;
-        };
-        PointAdminHistoryResponse: {
-            items: components["schemas"]["PointAdminChangeResponse"][];
-            nextBeforeSequence: number | null;
-        };
-        PointAdjustmentRequest: {
-            /** Format: uuid */
-            idempotencyKey: string;
-            amount: number;
-            reason: string;
-            internalNote?: string | null;
-            businessReference?: string | null;
-        };
-        PointBalanceResponse: {
-            balance: number;
-            revision: number;
-        };
-        PointChangeResponse: {
-            /** Format: uuid */
-            id: string;
-            sequence: number;
-            /** @enum {string} */
-            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
-            /** Format: uuid */
-            publishingOrderId: string | null;
-            amount: number;
-            balanceAfter: number;
-            reason: string;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        PointHistoryResponse: {
-            items: components["schemas"]["PointChangeResponse"][];
-            nextBeforeSequence: number | null;
-        };
         PublishingBrandResponse: {
             /** Format: uuid */
             id: string;
@@ -2617,6 +2545,78 @@ export interface components {
             expiresAt: string;
             locationPreview: components["schemas"]["StoreLocationPreviewResponse"];
             queryLocality: components["schemas"]["QueryLocalityResponse"];
+        };
+        PointCustomerIdentityResponse: {
+            /** Format: uuid */
+            id: string;
+            mobile: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+        };
+        PointAdminBalanceResponse: {
+            balance: number;
+            revision: number;
+            customer: components["schemas"]["PointCustomerIdentityResponse"];
+            grantedBalance: number;
+            fundedBalance: number;
+        };
+        PointAdminChangeResponse: {
+            /** Format: uuid */
+            id: string;
+            sequence: number;
+            /** @enum {string} */
+            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
+            /** Format: uuid */
+            publishingOrderId: string | null;
+            amount: number;
+            balanceAfter: number;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            accountId: string;
+            /** Format: uuid */
+            actorAccountId: string;
+            /** Format: uuid */
+            idempotencyKey: string;
+            grantedDelta: number;
+            fundedDelta: number;
+            internalNote: string | null;
+            businessReference: string | null;
+        };
+        PointAdminHistoryResponse: {
+            items: components["schemas"]["PointAdminChangeResponse"][];
+            nextBeforeSequence: number | null;
+        };
+        PointAdjustmentRequest: {
+            /** Format: uuid */
+            idempotencyKey: string;
+            amount: number;
+            reason: string;
+            internalNote?: string | null;
+            businessReference?: string | null;
+        };
+        PointBalanceResponse: {
+            balance: number;
+            revision: number;
+        };
+        PointChangeResponse: {
+            /** Format: uuid */
+            id: string;
+            sequence: number;
+            /** @enum {string} */
+            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
+            /** Format: uuid */
+            publishingOrderId: string | null;
+            amount: number;
+            balanceAfter: number;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PointHistoryResponse: {
+            items: components["schemas"]["PointChangeResponse"][];
+            nextBeforeSequence: number | null;
         };
     };
     responses: never;
@@ -3936,117 +3936,6 @@ export interface operations {
             };
         };
     };
-    PointAdminController_balance: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                accountId: unknown;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PointAdminBalanceResponse"];
-                };
-            };
-        };
-    };
-    PointAdminController_history: {
-        parameters: {
-            query?: {
-                beforeSequence?: number;
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                accountId: unknown;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PointAdminHistoryResponse"];
-                };
-            };
-        };
-    };
-    PointAdminController_adjust: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                accountId: unknown;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PointAdjustmentRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PointAdminChangeResponse"];
-                };
-            };
-        };
-    };
-    PointCustomerController_balance: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PointBalanceResponse"];
-                };
-            };
-        };
-    };
-    PointCustomerController_history: {
-        parameters: {
-            query?: {
-                beforeSequence?: number;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PointHistoryResponse"];
-                };
-            };
-        };
-    };
     PublishingSelectionController_workspace: {
         parameters: {
             query?: never;
@@ -4481,6 +4370,117 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StoreLocationVerificationResponse"];
+                };
+            };
+        };
+    };
+    PointAdminController_balance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                accountId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointAdminBalanceResponse"];
+                };
+            };
+        };
+    };
+    PointAdminController_history: {
+        parameters: {
+            query?: {
+                beforeSequence?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                accountId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointAdminHistoryResponse"];
+                };
+            };
+        };
+    };
+    PointAdminController_adjust: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                accountId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PointAdjustmentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointAdminChangeResponse"];
+                };
+            };
+        };
+    };
+    PointCustomerController_balance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointBalanceResponse"];
+                };
+            };
+        };
+    };
+    PointCustomerController_history: {
+        parameters: {
+            query?: {
+                beforeSequence?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointHistoryResponse"];
                 };
             };
         };

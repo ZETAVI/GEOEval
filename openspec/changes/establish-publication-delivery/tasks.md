@@ -24,7 +24,13 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 - [x] Finish deadline/urgency workbench presentation and operational recovery rehearsal before requesting the normal-result slice merge gate.
   - [x] Keep database ordering and immutable-pair pagination coherent; separate Completed history; exercise normal/nearing/delayed ordering in HTTP and actual 375px browser views.
 - [x] Reconcile activated specs/DTOs/architecture in a Partial PR; keep unavailable exception/financial actions visibly unavailable and #73 open.
-- [ ] Obtain the normal-result slice's merge authorization and verify its integrated revision; this does not close #73 or activate production.
+- [x] Obtain the normal-result slice's merge authorization and verify its integrated revision; PR #76 is integrated at `a550fc4`, without closing #73 or activating production.
+
+## 1.1. Commerce points assembly: no behavior change
+
+- [x] Extract the existing points controllers/providers into CommercePointsModule with only PointAccountService exported; preserve PublishingOrderService, Delivery admission and optimization registration.
+- [x] Prove real consumer injection without the publishing graph, single provider/controller registration, semantically unchanged OpenAPI and existing points/selection/purchase/admission behavior.
+- [ ] Publish a separately reviewable Partial PR and the stable consumer checkpoint for #77; do not include reservations, schema, funded writes or payment activation.
 
 ## 2. Vertical slice: manual exception → continued service or settled termination
 

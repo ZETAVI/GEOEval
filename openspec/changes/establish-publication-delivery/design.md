@@ -62,6 +62,28 @@ migration aligns the existing ordering projection, not paid facts. Pagination us
 The backend owns the one schedule calculation used by customer and operations
 views. No stored urgency, timer, automatic failure/refund or new workflow owner.
 
+## 3.1. Points assembly before the settlement slice
+
+Normal delivery is integrated by PR #76. The independently approved
+[points extraction ownership](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5581506895)
+is the next enabling slice, with #73 as sole writer. `CommercePointsModule`
+owns the existing points controllers/service/repository declarations and exports
+only `PointAccountService`. Root-global Identity/Persistence remain prerequisites;
+the module is not global and does not import Publishing/Delivery/Media/GEO.
+Publishing Commerce imports it while retaining the Delivery admission adapter,
+order-service export and optimization registration. Existing service, domain and
+lock-helper paths and all financial behavior stay unchanged.
+
+The alternative of importing all Publishing Commerce from a future points
+consumer would unnecessarily pull in article/media/fulfilment dependencies.
+This split is an assembly boundary, not a new wallet capability or funded writer.
+No schema, transaction, reservation, API, worker or payment configuration changes
+belong here. Verify a real consumer that imports only this module, unique service
+and controller registration in the full API, unchanged generated API and the
+existing points/selection/purchase/admission HTTP tests. #77 separately owns its
+bounded additive notification-schema window; settlement schema waits for its
+completion and renewed coordination.
+
 ## 4. Fulfilment and settlement are separate facts
 
 | Scenario                                            | Fulfilment                                                | Settlement information                             |
