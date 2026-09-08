@@ -44,9 +44,9 @@ const row = (
 const raw = () => ({
   brands: [
     row("青禾咖啡", 2, 1, true),
-    row("山岚", 3, 3),
+    row("山岚", 3, 2),
     row("晴川", 3, 3),
-    row("墨云", 4, null),
+    { ...row("墨云", 4, 4), positiveRecommendation: false },
   ],
   targetDescription: {
     points: [
@@ -82,7 +82,7 @@ describe("M4 single Parser brand-subject rows", () => {
       source.split("\r\n").map((text, index) => ({ line: index + 1, text })),
     );
     expect(candidate.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@1.1.0",
+      "experiment.m4.parser-brand-rows@1.2.0",
     );
     expect(() =>
       buildM4BrandRowsTask({
@@ -103,7 +103,7 @@ describe("M4 single Parser brand-subject rows", () => {
       }),
     ).toThrow("contiguous");
   });
-  it("projects the existing summary shape without reordering, filling gaps or changing eligibility", () => {
+  it("projects first-appearance positions without reordering or changing eligibility", () => {
     const value = raw(),
       before = structuredClone(value);
     const result = inspectM4BrandRowsOutput(value, source);
@@ -117,7 +117,7 @@ describe("M4 single Parser brand-subject rows", () => {
       otherBrands: value.brands.slice(1).map(({ isTarget: _t, ...b }) => b),
     });
     expect(result.projected.positiveCompetitors.map((b) => b.position)).toEqual(
-      [3, 3],
+      [2, 3],
     );
     expect(result.projected.output.otherBrands[2]!.positiveRecommendation).toBe(
       false,
@@ -130,6 +130,18 @@ describe("M4 single Parser brand-subject rows", () => {
       inspectM4BrandRowsOutput(value, source.replaceAll("\r\n", "\r")).projected
         .output,
     ).toEqual(result.projected.output);
+  });
+  it("preserves nonconforming tied, gapped or null model positions instead of fixing them", () => {
+    const value = raw();
+    value.brands[1]!.position = 3;
+    value.brands[2]!.position = 3;
+    value.brands[3]!.position = null;
+    expect(
+      inspectM4BrandRowsOutput(value, source).projected.output.otherBrands.map(
+        (b) => b.position,
+      ),
+    ).toEqual([3, 3, null]);
+    // Projection/source validity is not acceptance under the new Prompt meaning.
   });
   it("allows natural absence, empty input findings and eleven rows only when one is target", () => {
     expect(

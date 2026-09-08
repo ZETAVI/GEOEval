@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Concise brand-subject rows retained with two semantic residuals; experimental baseline and runtime unchanged
+- Status: Validate owner-approved first-appearance ordering and explicit target absence; runtime unchanged
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -36,20 +36,39 @@ implementation requires explicit owning scope based on experiment findings.
 No runtime Prompt activation, current-spec change, migration, new queue, model
 purchase, Hy3 billing, production, customer data or automatic experiment sweep.
 The owner separately approved controlled real acquisition and diagnostic
-Langfuse input/output export. Four questions, five platforms, metric meaning,
-17/20 readiness and immutable accepted records remain unchanged.
+Langfuse input/output export. Four questions, five platforms, score formula,
+17/20 readiness and immutable accepted records remain unchanged. The owner now
+approves a simpler experimental position meaning: distinct brand subjects in
+first-appearance order, including formerly co-listed names as separate positions.
+Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
-Latest: the [concise brand-subject package](research/chain-quality-experiment.md#concise-brand-subject-rows--better-coverage-with-position-and-absence-residuals)
+Current decision: the owner explicitly simplifies ordering to first appearance of
+distinct brands, irrespective of categories, numbered headings or co-listing.
+Repeated mentions do not consume another position. This supersedes shared-item
+ties in the previous candidate; it is a meaning change, not solely a bug fix.
+Keep the existing nullable targetDescription slot: actual target mention receives
+points/summary; absence yields null and no target row. Both forms discussed by
+the owner are feasible; this keeps the current schema and projector unchanged.
+
+Freeze eight calls, four retained real answers twice, unchanged Qwen3.8 Flash / low
+and concurrency two. Only instruction/version changes from rows 1.1.0 to 1.2.0;
+input/schema/program stay fixed. Evaluate using the new first-appearance rubric,
+not old shared ranks. No sampling, synthesis, search, retries or activation.
+Formal reconciliation must cover product-definition/glossary, Parser and reporting
+position consumers before the new meaning can enter an official run; historical
+evaluations remain on their accepted interpretation.
+
+Previous: the [concise brand-subject package](research/chain-quality-experiment.md#concise-brand-subject-rows--better-coverage-with-position-and-absence-residuals)
 at `0f11208` completes all eight frozen calls. Main-list repetition handling and
 co-listed brand coverage are correct in both repeats. One source-order output
 mispositions two other brands; one absent-target output invents a target row
 while leaving its description null and is rejected. Seven projections pass,
 not a 7/8 semantic success rate. Retain experimental rows 1.1.0 as a candidate;
 customer-summary baseline 1.4.0 and formal Parser remain unchanged. This batch
-is ended; the next narrow test clarifies absent-target row membership and distinct
-versus shared recommendation items, keeping model/input/schema fixed. No new
+is ended; its proposed distinct-versus-shared clarification is superseded by the
+owner's first-appearance decision above, keeping model/input/schema fixed. No new
 route comparison, automatic repair or larger acquisition matrix is justified yet.
 
 Previous: the [eight-call located-row package](research/chain-quality-experiment.md#source-located-brand-rows--partial-improvement-with-repeatability-residuals)

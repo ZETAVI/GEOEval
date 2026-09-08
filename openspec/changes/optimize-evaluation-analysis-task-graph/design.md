@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: retain concise brand-subject rows with position/absence residuals at Qwen low;
+Status: validate first-appearance ordering and explicit target absence at Qwen low;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -11,10 +11,45 @@ The [current proposal](proposal.md#current-evidence-and-next-decision) and
 decisions, not a queue of experiments to repeat. The owner accepts practical
 directions and retains single-call parsing; identity/statistics defects from the
 real matrix, not minor wording, now drive the next bounded repair.
-Original baseline: `main@ddadf77`; main observed this batch at `5fb4400`.
+Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — concise brand-subject rows
+### Current package — first-appearance ordering and nullable target
+
+The owner now chooses a single order: read the full raw answer from beginning to
+end, identify each distinct brand subject once and number first appearances
+1,2,3,... . A pair inside one sentence/item receives successive positions; later
+aliases/repetitions reuse the first record. Background/negative mentions still
+have appearance positions, while recommendation eligibility is independent.
+Do not infer quality ranking or reuse heading numbers. This changes experimental
+position meaning relative to the current product-definition/spec and glossary;
+it does not merely improve accuracy under the prior shared-item rule.
+
+Readiness: only edit the existing experimental Prompt (1.2.0) and its fixture
+expectations. Keep schema, projector, full answerLines, target context, evidence,
+model/route and downstream projection unchanged. targetDescription remains a
+required nullable slot; no target mention means null and no isTarget row. This
+implements one of the owner's accepted representations without adding another
+field or target-placeholder record. The existing projector still rejects
+contradictions; it does not repair identity, fill positions or certify the new
+ordering. Unit coverage retains intentionally wrong/tied/null raw positions to
+prove this separation instead of asserting every valid projection is correct.
+
+Freeze eight calls (four prior real answers twice, concurrency two, Qwen low,
+180-second timeout). Provider/finish/JSON/basic-Schema failure stops queued pairs
+after started work settles; projection rejections are measured without retries.
+No sampling, synthesis, search, deformatting or runtime/default change. Actual
+model IO/metadata only to private Langfuse. Historical comparisons use explicit
+old/new position meaning, not a pooled semantic score or causal speedup claim.
+Stop after the eight planned requests; use the actual result for the next step.
+
+GEO Intelligence owns position semantics and immutable accepted history. Before
+formal activation, reconcile product-definition/glossary, Parser contracts/tests
+and report position consumers under the selected delivery owner; keep the score
+formula and existing reports unchanged. This reversible #42 probe creates no new
+runtime module, dependency, DB, queue, public API or current-spec write.
+
+### Historical concise brand-subject rows
 
 The owner approves keeping Qwen3.8 Flash / low, removing the independent
 sourceItemLine output and simplifying the Prompt around one row per brand
@@ -52,13 +87,8 @@ in all eight results. The 58.837-second experiment wall time is not full-report
 timing. Retain 1.1.0 as an unactivated candidate, not a quality pass. See the
 [engineering evidence](research/chain-quality-experiment.md#concise-brand-subject-rows--better-coverage-with-position-and-absence-residuals).
 
-Next test only the wording of target membership and distinct/shared introduction
-items on the retained failures plus a shared-item control. Keep schema/input/model
-fixed; do not restore standalone line pointers or assume they caused the residual.
-Target context is for matching an actually mentioned subject, not a required row.
-Separate introduction items occupy distinct positions even under one category;
-co-listed brands within one item share its position. Generation cause remains
-unproven; no further call is appended to this ended eight-call package.
+The next distinct/shared-item wording proposal is superseded by the owner's
+first-appearance decision above. No further call is appended to this ended batch.
 
 ### Historical source-located brand rows — single-call interface probe
 

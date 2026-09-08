@@ -21,6 +21,19 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 - **THEN** its attempt, retry, partial-success and assembly policies are explicit
 - **AND** component persistence is introduced only if that candidate needs it.
 
+#### Scenario: The owner simplifies experimental open-answer positions
+
+- **WHEN** the first-appearance Parser candidate interprets a retained raw answer
+- **THEN** it records one row per actually mentioned recognizable brand subject
+- **AND** positions follow distinct subjects' first appearances as 1,2,3,...,
+  including separate positions for brands co-listed inside one sentence/item
+- **AND** later aliases or repeated mentions reuse the first brand record
+- **AND** recommendation eligibility is independent of appearance order
+- **AND** target absence produces a null target description and no target row
+- **AND** historical shared-item ranks remain evaluated under their old meaning
+- **AND** current product/spec/report consumers are reconciled before formal
+  activation; this probe does not rewrite accepted samples or report history.
+
 ### Requirement: Concise customer progress
 
 The diagnosis view SHALL project truthful durable progress.

@@ -75,10 +75,14 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       structures pass, seven project, both shared-item replies cover named brands.
       Retain the one wrong other-brand ordering and one unsupported absent-target
       row; no raw repair or semantic-success rate from projection counts.
-- [ ] Clarify only absent-target row membership and distinct versus shared items
-      at fixed input/schema/Qwen low. Use retained failures and a shared-item
-      control in a separately frozen small package; no new sampling, model or
-      Agent. Stop rather than automatically extending the ended eight calls.
+- [x] Supersede shared-item ties with the owner's first-appearance order for
+      distinct brands; keep the required nullable targetDescription slot and
+      no target row on absence. Record this as changed experimental meaning,
+      not an already-activated current spec or old-policy accuracy improvement.
+- [ ] Validate rows 1.2.0 at fixed input/schema/program/Qwen low on four retained
+      real cases twice, maximum eight/concurrency two. Check first-appearance
+      sequence, target absence, duplicate coverage and concise target prose;
+      no sampling, synthesis, search, retries or automatic batch extension.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on
@@ -110,6 +114,9 @@ content. No extra call is appended to the completed six/ten/eight-call packages.
 
 - [ ] Confirm the smallest supported runtime design and explicit Parser delivery
       ownership; keep #32 completed and #41's final semantic/report ownership.
+- [ ] Reconcile the owner-approved first-appearance position meaning into the
+      selected formal Parser/report/product-definition/glossary owners before
+      activation; preserve accepted historical interpretations and score formula.
 - [ ] #41 integrates the accepted semantics; #42 implements only required execution,
       recovery and timing. Add tables/migrations only if the selected design needs them.
 - [ ] Implement the owner's approved recovery outcome in the selected runtime:
