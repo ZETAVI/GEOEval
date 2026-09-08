@@ -2565,9 +2565,11 @@ export interface components {
             id: string;
             sequence: number;
             /** @enum {string} */
-            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
+            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE";
             /** Format: uuid */
             publishingOrderId: string | null;
+            /** Format: uuid */
+            rechargeOrderId?: string | null;
             amount: number;
             balanceAfter: number;
             reason: string;
@@ -2576,9 +2578,11 @@ export interface components {
             /** Format: uuid */
             accountId: string;
             /** Format: uuid */
-            actorAccountId: string;
+            actorAccountId: string | null;
             /** Format: uuid */
-            idempotencyKey: string;
+            idempotencyKey: string | null;
+            /** @enum {string} */
+            actorKind?: "ACCOUNT" | "SYSTEM";
             grantedDelta: number;
             fundedDelta: number;
             internalNote: string | null;
@@ -2605,9 +2609,11 @@ export interface components {
             id: string;
             sequence: number;
             /** @enum {string} */
-            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
+            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE";
             /** Format: uuid */
             publishingOrderId: string | null;
+            /** Format: uuid */
+            rechargeOrderId?: string | null;
             amount: number;
             balanceAfter: number;
             reason: string;

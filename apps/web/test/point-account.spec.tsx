@@ -14,6 +14,35 @@ import { PointHistoryList } from "../app/points/point-history.js";
 const key = "10000000-0000-4000-8000-000000000001",
   accountId = "10000000-0000-4000-8000-000000000002";
 describe("point adjustment intent and projections", () => {
+  it("presents a recharge as system-confirmed credit without exposing its internal origin to customers", () => {
+    const item: PointAdminChange = {
+      id: key,
+      accountId,
+      actorAccountId: null,
+      actorKind: "SYSTEM",
+      idempotencyKey: null,
+      sequence: 1,
+      kind: "RECHARGE",
+      publishingOrderId: null,
+      rechargeOrderId: key,
+      amount: 10,
+      grantedDelta: 0,
+      fundedDelta: 10,
+      balanceAfter: 10,
+      reason: "充值到账",
+      internalNote: null,
+      businessReference: key,
+      createdAt: "2026-09-08T10:00:00Z",
+    };
+    const customer = renderToStaticMarkup(<PointHistoryList items={[item]} />);
+    expect(customer).toContain("充值到账");
+    expect(customer).not.toContain("系统确认");
+    const admin = renderToStaticMarkup(
+      <PointHistoryList items={[item]} showInternal />,
+    );
+    expect(admin).toContain("系统确认");
+    expect(admin).not.toContain("操作账号：null");
+  });
   it("preserves the exact actor-bound pending key and request across reload", () => {
     const request = adjustmentRequest(
       { ...emptyAdjustmentForm, amount: "500", reason: "活动赠送" },

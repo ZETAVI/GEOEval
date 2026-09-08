@@ -188,6 +188,7 @@ enum MediaQualityTier {
 }
 
 model Account {
+  recharges                 RechargeOrder[]
   id                        String                          @id @default(uuid()) @db.Uuid
   mobile                    String                          @unique @db.VarChar(20)
   role                      AccountRole                     @default(TERMINAL_CUSTOMER)
@@ -941,6 +942,7 @@ model MediaCatalogAudit {
 enum PointChangeKind {
   ADMIN_ADJUSTMENT
   PUBLISHING_ORDER
+  RECHARGE
 }
 
 model PublishingOrder {
@@ -1075,19 +1077,26 @@ model PublishingSelection {
 }
 
 model PointAccount {
-  accountId      String        @id @map("account_id") @db.Uuid
-  grantedBalance Int           @default(0) @map("granted_balance")
-  fundedBalance  Int           @default(0) @map("funded_balance")
-  revision       Int           @default(0)
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
-  account        Account       @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  changes        PointChange[]
+  reservedFundedPoints Int                         @default(0) @map("reserved_funded_points")
+  reservedLedgerSlots  Int                         @default(0) @map("reserved_ledger_slots")
+  rechargeReservations RechargeCreditReservation[]
+  accountId            String                      @id @map("account_id") @db.Uuid
+  grantedBalance       Int                         @default(0) @map("granted_balance")
+  fundedBalance        Int                         @default(0) @map("funded_balance")
+  revision             Int                         @default(0)
+  createdAt            DateTime                    @default(now()) @map("created_at")
+  updatedAt            DateTime                    @updatedAt @map("updated_at")
+  account              Account                     @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  changes              PointChange[]
 
   @@map("point_accounts")
 }
 
 model PointChange {
+  actorKind         String           @default("ACCOUNT") @map("actor_kind") @db.VarChar(16)
+  rechargeOrderId   String?          @unique @map("recharge_order_id") @db.Uuid
+  rechargeOrder     RechargeOrder?   @relation("RechargeLedger", fields: [rechargeOrderId, accountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict, map: "point_changes_recharge_owner_fkey")
+  settledRecharge   RechargeOrder[]  @relation("SettledRechargeLedger")
   publishingOrderId String?          @unique @map("publishing_order_id") @db.Uuid
   publishingOrder   PublishingOrder? @relation(fields: [publishingOrderId, accountId], references: [id, accountId], onDelete: Restrict, map: "point_changes_order_owner_fkey")
   id                String           @id @default(uuid()) @db.Uuid
@@ -1097,18 +1106,19 @@ model PointChange {
   grantedDelta      Int              @map("granted_delta")
   fundedDelta       Int              @default(0) @map("funded_delta")
   balanceAfter      Int              @map("balance_after")
-  actorAccountId    String           @map("actor_account_id") @db.Uuid
-  idempotencyKey    String           @map("idempotency_key") @db.Uuid
+  actorAccountId    String?          @map("actor_account_id") @db.Uuid
+  idempotencyKey    String?          @map("idempotency_key") @db.Uuid
   reason            String           @db.VarChar(160)
   internalNote      String?          @map("internal_note") @db.VarChar(320)
   businessReference String?          @map("business_reference") @db.VarChar(160)
   createdAt         DateTime         @default(now()) @map("created_at")
   wallet            PointAccount     @relation(fields: [accountId], references: [accountId], onDelete: Restrict)
-  actor             Account          @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
+  actor             Account?         @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
 
   @@unique([accountId, sequence])
   @@unique([accountId, idempotencyKey])
   @@unique([publishingOrderId, accountId])
+  @@unique([id, rechargeOrderId, accountId], map: "point_change_recharge_identity_key")
   @@map("point_changes")
 }
 
@@ -1207,22 +1217,27 @@ model WorkEffect {
 
 // Recharge owns authenticated notification facts; no local order or points claim.
 model RechargePaymentObservation {
+  sourceKind            String                        @default("NOTIFICATION") @map("source_kind") @db.VarChar(16)
+  queryKey              String?                       @unique @map("query_key") @db.VarChar(64)
+  queriedOrderId        String?                       @map("queried_order_id") @db.Uuid
+  queriedOrder          RechargeOrder?                @relation("RechargeQuerySource", fields: [queriedOrderId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  paidOrders            RechargeOrder[]               @relation("RechargePaidSource")
   id                    String                        @id @default(uuid()) @db.Uuid
   provider              String                        @db.VarChar(16)
   merchantId            String                        @map("merchant_id") @db.VarChar(128)
-  notificationId        String                        @map("notification_id") @db.VarChar(36)
+  notificationId        String?                       @map("notification_id") @db.VarChar(36)
   factsSha256           String                        @map("facts_sha256") @db.VarChar(64)
   factsVersion          Int                           @map("facts_version")
   appId                 String                        @map("app_id") @db.VarChar(128)
   merchantOrderNo       String                        @map("merchant_order_no") @db.VarChar(128)
   transactionId         String                        @map("transaction_id") @db.VarChar(128)
-  tradeType             String                        @map("trade_type") @db.VarChar(16)
+  tradeType             String?                       @map("trade_type") @db.VarChar(16)
   orderTotalFen         BigInt                        @map("order_total_fen")
   currency              String                        @db.VarChar(3)
-  payerTotalFen         BigInt                        @map("payer_total_fen")
-  payerCurrency         String                        @map("payer_currency") @db.VarChar(3)
+  payerTotalFen         BigInt?                       @map("payer_total_fen")
+  payerCurrency         String?                       @map("payer_currency") @db.VarChar(3)
   successAt             DateTime                      @map("success_at") @db.Timestamptz(3)
-  notificationCreatedAt DateTime                      @map("notification_created_at") @db.Timestamptz(3)
+  notificationCreatedAt DateTime?                     @map("notification_created_at") @db.Timestamptz(3)
   verificationKeyId     String                        @map("verification_key_id") @db.VarChar(128)
   signedAtSeconds       BigInt                        @map("signed_at_seconds")
   receivedAt            DateTime                      @map("received_at") @db.Timestamptz(3)
@@ -1235,16 +1250,73 @@ model RechargePaymentObservation {
 }
 
 model RechargeNotificationReceipt {
-  provider             String                     @db.VarChar(16)
-  merchantId           String                     @map("merchant_id") @db.VarChar(128)
-  notificationId       String                     @map("notification_id") @db.VarChar(36)
-  canonicalFactsSha256 String                     @map("canonical_facts_sha256") @db.VarChar(64)
-  hasConflict          Boolean                    @default(false) @map("has_conflict")
-  processedAt          DateTime?                  @map("processed_at") @db.Timestamptz(3)
-  createdAt            DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
-  canonical            RechargePaymentObservation @relation(fields: [provider, merchantId, notificationId, canonicalFactsSha256], references: [provider, merchantId, notificationId, factsSha256], onDelete: Restrict, onUpdate: Restrict, map: "recharge_receipt_canonical_fkey")
+  reviewReason           String?                    @map("review_reason") @db.VarChar(64)
+  appliedRechargeOrderId String?                    @map("applied_recharge_order_id") @db.Uuid
+  appliedOrder           RechargeOrder?             @relation(fields: [appliedRechargeOrderId, provider, merchantId], references: [id, provider, merchantId], onDelete: Restrict, onUpdate: Restrict, map: "recharge_receipt_applied_owner_fkey")
+  provider               String                     @db.VarChar(16)
+  merchantId             String                     @map("merchant_id") @db.VarChar(128)
+  notificationId         String                     @map("notification_id") @db.VarChar(36)
+  canonicalFactsSha256   String                     @map("canonical_facts_sha256") @db.VarChar(64)
+  hasConflict            Boolean                    @default(false) @map("has_conflict")
+  processedAt            DateTime?                  @map("processed_at") @db.Timestamptz(3)
+  createdAt              DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+  canonical              RechargePaymentObservation @relation(fields: [provider, merchantId, notificationId, canonicalFactsSha256], references: [provider, merchantId, notificationId, factsSha256], onDelete: Restrict, onUpdate: Restrict, map: "recharge_receipt_canonical_fkey")
 
   @@id([provider, merchantId, notificationId], map: "recharge_notification_receipt_pkey")
   @@index([hasConflict, processedAt, createdAt], map: "recharge_receipt_pending_idx")
   @@map("recharge_notification_receipts")
+}
+
+model RechargeOrder {
+  id                    String                        @id @default(uuid()) @db.Uuid
+  accountId             String                        @map("account_id") @db.Uuid
+  idempotencyKey        String                        @map("idempotency_key") @db.Uuid
+  amountYuan            Int                           @map("amount_yuan")
+  amountFen             BigInt                        @map("amount_fen")
+  fundedPoints          Int                           @map("funded_points")
+  provider              String                        @db.VarChar(16)
+  merchantId            String                        @map("merchant_id") @db.VarChar(128)
+  appId                 String                        @map("app_id") @db.VarChar(128)
+  merchantOrderNo       String                        @map("merchant_order_no") @db.VarChar(32)
+  method                String                        @db.VarChar(32)
+  currency              String                        @db.VarChar(3)
+  status                String                        @default("PENDING_PAYMENT") @db.VarChar(32)
+  dispatchState         String                        @default("UNSENT") @map("dispatch_state") @db.VarChar(16)
+  providerTransactionId String?                       @map("provider_transaction_id") @db.VarChar(128)
+  expiresAt             DateTime                      @map("expires_at") @db.Timestamptz(3)
+  createdAt             DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
+  paidAt                DateTime?                     @map("paid_at") @db.Timestamptz(3)
+  closedAt              DateTime?                     @map("closed_at") @db.Timestamptz(3)
+  ledgerId              String?                       @unique @map("ledger_id") @db.Uuid
+  paidObservationId     String?                       @map("paid_observation_id") @db.Uuid
+  reviewReason          String?                       @map("review_reason") @db.VarChar(64)
+  account               Account                       @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reservations          RechargeCreditReservation[]
+  changes               PointChange[]                 @relation("RechargeLedger")
+  settledLedger         PointChange?                  @relation("SettledRechargeLedger", fields: [ledgerId, id, accountId], references: [id, rechargeOrderId, accountId], onDelete: Restrict, onUpdate: Restrict, map: "recharge_order_settled_ledger_fkey")
+  paidObservation       RechargePaymentObservation?   @relation("RechargePaidSource", fields: [paidObservationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  queryObservations     RechargePaymentObservation[]  @relation("RechargeQuerySource")
+  receipts              RechargeNotificationReceipt[]
+
+  @@unique([accountId, idempotencyKey])
+  @@unique([id, accountId])
+  @@unique([id, provider, merchantId], map: "recharge_order_merchant_identity_key")
+  @@unique([provider, merchantId, merchantOrderNo], map: "recharge_merchant_order_key")
+  @@unique([provider, merchantId, providerTransactionId], map: "recharge_provider_transaction_key")
+  @@index([accountId, status])
+  @@map("recharge_orders")
+}
+
+model RechargeCreditReservation {
+  rechargeOrderId String        @id @map("recharge_order_id") @db.Uuid
+  accountId       String        @map("account_id") @db.Uuid
+  points          Int
+  state           String        @default("HELD") @db.VarChar(16)
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  completedAt     DateTime?     @map("completed_at") @db.Timestamptz(3)
+  order           RechargeOrder @relation(fields: [rechargeOrderId, accountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict, map: "recharge_reservation_order_owner_fkey")
+  wallet          PointAccount  @relation(fields: [accountId], references: [accountId], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([accountId, state])
+  @@map("recharge_credit_reservations")
 }

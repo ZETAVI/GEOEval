@@ -21,7 +21,11 @@ export function PointHistoryList({
           <div className="commerce-card-heading">
             <div>
               <strong>
-                {item.kind === "PUBLISHING_ORDER" ? "发布服务购买" : "积分调整"}
+                {item.kind === "RECHARGE"
+                  ? "充值到账"
+                  : item.kind === "PUBLISHING_ORDER"
+                    ? "发布服务购买"
+                    : "积分调整"}
               </strong>
               <p>{item.reason}</p>
             </div>
@@ -42,7 +46,10 @@ export function PointHistoryList({
           {showInternal && "actorAccountId" in item && (
             <details>
               <summary>内部处理记录</summary>
-              <p>操作账号：{item.actorAccountId}</p>
+              <p>
+                操作账号：
+                {item.actorKind === "SYSTEM" ? "系统确认" : item.actorAccountId}
+              </p>
               <p>
                 赠送变动 {item.grantedDelta} / 充值变动 {item.fundedDelta}
               </p>

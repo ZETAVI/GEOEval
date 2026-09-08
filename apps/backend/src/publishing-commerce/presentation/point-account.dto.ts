@@ -29,10 +29,15 @@ export class PointAdjustmentRequest {
 export class PointChangeResponse {
   @ApiProperty({ type: String, format: "uuid" }) id!: string;
   @ApiProperty({ type: "integer" }) sequence!: number;
-  @ApiProperty({ type: String, enum: ["ADMIN_ADJUSTMENT", "PUBLISHING_ORDER"] })
-  kind!: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
+  @ApiProperty({
+    type: String,
+    enum: ["ADMIN_ADJUSTMENT", "PUBLISHING_ORDER", "RECHARGE"],
+  })
+  kind!: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE";
   @ApiProperty({ type: String, format: "uuid", nullable: true })
   publishingOrderId!: string | null;
+  @ApiPropertyOptional({ type: String, format: "uuid", nullable: true })
+  rechargeOrderId?: string | null;
   @ApiProperty({ type: "integer" }) amount!: number;
   @ApiProperty({ type: "integer" }) balanceAfter!: number;
   @ApiProperty({ type: String }) reason!: string;
@@ -40,8 +45,12 @@ export class PointChangeResponse {
 }
 export class PointAdminChangeResponse extends PointChangeResponse {
   @ApiProperty({ type: String, format: "uuid" }) accountId!: string;
-  @ApiProperty({ type: String, format: "uuid" }) actorAccountId!: string;
-  @ApiProperty({ type: String, format: "uuid" }) idempotencyKey!: string;
+  @ApiProperty({ type: String, format: "uuid", nullable: true })
+  actorAccountId!: string | null;
+  @ApiProperty({ type: String, format: "uuid", nullable: true })
+  idempotencyKey!: string | null;
+  @ApiPropertyOptional({ type: String, enum: ["ACCOUNT", "SYSTEM"] })
+  actorKind?: "ACCOUNT" | "SYSTEM";
   @ApiProperty({ type: "integer" }) grantedDelta!: number;
   @ApiProperty({ type: "integer" }) fundedDelta!: number;
   @ApiProperty({ type: String, nullable: true }) internalNote!: string | null;

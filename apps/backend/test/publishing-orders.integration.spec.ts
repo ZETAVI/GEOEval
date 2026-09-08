@@ -23,6 +23,8 @@ import {
   type SubmitPurchase,
 } from "../src/publishing-commerce/domain/publishing-order.js";
 import { MAX_POINTS } from "../src/publishing-commerce/domain/point-account.js";
+import { RechargeCoreService } from "../src/recharge/application/recharge-core.service.js";
+import { PostgresRechargeRepository } from "../src/recharge/infrastructure/postgres-recharge.repository.js";
 import { clearCustomerData } from "./customer-data.js";
 import { publishingContextFixture } from "./publishing-context.fixture.js";
 import { browserMutationHeaders } from "./http-test-headers.js";
@@ -142,6 +144,64 @@ describe("publishing purchase atomicity and owned pending orders", () => {
   function purchase(input: unknown, cookie = customerCookie) {
     return http("/publishing/orders", cookie, "POST", input);
   }
+  function rechargeCore() {
+    return new RechargeCoreService(new PostgresRechargeRepository(prisma), {
+      merchantId: "1900007291",
+      appId: "wx1234567890",
+      minAmountYuan: 1,
+      maxAmountYuan: 100,
+      maxActiveOrders: 3,
+      paymentWindowSeconds: 600,
+    });
+  }
+  it("buys with existing spendable points while retaining unrelated recharge capacity", async () => {
+    await grant();
+    await rechargeCore().create(customerId, {
+      amountYuan: 1,
+      idempotencyKey: randomUUID(),
+      method: "WECHAT_NATIVE",
+    });
+    expect((await purchase(await select())).status).toBe(200);
+    expect(
+      await prisma.pointAccount.findUniqueOrThrow({
+        where: { accountId: customerId },
+      }),
+    ).toMatchObject({
+      grantedBalance: 1200,
+      fundedBalance: 0,
+      reservedFundedPoints: 10,
+      reservedLedgerSlots: 1,
+      revision: 2,
+    });
+  });
+  it("returns an ordinary conflict when a purchase would occupy the final recharge ledger slot", async () => {
+    await grant();
+    await prisma.pointAccount.update({
+      where: { accountId: customerId },
+      data: { revision: MAX_POINTS - 1 },
+    });
+    await rechargeCore().create(customerId, {
+      amountYuan: 1,
+      idempotencyKey: randomUUID(),
+      method: "WECHAT_NATIVE",
+    });
+    const response = await purchase(await select());
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      code: "POINT_LIMIT_EXCEEDED",
+    });
+    expect(await prisma.publishingOrder.count()).toBe(0);
+    expect(
+      await prisma.pointAccount.findUniqueOrThrow({
+        where: { accountId: customerId },
+      }),
+    ).toMatchObject({
+      grantedBalance: 2000,
+      revision: MAX_POINTS - 1,
+      reservedFundedPoints: 10,
+      reservedLedgerSlots: 1,
+    });
+  });
   async function unchanged(balance = 2000) {
     expect(await prisma.publishingOrder.count()).toBe(0);
     expect(

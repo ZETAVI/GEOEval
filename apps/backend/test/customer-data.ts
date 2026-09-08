@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { rechargeTestTruncate } from "./recharge-test-data.js";
 
 import type { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { StoreLocationReceiptCodec } from "../src/brand/application/store-location-receipt.js";
@@ -102,6 +103,7 @@ function issueStoreLocationReceipt(input: {
 }
 
 export async function clearCustomerData(prisma: PrismaService): Promise<void> {
+  await prisma.$executeRawUnsafe(rechargeTestTruncate);
   await prisma.publicationWorkAudit.deleteMany();
   await prisma.publicationWorkItem.deleteMany();
   await prisma.publicationDeliveryAudit.deleteMany();

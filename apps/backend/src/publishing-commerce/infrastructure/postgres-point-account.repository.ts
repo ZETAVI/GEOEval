@@ -3,6 +3,7 @@ import { PrismaService } from "../../infrastructure/prisma.service.js";
 import { lockPointAccount } from "./point-account-lock.js";
 import {
   adjustGranted,
+  checkPointCapacity,
   PointAccountError,
   type PointAccountRepository,
   type PointAdjustment,
@@ -71,6 +72,7 @@ export class PostgresPointAccountRepository implements PointAccountRepository {
           "账号已停用，不能新增积分调整",
         );
       const next = adjustGranted(wallet, input.amount);
+      checkPointCapacity(next, wallet);
       await tx.pointAccount.update({ where: { accountId }, data: next });
       return tx.pointChange.create({
         data: {

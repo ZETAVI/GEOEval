@@ -15,6 +15,7 @@ function service(accept: NotificationInbox["accept"]) {
     getReceipt: unused,
     listPending: unused,
     listConflicts: unused,
+    listReviewRequired: unused,
   });
 }
 

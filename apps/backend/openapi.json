@@ -8116,10 +8116,16 @@
             "type": "string",
             "enum": [
               "ADMIN_ADJUSTMENT",
-              "PUBLISHING_ORDER"
+              "PUBLISHING_ORDER",
+              "RECHARGE"
             ]
           },
           "publishingOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "rechargeOrderId": {
             "type": "string",
             "format": "uuid",
             "nullable": true
@@ -8143,11 +8149,20 @@
           },
           "actorAccountId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "idempotencyKey": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
+          },
+          "actorKind": {
+            "type": "string",
+            "enum": [
+              "ACCOUNT",
+              "SYSTEM"
+            ]
           },
           "grantedDelta": {
             "type": "integer"
@@ -8264,10 +8279,16 @@
             "type": "string",
             "enum": [
               "ADMIN_ADJUSTMENT",
-              "PUBLISHING_ORDER"
+              "PUBLISHING_ORDER",
+              "RECHARGE"
             ]
           },
           "publishingOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "rechargeOrderId": {
             "type": "string",
             "format": "uuid",
             "nullable": true
