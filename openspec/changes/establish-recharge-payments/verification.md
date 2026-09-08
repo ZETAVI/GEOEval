@@ -71,7 +71,7 @@ Reproduce with the named isolated test DATABASE_URL and REDIS_URL: `pnpm db:gene
 
 A0, isolated B0 and C1 have implementation evidence; the whole recharge change remains **partially verified**. C1 now verifies order matching and reservation/ledger atomicity. Current API raw-body activation, Worker lease/retry and operational UI, process/storage crash recovery, real merchant keys/TLS/204, Native/H5 browsers, reconciliation, money and production enablement remain not run. Historical P0 receiver SIGKILL does not prove B0 process or database/storage crash recovery.
 
-Existing product-definition/Commerce activation markers are unchanged because no customer recharge or funded writer is enabled. Executable Recharge ports/repository/schema own A0/B0 behavior; remaining orchestration/points proposals stay in this change. Retain this worktree, A0/B0 branches, pre-rebase tag and research artifacts. Deliver B0 through a linear stacked PR, return its scoped schema window to #73, and keep #77 open. No main merge or production activation is inferred.
+Existing product-definition/Commerce activation markers are unchanged because no customer recharge or funded writer is enabled. Executable Recharge ports/repository/schema and the Commerce transaction binding own implemented A0/B0/C1 behavior; remaining orchestration proposals stay in this change. Retain this worktree, A0/B0/C1 branches, recovery tags and research artifacts. [PR #82](https://github.com/ZETAVI/GEOEval/pull/82) owns C1 delivery, live Checks and schema-window handback; #77 remains open. No payment PR merge or production activation is inferred.
 
 ## 前序设计审查证据（fc4dcb0，C1 实施前）
 
@@ -91,6 +91,7 @@ Existing product-definition/Commerce activation markers are unchanged because no
 | Accepted #79 combination | Core + points module assembly + access inventory | 26 passed after rebase; no copied/cherry-picked owner module |
 | API | Compare parsed OpenAPI to accepted bcb81db | All 73 paths and other schemas unchanged; only PointChangeResponse and PointAdminChangeResponse extended. No customer payment route registered |
 | Upgrade | Separate geoeval_issue77_upgrade_c1 DB: deploy 33 old migrations, insert synthetic historical accounts/wallet/ledger/B0 facts, deploy 2 C1 migrations | Passed; old fields identical before/after. SHA256 of both old-field projections: 4c35ca6ee8a48f164a2589341b196ac11720213d69e572da9b634f1c3a5b8b5f. This is schema/data upgrade proof, not an authenticated old-message or storage-crash proof |
+| Schema alignment | Compare deployed database to the final Prisma schema | No Recharge/PointAccount/PointChange drift. The same 20 pre-existing non-Recharge index/FK statements from the B0 baseline remain; no unrelated repair or whole-database zero-diff claim |
 | Static | Workspace typecheck, backend build, full format/framework/link/diff checks | Passed; post-integration generated contracts use current source |
 
 No actual merchant key, provider request, money or production database was used. Main test resources are the #77-only database and Redis 56577; cleanup handles newly referenced immutable test tables, never production. Primary protocol fixtures/evidence are reused, not counted as newly implemented crypto.

@@ -1,6 +1,6 @@
 # Tasks
 
-Owner #77. Completed boxes distinguish P0 experiments, A0 adapter, B0 unregistered notification module and C1 core implementation. The explicit [C1 writer window](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5587081614) now owns the bounded shared changes; no current API/Worker or merchant activation is included.
+Owner #77. Completed boxes distinguish P0 experiments, A0 adapter, B0 unregistered notification module and C1 core implementation. The explicit [C1 writer window](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5587081614) owns the bounded shared changes; its delivery and handback are maintained by [PR #82](https://github.com/ZETAVI/GEOEval/pull/82). No current API/Worker or merchant activation is included.
 
 ## Remaining work and actual dependencies
 
@@ -10,12 +10,12 @@ The approved route stays account recharge → verified payment → funded credit
 | --- | --- | --- |
 | A0: WeChat operation adapter | Native initiate, query and close interpret authenticated protocol results; notification decrypts to a safe observation; exact required fields and frozen identity are validated; no activation | Technically independent of C0 and merchant credentials. A0 window approved and implementation/tests complete locally; confined to Recharge and its tests, no shared composition/schema writes |
 | B0: Notification acceptance and recovery | Real Nest handler and Identity exemptions; observation + receipt commit before ACK; host/connection replacement and DB scans | Implemented under the B0 schema window: 25 new tests plus 2 current API inventory tests passed. Module remains unregistered in the current application; no settlement/worker claim |
-| C0/N1: Points seam and first atomic credit | Reserve amount/sequence capacity, unique payment settlement and ledger, concurrent grant/purchase/return/recharge, crash rollback | #73 is sole points extraction writer. Review of its fixed extraction is complete; confirm a new shared writer/window before points/schema changes. Integration stays deferred; financial amount values are required before live orders, not for synthetic tests |
+| C0/C1: Points seam and first atomic credit | Reserve amount/sequence capacity, unique payment settlement and ledger, concurrent grant/purchase/recharge, transaction rollback | #79 assembly is accepted on main; C1 implements and verifies the first atomic core in PR #82. Future #73 returns must consume its explicit capacity snapshot. Host/connection replacement is tested; OS/storage crash and return execution remain separate |
 | Native/H5 customer journey | Own-order access/history, QR/local polling, saved publishing choice and reconfirmation; external-mobile H5 IP/domain/return | UI/API contracts can be prepared now. Executable journey needs N1; real browser launch additionally needs the named product entitlement, domain and controlled merchant environment |
 | Recovery and reconciliation | Same-order query/close, persisted due state/lease, stop-new-orders, T+1 discrepancy handling | Recovery and bill parsing can be implemented/tested with controlled inputs in their write package. Real bill/download and money-exception handling require account/finance decisions |
 | Activation | Limits, support, merchant/domain/secret rotation owners, bounded money test, financial reconciliation | Finance/product/operations supply these only before the corresponding live test or enablement. No production value is inferred from test configuration |
 
-Current planning: the user approved C1 implementation and cross-task coordination, recorded in [Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5587176110). #73 confirmed the single-writer window. #79 has since merged into accepted main@bcb81db, with [integration evidence](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726). A0/B0/C1 were synchronized linearly; only generated OpenAPI/client files conflicted and were regenerated from both accepted assembly and C1 DTO sources. C1 core is implemented and locally verified, pending its fixed PR/CI/window handback. No payment PR merge or actual money authorization is inferred.
+Current planning: the user approved C1 implementation and cross-task coordination, recorded in [Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5587176110). #73 confirmed the single-writer window. #79 has since merged into accepted main@bcb81db, with [integration evidence](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726). A0/B0/C1 were synchronized linearly; only generated OpenAPI/client files conflicted and were regenerated from both accepted assembly and C1 DTO sources. C1 core is implemented and verified in PR #82; that PR owns exact-head CI and explicit window handback. N1 is the next implementation package. No payment PR merge or actual money authorization is inferred.
 
 ## P0: Fixed inputs and reviewable contracts
 
@@ -67,7 +67,7 @@ Producer: [PR #79](https://github.com/ZETAVI/GEOEval/pull/79), fixed head 770a76
 - [x] Extend only successful QUERY observations, retaining real nullable payer fields; B0 notification profile remains mandatory. Processed receipts must match a successful order; review-needed records do not starve later pending work.
 - [x] Verify 22 core integration cases, 2 new purchase HTTP cases and 1 new Web presentation case. Focused affected backend suite: 73 passed; Web points suite: 5 passed. After #79 integration: 26 core/assembly/access cases passed. Detailed scope and reuse in verification.
 - [x] Rehearse B0 → C1 on a separate DB with old accounts, wallet, ledger and immutable B0 receipt data, preserving the old field projection exactly; 35 migrations applied in order. Validate generated contract changes: all 73 paths unchanged, only two point-history schemas extended.
-- [ ] Deliver fixed C1 PR/accurate CI and explicitly hand the schema window back to #73. Keep this same worktree and linear stack; do not merge or activate.
+- [x] Publish [PR #82](https://github.com/ZETAVI/GEOEval/pull/82) with fixed C1 implementation and evidence. Exact-head CI, final review state and explicit schema-window handback are owned by its checkpoint; retain this worktree and linear stack, without merge or activation.
 
 ## N1: Native dispatch, recovery and customer journey
 
