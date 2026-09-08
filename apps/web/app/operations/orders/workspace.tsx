@@ -31,6 +31,23 @@ const actionLabels: Record<string, string> = {
   REASSIGN: "管理员改派",
 };
 
+export function appendDeliveryPage(
+  current: DeliveryOrderPage,
+  next: DeliveryOrderPage,
+  request: { epoch: number; beforeSequence: number },
+  currentEpoch: number,
+): DeliveryOrderPage {
+  if (
+    request.epoch !== currentEpoch ||
+    current.nextBeforeSequence !== request.beforeSequence
+  )
+    return current;
+  return {
+    items: [...current.items, ...next.items],
+    nextBeforeSequence: next.nextBeforeSequence,
+  };
+}
+
 export function DeliveryWorkspace({
   admin = false,
   orderId,
@@ -109,21 +126,25 @@ export function DeliveryWorkspace({
     void load();
   }, [orderId, scope, admin]);
   async function more() {
-    if (lock.current || !page.nextBeforeSequence) return;
+    if (lock.current || loading || page.nextBeforeSequence === null) return;
+    const request = {
+      epoch: readEpoch.current,
+      beforeSequence: page.nextBeforeSequence,
+    };
     lock.current = true;
     setBusy(true);
     try {
       const next = await listDeliveryOrders(
         apiBaseUrl,
         scope,
-        page.nextBeforeSequence,
+        request.beforeSequence,
       );
-      setPage((old) => ({
-        items: [...old.items, ...next.items],
-        nextBeforeSequence: next.nextBeforeSequence,
-      }));
+      setPage((old) =>
+        appendDeliveryPage(old, next, request, readEpoch.current),
+      );
     } catch (e) {
-      setError(e instanceof Error ? e.message : "加载失败");
+      if (request.epoch === readEpoch.current)
+        setError(e instanceof Error ? e.message : "加载失败");
     } finally {
       lock.current = false;
       setBusy(false);
@@ -356,7 +377,7 @@ export function DeliveryWorkspace({
             {page.nextBeforeSequence && (
               <button
                 className="secondary-button"
-                disabled={busy}
+                disabled={busy || loading}
                 onClick={() => void more()}
               >
                 加载更多

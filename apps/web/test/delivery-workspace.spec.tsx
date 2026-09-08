@@ -1,8 +1,122 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { DeliveryWorkspace } from "../app/operations/orders/workspace.js";
+import {
+  appendDeliveryPage,
+  DeliveryWorkspace,
+} from "../app/operations/orders/workspace.js";
 import { OrderDetail } from "../app/orders/workspace.js";
-import type { PublishingOrder } from "@geoeval/api-client";
+import type { DeliveryOrderPage, PublishingOrder } from "@geoeval/api-client";
+
+function deliveryPage(first: number, last: number): DeliveryOrderPage {
+  return {
+    items: Array.from({ length: first - last + 1 }, (_, offset) => {
+      const sequence = first - offset;
+      return {
+        id: `order-${sequence}`,
+        number: `GEO-${sequence}`,
+        brandId: "brand",
+        articleId: "article",
+        articleRevision: 1,
+        status: "PENDING_HANDLING",
+        title: "订单",
+        createdAt: "2026-09-08T00:00:00Z",
+        agreement: {
+          mode: "RANDOM",
+          packageName: "套餐",
+          scope: [],
+          lines: [],
+          quantity: 1,
+          totalPoints: 100,
+        },
+        delivery: {
+          orderId: `order-${sequence}`,
+          sequence,
+          status: "PENDING_HANDLING",
+          assigneeAccountId: null,
+          revision: 1,
+          startedAt: null,
+          createdAt: "2026-09-08T00:00:00Z",
+        },
+      };
+    }),
+    nextBeforeSequence: last,
+  };
+}
+
+describe("delivery pagination read baseline", () => {
+  it("appends only the next page of the current read", () => {
+    const current = deliveryPage(100, 61);
+    const next = deliveryPage(60, 41);
+    const result = appendDeliveryPage(
+      current,
+      next,
+      { epoch: 1, beforeSequence: 61 },
+      1,
+    );
+    expect(result.items.map((item) => item.id)).toEqual(
+      deliveryPage(100, 41).items.map((item) => item.id),
+    );
+    expect(result.nextBeforeSequence).toBe(41);
+    expect(current.items).toHaveLength(40);
+  });
+
+  it.each(["refresh-first", "more-first"])(
+    "does not skip orders when old pagination and refresh resolve %s",
+    async (order) => {
+      let current = deliveryPage(100, 61);
+      const request = { epoch: 1, beforeSequence: 61 };
+      let finishRefresh!: (page: DeliveryOrderPage) => void;
+      let finishMore!: (page: DeliveryOrderPage) => void;
+      const refresh = new Promise<DeliveryOrderPage>((resolve) => {
+        finishRefresh = resolve;
+      }).then((next) => {
+        current = next;
+      });
+      const more = new Promise<DeliveryOrderPage>((resolve) => {
+        finishMore = resolve;
+      }).then((next) => {
+        current = appendDeliveryPage(current, next, request, 2);
+      });
+      const refreshed = deliveryPage(100, 81);
+      if (order === "refresh-first") {
+        finishRefresh(refreshed);
+        await refresh;
+        finishMore(deliveryPage(60, 41));
+      } else {
+        finishMore(deliveryPage(60, 41));
+        await more;
+        finishRefresh(refreshed);
+      }
+      await Promise.all([refresh, more]);
+      expect(current).toBe(refreshed);
+      expect(current.nextBeforeSequence).toBe(81);
+    },
+  );
+
+  it("rejects a prior read even when its cursor matches the refreshed page", () => {
+    const current = deliveryPage(100, 61);
+    expect(
+      appendDeliveryPage(
+        current,
+        deliveryPage(60, 41),
+        { epoch: 1, beforeSequence: 61 },
+        2,
+      ),
+    ).toBe(current);
+  });
+
+  it("does not advance a page whose requested cursor no longer matches", () => {
+    const current = deliveryPage(100, 81);
+    expect(
+      appendDeliveryPage(
+        current,
+        deliveryPage(60, 41),
+        { epoch: 2, beforeSequence: 61 },
+        2,
+      ),
+    ).toBe(current);
+  });
+});
 
 describe("delivery entry and customer status", () => {
   it.each([false, true])(

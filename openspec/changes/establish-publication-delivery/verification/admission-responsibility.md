@@ -18,7 +18,8 @@ the product-definition activation pointer and ADR 0006.
 | State and audit cannot split                           | Injected audit insertion failure rolls back assignment                                                                                                                             | Passed  |
 | Protected customer projection                          | Customer reads current Publishing and original article/terms but no Delivery actor/history; foreign customer denied                                                                | Passed  |
 | Backend regression                                     | 51 files / 340 tests on isolated targets after adding the new controller to the explicit ACL inventory                                                                             | Passed  |
-| Web behavior/type contracts                            | 17 files / 86 tests; workspace-wide typecheck; OpenAPI/client regenerated                                                                                                          | Passed  |
+| Web behavior/type contracts                            | 17 files / 91 tests; workspace-wide typecheck; OpenAPI/client regenerated                                                                                                          | Passed  |
+| Refresh cannot skip a page                             | Shared read epoch and cursor baseline; controlled refresh/more responses in both orders, matching-cursor stale read and changed cursor; loading disables additional reads          | Passed  |
 | Real browser journey                                   | Normal development-code login, operator claim/start, customer Publishing list/detail, administrator selects another operator and records reason; current assignee/history verified | Passed  |
 | Layout                                                 | Desktop operator page and 375×812 admin form/bottom screenshot inspection; fixed vertical sidebar text; restored viewport                                                          | Passed  |
 | Full results/return workflow                           | Not yet implemented; no fabricated publication count or financial completion                                                                                                       | Not run |
@@ -28,6 +29,13 @@ entry in the expected access-policy inventory (339 passed / 1 failed). The
 explicit per-handler role policy was added and the complete 340-test rerun
 passed. Existing controlled telemetry warnings and pg query deprecation were
 not new functional failures and were not broadened into this Issue.
+
+Independent review found that an old “load more” response could append after a
+first-page refresh and skip the intervening orders. The corrected path rejects
+both obsolete read epochs and mismatched cursors, and disables “load more”
+during first-page loading. Five focused tests exercise the actual append rule,
+including both response orders. The 91-test Web suite and Web typecheck were
+rerun; the unchanged backend evidence was retained rather than repeated.
 
 ## Reproduction and isolation
 
