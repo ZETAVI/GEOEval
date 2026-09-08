@@ -42,6 +42,25 @@ textarea {
   gap: 12px;
   margin: 20px 0;
 }
+.delivery-schedule {
+  margin-block: 12px;
+}
+.delivery-schedule p {
+  margin-block: 6px;
+}
+.delivery-urgency {
+  font-size: 13px;
+  font-weight: 700;
+}
+.delivery-urgency-nearing_deadline {
+  color: #85530b;
+}
+.delivery-urgency-delayed {
+  color: #a53131;
+}
+.delivery-urgency-completed {
+  color: var(--green);
+}
 .publication-item-list {
   display: grid;
   gap: 8px;

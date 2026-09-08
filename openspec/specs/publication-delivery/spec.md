@@ -4,7 +4,7 @@
 
 This owner implements admission, whole-order responsibility, sparse publication
 work, explicitly Mock/manual content preparation, result recording/correction,
-customer-safe progress and automatic normal completion. Negotiated exceptions,
+customer-safe progress, deadline-priority work lists and automatic normal completion. Negotiated exceptions,
 replacement, termination and point settlement remain unactivated in the
 [active change](../../changes/establish-publication-delivery/proposal.md).
 Local/branch verification is not integration or production enablement.
@@ -20,6 +20,8 @@ same transaction, without performing publishing work or copying the paid article
 - **THEN** its owner-bound Delivery adapter creates the initial aggregate once
 - **AND** failure rolls back wallet, ledger, order, aggregate and selection writes
 - **AND** the receipt is the aggregate, not another entity or state machine.
+- **AND** admission explicitly preserves the original purchase time as its
+  immutable ordering projection rather than relying on independent time defaults.
 
 #### Scenario: Existing orders enter Delivery
 
@@ -78,6 +80,20 @@ read all orders and perform reassignment, without impersonating customers.
 - **AND** customer reads expose current status but no operator identities/audit
 - **AND** return/payment capability is not fabricated by this stage.
 
+#### Scenario: Operations prioritizes unfinished work and finds completed history
+
+- **WHEN** an eligible user opens unclaimed, owned or administrator order views
+- **THEN** active orders are shown by earliest expected completion first, with
+  the final 24 hours marked nearing and overdue work marked delayed
+- **AND** completed history is separately selectable for owned/admin views,
+  ordered by newest purchase first, never marked delayed or hidden by completion
+- **AND** each page follows the immutable purchase-time and sequence pair in
+  the same order as the database query; completion of a cursor order cannot skip
+  the next still-active order
+- **AND** list/detail show actual published versus purchased quantity and the
+  same seven-day expectation used by customer progress
+- **AND** these markers do not create new stored states or automatic actions.
+
 ### Requirement: Bounded work with an honest preparation boundary
 
 One logical slot SHALL represent one purchased publication. Untouched slots
@@ -95,6 +111,9 @@ against the immutable agreement rather than current media prices or availability
 - **AND** preparing content alone never increments published quantity
 - **AND** manual and deterministic Mock content are distinguished; Mock remains
   unavailable in production and has no external publication authority.
+- **AND** first Mock preparation needs no replacement confirmation when it
+  replaces neither saved preparation nor unsaved content edits; real replacement
+  remains explicit and warns about losing the current preparation.
 
 #### Scenario: An asynchronous prepared response becomes obsolete
 

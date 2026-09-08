@@ -53,6 +53,15 @@ Content limits must accept the full supported purchased core article rather
 than impose a smaller hidden preparation limit. Customer result pages reuse
 Commerce's original-order ownership check and exclude all internal work data.
 
+Workbench refinement: active orders use original purchase time plus seven days
+as the expectation and sort earliest-first; completed history is a separate view,
+newest purchase first. The final 24 hours are a presentation-only nearing marker.
+Delivery admission explicitly preserves the original purchase timestamp;
+migration aligns the existing ordering projection, not paid facts. Pagination uses the immutable
+`createdAt + sequence` pair, not a latest-sequence cursor or page-local sort.
+The backend owns the one schedule calculation used by customer and operations
+views. No stored urgency, timer, automatic failure/refund or new workflow owner.
+
 ## 4. Fulfilment and settlement are separate facts
 
 | Scenario                                            | Fulfilment                                                | Settlement information                             |

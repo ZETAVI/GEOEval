@@ -151,7 +151,7 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
             platforms: { create: ids.map((platformId) => ({ platformId })) },
           },
         });
-        await this.delivery.bind(tx).admit(order.id);
+        await this.delivery.bind(tx).admit(order.id, order.createdAt);
         await tx.pointChange.create({
           data: {
             accountId,

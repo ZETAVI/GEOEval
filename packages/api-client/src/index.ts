@@ -280,11 +280,18 @@ export function getPublishingOrder(
 export function listDeliveryOrders(
   baseUrl: string,
   scope: "POOL" | "MINE" | "ALL",
-  beforeSequence?: number,
+  state: "ACTIVE" | "COMPLETED" = "ACTIVE",
+  cursor?: NonNullable<DeliveryOrderPage["nextCursor"]>,
 ): Promise<DeliveryOrderPage> {
   const query = new URLSearchParams({
     scope,
-    ...(beforeSequence ? { beforeSequence: String(beforeSequence) } : {}),
+    state,
+    ...(cursor
+      ? {
+          cursorCreatedAt: cursor.createdAt,
+          cursorSequence: String(cursor.sequence),
+        }
+      : {}),
   });
   return apiRequest(baseUrl, `/delivery/orders?${query}`, {
     cache: "no-store",

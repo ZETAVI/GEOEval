@@ -991,7 +991,8 @@ model PublicationDelivery {
   workItems         PublicationWorkItem[]
   workAudits        PublicationWorkAudit[]
 
-  @@index([assigneeAccountId, sequence])
+  @@index([assigneeAccountId, createdAt, sequence], map: "publication_deliveries_assignee_deadline_idx")
+  @@index([createdAt, sequence], map: "publication_deliveries_deadline_idx")
   @@map("publication_deliveries")
 }
 

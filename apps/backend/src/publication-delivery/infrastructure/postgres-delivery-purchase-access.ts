@@ -7,8 +7,10 @@ import type { DeliveryStatus } from "../domain/delivery-assignment.js";
 export class PostgresDeliveryPurchaseAccess {
   bind(tx: Prisma.TransactionClient) {
     return {
-      admit: async (orderId: string) => {
-        await tx.publicationDelivery.create({ data: { orderId } });
+      admit: async (orderId: string, purchasedAt: Date) => {
+        await tx.publicationDelivery.create({
+          data: { orderId, createdAt: purchasedAt },
+        });
       },
       statuses: async (
         orderIds: string[],

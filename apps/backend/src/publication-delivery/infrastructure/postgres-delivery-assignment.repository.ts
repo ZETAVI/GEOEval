@@ -10,6 +10,7 @@ import { PrismaService } from "../../infrastructure/prisma.service.js";
 import { PostgresOperationsIdentityReader } from "../../identity/infrastructure/postgres-operations-identity-reader.js";
 import type { AuthenticatedPrincipal } from "../../identity/domain/identity.types.js";
 import type { AssignmentCommand } from "../domain/delivery-assignment.js";
+import type { DeliveryListQuery } from "../domain/delivery-workbench.js";
 
 @Injectable()
 export class PostgresDeliveryAssignmentRepository {
@@ -19,29 +20,40 @@ export class PostgresDeliveryAssignmentRepository {
     private readonly identities: PostgresOperationsIdentityReader,
   ) {}
 
-  list(
-    actor: AuthenticatedPrincipal,
-    query: {
-      scope: "POOL" | "MINE" | "ALL";
-      limit: number;
-      beforeSequence?: number;
-    },
-  ) {
+  list(actor: AuthenticatedPrincipal, query: DeliveryListQuery) {
     if (actor.role !== "OPERATIONS" && actor.role !== "ADMINISTRATOR")
       throw new ForbiddenException();
     if (query.scope === "ALL" && actor.role !== "ADMINISTRATOR")
       throw new ForbiddenException();
+    const completed = query.state === "COMPLETED";
+    const comparison = completed ? "lt" : "gt";
     return this.prisma.publicationDelivery.findMany({
       where: {
+        status: completed ? "COMPLETED" : { not: "COMPLETED" },
         ...(query.scope === "POOL" ? { assigneeAccountId: null } : {}),
         ...(query.scope === "MINE"
           ? { assigneeAccountId: actor.accountId }
           : {}),
-        ...(query.beforeSequence
-          ? { sequence: { lt: query.beforeSequence } }
+        ...(query.cursorCreatedAt && query.cursorSequence
+          ? {
+              OR: [
+                {
+                  createdAt: { [comparison]: new Date(query.cursorCreatedAt) },
+                },
+                {
+                  createdAt: new Date(query.cursorCreatedAt),
+                  sequence: { [comparison]: query.cursorSequence },
+                },
+              ],
+            }
           : {}),
       },
-      orderBy: { sequence: "desc" },
+      // Admission preserves the original purchase timestamp, including history.
+      // Neither component changes with assignment, completion or correction.
+      orderBy: [
+        { createdAt: completed ? "desc" : "asc" },
+        { sequence: completed ? "desc" : "asc" },
+      ],
       take: query.limit + 1,
     });
   }

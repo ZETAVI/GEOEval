@@ -254,8 +254,9 @@ export function supportingRoleConfig(
         },
         {
           title: "进行中与临期工作",
-          description: "履约模块将提供当前责任人、截止时间、进度和延迟风险。",
-          status: "FUTURE_CAPABILITY",
+          description: "进入履约订单后切换“我的订单”，优先跟进延期和临期工作。",
+          status: "AVAILABLE",
+          href: "/operations/orders",
         },
         {
           title: "协商异常与退点",

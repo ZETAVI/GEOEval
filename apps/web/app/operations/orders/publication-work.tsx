@@ -46,6 +46,18 @@ export function acceptsWorkHistory(
   );
 }
 
+export function needsPreparationReplacementConfirmation(
+  saved: { title: string; bodyMarkdown: string } | null,
+  current: { title: string; bodyMarkdown: string },
+  original: { title: string; bodyMarkdown: string },
+) {
+  return (
+    saved !== null ||
+    current.title !== original.title ||
+    current.bodyMarkdown !== original.bodyMarkdown
+  );
+}
+
 export function PublicationWorkPanel({
   order,
   canWrite,
@@ -442,8 +454,13 @@ export function PublicationWorkPanel({
                       disabled={disabled}
                       onClick={() => {
                         if (
+                          !needsPreparationReplacementConfirmation(
+                            selected.preparation,
+                            { title: draftTitle, bodyMarkdown: body },
+                            order,
+                          ) ||
                           window.confirm(
-                            "将用确定性 Mock 内容替换该条已保存的准备内容。它不代表真实生成或发布，是否继续？",
+                            "将用确定性 Mock 内容替换当前准备内容及未保存的修改。它不代表真实生成或发布，是否继续？",
                           )
                         )
                           void act("PREPARE_MOCK");

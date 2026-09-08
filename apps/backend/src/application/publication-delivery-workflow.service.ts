@@ -19,24 +19,16 @@ import {
 } from "../publication-delivery/domain/publication-item.js";
 import { PostgresDeliveryAssignmentRepository } from "../publication-delivery/infrastructure/postgres-delivery-assignment.repository.js";
 import {
+  deliveryListQuerySchema,
+  deliverySchedule,
+} from "../publication-delivery/domain/delivery-workbench.js";
+import {
   assignmentInputSchema,
   reasonInputSchema,
   reassignInputSchema,
   type AssignmentCommand,
 } from "../publication-delivery/domain/delivery-assignment.js";
 
-const querySchema = z
-  .object({
-    scope: z.enum(["POOL", "MINE", "ALL"]).default("POOL"),
-    limit: z.coerce.number().int().min(1).max(50).default(20),
-    beforeSequence: z.coerce
-      .number()
-      .int()
-      .positive()
-      .max(2_147_483_647)
-      .optional(),
-  })
-  .strict();
 const workQuerySchema = z
   .object({
     afterSlot: z.coerce.number().int().min(0).max(2_147_483_647).default(0),
@@ -181,17 +173,16 @@ export class PublicationDeliveryWorkflowService {
       query.limit,
     );
     const slots = random ? snapshot.items.slice(0, query.limit) : logical.items;
-    const expectedCompletionAt = new Date(
-      order.createdAt.getTime() + 7 * 24 * 60 * 60 * 1000,
+    const schedule = deliverySchedule(
+      order.createdAt,
+      snapshot.delivery.status,
     );
     return {
       status: snapshot.delivery.status,
       quantity: order.agreement.quantity,
       publishedQuantity: snapshot.delivery.publishedQuantity,
-      expectedCompletionAt,
-      delayed:
-        snapshot.delivery.status !== "COMPLETED" &&
-        Date.now() > expectedCompletionAt.getTime(),
+      expectedCompletionAt: schedule.expectedCompletionAt,
+      delayed: schedule.urgency === "DELAYED",
       items: slots.map(({ slot }) => {
         const result = snapshot.items.find(
           (item) => item.slot === slot,
@@ -218,28 +209,33 @@ export class PublicationDeliveryWorkflowService {
     };
   }
   async list(actor: AuthenticatedPrincipal, raw: unknown) {
-    const parsed = querySchema.safeParse(raw);
+    const parsed = deliveryListQuerySchema.safeParse(raw);
     if (!parsed.success) throw new BadRequestException("订单列表参数不正确");
-    const rows = await this.deliveries.list(actor, {
-      scope: parsed.data.scope,
-      limit: parsed.data.limit,
-      ...(parsed.data.beforeSequence
-        ? { beforeSequence: parsed.data.beforeSequence }
-        : {}),
-    });
+    const rows = await this.deliveries.list(actor, parsed.data);
     const selected = rows.slice(0, parsed.data.limit);
     const orders = await this.orders.forDelivery(
       selected.map((row) => row.orderId),
     );
+    const now = Date.now();
     return {
       items: selected.map((delivery) => {
         const order = orders.find((o) => o.id === delivery.orderId);
         if (!order) throw new Error("Delivery references a missing purchase");
         const { bodyMarkdown: _body, ...summary } = order;
-        return { ...summary, status: delivery.status, delivery };
+        return {
+          ...summary,
+          status: delivery.status,
+          delivery,
+          schedule: deliverySchedule(order.createdAt, delivery.status, now),
+        };
       }),
-      nextBeforeSequence:
-        rows.length > parsed.data.limit ? selected.at(-1)!.sequence : null,
+      nextCursor:
+        rows.length > parsed.data.limit
+          ? {
+              createdAt: selected.at(-1)!.createdAt,
+              sequence: selected.at(-1)!.sequence,
+            }
+          : null,
     };
   }
   async detail(actor: AuthenticatedPrincipal, id: string) {
@@ -252,6 +248,7 @@ export class PublicationDeliveryWorkflowService {
     return {
       ...order,
       status: delivery.status,
+      schedule: deliverySchedule(order.createdAt, delivery.status),
       delivery: { ...delivery, assignee: assignee ?? null },
     };
   }

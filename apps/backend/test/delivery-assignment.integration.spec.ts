@@ -155,6 +155,8 @@ describe("purchase admission and exclusive delivery responsibility", () => {
       delivery: { revision: 1, assigneeAccountId: null, startedAt: null },
     });
     expect(pool.items[0]).not.toHaveProperty("bodyMarkdown");
+    // Admission explicitly preserves the immutable purchase timestamp.
+    expect(pool.items[0].delivery.createdAt).toBe(pool.items[0].createdAt);
     const owned = await (
       await http(`/publishing/orders/${order.id}`, 1)
     ).json();
@@ -168,13 +170,148 @@ describe("purchase admission and exclusive delivery responsibility", () => {
     expect(await prisma.publicationDelivery.count()).toBe(1);
   });
 
+  it("prioritizes active deadlines across pages and retains separate completed history", async () => {
+    await app.get(PointAccountService).adjust(ids[1]!, ids[0]!, {
+      amount: 1000,
+      reason: "期限排序隔离样本",
+      idempotencyKey: randomUUID(),
+    });
+    const orders: { id: string }[] = [];
+    const selectionIntent = (
+      await prisma.publishingSelection.findUniqueOrThrow({
+        where: { brandId: input.brandId },
+      })
+    ).intent;
+    for (let index = 0; index < 4; index++) {
+      if (index > 0) {
+        const selection = await prisma.publishingSelection.findUniqueOrThrow({
+          where: { brandId: input.brandId },
+        });
+        expect(
+          (
+            await http(
+              `/publishing/brands/${input.brandId}/selection`,
+              1,
+              "PUT",
+              {
+                expectedRevision: selection.revision,
+                articleId: input.articleId,
+                articleRevision: input.articleRevision,
+                intent: selectionIntent,
+              },
+            )
+          ).status,
+        ).toBe(200);
+        input = {
+          ...input,
+          selectionRevision: selection.revision + 1,
+          idempotencyKey: randomUUID(),
+        };
+      }
+      orders.push(await buy());
+    }
+    // Only fixture clock placement uses SQL. Purchases, responsibility and results
+    // all use their normal HTTP commands; sequence is deliberately not time order.
+    const now = Date.now();
+    const ages = [1, 8, 6.5, 8];
+    for (const [index, order] of orders.entries()) {
+      const createdAt = new Date(now - ages[index]! * 24 * 60 * 60 * 1000);
+      await prisma.$transaction([
+        prisma.publishingOrder.update({
+          where: { id: order.id },
+          data: { createdAt },
+        }),
+        prisma.publicationDelivery.update({
+          where: { orderId: order.id },
+          data: { createdAt },
+        }),
+      ]);
+      expect((await action(order.id, "claim", 2, 1)).status).toBe(200);
+    }
+    const originalPoints = await prisma.pointChange.findMany({
+      orderBy: { id: "asc" },
+    });
+    const first = await (
+      await http("/delivery/orders?scope=MINE&limit=1", 2)
+    ).json();
+    expect(first.items.map((row: { id: string }) => row.id)).toEqual([
+      orders[1]!.id,
+    ]);
+    expect(first.items[0]).toMatchObject({
+      status: "PUBLISHING",
+      schedule: { urgency: "DELAYED" },
+    });
+    // Complete the cursor's order between pages. Its immutable cursor remains usable.
+    for (let slot = 1; slot <= 3; slot++)
+      expect((await work(orders[1]!.id, slot)).status).toBe(200);
+    const query = new URLSearchParams({
+      scope: "MINE",
+      limit: "1",
+      cursorCreatedAt: first.nextCursor.createdAt,
+      cursorSequence: String(first.nextCursor.sequence),
+    });
+    const second = await (await http(`/delivery/orders?${query}`, 2)).json();
+    expect(second.items.map((row: { id: string }) => row.id)).toEqual([
+      orders[3]!.id,
+    ]);
+    query.set("cursorCreatedAt", second.nextCursor.createdAt);
+    query.set("cursorSequence", String(second.nextCursor.sequence));
+    const third = await (await http(`/delivery/orders?${query}`, 2)).json();
+    expect(third.items[0]).toMatchObject({
+      id: orders[2]!.id,
+      schedule: { urgency: "NEARING_DEADLINE" },
+    });
+    query.set("cursorCreatedAt", third.nextCursor.createdAt);
+    query.set("cursorSequence", String(third.nextCursor.sequence));
+    const last = await (await http(`/delivery/orders?${query}`, 2)).json();
+    expect(last.items[0]).toMatchObject({
+      id: orders[0]!.id,
+      schedule: { urgency: "NORMAL" },
+    });
+    expect(last.nextCursor).toBeNull();
+    for (let slot = 1; slot <= 3; slot++)
+      expect((await work(orders[0]!.id, slot)).status).toBe(200);
+    const history = await (
+      await http("/delivery/orders?scope=ALL&state=COMPLETED&limit=1", 0)
+    ).json();
+    expect(history.items[0]).toMatchObject({
+      id: orders[0]!.id,
+      status: "COMPLETED",
+      schedule: { urgency: "COMPLETED" },
+    });
+    const nextHistory = new URLSearchParams({
+      scope: "ALL",
+      state: "COMPLETED",
+      limit: "1",
+      cursorCreatedAt: history.nextCursor.createdAt,
+      cursorSequence: String(history.nextCursor.sequence),
+    });
+    const historical = await (
+      await http(`/delivery/orders?${nextHistory}`, 0)
+    ).json();
+    expect(historical.items[0]).toMatchObject({
+      id: orders[1]!.id,
+      schedule: { urgency: "COMPLETED" },
+    });
+    expect(historical.nextCursor).toBeNull();
+    expect(
+      (await (await http("/delivery/orders?scope=MINE", 3)).json()).items,
+    ).toHaveLength(0);
+    expect(
+      (await (await http("/delivery/orders?scope=POOL", 2)).json()).items,
+    ).toHaveLength(0);
+    expect(
+      await prisma.pointChange.findMany({ orderBy: { id: "asc" } }),
+    ).toEqual(originalPoints);
+  });
+
   it("rolls back purchase, spending and consumed selection if admission fails", async () => {
     const access = app.get(PostgresDeliveryPurchaseAccess),
       bind = access.bind.bind(access);
     const spy = vi.spyOn(access, "bind").mockImplementation((tx) => ({
       ...bind(tx),
-      admit: async (id) => {
-        await bind(tx).admit(id);
+      admit: async (id, purchasedAt) => {
+        await bind(tx).admit(id, purchasedAt);
         throw new Error("controlled admission failure");
       },
     }));

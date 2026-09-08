@@ -36,18 +36,47 @@ const actionLabels: Record<string, string> = {
 export function appendDeliveryPage(
   current: DeliveryOrderPage,
   next: DeliveryOrderPage,
-  request: { epoch: number; beforeSequence: number },
+  request: {
+    epoch: number;
+    cursor: NonNullable<DeliveryOrderPage["nextCursor"]>;
+  },
   currentEpoch: number,
 ): DeliveryOrderPage {
   if (
     request.epoch !== currentEpoch ||
-    current.nextBeforeSequence !== request.beforeSequence
+    current.nextCursor?.createdAt !== request.cursor.createdAt ||
+    current.nextCursor?.sequence !== request.cursor.sequence
   )
     return current;
   return {
     items: [...current.items, ...next.items],
-    nextBeforeSequence: next.nextBeforeSequence,
+    nextCursor: next.nextCursor,
   };
+}
+
+const urgencyLabels = {
+  NORMAL: "正常推进",
+  NEARING_DEADLINE: "即将到期 · 24 小时内",
+  DELAYED: "已延期 · 优先跟进",
+  COMPLETED: "发布已完成",
+};
+export function DeliveryScheduleView({
+  schedule,
+}: {
+  schedule: OperationalOrder["schedule"];
+}) {
+  return (
+    <div className="delivery-schedule">
+      <span
+        className={`delivery-urgency delivery-urgency-${schedule.urgency.toLowerCase()}`}
+      >
+        {urgencyLabels[schedule.urgency]}
+      </span>
+      <p>
+        预计完成：{new Date(schedule.expectedCompletionAt).toLocaleString()}
+      </p>
+    </div>
+  );
 }
 
 export function DeliveryWorkspace({
@@ -61,9 +90,10 @@ export function DeliveryWorkspace({
   const [scope, setScope] = useState<"POOL" | "MINE" | "ALL">(
     admin ? "ALL" : "POOL",
   );
+  const [state, setState] = useState<"ACTIVE" | "COMPLETED">("ACTIVE");
   const [page, setPage] = useState<DeliveryOrderPage>({
     items: [],
-    nextBeforeSequence: null,
+    nextCursor: null,
   });
   const [order, setOrder] = useState<OperationalOrder>();
   const [operators, setOperators] = useState<AccountList>({
@@ -92,7 +122,7 @@ export function DeliveryWorkspace({
         const next = await getDeliveryOrder(apiBaseUrl, orderId);
         if (epoch === readEpoch.current) setOrder(next);
       } else {
-        const next = await listDeliveryOrders(apiBaseUrl, scope);
+        const next = await listDeliveryOrders(apiBaseUrl, scope, state);
         if (epoch === readEpoch.current) setPage(next);
       }
     } finally {
@@ -126,12 +156,12 @@ export function DeliveryWorkspace({
   }
   useEffect(() => {
     void load();
-  }, [orderId, scope, admin]);
+  }, [orderId, scope, state, admin]);
   async function more() {
-    if (lock.current || loading || page.nextBeforeSequence === null) return;
+    if (lock.current || loading || page.nextCursor === null) return;
     const request = {
       epoch: readEpoch.current,
-      beforeSequence: page.nextBeforeSequence,
+      cursor: page.nextCursor,
     };
     lock.current = true;
     setBusy(true);
@@ -139,7 +169,8 @@ export function DeliveryWorkspace({
       const next = await listDeliveryOrders(
         apiBaseUrl,
         scope,
-        request.beforeSequence,
+        state,
+        request.cursor,
       );
       setPage((old) =>
         appendDeliveryPage(old, next, request, readEpoch.current),
@@ -323,8 +354,11 @@ export function DeliveryWorkspace({
                     aria-pressed={scope === value}
                     disabled={busy}
                     onClick={() => {
-                      setPage({ items: [], nextBeforeSequence: null });
+                      if (scope === value) return;
+                      ++readEpoch.current;
+                      setPage({ items: [], nextCursor: null });
                       setScope(value as typeof scope);
+                      if (value === "POOL") setState("ACTIVE");
                     }}
                   >
                     {value === "POOL"
@@ -336,13 +370,48 @@ export function DeliveryWorkspace({
                 ),
               )}
             </div>
+            {scope !== "POOL" && (
+              <div className="commerce-actions" aria-label="履约阶段">
+                {(["ACTIVE", "COMPLETED"] as const).map((value) => (
+                  <button
+                    key={value}
+                    className={
+                      state === value ? "primary-button" : "secondary-button"
+                    }
+                    aria-pressed={state === value}
+                    disabled={busy}
+                    onClick={() => {
+                      if (state === value) return;
+                      ++readEpoch.current;
+                      setPage({ items: [], nextCursor: null });
+                      setState(value);
+                    }}
+                  >
+                    {value === "ACTIVE" ? "待处理与进行中" : "已完成"}
+                  </button>
+                ))}
+              </div>
+            )}
+            <p className="field-help">
+              {state === "ACTIVE"
+                ? "按预计完成时间由近到远排列；延期和临期订单优先。预计 7 天仅作进度提示，不自动结束订单。"
+                : "保留全部已发布结果，按下单时间由新到旧排列。"}
+            </p>
             {!loading && !page.items.length && !error && (
               <section className="commerce-empty">
-                <h2>{scope === "POOL" ? "暂无待领取订单" : "暂无订单"}</h2>
+                <h2>
+                  {scope === "POOL"
+                    ? "暂无待领取订单"
+                    : state === "COMPLETED"
+                      ? "暂无已完成订单"
+                      : "暂无进行中的订单"}
+                </h2>
                 <p>
-                  {scope === "MINE"
-                    ? "从待领取列表选择需要负责的订单。"
-                    : "新购买的订单会自动进入此列表。"}
+                  {state === "COMPLETED"
+                    ? "发布完成后，订单会保留在这里，可继续查看或纠正结果。"
+                    : scope === "MINE"
+                      ? "从待领取列表选择需要负责的订单。"
+                      : "新购买的订单会自动进入此列表。"}
                 </p>
               </section>
             )}
@@ -360,13 +429,15 @@ export function DeliveryWorkspace({
                   </p>
                   <p>
                     {item.agreement.mode === "RANDOM" ? "随机套餐" : "精确发布"}{" "}
-                    · {item.agreement.quantity} 篇 ·{" "}
+                    · 已发布 {item.delivery.publishedQuantity} /{" "}
+                    {item.agreement.quantity} 篇 ·{" "}
                     {item.delivery.startedAt
                       ? "已开始处理"
                       : item.delivery.assigneeAccountId
                         ? "已认领，尚未开始"
                         : "尚未认领"}
                   </p>
+                  <DeliveryScheduleView schedule={item.schedule} />
                   <a
                     className="secondary-button"
                     href={`${basePath}/${item.id}`}
@@ -376,7 +447,7 @@ export function DeliveryWorkspace({
                 </article>
               ))}
             </div>
-            {page.nextBeforeSequence && (
+            {page.nextCursor && (
               <button
                 className="secondary-button"
                 disabled={busy || loading}
@@ -398,6 +469,7 @@ export function DeliveryWorkspace({
                 <p>
                   {order.number} · {order.agreement.quantity} 篇
                 </p>
+                <DeliveryScheduleView schedule={order.schedule} />
                 <p>
                   当前责任人：
                   {order.delivery.assigneeAccountId

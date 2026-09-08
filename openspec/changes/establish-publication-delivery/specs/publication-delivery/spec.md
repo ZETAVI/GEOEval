@@ -1,6 +1,8 @@
 # Proposed Publication Delivery behavior delta
 
-Approved behavior delta, not yet activated. Target current owner after verified implementation: `openspec/specs/publication-delivery/spec.md`.
+Approved target delta. Admission, responsibility and normal results are implemented
+and reconciled in the branch's `openspec/specs/publication-delivery/spec.md`;
+exceptions and settlement below remain unactivated. Integration is a separate gate.
 
 ## ADDED Requirements
 

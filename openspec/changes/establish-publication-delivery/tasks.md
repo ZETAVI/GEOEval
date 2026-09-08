@@ -18,10 +18,11 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 - [x] Record/correct valid results with one-slot counting, customer-safe order detail/progress and whole-order completion.
 - [x] Verify two simultaneous claims, old owner after reassignment, maximum quantity pagination, duplicate results and immutable article/terms using isolated DB and HTTP tests.
   - [x] Add current-role recheck after delayed preparation, direct-work start protection, Completed-preserving reassignment/correction and atomic work-audit failure evidence.
-- [ ] Browser-check customer/operations/admin flows and narrow-screen layout. No direct DB writes as feature acceptance evidence.
+- [x] Browser-check customer/operations/admin flows and narrow-screen layout. No direct DB writes as feature acceptance evidence.
   - [x] Responsibility baseline: real browser login → operator claim/start → customer Publishing → administrator reassignment/history, plus 375px form/bottom checks.
-  - [ ] Result slice: finish actual form submission → partial customer result → full completion/correction and narrow-screen inspection. Current tool failure after the Mock confirm blocks this evidence, not HTTP functionality.
-- [ ] Finish deadline/urgency workbench presentation and operational recovery rehearsal before requesting the normal-result slice merge gate.
+  - [x] Result slice: actual form submission → partial customer result → full completion/correction → original customer page refresh, plus real 375px form/bottom/result checks; prior browser blockage is resolved for this path.
+- [x] Finish deadline/urgency workbench presentation and operational recovery rehearsal before requesting the normal-result slice merge gate.
+  - [x] Keep database ordering and immutable-pair pagination coherent; separate Completed history; exercise normal/nearing/delayed ordering in HTTP and actual 375px browser views.
 - [ ] Reconcile activated specs/DTOs/architecture in a Partial PR; keep unavailable exception/financial actions visibly unavailable and #73 open.
 
 ## 2. Vertical slice: manual exception → continued service or settled termination
@@ -36,7 +37,8 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 
 ## 3. Reconcile, recovery and close
 
-- [ ] Rehearse empty and historical DB migrations, interrupted backfill and compatible read-only/forward-recovery after activity; document restore approval boundary.
+- [x] Rehearse empty and historical DB migrations, interrupted backfill and compatible read-only/forward-recovery after activity; document restore approval boundary.
+  - The controlled read-only HTTP barrier is test evidence, not a deployed maintenance mechanism. Physical restore/process-crash rehearsal and the production ingress plan are not claimed by this local slice.
 - [x] Remove Commerce placeholder status ownership; no permanent dual writes. Generate OpenAPI/client and verify current customer routes compose true status.
 - [ ] Promote accepted Delivery behavior; update Commerce/product/glossary/vision/architecture and ADR; handle only relevant evolution-marker activation.
 - [ ] Map final acceptance to real evidence; record skipped checks and future Writer/real recharge/#74 boundaries without appending their work here.

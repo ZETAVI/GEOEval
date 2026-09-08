@@ -1193,6 +1193,12 @@ export interface components {
             pending: number;
             dispatched: number;
         };
+        DeliveryScheduleResponse: {
+            /** Format: date-time */
+            expectedCompletionAt: string;
+            /** @enum {string} */
+            urgency: "NORMAL" | "NEARING_DEADLINE" | "DELAYED" | "COMPLETED";
+        };
         PublishingPackageScopeResponse: {
             /** Format: uuid */
             platformId: string;
@@ -1246,12 +1252,18 @@ export interface components {
             title: string;
             /** Format: date-time */
             createdAt: string;
+            schedule: components["schemas"]["DeliveryScheduleResponse"];
             agreement: components["schemas"]["PurchasedTermsResponse"];
             delivery: components["schemas"]["DeliveryAssignmentResponse"];
         };
+        DeliveryListCursor: {
+            /** Format: date-time */
+            createdAt: string;
+            sequence: number;
+        };
         OperationalOrderPage: {
             items: components["schemas"]["OperationalOrderSummary"][];
-            nextBeforeSequence: number | null;
+            nextCursor: components["schemas"]["DeliveryListCursor"] | null;
         };
         AccountResponse: {
             id: string;
@@ -1313,6 +1325,7 @@ export interface components {
             createdAt: string;
             bodyMarkdown: string;
             agreement: components["schemas"]["PurchasedTermsResponse"];
+            schedule: components["schemas"]["DeliveryScheduleResponse"];
             delivery: components["schemas"]["DeliveryDetailResponse"];
         };
         AssignmentRequest: {
@@ -2729,7 +2742,9 @@ export interface operations {
     DeliveryAssignmentController_list: {
         parameters: {
             query?: {
-                beforeSequence?: number;
+                cursorSequence?: number;
+                cursorCreatedAt?: string;
+                state?: "ACTIVE" | "COMPLETED";
                 limit?: number;
                 scope?: "POOL" | "MINE" | "ALL";
             };

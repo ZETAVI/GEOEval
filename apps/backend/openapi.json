@@ -129,11 +129,31 @@
         "operationId": "DeliveryAssignmentController_list",
         "parameters": [
           {
-            "name": "beforeSequence",
+            "name": "cursorSequence",
             "required": false,
             "in": "query",
             "schema": {
               "type": "number"
+            }
+          },
+          {
+            "name": "cursorCreatedAt",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "ACTIVE",
+                "COMPLETED"
+              ],
+              "type": "string"
             }
           },
           {
@@ -2737,6 +2757,28 @@
           "dispatched"
         ]
       },
+      "DeliveryScheduleResponse": {
+        "type": "object",
+        "properties": {
+          "expectedCompletionAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "urgency": {
+            "type": "string",
+            "enum": [
+              "NORMAL",
+              "NEARING_DEADLINE",
+              "DELAYED",
+              "COMPLETED"
+            ]
+          }
+        },
+        "required": [
+          "expectedCompletionAt",
+          "urgency"
+        ]
+      },
       "PublishingPackageScopeResponse": {
         "type": "object",
         "properties": {
@@ -2928,6 +2970,9 @@
             "type": "string",
             "format": "date-time"
           },
+          "schedule": {
+            "$ref": "#/components/schemas/DeliveryScheduleResponse"
+          },
           "agreement": {
             "$ref": "#/components/schemas/PurchasedTermsResponse"
           },
@@ -2944,8 +2989,25 @@
           "status",
           "title",
           "createdAt",
+          "schedule",
           "agreement",
           "delivery"
+        ]
+      },
+      "DeliveryListCursor": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sequence": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "createdAt",
+          "sequence"
         ]
       },
       "OperationalOrderPage": {
@@ -2957,14 +3019,19 @@
               "$ref": "#/components/schemas/OperationalOrderSummary"
             }
           },
-          "nextBeforeSequence": {
-            "type": "integer",
-            "nullable": true
+          "nextCursor": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryListCursor"
+              }
+            ]
           }
         },
         "required": [
           "items",
-          "nextBeforeSequence"
+          "nextCursor"
         ]
       },
       "AccountResponse": {
@@ -3162,6 +3229,9 @@
           "agreement": {
             "$ref": "#/components/schemas/PurchasedTermsResponse"
           },
+          "schedule": {
+            "$ref": "#/components/schemas/DeliveryScheduleResponse"
+          },
           "delivery": {
             "$ref": "#/components/schemas/DeliveryDetailResponse"
           }
@@ -3177,6 +3247,7 @@
           "createdAt",
           "bodyMarkdown",
           "agreement",
+          "schedule",
           "delivery"
         ]
       },

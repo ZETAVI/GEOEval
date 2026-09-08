@@ -43,7 +43,13 @@ Result HTTP/DB and UI implementation evidence belongs in the PR and its results
 verification record. Full page submission and narrow-screen confirmation remain
 separate from automated tests, and the parent retains exception/settlement work.
 The workbench deadline-priority presentation and final operational recovery
-rehearsal are still slice acceptance follow-through, not implicitly delivered by
-adding result storage. #77 points-module extraction is coordinated after a
+rehearsal were separate slice acceptance follow-through, not implicitly delivered by
+adding result storage. Their implementation and bounded evidence now reside in
+the current Delivery spec, owner-local query/schedule and verification record.
+The deadline review keeps one derived seven-day schedule and immutable-pair
+pagination; it introduces no urgency persistence, background timer or workflow
+engine. A real purchase test disproved equal independent timestamp defaults;
+admission now explicitly takes original purchase time and migration corrects
+the existing sort projection, not paid facts. #77 points-module extraction is coordinated after a
 stable results checkpoint and before return implementation; recharge behavior
 does not enter this results diff.

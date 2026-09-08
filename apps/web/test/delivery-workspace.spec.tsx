@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import {
   appendDeliveryPage,
+  DeliveryScheduleView,
   DeliveryWorkspace,
 } from "../app/operations/orders/workspace.js";
 import { OrderDetail } from "../app/orders/workspace.js";
@@ -10,7 +11,10 @@ import {
   PublicationProgressView,
   deliveryStatusLabel,
 } from "../app/orders/publication-results.js";
-import { acceptsWorkHistory } from "../app/operations/orders/publication-work.js";
+import {
+  acceptsWorkHistory,
+  needsPreparationReplacementConfirmation,
+} from "../app/operations/orders/publication-work.js";
 import type {
   CustomerPublicationPage,
   DeliveryOrderPage,
@@ -30,6 +34,10 @@ function deliveryPage(first: number, last: number): DeliveryOrderPage {
         status: "PENDING_HANDLING",
         title: "订单",
         createdAt: "2026-09-08T00:00:00Z",
+        schedule: {
+          expectedCompletionAt: "2026-09-15T00:00:00Z",
+          urgency: "NORMAL",
+        },
         agreement: {
           mode: "RANDOM",
           packageName: "套餐",
@@ -50,9 +58,14 @@ function deliveryPage(first: number, last: number): DeliveryOrderPage {
         },
       };
     }),
-    nextBeforeSequence: last,
+    nextCursor: cursor(last),
   };
 }
+
+const cursor = (sequence: number) => ({
+  createdAt: "2026-09-08T00:00:00Z",
+  sequence,
+});
 
 describe("delivery pagination read baseline", () => {
   it("appends only the next page of the current read", () => {
@@ -61,13 +74,13 @@ describe("delivery pagination read baseline", () => {
     const result = appendDeliveryPage(
       current,
       next,
-      { epoch: 1, beforeSequence: 61 },
+      { epoch: 1, cursor: cursor(61) },
       1,
     );
     expect(result.items.map((item) => item.id)).toEqual(
       deliveryPage(100, 41).items.map((item) => item.id),
     );
-    expect(result.nextBeforeSequence).toBe(41);
+    expect(result.nextCursor).toEqual(cursor(41));
     expect(current.items).toHaveLength(40);
   });
 
@@ -75,7 +88,7 @@ describe("delivery pagination read baseline", () => {
     "does not skip orders when old pagination and refresh resolve %s",
     async (order) => {
       let current = deliveryPage(100, 61);
-      const request = { epoch: 1, beforeSequence: 61 };
+      const request = { epoch: 1, cursor: cursor(61) };
       let finishRefresh!: (page: DeliveryOrderPage) => void;
       let finishMore!: (page: DeliveryOrderPage) => void;
       const refresh = new Promise<DeliveryOrderPage>((resolve) => {
@@ -100,7 +113,7 @@ describe("delivery pagination read baseline", () => {
       }
       await Promise.all([refresh, more]);
       expect(current).toBe(refreshed);
-      expect(current.nextBeforeSequence).toBe(81);
+      expect(current.nextCursor).toEqual(cursor(81));
     },
   );
 
@@ -110,7 +123,7 @@ describe("delivery pagination read baseline", () => {
       appendDeliveryPage(
         current,
         deliveryPage(60, 41),
-        { epoch: 1, beforeSequence: 61 },
+        { epoch: 1, cursor: cursor(61) },
         2,
       ),
     ).toBe(current);
@@ -122,14 +135,73 @@ describe("delivery pagination read baseline", () => {
       appendDeliveryPage(
         current,
         deliveryPage(60, 41),
-        { epoch: 2, beforeSequence: 61 },
+        { epoch: 2, cursor: cursor(61) },
         2,
+      ),
+    ).toBe(current);
+  });
+  it("also binds pagination to the deadline timestamp, not only its tie breaker", () => {
+    const current = deliveryPage(100, 61);
+    expect(
+      appendDeliveryPage(
+        current,
+        deliveryPage(60, 41),
+        {
+          epoch: 1,
+          cursor: { ...cursor(61), createdAt: "2026-09-01T00:00:00Z" },
+        },
+        1,
       ),
     ).toBe(current);
   });
 });
 
 describe("delivery entry and customer status", () => {
+  it.each([
+    ["NORMAL", "正常推进"],
+    ["NEARING_DEADLINE", "即将到期"],
+    ["DELAYED", "已延期"],
+    ["COMPLETED", "发布已完成"],
+  ] as const)(
+    "renders the server-owned %s marker without inventing a terminal state",
+    (urgency, label) => {
+      const html = renderToStaticMarkup(
+        <DeliveryScheduleView
+          schedule={{
+            urgency,
+            expectedCompletionAt: "2026-09-15T00:00:00Z",
+          }}
+        />,
+      );
+      expect(html).toContain(label);
+      expect(html).toContain("预计完成");
+      expect(html).not.toContain("已关闭");
+      expect(html).not.toContain("已退款");
+    },
+  );
+  it("only asks to replace actual saved preparation or unsaved content edits", () => {
+    const original = { title: "原文章", bodyMarkdown: "原正文" };
+    expect(
+      needsPreparationReplacementConfirmation(null, original, original),
+    ).toBe(false);
+    expect(
+      needsPreparationReplacementConfirmation(original, original, original),
+    ).toBe(true);
+    expect(
+      needsPreparationReplacementConfirmation(
+        null,
+        { ...original, title: "未保存标题" },
+        original,
+      ),
+    ).toBe(true);
+    expect(
+      needsPreparationReplacementConfirmation(
+        null,
+        { ...original, bodyMarkdown: "未保存正文" },
+        original,
+      ),
+    ).toBe(true);
+  });
   it("discards delayed history after switching item, order or read revision", async () => {
     const request = { orderId: "order-a", slot: 1, epoch: 1 };
     let current = request;
