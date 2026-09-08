@@ -88,12 +88,15 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       two; stop on Provider HTTP500/STOP_ENGINE_ABORT, without retries or starting
       the remaining six. Preserve the one full target reply and its five missing
       other brands, and publish actual input/output as protected local evidence.
-- [ ] Execute the separately frozen matched coverage comparison: four retained
-      real inputs each with nullable-target 1.0.0/1.1.0, max eight/concurrency two,
-      only the coverage paragraph/version changed. Check complete otherBrands,
-      false-null target, duplicates, first positions and eligibility in actual IO.
-      No resampling, synthesis, search, retry or old-batch resumption; a single
-      reply per arm does not prove repeat stability or model limitations.
+- [x] Complete the eight-call matched coverage comparison at fixed input/schema/
+      Qwen low. Candidate gains supplementary coverage and two named restaurants,
+      but adds an explicitly unnamed description as a brand. Both arms already
+      succeed on source order/shared names. Retain the direction, not a stable
+      candidate; preserve full paired input/output and shared-success attribution.
+- [ ] Unify complete coverage and already-named subject scope in one narrow Prompt
+      follow-up, allowing natural aliases but not invented names for anonymous
+      descriptions. Keep target/schema/model unchanged, freeze a separate bounded
+      verification, and do not append calls or program repairs to this ended batch.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

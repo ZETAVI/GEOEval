@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: matched Prompt-only coverage comparison at fixed nullable-target schema/Qwen low;
+Status: retain complete-coverage emphasis; clarify unnamed exclusion before adoption;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -46,6 +46,17 @@ Report exact input excerpts and baseline/candidate output, including omitted or
 repeated names, target false-null, target prose, position and positive eligibility.
 Stop after this package; keep the simple representation even if wording needs a
 separate decision. No Prisma/API/client/Web shell writes conflict with #73.
+
+Result at `3f674cd1`: all eight requests and source/schema checks complete. The
+[paired evidence](research/chain-quality-experiment.md#matched-complete-coverage--gains-and-unnamed-over-inclusion)
+shows useful candidate coverage gains, but also an explicitly unnamed description
+promoted into a positive brand. Both arms already succeed on core sequence and
+the co-listed-name case; do not attribute shared successes to the new paragraph.
+Keep the coverage direction and nullable representation, not a stable/default
+candidate. Next state one coherent unit: all already-named related subjects,
+allowing normal aliases but not naming anonymous descriptions. This is a narrow
+Prompt follow-up, not a new schema, source filter, Agent or model switch. No calls
+are appended to this completed batch.
 
 ### Historical package — one nullable target with existing summary schema
 

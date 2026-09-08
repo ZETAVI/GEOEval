@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Compare explicit complete-brand coverage at fixed nullable-target schema and Qwen low
+- Status: Coverage emphasis shows matched gains; unnamed over-inclusion remains unresolved
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -60,6 +60,14 @@ examples. Schema, program, full input, first-appearance meaning and Qwen low are
 unchanged. No sampling, search, synthesis, automatic retry or resumed old batch.
 Compare actual inputs/outputs pairwise; a single reply per arm is not repeatability
 evidence, a stable success rate or proof of a model capability ceiling.
+
+Completed at `3f674cd1`: [matched coverage evidence](research/chain-quality-experiment.md#matched-complete-coverage--gains-and-unnamed-over-inclusion)
+supports retaining the coverage emphasis, not adopting the whole 1.1.0 candidate.
+Core brands already return in the baseline this round; candidate-only gains are
+supplementary subjects and named restaurants in the absent-target case. It also
+turns an explicitly unnamed description into a brand. Next unify completeness
+and named-subject scope in one clear instruction at the unchanged schema/model;
+do not fix this with program-generated names or restart broad architecture work.
 
 Previous package: an explicit nullable-target experiment reuses the existing
 customer-summary schema/inspector and full-source builder. Its new Prompt explains

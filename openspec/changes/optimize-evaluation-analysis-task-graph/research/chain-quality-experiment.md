@@ -3035,3 +3035,80 @@ rebase, deployment, migration or current-spec write.
 | Actual IO check | 58bba9ffd6cc14eac6a3af7a747620d628f23f1995c32a8689a4f7e706806775 |
 | Langfuse readback | a3712edfe112f46f9cf04c37ac29fa1ef39f33ec0f1c1af1b07ff3c67983774d |
 | Runner | 0c0a0db1b7851e019aa03a6b8639d209145cdae3c473005551a5041545b14753 |
+
+## Matched complete coverage — gains and unnamed over-inclusion
+
+The owner asks to emphasize complete other-brand coverage in Prompt before
+attributing omissions to the model. Code `3f674cd1ed4a4bf5e85f6069771899d8e08617ad`
+changes only the nullable-target asset's coverage paragraph and version (1.0.0
+to 1.1.0), plus the test's version expectation. The added task definition makes
+otherBrands a complete per-subject list including main and supplementary mentions,
+with an omission/repetition check. Target semantics, first-appearance order,
+related merchant scope, normal alias handling, schema, full input, inspector,
+Qwen3.8 Flash / low and runtime are unchanged. The schema/program layer does not
+generate, filter or repair brand records to satisfy the quality check.
+
+Manifest `0392d3fc1f75be602a49454f80d8bcde02ec7c4a0f923d285cabf58cdcfaa3aa`
+freezes four input-matched baseline/candidate pairs (eight maximum), concurrency
+two and 180-second timeout. Baseline 1.0.0 comes from the hashed previous handoff.
+Assertions permit actual HTTP bodies to differ only in system instruction and
+output-contract name; pair start order alternates. The same four source answers
+and destinations were explicitly authorized, and the owner requests this bounded
+continuation. No sampling, synthesis/grouping, search, retries, fallback, old-batch
+resumption or activation. All eight finish normally; the stop rule is not triggered.
+
+| Retained input | Baseline 1.0.0 | Coverage candidate 1.1.0 | Baseline / candidate latency |
+| --- | --- | --- | --- |
+| Main list, comparison table and supplements | All three main other brands present; three supplemental brands omitted | All six other brands and positions correct; target second with useful description | 14.835 / 17.860 s |
+| Six introductions across categories | All five other brands, target fourth and global sequence correct | Same coverage and correct order; target prose useful | 14.056 / 15.789 s |
+| Co-listed named brands plus supplement | Four other brands and target first correct | Same complete coverage/order, useful positive/negative target points | 17.376 / 19.807 s |
+| Absent target, two named merchants and an unnamed description | Correct target=null, but otherBrands=[] omits both named merchants | Both named merchants recovered at 1/2, target=null; adds unnamed description as a third positive brand | 5.396 / 8.914 s |
+
+The candidate's observed gains are supplemental-brand coverage and recovery of
+two named merchants in the absent-target case. Core brands missing in the earlier
+historical reply already return in this batch's baseline; do not call those a
+candidate-only improvement. Both arms also succeed on global order and co-listed
+subjects. Store qualifiers, traditional/simplified writing and natural summaries
+do not create new rejection criteria.
+
+The unnamed-description addition is a real subject miscount: the source explicitly
+says there is no unified store name. It is not a reasonable alias of one of the
+named merchants. This residual prevents unconditional adoption of 1.1.0 even though
+all eight structures/source references pass. Retain the coverage emphasis, nullable
+target and model; next unify "complete already-named subjects" with the existing
+unnamed exclusion in one clear instruction. Do not invent a master-brand registry,
+source keyword filter, new Agent or program repair. Instruction framing remains a
+testable contributor, not a proven exclusive root cause or model capability limit.
+
+Run 2026-09-08 03:53:56.726–03:54:59.434 UTC, 62.708 seconds for eight calls.
+Reported tokens total 20,528 (baseline 9,703; candidate 10,825). Candidate calls
+take 8.914–19.807 seconds, about 1.7–3.5 seconds longer than their paired baseline;
+none reports cached input. This four-pair observation is not a stable speed/cost
+distribution, repeatability estimate, accuracy rate or full-evaluation SLA.
+
+Verification: 53 focused tests and framework/link/diff checks pass. Production
+TypeScript, dependencies and schema are unchanged, so prior typecheck/build
+evidence is reused; final CI is tracked in Checks. Independent fixed-diff/runner
+and semantic review complete. All eight original Provider JSON replies equal
+saved/inspected outputs. Actual paired inputs/schema/route match and only the
+permitted instruction/version fields differ. Nine private Langfuse observations
+(root `1124e574fd53160d` plus eight generations) read back IO/settings/usage
+consistently, without root IO, independent review or code-derived output upload.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/10b1a1f97ea5d526d9de7b6fe3b9ae89).
+
+Complete actual user inputs and both original outputs, with distinct review notes,
+are retained locally in `apps/backend/.provider-evidence/m4-brand-coverage-MXlBXJ/input-output-comparison.md`.
+No new calls are appended to this completed batch. Formal first-position
+reconciliation, whole-chain/report/UI/recovery and successful 3–5-minute acceptance
+remain pending. #42 is In Progress, PR #62 Draft Partial; #73 shared files untouched.
+Main observed `0552aa7`; exit retain, no merge/rebase/deployment/current-spec write.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 8eb23e5ab496dd55a30f1f11ce15353e54a135b199cf8af9195565f0f02e7433 |
+| Summary | a6881b143afb091648d979158ab20204c8bc05d67b2a1dc643735c61ad8650ea |
+| Handoff | cc6bd683f116300a06150da6cafa940795b07be99e31a61e0d01647e4cd36a5c |
+| Matched wire check | 161d5fa5d25c45f81d87a8decd5c83edbbca1ef4ba8fdba8045fcc46124a76bb |
+| Actual IO check | 3f188ee2475f56044c4c4137bd5cc97de10d816af92cd4d2b53b8966e019df9e |
+| Langfuse readback | 425f73d1b7d1c4b0d0a1a7f3f162b94ecc977f74cce66b1887c470f95c6f4770 |
+| Runner | d37e84f6c66ceadf0430d5758955fb86b51b03e4834b450c9b11ee259360bbed |
