@@ -3289,6 +3289,13 @@ migration or current-spec change.
 
 ## All-brand inline interpretation — target completion with coverage residual
 
+Scope correction after owner review: the platform/tool inclusion interpretation
+below was agent-added and is not accepted business meaning. The long answer's
+first reply misses three merchants; the second has all five merchants plus an
+erroneous lookup-platform record. Missing payment names are not defects. Raw
+outputs and the original protocol stay intact; the current correction and
+follow-up live in the business-portrayal result below.
+
 The owner removes relevance/category filtering and asks to colocate brand
 recognition and interpretation. Code `2fb0e7565aa0410f63b3fbef6a418166c11a58b7`
 reuses brand-rows as 3.0.0: each row has nullable targetDescription; non-null is
@@ -3364,3 +3371,74 @@ Exit retain; no merge, rebase, migration, deployment or current-spec activation.
 | Actual IO check | 72f4109eed0789166c6de64b5c1343cb0c01f6a768799c29d02a08a8f5dfcba3 |
 | Langfuse readback | 0ad7f674dfd6463c65827fd56c71f714ca7503c533d2270ee7b4518a062b189d |
 | Runner | 0e61969bf65341be675f7f444154873ddf7b57582c86fdb21abce546aa3a1544 |
+
+## Business portrayal regression and fresh transfer — identity residual
+
+The owner-approved retrospective restores the consumer-facing task instead of
+fine-category filtering, all-name extraction or an exception blacklist. At
+`07a0cfcdc9c3138134a91d33895d61f151215beb`, Prompt 3.1.0 describes one workflow
+for business-subject recognition and target portrayal. Its complete fictional
+example includes a negative merchant before the target and a supplemental merchant.
+The array description is synchronized; wire fields/types/limits, inline target,
+full source/query, model route and program projection are unchanged. Active
+proposal/tasks are pruned into one current view; chronological evidence remains.
+
+Manifest `c4e34a5590d6dccfb42845d5c52c7db84d874f27dafe8cf91e88b53e545160ba`
+freezes four developer regressions and two fresh coffee acquisition/parse pairs,
+max eight calls/concurrency two. The new questions and Prompt are frozen before
+answers exist, with no subsequent instruction edits. Actual acquisition wires
+contain no target name; the existing Qwen3.7 Flash Responses route and objectivity
+profile are reused. Each saved complete answer is bound into the Qwen3.8 Flash
+low Parser recipe, with all non-answer fields unchanged. Native sampling search
+is configured but observed use is UNKNOWN; interpretation does not search.
+No sampling/Parser retry, fallback, synthesis, saved Brand/Query or runtime write.
+
+| Case | Actual result | Latency |
+| --- | --- | --- |
+| Old long answer, first | Five merchants/order correct, no auxiliary platform; target points empty and summary only a recommendation label, unusably thin for the rich source | 13.543 s |
+| Old long answer, repeat | Same five merchants/order correct; target portrayal useful | 17.278 s |
+| Old main list plus supplements | Seven merchants/order correct and useful target description | 14.860 s |
+| Old target-absent answer | Guesses target identity from an unnamed description despite admitting no name occurred, and creates a second unnamed brand row | 11.610 s |
+| Fresh coffee answer one | Natural target mention and faithful main target portrayal; two independent coffee brands collapsed into one row, two tail alternatives omitted | 33.724 s acquisition / 18.449 s parse |
+| Fresh coffee answer two | Natural target mention and faithful main portrayal; four main coffee merchants preserved, one non-positive background product retained as a minor boundary observation | 31.828 s acquisition / 12.887 s parse |
+
+All eight calls and six Parser structures/source projections complete; this is
+not eight semantically valid samples. Independent review confirms target identity
+guessing is the main blocker, not normal alias variation. The empty points/one-word
+summary is lost useful interpretation, not a polished-wording requirement. Fresh
+source also reproduces independent-brand merging and tail omissions. Do not repair
+names, split all slashes or impose text length to fabricate a good result. Source
+brand associations, locations and prices are platform statements, not externally
+verified business facts; Parser does not correct reality from background knowledge.
+
+Keep the business task and inline structure but do not adopt 3.1 as a whole. Next
+isolate the distinction between target reference context and identity observed in
+the answer, at unchanged model/structure/business scope. Other failures remain
+regressions rather than simultaneous category, coverage or full-example rewrites.
+The new cases were acquired after freezing and not used to tune this candidate;
+two questions/one platform are a limited transfer check, not a representative
+population or a successful formal report. This package ends with no ninth call.
+
+Run 2026-09-08 08:25:47.038–08:27:11.629 UTC, 84.591 seconds; 24,804 reported
+tokens (18,830 Parser / 5,974 acquisition). Parser calls 11.610–18.449 seconds;
+not billing, stable performance or formal 3–5-minute acceptance. 56 focused tests,
+backend typecheck/build, framework/link/diff and independent fixed-diff/runner
+review pass. Eight unique sample IDs, actual wires, raw output and fresh-source
+bindings are verified; projections preserve model order without semantic repair.
+Nine private Langfuse observations read back actual IO/settings/usage, no independent
+review or program output uploaded.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/136f730b9820e6bf73b771f183b4b8d0).
+Full IO, fresh sampling requests/answers and separate review are protected locally
+at `apps/backend/.provider-evidence/m4-business-portrayal-ZLa7jJ/input-output-review.md`.
+Formal Parser/report/identity-recovery semantics, grouping, UI and successful full
+timing remain pending. #42 In Progress, #62 Draft Partial, #73 shared files unchanged.
+Exit retain; no merge, rebase, migration, deployment or current-spec activation.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | c75c9784fd13fec6699d92a500afedf7e03d0f4406dfb9d90b2ee9e44da53f65 |
+| Summary | 27788a12dcdcf01ebe5df14a549257759d68dce4dd6415b08d2a613775e87f04 |
+| Handoff | 8ffecdc07eddc09b2485375ae32c9dabfd98b818c1ba0653e959aea037a40003 |
+| Actual IO check | d98222746b03a09e59661b33a555607bb7ae249279e4e32811b671ca992e87eb |
+| Langfuse readback | 3e1a2a7fdfa849f79ba5c899f22b0bafba466e3c7b72921133bec24e09029d7c |
+| Runner | e2c5f1d208c11063afe6a6fbe1f1f4c409b2ffab900510bbf7ab31303d696c07 |

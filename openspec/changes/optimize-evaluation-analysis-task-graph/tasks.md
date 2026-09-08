@@ -17,16 +17,22 @@ The current role and decisions live in [the proposal](proposal.md).
 
 ## Current bounded package
 
-- [ ] Rewrite the experimental Prompt task spine and full example, keeping the
-      3.0 Schema/program/input/model unchanged; verify the example and fixed diff.
-- [ ] Freeze up to eight calls at concurrency two: four old regression parses,
+- [x] Rewrite the experimental task spine and example; synchronize only the array
+      description, retaining 3.0 wire fields/types/limits, input/model/projection.
+      Verify the complete example and fixed diff.
+- [x] Complete eight calls at concurrency two: four old regression parses,
       then two fresh coffee acquisitions and two corresponding parses. No Prompt
       edits after seeing fresh answers, no retry/fallback/synthesis or record writes.
-- [ ] Review actual wire/raw output separately from projection. Compare real target
+- [x] Review actual wire/raw output separately from projection. Compare real target
       presence, business subjects, order, eligibility and useful prose; do not
       call old developer cases an independent test set.
-- [ ] Reconcile current Issue/PR/parent pointers and publish concrete input/output,
-      preserved choices, failures and the bounded next action. No automatic sweep.
+- [x] Prepare concrete input/output, preserved choices, failures and the bounded
+      next action; the final GitHub checkpoint owns Issue/PR/parent synchronization
+      and workspace exit status. No automatic sweep.
+- [ ] Next isolate unsupported target attribution at unchanged business task,
+      output structure and model, using the absent-target counterexample and a
+      real target-present input. Retain vacuous prose, merged subjects and tail
+      omissions as regressions; no simultaneous category/whole-Prompt redesign.
 
 ## Retained report-level work
 

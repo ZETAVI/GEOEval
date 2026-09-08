@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: validate stable business-subject interpretation and fresh transfer;
+Status: keep business task; 3.1 candidate not selected after fresh transfer;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -63,6 +63,17 @@ record the concrete failure and changed next action instead of an automatic next
 Prompt version. Any success supports retaining this candidate and proceeding to
 report-path verification, not production, UI/recovery or 3–5-minute acceptance.
 Current formal scope/position owners must still be reconciled before activation.
+
+At `07a0cfc`, [four regressions plus two fresh acquisition/parse pairs](research/chain-quality-experiment.md#business-portrayal-regression-and-fresh-transfer--identity-residual)
+complete without Provider failures. Merchant scope is correct twice on the old
+long answer, but one target interpretation is vacuous and the absent-target case
+invents identity from generic characteristics. A fresh answer repeats independent-
+subject merging and tail omissions. These are raw semantic failures, not wiring or
+source loss. Retain the business task/inline structure, not whole-candidate adoption.
+The next single variable concerns target reference context versus observed identity;
+do not simultaneously rework categories, coverage examples or model parameters.
+The six interpretations and two fresh samples have different roles in evidence,
+not an eight-sample accuracy score. No extra call extends this completed package.
 
 Historical material below records prior decisions and their context only; current
 instructions and next actions are owned by this section, the proposal and tasks.

@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Validate stable business-subject interpretation and fresh transfer
+- Status: Keep business task; 3.1 candidate not selected after fresh transfer
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -77,6 +77,14 @@ Current package:
 
 The [design](design.md#current-package--business-subject-interpretation) records the
 unchanged interface/recovery boundary. [Tasks](tasks.md) own current next actions.
+The [completed eight-call result](research/chain-quality-experiment.md#business-portrayal-regression-and-fresh-transfer--identity-residual)
+improves merchant scope on the long regression but still fabricates target identity
+in the absent-target case, returns one vacuous target interpretation, and merges/
+omits subjects in one fresh coffee answer. Both fresh answers naturally mention
+the target and its main descriptions are faithful. Do not adopt 3.1 as a whole.
+Next isolate target context versus observed identity evidence at unchanged structure,
+model and business task; keep all other failures as regressions, not simultaneous
+Prompt rewrites. No ninth call or automatic next candidate follows this package.
 All previous protocols and outcomes remain in the
 [chronological experiment record](research/chain-quality-experiment.md), not as
 competing active instructions here. In particular, the prior long-answer result
