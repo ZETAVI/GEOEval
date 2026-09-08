@@ -40,9 +40,9 @@
   Order admission, exclusive whole-order responsibility, explicit start/return
   and administrator reassignment now use [Publication Delivery](../publication-delivery/spec.md).
   Sparse work items, Mock/manual preparation, effective results/corrections,
-  customer-safe progress and normal automatic completion also use that owner.
-  The marker is retained for exceptions/settlement, deadline-priority workbench
-  presentation and other unactivated capabilities, not a second owner of
+  customer-safe progress, normal automatic completion and deadline-priority
+  workbench presentation also use that owner.
+  The marker is retained for exceptions/settlement and other unactivated capabilities, not a second owner of
   implemented responsibility or normal-result rules.
 
 ## Requirements
