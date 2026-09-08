@@ -64,25 +64,20 @@ views. No stored urgency, timer, automatic failure/refund or new workflow owner.
 
 ## 3.1. Points assembly before the settlement slice
 
-Normal delivery is integrated by PR #76. The independently approved
-[points extraction ownership](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5581506895)
-is the next enabling slice, with #73 as sole writer. `CommercePointsModule`
-owns the existing points controllers/service/repository declarations and exports
-only `PointAccountService`. Root-global Identity/Persistence remain prerequisites;
-the module is not global and does not import Publishing/Delivery/Media/GEO.
-Publishing Commerce imports it while retaining the Delivery admission adapter,
-order-service export and optimization registration. Existing service, domain and
-lock-helper paths and all financial behavior stay unchanged.
+Normal delivery is integrated by PR #76 and points assembly by PR #79
+(`main@bcb81db`). Current module ownership is documented in the
+[architecture overview](../../../docs/architecture/overview.md), with the
+executable declaration in `publishing-commerce/commerce-points.module.ts`.
+This completed extraction is not a reservation, funded-credit or order-return
+implementation and is not reopened as a larger wallet refactor.
 
-The alternative of importing all Publishing Commerce from a future points
-consumer would unnecessarily pull in article/media/fulfilment dependencies.
-This split is an assembly boundary, not a new wallet capability or funded writer.
-No schema, transaction, reservation, API, worker or payment configuration changes
-belong here. Verify a real consumer that imports only this module, unique service
-and controller registration in the full API, unchanged generated API and the
-existing points/selection/purchase/admission HTTP tests. #77 separately owns its
-bounded additive notification-schema window; settlement schema waits for its
-completion and renewed coordination.
+The [C1 single-writer checkpoint](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5587081614)
+now owns the shared write window: #77 provides the common capacity policy,
+accounting/schema changes and recharge transaction entry; #73 owns order-side
+resolution, fulfilment eligibility and pages. During that window, #73 prepares
+the behavior/acceptance below without changing shared accounting, Prisma or
+generated public contracts. Order-return persistence/transaction integration
+requires the fixed #77 contract and an explicitly reconciled next write window.
 
 ## 4. Fulfilment and settlement are separate facts
 
@@ -104,6 +99,53 @@ Proposed minimum lifecycle:
 5. One successful return per order in this first release; a new request key cannot evade the business uniqueness constraint. No additional returns after settlement/closure, partial-in-progress repeated returns, or reopening fulfilment. Cumulative original-spend cap remains an invariant rather than permission for repeated refunds.
 
 Stopping work and final Closed are distinct moments: stopping must immediately prevent new ordinary work while waiting for administrator. Already-arranged external publication requires manual coordination; changing a local flag cannot cancel an external action. Preserve existing results and audit; correction of recorded facts cannot reopen service or silently trigger an extra return. Unexpected post-terminal business remedies require a separately authorized decision.
+
+### 4.1. Next order-side slice: bounded decisions and acceptance
+
+This is proposed activation detail, not currently available exception behavior.
+Reuse the existing order detail, responsibility, aggregate/item revisions and
+work audit rather than introducing a generic support-case or approval engine.
+
+| Customer/operations intent | Minimum behavior | Evidence that must disprove incorrect behavior |
+| --- | --- | --- |
+| Record or clear a blocking exception | Retain reason and current responsibility; ordinary in-scope random reallocation need not create an order-wide exception. Already negotiated resolution may be saved directly without first opening a separate case | Recoverable random work continues; a promise needing intervention is visibly distinct; no required report/submit/approve chain |
+| Agree a precise replacement | Delivery records the affected unpublished slot's previous/effective target and negotiation reason/version. Original Commerce promise remains unchanged; current published target/result cannot be replaced through this path | Original C remains in the purchase, new arrangement D is explicit; stale C preparation/result cannot overwrite the accepted D arrangement; replacement alone adds no published count |
+| Save agreed compensation and continue | One explicit order-level agreed total/version, with necessary context; no automatic pricing, surcharge or customer confirmation page | Work continues while credit is pending; full N/N becomes Completed and its unpaid obligation stays in the administrator queue |
+| End remaining work | Follow the approved first-release sequence: finish any work that is to continue, then explicitly stop all still-unfulfilled work with the current negotiated termination | No expansion of all logical slots; already published N/original quantity remain. A stop never fabricates a credit or prematurely closes a positive-return order |
+| Correct a recorded fact | Existing result correction keeps its reason/history, target, count and money unchanged, and preserves an ended fulfilment state | Correction cannot become new publication, replacement, re-opening or another return; an unpublished stopped slot cannot be saved by calling it a correction |
+| Display the outcome | Compose original promise, safely explained agreed replacement, actual results, and separate agreed/credited amounts | Hide internal channels/negotiation notes; Closed is absent from active deadline work; Completed history never hides an unpaid obligation |
+
+Do not introduce persisted stopped-slot ranges or a separate partial-termination
+planner in this first release. The confirmed "finish retained work, then end the
+remainder" sequence can use a single aggregate stop barrier. If immediate
+partial freezing while other slots continue becomes a real requirement, return
+to that product decision rather than inferring it from a quantity example.
+
+All new writes must recheck current role/assignee and exact revisions under the
+existing locks. On a stop/result race, a committed result makes the old stop
+request stale; after refresh it is retained. A committed stop rejects the old
+new-result/Mock save. Already arranged external work remains an operational
+coordination responsibility; late new publications after stop or closure need
+manual review, not silent re-opening or another credit operation.
+
+Three existing activation seams must change together when implementing this
+slice: `actWork` currently validates only frozen purchase targets; result writes
+currently derive Publishing/Completed only from count; assignment and active
+lists currently know Completed as the only terminal state. These are correct
+for the integrated normal slice, not current defects. The exception slice must
+add effective negotiated-target validation, preserve stopped/Closed through
+correction/reassignment, and exclude both terminal states from active work.
+
+### 4.2. Human decision frontier
+
+The existing confirmation only states that zero/absent compensation on
+**continuing** service creates no credit entry. It does not decide whether a
+customer-agreed **termination** may return zero, or who may close that order.
+The pending question is whether to allow zero-point termination with administrator
+closure, require a positive return, or allow operations to close a zero-point
+termination. Do not implement one by analogy, create a zero-amount ledger entry,
+or change closing authority before the owner answers. This affects only that
+branch; the confirmed positive-return rules and the other preparation above stand.
 
 ## 5. Money and transaction boundaries
 

@@ -5,10 +5,12 @@ Change ID: `establish-publication-delivery`
 Class / phase: architectural / approved for bounded implementation.
 
 Current activation: PR #76 integrated normal admission/responsibility, results,
-deadline lists and customer visibility at `main@a550fc4`. This Change remains
-active for the approved points-assembly enabling slice and manual exception/
-settlement outcome; its original rationale below is not a claim that the merged
-normal-delivery capability is still absent.
+deadline lists and customer visibility at `main@a550fc4`; PR #79 integrated the
+no-behavior-change points assembly at `main@bcb81db`. This Change remains active
+for the manual exception/settlement outcome. #77 independently implements the
+shared points/credit capacity under its explicit C1 write window; #73 owns order
+meaning and customer/operations behavior, not a duplicate accounting engine.
+The original rationale below is not a claim that integrated capabilities remain absent.
 
 ## Why
 

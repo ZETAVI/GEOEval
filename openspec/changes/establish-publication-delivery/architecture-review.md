@@ -53,3 +53,25 @@ admission now explicitly takes original purchase time and migration corrects
 the existing sort projection, not paid facts. #77 points-module extraction is coordinated after a
 stable results checkpoint and before return implementation; recharge behavior
 does not enter this results diff.
+
+## Order-side continuation after points assembly
+
+At integrated `main@bcb81db`, independent order-side review and lead reconciliation
+confirm that normal fulfilment and points assembly are not reopened. #77 holds
+the explicit C1 accounting/schema window; order-side behavior and acceptance may
+be prepared without a second accounting policy or unconsumed refund interface.
+
+The next activation must cover negotiated effective targets, stopped/Closed
+preservation during correction/reassignment, and terminal-aware active lists.
+Existing normal-slice code is not incorrectly labeled a current defect merely
+because it does not yet implement those future states. Acceptance scenarios now
+live in design §4.1 and will be exercised through actual persistence/HTTP/pages
+once the shared contract/window is available, not counted as passing runtime tests.
+
+The lead does not adopt the review suggestion to prebuild stopped-slot ranges:
+the confirmed first-release sequence finishes retained work before one stop of
+the remainder. Such a range/partial-stop planner has no required caller today.
+Zero-point termination and its closing authority remain the one human decision
+frontier; continuing zero compensation does not answer it. Review status:
+ready for the bounded design/acceptance preparation, with that decision and the
+shared accounting contract required before their affected implementation.
