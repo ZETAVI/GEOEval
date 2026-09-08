@@ -29,6 +29,28 @@ export type SubmitPublishingOrder =
 export type PublishingOrder = components["schemas"]["PublishingOrderResponse"];
 export type PublishingOrderPage =
   components["schemas"]["PublishingOrderPageResponse"];
+export type OperationalOrder =
+  components["schemas"]["OperationalOrderResponse"];
+export type DeliveryOrderPage = components["schemas"]["OperationalOrderPage"];
+export type PublicationWorkPage =
+  components["schemas"]["PublicationWorkPageResponse"];
+export type PublicationWorkItem =
+  components["schemas"]["PublicationWorkItemResponse"];
+export type CustomerPublicationPage =
+  components["schemas"]["CustomerPublicationPageResponse"];
+export type PublicationWorkHistory =
+  components["schemas"]["PublicationWorkAuditResponse"][];
+export type PublicationWorkCommand =
+  | components["schemas"]["BeginPublicationRequest"]
+  | components["schemas"]["PreparePublicationRequest"]
+  | components["schemas"]["SavePublicationDraftRequest"]
+  | components["schemas"]["RecordPublicationResultRequest"]
+  | components["schemas"]["CorrectPublicationResultRequest"];
+export type DeliveryActionRequest =
+  components["schemas"]["AssignmentRequest"] & {
+    reason?: string;
+    assigneeAccountId?: string;
+  };
 export type CustomerMediaPlatform =
   components["schemas"]["MediaPlatformCustomerResponse"];
 export type CustomerMediaPage =
@@ -255,6 +277,46 @@ export function getPublishingOrder(
     cache: "no-store",
   });
 }
+export function listDeliveryOrders(
+  baseUrl: string,
+  scope: "POOL" | "MINE" | "ALL",
+  state: "ACTIVE" | "COMPLETED" = "ACTIVE",
+  cursor?: NonNullable<DeliveryOrderPage["nextCursor"]>,
+): Promise<DeliveryOrderPage> {
+  const query = new URLSearchParams({
+    scope,
+    state,
+    ...(cursor
+      ? {
+          cursorCreatedAt: cursor.createdAt,
+          cursorSequence: String(cursor.sequence),
+        }
+      : {}),
+  });
+  return apiRequest(baseUrl, `/delivery/orders?${query}`, {
+    cache: "no-store",
+  });
+}
+export function getDeliveryOrder(
+  baseUrl: string,
+  id: string,
+): Promise<OperationalOrder> {
+  return apiRequest(baseUrl, `/delivery/orders/${encodeURIComponent(id)}`, {
+    cache: "no-store",
+  });
+}
+export function actOnDeliveryOrder(
+  baseUrl: string,
+  id: string,
+  action: "claim" | "start" | "return" | "reassign",
+  input: DeliveryActionRequest,
+): Promise<{ orderId: string; revision: number }> {
+  return apiRequest(
+    baseUrl,
+    `/delivery/orders/${encodeURIComponent(id)}/${action}`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
 export function listPublishingOrders(
   baseUrl: string,
   input: { brandId?: string; beforeNumber?: number } = {},
@@ -266,6 +328,51 @@ export function listPublishingOrders(
   return apiRequest(baseUrl, `/publishing/orders?${query}`, {
     cache: "no-store",
   });
+}
+export function getPublicationWork(
+  baseUrl: string,
+  orderId: string,
+  afterSlot = 0,
+): Promise<PublicationWorkPage> {
+  return apiRequest(
+    baseUrl,
+    `/delivery/orders/${encodeURIComponent(orderId)}/work?afterSlot=${afterSlot}`,
+    { cache: "no-store" },
+  );
+}
+export function savePublicationWork(
+  baseUrl: string,
+  orderId: string,
+  slot: number,
+  input: PublicationWorkCommand,
+): Promise<components["schemas"]["PublicationWorkReceiptResponse"]> {
+  return apiRequest(
+    baseUrl,
+    `/delivery/orders/${encodeURIComponent(orderId)}/work/${slot}`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+export function getPublicationWorkHistory(
+  baseUrl: string,
+  orderId: string,
+  slot: number,
+): Promise<PublicationWorkHistory> {
+  return apiRequest(
+    baseUrl,
+    `/delivery/orders/${encodeURIComponent(orderId)}/work/${slot}/history`,
+    { cache: "no-store" },
+  );
+}
+export function getCustomerPublicationResults(
+  baseUrl: string,
+  orderId: string,
+  afterSlot = 0,
+): Promise<CustomerPublicationPage> {
+  return apiRequest(
+    baseUrl,
+    `/publishing/orders/${encodeURIComponent(orderId)}/results?afterSlot=${afterSlot}`,
+    { cache: "no-store" },
+  );
 }
 export function listCustomerMedia(
   apiBaseUrl: string,

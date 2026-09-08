@@ -26,6 +26,10 @@ export class PublishingOrderService {
     @Inject(PUBLISHING_ORDER_REPOSITORY)
     private readonly orders: PublishingOrderRepository,
   ) {}
+  /** Server composition only; deliberately not exposed as an HTTP route. */
+  forDelivery(ids: string[]) {
+    return this.orders.readPaidOrders(ids);
+  }
   async submit(accountId: string, raw: unknown) {
     const input = submitPurchaseSchema.safeParse(raw);
     if (!input.success)

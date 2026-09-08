@@ -188,26 +188,29 @@ enum MediaQualityTier {
 }
 
 model Account {
-  id                       String                          @id @default(uuid()) @db.Uuid
-  mobile                   String                          @unique @db.VarChar(20)
-  role                     AccountRole                     @default(TERMINAL_CUSTOMER)
-  status                   AccountStatus                   @default(ACTIVE)
-  revision                 Int                             @default(1)
-  lastAuthenticatedAt      DateTime?                       @map("last_authenticated_at")
-  createdAt                DateTime                        @default(now()) @map("created_at")
-  updatedAt                DateTime                        @updatedAt @map("updated_at")
-  sessions                 AccountSession[]
-  brands                   BrandProfile[]
-  brandContext             BrandContext?
-  notifications            Notification[]
-  mediaCatalogAudits       MediaCatalogAudit[]
-  publishingPackageAudits  PublishingPackageAudit[]
-  pointAccount             PointAccount?
-  pointChangesActed        PointChange[]
-  questionPreparations     EvaluationQuestionPreparation[]
-  identityAuditsActed      IdentityGovernanceAudit[]       @relation("IdentityAuditActor")
-  identityAuditsTargeted   IdentityGovernanceAudit[]       @relation("IdentityAuditTarget")
-  bootstrapGovernanceState IdentityGovernanceControl?      @relation("BootstrapAccount")
+  id                        String                          @id @default(uuid()) @db.Uuid
+  mobile                    String                          @unique @db.VarChar(20)
+  role                      AccountRole                     @default(TERMINAL_CUSTOMER)
+  status                    AccountStatus                   @default(ACTIVE)
+  revision                  Int                             @default(1)
+  lastAuthenticatedAt       DateTime?                       @map("last_authenticated_at")
+  createdAt                 DateTime                        @default(now()) @map("created_at")
+  updatedAt                 DateTime                        @updatedAt @map("updated_at")
+  sessions                  AccountSession[]
+  brands                    BrandProfile[]
+  brandContext              BrandContext?
+  notifications             Notification[]
+  mediaCatalogAudits        MediaCatalogAudit[]
+  publishingPackageAudits   PublishingPackageAudit[]
+  pointAccount              PointAccount?
+  pointChangesActed         PointChange[]
+  publicationDeliveries     PublicationDelivery[]           @relation("DeliveryAssignee")
+  publicationDeliveryAudits PublicationDeliveryAudit[]
+  publicationWorkAudits     PublicationWorkAudit[]
+  questionPreparations      EvaluationQuestionPreparation[]
+  identityAuditsActed       IdentityGovernanceAudit[]       @relation("IdentityAuditActor")
+  identityAuditsTargeted    IdentityGovernanceAudit[]       @relation("IdentityAuditTarget")
+  bootstrapGovernanceState  IdentityGovernanceControl?      @relation("BootstrapAccount")
 
   @@index([role, status, createdAt, id])
   @@index([status, updatedAt, id])
@@ -940,10 +943,6 @@ enum PointChangeKind {
   PUBLISHING_ORDER
 }
 
-enum PublishingOrderStatus {
-  PENDING_HANDLING
-}
-
 model PublishingOrder {
   id                String                    @id @default(uuid()) @db.Uuid
   number            Int                       @unique @default(autoincrement())
@@ -954,7 +953,6 @@ model PublishingOrder {
   selectionRevision Int                       @map("selection_revision")
   idempotencyKey    String                    @map("idempotency_key") @db.Uuid
   submissionRequest Json                      @map("submission_request")
-  status            PublishingOrderStatus     @default(PENDING_HANDLING)
   title             String                    @db.VarChar(200)
   bodyMarkdown      String                    @map("body_markdown")
   agreement         Json
@@ -964,11 +962,90 @@ model PublishingOrder {
   package           PublishingPackage?        @relation(fields: [packageId], references: [id], onDelete: Restrict)
   platforms         PublishingOrderPlatform[]
   pointChange       PointChange?
+  delivery          PublicationDelivery?
 
   @@unique([accountId, idempotencyKey])
   @@unique([id, accountId])
   @@index([accountId, brandId, number])
   @@map("publishing_orders")
+}
+
+enum PublicationDeliveryStatus {
+  PENDING_HANDLING
+  PUBLISHING
+  COMPLETED
+}
+
+model PublicationDelivery {
+  orderId           String                     @id @map("order_id") @db.Uuid
+  sequence          Int                        @unique @default(autoincrement())
+  status            PublicationDeliveryStatus  @default(PENDING_HANDLING)
+  assigneeAccountId String?                    @map("assignee_account_id") @db.Uuid
+  revision          Int                        @default(1)
+  publishedQuantity Int                        @default(0) @map("published_quantity")
+  startedAt         DateTime?                  @map("started_at")
+  createdAt         DateTime                   @default(now()) @map("created_at")
+  order             PublishingOrder            @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  assignee          Account?                   @relation("DeliveryAssignee", fields: [assigneeAccountId], references: [id], onDelete: Restrict)
+  audits            PublicationDeliveryAudit[]
+  workItems         PublicationWorkItem[]
+  workAudits        PublicationWorkAudit[]
+
+  @@index([assigneeAccountId, createdAt, sequence], map: "publication_deliveries_assignee_deadline_idx")
+  @@index([createdAt, sequence], map: "publication_deliveries_deadline_idx")
+  @@map("publication_deliveries")
+}
+
+model PublicationWorkItem {
+  orderId       String              @map("order_id") @db.Uuid
+  slot          Int
+  revision      Int                 @default(1)
+  platformId    String              @map("platform_id") @db.Uuid
+  startedAt     DateTime?           @map("started_at")
+  preparation   Json?
+  result        Json?
+  delivery      PublicationDelivery @relation(fields: [orderId], references: [orderId], onDelete: Restrict)
+
+  @@id([orderId, slot])
+  @@map("publication_work_items")
+}
+
+model PublicationWorkAudit {
+  id             String              @id @default(uuid()) @db.Uuid
+  orderId        String              @map("order_id") @db.Uuid
+  slot           Int
+  revision       Int
+  orderRevision  Int                 @map("order_revision")
+  actorAccountId String              @map("actor_account_id") @db.Uuid
+  idempotencyKey String              @map("idempotency_key") @db.Uuid
+  request        Json
+  beforeState    Json?               @map("before_state")
+  afterState     Json                @map("after_state")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  delivery       PublicationDelivery @relation(fields: [orderId], references: [orderId], onDelete: Restrict)
+  actor          Account             @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, idempotencyKey])
+  @@unique([orderId, slot, revision])
+  @@map("publication_work_audits")
+}
+
+model PublicationDeliveryAudit {
+  id                 String              @id @default(uuid()) @db.Uuid
+  orderId            String              @map("order_id") @db.Uuid
+  revision           Int
+  actorAccountId     String              @map("actor_account_id") @db.Uuid
+  idempotencyKey     String              @map("idempotency_key") @db.Uuid
+  request            Json
+  previousAssigneeId String?             @map("previous_assignee_id") @db.Uuid
+  nextAssigneeId     String?             @map("next_assignee_id") @db.Uuid
+  createdAt          DateTime            @default(now()) @map("created_at")
+  delivery           PublicationDelivery @relation(fields: [orderId], references: [orderId], onDelete: Restrict)
+  actor              Account             @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, revision])
+  @@unique([orderId, idempotencyKey])
+  @@map("publication_delivery_audits")
 }
 
 model PublishingOrderPlatform {

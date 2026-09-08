@@ -213,10 +213,11 @@ export function supportingRoleConfig(
           href: "/admin/points",
         },
         {
-          title: "订单与结算",
+          title: "履约订单",
           description:
-            "运营履约、异常订单治理、真实支付和代理结算由后续能力接入。",
-          status: "FUTURE_CAPABILITY",
+            "查看已购订单、当前责任和处理记录，按需改派；退点与结算尚未接入。",
+          status: "AVAILABLE",
+          href: "/admin/delivery",
         },
       ],
     };
@@ -226,7 +227,7 @@ export function supportingRoleConfig(
       eyebrow: "运营工作区",
       title: "履约工作台",
       introduction:
-        "运营身份已经可独立登录；订单池、我的订单、临期与异常数据将在履约模块激活后接入。",
+        "从订单池认领已购服务，逐项准备内容或直接录入发布结果；客户可查看真实进度。",
       boundary:
         "运营负责已支付订单的发布履约与普通异常，不管理账号角色、平台价格或客户积分。",
       navigation: [
@@ -236,24 +237,31 @@ export function supportingRoleConfig(
           mark: "工",
           href: "/operations",
         },
-        { label: "待领取订单", description: "共享订单池", mark: "待" },
-        { label: "我的订单", description: "当前负责的履约", mark: "单" },
+        {
+          label: "履约订单",
+          description: "待领取与我负责的订单",
+          mark: "待",
+          href: "/operations/orders",
+        },
         { label: "发票处理", description: "已分配的开票工作", mark: "票" },
       ],
       cards: [
         {
           title: "待领取订单",
-          description: "客户已可购买并查看待处理订单；运营认领与履约尚未接入。",
-          status: "FUTURE_CAPABILITY",
+          description: "领取整单，开始处理；未开始时可说明原因退回。",
+          status: "AVAILABLE",
+          href: "/operations/orders",
         },
         {
           title: "进行中与临期工作",
-          description: "履约模块将提供当前责任人、截止时间、进度和延迟风险。",
-          status: "FUTURE_CAPABILITY",
+          description: "进入履约订单后切换“我的订单”，优先跟进延期和临期工作。",
+          status: "AVAILABLE",
+          href: "/operations/orders",
         },
         {
-          title: "异常与结果回传",
-          description: "后续在订单边界内处理发布异常并记录可访问的发布结果。",
+          title: "协商异常与退点",
+          description:
+            "协商替换、停止剩余工作与管理员退点将在下一切片接入；普通结果已在履约订单中处理。",
           status: "FUTURE_CAPABILITY",
         },
       ],

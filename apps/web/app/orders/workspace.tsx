@@ -11,6 +11,10 @@ import { CustomerSidebar } from "../customer-sidebar.js";
 import { SafeMarkdown } from "../diagnosis/safe-markdown.js";
 import { AgreementSummary } from "../publishing/agreement-summary.js";
 import {
+  CustomerPublicationResults,
+  deliveryStatusLabel,
+} from "./publication-results.js";
+import {
   loadRoleSession,
   sessionFailureState,
   WorkspaceAccessPanel,
@@ -138,7 +142,9 @@ export function OrderWorkspace({ orderId }: { orderId?: string }) {
                 <article className="commerce-card" key={item.id}>
                   <div className="commerce-card-heading">
                     <h2>{item.title}</h2>
-                    <span className="current-badge">待处理</span>
+                    <span className="current-badge">
+                      {deliveryStatusLabel[item.status]}
+                    </span>
                   </div>
                   <p>
                     {item.number} · {new Date(item.createdAt).toLocaleString()}
@@ -179,7 +185,6 @@ export function OrderDetail({ order }: { order: PublishingOrder }) {
     <>
       <section className="commerce-intro">
         <div>
-          <span className="current-badge">待处理</span>
           <h2>{order.title}</h2>
           <p>
             购买时间：{new Date(order.createdAt).toLocaleString()} · 文章版本{" "}
@@ -189,13 +194,15 @@ export function OrderDetail({ order }: { order: PublishingOrder }) {
         <a href="/account">查看积分流水 →</a>
       </section>
       <p className="commerce-notice">
-        购买已完成，订单等待平台处理。此处保留购买时的文章及服务约定；后续修改品牌、文章或媒体价格不会改变本订单。
+        此处保留购买时的文章及服务约定；后续修改品牌、文章或媒体价格不会改变本订单。
       </p>
-      <AgreementSummary terms={order.agreement} />
-      <section className="commerce-editor" aria-label="购买时的文章">
-        <h2>购买时的文章</h2>
+      <CustomerPublicationResults order={order}>
+        <AgreementSummary terms={order.agreement} />
+      </CustomerPublicationResults>
+      <details className="commerce-editor" aria-label="购买时的文章">
+        <summary>查看购买时的文章</summary>
         <SafeMarkdown markdown={order.bodyMarkdown} highlights={[]} />
-      </section>
+      </details>
     </>
   );
 }

@@ -301,8 +301,26 @@ spending relationship use restrictive references, not cascading deletion.
 Customer pages separately confirm the charge, retain uncertain requests across
 reload, and show owned pending orders plus linked point history. The current
 article can evolve without changing its purchased snapshot. Real payment,
-fulfilment, return/commission and production activation remain outside this owner
-slice; no speculative general-purpose transaction framework is introduced.
+publication results, return/commission and production activation remain outside
+this Commerce slice; no speculative general-purpose transaction framework is introduced.
+
+Publication Delivery now owns minimal order admission and responsibility. Its
+transaction-bound adapter initializes the unique aggregate during purchase,
+under [ADR 0006](adr/0006-initialize-delivery-with-purchase.md). Identity-owned
+same-connection reads protect assignment roles; Delivery serializes claim,
+explicit start, unstarted return and administrator reassignment with revision
+and atomic audit. The API composition service combines its authorized view with
+Commerce's immutable facts, without reverse calls or shared private-table reads.
+Customer status comes from Delivery; Commerce's old placeholder column is
+retired. Sparse work items now retain separately validated current preparation
+and publication result values. A short aggregate transaction serializes work,
+effective-result count, normal completion and auditable correction. Preparation
+runs outside transactions through an async-capable port, with Identity and
+revision fences rechecked before save; no real provider or new background-work
+engine is introduced. Customer result subroutes reuse Commerce ownership and
+return only public projections. Negotiated exceptions and settlement remain in
+the active #73 change. The current
+bounded behavior is owned by [Publication Delivery](../../openspec/specs/publication-delivery/spec.md).
 
 ## Architecture qualities
 

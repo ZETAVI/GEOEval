@@ -25,6 +25,8 @@ import {
   present as packageView,
 } from "./postgres-publishing-package.repository.js";
 import { lockPointAccount } from "./point-account-lock.js";
+import { PostgresDeliveryPurchaseAccess } from "../../publication-delivery/infrastructure/postgres-delivery-purchase-access.js";
+import type { DeliveryStatus } from "../../publication-delivery/domain/delivery-assignment.js";
 
 @Injectable()
 export class PostgresPublishingOrderRepository implements PublishingOrderRepository {
@@ -34,6 +36,8 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
     private readonly articleReaders: PostgresArticlePurchaseReaderFactory,
     @Inject(PostgresMediaPurchaseReaderFactory)
     private readonly mediaReaders: PostgresMediaPurchaseReaderFactory,
+    @Inject(PostgresDeliveryPurchaseAccess)
+    private readonly delivery: PostgresDeliveryPurchaseAccess,
   ) {}
 
   runPurchase(accountId: string, input: SubmitPurchase) {
@@ -50,7 +54,8 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
               "IDEMPOTENCY_CONFLICT",
               "该请求标识已对应另一笔购买，请核对原订单",
             );
-          return orderView(prior);
+          const statuses = await this.delivery.bind(tx).statuses([prior.id]);
+          return orderView(prior, statuses.get(prior.id)!);
         }
         if (
           await tx.pointChange.findUnique({
@@ -146,6 +151,7 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
             platforms: { create: ids.map((platformId) => ({ platformId })) },
           },
         });
+        await this.delivery.bind(tx).admit(order.id, order.createdAt);
         await tx.pointChange.create({
           data: {
             accountId,
@@ -166,7 +172,7 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
           where: { brandId: input.brandId },
           data: { intent: Prisma.DbNull, revision: { increment: 1 } },
         });
-        return orderView(order);
+        return orderView(order, "PENDING_HANDLING");
       },
       { timeout: 10000, maxWait: 10000 },
     );
@@ -175,7 +181,9 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
     const order = await this.prisma.publishingOrder.findFirst({
       where: { id, accountId },
     });
-    return order ? orderView(order) : null;
+    if (!order) return null;
+    const statuses = await this.delivery.bind(this.prisma).statuses([order.id]);
+    return orderView(order, statuses.get(order.id)!);
   }
   async list(
     accountId: string,
@@ -190,9 +198,16 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
       orderBy: { number: "desc" },
       take: query.limit + 1,
     });
+    const statuses = await this.delivery
+      .bind(this.prisma)
+      .statuses(rows.map((row) => row.id));
     return {
       items: rows.slice(0, query.limit).map((row) => {
-        const { bodyMarkdown: _body, agreement, ...summary } = orderView(row);
+        const {
+          bodyMarkdown: _body,
+          agreement,
+          ...summary
+        } = orderView(row, statuses.get(row.id)!);
         return {
           ...summary,
           mode: agreement.mode,
@@ -204,21 +219,34 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
         rows.length > query.limit ? rows[query.limit - 1]!.number : null,
     };
   }
+  async readPaidOrders(ids: string[]) {
+    if (ids.length > 50)
+      throw new Error("Delivery order read must remain bounded");
+    const rows = await this.prisma.publishingOrder.findMany({
+      where: { id: { in: ids } },
+    });
+    return rows.map(orderFacts);
+  }
 }
 function orderNumber(number: number) {
   return `GEO-${String(number).padStart(8, "0")}`;
 }
-function orderView(row: StoredOrder): PublishingOrderView {
+function orderFacts(row: StoredOrder): Omit<PublishingOrderView, "status"> {
   return {
     id: row.id,
     number: orderNumber(row.number),
     brandId: row.brandId,
     articleId: row.articleId,
     articleRevision: row.articleRevision,
-    status: row.status,
     title: row.title,
     bodyMarkdown: row.bodyMarkdown,
     agreement: commercialTermsSchema.parse(row.agreement),
     createdAt: row.createdAt,
   };
+}
+function orderView(
+  row: StoredOrder,
+  status: DeliveryStatus,
+): PublishingOrderView {
+  return { ...orderFacts(row), status };
 }

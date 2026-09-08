@@ -82,6 +82,16 @@ const expectedControllerPolicies: Record<
     handler: string,
   ) => Pick<RoutePolicy, "publicAccess" | "csrfExempt" | "roles">
 > = {
+  DeliveryAssignmentController: (handler) => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles:
+      handler === "reassign"
+        ? ["ADMINISTRATOR"]
+        : ["list", "detail"].includes(handler)
+          ? ["OPERATIONS", "ADMINISTRATOR"]
+          : ["OPERATIONS"],
+  }),
   PublishingSelectionController: () => ({
     publicAccess: false,
     csrfExempt: false,
@@ -101,6 +111,12 @@ const expectedControllerPolicies: Record<
   BrandController: customerOnly,
   PublishingPackageCustomerController: customerOnly,
   PublishingOrderController: customerOnly,
+  CustomerPublicationResultsController: customerOnly,
+  PublicationWorkController: (handler) => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: handler === "act" ? ["OPERATIONS"] : ["OPERATIONS", "ADMINISTRATOR"],
+  }),
   PointCustomerController: customerOnly,
   PointAdminController: () => ({
     publicAccess: false,

@@ -124,6 +124,464 @@
         ]
       }
     },
+    "/delivery/orders": {
+      "get": {
+        "operationId": "DeliveryAssignmentController_list",
+        "parameters": [
+          {
+            "name": "cursorSequence",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursorCreatedAt",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "ACTIVE",
+                "COMPLETED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "scope",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "POOL",
+                "MINE",
+                "ALL"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationalOrderPage"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}": {
+      "get": {
+        "operationId": "DeliveryAssignmentController_detail",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationalOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/claim": {
+      "post": {
+        "operationId": "DeliveryAssignmentController_claim",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentResult"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/start": {
+      "post": {
+        "operationId": "DeliveryAssignmentController_start",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentResult"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/return": {
+      "post": {
+        "operationId": "DeliveryAssignmentController_returnToPool",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnAssignmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentResult"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/reassign": {
+      "post": {
+        "operationId": "DeliveryAssignmentController_reassign",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReassignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentResult"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/work": {
+      "get": {
+        "operationId": "PublicationWorkController_list",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "afterSlot",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationWorkPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/work/{slot}/history": {
+      "get": {
+        "operationId": "PublicationWorkController_history",
+        "parameters": [
+          {
+            "name": "slot",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicationWorkAuditResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/work/{slot}": {
+      "post": {
+        "operationId": "PublicationWorkController_act",
+        "parameters": [
+          {
+            "name": "slot",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/BeginPublicationRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PreparePublicationRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SavePublicationDraftRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordPublicationResultRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CorrectPublicationResultRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationWorkReceiptResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/publishing/orders/{orderId}/results": {
+      "get": {
+        "operationId": "CustomerPublicationResultsController_list",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "afterSlot",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerPublicationPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publishing-orders"
+        ]
+      }
+    },
     "/identity/challenges": {
       "post": {
         "operationId": "IdentityController_requestChallenge",
@@ -2299,56 +2757,281 @@
           "dispatched"
         ]
       },
-      "RequestChallengeRequest": {
+      "DeliveryScheduleResponse": {
         "type": "object",
         "properties": {
-          "mobile": {
+          "expectedCompletionAt": {
             "type": "string",
-            "example": "13800138000"
+            "format": "date-time"
+          },
+          "urgency": {
+            "type": "string",
+            "enum": [
+              "NORMAL",
+              "NEARING_DEADLINE",
+              "DELAYED",
+              "COMPLETED"
+            ]
           }
         },
         "required": [
-          "mobile"
+          "expectedCompletionAt",
+          "urgency"
         ]
       },
-      "ChallengeResponse": {
+      "PublishingPackageScopeResponse": {
         "type": "object",
         "properties": {
-          "challengeId": {
-            "type": "string"
-          },
-          "expiresAt": {
-            "type": "string"
-          },
-          "developmentCode": {
+          "platformId": {
             "type": "string",
-            "description": "Only returned by the local/test adapter"
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
           }
         },
         "required": [
-          "challengeId",
-          "expiresAt"
+          "platformId",
+          "displayName"
         ]
       },
-      "CompleteSessionRequest": {
+      "PurchasedMediaLineResponse": {
         "type": "object",
         "properties": {
-          "mobile": {
+          "platformId": {
             "type": "string",
-            "example": "13800138000"
+            "format": "uuid"
           },
-          "challengeId": {
+          "displayName": {
             "type": "string"
           },
-          "code": {
-            "type": "string",
-            "example": "246810"
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "unitPoints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "totalPoints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "available": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
           }
         },
         "required": [
-          "mobile",
-          "challengeId",
-          "code"
+          "platformId",
+          "displayName",
+          "quantity",
+          "unitPoints",
+          "totalPoints",
+          "available"
+        ]
+      },
+      "PurchasedTermsResponse": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RANDOM",
+              "PRECISE"
+            ]
+          },
+          "packageName": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingPackageScopeResponse"
+            }
+          },
+          "lines": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchasedMediaLineResponse"
+            }
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "totalPoints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "mode",
+          "packageName",
+          "scope",
+          "lines",
+          "quantity",
+          "totalPoints"
+        ]
+      },
+      "DeliveryAssignmentResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequence": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING",
+              "PUBLISHING",
+              "COMPLETED"
+            ]
+          },
+          "publishedQuantity": {
+            "type": "integer"
+          },
+          "assigneeAccountId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "orderId",
+          "sequence",
+          "status",
+          "publishedQuantity",
+          "assigneeAccountId",
+          "revision",
+          "startedAt",
+          "createdAt"
+        ]
+      },
+      "OperationalOrderSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING",
+              "PUBLISHING",
+              "COMPLETED"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/DeliveryScheduleResponse"
+          },
+          "agreement": {
+            "$ref": "#/components/schemas/PurchasedTermsResponse"
+          },
+          "delivery": {
+            "$ref": "#/components/schemas/DeliveryAssignmentResponse"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "brandId",
+          "articleId",
+          "articleRevision",
+          "status",
+          "title",
+          "createdAt",
+          "schedule",
+          "agreement",
+          "delivery"
+        ]
+      },
+      "DeliveryListCursor": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sequence": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "createdAt",
+          "sequence"
+        ]
+      },
+      "OperationalOrderPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperationalOrderSummary"
+            }
+          },
+          "nextCursor": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryListCursor"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
         ]
       },
       "AccountResponse": {
@@ -2399,6 +3082,906 @@
           "role",
           "status",
           "revision"
+        ]
+      },
+      "DeliveryAuditResponse": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer"
+          },
+          "actorAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "previousAssigneeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "nextAssigneeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "revision",
+          "actorAccountId",
+          "request",
+          "previousAssigneeId",
+          "nextAssigneeId",
+          "createdAt"
+        ]
+      },
+      "DeliveryDetailResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequence": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING",
+              "PUBLISHING",
+              "COMPLETED"
+            ]
+          },
+          "publishedQuantity": {
+            "type": "integer"
+          },
+          "assigneeAccountId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "assignee": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AccountResponse"
+              }
+            ]
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryAuditResponse"
+            }
+          }
+        },
+        "required": [
+          "orderId",
+          "sequence",
+          "status",
+          "publishedQuantity",
+          "assigneeAccountId",
+          "revision",
+          "startedAt",
+          "createdAt",
+          "assignee",
+          "history"
+        ]
+      },
+      "OperationalOrderResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "articleRevision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING",
+              "PUBLISHING",
+              "COMPLETED"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "bodyMarkdown": {
+            "type": "string"
+          },
+          "agreement": {
+            "$ref": "#/components/schemas/PurchasedTermsResponse"
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/DeliveryScheduleResponse"
+          },
+          "delivery": {
+            "$ref": "#/components/schemas/DeliveryDetailResponse"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "brandId",
+          "articleId",
+          "articleRevision",
+          "status",
+          "title",
+          "createdAt",
+          "bodyMarkdown",
+          "agreement",
+          "schedule",
+          "delivery"
+        ]
+      },
+      "AssignmentRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey"
+        ]
+      },
+      "AssignmentResult": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "orderId",
+          "revision"
+        ]
+      },
+      "ReturnAssignmentRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "reason"
+        ]
+      },
+      "ReassignRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          },
+          "assigneeAccountId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "reason",
+          "assigneeAccountId"
+        ]
+      },
+      "BeginPublicationRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedItemRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483646
+          },
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "BEGIN"
+            ]
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "expectedItemRevision",
+          "platformId",
+          "action"
+        ]
+      },
+      "PreparePublicationRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedItemRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483646
+          },
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "PREPARE_MOCK"
+            ]
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "expectedItemRevision",
+          "platformId",
+          "action"
+        ]
+      },
+      "SavePublicationDraftRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedItemRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483646
+          },
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "SAVE_DRAFT"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "bodyMarkdown": {
+            "type": "string",
+            "maxLength": 100000
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "expectedItemRevision",
+          "platformId",
+          "action",
+          "title",
+          "bodyMarkdown"
+        ]
+      },
+      "PublicationResultInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2048
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "internalChannel": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "internalNote": {
+            "type": "string",
+            "maxLength": 320
+          }
+        },
+        "required": [
+          "title",
+          "url",
+          "publishedAt"
+        ]
+      },
+      "RecordPublicationResultRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedItemRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483646
+          },
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "RECORD_RESULT"
+            ]
+          },
+          "result": {
+            "$ref": "#/components/schemas/PublicationResultInput"
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "expectedItemRevision",
+          "platformId",
+          "action",
+          "result"
+        ]
+      },
+      "CorrectPublicationResultRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedItemRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483646
+          },
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "CORRECT_RESULT"
+            ]
+          },
+          "result": {
+            "$ref": "#/components/schemas/PublicationResultInput"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "expectedItemRevision",
+          "platformId",
+          "action",
+          "result",
+          "reason"
+        ]
+      },
+      "PublicationTargetResponse": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "platformId",
+          "displayName"
+        ]
+      },
+      "PreparedVariantResponse": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "MOCK",
+              "MANUAL"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "bodyMarkdown": {
+            "type": "string",
+            "maxLength": 100000
+          }
+        },
+        "required": [
+          "mode",
+          "title",
+          "bodyMarkdown"
+        ]
+      },
+      "InternalPublicationResult": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "internalChannel": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "internalNote": {
+            "type": "string",
+            "maxLength": 320
+          }
+        },
+        "required": [
+          "platformId",
+          "displayName",
+          "title",
+          "url",
+          "publishedAt",
+          "internalChannel",
+          "internalNote"
+        ]
+      },
+      "PublicationWorkItemResponse": {
+        "type": "object",
+        "properties": {
+          "slot": {
+            "type": "integer"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "purchasedPlatformId": {
+            "type": "string",
+            "nullable": true
+          },
+          "platformId": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PUBLISHING",
+              "PUBLISHED"
+            ]
+          },
+          "preparation": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PreparedVariantResponse"
+              }
+            ]
+          },
+          "result": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InternalPublicationResult"
+              }
+            ]
+          }
+        },
+        "required": [
+          "slot",
+          "revision",
+          "purchasedPlatformId",
+          "platformId",
+          "state",
+          "preparation",
+          "result"
+        ]
+      },
+      "PublicationWorkPageResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING",
+              "PUBLISHING",
+              "COMPLETED"
+            ]
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "publishedQuantity": {
+            "type": "integer"
+          },
+          "nextAfterSlot": {
+            "type": "integer",
+            "nullable": true
+          },
+          "orderRevision": {
+            "type": "integer"
+          },
+          "preparationMode": {
+            "type": "string",
+            "enum": [
+              "MOCK",
+              "UNAVAILABLE"
+            ]
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicationTargetResponse"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicationWorkItemResponse"
+            }
+          }
+        },
+        "required": [
+          "status",
+          "quantity",
+          "publishedQuantity",
+          "nextAfterSlot",
+          "orderRevision",
+          "preparationMode",
+          "targets",
+          "items"
+        ]
+      },
+      "PublicationWorkAuditResponse": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer"
+          },
+          "actorAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "beforeState": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "afterState": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "revision",
+          "actorAccountId",
+          "request",
+          "beforeState",
+          "afterState",
+          "createdAt"
+        ]
+      },
+      "PublicationWorkReceiptResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slot": {
+            "type": "integer"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "orderRevision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "orderId",
+          "slot",
+          "revision",
+          "orderRevision"
+        ]
+      },
+      "PublicPublicationResult": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "platformId",
+          "displayName",
+          "title",
+          "url",
+          "publishedAt"
+        ]
+      },
+      "CustomerPublicationItemResponse": {
+        "type": "object",
+        "properties": {
+          "slot": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "IN_HANDLING",
+              "PUBLISHED"
+            ]
+          },
+          "targetName": {
+            "type": "string",
+            "nullable": true
+          },
+          "result": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicPublicationResult"
+              }
+            ]
+          }
+        },
+        "required": [
+          "slot",
+          "state",
+          "targetName",
+          "result"
+        ]
+      },
+      "CustomerPublicationPageResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_HANDLING",
+              "PUBLISHING",
+              "COMPLETED"
+            ]
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "publishedQuantity": {
+            "type": "integer"
+          },
+          "nextAfterSlot": {
+            "type": "integer",
+            "nullable": true
+          },
+          "expectedCompletionAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "delayed": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerPublicationItemResponse"
+            }
+          }
+        },
+        "required": [
+          "status",
+          "quantity",
+          "publishedQuantity",
+          "nextAfterSlot",
+          "expectedCompletionAt",
+          "delayed",
+          "items"
+        ]
+      },
+      "RequestChallengeRequest": {
+        "type": "object",
+        "properties": {
+          "mobile": {
+            "type": "string",
+            "example": "13800138000"
+          }
+        },
+        "required": [
+          "mobile"
+        ]
+      },
+      "ChallengeResponse": {
+        "type": "object",
+        "properties": {
+          "challengeId": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "developmentCode": {
+            "type": "string",
+            "description": "Only returned by the local/test adapter"
+          }
+        },
+        "required": [
+          "challengeId",
+          "expiresAt"
+        ]
+      },
+      "CompleteSessionRequest": {
+        "type": "object",
+        "properties": {
+          "mobile": {
+            "type": "string",
+            "example": "13800138000"
+          },
+          "challengeId": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "example": "246810"
+          }
+        },
+        "required": [
+          "mobile",
+          "challengeId",
+          "code"
         ]
       },
       "SessionAuthenticationErrorResponse": {
@@ -4419,111 +6002,6 @@
           "createdAt"
         ]
       },
-      "PublishingPackageScopeResponse": {
-        "type": "object",
-        "properties": {
-          "platformId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "displayName": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "platformId",
-          "displayName"
-        ]
-      },
-      "PurchasedMediaLineResponse": {
-        "type": "object",
-        "properties": {
-          "platformId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "displayName": {
-            "type": "string"
-          },
-          "quantity": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 2147483647
-          },
-          "unitPoints": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 2147483647
-          },
-          "totalPoints": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 2147483647
-          },
-          "available": {
-            "type": "boolean",
-            "enum": [
-              true
-            ]
-          }
-        },
-        "required": [
-          "platformId",
-          "displayName",
-          "quantity",
-          "unitPoints",
-          "totalPoints",
-          "available"
-        ]
-      },
-      "PurchasedTermsResponse": {
-        "type": "object",
-        "properties": {
-          "mode": {
-            "type": "string",
-            "enum": [
-              "RANDOM",
-              "PRECISE"
-            ]
-          },
-          "packageName": {
-            "type": "string",
-            "nullable": true
-          },
-          "scope": {
-            "maxItems": 200,
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PublishingPackageScopeResponse"
-            }
-          },
-          "lines": {
-            "maxItems": 200,
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PurchasedMediaLineResponse"
-            }
-          },
-          "quantity": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 2147483647
-          },
-          "totalPoints": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 2147483647
-          }
-        },
-        "required": [
-          "mode",
-          "packageName",
-          "scope",
-          "lines",
-          "quantity",
-          "totalPoints"
-        ]
-      },
       "SubmitPublishingOrderRequest": {
         "type": "object",
         "properties": {
@@ -4585,7 +6063,9 @@
           "status": {
             "type": "string",
             "enum": [
-              "PENDING_HANDLING"
+              "PENDING_HANDLING",
+              "PUBLISHING",
+              "COMPLETED"
             ]
           },
           "title": {
@@ -4639,7 +6119,9 @@
           "status": {
             "type": "string",
             "enum": [
-              "PENDING_HANDLING"
+              "PENDING_HANDLING",
+              "PUBLISHING",
+              "COMPLETED"
             ]
           },
           "title": {

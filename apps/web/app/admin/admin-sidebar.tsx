@@ -7,7 +7,8 @@ import { SessionExitActions } from "../session-exit-actions.js";
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
-type AdminSection = "overview" | "accounts" | "media" | "publishing" | "points";
+type AdminSection =
+  "overview" | "accounts" | "media" | "publishing" | "points" | "delivery";
 
 export function AdminSidebar({
   account,
@@ -24,6 +25,17 @@ export function AdminSidebar({
       </a>
       <div className="admin-area-label">管理员工作区</div>
       <nav aria-label="管理员功能">
+        <a
+          className={active === "delivery" ? "side-link active" : "side-link"}
+          href="/admin/delivery"
+          aria-current={active === "delivery" ? "page" : undefined}
+        >
+          <i>单</i>
+          <span>
+            <b>履约订单</b>
+            <small>责任与改派</small>
+          </span>
+        </a>
         <a
           className={active === "overview" ? "side-link active" : "side-link"}
           href="/admin"

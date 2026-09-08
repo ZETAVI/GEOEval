@@ -100,6 +100,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/delivery/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DeliveryAssignmentController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DeliveryAssignmentController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeliveryAssignmentController_claim"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeliveryAssignmentController_start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeliveryAssignmentController_returnToPool"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/reassign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeliveryAssignmentController_reassign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/work": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicationWorkController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/work/{slot}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicationWorkController_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/work/{slot}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PublicationWorkController_act"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/publishing/orders/{orderId}/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerPublicationResultsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/identity/challenges": {
         parameters: {
             query?: never;
@@ -1033,6 +1193,325 @@ export interface components {
             pending: number;
             dispatched: number;
         };
+        DeliveryScheduleResponse: {
+            /** Format: date-time */
+            expectedCompletionAt: string;
+            /** @enum {string} */
+            urgency: "NORMAL" | "NEARING_DEADLINE" | "DELAYED" | "COMPLETED";
+        };
+        PublishingPackageScopeResponse: {
+            /** Format: uuid */
+            platformId: string;
+            displayName: string;
+        };
+        PurchasedMediaLineResponse: {
+            /** Format: uuid */
+            platformId: string;
+            displayName: string;
+            quantity: number;
+            unitPoints: number;
+            totalPoints: number;
+            /** @enum {boolean} */
+            available: true;
+        };
+        PurchasedTermsResponse: {
+            /** @enum {string} */
+            mode: "RANDOM" | "PRECISE";
+            packageName: string | null;
+            scope: components["schemas"]["PublishingPackageScopeResponse"][];
+            lines: components["schemas"]["PurchasedMediaLineResponse"][];
+            quantity: number;
+            totalPoints: number;
+        };
+        DeliveryAssignmentResponse: {
+            /** Format: uuid */
+            orderId: string;
+            sequence: number;
+            /** @enum {string} */
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            publishedQuantity: number;
+            /** Format: uuid */
+            assigneeAccountId: string | null;
+            revision: number;
+            /** Format: date-time */
+            startedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        OperationalOrderSummary: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            /** Format: uuid */
+            brandId: string;
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            /** @enum {string} */
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            title: string;
+            /** Format: date-time */
+            createdAt: string;
+            schedule: components["schemas"]["DeliveryScheduleResponse"];
+            agreement: components["schemas"]["PurchasedTermsResponse"];
+            delivery: components["schemas"]["DeliveryAssignmentResponse"];
+        };
+        DeliveryListCursor: {
+            /** Format: date-time */
+            createdAt: string;
+            sequence: number;
+        };
+        OperationalOrderPage: {
+            items: components["schemas"]["OperationalOrderSummary"][];
+            nextCursor: components["schemas"]["DeliveryListCursor"] | null;
+        };
+        AccountResponse: {
+            id: string;
+            mobile: string;
+            /** @enum {string} */
+            role: "TERMINAL_CUSTOMER" | "OPERATIONS" | "ADMINISTRATOR" | "AGENT";
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+            revision: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** Format: date-time */
+            lastAuthenticatedAt?: string | null;
+        };
+        DeliveryAuditResponse: {
+            revision: number;
+            /** Format: uuid */
+            actorAccountId: string;
+            request: {
+                [key: string]: unknown;
+            };
+            previousAssigneeId: string | null;
+            nextAssigneeId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        DeliveryDetailResponse: {
+            /** Format: uuid */
+            orderId: string;
+            sequence: number;
+            /** @enum {string} */
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            publishedQuantity: number;
+            /** Format: uuid */
+            assigneeAccountId: string | null;
+            revision: number;
+            /** Format: date-time */
+            startedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            assignee: components["schemas"]["AccountResponse"] | null;
+            history: components["schemas"]["DeliveryAuditResponse"][];
+        };
+        OperationalOrderResponse: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            /** Format: uuid */
+            brandId: string;
+            /** Format: uuid */
+            articleId: string;
+            articleRevision: number;
+            /** @enum {string} */
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            title: string;
+            /** Format: date-time */
+            createdAt: string;
+            bodyMarkdown: string;
+            agreement: components["schemas"]["PurchasedTermsResponse"];
+            schedule: components["schemas"]["DeliveryScheduleResponse"];
+            delivery: components["schemas"]["DeliveryDetailResponse"];
+        };
+        AssignmentRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+        };
+        AssignmentResult: {
+            /** Format: uuid */
+            orderId: string;
+            revision: number;
+        };
+        ReturnAssignmentRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            reason: string;
+        };
+        ReassignRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            reason: string;
+            /** Format: uuid */
+            assigneeAccountId: string;
+        };
+        BeginPublicationRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            expectedItemRevision: number;
+            /** Format: uuid */
+            platformId: string;
+            /** @enum {string} */
+            action: "BEGIN";
+        };
+        PreparePublicationRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            expectedItemRevision: number;
+            /** Format: uuid */
+            platformId: string;
+            /** @enum {string} */
+            action: "PREPARE_MOCK";
+        };
+        SavePublicationDraftRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            expectedItemRevision: number;
+            /** Format: uuid */
+            platformId: string;
+            /** @enum {string} */
+            action: "SAVE_DRAFT";
+            title: string;
+            bodyMarkdown: string;
+        };
+        PublicationResultInput: {
+            title: string;
+            /** Format: uri */
+            url: string;
+            /** Format: date-time */
+            publishedAt: string;
+            internalChannel?: string;
+            internalNote?: string;
+        };
+        RecordPublicationResultRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            expectedItemRevision: number;
+            /** Format: uuid */
+            platformId: string;
+            /** @enum {string} */
+            action: "RECORD_RESULT";
+            result: components["schemas"]["PublicationResultInput"];
+        };
+        CorrectPublicationResultRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            expectedItemRevision: number;
+            /** Format: uuid */
+            platformId: string;
+            /** @enum {string} */
+            action: "CORRECT_RESULT";
+            result: components["schemas"]["PublicationResultInput"];
+            reason: string;
+        };
+        PublicationTargetResponse: {
+            /** Format: uuid */
+            platformId: string;
+            displayName: string;
+        };
+        PreparedVariantResponse: {
+            /** @enum {string} */
+            mode: "MOCK" | "MANUAL";
+            title: string;
+            bodyMarkdown: string;
+        };
+        InternalPublicationResult: {
+            /** Format: uuid */
+            platformId: string;
+            displayName: string;
+            title: string;
+            /** Format: uri */
+            url: string;
+            /** Format: date-time */
+            publishedAt: string;
+            internalChannel: string;
+            internalNote: string;
+        };
+        PublicationWorkItemResponse: {
+            slot: number;
+            revision: number;
+            purchasedPlatformId: string | null;
+            platformId: string | null;
+            /** @enum {string} */
+            state: "PENDING" | "PUBLISHING" | "PUBLISHED";
+            preparation: components["schemas"]["PreparedVariantResponse"] | null;
+            result: components["schemas"]["InternalPublicationResult"] | null;
+        };
+        PublicationWorkPageResponse: {
+            /** @enum {string} */
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            quantity: number;
+            publishedQuantity: number;
+            nextAfterSlot: number | null;
+            orderRevision: number;
+            /** @enum {string} */
+            preparationMode: "MOCK" | "UNAVAILABLE";
+            targets: components["schemas"]["PublicationTargetResponse"][];
+            items: components["schemas"]["PublicationWorkItemResponse"][];
+        };
+        PublicationWorkAuditResponse: {
+            revision: number;
+            /** Format: uuid */
+            actorAccountId: string;
+            request: {
+                [key: string]: unknown;
+            };
+            beforeState: {
+                [key: string]: unknown;
+            } | null;
+            afterState: {
+                [key: string]: unknown;
+            };
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PublicationWorkReceiptResponse: {
+            /** Format: uuid */
+            orderId: string;
+            slot: number;
+            revision: number;
+            orderRevision: number;
+        };
+        PublicPublicationResult: {
+            /** Format: uuid */
+            platformId: string;
+            displayName: string;
+            title: string;
+            /** Format: uri */
+            url: string;
+            /** Format: date-time */
+            publishedAt: string;
+        };
+        CustomerPublicationItemResponse: {
+            slot: number;
+            /** @enum {string} */
+            state: "IN_HANDLING" | "PUBLISHED";
+            targetName: string | null;
+            result: components["schemas"]["PublicPublicationResult"] | null;
+        };
+        CustomerPublicationPageResponse: {
+            /** @enum {string} */
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            quantity: number;
+            publishedQuantity: number;
+            nextAfterSlot: number | null;
+            /** Format: date-time */
+            expectedCompletionAt: string;
+            delayed: boolean;
+            items: components["schemas"]["CustomerPublicationItemResponse"][];
+        };
         RequestChallengeRequest: {
             /** @example 13800138000 */
             mobile: string;
@@ -1049,21 +1528,6 @@ export interface components {
             challengeId: string;
             /** @example 246810 */
             code: string;
-        };
-        AccountResponse: {
-            id: string;
-            mobile: string;
-            /** @enum {string} */
-            role: "TERMINAL_CUSTOMER" | "OPERATIONS" | "ADMINISTRATOR" | "AGENT";
-            /** @enum {string} */
-            status: "ACTIVE" | "INACTIVE";
-            revision: number;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            /** Format: date-time */
-            lastAuthenticatedAt?: string | null;
         };
         SessionAuthenticationErrorResponse: {
             /** @enum {string} */
@@ -1591,30 +2055,6 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
-        PublishingPackageScopeResponse: {
-            /** Format: uuid */
-            platformId: string;
-            displayName: string;
-        };
-        PurchasedMediaLineResponse: {
-            /** Format: uuid */
-            platformId: string;
-            displayName: string;
-            quantity: number;
-            unitPoints: number;
-            totalPoints: number;
-            /** @enum {boolean} */
-            available: true;
-        };
-        PurchasedTermsResponse: {
-            /** @enum {string} */
-            mode: "RANDOM" | "PRECISE";
-            packageName: string | null;
-            scope: components["schemas"]["PublishingPackageScopeResponse"][];
-            lines: components["schemas"]["PurchasedMediaLineResponse"][];
-            quantity: number;
-            totalPoints: number;
-        };
         SubmitPublishingOrderRequest: {
             /** Format: uuid */
             idempotencyKey: string;
@@ -1636,7 +2076,7 @@ export interface components {
             articleId: string;
             articleRevision: number;
             /** @enum {string} */
-            status: "PENDING_HANDLING";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
             title: string;
             /** Format: date-time */
             createdAt: string;
@@ -1653,7 +2093,7 @@ export interface components {
             articleId: string;
             articleRevision: number;
             /** @enum {string} */
-            status: "PENDING_HANDLING";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
             title: string;
             /** Format: date-time */
             createdAt: string;
@@ -2296,6 +2736,248 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    DeliveryAssignmentController_list: {
+        parameters: {
+            query?: {
+                cursorSequence?: number;
+                cursorCreatedAt?: string;
+                state?: "ACTIVE" | "COMPLETED";
+                limit?: number;
+                scope?: "POOL" | "MINE" | "ALL";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationalOrderPage"];
+                };
+            };
+        };
+    };
+    DeliveryAssignmentController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationalOrderResponse"];
+                };
+            };
+        };
+    };
+    DeliveryAssignmentController_claim: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentResult"];
+                };
+            };
+        };
+    };
+    DeliveryAssignmentController_start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentResult"];
+                };
+            };
+        };
+    };
+    DeliveryAssignmentController_returnToPool: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnAssignmentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentResult"];
+                };
+            };
+        };
+    };
+    DeliveryAssignmentController_reassign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReassignRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentResult"];
+                };
+            };
+        };
+    };
+    PublicationWorkController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterSlot?: number;
+            };
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicationWorkPageResponse"];
+                };
+            };
+        };
+    };
+    PublicationWorkController_history: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slot: number;
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicationWorkAuditResponse"][];
+                };
+            };
+        };
+    };
+    PublicationWorkController_act: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slot: number;
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BeginPublicationRequest"] | components["schemas"]["PreparePublicationRequest"] | components["schemas"]["SavePublicationDraftRequest"] | components["schemas"]["RecordPublicationResultRequest"] | components["schemas"]["CorrectPublicationResultRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicationWorkReceiptResponse"];
+                };
+            };
+        };
+    };
+    CustomerPublicationResultsController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterSlot?: number;
+            };
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerPublicationPageResponse"];
+                };
             };
         };
     };
