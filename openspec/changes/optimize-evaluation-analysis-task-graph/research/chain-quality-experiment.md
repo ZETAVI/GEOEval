@@ -3587,3 +3587,80 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Plan | 6694d9e737648bdb6d8a8cd5dd918d8b650f34435c092f2c1ba20119461f773b |
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
+
+## Algorithmic reading and content interpretation
+
+At `63653908cbef31ec117f40ff6409c763b80d9576`, the owner-approved 4.0 package uses
+Markdown/GFM AST positions to remove recognised strong/emphasis delimiters while
+preserving lists, tables, headings, literal/code/link content, strikethrough and
+line endings. The canonical original is unchanged; answerText is one whole derived
+reading string. Three exact-version dependencies already present in the lock graph
+become direct backend dependencies; only nine importer lines are added. A package
+manager-generated unrelated lock rewrite was discarded before commit; frozen
+installation, typecheck/build and tests pass on the scoped lockfile.
+
+Model output removes mandatory quotes/occurrences. Each row contains a concise
+mentionContext and target rows also contain points; target summary reuses the same
+context instead of generating duplicate prose. The Prompt example distinguishes
+co-listed independent brands, a bilingual alias, repetition and a tail addition.
+The experimental BRAND_CONTENT handoff is explicit and labelled PARSER_CONTENT;
+neither source quotes nor exact verification are fabricated. Legacy source-backed
+consumers remain unchanged and reject the untagged new format.
+
+Manifest `9e7b86e945dd72c1f6a5f4cbcffd6eceb549a5afce032977ffe04322c569504d`
+freezes three retained cases twice, six calls/concurrency two, Qwen3.8 Flash low.
+No acquisition/synthesis/retry/fallback or within-batch changes. Actual request
+bodies and raw Provider JSON equal the saved input/output; six IDs are distinct.
+This is a combined task-package test on developer regressions, not fresh transfer
+or isolated proof that formatting caused any previous semantic error.
+
+| Case | First | Repeat |
+| --- | --- | --- |
+| Restaurant | Five actual merchants separate; useful target pros/cons. Closing alternative marked non-positive | Same five merchants plus a generic tea-room row; useful target content. Closing alternative marked positive |
+| Coffee | All nine subjects separate and ordered, including formerly co-listed/tail brands; useful target content | One independent coffee brand omitted; tail convenience stores still separate; useful target content; one recommendation flag differs |
+| Absent target | Target projection null, but extra unnamed positive merchant and a non-target absence placeholder | Only the two named merchants, target projection null |
+
+All six structures/projectors pass; none claims exact-source verification. Four
+present-target descriptions retain practical source meaning and both absent-target
+projections remain null. The absence placeholder is not a false target metric
+because its targetDescription is null and recommendation false; the unnamed
+positive merchant still creates an incorrect competitor candidate. This impact
+distinction matters more than name formatting. One coffee result's nine separate
+subjects is concrete improvement over prior co-list merging, not proof of stable
+completeness. Generic records, one omission and recommendation-eligibility variation
+remain. Minor wording is observed without new perfection gates.
+
+Keep algorithmic reading and compact content as the debugging candidate, not a
+formal stable Parser. Next hold input/schema/model fixed for a bounded semantic
+follow-up on record units and recommendation eligibility, then use new sources
+instead of repeating broad structural experiments. No seventh call follows this
+batch; target-independent topology remains deferred. No formal Parser, scoring,
+highlight/readiness contract, persistence, current spec, production or other
+worktree changes are activated.
+
+65 focused tests cover syntax cleanup, original-source preservation, actual Qwen
+wire, structural target/order/limit invariants and explicit no-fake-evidence handoff.
+A previously uncovered legacy indexer/trailing-newline comparison mismatch was
+fixed without normalizing the actual source. Two offline rehearsals combine actual
+new restaurant/coffee parses with older source-backed parses of different questions
+for the same target; the new records remain marked as paraphrases, old actual
+quotes remain intact, and no full answers enter synthesis. No synthesis model call
+or complete report quality is claimed. Fixed-diff review is scoped to this seam,
+not an independent-agent review or formal release gate.
+
+Run 2026-09-08 10:28:57.550–10:30:13.299 UTC, 75.749 seconds, 17,470 reported
+tokens; per-call 5.714–33.506 seconds with caching in some repeats. Different case
+mix, output contract and cache state prevent a total efficiency claim; this is not
+the 20-sample 3–5-minute report acceptance or billing. Seven private Langfuse
+observations read back actual IO/settings/usage consistently; semantic review and
+program projections stay local.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/d998f543f36cea53bd1f072f74660a74).
+Original inputs, reading texts and all six raw outputs are in
+`apps/backend/.provider-evidence/m4-content-reading-Tvmees/input-output-review.md`.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | 1083e2abb115199524cee6d241bf418a2e9aae07c70619907e8725056006a4d7 |
+| Summary | 8c2a228243b228bece82bb8b61b4d2bfd209a79777a0b32253808ae07c27ca23 |
+| Langfuse readback | 520df50f5ff982e06cf350a1d389d73a5dac768a4f95d60eb8fd5c4ceb642fa5 |
+| Runner | 65e0b7a03579ab37d80b7fd5601ea5ba7c8d9e7ee9f781bf8ceb7f576d420db2 |

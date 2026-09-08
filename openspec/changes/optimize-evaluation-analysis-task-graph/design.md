@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: algorithmic reading and content interpretation under controlled validation;
+Status: 4.0 debugging candidate retained; semantic record boundaries remain;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -71,6 +71,17 @@ synthesis or edits during the batch. Real semantic review must check identities,
 coverage/order and useful portrayal independently of shape success. Exact-match
 errors no longer occur by design; that alone is not quality improvement. The
 official Parser/highlight/report and #41/#42 integration gates remain separate.
+
+Result at `6365390`: all six raw JSON structures project, and target mention state
+is correct in these four present/two absent trials. Useful target content remains.
+One coffee result has all nine distinct subjects; the other omits one. Restaurant
+and absence repeats still sometimes add generic/unnamed rows; an explicit absence
+placeholder in otherBrands does not falsely set target mention but remains an
+unwanted record. Recommendation eligibility also varies. Keep the compact task
+for further diagnosis, not a stability claim. Exact-quote validation has been
+removed by design, so its disappearance is not a semantic pass rate. Next retain
+the algorithm/schema/model and narrow the remaining semantic follow-up before
+new-brand transfer; no automatic additional call or architecture branch.
 
 ### Previous package — whole-answer input
 

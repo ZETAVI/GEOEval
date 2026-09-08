@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Algorithmic reading and content interpretation under controlled validation
+- Status: 4.0 debugging candidate retained; semantic record boundaries remain
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -81,6 +81,15 @@ not a new label that counts previously unvalidated content as correct.
 Previous whole-answer and quote-location failures remain in the
 [research record](research/chain-quality-experiment.md); removing their exact-match
 gate does not retroactively repair those results or prove the new task accurate.
+
+The [six-call result](research/chain-quality-experiment.md#algorithmic-reading-and-content-interpretation)
+preserves all target presence/absence decisions and useful target portrayal in
+these developer cases. One coffee output now separates all nine subjects, but
+another omits one; generic records and recommendation-eligibility variation remain.
+Retain the reading algorithm and compact structure as the debugging candidate,
+not formal stable adoption. Next keep input/schema/model fixed, make a bounded
+record-scope/eligibility follow-up and then check new sources rather than endlessly
+tune the same answers. No seventh call extends this completed package.
 
 ## Impact and exit
 

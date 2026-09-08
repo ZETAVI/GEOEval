@@ -74,11 +74,14 @@ The current role and decisions live in [the proposal](proposal.md).
 - [x] Add independent/co-listed, alias, repeat and tail examples to the same asset.
 - [x] Verify explicit BRAND_CONTENT handoff with no fake source evidence or raw
       answers passed to synthesis; legacy consumers remain strict and unchanged.
-- [ ] Complete six frozen Qwen low calls: three retained cases twice, concurrency
+- [x] Complete six frozen Qwen low calls: three retained cases twice, concurrency
       two, no sampling/synthesis/retry/within-batch edits. Report semantic failures
       independently of structure and private Langfuse actual IO readback.
-- [ ] Decide the next bounded step from real brand identity, coverage/order and
+- [x] Decide the next bounded step from real brand identity, coverage/order and
       portrayal; do not claim exact-match gate removal is semantic success.
+- [ ] Keep input/schema/model fixed for a bounded follow-up on generic/unnamed
+      records and recommendation eligibility, then use new sources for transfer.
+      Do not continue a multi-branch Prompt/schema sweep over the same cases.
 
 ## Retained report-level work
 
