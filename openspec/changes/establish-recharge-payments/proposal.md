@@ -1,6 +1,6 @@
 # Change: Establish reliable recharge and WeChat web payment
 
-- Status: A0 independent gateway implementation and verification; no application/payment activation
+- Status: A0 implemented and submitted in [PR #78](https://github.com/ZETAVI/GEOEval/pull/78); no application/payment activation
 - Issue: [#77](https://github.com/ZETAVI/GEOEval/issues/77)
 - Owner: ZETAVI
 - Lane/class: product delivery / architectural; Critical money boundary
