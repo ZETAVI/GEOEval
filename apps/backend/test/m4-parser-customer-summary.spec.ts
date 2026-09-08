@@ -66,7 +66,7 @@ describe("M4 customer-value Parser experiment", () => {
       before.outputContract.jsonSchema,
     );
     expect(candidate.outputContract.version).toBe(
-      "experiment.m4.parser-nullable-target@1.0.0",
+      "experiment.m4.parser-nullable-target@1.1.0",
     );
     expect(candidate.systemInstruction).not.toBe(before.systemInstruction);
     expect(candidate.userContext).not.toHaveProperty("brands");

@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: nullable-target candidate partially exercised; 2/8 calls stop on Provider 500;
+Status: matched Prompt-only coverage comparison at fixed nullable-target schema/Qwen low;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,40 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — one nullable target with existing summary schema
+### Current package — explicit complete other-brand coverage
+
+The owner asks to emphasize full other-brand coverage before attributing omissions
+to the model. Keep nullable-target schema, source inspector, context, model/route,
+first-appearance meaning and all other Prompt paragraphs unchanged. Version 1.1.0
+only expands the otherBrands instruction: complete related named subjects from
+main and supplementary mentions, one per subject, with a final omission/repetition
+check. This is instruction, not a new Agent, program patch or name whitelist.
+
+Readiness reuses the previous architecture review at the unchanged interface.
+Three diagnostic alternatives remain explicit: instruction might imply selection
+rather than completeness (tested by this paragraph); stochastic model behavior
+may vary despite the same request (one matched call is not stability evidence);
+source truncation/program filtering is not supported by the previous full-wire/raw
+JSON checks and is rechecked locally. The separate serving500 is not a semantic
+quality result or reason to switch models.
+
+Freeze four pairs (each retained real answer once with 1.0.0 and once with 1.1.0),
+max eight/concurrency two, Qwen3.8 Flash low/strict and 180-second client timeout.
+Baseline instruction/schema come from the frozen previous handoff; assertions
+prove candidate context/schema/route equal and HTTP bodies differ only in system
+instruction and output-contract version name. Alternate arm start order across
+pairs; do not pool these four cases into a success-rate claim. Provider/finish/
+JSON/basic-Schema failure stops queued pairs after started work settles. Keep
+semantic failures without repair; no automatic retry, sampling, search, synthesis,
+fallback, activation or amendment of an ended batch. Actual IO/operational metadata
+only to the explicitly authorized private Langfuse, business review local.
+
+Report exact input excerpts and baseline/candidate output, including omitted or
+repeated names, target false-null, target prose, position and positive eligibility.
+Stop after this package; keep the simple representation even if wording needs a
+separate decision. No Prisma/API/client/Web shell writes conflict with #73.
+
+### Historical package — one nullable target with existing summary schema
 
 The owner approves this smallest alternative after the failed split target-state
 probe. Reuse customer-summary's target:null|object + otherBrands schema and source

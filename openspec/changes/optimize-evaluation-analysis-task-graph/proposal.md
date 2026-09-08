@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Nullable-target replay stopped at 2/8 after Provider failure; coverage remains unresolved
+- Status: Compare explicit complete-brand coverage at fixed nullable-target schema and Qwen low
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -52,7 +52,16 @@ The owner now approves testing one fixed nullable target object instead of a
 separate target-marked row and nullable description. Preserve first-appearance
 positions across target and other brands; splitting output does not restart rank.
 
-Current package: an explicit nullable-target experiment reuses the existing
+Current package: compare nullable-target 1.0.0 with 1.1.0 on the same four retained
+real inputs, one baseline/candidate pair each (eight maximum, concurrency two).
+Only the coverage paragraph and version change: otherBrands is a complete
+brand-by-brand list including main and supplementary mentions, not selected
+examples. Schema, program, full input, first-appearance meaning and Qwen low are
+unchanged. No sampling, search, synthesis, automatic retry or resumed old batch.
+Compare actual inputs/outputs pairwise; a single reply per arm is not repeatability
+evidence, a stable success rate or proof of a model capability ceiling.
+
+Previous package: an explicit nullable-target experiment reuses the existing
 customer-summary schema/inspector and full-source builder. Its new Prompt explains
 target:null|object and otherBrands without duplicate target-state expression;
 customer-summary baseline 1.4.0 and failed brand-row assets remain unchanged.
