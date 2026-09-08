@@ -47,7 +47,7 @@ Current planning: A0 has passed fixed-head CI on accepted main@a550fc4. #77 ente
 - [x] Implement raw-body handler, handler-only Identity metadata and Prisma acceptance; commit before 204, retry on failed/unknown commit and bound waiting.
 - [x] Verify canonical facts, concurrent duplicates/conflicts, no pre-commit ACK, rollback, host/connection replacement, late commit discovery, projection privacy and database immutability.
 - [x] Verify existing real Identity guards and current API route inventory remain effective and unchanged.
-- [ ] Publish the fixed B0 PR/evidence, inspect exact-head CI and return the schema window. No money, settlement, worker lease or application activation is included.
+- [x] Publish [PR #80](https://github.com/ZETAVI/GEOEval/pull/80), stacked on #78, with implementation 4f30e10 and local evidence. Exact-head CI and schema-window return are maintained by the PR/Issue checkpoints; no settlement, worker lease or activation is included.
 
 ## C0: Coordinate the smallest points extraction
 
@@ -55,7 +55,7 @@ Producer state: [PR #79](https://github.com/ZETAVI/GEOEval/pull/79) implements t
 
 - [x] #73 fulfilment agent explicitly accepted sole CommercePointsModule extraction ownership: results-stable → extraction → point return. #77 owns recharge protocol/adapter and consumes its result.
 - [ ] Consume #73's stable result-slice revision and confirm no intervening module/point-return change before extraction.
-- [ ] Extract CommercePointsModule within publishing-commerce. Keep customer/admin point controllers at API composition; export only necessary points providers/factory to purchase, return and Recharge consumers.
+- [ ] Review and consume the #73-owned CommercePointsModule extraction within publishing-commerce. Keep customer/admin point controllers at API composition; export only necessary points providers/factory to purchase, return and Recharge consumers.
 - [ ] Preserve #73's PublicationDeliveryModule import, purchase admission hook and PublishingOrderService export. when consuming the extraction.
 - [ ] Keep schemas, URLs, grant-only restrictions, source allocation, idempotency, DTO privacy and wallet-first order unchanged in this extraction.
 - [ ] Verify existing points + publishing purchase + accepted delivery-admission integration suites and module construction; show Worker can obtain only point infrastructure without media/article/HTTP dependencies.

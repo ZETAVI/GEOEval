@@ -50,6 +50,8 @@ The preparation artifacts are retained locally under their research owner and ar
 
 ## B0 implementation evidence
 
+Fixed implementation: 4f30e10, [PR #80](https://github.com/ZETAVI/GEOEval/pull/80), base dfe98bc. Subsequent reconciliation edits are documentation only; unchanged implementation evidence is reused.
+
 | Claim | Evidence | Result / limitation |
 | --- | --- | --- |
 | Real framework reception | 21 `recharge-notification.integration.spec.ts` cases: real Nest 11.2.2, actual IdentityModule, actual Prisma 7.9.1 and PostgreSQL 18.6 | Passed; raw-body/duplicate headers, 204 after commit, 8-way duplicates, conflict retention, bad signature/GCM/fields, body/encoding limits, missing rawBody, private route session/CSRF |

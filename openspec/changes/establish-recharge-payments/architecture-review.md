@@ -6,7 +6,7 @@
 
 **A0 适配器与 B0 独立通知接收：implemented，作者审查 ready；充值全链路与渠道启用：not ready。**
 
-用户已确认按上一轮独立模块范围构建并做初步测试，[A0 Decision checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258)开启当前非冲突写入窗口。范围只有 Recharge provider port、微信协议实现、针对性测试和所属契约；不触碰共享 schema/API/Commerce 或应用启用。此前准备阶段的写入等待不再阻挡这一包。
+用户已确认按上一轮独立模块范围构建并做初步测试，[A0 Decision checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258)开启A0 非冲突写入窗口。该阶段范围只有 Recharge provider port、微信协议实现、针对性测试和所属契约；不触碰共享 schema/API/Commerce 或应用启用。此前准备阶段的写入等待不再阻挡这一包。
 
 用户已确认 Native → H5 和内部积分模块提取，并认可当前设计继续推进。官方规则和固定例证核清后，首版选择现有 Node 标准 crypto 与窄 HTTP Adapter；不增加未经评估的第三方 SDK 或语言进程。运行时仍需按合同验证。
 
@@ -80,11 +80,11 @@
 
 用户已认可 CommercePointsModule 重构方向；#73 owner 已确认结果片稳定后的单 writer 短窗口。正式 proposal/design/spec/tasks 已建立，旧本地候选迁入本 change，避免双重设计 owner。14/14 官方原语、23 项离线响应、37/37 受控 HTTP 和 20/20 通知/PG 持久性证据边界详见 [verification](verification.md)，一条失败页面样例仍单独保留。
 
-复盘结论：A0 已在用户确认的独立窗口完成实现，88 项实际代码验证覆盖官方固定输入、操作字段差异、安全投影和受控 HTTPS。接口/实现不导入 Commerce、Prisma、Nest 或旧 probe，不读取环境、不注册 Controller；全工作区类型检查和后端构建通过。固定 Diff 的意图、工程及证据复核由 PR 记录。B0 框架接收、C0/N1 积分事务、Native/H5 客户旅程和运营恢复分别推进；生产 repository、Nest parser/Identity、Worker、预留/账本、真实渠道/浏览器/资金仍须对应验证。
+复盘结论：A0 已在用户确认的独立窗口完成实现，88 项实际代码验证覆盖官方固定输入、操作字段差异、安全投影和受控 HTTPS。接口/实现不导入 Commerce、Prisma、Nest 或旧 probe，不读取环境、不注册 Controller；全工作区类型检查和后端构建通过。固定 Diff 的意图、工程及证据复核由 PR 记录。B0 框架接收的后续实现证据见下一节；C0/N1 积分事务、Native/H5 客户旅程、运营恢复、真实渠道与资金仍须各自验证。
 
 ## B0 实现复核
 
-范围：main@a550fc4 → A0@dfe98bc → B0。按意图、工程、证据三个角度自行复核，不冒充独立 reviewer。
+固定范围：A0@dfe98bc → B0@4f30e10，[PR #80](https://github.com/ZETAVI/GEOEval/pull/80)。按意图、工程、证据三个角度自行复核，不冒充独立 reviewer。
 
 | 角度 | 结论和可核查边界 |
 | --- | --- |
