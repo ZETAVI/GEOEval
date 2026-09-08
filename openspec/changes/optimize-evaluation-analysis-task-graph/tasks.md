@@ -83,13 +83,16 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       Qwen low: correct six-brand order and target absence repeat, but three
       present targets lack descriptions, one result repeats brands, and one
       omits four other brands. Reject the Prompt package, retain the new meaning.
-- [ ] Validate the owner's fixed nullable target representation using the existing
-      customer-summary target object and otherBrands, without duplicate target
-      state or a new Agent. A structurally valid false-null target is still a
-      failure on known target-present source; keep coverage/order/repeat checks.
-      Freeze four retained real cases twice (max eight/concurrency two) as a
-      separate package; present actual input/output excerpts and full local IO.
-      Do not extend any ended batch or infer semantic truth from source validity.
+- [x] Prepare the nullable-target representation with the existing summary schema,
+      freeze eight calls and obtain explicit source-content authorization. Execute
+      two; stop on Provider HTTP500/STOP_ENGINE_ABORT, without retries or starting
+      the remaining six. Preserve the one full target reply and its five missing
+      other brands, and publish actual input/output as protected local evidence.
+- [ ] Separately freeze a small continuation on the current nullable-target
+      candidate, focusing on complete otherBrands and untested absence/repetition.
+      A legal false-null target remains a semantic failure on known-present source.
+      Do not treat the six unexecuted calls as passed, change representation again,
+      auto-resume the ended batch or infer a model limitation from one Provider500.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on

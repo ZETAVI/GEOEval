@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: verify the single nullable-target candidate at Qwen low;
+Status: nullable-target candidate partially exercised; 2/8 calls stop on Provider 500;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -47,6 +47,23 @@ eight requests and decide whether a retained full-matrix chain replay is justifi
 
 Formal Parser/report/product-definition/glossary reconciliation, history and score
 formula boundaries from the approved first-appearance decision still apply.
+
+Result at `a1f3054`: after the owner explicitly confirms these four source answers'
+disclosure to Qwen and actual IO to private Langfuse, two requests launch. The
+first returns a complete, source-faithful target object but only one of six other
+brands. The second returns Provider HTTP 500 / STOP_ENGINE_ABORT after 41.750 s,
+before the 180-second client limit; no model output exists. Six queued requests
+are not launched and there is no retry. The pre-authorized stop rule is honored.
+Actual request wires and successful raw JSON are intact; this is not a schema-
+projection defect. Why the serving engine aborted is not established by its
+error envelope and does not justify a route or timeout change.
+
+Do not adopt or reject the representation from this interrupted package. Keep
+the nullable object, record the observed other-brand omissions, and separately
+freeze a small continuation with known-present/absent and repeated-source checks.
+Make complete other-brand coverage explicit at the existing Prompt seam if the
+next package tests wording; do not silently fill it in program logic. Concrete
+actual input/output, not reconstructed ideal replies, are the reporting evidence.
 
 ### Historical first-appearance ordering and nullable description
 

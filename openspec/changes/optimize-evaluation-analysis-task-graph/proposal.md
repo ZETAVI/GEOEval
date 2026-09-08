@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Validate a single nullable target using the existing summary schema; runtime unchanged
+- Status: Nullable-target replay stopped at 2/8 after Provider failure; coverage remains unresolved
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -61,6 +61,16 @@ no sampling/synthesis/search/retry. Exact inputs and old-schema reuse are checke
 before calls. Source-known target presence/absence, coverage, duplicate subjects,
 first positions and readable target points are reviewed independently of schema
 success. Report concrete actual input/output excerpts, with full IO local.
+
+Result at `a1f3054`: explicit content-egress authorization is confirmed before
+execution. The [nullable-target batch](research/chain-quality-experiment.md#nullable-target--partial-evidence-and-provider-stop)
+stops after the first two calls: one complete target result still omits five other
+brands; the other request returns HTTP 500 / STOP_ENGINE_ABORT without model
+output. Six planned requests are not executed, no retry occurs. Keep the simpler
+target object as an unselected candidate; do not claim coverage, absence,
+repeatability or a complete eight-case result. Freeze any continuation separately,
+focusing on full otherBrands coverage and the untested cases without another
+representation change, model switch or new Agent.
 
 The completed [first-appearance package](research/chain-quality-experiment.md#first-appearance-order--retain-meaning-reject-the-prompt-package)
 at `8bfadc1` yields correct six-brand order twice and correct target absence twice,

@@ -2952,3 +2952,86 @@ rebase, deployment, migration, current-spec or other-worktree change. Exit retai
 | Raw output check | abb3d6eb76d7ff5a9be27fc05c677977d85d73629130288ab17f8d7f93e8c59f |
 | Langfuse readback | 9ec6a4fda0c75f8cc49bf1e2e9eacc2f86ba3799e4979bbd0add2588cc366da8 |
 | Runner | 12e534c7144d6ecfc2237c8b031bab094eb6f08ad1de595b1a8372367afa17bd |
+
+## Nullable target — partial evidence and Provider stop
+
+The owner approves the fixed nullable target and asks future reports to show
+concrete actual input/output. Code `a1f3054439a9f7fcabb11900ebe71ff7e697cd90`
+adds an explicit experiment builder/Prompt while reusing customer-summary's
+existing target:null|object + otherBrands schema, full-source builder and
+inspector. The baseline 1.4.0 and failed brand-row assets are unchanged. Target
+and other brands retain one shared first-appearance sequence; output separation
+must not renumber them. This is a Prompt/representation package, not an isolated
+schema-variable test. Current runtime, specs, synthesis input and history stay
+unchanged, with formal position reconciliation still required before activation.
+
+Manifest `d0cbffc170a33274797d2e696eb0f2bb1ab83bedd07d17c96542156c2fedd41e`
+freezes four retained real cases twice, max eight calls/concurrency two, unchanged
+Qwen3.8 Flash / low, strict output, 180-second client timeout. Reconstructed full
+input is asserted equal to retained userContext; the outgoing schema equals the
+existing customer-summary schema. No acquisition, synthesis/grouping, search,
+deformatting, retry, fallback or activation. A Provider/finish/JSON/basic-Schema
+failure stops queued pairs after started work settles.
+
+The first execution attempt is blocked by automatic safety review before process
+start, so it sends no requests. The owner then explicitly authorizes the four
+specific retained restaurant answers to the existing Qwen endpoint and actual
+model IO to existing private Langfuse. The same frozen command executes after
+that authorization, without channel changes or bypass.
+
+Only the first pair runs:
+
+| Case | Actual result | Latency |
+| --- | --- | --- |
+| Main list plus table/closing repeats | Valid full target object with position 2, four faithful points and readable summary; only one of six other brands is returned, omitting five explicit subjects | 21.901 s |
+| Six introductions across categories | HTTP500, PROVIDER_UNAVAILABLE, Provider reports Inference engine abort / STOP_ENGINE_ABORT; no model output | 41.750 s |
+
+The six remaining requests are not executed and no retry occurs. The successful
+reply's omission already exists in the raw Provider JSON; inspector/storage do
+not drop the records. The target object is useful in this one reply, not proof
+of general quality, repeatability, target absence or first-order transfer. The
+failure is a serving error, not client 180-second timeout, malformed model JSON
+or local schema rejection. retryable=true is classification metadata, not an
+executed retry. Its engine-level cause is not established; do not change the
+model/route, client timeout or Prompt merely because of this one HTTP500.
+
+Two actual request bodies match the frozen wires; the one successful raw
+message.content matches normalized model output exactly. Three private Langfuse
+observations (root `eed8245bc8e0d3a1` and two generations) read back actual IO,
+settings and usage consistently, without root IO, derived reports or independent
+review upload. The failed call has no model output/usage; it is not interpreted
+as target absence or zero billing.
+[Private IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/13964c6bedf6e86d046877f4a2430697).
+
+Run 2026-09-08 03:15:30.636–03:16:12.955 UTC, 42.319-second interrupted batch.
+The successful response reports 2,758 tokens; failed usage is unavailable. This
+does not measure a completed evaluation, a full eight-call run, stable latency
+or a bill. 53 focused tests, backend typecheck/build/framework and independent
+fixed-diff/runner review pass. Independent semantic/error review confirms the
+omissions and failure classification. No runtime/default or other-worktree changes.
+
+Keep the current nullable-target candidate unselected; do not redesign its shape
+again from this one response. A separately frozen continuation should check
+complete otherBrands coverage and the unexecuted present/absent/repeat cases,
+making the coverage task explicit at the existing Prompt seam if wording is
+tested. Legal false-null targets, omitted other brands and duplicates remain
+semantic failures; do not repair raw output to manufacture success. The ended
+batch is not automatically resumed. Formal report/UI/recovery and successful
+3–5-minute acceptance remain outstanding; #42 is In Progress, PR #62 Draft Partial.
+
+Actual complete input/output and the error response are organized separately from
+the review in protected local evidence:
+`apps/backend/.provider-evidence/m4-nullable-target-nS0ca9/input-output-review.md`.
+The earlier `m4-nullable-target-preflight-1gmcah` document is labelled an
+authorization-before-execution historical snapshot, not current output. Business
+IO/review remains local. Current main observed `0552aa7`; exit retain, no merge,
+rebase, deployment, migration or current-spec write.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Plan | b7314bf817272f16dbc12d145ed63b1dc9a8bb0e81e6d13de5a7a7330bca598f |
+| Summary | 4127ad9370d91f200588e498f583c53c66fea2199ad1fba023875db7a9c86863 |
+| Handoff | afd41a4e4944cc67bd781c4e744ed401cf88ea247b2a5c3434430b5d17e5b299 |
+| Actual IO check | 58bba9ffd6cc14eac6a3af7a747620d628f23f1995c32a8689a4f7e706806775 |
+| Langfuse readback | a3712edfe112f46f9cf04c37ac29fa1ef39f33ec0f1c1af1b07ff3c67983774d |
+| Runner | 0c0a0db1b7851e019aa03a6b8639d209145cdae3c473005551a5041545b14753 |
