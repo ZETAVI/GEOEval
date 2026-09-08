@@ -30,7 +30,8 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 
 - [x] Extract the existing points controllers/providers into CommercePointsModule with only PointAccountService exported; preserve PublishingOrderService, Delivery admission and optimization registration.
 - [x] Prove real consumer injection without the publishing graph, single provider/controller registration, semantically unchanged OpenAPI and existing points/selection/purchase/admission behavior.
-- [ ] Publish a separately reviewable Partial PR and the stable consumer checkpoint for #77; do not include reservations, schema, funded writes or payment activation.
+- [x] Publish the separately reviewable Partial PR #79; keep reservations, schema, funded writes and payment activation outside this extraction.
+- [ ] After the extraction's review/check and human integration gate, share its accepted revision with #77; an open PR is not an already merged points capability.
 
 ## 2. Vertical slice: manual exception → continued service or settled termination
 
