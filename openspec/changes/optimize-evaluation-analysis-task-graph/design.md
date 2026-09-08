@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: retain array-owned order; category/target coherence candidate not selected;
+Status: test all named brands with target interpretation inside the brand record;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,46 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — category examples and ordered brand rows
+### Current package — all brands and inline target interpretation
+
+The owner explicitly removes relevance/category filtering and asks to place
+brand recognition and target interpretation together. Recognize each actually
+named brand in the complete answer, including supplementary categories and
+named platforms/tools; recommendation eligibility remains separate, with purely
+background mentions false. Unnamed descriptions, dishes and locations are not
+invented brands. Preserve distinct first-appearance order and normal aliases.
+
+Architecture readiness: `ready` for a reversible owner-local experiment, not
+runtime adoption. Reuse brand rows but place nullable targetDescription on each
+row and remove both isTarget and the top-level description. A non-null description
+is the one target declaration and contains its points/summary; every other row
+has null. This eliminates duplicate target-state expression, not false absence:
+a real target can still be incorrectly returned with null or omitted, requiring
+semantic review. Do not infer identity from exact names or fabricate descriptions.
+Multiple described target rows and duplicates reject; never merge or repair them.
+
+The alternative of retaining isTarget plus a per-row nullable description would
+co-locate fields but still permit contradictory state. A new discriminated row
+hierarchy is unnecessary for this bounded test. The existing nullable object
+schema, source restoration and downstream target/other summary are reused; indices
+are still assigned before splitting or positive filtering. No public API,
+persistence, dependency, runtime import, additional Agent or model change.
+Strict nullable support reuses controlled route evidence in the existing source
+brief; whether this row-local shape is handled well is measured, not assumed.
+
+Use one small complete fictional output example without real test answers. Freeze
+the four authorized retained answers twice, max eight/concurrency two, Qwen low,
+strict mode and 180-second timeout. Input/query/source remain exact. Basic Provider/
+finish/JSON/schema failure stops remaining pairs after started requests settle;
+coherence/source/semantic failures are retained without retry or repair. No new
+sampling, search or synthesis. Actual IO/operational metadata only to private
+Langfuse, independent review and program results local. This tests a combined
+scope/representation package, not isolated causality or old-category accuracy.
+Rollback is non-selection; formal scope/position and owner reconciliation remain
+required before activation. Verify inline present/absent target, old field
+rejection, array indices before filtering and unchanged parsed-only handoff.
+
+### Previous package — category examples and ordered brand rows
 
 The owner confirms query-category competitors and removes explicit model ranks.
 The first Parser already receives the exact question and complete answer. Add

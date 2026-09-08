@@ -8,26 +8,29 @@ import {
 } from "./m4-parser-customer-summary.js";
 
 const otherBrand = m4CustomerSummarySchema.shape.otherBrands.element;
-const brandRow = z
-  .object({
-    displayName: otherBrand.shape.displayName,
-    isTarget: z.boolean(),
-    positiveRecommendation: otherBrand.shape.positiveRecommendation,
-    evidence: otherBrand.shape.evidence,
-  })
-  .strict();
 const targetDescription = m4CustomerSummarySchema.shape.target
   .unwrap()
   .omit({ position: true, evidence: true });
+const brandRow = z
+  .object({
+    displayName: otherBrand.shape.displayName,
+    positiveRecommendation: otherBrand.shape.positiveRecommendation,
+    evidence: otherBrand.shape.evidence,
+    targetDescription: targetDescription
+      .nullable()
+      .describe(
+        "本条是目标品牌时填写观点和摘要；其他品牌填null。这是唯一目标标记。",
+      ),
+  })
+  .strict();
 export const m4BrandRowsSchema = z
   .object({
     brands: z
       .array(brandRow)
       .max(11)
       .describe(
-        "目标与同品类其他品牌共用一个列表，按原回答首次出现顺序，每个主体一次。",
+        "完整回答中的所有具名品牌共用一个列表，按首次出现顺序，每个主体一次。",
       ),
-    targetDescription: targetDescription.nullable(),
   })
   .strict();
 
@@ -87,11 +90,10 @@ export function inspectM4BrandRowsOutput(
   originalAnswer: string,
 ) {
   const output = m4BrandRowsSchema.parse(value);
-  const targets = output.brands.filter((brand) => brand.isTarget);
+  const targets = output.brands.filter(
+    (brand) => brand.targetDescription !== null,
+  );
   if (targets.length > 1) throw new Error("Multiple target brand rows");
-  if ((targets.length === 1) !== (output.targetDescription !== null)) {
-    throw new Error("Target row and description must agree");
-  }
   const names = new Set<string>();
   for (const brand of output.brands) {
     if (names.has(brand.displayName)) throw new Error("Duplicate brand row");
@@ -102,19 +104,19 @@ export function inspectM4BrandRowsOutput(
     ...brand,
     position: index + 1,
   }));
-  const target = indexed.find((brand) => brand.isTarget);
+  const target = indexed.find((brand) => brand.targetDescription !== null);
   const projected = inspectM4CustomerSummaryOutput(
     {
       target: target
         ? {
             position: target.position,
             evidence: target.evidence,
-            ...output.targetDescription!,
+            ...target.targetDescription!,
           }
         : null,
       otherBrands: indexed
-        .filter((brand) => !brand.isTarget)
-        .map(({ isTarget: _target, ...brand }) => brand),
+        .filter((brand) => brand.targetDescription === null)
+        .map(({ targetDescription: _description, ...brand }) => brand),
     },
     originalAnswer,
   );

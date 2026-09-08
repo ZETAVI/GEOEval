@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Retain array-owned order; category/target coherence candidate not selected
+- Status: Test all named brands with inline target interpretation
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -44,14 +44,24 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
-Current package: the owner now requests query-category positive/negative selection
+Current package: the owner removes query-category/relevance filtering and asks
+to keep target recognition and description in the same record. Reuse ordered
+brand rows, moving nullable targetDescription into each row and removing isTarget
+and the root description. Preserve all actually named brands, distinct source
+order and separately assessed positive eligibility; unnamed objects still do not
+become brands. This supersedes both the category scope and the previous plan to
+test an example without changing the old contract. See the
+[current bounded design](design.md#current-package--all-brands-and-inline-target-interpretation).
+No current-spec/history/runtime change or new Agent follows from this experiment.
+
+Previous package: the owner requests query-category positive/negative selection
 examples and no model-generated rank. The query is already present in first-layer
 input. Reuse the ordered brand-row experiment, removing its position field and
 deriving indices before target/other splitting. Keep full-answer target mention,
 target points/summary, source excerpts and positive eligibility. This supersedes
 the next step of refining numeric instructions in nullable-target 1.2.0; it does
 not change current runtime or retrospectively repair old outputs. Read the
-[bounded interface and verification plan](design.md#current-package--category-examples-and-ordered-brand-rows).
+[historical interface and verification plan](design.md#previous-package--category-examples-and-ordered-brand-rows).
 
 The [eight-call result](research/chain-quality-experiment.md#query-category-examples-and-array-owned-order--mixed-results)
 at `dd40a50` confirms the model no longer emits numeric positions, but not overall

@@ -29,11 +29,15 @@ const prepared = buildM4CustomerSummaryTask(
   }),
 );
 const evidence = (line: number) => [{ startLine: line, endLine: line }];
+const description = () => ({
+  points: [{ text: "环境安静。", polarity: "POSITIVE", evidence: evidence(2) }],
+  summary: "适合安静用餐，但消费偏高。",
+});
 const row = (displayName: string, line: number, isTarget = false) => ({
   displayName,
-  isTarget,
   positiveRecommendation: true,
   evidence: evidence(line),
+  targetDescription: isTarget ? description() : null,
 });
 const raw = () => ({
   brands: [
@@ -42,12 +46,6 @@ const raw = () => ({
     row("晴川", 3),
     { ...row("墨云", 4), positiveRecommendation: false },
   ],
-  targetDescription: {
-    points: [
-      { text: "环境安静。", polarity: "POSITIVE", evidence: evidence(2) },
-    ],
-    summary: "适合安静用餐，但消费偏高。",
-  },
 });
 
 describe("M4 single Parser brand-subject rows", () => {
@@ -65,7 +63,14 @@ describe("M4 single Parser brand-subject rows", () => {
       ).toBe(questionKind);
     }
     const schema = candidate.outputContract.jsonSchema as any;
-    expect(schema.required).toEqual(["brands", "targetDescription"]);
+    expect(schema.required).toEqual(["brands"]);
+    expect(schema.properties).not.toHaveProperty("targetDescription");
+    expect(schema.properties.brands.items.properties).not.toHaveProperty(
+      "isTarget",
+    );
+    expect(schema.properties.brands.items.required).toContain(
+      "targetDescription",
+    );
     expect(schema.properties.brands.maxItems).toBe(11);
     expect(schema.properties.brands.items.properties).not.toHaveProperty(
       "sourceItemLine",
@@ -80,7 +85,7 @@ describe("M4 single Parser brand-subject rows", () => {
       source.split("\r\n").map((text, index) => ({ line: index + 1, text })),
     );
     expect(candidate.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@2.0.0",
+      "experiment.m4.parser-brand-rows@3.0.0",
     );
     expect(() =>
       buildM4BrandRowsTask({
@@ -110,11 +115,11 @@ describe("M4 single Parser brand-subject rows", () => {
       target: {
         position: 1,
         evidence: evidence(2),
-        ...value.targetDescription,
+        ...value.brands[0]!.targetDescription,
       },
       otherBrands: value.brands
         .slice(1)
-        .map(({ isTarget: _t, ...b }, index) => ({
+        .map(({ targetDescription: _t, ...b }, index) => ({
           ...b,
           position: index + 2,
         })),
@@ -158,8 +163,7 @@ describe("M4 single Parser brand-subject rows", () => {
   });
   it("allows natural absence, empty input findings and eleven rows only when one is target", () => {
     expect(
-      inspectM4BrandRowsOutput({ brands: [], targetDescription: null }, source)
-        .projected.output.target,
+      inspectM4BrandRowsOutput({ brands: [] }, source).projected.output.target,
     ).toBeNull();
     const value = raw();
     value.brands = [
@@ -172,8 +176,7 @@ describe("M4 single Parser brand-subject rows", () => {
     expect(() =>
       inspectM4BrandRowsOutput(
         {
-          brands: value.brands.map((b) => ({ ...b, isTarget: false })),
-          targetDescription: null,
+          brands: value.brands.map((b) => ({ ...b, targetDescription: null })),
         },
         source,
       ),
@@ -191,22 +194,62 @@ describe("M4 single Parser brand-subject rows", () => {
       inspectM4BrandRowsOutput(
         {
           ...value,
-          brands: value.brands.map((b) => ({ ...b, isTarget: true })),
+          brands: value.brands.map((b) => ({
+            ...b,
+            targetDescription: description(),
+          })),
         },
         source,
       ),
     ).toThrow("Multiple target");
     expect(() =>
       inspectM4BrandRowsOutput({ ...value, targetDescription: null }, source),
-    ).toThrow("must agree");
+    ).toThrow();
     expect(() =>
-      inspectM4BrandRowsOutput({ ...value, brands: [] }, source),
-    ).toThrow("must agree");
+      inspectM4BrandRowsOutput(
+        { brands: [{ ...value.brands[0], isTarget: true }] },
+        source,
+      ),
+    ).toThrow();
     expect(() =>
       inspectM4BrandRowsOutput(
         {
           ...value,
           brands: [{ ...value.brands[0], position: null }],
+        },
+        source,
+      ),
+    ).toThrow();
+  });
+  it("keeps semantic false-null visible instead of fabricating a target description", () => {
+    const value = raw();
+    value.brands[0]!.targetDescription = null;
+    const result = inspectM4BrandRowsOutput(value, source);
+    expect(result.output).toEqual(value);
+    expect(result.projected.output.target).toBeNull();
+    expect(result.projected.output.otherBrands[0]!.displayName).toBe(
+      "青禾咖啡",
+    );
+    // The source mentions the target. Legal null is not semantic acceptance.
+  });
+  it("requires each row's description slot and complete content for a described target", () => {
+    const value = raw();
+    const { targetDescription: _description, ...missing } = value.brands[0]!;
+    expect(() =>
+      inspectM4BrandRowsOutput({ brands: [missing] }, source),
+    ).toThrow();
+    expect(() =>
+      inspectM4BrandRowsOutput(
+        { brands: [{ ...missing, targetDescription: { points: [] } }] },
+        source,
+      ),
+    ).toThrow();
+    expect(() =>
+      inspectM4BrandRowsOutput(
+        {
+          brands: [
+            { ...missing, targetDescription: { points: [], summary: "" } },
+          ],
         },
         source,
       ),

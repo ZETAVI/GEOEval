@@ -25,8 +25,8 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 
 - **WHEN** the first-appearance Parser candidate interprets a retained raw answer
 - **THEN** it records one row per actually mentioned recognizable brand subject
-- **AND** subjects belong to the merchants/products compared by the question;
-  incidental supporting-tool names do not consume those positions
+- **AND** the current all-brand experiment does not filter subjects by question
+  relevance, category or role; named supplementary/tool brands also retain order
 - **AND** positions follow distinct subjects' first appearances as 1,2,3,...,
   including separate positions for brands co-listed inside one sentence/item
 - **AND** later aliases or repeated mentions reuse the first brand record
@@ -36,15 +36,14 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 - **AND** current product/spec/report consumers are reconciled before formal
   activation; this probe does not rewrite accepted samples or report history.
 
-#### Scenario: Competitor scope follows the question and answer context
+#### Scenario: All named brands are recognized before recommendation eligibility
 
 - **WHEN** the owner-approved experimental Parser selects other-brand records
-- **THEN** it keeps actual named competitors in the question's requested category,
-  using the original answer's offering rather than collecting every named merchant
-- **AND** off-topic incidental consumption, supporting tools and unnamed
-  descriptions are excluded without inventing names
-- **AND** a relevant supplementary option remains eligible; headings and global
-  keyword/category lists are not the inclusion rule
+- **THEN** it recognizes actual named brands across the complete answer without
+  question-relevance, category, supplementary-section or tool-brand filtering
+- **AND** unnamed descriptions, dishes and locations are not invented brands
+- **AND** a named background brand can be recognized with false recommendation
+  eligibility; recognition does not imply positive competitor statistics
 - **AND** target mention is still assessed from the full original answer
 - **AND** first-appearance order and positive recommendation eligibility keep
   their separate meanings; source history and formal runtime are not rewritten.
@@ -52,13 +51,16 @@ identifiers, and GEO Intelligence SHALL own accepted business facts.
 #### Scenario: Output sequence owns experimental positions
 
 - **WHEN** the ordered-brand candidate interprets an open answer
-- **THEN** the wire output lists target and eligible-category other subjects
+- **THEN** the wire output lists target and all named other brand subjects
   together in first-appearance order without a position field
 - **AND** program projection derives index + 1 before separating target/others
   and filtering positive recommendations
 - **AND** it does not sort, invent, deduplicate or correct the model's brand list
-- **AND** a mentioned target retains points and summary, and absence has no target
-  row and a null description
+- **AND** a mentioned target has its points and summary in that same brand row;
+  other rows have a null targetDescription and there is no separate target flag
+  or root-level description
+- **AND** absence has no described target row; legal null values and continuous
+  indices cannot themselves prove correct target recognition
 - **AND** raw order and completeness require semantic review independently of
   valid structure and mechanically continuous indices
 - **AND** legacy numeric outputs and formal report history are not rewritten.

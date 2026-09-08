@@ -111,11 +111,14 @@ of real answers, with no fine-condition or minor-wording acceptance gate.
       target-state rejections; category over-inclusion, merged subjects, unnamed
       additions and false target remain. Preserve exact IO and distinguish
       mechanically continuous indices from semantic quality; no candidate adoption.
-- [ ] Test one complete target-present output example for the observed missing
-      description at unchanged contract/category/order. Retain absence, merged
-      subjects and scope cases as regressions, not simultaneous new adjustments.
-      If duplicate target state still fails, simplify it before more repeats;
-      no extra Agent or repair.
+- [x] Supersede the fixed-category/example-only plan with the owner's all-brand
+      scope and inline target description; retain order and positive eligibility.
+- [ ] Remove duplicate target state from the ordered-row experiment: one nullable
+      description per row, no isTarget or root description. Verify old-field
+      rejection, true absence, false-null preservation and unchanged projection.
+- [ ] Freeze four retained real answers twice, max eight/concurrency two/Qwen low;
+      review complete brands, inline target prose, absence, distinct subjects and
+      source order. No relevance filter, repair, extra Agent or runtime activation.
 - [ ] Keep the direct-Parser readable malformed-name case separately unresolved;
       no direct call or formatting change was part of this ten-call package.
 - [x] Clarify narrative directions' GEO/media-content purpose and test twice on
