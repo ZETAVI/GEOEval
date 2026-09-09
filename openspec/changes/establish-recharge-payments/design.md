@@ -1,10 +1,10 @@
 # Recharge payments design
 
-方案日期：2026-09-08。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
+方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
 Status: A0/B0, unregistered C1 and an isolated Native Web component implemented; N1 dispatch/API integration, H5 and operational activation remain proposed; no live recharge activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
 
-本次批注已确认 PC Native → 手机外部浏览器 H5 的推进顺序，并明确认可在 Publishing Commerce 内独立装配积分能力。Node 实现已在协议例证验证后选用标准 crypto 与窄 HTTP Adapter；一个活动充值单和实际异常资金处置细节不视为自动获批。本文在原位置修正，不建立第二版架构文件；具体协议证据由 [微信 APIv3 接口简报](source-brief.md)持有。
+已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
 ## 1. 建议结论
 
@@ -28,7 +28,7 @@ Publishing Commerce 继续拥有积分账户和追加式积分流水，并向 Re
 - 充值成功后返回既有发布订单复核上下文，重新检查价格与可用性并要求客户再次确认，不能自动购买；
 - Publishing Commerce 拥有账户级 `grantedBalance`、`fundedBalance`、账户序号和追加式 PointChange；
 - 发布购买已经通过一个 PostgreSQL 短事务完成账户、选择、文章、套餐、媒体、流水和订单的一致提交；Provider、队列和用户交互都不得在其中发生；
-- 当前真实支付未启用，前端充值入口仍禁用，当前规范也没有真实支付成功、退款或发票能力。
+- 当前运行时未启用真实支付，前端充值入口仍禁用；产品定义已规定充值与电子普票的未来语义，不应把“尚未实现”写成“没有产品规范”。
 
 本方案不改变上述语义，也不把充值与发布购买合并为一个长事务。支付和消费是两个由客户明确触发、可分别恢复的业务过程。
 
@@ -37,14 +37,15 @@ Publishing Commerce 继续拥有积分账户和追加式积分流水，并向 Re
 | 名称 | 含义 | 所有者 |
 | --- | --- | --- |
 | Recharge Order | 客户以固定人民币金额购买固定 funded 积分的业务单 | Recharge |
-| Payment Attempt | 针对某个充值单，在具体 Provider/产品上发起支付的可恢复尝试；首批一个充值单只允许一个活动尝试 | Recharge |
+| Payment Action / Session | 本单当前可展示的 QR 或跳转动作；服务商确实提供会话时关联其真实会话身份，不成为第二个充值单 | Recharge；外部格式归 Adapter |
+| Payment Operation Attempt | 一次 INITIATE/QUERY/CLOSE 网络调用的请求与结果记录；同一充值单可有多条恢复记录，不代表多次独立收费意图 | Recharge |
 | Authenticated Payment Observation | 已证明来自渠道的事实；是否匹配本地充值单必须由 Recharge 再校验 | Provider Adapter 认证；Recharge 保存和应用 |
 | Point Account / Point Change | 账户积分余额、序号和不可改写流水 | Publishing Commerce |
 | Publishing Selection / Purchase | 保存的发布意图、重新报价和显式购买 | Publishing Commerce |
 
 删除测试：如果未来删除微信适配器，Recharge Order、funded 入账、发布复核与支付宝适配器仍应成立；如果删除 Recharge，Publishing Commerce 的积分购买仍能工作。这个结果说明业务能力和渠道协议没有互相吞并。
 
-首批不单建 PaymentAttempt 表；一个 RechargeOrder 上保存唯一活动渠道身份和调起状态即可。只有出现同一业务单多次独立扣款尝试、跨渠道切换或退款生命周期后，才根据真实复用需求拆出独立实体。
+本单冻结一个收单身份，首批只保留一个当前支付动作；不为二维码、会话再建同义充值订单。第 9 节的操作 attempt 记录是已确定的恢复需要，用于逐次网络调用及未决结果，不能再与“独立付款意图”混称为一个活动尝试。操作历史可多条，不因此允许并开不同金额、单号或渠道的付款路径。物理 schema 在 N1 固定实施片落实，C1 当前尚未持有该操作表。
 
 ## 4. 端到端链路
 
@@ -54,33 +55,36 @@ sequenceDiagram
     participant Web as GEOEval Web
     participant API as Recharge API
     participant DB as PostgreSQL
-    participant WX as 微信支付
+    participant WX as 支付渠道
     participant Worker as Recharge Reconciler
     participant Settle as Recharge Settlement Repository
 
     Customer->>Web: 从账户页或发布缺额进入充值
     Web->>API: 创建充值单（金额、方式、幂等键）
-    API->>DB: 短事务：冻结金额/积分并预留入账容量
-    API->>WX: 事务外使用稳定商户单号下单
-    WX-->>API: code_url 或 h5_url
-    API->>DB: 保存调起动作/到期时间/待核验计划
-    API-->>Web: QR_CODE 或 REDIRECT
-    Web-->>Customer: 展示二维码或跳转微信
+    API->>DB: 短事务：订单、预留容量、首次发起待办一起提交
+    API-->>Web: 本地订单与准备中状态，不等待渠道
+    Worker->>DB: 短事务领取发送权与记录操作，然后释放锁
+    Worker->>WX: 事务外使用稳定商户单号下单
+    WX-->>Worker: 认证动作或未决结果
+    Worker->>DB: 短事务保存动作或恢复计划
+    Web->>API: 查询本人本地订单与动作
+    API-->>Web: QR_CODE 或 REDIRECT（可用时）
+    Web-->>Customer: 使用当前获批准的收银呈现
 
     par 回调路径
-        WX->>API: 签名通知 + 加密资源
-        API->>API: 原始字节验签、解密、身份/金额校验
+        WX->>API: 渠道认证通知
+        API->>API: 按协议认证并提取安全事实
         API->>DB: 短事务保存不可改写观察及待处理状态
-        API-->>WX: 持久接收成功后快速返回 204
+        API-->>WX: 持久接收后 ACK（微信为 204），不等待入账
         Worker->>DB: 领取已持久保存的待处理观察
     and 查单路径
-        Worker->>DB: 领取到期充值单（短租约）
+        Worker->>DB: 领取到达查单时间的已有单，释放任务锁
         Worker->>WX: 事务外查单
         WX-->>Worker: 已验签订单状态
     end
 
     Worker->>Settle: 应用已认证渠道事实
-    Settle->>DB: 同事务锁账户再锁充值单，核对并入账
+    Settle->>DB: 同事务核对身份、订单成功、预留转换、余额与唯一流水
     Web->>API: 只轮询 GEOEval 充值单状态
     API-->>Web: Recharge successful
     Web-->>Customer: 返回原发布复核上下文
@@ -88,6 +92,27 @@ sequenceDiagram
 ```
 
 浏览器不直接查 Provider，也不把二维码扫描、H5 返回、JS Bridge 返回或客户端文案视为成功。浏览器只读取 GEOEval 自己的充值订单状态。
+
+### 4.1 同步与异步选择
+
+推荐“同步提交本地意图 + 异步处理外部支付 + 同步读取本地结果”。跨渠道是最终一致；订单成功、积分、流水和预留在同一个 PostgreSQL 短事务中强一致。异步不意味着先显示成功、后补账，也不承诺消息恰好投递一次；重复投递由唯一身份和原子事务收敛成一次业务效果。
+
+| 步骤 | 执行方式与提交边界 | 调用方可以相信什么 |
+| --- | --- | --- |
+| 创建充值 | HTTP 内完成鉴权、金额/方式校验、同键恢复及订单/容量/发起待办提交 | 本地意图已存在；动作暂未生成不等于创建失败 |
+| 发起/查单/关单 | Worker 短事务领取 → 释放锁 → 渠道 I/O → 新短事务应用；数据库可重扫 | 操作失败保留未知义务，页面和 Redis 不是恢复前提 |
+| 支付通知 | 请求内协议认证和 inbox 持久提交后 ACK；匹配/入账由后台处理 | ACK 证明已接收；不证明本地已成功入账 |
+| 结算积分 | Worker 调用 C1，在账户→订单→预留→receipt 的短事务中提交全部资金效果 | SUCCESSFUL 已包含一次真实账务提交；失败整笔回滚 |
+| 页面 read / verify / cancel | read 只读本地；verify 持久合并核验调度再接受；cancel 提交关闭意图，UNSENT 可原子关闭 | 接受命令不代表最终支付/关闭；数据库写失败不得虚报已接受 |
+| 通知与开票 | 通知从持久待办异步送达；开票申请本地提交后由运营按既定流程办理 | 通知迟到不撤销到账；未开票不阻挡已有积分使用 |
+
+同步等待渠道下单虽可能少一次页面读取，但把客户 HTTP 生命周期与外部延迟绑定，还必须另建丢响应恢复分支；本项目优先采用上述单一持久执行路径。暂不增加同步快捷通道或工作流引擎。任何唤醒通知都只加速数据库已提交的工作；进程内 fire-and-forget 或单独写 Redis 不能替代持久待办。
+
+### 4.2 放回完整业务链路
+
+免费评价和文章确认不因充值而自动重跑。发布缺额只保存已有选择并给出充值入口；充值到的是账户余额，既不锁媒体/价格，也不创建发布订单。客户返回后重新读取文章、选择、报价与余额，再显式购买；购买事务与履约入池延续 Commerce/Delivery 既有责任。履约 RETURN 恢复原消费来源，不能改写充值流水或推定现金退款。代理佣金基于履约后的合格消费，不能因充值成功提前产生可提现佣金。开票绑定成功充值实际付款，不绑定之后消费了多少积分。
+
+这些能力组成一条用户旅程，但不组成横跨支付、发布、履约和开票的长事务。每一步保留自己的业务记录与可追溯关联；沿用已验证的 CommercePointsModule 和窄事务绑定，当前没有证据支持重建钱包服务或大范围重构。
 
 ## 5. 模块与依赖方向
 
@@ -171,7 +196,7 @@ apps/backend/src/recharge/
 
 ### A0 实现卡：独立微信协议适配
 
-- 已确认执行范围：[Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258)。首次实施为 main-direct/base 0552aa7，已同步 a550fc4，A0 当前 dfe98bc；运行时没有装配或环境变量读取，不依赖 Nest/Prisma/Commerce。
+- 已确认执行范围：[Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258)。首次实施为 main-direct/base 0552aa7，后续同步与固定实现以 A0 的 PR/checkpoint 为准；运行时没有装配或环境变量读取，不依赖 Nest/Prisma/Commerce。
 - 业务 gateway 拥有 Native 发起、按商户单号查单、关单；协议入口另接受原始通知和未合并头部。内部拆分成熟 crypto 原语、单次 HTTPS 传输和微信字段解释；测试在真实外部 I/O seam 替换 transport，生产默认固定官方 HTTPS origin/TLS。
 - 查询携带被冻结的 merchant/app/order/amount 期望值。普通查单文档已成功读到：非成功状态可缺少 transaction_id/trade_type/amount；不得要求未支付单包含支付成功字段。SUCCESS 要形成可用支付证据则至少具备订单金额、币种、交易号和支付时刻；query 的选填 payer 字段保留 nullable，通知的必填 payer_total/payer_currency 不混用 query 规则。
 - 下单结果只给 QR 动作与原订单到期时刻，不以调用时刻不断延长二维码期限。关闭只认对应请求上下文的已验签空 204。Notification 证明渠道来源并保留原商户身份，匹配本地充值与持久化仍由下一切片负责。
@@ -299,7 +324,7 @@ stateDiagram-v2
 
 以下为 N1 的实施合同，尚未实现；C1 的固定运行时不因此改变。
 
-1. 客户创建请求只提交金额、方式和幂等键。短事务创建/恢复本地订单并预留容量；只在新单通过资格/限额后安排首次发起，同键重试先恢复已有结果。
+1. 客户创建请求只提交金额、方式和幂等键。短事务创建/恢复本地订单并预留容量；新单的首次 due 待办与订单同事务提交，HTTP 随后返回本地结果，不等待渠道。唤醒丢失或 API 在响应前退出后，Worker 仍可重扫已提交订单；同键重试先恢复已有结果，不重复冻结容量。
 2. 第一次发起前冻结 `description`、`notify_url` 与已有商户/AppID/单号/金额/支付截止时间；订单不随配置更新改参数。保留显式凭证定位能力用于旧商户义务；密钥轮换允许替换认证材料，不改变原请求的业务参数。
 3. 执行者在短事务核对取消意图、支付截止、状态与有效 generation，创建一次 INITIATE attempt，并将 UNSENT 不可逆推进为 MAY_EXIST，再提交。标记不声称网络已经送达，但之后取消不能再使用 C1 的本地 UNSENT 释放路径。
 4. 在事务外执行一次 Adapter 请求。发送前再次检查许可可以减少陈旧发送，但检查与网络之间不存在跨系统原子锁；必须承认暂停进程恢复后仍可能发送。lease 只分配本地工作，不是微信侧 fence。
@@ -382,6 +407,16 @@ B0 的 ACCEPTED/204 只代表接收。C1 使用 processedAt/appliedRechargeOrder
 | 独立 Recharge due-state reconciler，由 Worker 组合层定时唤醒 | DB 状态直接表达待查单事实，恢复路径清楚，改动小；**首批推荐** |
 | 新建完整 payment outbox/queue 子系统 | 若后续出现退款、账单、事件订阅等多类 durable command 再评估；首批证据不足 |
 
+支付事实应用与外部网络操作分别有界领取和预算，避免慢查询/关单占满执行机会后饿死已收付款的入账。各自失败都保留下一执行时刻和有限诊断；瞬时基础设施错误退避，认证/身份差异进入受限核查，不能靠增加重试次数把差异变成成功。具体并发和时长使用明确测试 profile，生产值属于相应启用配置。
+
+### 10.4 到账后的通知与页面刷新
+
+复用现有 Notification 的持久通知和 app-shell SSE 刷新机制，不新增支付专用 WebSocket。当前 Notification 只实现 Evaluation kinds/targets，充值 kind/本人订单 target 仍须在对应接线片明确增加，不能声称目前已经通用。
+
+采用成功充值上一个最小持久通知待办标记，与 SUCCESSFUL/流水同事务写入；Worker 按充值单业务身份向 Notification 幂等写入后再标记已处理。跨这两次提交中断只会重投，不能丢失或创建重复客户通知；通知不可用不回滚资金，保留可补投待办。具体标记与接口在 N1 共享实施片落实，不扩展 Evaluation outbox 承担支付工作。
+
+SSE 只提示重读，不携带入账权威；断线后本人订单/通知列表仍可读取。首次网页接线继续用已有有界轮询，SSE 仅在现有通知接线后改善刷新时机。看到 SUCCESSFUL 后使旧余额请求失效，再读取 Commerce 的 balance/revision；旧响应不得覆盖新余额，也不在浏览器做余额加法。余额暂未读到时显示正在更新，不能把已确认成功降成付款失败。
+
 ## 11. 客户 API 与 Web 交互
 
 ### 11.0 收银体验与支付方式
@@ -412,7 +447,7 @@ flowchart LR
 - 在外部页面点击完成/取消、回跳参数、打开或关闭标签都只是 UI 事件。回跳只触发本人订单读取或有界 verify；支付成功仍由可信事实与 C1 提交确认。丢回跳、弹窗被拦或返回页卡住时，客户仍可从充值记录恢复。
 - 充值记录保存未付/确认中/成功/关闭，积分明细只展示真实已提交账务；不得以“没有积分流水”推定不存在待付单。成功后继续使用账户限定的发布返回上下文，重新核价，不自动购买。
 
-当前 Native 组件是已验证的直连呈现能力，不再把“原页面内嵌 QR”当成唯一产品交互。若最终坚持 PC 外部托管，相关服务商能力是实施前的具体决策；不能用自建页面改域名来声称已满足外部托管，也不能用此次第三方页面浏览替代接口研究。其他本地订单/历史/状态设计与测试仍可推进。
+当前 Native 组件是已验证的直连呈现能力，不再把“原页面内嵌 QR”当成唯一产品交互。用户明确此次主要学习业务逻辑，具体收银形式不作为金额确认、本地订单、异步恢复、历史和开票设计的阻塞项。实际服务商合同仅约束其 Adapter/环境联调和启用；继续用现有 Native 与受控来源检验共用链路，不提前安装或假造第三方协议。
 
 ### 客户接口候选
 
@@ -482,6 +517,17 @@ flowchart LR
 | 充值开票申请 / 未来开票能力 | 唯一 rechargeOrderId、提交时资料快照、真实已付人民币、Processing/Needs correction/Issued、补正原因与结果引用 | 成功单才可申请，一单一申请/一张电子普票；补正重提同一申请，不以客户输入/积分倒算开票额 |
 
 开票产品意义继续由 [product-definition 的 money-information 场景](../../specs/product-definition/spec.md#requirement-two-bounded-money-information-routes)与 glossary 持有：提交后锁定；运营补正或在外部开票并发邮件后上传 PDF/票号/日期，客户查看下载并收到产品内通知。首批不由系统自动发邮件、不接税务平台、不支持专票/拆合票/自助撤回重开。参照站的付款前必填跨境 Invoice 和“我的回票”提现审核，不改变这份已确认合同。本 #77 支付实现只保留成功充值/实付事实的可靠读取边界，不趁调研提前建开票、提现或报表框架。
+
+### 11.4 充值入口、等待与历史的具体规则
+
+- 账户余额、充值入口、积分明细形成短路径；充值记录与积分明细相互可达但保持独立。借鉴参考站的金额确认与正负变动标识，不复制会员、兑换奖励、默认测试档或含糊的“后台充值”分类。
+- 金额草稿只有一个选择来源：快捷金额或自定义原始输入。自定义为空、小数、非数字、零或超限时，显示对应错误并禁止创建，不能静默删字符、取整、裁剪金额或退回旧快捷值；切换快捷项须由客户明确操作。确认区同步显示人民币与积分，服务端仍以严格整数/策略校验为准。
+- 缺额建议按实际短缺积分向上换算整数元，并明确适用的最低/最高金额；建议不是已创建订单，也不隐式拆成多单。未提供可用支付方式时明确尚未开放，不使用测试通道替代。
+- 发出 create 前按账户保存最小幂等意图；提交未知时保留同键同内容恢复入口，不能换键重建。取得订单号后关联该意图；恢复到终态或服务器明确拒绝后才释放本地未知提交限制。存在其他未付单时给出继续查看入口，不按金额猜测哪笔是本次意图，也不强行把活动单策略改成固定只能一单。
+- 收银准备中、页面读取失败、手动核验中和轮询结束是 UI 状态，不增添或重写订单的四种业务状态。等待有界，结束后提供刷新、本单记录、稍后查看与客服；一次手动核验会返回可操作状态，不能永久占住按钮。离开页面只停止前台等待，后台义务继续。
+- 不显示由客户按钮制造的“已扫码”事实。点击核验只提示正在核对；过期 QR、取消中的旧动作和过时响应不能重新变得可付款。支付或关闭终态均来自本地可信记录。
+- 充值记录按本人归属、稳定时间/id 游标分页，展示金额/积分、支付方式、时间、状态和可用动作。若提供状态筛选，服务端先筛选再分页；否则明确只是当前已加载记录，不能把局部空结果写成“没有充值”。积分历史沿用 Commerce 序号游标、业务类型、正负变动、记账后余额及对应订单，不复制余额来源或单独维护第二套流水。
+- 只有 SUCCESSFUL 单开放既定开票申请；没有填写开票资料不能阻止客户先充值。资料复用与每笔提交快照分开，未开票/补正不改变支付状态、余额或发布权限。浏览器显示 Invoice/凭证按钮不构成真实开票或邮件已送达证据。
 
 ## 12. 支付宝后续适配
 

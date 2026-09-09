@@ -13,6 +13,21 @@ Recharge SHALL create a customer-owned order with frozen whole-yuan amount, CNY 
 - **AND** different content under that key conflicts without another payment attempt
 - **AND** a client timeout neither closes the order nor replaces its merchant number.
 
+#### Scenario: Invalid custom input follows a selected shortcut
+
+- **WHEN** a customer edits the custom amount to an empty, fractional, non-numeric, zero or disallowed value
+- **THEN** the confirmation shows the validation problem and cannot create an order
+- **AND** the page does not remove decimal characters, round, clamp or silently fall back to the prior shortcut amount
+- **AND** the server independently validates the submitted whole-yuan amount and currently allowed method.
+
+#### Scenario: Creation commits but the API response or worker wakeup is lost
+
+- **WHEN** a new eligible recharge is accepted
+- **THEN** the local order, capacity reservation and initial due work commit together before the API returns
+- **AND** only a worker operating on committed work may obtain dispatch permission and call the channel outside the transaction
+- **AND** a periodic database scan can recover without the original HTTP request, an in-memory task or a Redis wakeup
+- **AND** the browser preserves the account-bound request key and content until it can recover the original order or determine a definitive rejection.
+
 #### Scenario: Customer moves through recharge
 
 - **WHEN** the customer enters recharge from publishing review and later succeeds
@@ -163,6 +178,43 @@ The system SHALL distinguish never-dispatched intent, an external order that may
 - **WHEN** the browser displays a QR, returns from H5, reports completion or times out
 - **THEN** it reads the account-owned local recharge status and may request bounded verification
 - **AND** none of these client observations authorizes funded credit.
+
+#### Scenario: Read failure or verification waiting ends
+
+- **WHEN** a browser read fails, the bounded verification request times out or automatic polling ends
+- **THEN** the UI returns control with safe refresh, order-history and support paths
+- **AND** these presentation conditions do not invent a fifth business state, claim payment/closure or stop durable background recovery
+- **AND** a customer-reported scan never becomes verified scan or payment evidence.
+
+#### Scenario: A filtered history page has no visible rows
+
+- **WHEN** recharge-history status filters are offered
+- **THEN** the server applies the account ownership and filter before stable cursor pagination
+- **AND** a client-only filter over already loaded records describes its limited scope rather than claiming the complete history is empty
+- **AND** unpaid recharges remain discoverable independently of point-change history.
+
+### Requirement: Notification delivery follows committed settlement
+
+#### Scenario: Notification delivery fails or its acknowledgement is lost
+
+- **WHEN** a successful recharge is committed for the activated customer journey
+- **THEN** its minimal durable notification work is recorded with settlement
+- **AND** a worker invokes the Notification capability idempotently using the recharge business identity and marks delivery work only after durable acceptance
+- **AND** retries cannot duplicate the customer notification, while delivery failure cannot reverse or duplicate credited points
+- **AND** a disposable SSE refresh signal is not the order or balance authority.
+
+#### Scenario: An old balance request completes after settlement becomes visible
+
+- **WHEN** the customer page observes the authoritative successful recharge
+- **THEN** it invalidates older balance reads and refreshes the Commerce balance/revision
+- **AND** it does not calculate the new account balance in the browser or replace a newer response with an older one
+- **AND** a failed balance refresh does not change successful payment into failure.
+
+#### Scenario: Successful recharge precedes invoice work
+
+- **WHEN** a customer has not yet supplied invoice information or an eligible invoice request is still processing
+- **THEN** recharge creation and already credited point use are not blocked by that absence or processing state
+- **AND** any invoice request retains the existing product-definition boundary for one successful recharge, actual paid amount and submitted purchaser snapshot.
 
 ### Requirement: Native actions and order deadlines remain distinct
 
