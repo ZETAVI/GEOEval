@@ -56,12 +56,15 @@ export class NativeRecoveryService {
     );
     return this.read(accountId, orderId);
   }
-  async runOrders(limit: number) {
+  async runOrders(limit: number, stop?: AbortSignal) {
     this.limit(limit);
+    if (stop?.aborted) return { claimed: 0, failed: 0 };
     const ids = await this.repository.dueOrderIds(this.clock(), limit);
     let claimed = 0,
       failed = 0;
     for (const orderId of ids) {
+      // Stop taking new work; an already started claim/call/commit must finish.
+      if (stop?.aborted) break;
       try {
         const claim = await this.repository.claim(
           orderId,
@@ -95,13 +98,15 @@ export class NativeRecoveryService {
     }
     return { claimed, failed };
   }
-  async runSettlements(limit: number) {
+  async runSettlements(limit: number, stop?: AbortSignal) {
     this.limit(limit);
+    if (stop?.aborted) return { applied: 0, reviewed: 0, failed: 0 };
     const items = await this.repository.dueSettlements(this.clock(), limit);
     let applied = 0,
       reviewed = 0,
       failed = 0;
     for (const item of items) {
+      if (stop?.aborted) break;
       try {
         const result =
           item.kind === "QUERY"

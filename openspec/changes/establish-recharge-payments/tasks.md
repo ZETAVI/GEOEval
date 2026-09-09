@@ -116,3 +116,12 @@ Official-source design, the Adapter URI repair and the independent Web component
 - [x] Connect account/history and saved publishing-return reference; re-read balance/quote and require explicit purchase.
 - [x] Verify real HTTP security/privacy/recovery, index migration and the default disabled host; then exercise actual browser against the controlled API/database/gateway.
 - [ ] Fixed-diff review, current-owner/evidence reconciliation and PR/CI. Keep #77 open and real merchant/Worker operational activation separate.
+
+## N3: Resident recharge worker and process recovery
+
+- [x] Verify current main/#83/#84/Project and fix a single-writer Recharge-only window above #84@89f0dbd; preserve #39 main delivery and all shared surfaces.
+- [x] Review Node/Nest lifecycle and existing N1/C1 seams; record a no-migration architecture card with explicit stop/drain and process-crash limits.
+- [x] Add the isolated worker module/factory and two bounded independent lanes; guard configured activation and expose safe aggregate diagnostics.
+- [x] Stop future claim attempts without interrupting in-flight provider/commit work; drain before Prisma shutdown and preserve unresolved obligations after a hard kill.
+- [x] Verify actual Nest/PostgreSQL/child-process independence, SIGTERM/SIGKILL, signed delayed success, once-only settlement and stop-new-order recovery.
+- [ ] Fixed diff review, canonical lifecycle reconciliation, exact-head CI/Partial PR and workspace exit; #77 remains open.
