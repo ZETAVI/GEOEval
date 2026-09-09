@@ -7,8 +7,9 @@ Class / phase: architectural / approved for bounded implementation.
 Current activation: PR #76 integrated normal admission/responsibility, results,
 deadline lists and customer visibility at `main@a550fc4`; PR #79 integrated the
 no-behavior-change points assembly at `main@bcb81db`. This Change remains active
-for the manual exception/settlement outcome. #77 independently implements the
-shared points/credit capacity under its explicit C1 write window; #73 owns order
+for the manual exception/settlement outcome. #77 has fixed C1 at `59930dd` and
+returned the shared window; the next #73 slice explicitly stacks on PR #82.
+#73 owns order
 meaning and customer/operations behavior, not a duplicate accounting engine.
 The original rationale below is not a claim that integrated capabilities remain absent.
 
@@ -23,7 +24,7 @@ The original rationale below is not a claim that integrated capabilities remain 
 
 ## Confirmed behavior
 
-人工异常、金额和非目标以 Issue 正文与本轮确认记录为准。最新用户确认消除了最后一个业务状态前沿：精确替换全量发布后为已完成，约定补偿未到账时独立显示待处理且保留管理员待办；到账不把已完成改成已关闭。停止剩余履约的退点成功后仍为已关闭。客户不申请、不验收；运营协商后继续发布不等待管理员。确认来源：https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5578598898 。
+人工异常、金额和非目标以 Issue 正文与确认记录为准。精确替换全量发布后为已完成，正数约定补偿未到账时独立显示待处理且保留管理员待办；到账不把已完成改成已关闭。最新用户确认：新协商表单退点默认为 0，运营明确保存零额终止即可直接关闭，不经管理员、不生成积分流水。正数终止仍停止剩余工作并等待管理员实际退点后关闭。客户不申请、不验收；运营协商后继续发布不等待管理员。已有完成/补偿确认来源：https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5578598898 。
 
 ## Impact and proposal
 

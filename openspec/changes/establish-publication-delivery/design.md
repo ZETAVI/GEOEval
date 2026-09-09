@@ -75,9 +75,10 @@ The [C1 producer handoff](https://github.com/ZETAVI/GEOEval/pull/82#issuecomment
 fixes the contract at `59930dd` and explicitly returns the shared write window to
 #73. It supersedes the earlier in-flight window, but PR #78 → #80 → #82 remains
 unmerged; accepted main and this branch do not yet contain that implementation.
-Keep the current design-only PR main-direct. Prefer consuming C1 from accepted
-main after its separately authorized integration; if earlier dependent runtime
-work is required, first agree an explicit stack/base and review the changed Diff.
+The order slice now explicitly consumes fixed `59930dd` in a linear stack on
+PR #82, reusing the current #73 branch/PR/worktree. #77 confirmed no conflicting
+shared writes and hands the Delivery/RETURN schema, accounting and generated
+window to #73; its Native work remains design-only on these surfaces.
 Do not copy the implementation or silently mix the unmerged payment stack into
 the order PR. Reconcile the exact next shared schema/generated write window with
 #77 before starting it.
@@ -98,6 +99,7 @@ and evidence; receiving it is not order-return runtime verification.
 | Administrator pays completed-order compensation     | Remains Completed                                         | Returned with ledger reference                     |
 | Operations stops all remaining work after agreement | Exception handling; remaining ordinary operations stopped | Final agreed amount pending administrator          |
 | Administrator executes termination settlement       | Closed; existing results/quantity retained                | Returned atomically with closure                   |
+| Operator saves agreed zero-point termination         | Closed immediately; existing results/quantity retained    | No return required; no ledger or administrator task |
 
 This does not add a sixth customer order state. A return intention is not money: Delivery owns one explicitly saved negotiated result with reason/context, mode (continue/terminate), agreed total and revision; Commerce owns the only actual return fact. Administrator outstanding views include ALL recorded, unpaid agreements, including those waiting for remaining work. Execution requires the exact saved revision and current eligibility (retained work finished or remaining work stopped), not a separate approval/submission entity or finalization endpoint. Completed state, customer inactivity, archived/current Brand selection or the original operator's later role/status must not hide a pending obligation. A settled marker must be written with the ledger or derived from it, never independently assumed.
 
@@ -147,16 +149,28 @@ for the integrated normal slice, not current defects. The exception slice must
 add effective negotiated-target validation, preserve stopped/Closed through
 correction/reassignment, and exclude both terminal states from active work.
 
-### 4.2. Human decision frontier
+### 4.2. Confirmed zero-point resolution
 
-The existing confirmation only states that zero/absent compensation on
-**continuing** service creates no credit entry. It does not decide whether a
-customer-agreed **termination** may return zero, or who may close that order.
-The pending question is whether to allow zero-point termination with administrator
-closure, require a positive return, or allow operations to close a zero-point
-termination. Do not implement one by analogy, create a zero-amount ledger entry,
-or change closing authority before the owner answers. This affects only that
-branch; the confirmed positive-return rules and the other preparation above stand.
+The human owner confirmed that the negotiated amount defaults to zero in a new
+form. The current responsible operator may explicitly save termination at zero,
+atomically stopping all remaining work and closing the order without an
+administrator or ledger entry. Preserve the agreement, reason, actor, revision
+and actual published results; display "no points to return", not a fabricated
+"credited 0". No zero-value administrator task is created.
+
+The amount is explicit on save; editing an existing positive agreement preloads
+that amount rather than silently resetting it to the new-form default. A change
+to zero requires the same exact revision and retained before/after history.
+Once a return has executed or the order is Closed, negotiation cannot be edited
+to reopen work, erase that return or permit another one. Completed remains
+Completed; termination cannot reclassify a fully delivered order as Closed.
+Same-actor/same-request replay recovers the original receipt; another operator
+cannot use that key to acquire authority. These are existing write/history
+boundaries, not a new zero-value approval flow.
+
+Positive termination remains stopped and pending until the administrator's
+atomic return/close succeeds. Positive continuing compensation does not block
+publication and does not turn Completed into Closed when credited.
 
 ## 5. Money and transaction boundaries
 

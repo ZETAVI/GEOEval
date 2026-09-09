@@ -77,7 +77,13 @@ PR stays main-direct; C1 and its lower payment PRs remain unmerged.
 The lead does not adopt the review suggestion to prebuild stopped-slot ranges:
 the confirmed first-release sequence finishes retained work before one stop of
 the remainder. Such a range/partial-stop planner has no required caller today.
-Zero-point termination and its closing authority remain the one human decision
-frontier; continuing zero compensation does not answer it. Review status:
-ready for the bounded design/acceptance preparation, with that decision and the
-actual dependency baseline required before their affected implementation.
+The human owner now confirms zero-point termination by the current responsible
+operator, without administrator confirmation or a ledger entry. Incremental
+review finds no new owner or approval engine necessary. An existing positive
+agreement must be explicitly revised, not reset by a new-form default; its
+revision competes with administrator settlement under the same Delivery lock.
+Closed and Completed remain distinct and corrections/reassignment preserve both.
+Review status: ready for the approved bounded implementation after the explicit
+C1 stack/write-window alignment. Zero-close audit rollback, stale authority,
+positive-to-zero settlement race and terminal projections are targeted evidence,
+not a reason to repeat unaffected normal-delivery review.

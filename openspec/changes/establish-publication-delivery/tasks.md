@@ -36,15 +36,15 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 ## 2. Vertical slice: manual exception → continued service or settled termination
 
 - [x] Reconcile order-side decisions and activation seams against the integrated normal-delivery baseline; preserve the #77 C1 exclusive window until its explicit handback.
-- [ ] Confirm whether zero-point termination is permitted and who may close it; do not infer this from zero compensation on continuing service.
+- [x] Confirm zero-point termination: the current responsible operator closes directly with retained reason/history, no administrator and no ledger; zero is a new-form default, not an overwrite of an existing amount.
 - [x] Inspect the fixed #77 C1 contract at `59930dd`, verify the live unmerged stack and receive its explicit shared-window handback; reference the producer checkpoint without copying its contract/evidence.
-- [ ] Consume C1 from accepted main after authorized integration, or agree an explicit dependent stack before runtime work; reconcile the next shared write window before persistence/API/settlement changes. The design-only PR remains main-direct.
+- [ ] Consume fixed C1 `59930dd` through the explicitly agreed linear stack on PR #82; recheck base/Diff/Checks and record the #73 Delivery/RETURN single-writer window before shared changes.
 - [ ] Implement precise replacement/history and ordinary random reallocation distinction; continue operation without waiting for admin credit.
 - [ ] Implement explicitly saved order-level negotiated amount/version, eligibility from finished/stopped work and dedicated administrator unpaid-agreement list; no separate finalization workflow.
 - [ ] Implement one administrator confirmation/credit action, return kind/original consumption link/source allocation and exact actor-bound reload recovery.
 - [ ] Verify original-spend cap, whole numbers, origins, exact revision race, duplicate/new-key attempts, ledger failure and wallet bound; no gift fallback.
 - [ ] Verify every saved unpaid agreement remains in admin queue before and after settlement eligibility; Completed N/N remains Completed after payment. Validate original-order returns for inactive customers without restoring customer access under the approved security boundary.
-- [ ] Verify termination keeps actual partial results/count and whole-remainder stop enforcement, fails without false credit/closure, and succeeds with atomic Closed + credit for positive returns. Complete the zero-point scenario only after its decision.
+- [ ] Verify termination keeps actual partial results/count and whole-remainder stop enforcement. Positive returns require atomic Closed + credit; zero closes by the current operator without ledger/admin task, including stale-save, replay and audit-rollback checks.
 - [ ] Browser-check replacing C with D and compensation; partial stop/final return; unauthorized operations and interrupted administrator submission.
 
 ## 3. Reconcile, recovery and close
