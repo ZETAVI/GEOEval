@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.4 single example shows absence benefit; category handling unresolved
+- Status: 5.5 task-only opening prepared; last real evidence is 5.4, categories unresolved
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -44,6 +44,13 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
+The owner requests a direct identification/parsing task rather than a GEO evaluator
+role. Candidate 5.5 changes only the opening sentence to identify brands and
+organize their descriptions and evaluations from the supplied answer. All other
+5.4 instructions/examples, input, Schema and model remain unchanged. This is an
+instruction simplification, not evidence that the old role caused hallucination.
+No 5.5 real call has run; compare against frozen 5.4 before claiming semantic benefit.
+
 The [single-example 5.4 comparison](research/chain-quality-experiment.md#54-single-example-comparison-partial-benefit)
 preserves all 5.2 instructions and the full Schema/input/model, changing only one
 appended worked example. Four repetitions per arm/source show local absence
@@ -52,7 +59,7 @@ benefit: candidate 4/4 retains real subjects without target placeholders, baseli
 both category miscount and outright other-brand omission. Do not pool these into
 a misleading overall success rate or count omission as correction.
 
-Keep 5.4 as a partial experimental candidate, not a formal-ready Parser. Stop
+Keep 5.4 as the last measured partial candidate, not a formal-ready Parser. Stop
 editing the observed absence handling for now; category interpretation still
 requires separate evidence before downstream acceptance. 31 focused tests and
 typecheck pass, 17 private Langfuse observations match actual IO/usage. No fresh

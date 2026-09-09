@@ -3588,6 +3588,15 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 5.5 task-only opening: prepared, not measured
+
+At the owner's request, replace only `你负责商户GEO评测中的单条回答整理。`
+with `根据给定回答识别品牌，并整理回答对各品牌的介绍与评价。`.
+Preserve the remaining 5.4 content byte-for-byte, including all three examples;
+input, complete Schema, model and projection remain unchanged. Remove irrelevant
+role framing without claiming it caused hallucination. No real 5.5 calls yet;
+the 5.4 results below must not be attributed to this candidate.
+
 ## 5.4 single-example comparison: partial benefit
 
 Keep the complete 5.2 Prompt byte-for-byte and append one compact worked contrast

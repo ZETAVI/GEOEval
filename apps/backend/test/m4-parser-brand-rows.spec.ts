@@ -54,6 +54,10 @@ describe("M4 content-oriented brand rows", () => {
   it("uses one reading string and preserves the original source and target context", () => {
     const before = structuredClone(prepared);
     const task = buildM4BrandRowsTask(prepared, source);
+    expect(task.systemInstruction.startsWith(
+      "根据给定回答识别品牌，并整理回答对各品牌的介绍与评价。",
+    )).toBe(true);
+    expect(task.systemInstruction).not.toContain("GEO评测");
     const { answerLines: _lines, ...context } = prepared.userContext;
     expect(task.userContext).toEqual({
       ...context,
@@ -65,7 +69,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.userContext.companyName).toBe("青禾咖啡");
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@5.4.0",
+      "experiment.m4.parser-brand-rows@5.5.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
