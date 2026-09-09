@@ -19,10 +19,13 @@ const mentionContext = z
     "简短整理回答如何提到这个品牌，可自然概括；保留有用的别称或关系语境，不是逐字引文。",
   );
 const targetDescription = z.object({ points }).strict();
+const attitude = z
+  .enum(["POSITIVE", "NEUTRAL", "NEGATIVE"])
+  .describe("原回答对该主体的整体态度：正向、中性或负向。");
 const brandRow = z
   .object({
     displayName: otherBrand.shape.displayName,
-    positiveRecommendation: otherBrand.shape.positiveRecommendation,
+    attitude,
     mentionContext,
     targetDescription: targetDescription
       .nullable()
@@ -41,7 +44,7 @@ export const m4BrandRowsSchema = z
   .strict();
 
 // Explicitly a content interpretation, not the legacy source-anchored contract.
-export const m4BrandContentSummarySchema = z
+const legacyBrandContentSummarySchema = z
   .object({
     target: z
       .object({
@@ -56,6 +59,30 @@ export const m4BrandContentSummarySchema = z
       .max(10),
   })
   .strict();
+
+export const m4BrandContentSummarySchema = legacyBrandContentSummarySchema
+  .extend({
+    target: legacyBrandContentSummarySchema.shape.target
+      .unwrap()
+      .extend({ attitude })
+      .nullable(),
+    otherBrands: z
+      .array(
+        otherBrand
+          .omit({ evidence: true, positiveRecommendation: true })
+          .extend({ mentionContext, attitude })
+          .strict(),
+      )
+      .max(10),
+  })
+  .strict();
+
+// Retained boolean records keep their original meaning; never infer a ternary
+// label from false or accept records carrying both conflicting representations.
+export const m4ContentHandoffSchema = z.union([
+  m4BrandContentSummarySchema,
+  legacyBrandContentSummarySchema,
+]);
 
 const prompt = z
   .object({ id: z.string(), version: z.string(), content: z.string().min(1) })
@@ -156,6 +183,7 @@ export function inspectM4BrandRowsOutput(value: unknown) {
           position: target.position,
           points: target.targetDescription!.points,
           summary: target.mentionContext,
+          attitude: target.attitude,
         }
       : null,
     otherBrands: indexed
@@ -168,9 +196,7 @@ export function inspectM4BrandRowsOutput(value: unknown) {
       interpretationFormat: "BRAND_CONTENT" as const,
       output: parsed,
       sampleSummary: parsed.target?.summary ?? "本条回答未提及目标品牌。",
-      positiveCompetitors: parsed.otherBrands.filter(
-        (b) => b.positiveRecommendation,
-      ),
+      competitors: parsed.otherBrands.filter((b) => b.attitude !== "NEGATIVE"),
     },
   };
 }

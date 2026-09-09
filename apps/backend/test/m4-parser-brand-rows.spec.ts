@@ -10,6 +10,7 @@ import {
   buildM4ChainSynthesisTask,
   buildM4ReportCompositionTasks,
   buildM4BrandAssignmentTask,
+  inspectM4BrandGroupingOutput,
 } from "../src/ai-execution/controlled-validation/m4-chain-synthesis.js";
 import { ModelStudioProviderAdapter } from "../src/ai-execution/infrastructure/providers/model-studio-provider.adapter.js";
 import {
@@ -34,7 +35,7 @@ const base = buildSampleParserTask({
 const prepared = buildM4CustomerSummaryTask(base);
 const row = (displayName: string, target = false) => ({
   displayName,
-  positiveRecommendation: true,
+  attitude: "POSITIVE" as "POSITIVE" | "NEUTRAL" | "NEGATIVE",
   mentionContext: displayName + "被作为安静但偏贵的选择。",
   targetDescription: target
     ? { points: [{ text: "环境安静但价格偏高。", polarity: "MIXED" }] }
@@ -45,7 +46,7 @@ const raw = () => ({
     row("青禾咖啡", true),
     row("山岚"),
     row("晴川"),
-    { ...row("墨云"), positiveRecommendation: false },
+    { ...row("墨云"), attitude: "NEGATIVE" as const },
   ],
 });
 
@@ -64,7 +65,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.userContext.companyName).toBe("青禾咖啡");
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@4.2.0",
+      "experiment.m4.parser-brand-rows@5.0.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -134,17 +135,17 @@ describe("M4 content-oriented brand rows", () => {
     ).toBe(true);
     expect(result.projected.output.target).toBeNull();
     expect(result.output.brands[0]!.mentionContext).toContain("各有取舍");
-    expect(result.output.brands.map((b) => b.positiveRecommendation)).toEqual([
-      false,
-      true,
-      false,
+    expect(result.output.brands.map((b) => b.attitude)).toEqual([
+      "NEUTRAL",
+      "POSITIVE",
+      "NEGATIVE",
     ]);
     expect(
-      result.projected.positiveCompetitors.map((b) => [
-        b.displayName,
-        b.position,
-      ]),
-    ).toEqual([["白石咖啡", 2]]);
+      result.projected.competitors.map((b) => [b.displayName, b.position]),
+    ).toEqual([
+      ["岚谷咖啡", 1],
+      ["白石咖啡", 2],
+    ]);
     // This validates the worked example and unchanged projection, not LLM semantics.
   });
   it("derives positions before filtering without quotations, extra summaries or semantic repair", () => {
@@ -158,10 +159,9 @@ describe("M4 content-oriented brand rows", () => {
       position: 1,
       points: value.brands[0]!.targetDescription!.points,
       summary: value.brands[0]!.mentionContext,
+      attitude: "POSITIVE",
     });
-    expect(result.projected.positiveCompetitors.map((b) => b.position)).toEqual(
-      [2, 3],
-    );
+    expect(result.projected.competitors.map((b) => b.position)).toEqual([2, 3]);
     expect(result.projected.output.otherBrands[2]!.position).toBe(4);
     expect(JSON.stringify(result.projected)).not.toMatch(
       /exactText|occurrence|evidence/,
@@ -252,7 +252,7 @@ describe("M4 content-oriented brand rows", () => {
       /ONLY_ORIGINAL_TAIL|exactText|occurrence|evidence/,
     );
     expect(task.systemInstruction).toContain("不是逐字引文");
-    expect(task.outputContract.version).toContain("parser-content@1");
+    expect(task.outputContract.version).toContain("parser-content@2");
     const split = buildM4ReportCompositionTasks(task);
     for (const child of [
       split.grouping,
@@ -260,7 +260,7 @@ describe("M4 content-oriented brand rows", () => {
       buildM4BrandAssignmentTask(task),
     ]) {
       expect(child.systemInstruction).toContain("不是逐字引文");
-      expect(child.outputContract.version).toContain("parser-content@1");
+      expect(child.outputContract.version).toContain("parser-content@2");
     }
     expect(() =>
       buildM4ChainSynthesisTask(
@@ -274,6 +274,94 @@ describe("M4 content-oriented brand rows", () => {
         samples.map((s) => ({ ...s, questionKind: "BRAND_DIRECTED" as const })),
       ),
     ).toThrow("open-question");
+  });
+  it("preserves neutral and negative labels through synthesis without reclassifying legacy false", () => {
+    const parsed = inspectM4BrandRowsOutput({
+      brands: [
+        { ...row("目标", true), attitude: "NEGATIVE" },
+        { ...row("中性品牌"), attitude: "NEUTRAL" },
+        { ...row("负向品牌"), attitude: "NEGATIVE" },
+      ],
+    }).projected;
+    expect(parsed.output.target!.position).toBe(1);
+    expect(parsed.competitors.map((b) => [b.displayName, b.position])).toEqual([
+      ["中性品牌", 2],
+    ]);
+    const old = {
+      target: null,
+      otherBrands: [
+        {
+          displayName: "中性品牌",
+          position: 1,
+          positiveRecommendation: false,
+          mentionContext: "旧版未作正向推荐。",
+        },
+        {
+          displayName: "旧正向",
+          position: 2,
+          positiveRecommendation: true,
+          mentionContext: "旧版推荐。",
+        },
+      ],
+    };
+    const samples = [
+      { sampleId: "new", parsedOutput: parsed.output },
+      { sampleId: "old", parsedOutput: old },
+    ].map((s) => ({
+      ...s,
+      question: "哪些品牌？",
+      originalAnswer: "ONLY_RAW_SOURCE",
+      platformLabel: "千问",
+      interpretationFormat: "BRAND_CONTENT" as const,
+    }));
+    const task = buildM4ChainSynthesisTask("目标", samples);
+    expect(task.userContext.samples[0]!.otherBrands[0]).toHaveProperty(
+      "attitude",
+      "NEUTRAL",
+    );
+    expect(task.userContext.samples[1]!.otherBrands[0]).not.toHaveProperty(
+      "attitude",
+    );
+    expect(JSON.stringify(task.userContext)).not.toContain("ONLY_RAW_SOURCE");
+    const result = inspectM4BrandGroupingOutput(
+      {
+        brandGroups: [
+          { displayName: "中性品牌", members: ["new-b1", "old-b1"] },
+        ],
+      },
+      task,
+    );
+    expect(
+      result.competitorPreview.map((g) => [
+        g.displayName,
+        g.eligibleSampleCount,
+      ]),
+    ).toEqual([
+      ["中性品牌", 1],
+      ["旧正向", 1],
+    ]);
+    expect(() =>
+      buildM4ChainSynthesisTask("目标", [
+        samples[0]!,
+        {
+          ...samples[1]!,
+          parsedOutput: {
+            ...old,
+            otherBrands: [{ ...old.otherBrands[0]!, attitude: "NEUTRAL" }],
+          },
+        },
+      ]),
+    ).toThrow();
+  });
+  it("rejects missing, invalid or contradictory model attitude fields", () => {
+    const { attitude: _attitude, ...withoutAttitude } = row("商家");
+    for (const brand of [
+      withoutAttitude,
+      { ...row("商家"), attitude: "MIXED" },
+      { ...row("商家"), positiveRecommendation: true },
+    ]) {
+      expect(() => inspectM4BrandRowsOutput({ brands: [brand] })).toThrow();
+    }
   });
   it("sends the cleaned whole reading string through the actual Qwen adapter", async () => {
     let body: Record<string, unknown> | undefined;

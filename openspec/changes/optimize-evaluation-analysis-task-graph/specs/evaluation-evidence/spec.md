@@ -88,6 +88,26 @@ the immutable original answer and target-aware task without formal activation.
 - **AND** synthesis receives parsed contents, not the full answer
 - **AND** legacy source-backed consumers still reject the new untagged shape.
 
+### Requirement: Experimental ternary attitude and non-negative competitors
+
+The controlled candidate SHALL use one overall attitude per identified brand and
+derive competitor eligibility without altering formal runtime or historical records.
+
+#### Scenario: The owner accepts neutral competitors
+
+- **WHEN** the candidate produces POSITIVE, NEUTRAL or NEGATIVE attitude
+- **THEN** ordinary drawbacks do not by themselves cancel a favorable recommendation
+- **AND** program logic retains positive and neutral other-brand records as competitors
+- **AND** negative records remain available for interpretation but are excluded from
+  competitor preview counts; positions are not renumbered after filtering
+- **AND** a target's attitude does not cancel its actual mention or appearance position
+- **AND** parsed-only synthesis retains the actual ternary label, not a fabricated
+  positive label; old boolean records keep their original eligibility semantics
+- **AND** missing/invalid/mixed field representations fail structure checks, not
+  guessed semantic repair; raw evidence and formal current contracts are unchanged
+- **AND** peripheral supplemental omissions are observed but not treated as mandatory
+  repair gates or retroactively erased from past outputs.
+
 ### Requirement: Concise customer progress
 
 The diagnosis view SHALL project truthful durable progress.

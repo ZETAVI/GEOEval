@@ -7,10 +7,10 @@ import {
   inspectM4CustomerSummaryOutput,
   m4CustomerSummarySchema,
 } from "./m4-parser-customer-summary.js";
-import { m4BrandContentSummarySchema } from "./m4-parser-brand-rows.js";
+import { m4ContentHandoffSchema } from "./m4-parser-brand-rows.js";
 
 const contentNote =
-  "\n\n标记为PARSER_CONTENT的样本由首层整理而来：mentionContext、points和summary是内容概括，不是逐字引文或已核验事实。结合这些语境理解品牌和目标表现；不假定拿到了完整原回答或精确引用。";
+  "\n\n标记为PARSER_CONTENT的样本由首层整理而来：mentionContext、points和summary是内容概括，不是逐字引文或已核验事实。结合这些语境理解品牌和目标表现；不假定拿到了完整原回答或精确引用。若记录含attitude，它表示整体正向、中性或负向；正向和中性均可作为竞品，统计由程序负责。";
 
 const text = (max: number) => z.string().trim().min(1).max(max);
 const id = z.string().regex(/^[a-z][a-z0-9-]{0,63}$/);
@@ -110,7 +110,7 @@ function sourceView(companyName: string, sample: M4ChainSample) {
   if (sample.interpretationFormat === "BRAND_CONTENT") {
     if (sample.questionKind === "BRAND_DIRECTED")
       throw new Error("Brand-content format is open-question only");
-    const parsed = m4BrandContentSummarySchema.parse(sample.parsedOutput);
+    const parsed = m4ContentHandoffSchema.parse(sample.parsedOutput);
     return {
       ...parsed,
       sampleSummary: parsed.target?.summary ?? "本条回答未提及目标品牌。",
@@ -262,7 +262,7 @@ export function buildM4ChainSynthesisTask(
       samples,
     },
     outputContract: {
-      version: `${prompt.id}@${prompt.version}${inputs.some((s) => s.interpretationFormat === "BRAND_CONTENT") ? "+parser-content@1" : ""}`,
+      version: `${prompt.id}@${prompt.version}${inputs.some((s) => s.interpretationFormat === "BRAND_CONTENT") ? "+parser-content@2" : ""}`,
       jsonSchema: z.toJSONSchema(boundSchema, {
         target: "draft-2020-12",
       }),
@@ -311,7 +311,7 @@ export function buildM4ReportCompositionTasks(
     asset: typeof prompt,
     properties: NonNullable<typeof task.outputContract.jsonSchema.properties>,
   ) => ({
-    version: `${asset.id}@${asset.version}${note ? "+parser-content@1" : ""}`,
+    version: `${asset.id}@${asset.version}${note ? "+parser-content@2" : ""}`,
     jsonSchema: {
       type: "object" as const,
       properties,
@@ -369,7 +369,7 @@ export function buildM4BrandAssignmentTask(
       otherBrands: flattenM4ChainSynthesisTask(task).userContext.otherBrands,
     },
     outputContract: {
-      version: `${assignmentPrompt.id}@${assignmentPrompt.version}${note ? "+parser-content@1" : ""}`,
+      version: `${assignmentPrompt.id}@${assignmentPrompt.version}${note ? "+parser-content@2" : ""}`,
       jsonSchema: z.toJSONSchema(brandAssignmentSchema(task), {
         target: "draft-2020-12",
       }),
@@ -420,14 +420,18 @@ function projectBrandGroups(
   return groups
     .map((group) => ({
       ...group,
-      positiveSampleCount: new Set(
+      eligibleSampleCount: new Set(
         group.members
           .map((member) => byId.get(member)!)
-          .filter((b) => b.positiveRecommendation)
+          .filter((b) =>
+            "attitude" in b
+              ? b.attitude !== "NEGATIVE"
+              : b.positiveRecommendation,
+          )
           .map((b) => b.sampleId),
       ).size,
     }))
-    .filter((group) => group.positiveSampleCount > 0);
+    .filter((group) => group.eligibleSampleCount > 0);
 }
 
 export function inspectM4BrandGroupingOutput(

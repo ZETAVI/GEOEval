@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: 4.2 regression complete; record/eligibility consistency still unaccepted;
+Status: 5.0 ternary attitude and non-negative competitor candidate under validation;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,43 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — concrete subjects and attitude guidance
+### Current package — simple ternary attitude
+
+The owner deprioritizes peripheral convenience-store additions as well as LOCATE,
+rejects treating the previous variation as proven task-conflict causality, and
+approves broader positive interpretation plus neutral competitor inclusion.
+Use one model field, attitude = POSITIVE/NEUTRAL/NEGATIVE, replacing the boolean.
+Ordinary drawbacks or cautious wording do not cancel a generally favorable or
+recommended option; neutral remains a genuinely balanced/factual stance; negative
+is overall unfavorable/discouraging. Do not add scoring, a second judgement, Agent,
+entity exception list or forced tail completeness.
+
+Architecture readiness: ready for a bounded experiment, not formal adoption.
+The existing controlled-validation adapter owns the new wire and projection.
+Target and other records retain attitude and concise content into the experimental
+synthesis context. Program position is assigned before filtering; only negative
+other records are excluded from competitors. Target mention/position is unaffected
+by its attitude. Preview names are competitors and eligibleSampleCount, not a false
+claim that neutral is positive. BRAND_CONTENT still marks paraphrases, not quotes.
+The handoff reader accepts strict old-boolean and new-ternary record shapes; it
+never invents a ternary label for old false or silently strips a contradictory
+mixed representation. Old false remains ineligible under its old contract.
+The synthesis content-note version advances to parser-content@2; no full raw
+answer enters synthesis and no real synthesis call is part of this batch.
+
+Ownership, public runtime schemas, records, queues, models, dependencies and
+formal statistics remain unchanged. No migration or default activation. Reverting
+this experiment restores its previous candidate; retained raw evidence is immutable.
+Verify ternary wire/exemplars, absent target, negative-target mention, neutral/negative
+filtering without reranking, legacy/new mixed handoff and aggregation. Then freeze
+a new six-call batch on the same already authorized three sources, twice each,
+Qwen low/concurrency two, no sampling/synthesis/retry/in-batch tuning. Source/wire
+delta checks and private actual-IO telemetry follow the existing controlled runner.
+This is a coherent Prompt/Schema/statistics candidate, not Prompt-only causality.
+Judge core subjects/target/content and retained competitor membership; peripheral
+coverage stays an observation and no historical output is relabeled as improved.
+
+### Previous package — concrete subjects and attitude guidance
 
 Architecture readiness: ready for bounded Prompt-only regression, not runtime
 acceptance. Reuse the 4.0 algorithm, Schema, adapter, telemetry and parsed-content

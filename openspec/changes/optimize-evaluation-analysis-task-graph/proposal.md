@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 4.2 six-call regression complete; semantic stability not accepted
+- Status: 5.0 ternary/non-negative candidate; no formal activation
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,20 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner confirms neutral brands remain competitors, broadens positive to include
+ordinary qualified recommendations, and deprioritizes peripheral additions.
+Do not treat prior nondeterminism as a proven two-task conflict. The current
+[bounded design](design.md#current-package--simple-ternary-attitude) replaces the
+experimental boolean with one ternary attitude, keeps parsed content into synthesis,
+and derives eligibility as non-negative. Legacy boolean records retain their old
+meaning. No extra Agent, score, public/runtime contract or source cleaning change.
+Freeze a new six-call regression over the same three authorized retained sources,
+twice each, Qwen low/concurrency two. Stop on provider/wire/schema failure; no
+automatic resampling, retry, synthesis, seventh call or within-batch changes.
+This tests the combined candidate, not whether a specific sentence caused old errors.
+
+### Previous 4.2 result and decision
 
 The owner now confirms concrete named business subjects, no absent-target
 placeholder, and simple positive/neutral/negative attitude guidance. Prompt 4.2

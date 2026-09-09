@@ -90,10 +90,21 @@ The current role and decisions live in [the proposal](proposal.md).
 - [x] Retain 4.2 as diagnostic, not stable adoption: no target placeholders, but
       unnamed inclusion, tail omissions and recommendation variation persist.
       LOCATE is deprioritized without rewriting evidence; no seventh call.
-- [ ] Discuss overall attitude versus competitor eligibility from the actual
-      zero/four restaurant-candidate contrast before another contract or Prompt
-      change. False does not distinguish neutral/negative. Fresh-source transfer
-      follows the resulting bounded decision, not an automatic experiment sweep.
+- [x] The owner resolves the practical next step: broaden positive, retain neutral
+      competitors and use ternary attitude; do not over-attribute prior variation
+      to conflicting tasks. Peripheral tail additions are not a repair gate.
+
+## Current package — simple ternary attitude
+
+- [x] Prepare the single ternary field, non-negative competitor projection and
+      parsed-only handoff; preserve legacy boolean meaning without inferred labels.
+- [ ] Verify wire/examples, order before filtering, negative target mention,
+      neutral inclusion/negative exclusion and strict new/old mixed aggregation.
+- [ ] Complete a separately frozen six-call Qwen low regression over the same
+      three authorized sources twice, concurrency two; preserve actual IO/settings/
+      usage privately and keep review local. No automatic seventh call or synthesis.
+- [ ] Assess core subjects, target/content and stable eligible membership without
+      elevating peripheral additions to blockers or rewriting historical outputs.
 
 ## Retained report-level work
 

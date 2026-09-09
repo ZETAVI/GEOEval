@@ -92,12 +92,12 @@ describe("M4 real-chain synthesis preview", () => {
       {
         displayName: "山岚咖啡",
         members: ["s1-b1", "s1-b2"],
-        positiveSampleCount: 1,
+        eligibleSampleCount: 1,
       },
       {
         displayName: "Hill Coffee",
         members: ["s2-b1"],
-        positiveSampleCount: 1,
+        eligibleSampleCount: 1,
       },
     ]);
     // A wrong identity still passes structure. Neither the count projector nor
@@ -182,7 +182,7 @@ describe("M4 real-chain synthesis preview", () => {
       {
         displayName: "Hill Coffee",
         members: ["s1-b1"],
-        positiveSampleCount: 1,
+        eligibleSampleCount: 1,
       },
     ]);
     const many = buildM4ChainSynthesisTask(
@@ -514,7 +514,7 @@ describe("M4 real-chain synthesis preview", () => {
       {
         displayName: "山岚咖啡",
         members: ["s1-b1", "s2-b1"],
-        positiveSampleCount: 2,
+        eligibleSampleCount: 2,
       },
     ]);
     expect(
