@@ -3588,6 +3588,62 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## Balanced attitude and simple target absence
+
+The owner explicitly approved the exact six-call Qwen/private-Langfuse batch and
+requested simpler target absence plus a more discriminating neutral meaning.
+Execution at `ff0a334134547b57755e04f059d53e31ba3abffb` uses Prompt 4.2.0: omit an
+absent target subject without instructing null across all other rows; overall
+positive/recommending, neutral/balanced or reserved, and negative/discouraging
+attitudes are distinguished by contextual stance, not counting pros/cons. The
+neutral worked example now contains useful merits and drawbacks. The Schema,
+input/readability algorithm, model, projector and downstream handoff are unchanged.
+The previous 4.1 package never ran and is not a live comparison arm.
+
+Manifest `f7025769795e3ddb9c21972fdb200dd8a72269e7029d119014c4fadf22e2e940`,
+runner hash `47cf3c37d38c98c35c42b8c3596811f387b8e4fb289d302ef5b59c7c7c27f5a3`.
+Six calls/concurrency two, Qwen3.8 Flash low, same three retained sources twice;
+no resampling, synthesis, retry, fallback, within-batch edits or runtime records.
+Raw Provider JSON matches saved model output, actual wire matches the frozen
+messages/Schema, and six sample IDs are distinct. All six structures project.
+
+| Case | First | Repeat |
+| --- | --- | --- |
+| Restaurant | Five named merchants, no generic row; target position 1 and useful content. All four other recommendation flags false | Same five named merchants; target position 1 and useful content. All four other flags true |
+| Absent target | No target placeholder and null target, but unnamed positive merchant retained alongside two named merchants | Only two named merchants, no target placeholder and null target |
+| Coffee | Target position 2 and useful content; tail convenience-store options omitted; Starbucks true | Target position 2 and useful content; both tail options restored; Starbucks false |
+
+LOCATE-related grouping/order forms are preserved in raw evidence but are
+owner-deprioritized. Do not use their real-world existence as an acceptance test.
+One restaurant description itself says the merchant is recommended/considerable
+yet sets false, then sets true in the repeat. The program's positive competitor
+list is consequently empty once and four entries once, not because program
+filtering invented or repaired a model decision. This experimental projection has
+not entered a formal report. Three attitude meanings in a Prompt are not a
+three-class wire: false alone cannot tell neutral from negative.
+
+The correct target states and useful content are retained evidence, not a general
+stability rate. Generic removal and disappearance of the absence placeholder in
+this batch do not isolate the causal effect of any one sentence. The unnamed
+subject and tail omissions remain; do not declare the combined candidate stable
+or automatically tune/extend the batch. Next discuss the business distinction
+between overall portrayal and eligibility rather than silently redefining how a
+neutral brand affects competitor statistics or adding another Agent.
+
+48 focused tests, backend typecheck, framework/link/diff checks pass. Unchanged
+runtime builds and full-report/browser acceptance were not rerun. Start/end UTC:
+2026-09-09 02:20:22.251 to 02:21:33.904, 71.653 seconds, 19,249 reported tokens;
+individual requests 8.788–25.563 seconds. This is not full 20-sample latency,
+billing, or a speedup claim over another cache/configuration mix.
+
+Seven private Langfuse observations read back matching actual model IO/settings/
+usage; independent semantic review and program projections remain local.
+[Private actual-IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/a934a79508d10ca1ac47a61bc0a298c8).
+Full inputs and all six model outputs:
+`apps/backend/.provider-evidence/m4-record-attitude-okoJQr/input-output-review.md`.
+No formal Parser, statistics, report readiness, production or other worktree
+changes. PR #62 remains Draft Partial; #41/#42 ownership and #32 completion stand.
+
 ## Concrete subjects and attitude calibration
 
 Prepared at `33b57845d6ea7272e6d120cd729362fe8b992180`; no real-call result.

@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: 4.2 Prompt-only calibration; exact six-call batch approved by the owner;
+Status: 4.2 regression complete; record/eligibility consistency still unaccepted;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -45,13 +45,32 @@ failure after in-flight requests settle. Semantic disagreements remain evidence.
 The owner deprioritizes LOCATE; keep raw outputs intact and do not research its
 real-world existence. Focus on generic/unnamed/placeholder rows, target meaning,
 useful target content and recommendation eligibility. Prompt examples and structural
-tests are not semantic pass evidence. Fresh-source transfer follows this bounded
-package rather than another architecture sweep on the same cases.
+tests are not semantic pass evidence. Fresh-source transfer remains a later step
+after this bounded package's interpretation and eligibility decision, not another
+automatic architecture sweep on the same cases.
 
 Execution gate: the previous 4.1 launch was rejected before process creation. The
 owner has now explicitly confirmed the proposed six calls on these three retained
 answers to Qwen and actual-IO logging to the existing private Langfuse. Re-freeze
 at the 4.2 execution revision before running; no 4.1 model result exists.
+
+Result at ff0a334: six calls completed, all structural projections pass. Both
+restaurant outputs contain the same five named merchants without a generic row;
+positive competitor candidates nonetheless change from zero to four. Absent-target
+records have no target placeholder in either repeat, but one still has an unnamed
+positive merchant. Coffee tail merchants are omitted once and restored once;
+Starbucks eligibility also varies. Four present-target parses preserve positions
+and useful pros/cons; both absent-target projections are null. This does not prove
+stable semantics or isolate which Prompt sentence caused a change.
+
+The three-way interpretation guidance still emits a boolean. False does not
+identify neutral versus negative, and recommendation in prose can disagree with
+that flag. Keep this as a diagnostic candidate and discuss whether overall attitude
+and statistical eligibility should have identical meaning before revising a
+contract. No ternary Schema or changed neutral inclusion is implicitly approved.
+The batch is finished; no seventh call, synthesis, runtime activation or other
+worktree write. Actual IO/settings/usage match seven private Langfuse observations;
+the independent review remains local.
 
 ### Previous package — algorithmic reading and content interpretation
 

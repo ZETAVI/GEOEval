@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 4.2 Prompt-only calibration; exact six-call batch approved
+- Status: 4.2 six-call regression complete; semantic stability not accepted
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -72,6 +72,16 @@ ran, no credential was injected, and no semantic improvement was claimed. The
 owner has now explicitly approved that exact batch and clarified target absence
 and neutral attitude. Replace the unexecuted 4.1 Prompt with 4.2 and regenerate the
 manifest at the actual execution HEAD; do not reuse the rejected launch token.
+
+The [4.2 result](research/chain-quality-experiment.md#balanced-attitude-and-simple-target-absence)
+completes that approved batch at ff0a334: six structures project, target states and
+useful portrayals remain, but unnamed inclusion, tail omissions and recommendation
+flags still vary. In the restaurant repeat, positive competitor candidates change
+from zero to four despite the same five identified merchants. Do not accept this
+as stable, infer neutral versus negative from false alone, or add a seventh call.
+Next discuss attitude versus competitor eligibility using these actual examples;
+the boolean mapping remains unchanged until the owner decides any revised meaning.
+No new field/Agent, formal activation or fresh-source sweep follows automatically.
 
 ### Previous completed 4.0 package
 

@@ -82,14 +82,18 @@ The current role and decisions live in [the proposal](proposal.md).
 - [x] Keep input/schema/model fixed and prepare 4.2 Prompt-only calibration of
       concrete subjects, absent-target null semantics and three attitude meanings.
       Keep the existing boolean projection; do not silently add a ternary field.
-- [ ] Run six separately frozen Qwen low calls over the same three retained sources
+- [x] Run six separately frozen Qwen low calls over the same three retained sources
       twice, concurrency two; inspect raw outputs and actual model-only telemetry.
       The owner now explicitly approves this exact Qwen/private-Langfuse batch;
       4.1 never ran. Re-freeze 4.2 at execution HEAD. No resampling/synthesis/retry
       or in-batch edits.
-- [ ] Decide from the bounded result whether to retain the Prompt and proceed to
-      fresh-source transfer. LOCATE is deprioritized without rewriting old evidence;
-      do not start another multi-branch Prompt/schema sweep over the same cases.
+- [x] Retain 4.2 as diagnostic, not stable adoption: no target placeholders, but
+      unnamed inclusion, tail omissions and recommendation variation persist.
+      LOCATE is deprioritized without rewriting evidence; no seventh call.
+- [ ] Discuss overall attitude versus competitor eligibility from the actual
+      zero/four restaurant-candidate contrast before another contract or Prompt
+      change. False does not distinguish neutral/negative. Fresh-source transfer
+      follows the resulting bounded decision, not an automatic experiment sweep.
 
 ## Retained report-level work
 
