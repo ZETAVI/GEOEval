@@ -12,6 +12,7 @@ GEOEval already owns account points and atomic publishing purchases, but custome
 ## Confirmed direction
 
 - The owner accepted PC Native followed by mobile external-browser H5. JSAPI is outside this first pair of slices.
+- Reference-site exploration clarifies the preferred customer experience: choose amount/method locally, use an independent cashier, then return to local order management. This does not select Doit or another third-party acquirer. Native QR remains a verified direct-channel capability; a hosted PC route needs its actual provider contract/merchant decision before customer activation (design 11.0).
 - The owner accepted independently assembling point-account capability inside Publishing Commerce, with explicit responsibility for recharge, purchase and point return; no standalone wallet service.
 - Confirmed product rules remain whole-yuan amounts, ten points per yuan, funded-only recharge, four customer states and explicit publishing reconfirmation after recharge.
 - Official interface rules and discriminating evidence precede SDK choice and runtime integration. Security, concurrency, rollback and consistency are part of the outcome.

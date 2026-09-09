@@ -161,3 +161,16 @@ N1 待实施的最小判别证据：
 复现：`pnpm --filter @geoeval/web test`、`pnpm --filter @geoeval/web typecheck`、`pnpm --filter @geoeval/web build`。浏览器 fixture 用 `node scripts/recharge/preview-native.mjs` 启动，监听 127.0.0.1:32577；脚本拒绝覆盖已有同名目录，普通退出清除临时路由。结束后确认该目录不存在再构建；意外强杀留下的临时页面必须先按脚本内容核对后清除。脚本不写账户/数据库或启动支付后端。
 
 格式、框架、Markdown link 与 Diff 检查以及准确提交/CI 结果由本片最终 PR checkpoint 记录。当前结论是独立 UI 组件 verified，整体 Native 链路 partially verified；尚缺真实客户 API、后台发起/关单/重建恢复、充值历史/发布上下文接线，以及商户权限和真实资金联调。已有 C1/A0/B0 资金/协议证据保持不变，不重复累计。
+
+## 参考站业务学习验证（2026-09-09 UTC）
+
+范围：用户指定的两个站点、随后提供的 Doit 页面/截图，以及授权填写企业付款资料后的待支付流转。完整脱敏观察在 source-brief；本节只界定证据强度。
+
+- **Observed**：OpenLux 金额/方式/付款资料复用与确认、微信第三方域名跳转/QR、未付记录、付款凭证说明、账户绑定/安全/通知字段、退款/提现回票和消费导出表单。个人设置首次报错，刷新后恢复；未执行账号安全操作、导出或邮件发送。
+- **Observed**：番瓜一笔 1 分待付单、本站 QR、手动扫码提示/核验等待、关闭后余额不变、已加载流水无该未付单；个人资料仅可见基础信息，会员为空。不能从已加载页面推断全站没有订单或开票功能。
+- **Partial / blocked**：支付宝已到 Doit，继续出现 Everonet Security Verification 标签；其访问审核超时，未读取后续网关，用户要求停止排障。没有验证支付宝扫码/回跳，未绕过审批。
+- **Not run**：两站真实付款、到账/关单最终一致性、正式开票与送达、退款/提现、真实收单协议、后端/schema/鉴权/事务审查。只凭 UI 不作这些完成主张。
+- **Project consistency**：核对 PaymentGateway 的 WECHAT/CNY/NATIVE 现状与 product-definition 电子普票的字段/唯一关联/处理状态；design 11.0 / 11.3 仅定义当前决策与后续边界。无 runtime、schema、依赖或已通过测试修改，故复用 82c281f 的代码证据，不重跑资金测试。
+- **Coordination**：在线读取 #81 当前 41d37c2 / Draft / base #82 和 comment5595292334；共享交还不等于合并或接收其未完成浏览器验收。未来实施拓扑由 tasks 约束。
+
+文档交付只需框架/本地链接、Diff 和脱敏检查。用户提供的税号、地址、邮箱和银行资料、具体账户/订单标识、支付会话 token 及可付款 QR 不进入这些文档、Git 或项目 tracker。所建待支付记录保留，不把未付款、关闭标签或回跳描述为已经取消。
