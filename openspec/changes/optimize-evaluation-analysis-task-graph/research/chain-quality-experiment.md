@@ -3588,10 +3588,72 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
-## 5.5 task-only opening: prepared, not measured
+## 5.7 neutral input and Schema descriptions: comparison
+
+The owner permits Schema adjustment and real testing. Keep the concise task;
+clarify displayName as the brand subject, mentionContext as concise content,
+attitude as overall attitude and points/polarity as individual views. Remove
+the internal "unique target marker" explanation. No key/type/enum/capacity or
+projection changes. Additionally rename the input answerText to content at the
+owner's request, synchronizing the Prompt and examples; preserve the whole text
+and other context. The third arm tests this package, not an isolated Schema or
+field-name causal effect. A description-stripped deep comparison with captured 5.4
+Schema must pass before any call. Three arms (5.4 baseline, 5.6 Prompt only,
+5.7 Prompt plus Schema descriptions), two retained sources and two repetitions:
+twelve calls maximum, concurrency two, no sampling/synthesis/retry/repair.
+This is a bounded screen, not a stability acceptance. IO/usage only goes to the
+previously authorized private Langfuse; semantic review stays local.
+
+At HEAD 0331d82 plus diff
+`7d14ababa67983ea71eb49ac053ba8bd2d44c805c41a454561f2ae1e856476b4`,
+confirmation `b72b9d89ee9da547413d01d095d98100cfa29c6458a1b59673551e97c553bdd5`
+and runner `cf994857e1a10068d60895a508e97f2589d686a19a712acad7dc39a8b024375b`,
+the frozen batch runs 2026-09-09 09:00:51.329–09:04:11.122 UTC: twelve calls,
+199.793 seconds, 37,040 reported tokens. All provider/wire/basic Schema and
+existing acceptance checks pass, with semantic failures as follows.
+
+| Source criterion | 5.4 | 5.6 | 5.7 |
+| --- | --- | --- | --- |
+| Named category representatives retained without clear category rows | 1/2 | 0/2 | 2/2 |
+| Four real merchants without extra placeholders, target absent | 2/2 | 2/2 | 1/2 |
+| Four real merchants retained, no invented target exposure | 2/2 | 2/2 | 2/2 |
+
+The 5.6 category repeat only retains the target; omission is not success.
+The 5.7 absent-target repeat adds generic placeholders 某记 and 某潮 as neutral
+rows, contaminating competitor candidates. All four concrete merchants and their
+order remain intact. Neutral/positive attitude variation does not change the
+confirmed competitor inclusion rule. Ambiguous peripheral 津味 inclusion stays
+separate from the named-brand/category criterion. Do not attribute results to
+the input field rename or Schema description alone, or infer general stability.
+
+Reported tokens by arm: 13,577 / 12,067 / 11,396. Candidate calls take
+10.402–28.227 seconds, not uniformly faster than baseline; cache hits differ.
+Neither token reduction nor this batch duration proves full-evaluation efficiency.
+41 focused tests/backend typecheck pass. At 09:05:06.508 UTC all thirteen private
+Langfuse observations match actual IO/settings/usage, trace
+`0d002c2c3c30ae21b1b4a7013008377b`. Detailed original input/output and local-only
+semantic review: `apps/backend/.provider-evidence/m4-brand-unit-replay-UKogIR/input-output-review.md`.
+Retain 5.7 experimentally, not formal-ready; do not add a thirteenth call, new
+field/model/Agent or name-specific filter. The known self-competitor program gap,
+full-chain/restore/frontend acceptance remain outstanding.
+
+## 5.6 concise task Prompt: prepared, not measured
+
+The owner extends the request from the opening sentence to the whole Prompt.
+Use a direct content-identification task, name the three input roles, consolidate
+subject/order/absence rules and keep output field meanings together. Remove
+duplicated explanations and program-position commentary; combine three examples
+into two covering existing requirements without adding a new business filter.
+Prompt length is 1,907 characters versus 2,671 in the final opening-only 5.5
+draft; this is a text-length measurement, not a token, latency or quality result.
+Input, Schema, provider/model and projector were unchanged in this preparation.
+Its subsequent real comparison is recorded above; 5.4 historical results must
+not be attributed to 5.6.
+
+## 5.5 task-only opening: superseded without real calls
 
 At the owner's request, replace only `你负责商户GEO评测中的单条回答整理。`
-with `根据给定回答识别品牌，并整理回答对各品牌的介绍与评价。`.
+with `识别并解析以下内容中的品牌，整理各品牌的介绍与评价。`.
 Preserve the remaining 5.4 content byte-for-byte, including all three examples;
 input, complete Schema, model and projection remain unchanged. Remove irrelevant
 role framing without claiming it caused hallucination. No real 5.5 calls yet;

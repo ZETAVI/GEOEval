@@ -55,28 +55,30 @@ describe("M4 content-oriented brand rows", () => {
     const before = structuredClone(prepared);
     const task = buildM4BrandRowsTask(prepared, source);
     expect(task.systemInstruction.startsWith(
-      "根据给定回答识别品牌，并整理回答对各品牌的介绍与评价。",
+      "识别并解析以下内容中的品牌，整理各品牌的介绍与评价。",
     )).toBe(true);
     expect(task.systemInstruction).not.toContain("GEO评测");
     const { answerLines: _lines, ...context } = prepared.userContext;
     expect(task.userContext).toEqual({
       ...context,
-      answerText: buildM4ReadingText(source),
+      content: buildM4ReadingText(source),
     });
     expect(prepared).toEqual(before);
     expect(task.userContext).not.toHaveProperty("answerLines");
+    expect(task.userContext).not.toHaveProperty("answerText");
+    expect(task.systemInstruction).not.toContain("answerText");
     expect(task.userContext).not.toHaveProperty("originalAnswer");
     expect(task.userContext.companyName).toBe("青禾咖啡");
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@5.5.0",
+      "experiment.m4.parser-brand-rows@5.7.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
     );
   });
   it("accepts direct original context but never rebuilds original bytes from indexed or cleaned text", () => {
-    expect(buildM4BrandRowsTask(base).userContext.answerText).toBe(
+    expect(buildM4BrandRowsTask(base).userContext.content).toBe(
       buildM4ReadingText(source),
     );
     expect(() => buildM4BrandRowsTask(prepared)).toThrow();
@@ -122,7 +124,7 @@ describe("M4 content-oriented brand rows", () => {
       "星岸广场",
     );
     expect(result.output.brands.map((b) => b.displayName)).not.toContain("星岸店");
-    expect(task.systemInstruction).toContain("门店关系或特点可留在mentionContext");
+    expect(task.systemInstruction).toContain("有用的别称或分店关系");
     expect(
       result.projected.output.target!.points.map((p) => p.polarity),
     ).toEqual(["POSITIVE", "NEGATIVE"]);
@@ -133,7 +135,7 @@ describe("M4 content-oriented brand rows", () => {
         /输出：\n(\{[^\n]+\})/g,
       ),
     ];
-    expect(examples).toHaveLength(3);
+    expect(examples).toHaveLength(2);
     const result = inspectM4BrandRowsOutput(JSON.parse(examples[1]![1]!));
     expect(result.output.brands.map((b) => b.displayName)).toEqual([
       "岚谷咖啡",
@@ -151,7 +153,7 @@ describe("M4 content-oriented brand rows", () => {
       "精品咖啡",
     );
     expect(buildM4BrandRowsTask(base).systemInstruction).toContain(
-      "不是另外需要填写的记录",
+      "目标参照不代表目标已出现",
     );
     expect(result.output.brands[0]!.mentionContext).toContain("各有取舍");
     expect(result.output.brands.map((b) => b.attitude)).toEqual([
@@ -167,19 +169,19 @@ describe("M4 content-oriented brand rows", () => {
     ]);
     // This validates the worked example and unchanged projection, not LLM semantics.
   });
-  it("adds one compact contrast example without extra rows for categories, aliases or an absent target", () => {
+  it("keeps the absent-target example free of category, placeholder and duplicate alias rows", () => {
     const examples = [
       ...buildM4BrandRowsTask(base).systemInstruction.matchAll(
         /输出：\n(\{[^\n]+\})/g,
       ),
     ];
-    const result = inspectM4BrandRowsOutput(JSON.parse(examples[2]![1]!));
+    const result = inspectM4BrandRowsOutput(JSON.parse(examples[1]![1]!));
     expect(result.output.brands.map((b) => b.displayName)).toEqual([
-      "白石酒家", "山岚涮肉",
+      "岚谷咖啡", "白石咖啡", "南桥咖啡",
     ]);
     expect(result.projected.output.target).toBeNull();
     expect(result.projected.competitors.map((b) => b.position)).toEqual([1, 2]);
-    expect(result.output.brands[0]!.mentionContext).toContain("白石简称");
+    expect(result.output.brands.filter((b) => b.displayName === "白石咖啡")).toHaveLength(1);
   });
   it("derives positions before filtering without quotations, extra summaries or semantic repair", () => {
     const value = raw(),
@@ -478,7 +480,7 @@ describe("M4 content-oriented brand rows", () => {
       { role: "system", content: input.systemInstruction },
       { role: "user", content: JSON.stringify(input.userContext) },
     ]);
-    expect(JSON.parse(messages[1]!.content).answerText).toBe(
+    expect(JSON.parse(messages[1]!.content).content).toBe(
       buildM4ReadingText(source),
     );
     expect(body!.reasoning_effort).toBe("low");

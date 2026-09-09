@@ -8,29 +8,33 @@ import { buildM4ReadingText } from "./m4-reading-text.js";
 const oldTarget = m4CustomerSummarySchema.shape.target.unwrap();
 const otherBrand = m4CustomerSummarySchema.shape.otherBrands.element;
 const points = z
-  .array(oldTarget.shape.points.element.omit({ evidence: true }))
-  .max(8);
+  .array(oldTarget.shape.points.element.omit({ evidence: true }).extend({
+    text: oldTarget.shape.points.element.shape.text.describe("内容中关于本品牌的一条主要观点，可自然概括。"),
+    polarity: oldTarget.shape.points.element.shape.polarity.describe("本条观点的倾向：正向、负向、中性、褒贬混合或无法确定。"),
+  }))
+  .max(8)
+  .describe("本品牌的主要观点；没有具体观点时为空数组。");
 const mentionContext = z
   .string()
   .trim()
   .min(1)
   .max(500)
   .describe(
-    "简短整理回答如何提到这个品牌，可自然概括；保留有用的别称或关系语境，不是逐字引文。",
+    "对本品牌的简短介绍与评价，保留主要特点、优缺点及有用的别称或分店关系。",
   );
 const targetDescription = z.object({ points }).strict();
 const attitude = z
   .enum(["POSITIVE", "NEUTRAL", "NEGATIVE"])
-  .describe("原回答对该主体的整体态度：正向、中性或负向。");
+  .describe("内容对本品牌的整体态度：POSITIVE正向、NEUTRAL中性、NEGATIVE负向。");
 const brandRow = z
   .object({
-    displayName: otherBrand.shape.displayName,
+    displayName: otherBrand.shape.displayName.describe("具体商家或产品的品牌主体名，合并同品牌的别称和分店。"),
     attitude,
     mentionContext,
     targetDescription: targetDescription
       .nullable()
       .describe(
-        "本条是目标品牌时填写主要观点；其他品牌填null。这仍是唯一目标标记。",
+        "本条属于目标品牌时填写其主要观点；其他品牌为null。",
       ),
   })
   .strict();
@@ -39,7 +43,7 @@ export const m4BrandRowsSchema = z
     brands: z
       .array(brandRow)
       .max(11)
-      .describe("按品牌主体首次出现顺序排列的记录。"),
+      .describe("实际出现的品牌，一主体一条，按首次出现顺序排列；没有具体品牌时为空数组。"),
   })
   .strict();
 
@@ -120,7 +124,7 @@ export function buildM4BrandRowsTask(
     originalAnswer: suppliedAnswer,
     ...context
   } = parserTask.userContext;
-  if ("answerText" in context)
+  if ("content" in context || "answerText" in context)
     throw new Error("Prepare from the original source, not a reading view");
   const answer = z
     .string()
@@ -151,7 +155,7 @@ export function buildM4BrandRowsTask(
   return {
     ...parserTask,
     systemInstruction: prompt.content,
-    userContext: { ...context, answerText: buildM4ReadingText(answer) },
+    userContext: { ...context, content: buildM4ReadingText(answer) },
     outputContract: {
       version: `${prompt.id}@${prompt.version}`,
       jsonSchema: z.toJSONSchema(m4BrandRowsSchema, {

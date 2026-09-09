@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.5 task-only opening prepared; last real evidence is 5.4, categories unresolved
+- Status: 5.7 improves category sample; generic placeholders remain unresolved
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -44,12 +44,39 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
-The owner requests a direct identification/parsing task rather than a GEO evaluator
-role. Candidate 5.5 changes only the opening sentence to identify brands and
-organize their descriptions and evaluations from the supplied answer. All other
-5.4 instructions/examples, input, Schema and model remain unchanged. This is an
-instruction simplification, not evidence that the old role caused hallucination.
-No 5.5 real call has run; compare against frozen 5.4 before claiming semantic benefit.
+The [5.4/5.6/5.7 comparison](research/chain-quality-experiment.md#57-neutral-input-and-schema-descriptions-comparison)
+completed twelve calls: category core correctness is 1/2, 0/2, 2/2 respectively;
+four real merchants with no extra placeholders in the absent-target source is
+2/2, 2/2, 1/2. The 5.7 repeat preserves the four merchants and does not invent
+target exposure, but adds two generic placeholders as neutral competitors.
+Retain the concise task/content naming as an experimental direction, not a stable
+Parser. Preserve this concrete failure for focused subject-identity work without
+adding name-specific filters or changing unrelated attitude/field structure.
+41 focused tests/typecheck pass; thirteen private Langfuse observations match
+actual IO/usage. 199.793 seconds is comparison time, not whole-evaluation latency.
+No synthesis, fresh sampling, frontend, activation or self-competitor fix.
+
+### Tested configuration and scope
+
+The owner requests a concise identification/parsing task without evaluator role
+framing or unnecessary interference across the whole Prompt. Candidate 5.6
+consolidates instructions into input, subject identification and output meaning;
+reduces three overlapping examples to two covering identity/order/target content
+and categories/attitude/absence. Input, Schema, model and program remain unchanged.
+This supersedes the unmeasured opening-only 5.5 preparation. The owner also permits
+Schema adjustment: 5.7 keeps the concise task and changes owner-local field
+descriptions (subject name, content, overall attitude, target points), removing
+internal marker wording. The owner further requests neutral input naming:
+rename answerText to content in the task constructor, instructions and examples;
+the whole reading text and other context remain identical. Output fields,
+validation limits, enums and projection are unchanged. The third arm measures
+the input-name/Schema-description package, not either one's isolated effect.
+Freeze 5.4/5.6/5.7 on two retained sources, two repeats each,
+twelve calls maximum at concurrency two, without resampling or automatic retry.
+Provider/wire/basic-schema failure stops the batch; semantic/acceptance errors
+remain reported comparison outcomes. Results are reported above by source, not
+pooled into a general stability rate.
+Do not infer that evaluator framing caused the observed hallucinations.
 
 The [single-example 5.4 comparison](research/chain-quality-experiment.md#54-single-example-comparison-partial-benefit)
 preserves all 5.2 instructions and the full Schema/input/model, changing only one
