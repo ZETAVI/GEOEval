@@ -38,6 +38,16 @@ function deliveryPage(first: number, last: number): DeliveryOrderPage {
           expectedCompletionAt: "2026-09-15T00:00:00Z",
           urgency: "NORMAL",
         },
+        resolution: {
+          mode: null,
+          points: 0,
+          agreementRevision: 0,
+          reason: null,
+          exceptionReason: null,
+          stopped: false,
+          returnedPoints: null,
+          eligible: false,
+        },
         agreement: {
           mode: "RANDOM",
           packageName: "套餐",
@@ -226,6 +236,12 @@ describe("delivery entry and customer status", () => {
   it("uses refreshed completion as the only status source instead of stale order status", () => {
     const page: CustomerPublicationPage = {
       status: "COMPLETED",
+      resolution: {
+        mode: null,
+        agreedPoints: 0,
+        returnedPoints: null,
+        stopped: false,
+      },
       quantity: 3,
       publishedQuantity: 3,
       expectedCompletionAt: "2026-09-15T00:00:00Z",
@@ -244,6 +260,12 @@ describe("delivery entry and customer status", () => {
   it("renders accessible public results and precise pending targets without a customer acceptance action", () => {
     const page: CustomerPublicationPage = {
       status: "PUBLISHING",
+      resolution: {
+        mode: null,
+        agreedPoints: 0,
+        returnedPoints: null,
+        stopped: false,
+      },
       quantity: 2,
       publishedQuantity: 1,
       expectedCompletionAt: "2026-09-15T00:00:00Z",
@@ -254,6 +276,7 @@ describe("delivery entry and customer status", () => {
           slot: 1,
           state: "PUBLISHED",
           targetName: "指定媒体 A",
+          purchasedTargetName: "指定媒体 A",
           result: {
             platformId: "media-a",
             displayName: "指定媒体 A",
@@ -266,6 +289,7 @@ describe("delivery entry and customer status", () => {
           slot: 2,
           state: "IN_HANDLING",
           targetName: "指定媒体 B",
+          purchasedTargetName: "指定媒体 B",
           result: null,
         },
       ],

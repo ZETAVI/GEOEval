@@ -9,6 +9,7 @@ import {
   type AccountList,
   type DeliveryActionRequest,
   type DeliveryOrderPage,
+  type DeliveryOrderState,
   type OperationalOrder,
 } from "@geoeval/api-client";
 import { AdminSidebar } from "../../admin/admin-sidebar.js";
@@ -16,6 +17,10 @@ import { SafeMarkdown } from "../../diagnosis/safe-markdown.js";
 import { AgreementSummary } from "../../publishing/agreement-summary.js";
 import { SessionExitActions } from "../../session-exit-actions.js";
 import { PublicationWorkPanel } from "./publication-work.js";
+import {
+  DeliveryResolutionPanel,
+  DeliveryResolutionSummary,
+} from "./delivery-resolution.js";
 import { deliveryStatusLabel } from "../../orders/publication-results.js";
 import {
   loadRoleSession,
@@ -31,6 +36,10 @@ const actionLabels: Record<string, string> = {
   START: "开始处理",
   RETURN: "退回订单池",
   REASSIGN: "管理员改派",
+  REPORT_EXCEPTION: "记录异常",
+  CLEAR_EXCEPTION: "解除异常",
+  SAVE_RESOLUTION: "保存协商处理",
+  SETTLE_RETURN: "执行协商退点",
 };
 
 export function appendDeliveryPage(
@@ -59,6 +68,7 @@ const urgencyLabels = {
   NEARING_DEADLINE: "即将到期 · 24 小时内",
   DELAYED: "已延期 · 优先跟进",
   COMPLETED: "发布已完成",
+  CLOSED: "订单已关闭",
 };
 export function DeliveryScheduleView({
   schedule,
@@ -73,7 +83,8 @@ export function DeliveryScheduleView({
         {urgencyLabels[schedule.urgency]}
       </span>
       <p>
-        预计完成：{new Date(schedule.expectedCompletionAt).toLocaleString()}
+        {schedule.urgency === "CLOSED" ? "原预计完成" : "预计完成"}：
+        {new Date(schedule.expectedCompletionAt).toLocaleString()}
       </p>
     </div>
   );
@@ -90,7 +101,7 @@ export function DeliveryWorkspace({
   const [scope, setScope] = useState<"POOL" | "MINE" | "ALL">(
     admin ? "ALL" : "POOL",
   );
-  const [state, setState] = useState<"ACTIVE" | "COMPLETED">("ACTIVE");
+  const [state, setState] = useState<DeliveryOrderState>("ACTIVE");
   const [page, setPage] = useState<DeliveryOrderPage>({
     items: [],
     nextCursor: null,
@@ -372,7 +383,14 @@ export function DeliveryWorkspace({
             </div>
             {scope !== "POOL" && (
               <div className="commerce-actions" aria-label="履约阶段">
-                {(["ACTIVE", "COMPLETED"] as const).map((value) => (
+                {(
+                  [
+                    "ACTIVE",
+                    "COMPLETED",
+                    "CLOSED",
+                    ...(admin ? ["PENDING_RETURN" as const] : []),
+                  ] as const
+                ).map((value) => (
                   <button
                     key={value}
                     className={
@@ -387,7 +405,14 @@ export function DeliveryWorkspace({
                       setState(value);
                     }}
                   >
-                    {value === "ACTIVE" ? "待处理与进行中" : "已完成"}
+                    {
+                      {
+                        ACTIVE: "待处理与进行中",
+                        COMPLETED: "已完成",
+                        CLOSED: "已关闭",
+                        PENDING_RETURN: "待退点",
+                      }[value]
+                    }
                   </button>
                 ))}
               </div>
@@ -395,7 +420,9 @@ export function DeliveryWorkspace({
             <p className="field-help">
               {state === "ACTIVE"
                 ? "按预计完成时间由近到远排列；延期和临期订单优先。预计 7 天仅作进度提示，不自动结束订单。"
-                : "保留全部已发布结果，按下单时间由新到旧排列。"}
+                : state === "PENDING_RETURN"
+                  ? "所有已约定但尚未退还的积分均保留在此，包含仍在发布、暂不可执行的订单。"
+                  : "保留原购买约定与实际发布结果，按下单时间由新到旧排列。"}
             </p>
             {!loading && !page.items.length && !error && (
               <section className="commerce-empty">
@@ -404,14 +431,22 @@ export function DeliveryWorkspace({
                     ? "暂无待领取订单"
                     : state === "COMPLETED"
                       ? "暂无已完成订单"
-                      : "暂无进行中的订单"}
+                      : state === "CLOSED"
+                        ? "暂无已关闭订单"
+                        : state === "PENDING_RETURN"
+                          ? "暂无待退点订单"
+                          : "暂无进行中的订单"}
                 </h2>
                 <p>
                   {state === "COMPLETED"
                     ? "发布完成后，订单会保留在这里，可继续查看或纠正结果。"
-                    : scope === "MINE"
-                      ? "从待领取列表选择需要负责的订单。"
-                      : "新购买的订单会自动进入此列表。"}
+                    : state === "CLOSED"
+                      ? "终止关闭的订单会保留原约定和实际发布结果。"
+                      : state === "PENDING_RETURN"
+                        ? "有正额协商退点且尚未执行的订单会显示在这里。"
+                        : scope === "MINE"
+                          ? "从待领取列表选择需要负责的订单。"
+                          : "新购买的订单会自动进入此列表。"}
                 </p>
               </section>
             )}
@@ -438,6 +473,9 @@ export function DeliveryWorkspace({
                         : "尚未认领"}
                   </p>
                   <DeliveryScheduleView schedule={item.schedule} />
+                  {state === "PENDING_RETURN" && (
+                    <DeliveryResolutionSummary resolution={item.resolution} />
+                  )}
                   <a
                     className="secondary-button"
                     href={`${basePath}/${item.id}`}
@@ -486,18 +524,23 @@ export function DeliveryWorkspace({
             </section>
             <section className="commerce-editor" aria-label="订单操作">
               <h2>{admin ? "责任人改派" : "当前操作"}</h2>
-              {!admin && !order.delivery.assigneeAccountId && (
-                <button
-                  className="primary-button"
-                  disabled={busy || uncertain}
-                  onClick={() => void act("claim")}
-                >
-                  认领订单
-                </button>
-              )}
+              {!admin &&
+                !order.delivery.assigneeAccountId &&
+                order.status === "PENDING_HANDLING" && (
+                  <button
+                    className="primary-button"
+                    disabled={busy || uncertain}
+                    onClick={() => void act("claim")}
+                  >
+                    认领订单
+                  </button>
+                )}
               {!admin &&
                 order.delivery.assigneeAccountId === session.account.id &&
-                !order.delivery.startedAt && (
+                !order.delivery.startedAt &&
+                !order.resolution.stopped &&
+                order.status !== "CLOSED" &&
+                order.status !== "COMPLETED" && (
                   <>
                     <p>开始处理后不能自行退回订单池，需要管理员改派。</p>
                     <button
@@ -536,7 +579,11 @@ export function DeliveryWorkspace({
                 <p>
                   {order.status === "COMPLETED"
                     ? "所有已购发布已完成。仍可按真实情况纠正录入错误，纠正不改变已购承诺。"
-                    : "可在下方逐项处理发布内容或直接录入已发布结果。"}
+                    : order.resolution.stopped
+                      ? "剩余发布已停止，保留已有结果及其纠正入口。"
+                      : order.status === "EXCEPTION_HANDLING"
+                        ? "请先处理下方异常或记录协商方案。"
+                        : "可在下方逐项处理发布内容或直接录入已发布结果。"}
                 </p>
               )}
               {admin && order.delivery.assigneeAccountId && (
@@ -597,6 +644,17 @@ export function DeliveryWorkspace({
                 <p>订单尚未认领，请由运营从订单池领取。</p>
               )}
             </section>
+            <DeliveryResolutionPanel
+              key={`${order.id}:${session.account.id}`}
+              order={order}
+              actorAccountId={session.account.id}
+              admin={admin}
+              canWrite={
+                !admin &&
+                order.delivery.assigneeAccountId === session.account.id
+              }
+              onChanged={() => refresh()}
+            />
             <PublicationWorkPanel
               key={order.id}
               order={order}

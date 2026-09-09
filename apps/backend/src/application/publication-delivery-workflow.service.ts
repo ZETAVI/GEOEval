@@ -7,6 +7,9 @@ import {
 import { z } from "zod";
 import type { AuthenticatedPrincipal } from "../identity/domain/identity.types.js";
 import { AccountDirectoryService } from "../identity/application/account-directory.service.js";
+import { MediaSupplyService } from "../media-supply/application/media-supply.service.js";
+import { PostgresOrderReturnAccess } from "../publishing-commerce/infrastructure/postgres-order-return-access.js";
+import type { PublicationDelivery } from "../generated/prisma/client.js";
 import { PublishingOrderService } from "../publishing-commerce/application/publishing-order.service.js";
 import type { CommercialTerms } from "../publishing-commerce/domain/publishing-order.js";
 import { PostgresPublicationWorkRepository } from "../publication-delivery/infrastructure/postgres-publication-work.repository.js";
@@ -66,7 +69,59 @@ export class PublicationDeliveryWorkflowService {
     @Inject(PostgresPublicationWorkRepository)
     private readonly workItems: PostgresPublicationWorkRepository,
     @Inject(VARIANT_PREPARER) private readonly preparer: VariantPreparer,
+    @Inject(MediaSupplyService) private readonly media: MediaSupplyService,
+    @Inject(PostgresOrderReturnAccess)
+    private readonly returns: PostgresOrderReturnAccess,
   ) {}
+  private async returnedPoints(row: PublicationDelivery) {
+    // Only compose the immutable ledger named by this captured Delivery view.
+    if (!row.settledLedgerId) return null;
+    const result = await this.returns.returned(row.orderId);
+    if (!result || result.ledgerId !== row.settledLedgerId)
+      throw new Error("Delivery settlement ledger missing");
+    return result.points;
+  }
+  private async resolution(row: PublicationDelivery) {
+    return {
+      mode: row.resolutionMode,
+      points: row.agreedReturnPoints,
+      agreementRevision: row.agreementRevision,
+      reason: row.resolutionReason,
+      exceptionReason: row.exceptionReason,
+      stopped: row.stoppedAt !== null,
+      returnedPoints: await this.returnedPoints(row),
+      eligible:
+        row.agreedReturnPoints > 0 &&
+        !row.settledLedgerId &&
+        ((row.resolutionMode === "CONTINUE" && row.status === "COMPLETED") ||
+          (row.resolutionMode === "TERMINATE" &&
+            row.stoppedAt !== null &&
+            row.status !== "CLOSED")),
+    };
+  }
+  async replacementTargets(
+    actor: AuthenticatedPrincipal,
+    id: string,
+    raw: unknown,
+  ) {
+    await this.deliveries.detail(actor, id);
+    const query = z
+      .object({ cursor: z.string().uuid().optional() })
+      .strict()
+      .safeParse(raw);
+    if (!query.success) throw new BadRequestException("替换媒体分页参数不正确");
+    const page = await this.media.listCustomerPlatforms({
+      limit: 50,
+      ...(query.data.cursor ? { cursor: query.data.cursor } : {}),
+    });
+    return {
+      items: page.items.map((p) => ({
+        platformId: p.id,
+        displayName: p.displayName,
+      })),
+      nextCursor: page.nextCursor ?? null,
+    };
+  }
   async work(actor: AuthenticatedPrincipal, id: string, raw: unknown) {
     const query = workQuery(raw);
     const snapshot = await this.workItems.read(
@@ -88,7 +143,17 @@ export class PublicationDeliveryWorkflowService {
       quantity: order.agreement.quantity,
       publishedQuantity: snapshot.delivery.publishedQuantity,
       preparationMode: this.preparer.mode,
-      targets: targets(order.agreement),
+      stopped: snapshot.delivery.stoppedAt !== null,
+      targets: [
+        ...new Map(
+          [
+            ...targets(order.agreement),
+            ...snapshot.items.flatMap((item) =>
+              item.replacementTarget ? [item.replacementTarget] : [],
+            ),
+          ].map((target) => [target.platformId, target]),
+        ).values(),
+      ],
       items: logical.items.map((slot) => ({
         ...slot,
         revision: 0,
@@ -96,6 +161,7 @@ export class PublicationDeliveryWorkflowService {
         state: "PENDING" as const,
         preparation: null,
         result: null,
+        replacementTarget: null,
         ...snapshot.items.find((item) => item.slot === slot.slot),
       })),
       nextAfterSlot: logical.nextAfterSlot,
@@ -123,6 +189,10 @@ export class PublicationDeliveryWorkflowService {
         "请核对发布条目、准确版本、目标媒体与所需内容",
       );
     const command = parsed.data;
+    const replay = await this.workItems.recover(actor, id, slot, command);
+    if (replay) return replay;
+    const snapshot = await this.workItems.read(actor, id, slot - 1, 1);
+    const item = snapshot.items.find((value) => value.slot === slot);
     const [order] = await this.orders.forDelivery([id]);
     if (!order) throw new NotFoundException("未找到已购订单");
     const logical = publicationWorkPage(
@@ -130,14 +200,32 @@ export class PublicationDeliveryWorkflowService {
       slot - 1,
       1,
     ).items[0];
-    const target = targets(order.agreement).find(
-      (value) => value.platformId === command.platformId,
-    );
+    const replacement = command.action === "REPLACE_TARGET";
+    const effective = item?.replacementTarget;
+    const platform = replacement
+      ? await this.media.customerPlatform(command.platformId)
+      : null;
+    const target = platform
+      ? { platformId: platform.id, displayName: platform.displayName }
+      : command.action === "CORRECT_RESULT" && item?.result
+        ? {
+            platformId: item.result.platformId,
+            displayName: item.result.displayName,
+          }
+        : effective?.platformId === command.platformId
+          ? effective
+          : targets(order.agreement).find(
+              (value) => value.platformId === command.platformId,
+            );
     if (
       !logical ||
       !target ||
-      (logical.purchasedPlatformId &&
-        logical.purchasedPlatformId !== target.platformId)
+      target.platformId !== command.platformId ||
+      (replacement && !logical.purchasedPlatformId) ||
+      (!replacement &&
+        logical.purchasedPlatformId &&
+        (effective?.platformId ?? logical.purchasedPlatformId) !==
+          target.platformId)
     )
       throw new BadRequestException(
         "该媒体不符合原购买范围；精确替换须通过协商异常处理",
@@ -147,6 +235,9 @@ export class PublicationDeliveryWorkflowService {
       bodyMarkdown: order.bodyMarkdown,
       quantity: order.agreement.quantity,
       target,
+      ...(logical.purchasedPlatformId
+        ? { purchasedPlatformId: logical.purchasedPlatformId }
+        : {}),
     };
     if (command.action === "PREPARE_MOCK") {
       const replay = await this.workItems.preflight(actor, id, slot, command);
@@ -183,6 +274,12 @@ export class PublicationDeliveryWorkflowService {
       publishedQuantity: snapshot.delivery.publishedQuantity,
       expectedCompletionAt: schedule.expectedCompletionAt,
       delayed: schedule.urgency === "DELAYED",
+      resolution: {
+        mode: snapshot.delivery.resolutionMode,
+        agreedPoints: snapshot.delivery.agreedReturnPoints,
+        returnedPoints: await this.returnedPoints(snapshot.delivery),
+        stopped: snapshot.delivery.stoppedAt !== null,
+      },
       items: slots.map(({ slot }) => {
         const result = snapshot.items.find(
           (item) => item.slot === slot,
@@ -192,9 +289,18 @@ export class PublicationDeliveryWorkflowService {
         )?.purchasedPlatformId;
         return {
           slot,
-          state: result ? ("PUBLISHED" as const) : ("IN_HANDLING" as const),
+          state: result
+            ? ("PUBLISHED" as const)
+            : snapshot.delivery.stoppedAt
+              ? ("STOPPED" as const)
+              : ("IN_HANDLING" as const),
+          purchasedTargetName:
+            targets(order.agreement).find((t) => t.platformId === promised)
+              ?.displayName ?? null,
           targetName:
             result?.displayName ??
+            snapshot.items.find((item) => item.slot === slot)?.replacementTarget
+              ?.displayName ??
             targets(order.agreement).find((t) => t.platformId === promised)
               ?.displayName ??
             null,
@@ -218,17 +324,20 @@ export class PublicationDeliveryWorkflowService {
     );
     const now = Date.now();
     return {
-      items: selected.map((delivery) => {
-        const order = orders.find((o) => o.id === delivery.orderId);
-        if (!order) throw new Error("Delivery references a missing purchase");
-        const { bodyMarkdown: _body, ...summary } = order;
-        return {
-          ...summary,
-          status: delivery.status,
-          delivery,
-          schedule: deliverySchedule(order.createdAt, delivery.status, now),
-        };
-      }),
+      items: await Promise.all(
+        selected.map(async (delivery) => {
+          const order = orders.find((o) => o.id === delivery.orderId);
+          if (!order) throw new Error("Delivery references a missing purchase");
+          const { bodyMarkdown: _body, ...summary } = order;
+          return {
+            ...summary,
+            status: delivery.status,
+            delivery,
+            resolution: await this.resolution(delivery),
+            schedule: deliverySchedule(order.createdAt, delivery.status, now),
+          };
+        }),
+      ),
       nextCursor:
         rows.length > parsed.data.limit
           ? {
@@ -250,6 +359,7 @@ export class PublicationDeliveryWorkflowService {
       status: delivery.status,
       schedule: deliverySchedule(order.createdAt, delivery.status),
       delivery: { ...delivery, assignee: assignee ?? null },
+      resolution: await this.resolution(delivery),
     };
   }
   act(

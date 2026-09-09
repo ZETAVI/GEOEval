@@ -8,8 +8,10 @@ Current activation: PR #76 integrated normal admission/responsibility, results,
 deadline lists and customer visibility at `main@a550fc4`; PR #79 integrated the
 no-behavior-change points assembly at `main@bcb81db`. This Change remains active
 for the manual exception/settlement outcome. #77 has fixed C1 at `59930dd` and
-returned the shared window; the next #73 slice explicitly stacks on PR #82.
-#73 owns order
+returned the shared window; the current #73 implementation explicitly stacks on
+PR #82. Transaction/HTTP, migration and component evidence now cover the manual
+exception/return slice; browser acceptance and stack integration remain open in
+[tasks](tasks.md). #73 owns order
 meaning and customer/operations behavior, not a duplicate accounting engine.
 The original rationale below is not a claim that integrated capabilities remain absent.
 
@@ -34,7 +36,7 @@ The original rationale below is not a claim that integrated capabilities remain 
 
 ## Documentation and workspace control
 
-- `add`: 最终建立 `openspec/specs/publication-delivery/spec.md`；本草案仅表达待实现 delta。
+- `update`: `openspec/specs/publication-delivery/spec.md` 已建立并补入本片获批行为；活动 change 保留实施与未完成验收边界，未合并实现不冒充 protected main。
 - `update/move`: 产品定义中的已激活履约规则迁入新 owner，原段落保留索引；Commerce spec 更新账务/购买接收边界，退出自身待处理占位状态权威；glossary/vision/architecture overview 同步新终态和模块职责。
 - `supersede`: ADR 0005 保留历史；接入切片中记录其获批的窄范围扩展，仅包含履约聚合初始化，不把实际履约塞进购买事务。
 - `retain`: Product Definition 的 split-on-activation marker 仅执行履约部分，其余未激活能力继续保留；以实际文件标记为准，不为本包重写其他能力。
@@ -42,4 +44,4 @@ The original rationale below is not a claim that integrated capabilities remain 
 - Workspace: d92a / `codex/issue-73-publication-delivery` retain，当前异常切片从固定 C1 `59930dd` 线性依赖 PR #82，沿用 PR #81；正常履约和积分装配的已合并证据不重写。主 session 负责共享接口/schema/文档；有界辅助实现只写明确的 owner-local 文件。原 #65 与支付工作区、验收/恢复资料均保留。
 - #73 为 ZETAVI / P1，已按 Ready → In Progress 开始有界实施。用户明确批准此次与 #39 并行的 WIP 例外，不更改项目全局规则。#39/#42 owner 在 `6a7515a` 确认当前和下一实验切片均不写 Prisma、迁移、API 装配、生成客户端或 Web；共享接缝由 #73 负责，后续需求须先协调窗口。
 - PR: 首个 Draft PR 记录本切片未完成状态；每个纵向切片标明 Partial，最后验收 PR 才关闭 #73。本批准不包含合并、真实积分/渠道费用或生产激活。
-- Exit: retain；继续实现同一个 #73 outcome，首个结果链路经 HTTP/浏览器/真实隔离数据库验证后才请求该切片集成。不要把纯逻辑单测当完整业务验收。
+- Exit: retain；继续同一个 #73 outcome。正常结果链路已独立集成，本异常/退点切片仍需完成自己的浏览器验收和依赖集成，不复用正常链路的实机结论来冒充本片通过。

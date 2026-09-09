@@ -23,9 +23,11 @@ export function PointHistoryList({
               <strong>
                 {item.kind === "RECHARGE"
                   ? "充值到账"
-                  : item.kind === "PUBLISHING_ORDER"
-                    ? "发布服务购买"
-                    : "积分调整"}
+                  : item.kind === "ORDER_RETURN"
+                    ? "发布订单退点"
+                    : item.kind === "PUBLISHING_ORDER"
+                      ? "发布服务购买"
+                      : "积分调整"}
               </strong>
               <p>{item.reason}</p>
             </div>
@@ -42,6 +44,9 @@ export function PointHistoryList({
           </p>
           {!showInternal && item.publishingOrderId && (
             <a href={`/orders/${item.publishingOrderId}`}>查看对应订单 →</a>
+          )}
+          {!showInternal && item.returnedOrderId && (
+            <a href={`/orders/${item.returnedOrderId}`}>查看退点订单 →</a>
           )}
           {showInternal && "actorAccountId" in item && (
             <details>

@@ -74,11 +74,11 @@ implementation and is not reopened as a larger wallet refactor.
 The [C1 producer handoff](https://github.com/ZETAVI/GEOEval/pull/82#issuecomment-5588365460)
 fixes the contract at `59930dd` and explicitly returns the shared write window to
 #73. It supersedes the earlier in-flight window, but PR #78 → #80 → #82 remains
-unmerged; accepted main and this branch do not yet contain that implementation.
+unmerged; accepted main does not yet contain that implementation.
 The order slice now explicitly consumes fixed `59930dd` in a linear stack on
 PR #82, reusing the current #73 branch/PR/worktree. #77 confirmed no conflicting
 shared writes and hands the Delivery/RETURN schema, accounting and generated
-window to #73; its Native work remains design-only on these surfaces.
+window to #73; its Native implementation remains disjoint on these surfaces.
 Do not copy the implementation or silently mix the unmerged payment stack into
 the order PR. Reconcile the exact next shared schema/generated write window with
 #77 before starting it.
@@ -89,7 +89,11 @@ dedicated return kind with a real administrator and business uniqueness. The
 recharge-only transaction binding is not a return command. Delivery still owns
 the agreement, eligibility and terminal decision; Commerce owns ledger/balance
 writes in the same transaction. The producer checkpoint owns the detailed ABI
-and evidence; receiving it is not order-return runtime verification.
+and evidence; receiving it is not order-return runtime verification. The resulting
+order-return transaction, stored invariants and owner boundaries now live in the
+[Commerce specification](../../specs/publishing-commerce/spec.md) and
+[architecture overview](../../../docs/architecture/overview.md). Task completion
+and remaining browser/integration gates are recorded in [tasks](tasks.md).
 
 ## 4. Fulfilment and settlement are separate facts
 

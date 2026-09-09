@@ -23,15 +23,30 @@ export class PostgresDeliveryAssignmentRepository {
   list(actor: AuthenticatedPrincipal, query: DeliveryListQuery) {
     if (actor.role !== "OPERATIONS" && actor.role !== "ADMINISTRATOR")
       throw new ForbiddenException();
-    if (query.scope === "ALL" && actor.role !== "ADMINISTRATOR")
+    if (
+      (query.scope === "ALL" || query.state === "PENDING_RETURN") &&
+      actor.role !== "ADMINISTRATOR"
+    )
       throw new ForbiddenException();
-    const completed = query.state === "COMPLETED";
-    const comparison = completed ? "lt" : "gt";
+    const terminal = query.state === "COMPLETED" || query.state === "CLOSED";
+    const comparison = terminal ? "lt" : "gt";
     return this.prisma.publicationDelivery.findMany({
       where: {
-        status: completed ? "COMPLETED" : { not: "COMPLETED" },
-        ...(query.scope === "POOL" ? { assigneeAccountId: null } : {}),
-        ...(query.scope === "MINE"
+        ...(query.state === "PENDING_RETURN"
+          ? { agreedReturnPoints: { gt: 0 }, settledLedgerId: null }
+          : {
+              status: terminal
+                ? (query.state as "COMPLETED" | "CLOSED")
+                : {
+                    notIn: ["COMPLETED", "CLOSED"] as (
+                      "COMPLETED" | "CLOSED"
+                    )[],
+                  },
+            }),
+        ...(query.state !== "PENDING_RETURN" && query.scope === "POOL"
+          ? { assigneeAccountId: null }
+          : {}),
+        ...(query.state !== "PENDING_RETURN" && query.scope === "MINE"
           ? { assigneeAccountId: actor.accountId }
           : {}),
         ...(query.cursorCreatedAt && query.cursorSequence
@@ -51,8 +66,8 @@ export class PostgresDeliveryAssignmentRepository {
       // Admission preserves the original purchase timestamp, including history.
       // Neither component changes with assignment, completion or correction.
       orderBy: [
-        { createdAt: completed ? "desc" : "asc" },
-        { sequence: completed ? "desc" : "asc" },
+        { createdAt: terminal ? "desc" : "asc" },
+        { sequence: terminal ? "desc" : "asc" },
       ],
       take: query.limit + 1,
     });
@@ -81,6 +96,8 @@ export class PostgresDeliveryAssignmentRepository {
         request: true,
         previousAssigneeId: true,
         nextAssigneeId: true,
+        beforeResolution: true,
+        afterResolution: true,
         createdAt: true,
       },
     });
@@ -127,8 +144,16 @@ export class PostgresDeliveryAssignmentRepository {
       }
       if (row.revision !== command.expectedRevision)
         throw new ConflictException("订单已被更新，请刷新后再操作");
-      if (row.status === "COMPLETED" && command.action !== "REASSIGN")
-        throw new ConflictException("订单已完成，不能重新认领、开始或退回");
+      if (
+        command.action !== "REASSIGN" &&
+        (row.status === "COMPLETED" ||
+          row.status === "CLOSED" ||
+          row.status === "EXCEPTION_HANDLING" ||
+          row.stoppedAt !== null)
+      )
+        throw new ConflictException(
+          "订单已完成、停止或处于异常处理，不能重新认领、开始或退回",
+        );
       let assigneeAccountId = row.assigneeAccountId;
       let startedAt = row.startedAt;
       if (command.action === "CLAIM") {
@@ -162,8 +187,11 @@ export class PostgresDeliveryAssignmentRepository {
           assigneeAccountId,
           startedAt,
           status:
-            row.status === "COMPLETED"
-              ? "COMPLETED"
+            row.status === "COMPLETED" ||
+            row.status === "CLOSED" ||
+            row.status === "EXCEPTION_HANDLING" ||
+            row.stoppedAt !== null
+              ? row.status
               : assigneeAccountId
                 ? "PUBLISHING"
                 : "PENDING_HANDLING",

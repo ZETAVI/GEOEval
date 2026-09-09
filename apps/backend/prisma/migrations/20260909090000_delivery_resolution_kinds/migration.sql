@@ -1,0 +1,3 @@
+ALTER TYPE "PointChangeKind" ADD VALUE 'ORDER_RETURN';
+ALTER TYPE "PublicationDeliveryStatus" ADD VALUE 'EXCEPTION_HANDLING';
+ALTER TYPE "PublicationDeliveryStatus" ADD VALUE 'CLOSED';

@@ -69,7 +69,8 @@ export type PointChangeRecord = {
   id: string;
   accountId: string;
   sequence: number;
-  kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE";
+  kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE" | "ORDER_RETURN";
+  returnedOrderId?: string | null;
   publishingOrderId: string | null;
   grantedDelta: number;
   fundedDelta: number;

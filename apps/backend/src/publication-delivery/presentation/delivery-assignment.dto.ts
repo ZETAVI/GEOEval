@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { AccountResponse } from "../../identity/presentation/identity.dto.js";
+import { DeliveryResolutionResponse } from "./delivery-resolution-response.dto.js";
 import {
   PublishingOrderResponse,
   PublishingOrderIdentityResponse,
@@ -11,9 +12,20 @@ export class DeliveryAssignmentResponse {
   @ApiProperty({ type: "integer" }) sequence!: number;
   @ApiProperty({
     type: String,
-    enum: ["PENDING_HANDLING", "PUBLISHING", "COMPLETED"],
+    enum: [
+      "PENDING_HANDLING",
+      "PUBLISHING",
+      "COMPLETED",
+      "EXCEPTION_HANDLING",
+      "CLOSED",
+    ],
   })
-  status!: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+  status!:
+    | "PENDING_HANDLING"
+    | "PUBLISHING"
+    | "COMPLETED"
+    | "EXCEPTION_HANDLING"
+    | "CLOSED";
   @ApiProperty({ type: "integer" }) publishedQuantity!: number;
   @ApiProperty({ type: String, format: "uuid", nullable: true })
   assigneeAccountId!: string | null;
@@ -23,6 +35,10 @@ export class DeliveryAssignmentResponse {
   @ApiProperty({ type: String, format: "date-time" }) createdAt!: Date;
 }
 export class DeliveryAuditResponse {
+  @ApiProperty({ type: Object, additionalProperties: true, nullable: true })
+  beforeResolution!: object | null;
+  @ApiProperty({ type: Object, additionalProperties: true, nullable: true })
+  afterResolution!: object | null;
   @ApiProperty({ type: "integer" }) revision!: number;
   @ApiProperty({ type: String, format: "uuid" }) actorAccountId!: string;
   @ApiProperty({ type: Object, additionalProperties: true }) request!: object;
@@ -40,16 +56,22 @@ export class DeliveryDetailResponse extends DeliveryAssignmentResponse {
 export class DeliveryScheduleResponse {
   @ApiProperty({ type: String, format: "date-time" })
   expectedCompletionAt!: Date;
-  @ApiProperty({ enum: ["NORMAL", "NEARING_DEADLINE", "DELAYED", "COMPLETED"] })
-  urgency!: "NORMAL" | "NEARING_DEADLINE" | "DELAYED" | "COMPLETED";
+  @ApiProperty({
+    enum: ["NORMAL", "NEARING_DEADLINE", "DELAYED", "COMPLETED", "CLOSED"],
+  })
+  urgency!: "NORMAL" | "NEARING_DEADLINE" | "DELAYED" | "COMPLETED" | "CLOSED";
 }
 export class OperationalOrderResponse extends PublishingOrderResponse {
+  @ApiProperty({ type: DeliveryResolutionResponse })
+  resolution!: DeliveryResolutionResponse;
   @ApiProperty({ type: DeliveryScheduleResponse })
   schedule!: DeliveryScheduleResponse;
   @ApiProperty({ type: DeliveryDetailResponse })
   delivery!: DeliveryDetailResponse;
 }
 export class OperationalOrderSummary extends PublishingOrderIdentityResponse {
+  @ApiProperty({ type: DeliveryResolutionResponse })
+  resolution!: DeliveryResolutionResponse;
   @ApiProperty({ type: DeliveryScheduleResponse })
   schedule!: DeliveryScheduleResponse;
   @ApiProperty({ type: PurchasedTermsResponse })

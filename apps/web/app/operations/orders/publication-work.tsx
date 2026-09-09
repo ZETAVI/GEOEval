@@ -4,12 +4,14 @@ import {
   ApiRequestError,
   getPublicationWork,
   getPublicationWorkHistory,
+  listDeliveryReplacementTargets,
   savePublicationWork,
   type OperationalOrder,
   type PublicationWorkPage,
   type PublicationWorkItem,
   type PublicationWorkCommand,
   type PublicationWorkHistory,
+  type DeliveryReplacementTargets,
 } from "@geoeval/api-client";
 import { deliveryStatusLabel } from "../../orders/publication-results.js";
 
@@ -26,6 +28,7 @@ const actionLabels: Record<string, string> = {
   SAVE_DRAFT: "保存人工内容",
   RECORD_RESULT: "记录发布",
   CORRECT_RESULT: "纠正结果",
+  REPLACE_TARGET: "协商替换媒体",
 };
 function localDate(value = new Date().toISOString()) {
   const date = new Date(value);
@@ -58,6 +61,27 @@ export function needsPreparationReplacementConfirmation(
   );
 }
 
+export function canAddPublicationWork(
+  page: Pick<PublicationWorkPage, "stopped" | "status">,
+) {
+  return (
+    !page.stopped &&
+    (page.status === "PENDING_HANDLING" || page.status === "PUBLISHING")
+  );
+}
+export function canReplacePublicationTarget(
+  page: Pick<PublicationWorkPage, "stopped" | "status">,
+  item: Pick<PublicationWorkItem, "purchasedPlatformId" | "result">,
+) {
+  return (
+    !page.stopped &&
+    page.status !== "CLOSED" &&
+    page.status !== "COMPLETED" &&
+    !!item.purchasedPlatformId &&
+    !item.result
+  );
+}
+
 export function PublicationWorkPanel({
   order,
   canWrite,
@@ -85,6 +109,12 @@ export function PublicationWorkPanel({
     [note, setNote] = useState(""),
     [reason, setReason] = useState("");
   const [history, setHistory] = useState<PublicationWorkHistory>();
+  const [replacementTargets, setReplacementTargets] =
+    useState<DeliveryReplacementTargets>();
+  const [replacementPlatform, setReplacementPlatform] = useState("");
+  const [replacementReason, setReplacementReason] = useState("");
+  const [targetsLoading, setTargetsLoading] = useState(false);
+  const targetsEpoch = useRef(0);
   const [uncertain, setUncertain] = useState(false);
   const historyKey = useRef<WorkHistoryKey>({
     orderId: order.id,
@@ -101,6 +131,9 @@ export function PublicationWorkPanel({
   }
   function clearSelection() {
     setSelected(undefined);
+    targetsEpoch.current += 1;
+    setReplacementTargets(undefined);
+    setTargetsLoading(false);
     invalidateHistory();
   }
   const epoch = useRef(0),
@@ -141,6 +174,11 @@ export function PublicationWorkPanel({
   function choose(item: PublicationWorkItem) {
     if (busy || uncertain || !discardEdits()) return;
     setSelected(item);
+    targetsEpoch.current += 1;
+    setReplacementTargets(undefined);
+    setTargetsLoading(false);
+    setReplacementPlatform("");
+    setReplacementReason("");
     setTab("result");
     invalidateHistory(item.slot);
     setReason("");
@@ -158,14 +196,25 @@ export function PublicationWorkPanel({
   }
   async function act(action: PublicationWorkCommand["action"]) {
     if (!page || !selected || lock.current || loading || !canWrite) return;
-    if (!platform) {
+    if (
+      !pending.current &&
+      (action === "REPLACE_TARGET"
+        ? !canReplacePublicationTarget(page, selected)
+        : action === "CORRECT_RESULT"
+          ? !selected.result
+          : !canAddPublicationWork(page))
+    )
+      return;
+    const effectivePlatform =
+      action === "REPLACE_TARGET" ? replacementPlatform : platform;
+    if (!effectivePlatform) {
       setError("请选择本次处理的媒体平台");
       return;
     }
     const common = {
       expectedRevision: page.orderRevision,
       expectedItemRevision: selected.revision,
-      platformId: platform,
+      platformId: effectivePlatform,
       idempotencyKey: crypto.randomUUID(),
     };
     let command: PublicationWorkCommand;
@@ -187,7 +236,13 @@ export function PublicationWorkPanel({
           : { ...common, action, result };
     } else if (action === "SAVE_DRAFT")
       command = { ...common, action, title: draftTitle, bodyMarkdown: body };
-    else command = { ...common, action };
+    else if (action === "REPLACE_TARGET") {
+      if (!replacementReason.trim()) {
+        setError("请填写协商替换原因");
+        return;
+      }
+      command = { ...common, action, reason: replacementReason.trim() };
+    } else command = { ...common, action };
     const request = pending.current ?? { slot: selected.slot, command };
     pending.current = request;
     lock.current = true;
@@ -208,7 +263,9 @@ export function PublicationWorkPanel({
       setNotice(
         action === "PREPARE_MOCK"
           ? "Mock 内容已保存，不代表真实生成或发布。选择该条目可查看、继续编辑。"
-          : "操作已保存，进度已按实际发布结果更新。",
+          : action === "REPLACE_TARGET"
+            ? "替换媒体已保存，原购买约定保留。请按当前媒体继续处理。"
+            : "操作已保存，进度已按实际发布结果更新。",
       );
       await load();
       await onChanged();
@@ -225,6 +282,49 @@ export function PublicationWorkPanel({
     } finally {
       lock.current = false;
       setBusy(false);
+    }
+  }
+  async function loadReplacementTargets(more = false) {
+    if (
+      !selected ||
+      !page ||
+      !canReplacePublicationTarget(page, selected) ||
+      targetsLoading
+    )
+      return;
+    const request = ++targetsEpoch.current;
+    const cursor = more
+      ? (replacementTargets?.nextCursor ?? undefined)
+      : undefined;
+    setTargetsLoading(true);
+    try {
+      const next = await listDeliveryReplacementTargets(
+        apiBaseUrl,
+        order.id,
+        cursor,
+      );
+      if (request !== targetsEpoch.current) return;
+      setReplacementTargets((current) =>
+        more && current
+          ? {
+              items: [
+                ...current.items,
+                ...next.items.filter(
+                  (item) =>
+                    !current.items.some(
+                      (old) => old.platformId === item.platformId,
+                    ),
+                ),
+              ],
+              nextCursor: next.nextCursor,
+            }
+          : next,
+      );
+    } catch (error) {
+      if (request === targetsEpoch.current)
+        setError(error instanceof Error ? error.message : "替换媒体读取失败");
+    } finally {
+      if (request === targetsEpoch.current) setTargetsLoading(false);
     }
   }
   async function showHistory() {
@@ -251,6 +351,7 @@ export function PublicationWorkPanel({
     setAfter(cursor);
   }
   const disabled = busy || loading || uncertain || !canWrite;
+  const ordinaryWork = page ? canAddPublicationWork(page) : false;
   return (
     <section
       className="commerce-editor"
@@ -280,6 +381,16 @@ export function PublicationWorkPanel({
       <p>
         每一项对应一篇已购发布。已有可访问的发布结果可直接录入，不必先生成内容。
       </p>
+      {page?.stopped && (
+        <p className="commerce-notice">
+          剩余发布已停止。已发布结果可查看和纠正，不再新增发布或替换媒体。
+        </p>
+      )}
+      {page?.status === "EXCEPTION_HANDLING" && !page.stopped && (
+        <p className="commerce-notice">
+          订单处于异常处理。可安排协商替换，解除异常或保存继续发布约定后恢复普通发布。
+        </p>
+      )}
       {loading && <p role="status">正在读取发布条目…</p>}
       {error && (
         <p className="form-error" role="alert">
@@ -317,7 +428,9 @@ export function PublicationWorkPanel({
                 (target) => target.platformId === item.platformId,
               )?.displayName ?? "待选择媒体"}
             </span>
-            <span>{itemLabels[item.state]}</span>
+            <span>
+              {page.stopped && !item.result ? "已停止" : itemLabels[item.state]}
+            </span>
           </button>
         ))}
       </div>
@@ -362,14 +475,20 @@ export function PublicationWorkPanel({
           }}
         >
           <h3>
-            第 {selected.slot} 篇 · {itemLabels[selected.state]}
+            第 {selected.slot} 篇 ·{" "}
+            {page.stopped && !selected.result
+              ? "已停止"
+              : itemLabels[selected.state]}
           </h3>
           <label>
             媒体平台
             <select
               value={platform}
               disabled={
-                disabled || !!selected.purchasedPlatformId || !!selected.result
+                disabled ||
+                !ordinaryWork ||
+                !!selected.purchasedPlatformId ||
+                !!selected.result
               }
               onChange={(event) => setPlatform(event.target.value)}
             >
@@ -383,10 +502,103 @@ export function PublicationWorkPanel({
           </label>
           {!!selected.purchasedPlatformId && (
             <p className="purchase-context">
-              此媒体由原购买约定确定，不能通过普通编辑替换。
+              原购买媒体：
+              {page.targets.find(
+                (target) => target.platformId === selected.purchasedPlatformId,
+              )?.displayName ?? selected.purchasedPlatformId}
+              。 当前履约媒体：
+              {selected.replacementTarget?.displayName ??
+                page.targets.find(
+                  (target) => target.platformId === selected.platformId,
+                )?.displayName ??
+                "待确定"}
+              。 原购买约定保留，替换需单独保存协商原因。
             </p>
           )}
-          {!selected.result && page.status !== "COMPLETED" && (
+          {canWrite && canReplacePublicationTarget(page, selected) && (
+            <details>
+              <summary>协商替换此项媒体</summary>
+              <p>
+                仅替换尚未发布的本项；原购买媒体、篇数与价格保留。请先完成客户协商。
+              </p>
+              {!replacementTargets ? (
+                <button
+                  className="secondary-button"
+                  disabled={disabled || targetsLoading}
+                  onClick={() => void loadReplacementTargets()}
+                >
+                  {targetsLoading ? "正在读取…" : "选择可替换媒体"}
+                </button>
+              ) : (
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void act("REPLACE_TARGET");
+                  }}
+                >
+                  <label>
+                    新的履约媒体
+                    <select
+                      required
+                      value={replacementPlatform}
+                      disabled={disabled || targetsLoading}
+                      onChange={(event) =>
+                        setReplacementPlatform(event.target.value)
+                      }
+                    >
+                      <option value="">请选择替换媒体</option>
+                      {replacementTargets.items
+                        .filter(
+                          (target) => target.platformId !== selected.platformId,
+                        )
+                        .map((target) => (
+                          <option
+                            key={target.platformId}
+                            value={target.platformId}
+                          >
+                            {target.displayName}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                  {replacementTargets.nextCursor && (
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      disabled={disabled || targetsLoading}
+                      onClick={() => void loadReplacementTargets(true)}
+                    >
+                      加载更多可替换媒体
+                    </button>
+                  )}
+                  {!replacementTargets.items.length && (
+                    <p>当前没有可替换媒体。</p>
+                  )}
+                  <label>
+                    协商替换原因
+                    <textarea
+                      required
+                      maxLength={320}
+                      value={replacementReason}
+                      disabled={disabled}
+                      onChange={(event) =>
+                        setReplacementReason(event.target.value)
+                      }
+                    />
+                  </label>
+                  <button
+                    className="secondary-button"
+                    disabled={
+                      disabled || targetsLoading || !replacementPlatform
+                    }
+                  >
+                    保存协商替换
+                  </button>
+                </form>
+              )}
+            </details>
+          )}
+          {!selected.result && ordinaryWork && (
             <div className="commerce-actions">
               <button
                 className={
@@ -408,7 +620,9 @@ export function PublicationWorkPanel({
               </button>
             </div>
           )}
-          {tab === "prepare" && !selected.result ? (
+          {!selected.result && !ordinaryWork ? (
+            <p>当前不能新增发布。已有结果仍可按真实情况纠正。</p>
+          ) : tab === "prepare" && !selected.result ? (
             <form
               onSubmit={(event) => {
                 event.preventDefault();

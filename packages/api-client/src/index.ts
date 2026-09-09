@@ -45,7 +45,20 @@ export type PublicationWorkCommand =
   | components["schemas"]["PreparePublicationRequest"]
   | components["schemas"]["SavePublicationDraftRequest"]
   | components["schemas"]["RecordPublicationResultRequest"]
-  | components["schemas"]["CorrectPublicationResultRequest"];
+  | components["schemas"]["CorrectPublicationResultRequest"]
+  | components["schemas"]["ReplacePublicationTargetRequest"];
+export type SaveDeliveryResolution =
+  components["schemas"]["SaveDeliveryResolutionRequest"];
+export type DeliveryException =
+  components["schemas"]["DeliveryExceptionRequest"];
+export type SettleDeliveryReturn =
+  components["schemas"]["SettleDeliveryReturnRequest"];
+export type DeliveryReturnReceipt =
+  components["schemas"]["DeliveryReturnReceipt"];
+export type DeliveryReplacementTargets =
+  components["schemas"]["DeliveryReplacementTargetsResponse"];
+export type DeliveryOrderState =
+  "ACTIVE" | "COMPLETED" | "CLOSED" | "PENDING_RETURN";
 export type DeliveryActionRequest =
   components["schemas"]["AssignmentRequest"] & {
     reason?: string;
@@ -280,7 +293,7 @@ export function getPublishingOrder(
 export function listDeliveryOrders(
   baseUrl: string,
   scope: "POOL" | "MINE" | "ALL",
-  state: "ACTIVE" | "COMPLETED" = "ACTIVE",
+  state: DeliveryOrderState = "ACTIVE",
   cursor?: NonNullable<DeliveryOrderPage["nextCursor"]>,
 ): Promise<DeliveryOrderPage> {
   const query = new URLSearchParams({
@@ -328,6 +341,62 @@ export function listPublishingOrders(
   return apiRequest(baseUrl, `/publishing/orders?${query}`, {
     cache: "no-store",
   });
+}
+export function saveDeliveryResolution(
+  baseUrl: string,
+  orderId: string,
+  input: SaveDeliveryResolution,
+): Promise<{ orderId: string; revision: number }> {
+  return apiRequest(
+    baseUrl,
+    `/delivery/orders/${encodeURIComponent(orderId)}/resolution`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+export function recordDeliveryException(
+  baseUrl: string,
+  orderId: string,
+  input: DeliveryException,
+): Promise<{ orderId: string; revision: number }> {
+  return apiRequest(
+    baseUrl,
+    `/delivery/orders/${encodeURIComponent(orderId)}/exception`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+export function settleDeliveryReturn(
+  baseUrl: string,
+  orderId: string,
+  input: SettleDeliveryReturn,
+): Promise<DeliveryReturnReceipt> {
+  return apiRequest(
+    baseUrl,
+    `/delivery/orders/${encodeURIComponent(orderId)}/settlement`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+export function listDeliveryReplacementTargets(
+  baseUrl: string,
+  orderId: string,
+  cursor?: string,
+): Promise<DeliveryReplacementTargets> {
+  const query = new URLSearchParams(cursor ? { cursor } : {});
+  return apiRequest(
+    baseUrl,
+    `/delivery/orders/${encodeURIComponent(orderId)}/replacement-targets?${query}`,
+    {
+      cache: "no-store",
+    },
+  );
 }
 export function getPublicationWork(
   baseUrl: string,

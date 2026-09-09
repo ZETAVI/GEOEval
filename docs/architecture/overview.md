@@ -306,9 +306,9 @@ monotonic revision. Order article/terms are frozen; source identities and a uniq
 spending relationship use restrictive references, not cascading deletion.
 Customer pages separately confirm the charge, retain uncertain requests across
 reload, and show owned pending orders plus linked point history. The current
-article can evolve without changing its purchased snapshot. Real payment,
-publication results, return/commission and production activation remain outside
-this Commerce slice; no speculative general-purpose transaction framework is introduced.
+article can evolve without changing its purchased snapshot. Real payment and
+commission retain independent activation boundaries; no speculative
+general-purpose transaction framework is introduced.
 
 Publication Delivery now owns minimal order admission and responsibility. Its
 transaction-bound adapter initializes the unique aggregate during purchase,
@@ -324,9 +324,24 @@ effective-result count, normal completion and auditable correction. Preparation
 runs outside transactions through an async-capable port, with Identity and
 revision fences rechecked before save; no real provider or new background-work
 engine is introduced. Customer result subroutes reuse Commerce ownership and
-return only public projections. Negotiated exceptions and settlement remain in
-the active #73 change. The current
-bounded behavior is owned by [Publication Delivery](../../openspec/specs/publication-delivery/spec.md).
+return only public projections. Delivery also owns manually saved agreements,
+effective precise replacements, irreversible remaining-work stops and their
+before/after audit. An operator's zero-point termination closes without touching
+the wallet. Positive agreements stay in a separate administrator queue even when
+publication is Completed; settlement eligibility follows finished or stopped work.
+
+For positive returns, the root composition binds Identity → Commerce wallet →
+Delivery locks on one connection. Commerce's narrow order-return adapter restores
+the original consumption sources under reservation-aware capacity, then Delivery
+records the same settled-ledger reference and, only for termination, Closed.
+Actor-bound exact requests recover successful writes; ledger, wallet, fulfilment
+and audit commit together. Composite references and deferred final-graph checks
+enforce the cross-owner stored relationship without letting either owner write
+the other's private tables. A return ledger/request is immutable. This extends
+the existing explicit transaction seam, not an approval engine, second wallet,
+generic refund framework or payment-channel action. Current behavior is owned by
+[Publication Delivery](../../openspec/specs/publication-delivery/spec.md) and
+[Publishing Commerce](../../openspec/specs/publishing-commerce/spec.md).
 
 ## Architecture qualities
 

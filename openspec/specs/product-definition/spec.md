@@ -28,22 +28,24 @@
   current Core Article and confirmed-article handoff are owned by the
   [GEO Optimization specification](../geo-optimization/spec.md), including its
   terminal-customer API and workspace. This marker remains for unactivated
-  payment, fulfilment and related capabilities. Maintained random-package
+  payment and related capabilities. Maintained random-package
   configuration, audit and customer offer visibility are now owned by the
   [Publishing Commerce specification](../publishing-commerce/spec.md).
   Account-owned points, granted-only administrator adjustments and customer-safe
   history, explicitly saved random/precise selections and advisory quotes also
   use that owner. Exact-article purchase, atomic granted-first spending, immutable
   paid agreement, linked history and pending-order reads also use that owner.
-  This marker remains for real recharge, returns, commission and fulfilment;
+  This marker remains for real recharge and commission;
   those future scenarios below do not activate their runtime capabilities.
   Order admission, exclusive whole-order responsibility, explicit start/return
   and administrator reassignment now use [Publication Delivery](../publication-delivery/spec.md).
   Sparse work items, Mock/manual preparation, effective results/corrections,
   customer-safe progress, normal automatic completion and deadline-priority
-  workbench presentation also use that owner.
-  The marker is retained for exceptions/settlement and other unactivated capabilities, not a second owner of
-  implemented responsibility or normal-result rules.
+  workbench presentation also use that owner. Manual negotiation, precise
+  replacement, remaining-work termination and eligibility use Delivery; actual
+  original-order returns and linked point history use Commerce. Their detailed
+  scenarios are extracted below. The marker is explicitly retained for the other
+  unactivated capabilities, not a second owner of implemented fulfilment or returns.
 
 ## Requirements
 
@@ -1293,30 +1295,16 @@ prepare those variants for publication.
 
 The product SHALL use [Publishing Commerce](../publishing-commerce/spec.md) for
 peer random/precise selection, prices, explicit purchase and immutable scope.
-The following scenarios retain only not-yet-activated fulfilment semantics.
-
-#### Scenario: A customer chooses random publishing
-
-- **WHEN** a purchased random package enters future fulfilment
-- **THEN** each quantity unit is one completed media publication based on a
-  variant of the confirmed core article, not one identical copy or a separately
-  customer-confirmed core article
-- **AND** the platform assigns eligible media from the media library
-- **AND** an unavailable placement can be replaced by another eligible placement
-  until the purchased quantity is fulfilled
-
-#### Scenario: A customer chooses precise publishing
-
-- **WHEN** a purchased precise publication cannot be completed in future fulfilment
-- **THEN** customer service calls
-  the customer to agree on a replacement or arranges for an administrator to
-  return the corresponding points
+Random in-scope allocation, one unit per successful publication and explicit
+negotiated precise replacement SHALL follow
+[Publication Delivery](../publication-delivery/spec.md); neither returns nor
+replacement can rewrite the original purchased quantity or terms.
 
 ### Requirement: Bounded points model
 
-Current wallet, granted adjustments, spending order and customer history SHALL
+Current wallet, granted adjustments, spending order, original-order returns and customer history SHALL
 follow [Publishing Commerce](../publishing-commerce/spec.md). The following
-scenarios preserve future recharge, return and commission requirements.
+scenarios preserve future recharge and commission requirements.
 
 #### Scenario: A customer needs points for an order
 
@@ -1374,24 +1362,13 @@ scenarios preserve future recharge, return and commission requirements.
 - **AND** the actual contact name, telephone, WeChat QR code, or other maintained
   contact content can be confirmed later without changing the product boundary
 
-#### Scenario: A customer uses points from different origins
-
-- **GIVEN** an account contains points funded by recharge and points granted by
-  the platform or an administrator
-- **WHEN** a future point return or settlement uses the original Commerce spending
-- **THEN** platform-granted consumption does not contribute to agent commission
-- **AND** a full return restores the original consumed composition
-- **AND** a partial return restores funded and granted origins proportionally to
-  that order's consumed composition
-- **AND** points remain whole numbers throughout the calculation
-- **AND** each proportional return result is rounded down before any remainder is
-  assigned to the origin with the larger discarded fractional part
-- **AND** an exact fractional tie assigns the remaining point to granted points
-- **AND** the restored origins sum exactly to the agreed point-return total
+Original-consumption source restoration and integer allocation now follow
+Publishing Commerce above. Granted consumption and returned points remain
+ineligible for the future commission capability below.
 
 #### Scenario: A customer reviews point history
 
-- **WHEN** future recharge or point-return capabilities become active
+- **WHEN** future recharge capabilities become active
 - **THEN** they extend the existing Commerce history with their truthful types
   and related business entries while retaining the existing privacy boundary.
 
@@ -1425,7 +1402,7 @@ recharge alone, and returned points SHALL never become effective commission.
 #### Scenario: Customer service agrees a point return
 
 - **WHEN** an order problem cannot be resolved through replacement and customer
-  service agrees a full or partial point return with the customer
+  service agrees to terminate remaining work with a positive full or partial point return
 - **THEN** an administrator returns the agreed points and the order closes
 - **AND** the returned amount is excluded from effective commission
 - **AND** a full return leaves no effective commission for the order
@@ -1724,41 +1701,15 @@ than internal operations detail.
   will contact the customer and retains the support entry
 - **AND** replacement and point return continue through the approved manual path
 
-Normal result recording/correction, immediate customer visibility and automatic
-completion from actual purchased quantity are owned by
-[Publication Delivery](../publication-delivery/spec.md). The scenarios below
-retain the unactivated negotiation/termination boundaries, not a second result
-implementation.
-
-#### Scenario: A precise publishing order resolves every selection
-
-- **WHEN** every selected publication has succeeded or every failed selection
-  has been resolved through a customer-service-agreed replacement or
-  administrator point return
-- **THEN** the order completes automatically
-- **AND** the customer is not required to perform a separate acceptance action
-
-The customer delay marker and its non-automatic consequences also use the
-Publication Delivery owner above; workbench urgency ordering remains pending.
-
-#### Scenario: A publication cannot be completed
-
-- **WHEN** operations confirms that a publication is impossible
-- **THEN** customer service calls the customer to agree on a replacement, or an
-  administrator returns the corresponding points
-- **AND** the initial product does not require a customer-initiated refund or
-  online exception-negotiation workflow
-
-#### Scenario: Manual exception handling ends
-
-- **WHEN** an agreed replacement eventually fulfils the promised publication
-  quantity
-- **THEN** the order becomes completed
-- **BUT WHEN** remaining work stops after customer service and the customer agree
-  a full or partial point return and an administrator performs it
-- **THEN** the order becomes closed
-- **AND** the customer can see the returned point amount
-- **AND** neither outcome requires customer confirmation in the product
+Normal result recording/correction, immediate customer visibility, completion
+from actual purchased quantity, delay/priority presentation, manual negotiation,
+replacement and termination are owned by
+[Publication Delivery](../publication-delivery/spec.md). Its customer-safe view
+distinguishes completed publication from Closed partial service and promised
+compensation from actual credit. The narrow once-only original-order return is
+owned by [Publishing Commerce](../publishing-commerce/spec.md). There is no
+customer application/acceptance step, automatic refund or return-as-publication
+shortcut. These are activated owner-local rules, not future scenarios here.
 
 ### Requirement: Bounded publication-link availability
 

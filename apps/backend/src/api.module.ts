@@ -14,6 +14,8 @@ import { ReadinessModule } from "./readiness.module.js";
 import { PublishingCommerceModule } from "./publishing-commerce/publishing-commerce.module.js";
 import { PublicationDeliveryModule } from "./publication-delivery/publication-delivery.module.js";
 import { PublicationDeliveryWorkflowService } from "./application/publication-delivery-workflow.service.js";
+import { PublicationResolutionWorkflowService } from "./application/publication-resolution-workflow.service.js";
+import { DeliveryResolutionController } from "./publication-delivery/presentation/delivery-resolution.controller.js";
 import { DeliveryAssignmentController } from "./publication-delivery/presentation/delivery-assignment.controller.js";
 import {
   PublicationWorkController,
@@ -48,11 +50,13 @@ export class ApiModule {
         HealthController,
         FoundationController,
         DeliveryAssignmentController,
+        DeliveryResolutionController,
         PublicationWorkController,
         CustomerPublicationResultsController,
       ],
       providers: [
         PublicationDeliveryWorkflowService,
+        PublicationResolutionWorkflowService,
         {
           provide: VARIANT_PREPARER,
           useFactory: () =>

@@ -11,6 +11,7 @@ import { PublishingSelectionController } from "./presentation/publishing-selecti
 import { MediaSupplyModule } from "../media-supply/media-supply.module.js";
 import { PublishingPackageService } from "./application/publishing-package.service.js";
 import { CommercePointsModule } from "./commerce-points.module.js";
+import { PostgresOrderReturnAccess } from "./infrastructure/postgres-order-return-access.js";
 import { PUBLISHING_PACKAGE_REPOSITORY } from "./domain/publishing-package.js";
 import { PostgresPublishingPackageRepository } from "./infrastructure/postgres-publishing-package.repository.js";
 import {
@@ -20,7 +21,7 @@ import {
 
 @Module({
   imports: [CommercePointsModule, MediaSupplyModule, PublicationDeliveryModule],
-  exports: [PublishingOrderService],
+  exports: [PublishingOrderService, PostgresOrderReturnAccess],
   controllers: [
     PublishingOrderController,
     PublishingPackageAdminController,
@@ -28,6 +29,7 @@ import {
     PublishingSelectionController,
   ],
   providers: [
+    PostgresOrderReturnAccess,
     PublishingOrderService,
     PostgresPublishingOrderRepository,
     {

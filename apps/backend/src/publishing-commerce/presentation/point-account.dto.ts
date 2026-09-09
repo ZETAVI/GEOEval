@@ -31,9 +31,11 @@ export class PointChangeResponse {
   @ApiProperty({ type: "integer" }) sequence!: number;
   @ApiProperty({
     type: String,
-    enum: ["ADMIN_ADJUSTMENT", "PUBLISHING_ORDER", "RECHARGE"],
+    enum: ["ADMIN_ADJUSTMENT", "PUBLISHING_ORDER", "RECHARGE", "ORDER_RETURN"],
   })
-  kind!: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE";
+  kind!: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE" | "ORDER_RETURN";
+  @ApiPropertyOptional({ type: String, format: "uuid", nullable: true })
+  returnedOrderId?: string | null;
   @ApiProperty({ type: String, format: "uuid", nullable: true })
   publishingOrderId!: string | null;
   @ApiPropertyOptional({ type: String, format: "uuid", nullable: true })

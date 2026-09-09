@@ -14,9 +14,11 @@ import {
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import { PostgresOperationsIdentityReader } from "../../identity/infrastructure/postgres-operations-identity-reader.js";
 import type { AuthenticatedPrincipal } from "../../identity/domain/identity.types.js";
+import { PostgresMediaPurchaseReaderFactory } from "../../media-supply/infrastructure/postgres-media-purchase-reader.js";
 import {
   preparedVariantSchema,
   publicationResultSchema,
+  replacementTargetSchema,
   type PublicationCommand,
   type PublicationSource,
   type PreparedVariant,
@@ -27,6 +29,10 @@ function itemState(item: PublicationWorkItem) {
     slot: item.slot,
     revision: item.revision,
     platformId: item.platformId,
+    replacementTarget:
+      item.replacementTarget === null
+        ? null
+        : replacementTargetSchema.parse(item.replacementTarget),
     state:
       item.result !== null
         ? ("PUBLISHED" as const)
@@ -48,6 +54,8 @@ export class PostgresPublicationWorkRepository {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(PostgresOperationsIdentityReader)
     private readonly identities: PostgresOperationsIdentityReader,
+    @Inject(PostgresMediaPurchaseReaderFactory)
+    private readonly media: PostgresMediaPurchaseReaderFactory,
   ) {}
 
   private async readAccess(
@@ -182,8 +190,13 @@ export class PostgresPublicationWorkRepository {
     if (delivery.revision !== command.expectedRevision)
       throw new ConflictException("订单已更新，请刷新后操作");
     if (
-      delivery.status !== "PUBLISHING" &&
-      !(delivery.status === "COMPLETED" && command.action === "CORRECT_RESULT")
+      command.action !== "CORRECT_RESULT" &&
+      (delivery.stoppedAt !== null ||
+        (delivery.status !== "PUBLISHING" &&
+          !(
+            delivery.status === "EXCEPTION_HANDLING" &&
+            command.action === "REPLACE_TARGET"
+          )))
     )
       throw new ConflictException("当前订单不允许新增发布工作");
     const item = await tx.publicationWorkItem.findUnique({
@@ -192,6 +205,51 @@ export class PostgresPublicationWorkRepository {
     if ((item?.revision ?? 0) !== command.expectedItemRevision)
       throw new ConflictException("该条发布工作已更新，请重新核对");
     return { delivery, item, replay: null };
+  }
+
+  /** Recover the actor-bound receipt before composition consults changed targets/assignees. */
+  recover(
+    actor: AuthenticatedPrincipal,
+    orderId: string,
+    slot: number,
+    command: PublicationCommand,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const [current] = await this.identities.lockAccounts(tx, [
+        actor.accountId,
+      ]);
+      if (current?.status !== "ACTIVE" || current.role !== "OPERATIONS")
+        throw new ForbiddenException("当前账号无权处理发布结果");
+      const prior = await tx.publicationWorkAudit.findUnique({
+        where: {
+          orderId_idempotencyKey: {
+            orderId,
+            idempotencyKey: command.idempotencyKey,
+          },
+        },
+      });
+      if (!prior) {
+        const delivery = await tx.publicationDelivery.findUnique({
+          where: { orderId },
+        });
+        if (!delivery) throw new NotFoundException("未找到履约订单");
+        if (delivery.assigneeAccountId !== actor.accountId)
+          throw new ForbiddenException("你不是当前订单责任人");
+        return null;
+      }
+      if (
+        prior.actorAccountId !== actor.accountId ||
+        prior.slot !== slot ||
+        !isDeepStrictEqual(prior.request, command)
+      )
+        throw new ConflictException("该操作标识已用于其他发布操作");
+      return {
+        orderId,
+        slot,
+        revision: prior.revision,
+        orderRevision: prior.orderRevision,
+      };
+    });
   }
 
   /** Short preflight only. No transaction remains open during the preparer. */
@@ -233,11 +291,7 @@ export class PostgresPublicationWorkRepository {
           command,
         );
         if (replay) return replay;
-        if (
-          slot < 1 ||
-          slot > source.quantity ||
-          source.target.platformId !== command.platformId
-        )
+        if (slot < 1 || slot > source.quantity)
           throw new BadRequestException("发布条目不符合原购买范围");
         const previous = item ? itemState(item) : null;
         if (previous?.result && command.action !== "CORRECT_RESULT")
@@ -246,6 +300,43 @@ export class PostgresPublicationWorkRepository {
           throw new ConflictException("没有可纠正的发布结果");
         if (previous?.result && previous.platformId !== command.platformId)
           throw new ConflictException("更换已发布媒体不属于普通录入纠正");
+        let replacementTarget = previous?.replacementTarget ?? null;
+        let target = source.target;
+        if (command.action === "REPLACE_TARGET") {
+          if (!source.purchasedPlatformId)
+            throw new BadRequestException(
+              "只有精确购买的未发布条目可以记录协商替换",
+            );
+          const effectiveId =
+            replacementTarget?.platformId ?? source.purchasedPlatformId;
+          if (effectiveId === command.platformId)
+            throw new ConflictException("请选择不同于当前安排的媒体");
+          const [platform] = await this.media
+            .bind(tx)
+            .platforms([command.platformId]);
+          if (!platform?.buyable)
+            throw new BadRequestException("请选择当前可用的替换媒体");
+          replacementTarget = {
+            platformId: platform.platformId,
+            displayName: platform.displayName,
+          };
+          target = replacementTarget;
+        } else if (previous?.result) {
+          // Recorded publication facts survive later target availability/name changes.
+          target = {
+            platformId: previous.result.platformId,
+            displayName: previous.result.displayName,
+          };
+        } else {
+          const effectiveId =
+            replacementTarget?.platformId ?? source.purchasedPlatformId;
+          if (
+            (effectiveId && effectiveId !== command.platformId) ||
+            source.target.platformId !== command.platformId
+          )
+            throw new ConflictException("当前媒体安排已变化，请刷新核对后操作");
+          target = replacementTarget ?? source.target;
+        }
         let preparation =
           item?.platformId === command.platformId
             ? (previous?.preparation ?? null)
@@ -265,7 +356,7 @@ export class PostgresPublicationWorkRepository {
         ) {
           if (new Date(command.result.publishedAt).getTime() > Date.now())
             throw new BadRequestException("发布时间不能晚于当前时间");
-          result = { ...command.result, ...source.target };
+          result = { ...command.result, ...target };
         }
         const addedResult = result !== null && !previous?.result;
         const publishedQuantity =
@@ -279,6 +370,7 @@ export class PostgresPublicationWorkRepository {
           revision: (item?.revision ?? 0) + 1,
           platformId: command.platformId,
           startedAt,
+          replacementTarget: replacementTarget ?? Prisma.DbNull,
           preparation: preparation ?? Prisma.DbNull,
           result: result ?? Prisma.DbNull,
         };
@@ -294,9 +386,14 @@ export class PostgresPublicationWorkRepository {
             startedAt: delivery.startedAt ?? new Date(),
             publishedQuantity,
             status:
-              publishedQuantity === source.quantity
-                ? "COMPLETED"
-                : "PUBLISHING",
+              delivery.stoppedAt !== null ||
+              delivery.status === "CLOSED" ||
+              delivery.status === "COMPLETED" ||
+              delivery.status === "EXCEPTION_HANDLING"
+                ? delivery.status
+                : publishedQuantity === source.quantity
+                  ? "COMPLETED"
+                  : "PUBLISHING",
           },
         });
         await tx.publicationWorkAudit.create({
@@ -308,7 +405,19 @@ export class PostgresPublicationWorkRepository {
             actorAccountId: actor.accountId,
             idempotencyKey: command.idempotencyKey,
             request: command,
-            beforeState: previous ?? Prisma.DbNull,
+            beforeState:
+              previous ??
+              (command.action === "REPLACE_TARGET"
+                ? {
+                    slot,
+                    revision: 0,
+                    platformId: source.purchasedPlatformId!,
+                    replacementTarget: null,
+                    state: "PENDING",
+                    preparation: null,
+                    result: null,
+                  }
+                : Prisma.DbNull),
             afterState: itemState(saved),
           },
         });

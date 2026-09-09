@@ -38,15 +38,16 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 - [x] Reconcile order-side decisions and activation seams against the integrated normal-delivery baseline; preserve the #77 C1 exclusive window until its explicit handback.
 - [x] Confirm zero-point termination: the current responsible operator closes directly with retained reason/history, no administrator and no ledger; zero is a new-form default, not an overwrite of an existing amount.
 - [x] Inspect the fixed #77 C1 contract at `59930dd`, verify the live unmerged stack and receive its explicit shared-window handback; reference the producer checkpoint without copying its contract/evidence.
-- [ ] Consume fixed C1 `59930dd` through the explicitly agreed linear stack on PR #82; recheck base/Diff/Checks and record the #73 Delivery/RETURN single-writer window before shared changes.
-- [x] Implement the owner-local negotiated-resolution/positive-settlement decisions and original-source return arithmetic, consuming C1 reservation-aware capacity; 50 pure tests pass. These are not yet connected to transaction/HTTP/page adapters and do not prove runtime authority, once-only credit or closure.
-- [ ] Bind these decisions to the locked Identity/Delivery/Commerce facts, exact-request replay and one atomic audit/ledger transaction; no runtime endpoint is activated until that complete path is verified.
-- [ ] Implement precise replacement/history and ordinary random reallocation distinction; continue operation without waiting for admin credit.
-- [ ] Implement explicitly saved order-level negotiated amount/version, eligibility from finished/stopped work and dedicated administrator unpaid-agreement list; no separate finalization workflow.
-- [ ] Implement one administrator confirmation/credit action, return kind/original consumption link/source allocation and exact actor-bound reload recovery.
-- [ ] Verify original-spend cap, whole numbers, origins, exact revision race, duplicate/new-key attempts, ledger failure and wallet bound; no gift fallback.
-- [ ] Verify every saved unpaid agreement remains in admin queue before and after settlement eligibility; Completed N/N remains Completed after payment. Validate original-order returns for inactive customers without restoring customer access under the approved security boundary.
-- [ ] Verify termination keeps actual partial results/count and whole-remainder stop enforcement. Positive returns require atomic Closed + credit; zero closes by the current operator without ledger/admin task, including stale-save, replay and audit-rollback checks.
+- [x] Consume fixed C1 `59930dd` through the explicitly agreed linear stack on PR #82; recheck base/Diff/Checks and record the #73 Delivery/RETURN single-writer window before shared changes.
+- [x] Implement the owner-local negotiated-resolution/positive-settlement decisions and original-source return arithmetic, consuming C1 reservation-aware capacity; 50 pure tests pass, supplemented by the transaction/HTTP evidence below.
+- [x] Bind these decisions to the locked Identity/Delivery/Commerce facts, exact-request replay and one atomic audit/ledger transaction; local runtime evidence is not protected-main or production activation.
+- [x] Implement precise replacement/history and ordinary random reallocation distinction; continue operation without waiting for admin credit.
+- [x] Implement explicitly saved order-level negotiated amount/version, eligibility from finished/stopped work and dedicated administrator unpaid-agreement list; no separate finalization workflow.
+- [x] Implement one administrator confirmation/credit action, return kind/original consumption link/source allocation and exact actor-bound reload recovery.
+- [x] Verify original-spend cap, whole numbers, origins, exact revision race, duplicate/new-key attempts, ledger failure and wallet bound; no gift fallback.
+- [x] Verify every saved unpaid agreement remains in admin queue before and after settlement eligibility; Completed N/N remains Completed after payment. Validate original-order returns for inactive customers without restoring customer access under the approved security boundary.
+- [x] Verify termination keeps actual partial results/count and whole-remainder stop enforcement. Positive returns require atomic Closed + credit; zero closes by the current operator without ledger/admin task, including stale-save, replay and audit-rollback checks.
+  - Evidence: `apps/backend/test/delivery-resolution.integration.spec.ts` plus existing assignment/purchase/recharge/access suites; real C1 held capacity, two race orderings, failure injection and database-negative checks are covered. Web `delivery-resolution.spec.tsx` covers explicit amount, exact pending-request recovery and customer-safe status. These do not substitute for the browser task below.
 - [ ] Browser-check replacing C with D and compensation; partial stop/final return; unauthorized operations and interrupted administrator submission.
 
 ## 3. Reconcile, recovery and close
@@ -54,6 +55,7 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 - [x] Rehearse empty and historical DB migrations, interrupted backfill and compatible read-only/forward-recovery after activity; document restore approval boundary.
   - The controlled read-only HTTP barrier is test evidence, not a deployed maintenance mechanism. Physical restore/process-crash rehearsal and the production ingress plan are not claimed by this local slice.
 - [x] Remove Commerce placeholder status ownership; no permanent dual writes. Generate OpenAPI/client and verify current customer routes compose true status.
-- [ ] Promote accepted Delivery behavior; update Commerce/product/glossary/vision/architecture and ADR; handle only relevant evolution-marker activation.
+- [x] Rehearse the two resolution migrations on an empty DB and a separate actual 35→37 synthetic historical upgrade; preserve all old projections and new null/zero defaults. The granted-only historical sample is not production-corpus or physical-restore proof.
+- [x] Promote accepted Delivery behavior; update Commerce/product/glossary/vision/architecture and explicitly extract the relevant product-definition evolution marker. Existing ADR 0006 admission remains unchanged; settlement uses its already-approved owner-bound transaction approach without a new ADR or general framework.
 - [ ] Map final acceptance to real evidence; record skipped checks and future Writer/real recharge/#74 boundaries without appending their work here.
 - [ ] Open final acceptance PR, complete fixed-diff review and checks, obtain merge authorization, verify integrated revision and only then reconcile #73 closure/Project Done/workspace exit.
