@@ -4,9 +4,10 @@
 
 This owner implements admission, whole-order responsibility, sparse publication
 work, explicitly Mock/manual content preparation, result recording/correction,
-customer-safe progress, deadline-priority work lists and automatic normal completion. Negotiated exceptions,
-replacement, termination and point settlement remain unactivated in the
-[active change](../../changes/establish-publication-delivery/proposal.md).
+customer-safe progress, deadline-priority work lists, automatic normal completion,
+manually negotiated replacement/termination and atomic order-point settlement
+through the Commerce owner. Real publishing providers, customer self-service
+refunds and payment-channel refunds are outside this capability.
 Local/branch verification is not integration or production enablement.
 
 ### Requirement: Atomic admission with immutable purchase facts
@@ -78,14 +79,16 @@ read all orders and perform reassignment, without impersonating customers.
   an earlier permission check cannot reveal a new assignee's later private work
 - **AND** detail shows the frozen article, paid scope and internal responsibility
 - **AND** customer reads expose current status but no operator identities/audit
-- **AND** return/payment capability is not fabricated by this stage.
+- **AND** positive unpaid agreements remain in the administrator's separate
+  pending-return view before eligibility and after publication completion;
+  operators cannot use that view or execute wallet writes.
 
 #### Scenario: Operations prioritizes unfinished work and finds completed history
 
 - **WHEN** an eligible user opens unclaimed, owned or administrator order views
 - **THEN** active orders are shown by earliest expected completion first, with
   the final 24 hours marked nearing and overdue work marked delayed
-- **AND** completed history is separately selectable for owned/admin views,
+- **AND** Completed and Closed history are separately selectable for owned/admin views,
   ordered by newest purchase first, never marked delayed or hidden by completion
 - **AND** each page follows the immutable purchase-time and sequence pair in
   the same order as the database query; completion of a cursor order cannot skip
@@ -147,10 +150,11 @@ No historical article-variant selection or catalog account match is required.
 
 - **WHEN** the current operator supplies an explicit correction reason
 - **THEN** before/after history is retained without another completed count
-- **AND** neither the frozen precise target nor an already published platform
+- **AND** neither the effective precise target nor an already published platform
   can change through ordinary correction
-- **AND** completed orders remain Completed through correction or administrator
-  reassignment; other ordinary assignment/start operations cannot reopen them.
+- **AND** actual results can still be corrected with history after stopping;
+  Completed, Closed and stopped facts survive correction or administrator
+  reassignment, and ordinary assignment/start operations cannot reopen them.
 
 #### Scenario: All purchased publications have valid results
 
@@ -171,7 +175,8 @@ public result fields and progress, never preparation, channels, notes or audit.
 - **THEN** the customer sees aggregate progress and only actual published
   results, not provisional media allocation
 - **WHEN** a precise order is incomplete
-- **THEN** paginated purchased targets remain visible as In handling or Published
+- **THEN** paginated purchased targets remain visible as In handling, Published
+  or Stopped when their remaining work has been terminated
   while internal Pending/Publishing steps remain hidden
 - **AND** completed count, original quantity, expected completion date, purchased
   terms and links remain distinguishable from the secondary frozen article.
@@ -181,3 +186,76 @@ public result fields and progress, never preparation, channels, notes or audit.
 - **WHEN** an unfinished order passes seven calendar days after purchase
 - **THEN** a delay marker accompanies its actual state
 - **AND** elapsed time alone never publishes, completes, closes or refunds it.
+
+### Requirement: Explicit manual negotiation without a second approval workflow
+
+The current responsible operator SHALL save an order-level agreement with a
+reason, continuation/termination mode and whole-point total between zero and the
+original consumption. Exceptions and agreements SHALL retain exact actor-bound
+requests, revisions and before/after audit in their owning transaction.
+
+#### Scenario: Operations records or revises the offline agreement
+
+- **WHEN** the operator explicitly saves the agreed outcome
+- **THEN** the new form may default to zero, but editing preloads the actual saved
+  amount; the request must explicitly include the amount
+- **AND** stale revisions and changed contents under a used request key conflict
+- **AND** exact same-actor successful retries recover the original receipt without
+  reverting newer responsibility, agreement or status
+- **AND** reporting/clearing an exception does not itself grant points or undo a
+  stop; no customer application, extra finalization step or automatic refund exists.
+
+#### Scenario: A precise placement is replaced by agreement
+
+- **WHEN** the responsible operator explicitly replaces an unpublished precise slot
+- **THEN** the current Media Supply port validates the effective target in the
+  save transaction and the reason/old/new targets remain in work history
+- **AND** the frozen purchased target and quantity are unchanged; customer results
+  distinguish the purchased target from the actual publishing target
+- **AND** incompatible preparation is cleared, a published platform cannot be
+  replaced, and ordinary random allocation remains within purchased scope
+- **AND** continuing work does not wait for administrator compensation, and no
+  surcharge, per-item return calculation or additional publication count is created.
+
+#### Scenario: Continue service with a positive agreed compensation
+
+- **WHEN** saved mode is Continue
+- **THEN** work may continue and publication completion is based only on actual
+  results against the original quantity
+- **AND** the positive unpaid obligation remains visible, but settlement becomes
+  eligible only when publishing has completed
+- **AND** administrator payment leaves Completed unchanged; promised and actually
+  returned points remain distinct customer-visible facts.
+
+#### Scenario: Stop the whole remaining service
+
+- **WHEN** the current operator explicitly saves Terminate with zero points
+- **THEN** remaining ordinary work stops and the order becomes Closed immediately
+  with history, no ledger entry and no administrator task
+- **WHEN** the operator saves Terminate with a positive amount
+- **THEN** remaining ordinary work stops in Exception handling until the exact
+  agreement is credited and Closed in the same transaction
+- **AND** a later explicitly saved zero revision may close without credit only if
+  it wins against the administrator settlement; neither race can silently erase a return
+- **AND** all actual results and original quantity remain; stopping is irreversible
+  in this slice, and return never counts as successful publication.
+
+### Requirement: One composed settlement, not a second wallet owner
+
+Administrator settlement SHALL bind locked Identity, Commerce wallet/original
+consumption and Delivery agreement/eligibility in that order, then commit the
+credit, return ledger, settled reference, terminal outcome and audit together.
+
+#### Scenario: Administrator confirms the exact positive agreement
+
+- **WHEN** an active administrator submits the agreement revision and request key
+- **THEN** the amount/customer come from owner records rather than browser overrides
+- **AND** Commerce enforces source restoration, reservation-aware capacity and
+  actor-bound once-only recovery under its [specification](../publishing-commerce/spec.md)
+- **AND** audit/ledger failure rolls everything back; concurrent zero closure or a
+  changed agreement cannot leave a credit for an obsolete outcome
+- **AND** customer inactivity does not hide or prevent the original-order obligation,
+  and settling it does not restore customer access
+- **AND** the browser retains the exact actor/order/revision/key in tab storage
+  before sending, preserves uncertain retries and does not generate a new key
+  merely because refreshing the successful result failed.

@@ -196,6 +196,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/delivery/orders/{orderId}/resolution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeliveryResolutionController_save"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/exception": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeliveryResolutionController_exception"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/settlement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeliveryResolutionController_settle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/delivery/orders/{orderId}/replacement-targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DeliveryResolutionController_targets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/delivery/orders/{orderId}/work": {
         parameters: {
             query?: never;
@@ -1193,11 +1257,22 @@ export interface components {
             pending: number;
             dispatched: number;
         };
+        DeliveryResolutionResponse: {
+            /** @enum {string|null} */
+            mode: "CONTINUE" | "TERMINATE" | null;
+            points: number;
+            agreementRevision: number;
+            reason: string | null;
+            exceptionReason: string | null;
+            stopped: boolean;
+            returnedPoints: number | null;
+            eligible: boolean;
+        };
         DeliveryScheduleResponse: {
             /** Format: date-time */
             expectedCompletionAt: string;
             /** @enum {string} */
-            urgency: "NORMAL" | "NEARING_DEADLINE" | "DELAYED" | "COMPLETED";
+            urgency: "NORMAL" | "NEARING_DEADLINE" | "DELAYED" | "COMPLETED" | "CLOSED";
         };
         PublishingPackageScopeResponse: {
             /** Format: uuid */
@@ -1228,7 +1303,7 @@ export interface components {
             orderId: string;
             sequence: number;
             /** @enum {string} */
-            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED" | "EXCEPTION_HANDLING" | "CLOSED";
             publishedQuantity: number;
             /** Format: uuid */
             assigneeAccountId: string | null;
@@ -1248,10 +1323,11 @@ export interface components {
             articleId: string;
             articleRevision: number;
             /** @enum {string} */
-            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED" | "EXCEPTION_HANDLING" | "CLOSED";
             title: string;
             /** Format: date-time */
             createdAt: string;
+            resolution: components["schemas"]["DeliveryResolutionResponse"];
             schedule: components["schemas"]["DeliveryScheduleResponse"];
             agreement: components["schemas"]["PurchasedTermsResponse"];
             delivery: components["schemas"]["DeliveryAssignmentResponse"];
@@ -1281,6 +1357,12 @@ export interface components {
             lastAuthenticatedAt?: string | null;
         };
         DeliveryAuditResponse: {
+            beforeResolution: {
+                [key: string]: unknown;
+            } | null;
+            afterResolution: {
+                [key: string]: unknown;
+            } | null;
             revision: number;
             /** Format: uuid */
             actorAccountId: string;
@@ -1297,7 +1379,7 @@ export interface components {
             orderId: string;
             sequence: number;
             /** @enum {string} */
-            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED" | "EXCEPTION_HANDLING" | "CLOSED";
             publishedQuantity: number;
             /** Format: uuid */
             assigneeAccountId: string | null;
@@ -1319,12 +1401,13 @@ export interface components {
             articleId: string;
             articleRevision: number;
             /** @enum {string} */
-            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED" | "EXCEPTION_HANDLING" | "CLOSED";
             title: string;
             /** Format: date-time */
             createdAt: string;
             bodyMarkdown: string;
             agreement: components["schemas"]["PurchasedTermsResponse"];
+            resolution: components["schemas"]["DeliveryResolutionResponse"];
             schedule: components["schemas"]["DeliveryScheduleResponse"];
             delivery: components["schemas"]["DeliveryDetailResponse"];
         };
@@ -1351,6 +1434,43 @@ export interface components {
             reason: string;
             /** Format: uuid */
             assigneeAccountId: string;
+        };
+        SaveDeliveryResolutionRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            /** @enum {string} */
+            mode: "CONTINUE" | "TERMINATE";
+            points: number;
+            reason: string;
+        };
+        DeliveryExceptionRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            reason: string | null;
+        };
+        SettleDeliveryReturnRequest: {
+            expectedAgreementRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+        };
+        DeliveryReturnReceipt: {
+            /** Format: uuid */
+            orderId: string;
+            /** Format: uuid */
+            ledgerId: string;
+            agreementRevision: number;
+            points: number;
+        };
+        PublicationTargetResponse: {
+            /** Format: uuid */
+            platformId: string;
+            displayName: string;
+        };
+        DeliveryReplacementTargetsResponse: {
+            items: components["schemas"]["PublicationTargetResponse"][];
+            nextCursor: string | null;
         };
         BeginPublicationRequest: {
             expectedRevision: number;
@@ -1416,10 +1536,16 @@ export interface components {
             result: components["schemas"]["PublicationResultInput"];
             reason: string;
         };
-        PublicationTargetResponse: {
+        ReplacePublicationTargetRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            expectedItemRevision: number;
             /** Format: uuid */
             platformId: string;
-            displayName: string;
+            /** @enum {string} */
+            action: "REPLACE_TARGET";
+            reason: string;
         };
         PreparedVariantResponse: {
             /** @enum {string} */
@@ -1440,6 +1566,7 @@ export interface components {
             internalNote: string;
         };
         PublicationWorkItemResponse: {
+            replacementTarget: components["schemas"]["PublicationTargetResponse"] | null;
             slot: number;
             revision: number;
             purchasedPlatformId: string | null;
@@ -1451,10 +1578,11 @@ export interface components {
         };
         PublicationWorkPageResponse: {
             /** @enum {string} */
-            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED" | "EXCEPTION_HANDLING" | "CLOSED";
             quantity: number;
             publishedQuantity: number;
             nextAfterSlot: number | null;
+            stopped: boolean;
             orderRevision: number;
             /** @enum {string} */
             preparationMode: "MOCK" | "UNAVAILABLE";
@@ -1484,6 +1612,13 @@ export interface components {
             revision: number;
             orderRevision: number;
         };
+        CustomerResolutionResponse: {
+            /** @enum {string|null} */
+            mode: "CONTINUE" | "TERMINATE" | null;
+            agreedPoints: number;
+            returnedPoints: number | null;
+            stopped: boolean;
+        };
         PublicPublicationResult: {
             /** Format: uuid */
             platformId: string;
@@ -1495,18 +1630,20 @@ export interface components {
             publishedAt: string;
         };
         CustomerPublicationItemResponse: {
+            purchasedTargetName: string | null;
             slot: number;
             /** @enum {string} */
-            state: "IN_HANDLING" | "PUBLISHED";
+            state: "IN_HANDLING" | "PUBLISHED" | "STOPPED";
             targetName: string | null;
             result: components["schemas"]["PublicPublicationResult"] | null;
         };
         CustomerPublicationPageResponse: {
             /** @enum {string} */
-            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED" | "EXCEPTION_HANDLING" | "CLOSED";
             quantity: number;
             publishedQuantity: number;
             nextAfterSlot: number | null;
+            resolution: components["schemas"]["CustomerResolutionResponse"];
             /** Format: date-time */
             expectedCompletionAt: string;
             delayed: boolean;
@@ -2076,7 +2213,7 @@ export interface components {
             articleId: string;
             articleRevision: number;
             /** @enum {string} */
-            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED" | "EXCEPTION_HANDLING" | "CLOSED";
             title: string;
             /** Format: date-time */
             createdAt: string;
@@ -2093,7 +2230,7 @@ export interface components {
             articleId: string;
             articleRevision: number;
             /** @enum {string} */
-            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+            status: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED" | "EXCEPTION_HANDLING" | "CLOSED";
             title: string;
             /** Format: date-time */
             createdAt: string;
@@ -2565,7 +2702,9 @@ export interface components {
             id: string;
             sequence: number;
             /** @enum {string} */
-            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE";
+            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE" | "ORDER_RETURN";
+            /** Format: uuid */
+            returnedOrderId?: string | null;
             /** Format: uuid */
             publishingOrderId: string | null;
             /** Format: uuid */
@@ -2609,7 +2748,9 @@ export interface components {
             id: string;
             sequence: number;
             /** @enum {string} */
-            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE";
+            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE" | "ORDER_RETURN";
+            /** Format: uuid */
+            returnedOrderId?: string | null;
             /** Format: uuid */
             publishingOrderId: string | null;
             /** Format: uuid */
@@ -2750,7 +2891,7 @@ export interface operations {
             query?: {
                 cursorSequence?: number;
                 cursorCreatedAt?: string;
-                state?: "ACTIVE" | "COMPLETED";
+                state?: "ACTIVE" | "COMPLETED" | "CLOSED" | "PENDING_RETURN";
                 limit?: number;
                 scope?: "POOL" | "MINE" | "ALL";
             };
@@ -2891,6 +3032,104 @@ export interface operations {
             };
         };
     };
+    DeliveryResolutionController_save: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveDeliveryResolutionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentResult"];
+                };
+            };
+        };
+    };
+    DeliveryResolutionController_exception: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeliveryExceptionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentResult"];
+                };
+            };
+        };
+    };
+    DeliveryResolutionController_settle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SettleDeliveryReturnRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliveryReturnReceipt"];
+                };
+            };
+        };
+    };
+    DeliveryResolutionController_targets: {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliveryReplacementTargetsResponse"];
+                };
+            };
+        };
+    };
     PublicationWorkController_list: {
         parameters: {
             query?: {
@@ -2949,7 +3188,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["BeginPublicationRequest"] | components["schemas"]["PreparePublicationRequest"] | components["schemas"]["SavePublicationDraftRequest"] | components["schemas"]["RecordPublicationResultRequest"] | components["schemas"]["CorrectPublicationResultRequest"];
+                "application/json": components["schemas"]["BeginPublicationRequest"] | components["schemas"]["PreparePublicationRequest"] | components["schemas"]["SavePublicationDraftRequest"] | components["schemas"]["RecordPublicationResultRequest"] | components["schemas"]["CorrectPublicationResultRequest"] | components["schemas"]["ReplacePublicationTargetRequest"];
             };
         };
         responses: {

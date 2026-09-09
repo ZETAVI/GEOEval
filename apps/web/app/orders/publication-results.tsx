@@ -10,6 +10,8 @@ export const deliveryStatusLabel: Record<PublishingOrder["status"], string> = {
   PENDING_HANDLING: "待处理",
   PUBLISHING: "发布中",
   COMPLETED: "已完成",
+  EXCEPTION_HANDLING: "异常处理中",
+  CLOSED: "已关闭",
 };
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -26,9 +28,20 @@ export function PublicationResultsView({
           <div className="commerce-card-heading">
             <h3>{item.targetName ?? `发布结果 ${item.slot}`}</h3>
             <span className="current-badge">
-              {item.result ? "已发布" : "处理中"}
+              {item.result
+                ? "已发布"
+                : item.state === "STOPPED" || page.resolution.stopped
+                  ? "已停止"
+                  : "处理中"}
             </span>
           </div>
+          {item.purchasedTargetName &&
+            item.purchasedTargetName !== item.targetName && (
+              <p>
+                原购买媒体：{item.purchasedTargetName} · 当前履约媒体：
+                {item.targetName ?? "待确定"}
+              </p>
+            )}
           {item.result ? (
             <>
               <p>{item.result.title}</p>
@@ -45,7 +58,11 @@ export function PublicationResultsView({
               </a>
             </>
           ) : (
-            <p>该项属于已购买的发布范围，结果将在发布后显示。</p>
+            <p>
+              {item.state === "STOPPED" || page.resolution.stopped
+                ? "该项后续发布已按协商停止，原购买约定保留。"
+                : "该项属于已购买的发布范围，结果将在发布后显示。"}
+            </p>
           )}
         </article>
       ))}
@@ -70,15 +87,26 @@ export function PublicationProgressView({
       <p>
         {status === "COMPLETED"
           ? "已购发布已全部完成，无需再次确认验收。"
-          : status === "PUBLISHING"
-            ? "运营已接手处理本订单。"
-            : "购买已完成，订单等待平台处理。"}
+          : status === "CLOSED"
+            ? "订单已关闭，实际发布结果与原购买约定保留。"
+            : page?.resolution.stopped
+              ? "剩余发布已按协商停止，约定退点正在处理中。"
+              : status === "EXCEPTION_HANDLING"
+                ? "平台正在协调发布异常与后续处理。"
+                : status === "PUBLISHING"
+                  ? "运营已接手处理本订单。"
+                  : "购买已完成，订单等待平台处理。"}
       </p>
       {page && (
         <>
           <p>
             已发布 {page.publishedQuantity} / {page.quantity} 篇
-            {page.delayed ? " · 已延期，平台仍在处理中" : ""}
+            {page.delayed &&
+            !page.resolution.stopped &&
+            status !== "CLOSED" &&
+            status !== "COMPLETED"
+              ? " · 已延期，平台仍在处理中"
+              : ""}
           </p>
           <progress
             aria-label="已发布数量"
@@ -86,8 +114,20 @@ export function PublicationProgressView({
             max={page.quantity}
           />
           <p>
-            预计完成时间：{new Date(page.expectedCompletionAt).toLocaleString()}
+            {status === "CLOSED" || page.resolution.stopped
+              ? "原预计完成时间"
+              : "预计完成时间"}
+            ：{new Date(page.expectedCompletionAt).toLocaleString()}
           </p>
+          {page.resolution.mode !== null && (
+            <p>
+              {page.resolution.agreedPoints === 0
+                ? "无需退还积分。"
+                : page.resolution.returnedPoints !== null
+                  ? `已退还 ${page.resolution.returnedPoints} 积分。`
+                  : `已约定退还 ${page.resolution.agreedPoints} 积分，待平台处理。`}
+            </p>
+          )}
         </>
       )}
     </>
@@ -162,7 +202,9 @@ export function CustomerPublicationResults({
         {page && <PublicationResultsView page={page} />}
         {page && !page.items.length && !loading && (
           <p>
-            尚无可显示的发布结果。实际发布完成后会陆续出现在这里，无需等待整单完成。
+            {page.resolution.stopped || page.status === "CLOSED"
+              ? "本订单没有已发布结果，剩余发布已停止。"
+              : "尚无可显示的发布结果。实际发布完成后会陆续出现在这里，无需等待整单完成。"}
           </p>
         )}
         <div className="commerce-actions">

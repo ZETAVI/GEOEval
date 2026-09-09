@@ -42,6 +42,12 @@ export const publicationResultSchema = resultInputSchema.extend({
   platformId: z.string().uuid(),
   displayName: phrase(160),
 });
+export const replacementTargetSchema = z
+  .object({
+    platformId: z.string().uuid(),
+    displayName: phrase(160),
+  })
+  .strict();
 const base = assignmentInputSchema.extend({
   expectedItemRevision: z.number().int().min(0).max(2_147_483_646),
   platformId: z
@@ -52,6 +58,7 @@ const base = assignmentInputSchema.extend({
 export const publicationCommandSchema = z.discriminatedUnion("action", [
   base.extend({ action: z.literal("BEGIN") }),
   base.extend({ action: z.literal("PREPARE_MOCK") }),
+  base.extend({ action: z.literal("REPLACE_TARGET"), reason: phrase(320) }),
   base.extend({
     action: z.literal("SAVE_DRAFT"),
     title: phrase(200),
@@ -80,6 +87,7 @@ export type PublicationSource = {
   title: string;
   bodyMarkdown: string;
   quantity: number;
+  purchasedPlatformId?: string;
   target: { platformId: string; displayName: string };
 };
 

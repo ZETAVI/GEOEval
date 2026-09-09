@@ -66,10 +66,10 @@ The customer SHALL see one of the existing five fulfilment states and separately
 - **WHEN** all purchased publications have succeeded directly or through agreed replacement
 - **THEN** the order is Completed with full actual progress, even if agreed compensation is unpaid
 - **AND** the customer sees that agreed return as pending, never as already credited
-- **AND** administrator outstanding-return views include every saved unpaid agreement before and after Completed; execution becomes eligible only when retained work has finished or remaining work was stopped, without a separate submission/finalization workflow
+- **AND** administrator outstanding-return views include every positive saved unpaid agreement before and after Completed; execution becomes eligible only when retained work has finished or remaining work was stopped, without a separate submission/finalization workflow
 - **AND** later successful payment changes only return information, not Completed to Closed.
 
-#### Scenario: Agreed remaining work is terminated
+#### Scenario: Agreed remaining work is terminated with a positive return
 
 - **WHEN** operations explicitly stops all remaining work after agreement
 - **THEN** ordinary new work on that remainder is denied while existing results and original quantity remain
@@ -77,6 +77,14 @@ The customer SHALL see one of the existing five fulfilment states and separately
 - **WHEN** the administrator successfully executes the agreed terminating return
 - **THEN** the order becomes Closed and shows actual published progress and actual returned points
 - **AND** returned points do not count as successful publications.
+
+#### Scenario: Responsible operations closes agreed remaining work at zero
+
+- **WHEN** the current responsible operator explicitly saves a negotiated termination with zero points against the current revision
+- **THEN** remaining work stops and the order becomes Closed in the same transaction, with its reason, actor, history and existing published results retained
+- **AND** no administrator confirmation, point ledger entry or unpaid-return task is created
+- **AND** a new form defaults to zero but editing an existing agreement preserves its amount until explicitly changed; Completed is not converted into Closed
+- **AND** exact replay returns the same receipt, stale/non-assignee writes fail, and failure to persist the audit rolls back closure.
 
 #### Scenario: Only some remaining work should continue
 

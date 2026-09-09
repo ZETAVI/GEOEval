@@ -41,9 +41,20 @@ export class PublishingOrderIdentityResponse {
   @ApiProperty({ type: "integer" }) articleRevision!: number;
   @ApiProperty({
     type: String,
-    enum: ["PENDING_HANDLING", "PUBLISHING", "COMPLETED"],
+    enum: [
+      "PENDING_HANDLING",
+      "PUBLISHING",
+      "COMPLETED",
+      "EXCEPTION_HANDLING",
+      "CLOSED",
+    ],
   })
-  status!: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+  status!:
+    | "PENDING_HANDLING"
+    | "PUBLISHING"
+    | "COMPLETED"
+    | "EXCEPTION_HANDLING"
+    | "CLOSED";
   @ApiProperty({ type: String }) title!: string;
   @ApiProperty({ type: String, format: "date-time" }) createdAt!: Date;
 }

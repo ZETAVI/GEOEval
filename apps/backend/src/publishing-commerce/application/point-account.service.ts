@@ -119,6 +119,9 @@ function customerChange(row: PointChangeRecord) {
     sequence: row.sequence,
     kind: row.kind,
     publishingOrderId: row.publishingOrderId,
+    ...(row.kind === "ORDER_RETURN"
+      ? { returnedOrderId: row.returnedOrderId }
+      : {}),
     ...(row.kind === "RECHARGE"
       ? { rechargeOrderId: row.rechargeOrderId }
       : {}),

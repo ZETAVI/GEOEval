@@ -402,8 +402,8 @@ than an unconditional completion guarantee. Progress can be followed in
 If fulfilment exceeds that period, the order is shown as delayed and operations
 continues handling it; the order is not automatically completed, failed, or
 refunded merely because seven days elapsed. If a publication is confirmed to be
-impossible, customer service calls the customer to agree on a replacement, or an
-administrator returns the corresponding points. The initial product does not
+impossible, customer service contacts the customer to agree on replacement or
+stopping the remaining service and records any agreed point return. The initial product does not
 provide a customer-initiated refund or online exception-negotiation workflow.
 
 The customer sees only five simple order states: **Pending handling** after paid
@@ -413,9 +413,13 @@ a visible delayed marker. Each successful publication appears immediately as a
 result card, together with simple progress such as “6 of 10 completed,” rather
 than waiting for the whole order to finish. A manually agreed replacement that
 eventually fulfils the promised quantity leads to **Completed**. If the remaining
-work stops after an administrator point return, the order leads to **Closed** and
-shows the returned point amount. No customer confirmation is required to close
-either path.
+work is stopped with zero agreed points, the responsible operator closes it
+directly, without administrator confirmation or a point entry. Positive termination
+waits for administrator credit and closes atomically with it. Actual results and
+the original quantity are retained; returning points never counts as publication.
+Continuing-service compensation is independent: an order may be **Completed**
+with compensation pending, and stays Completed after the administrator credits it.
+No customer confirmation is required for either path.
 
 Evaluation questions are generated from the current brand profile and are shown
 to the customer before evaluation. The customer cannot directly rewrite them.
@@ -942,9 +946,10 @@ An attributed customer's successfully submitted publishing order creates pending
 agent performance and commission based on its commission-eligible order
 consumption, not on recharge alone. Commission becomes effective only when the
 corresponding service is successfully completed. If an order problem cannot be
-resolved through replacement, customer service and the customer may agree to a
-full or partial point return; an administrator performs the return and the order
-closes. Returned points never contribute to effective commission. If part of the
+resolved through replacement, customer service and the customer may agree to
+terminate remaining work with a full or partial point return; an administrator
+performs that positive return and the order closes. Continuing-service compensation
+does not itself close an order. Returned points never contribute to effective commission. If part of the
 service was successfully delivered and its corresponding points were not
 returned, that non-returned customer-funded consumption becomes effective
 commission when the partially returned order closes.
@@ -1277,8 +1282,9 @@ account is not shown. Cards appear as their publication results are returned,
 and the order shows completed progress against the purchased quantity. Random
 orders complete automatically when they contain the purchased number of valid
 publication results. Precise orders complete
-automatically when every selected publication succeeds or every failed selection
-has been resolved through an agreed replacement or administrator point return.
+automatically when the purchased number of publications succeeds, including
+agreed replacement placements. Stopping or returning points does not manufacture
+successful publications; a terminated order retains its actual partial progress.
 The customer does not perform a separate manual acceptance step.
 
 A returned link must be accessible when it is submitted as a publication result

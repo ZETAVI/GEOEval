@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { AssignmentRequest } from "./delivery-assignment.dto.js";
+import { CustomerResolutionResponse } from "./delivery-resolution-response.dto.js";
 
 export class PublicationTargetResponse {
   @ApiProperty({ type: String, format: "uuid" }) platformId!: string;
@@ -37,6 +38,10 @@ export class PublicationWorkRequest extends AssignmentRequest {
 export class BeginPublicationRequest extends PublicationWorkRequest {
   @ApiProperty({ type: String, enum: ["BEGIN"] }) action!: "BEGIN";
 }
+export class ReplacePublicationTargetRequest extends PublicationWorkRequest {
+  @ApiProperty({ enum: ["REPLACE_TARGET"] }) action!: "REPLACE_TARGET";
+  @ApiProperty({ type: String, minLength: 1, maxLength: 320 }) reason!: string;
+}
 export class PreparePublicationRequest extends PublicationWorkRequest {
   @ApiProperty({ type: String, enum: ["PREPARE_MOCK"] })
   action!: "PREPARE_MOCK";
@@ -66,6 +71,8 @@ export class PublicationWorkReceiptResponse {
   @ApiProperty({ type: "integer" }) orderRevision!: number;
 }
 export class PublicationWorkItemResponse {
+  @ApiProperty({ type: PublicationTargetResponse, nullable: true })
+  replacementTarget!: PublicationTargetResponse | null;
   @ApiProperty({ type: "integer" }) slot!: number;
   @ApiProperty({ type: "integer" }) revision!: number;
   @ApiProperty({ type: String, nullable: true }) purchasedPlatformId!:
@@ -81,15 +88,27 @@ export class PublicationWorkItemResponse {
 export class PublicationProgressResponse {
   @ApiProperty({
     type: String,
-    enum: ["PENDING_HANDLING", "PUBLISHING", "COMPLETED"],
+    enum: [
+      "PENDING_HANDLING",
+      "PUBLISHING",
+      "COMPLETED",
+      "EXCEPTION_HANDLING",
+      "CLOSED",
+    ],
   })
-  status!: "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+  status!:
+    | "PENDING_HANDLING"
+    | "PUBLISHING"
+    | "COMPLETED"
+    | "EXCEPTION_HANDLING"
+    | "CLOSED";
   @ApiProperty({ type: "integer" }) quantity!: number;
   @ApiProperty({ type: "integer" }) publishedQuantity!: number;
   @ApiProperty({ type: "integer", nullable: true }) nextAfterSlot!:
     number | null;
 }
 export class PublicationWorkPageResponse extends PublicationProgressResponse {
+  @ApiProperty({ type: Boolean }) stopped!: boolean;
   @ApiProperty({ type: "integer" }) orderRevision!: number;
   @ApiProperty({ type: String, enum: ["MOCK", "UNAVAILABLE"] })
   preparationMode!: "MOCK" | "UNAVAILABLE";
@@ -99,14 +118,18 @@ export class PublicationWorkPageResponse extends PublicationProgressResponse {
   items!: PublicationWorkItemResponse[];
 }
 export class CustomerPublicationItemResponse {
+  @ApiProperty({ type: String, nullable: true }) purchasedTargetName!:
+    string | null;
   @ApiProperty({ type: "integer" }) slot!: number;
-  @ApiProperty({ type: String, enum: ["IN_HANDLING", "PUBLISHED"] }) state!:
-    "IN_HANDLING" | "PUBLISHED";
+  @ApiProperty({ type: String, enum: ["IN_HANDLING", "PUBLISHED", "STOPPED"] })
+  state!: "IN_HANDLING" | "PUBLISHED" | "STOPPED";
   @ApiProperty({ type: String, nullable: true }) targetName!: string | null;
   @ApiProperty({ type: PublicPublicationResult, nullable: true })
   result!: PublicPublicationResult | null;
 }
 export class CustomerPublicationPageResponse extends PublicationProgressResponse {
+  @ApiProperty({ type: CustomerResolutionResponse })
+  resolution!: CustomerResolutionResponse;
   @ApiProperty({ type: String, format: "date-time" })
   expectedCompletionAt!: Date;
   @ApiProperty({ type: Boolean }) delayed!: boolean;

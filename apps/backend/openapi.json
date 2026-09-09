@@ -151,7 +151,9 @@
             "schema": {
               "enum": [
                 "ACTIVE",
-                "COMPLETED"
+                "COMPLETED",
+                "CLOSED",
+                "PENDING_RETURN"
               ],
               "type": "string"
             }
@@ -385,6 +387,164 @@
         ]
       }
     },
+    "/delivery/orders/{orderId}/resolution": {
+      "post": {
+        "operationId": "DeliveryResolutionController_save",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveDeliveryResolutionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentResult"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/exception": {
+      "post": {
+        "operationId": "DeliveryResolutionController_exception",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryExceptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentResult"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/settlement": {
+      "post": {
+        "operationId": "DeliveryResolutionController_settle",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettleDeliveryReturnRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryReturnReceipt"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
+    "/delivery/orders/{orderId}/replacement-targets": {
+      "get": {
+        "operationId": "DeliveryResolutionController_targets",
+        "parameters": [
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryReplacementTargetsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "publication-delivery"
+        ]
+      }
+    },
     "/delivery/orders/{orderId}/work": {
       "get": {
         "operationId": "PublicationWorkController_list",
@@ -513,6 +673,9 @@
                   },
                   {
                     "$ref": "#/components/schemas/CorrectPublicationResultRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ReplacePublicationTargetRequest"
                   }
                 ]
               }
@@ -2757,6 +2920,53 @@
           "dispatched"
         ]
       },
+      "DeliveryResolutionResponse": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "CONTINUE",
+              "TERMINATE"
+            ],
+            "nullable": true
+          },
+          "points": {
+            "type": "integer"
+          },
+          "agreementRevision": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "exceptionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "stopped": {
+            "type": "boolean"
+          },
+          "returnedPoints": {
+            "type": "integer",
+            "nullable": true
+          },
+          "eligible": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mode",
+          "points",
+          "agreementRevision",
+          "reason",
+          "exceptionReason",
+          "stopped",
+          "returnedPoints",
+          "eligible"
+        ]
+      },
       "DeliveryScheduleResponse": {
         "type": "object",
         "properties": {
@@ -2770,7 +2980,8 @@
               "NORMAL",
               "NEARING_DEADLINE",
               "DELAYED",
-              "COMPLETED"
+              "COMPLETED",
+              "CLOSED"
             ]
           }
         },
@@ -2899,7 +3110,9 @@
             "enum": [
               "PENDING_HANDLING",
               "PUBLISHING",
-              "COMPLETED"
+              "COMPLETED",
+              "EXCEPTION_HANDLING",
+              "CLOSED"
             ]
           },
           "publishedQuantity": {
@@ -2960,7 +3173,9 @@
             "enum": [
               "PENDING_HANDLING",
               "PUBLISHING",
-              "COMPLETED"
+              "COMPLETED",
+              "EXCEPTION_HANDLING",
+              "CLOSED"
             ]
           },
           "title": {
@@ -2969,6 +3184,9 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/DeliveryResolutionResponse"
           },
           "schedule": {
             "$ref": "#/components/schemas/DeliveryScheduleResponse"
@@ -2989,6 +3207,7 @@
           "status",
           "title",
           "createdAt",
+          "resolution",
           "schedule",
           "agreement",
           "delivery"
@@ -3087,6 +3306,16 @@
       "DeliveryAuditResponse": {
         "type": "object",
         "properties": {
+          "beforeResolution": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "afterResolution": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
           "revision": {
             "type": "integer"
           },
@@ -3112,6 +3341,8 @@
           }
         },
         "required": [
+          "beforeResolution",
+          "afterResolution",
           "revision",
           "actorAccountId",
           "request",
@@ -3135,7 +3366,9 @@
             "enum": [
               "PENDING_HANDLING",
               "PUBLISHING",
-              "COMPLETED"
+              "COMPLETED",
+              "EXCEPTION_HANDLING",
+              "CLOSED"
             ]
           },
           "publishedQuantity": {
@@ -3213,7 +3446,9 @@
             "enum": [
               "PENDING_HANDLING",
               "PUBLISHING",
-              "COMPLETED"
+              "COMPLETED",
+              "EXCEPTION_HANDLING",
+              "CLOSED"
             ]
           },
           "title": {
@@ -3228,6 +3463,9 @@
           },
           "agreement": {
             "$ref": "#/components/schemas/PurchasedTermsResponse"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/DeliveryResolutionResponse"
           },
           "schedule": {
             "$ref": "#/components/schemas/DeliveryScheduleResponse"
@@ -3247,6 +3485,7 @@
           "createdAt",
           "bodyMarkdown",
           "agreement",
+          "resolution",
           "schedule",
           "delivery"
         ]
@@ -3334,6 +3573,145 @@
           "idempotencyKey",
           "reason",
           "assigneeAccountId"
+        ]
+      },
+      "SaveDeliveryResolutionRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "CONTINUE",
+              "TERMINATE"
+            ]
+          },
+          "points": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 320
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "mode",
+          "points",
+          "reason"
+        ]
+      },
+      "DeliveryExceptionRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 320,
+            "nullable": true
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "reason"
+        ]
+      },
+      "SettleDeliveryReturnRequest": {
+        "type": "object",
+        "properties": {
+          "expectedAgreementRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "expectedAgreementRevision",
+          "idempotencyKey"
+        ]
+      },
+      "DeliveryReturnReceipt": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ledgerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "agreementRevision": {
+            "type": "integer"
+          },
+          "points": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "orderId",
+          "ledgerId",
+          "agreementRevision",
+          "points"
+        ]
+      },
+      "PublicationTargetResponse": {
+        "type": "object",
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "platformId",
+          "displayName"
+        ]
+      },
+      "DeliveryReplacementTargetsResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicationTargetResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
         ]
       },
       "BeginPublicationRequest": {
@@ -3570,20 +3948,46 @@
           "reason"
         ]
       },
-      "PublicationTargetResponse": {
+      "ReplacePublicationTargetRequest": {
         "type": "object",
         "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483646
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedItemRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483646
+          },
           "platformId": {
             "type": "string",
             "format": "uuid"
           },
-          "displayName": {
-            "type": "string"
+          "action": {
+            "type": "string",
+            "enum": [
+              "REPLACE_TARGET"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 320
           }
         },
         "required": [
+          "expectedRevision",
+          "idempotencyKey",
+          "expectedItemRevision",
           "platformId",
-          "displayName"
+          "action",
+          "reason"
         ]
       },
       "PreparedVariantResponse": {
@@ -3655,6 +4059,15 @@
       "PublicationWorkItemResponse": {
         "type": "object",
         "properties": {
+          "replacementTarget": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicationTargetResponse"
+              }
+            ]
+          },
           "slot": {
             "type": "integer"
           },
@@ -3697,6 +4110,7 @@
           }
         },
         "required": [
+          "replacementTarget",
           "slot",
           "revision",
           "purchasedPlatformId",
@@ -3714,7 +4128,9 @@
             "enum": [
               "PENDING_HANDLING",
               "PUBLISHING",
-              "COMPLETED"
+              "COMPLETED",
+              "EXCEPTION_HANDLING",
+              "CLOSED"
             ]
           },
           "quantity": {
@@ -3726,6 +4142,9 @@
           "nextAfterSlot": {
             "type": "integer",
             "nullable": true
+          },
+          "stopped": {
+            "type": "boolean"
           },
           "orderRevision": {
             "type": "integer"
@@ -3755,6 +4174,7 @@
           "quantity",
           "publishedQuantity",
           "nextAfterSlot",
+          "stopped",
           "orderRevision",
           "preparationMode",
           "targets",
@@ -3822,6 +4242,35 @@
           "orderRevision"
         ]
       },
+      "CustomerResolutionResponse": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "CONTINUE",
+              "TERMINATE"
+            ],
+            "nullable": true
+          },
+          "agreedPoints": {
+            "type": "integer"
+          },
+          "returnedPoints": {
+            "type": "integer",
+            "nullable": true
+          },
+          "stopped": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mode",
+          "agreedPoints",
+          "returnedPoints",
+          "stopped"
+        ]
+      },
       "PublicPublicationResult": {
         "type": "object",
         "properties": {
@@ -3856,6 +4305,10 @@
       "CustomerPublicationItemResponse": {
         "type": "object",
         "properties": {
+          "purchasedTargetName": {
+            "type": "string",
+            "nullable": true
+          },
           "slot": {
             "type": "integer"
           },
@@ -3863,7 +4316,8 @@
             "type": "string",
             "enum": [
               "IN_HANDLING",
-              "PUBLISHED"
+              "PUBLISHED",
+              "STOPPED"
             ]
           },
           "targetName": {
@@ -3881,6 +4335,7 @@
           }
         },
         "required": [
+          "purchasedTargetName",
           "slot",
           "state",
           "targetName",
@@ -3895,7 +4350,9 @@
             "enum": [
               "PENDING_HANDLING",
               "PUBLISHING",
-              "COMPLETED"
+              "COMPLETED",
+              "EXCEPTION_HANDLING",
+              "CLOSED"
             ]
           },
           "quantity": {
@@ -3907,6 +4364,9 @@
           "nextAfterSlot": {
             "type": "integer",
             "nullable": true
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/CustomerResolutionResponse"
           },
           "expectedCompletionAt": {
             "type": "string",
@@ -3927,6 +4387,7 @@
           "quantity",
           "publishedQuantity",
           "nextAfterSlot",
+          "resolution",
           "expectedCompletionAt",
           "delayed",
           "items"
@@ -6065,7 +6526,9 @@
             "enum": [
               "PENDING_HANDLING",
               "PUBLISHING",
-              "COMPLETED"
+              "COMPLETED",
+              "EXCEPTION_HANDLING",
+              "CLOSED"
             ]
           },
           "title": {
@@ -6121,7 +6584,9 @@
             "enum": [
               "PENDING_HANDLING",
               "PUBLISHING",
-              "COMPLETED"
+              "COMPLETED",
+              "EXCEPTION_HANDLING",
+              "CLOSED"
             ]
           },
           "title": {
@@ -8117,8 +8582,14 @@
             "enum": [
               "ADMIN_ADJUSTMENT",
               "PUBLISHING_ORDER",
-              "RECHARGE"
+              "RECHARGE",
+              "ORDER_RETURN"
             ]
+          },
+          "returnedOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "publishingOrderId": {
             "type": "string",
@@ -8280,8 +8751,14 @@
             "enum": [
               "ADMIN_ADJUSTMENT",
               "PUBLISHING_ORDER",
-              "RECHARGE"
+              "RECHARGE",
+              "ORDER_RETURN"
             ]
+          },
+          "returnedOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "publishingOrderId": {
             "type": "string",

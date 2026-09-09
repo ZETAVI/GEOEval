@@ -29,6 +29,7 @@ import {
   SavePublicationDraftRequest,
   RecordPublicationResultRequest,
   CorrectPublicationResultRequest,
+  ReplacePublicationTargetRequest,
   PublicationWorkPageResponse,
   PublicationWorkReceiptResponse,
   CustomerPublicationPageResponse,
@@ -41,6 +42,7 @@ const requests = [
   SavePublicationDraftRequest,
   RecordPublicationResultRequest,
   CorrectPublicationResultRequest,
+  ReplacePublicationTargetRequest,
 ];
 @ApiTags("publication-delivery")
 @ApiExtraModels(...requests)

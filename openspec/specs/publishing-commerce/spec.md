@@ -5,9 +5,11 @@
 This owner currently implements maintained random-package configuration,
 administrator audit, terminal-customer offer visibility, account points,
 granted-only administrator adjustments/history, saved selections, advisory quotes,
-atomic point-funded purchases and customer-safe order reads. Operational admission
-and responsibility are owned by [Publication Delivery](../publication-delivery/spec.md);
-results, returns and real payment are not activated. Historical delivery rationale is retained in
+atomic point-funded purchases, once-only original-order point returns and
+customer-safe order reads. Admission, responsibility, results, negotiated agreements
+and fulfilment states are owned by [Publication Delivery](../publication-delivery/spec.md).
+Order returns do not activate a payment channel or customer self-service refund.
+Historical delivery rationale is retained in
 the [archived change](../../changes/archive/2026-09-07-establish-publishing-commerce/proposal.md);
 this specification and executable contracts own current behavior.
 
@@ -262,8 +264,8 @@ Commerce SHALL expose a customer-owned order list and detail using safe DTOs.
   the purchased article itself has no customer edit command
 - **AND** point history distinguishes purchase spending from adjustment and links
   the related order; customers still see one unified balance without origin selection
-- **AND** origin composition remains internal for future settlement/returns;
-  this slice exposes neither funded credit nor commission/return behavior
+- **AND** origin composition remains internal; order-return history uses its
+  distinct kind and original-order link rather than an administrator gift
 - **AND** foreign order IDs return not found, and internal actors, requests,
   origin, procurement and audit notes never enter customer projections
 - **AND** there are no invented results, dates, progress or self-refund/cancellation;
@@ -277,3 +279,35 @@ Commerce SHALL expose a customer-owned order list and detail using safe DTOs.
 - **AND** restrictive database references protect article/account/Brand identity,
   media identities and the unique spending-order relationship; retained orders
   remain readable independently of source maintenance.
+
+### Requirement: Original-order point returns through a narrow transaction port
+
+Commerce SHALL own the actual credit, immutable return ledger/request and original
+consumption relationship. Delivery SHALL own the negotiated amount, eligibility
+and fulfilment outcome; the application composes both on one transaction.
+
+#### Scenario: A positive original-order return is credited
+
+- **WHEN** Delivery supplies an eligible positive whole-point amount
+- **THEN** it cannot exceed the original spend, and restored granted/funded points
+  follow the original consumption ratio, rounding down then assigning a remaining
+  point to the larger fractional remainder, with granted winning an exact tie
+- **AND** current held recharge reservations count toward balance and sequence
+  capacity through the shared points-capacity contract, without spending or
+  releasing those reservations
+- **AND** wallet revision, source deltas, real administrator identity, original
+  order/consumption, agreement revision and normalized exact request commit once
+- **AND** database references and final-graph constraints reject a missing Delivery,
+  mismatched owner, amount, agreement or settlement/closure relationship
+- **AND** an order has at most one return; its ledger and recovery request cannot
+  be edited or deleted, and zero agreements create no point entry.
+
+#### Scenario: Return retry or interrupted transaction
+
+- **WHEN** the same administrator repeats the exact successful order/request
+- **THEN** the existing receipt is recovered before mutable eligibility checks
+- **AND** another actor, another key for the returned order, or changed request
+  contents cannot grant points again
+- **AND** wallet, ledger, Delivery settlement and audit failures roll back together
+- **AND** inactivity of the original customer does not discard the obligation or
+  reactivate their access; no funded recharge or external refund is synthesized.

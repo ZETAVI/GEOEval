@@ -4,7 +4,9 @@ import type { DeliveryStatus } from "./delivery-assignment.js";
 export const deliveryListQuerySchema = z
   .object({
     scope: z.enum(["POOL", "MINE", "ALL"]).default("POOL"),
-    state: z.enum(["ACTIVE", "COMPLETED"]).default("ACTIVE"),
+    state: z
+      .enum(["ACTIVE", "COMPLETED", "CLOSED", "PENDING_RETURN"])
+      .default("ACTIVE"),
     limit: z.coerce.number().int().min(1).max(50).default(20),
     cursorCreatedAt: z.string().datetime().optional(),
     cursorSequence: z.coerce
@@ -32,8 +34,8 @@ export function deliverySchedule(
   );
   const remaining = expectedCompletionAt.getTime() - now;
   const urgency =
-    status === "COMPLETED"
-      ? ("COMPLETED" as const)
+    status === "COMPLETED" || status === "CLOSED"
+      ? status
       : remaining < 0
         ? ("DELAYED" as const)
         : remaining <= 24 * 60 * 60 * 1000

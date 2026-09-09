@@ -943,6 +943,7 @@ enum PointChangeKind {
   ADMIN_ADJUSTMENT
   PUBLISHING_ORDER
   RECHARGE
+  ORDER_RETURN
 }
 
 model PublishingOrder {
@@ -963,7 +964,8 @@ model PublishingOrder {
   article           CoreArticle               @relation(fields: [articleId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict, map: "publishing_orders_article_owner_fkey")
   package           PublishingPackage?        @relation(fields: [packageId], references: [id], onDelete: Restrict)
   platforms         PublishingOrderPlatform[]
-  pointChange       PointChange?
+  pointChange       PointChange?              @relation("OrderConsumption")
+  pointReturn       PointChange?              @relation("OrderReturn")
   delivery          PublicationDelivery?
 
   @@unique([accountId, idempotencyKey])
@@ -976,22 +978,33 @@ enum PublicationDeliveryStatus {
   PENDING_HANDLING
   PUBLISHING
   COMPLETED
+  EXCEPTION_HANDLING
+  CLOSED
 }
 
 model PublicationDelivery {
-  orderId           String                     @id @map("order_id") @db.Uuid
-  sequence          Int                        @unique @default(autoincrement())
-  status            PublicationDeliveryStatus  @default(PENDING_HANDLING)
-  assigneeAccountId String?                    @map("assignee_account_id") @db.Uuid
-  revision          Int                        @default(1)
-  publishedQuantity Int                        @default(0) @map("published_quantity")
-  startedAt         DateTime?                  @map("started_at")
-  createdAt         DateTime                   @default(now()) @map("created_at")
-  order             PublishingOrder            @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  assignee          Account?                   @relation("DeliveryAssignee", fields: [assigneeAccountId], references: [id], onDelete: Restrict)
-  audits            PublicationDeliveryAudit[]
-  workItems         PublicationWorkItem[]
-  workAudits        PublicationWorkAudit[]
+  orderId            String                     @id @map("order_id") @db.Uuid
+  sequence           Int                        @unique @default(autoincrement())
+  status             PublicationDeliveryStatus  @default(PENDING_HANDLING)
+  assigneeAccountId  String?                    @map("assignee_account_id") @db.Uuid
+  revision           Int                        @default(1)
+  publishedQuantity  Int                        @default(0) @map("published_quantity")
+  startedAt          DateTime?                  @map("started_at")
+  exceptionReason    String?                    @map("exception_reason") @db.VarChar(320)
+  agreementRevision  Int                        @default(0) @map("agreement_revision")
+  resolutionMode     String?                    @map("resolution_mode") @db.VarChar(16)
+  agreedReturnPoints Int                        @default(0) @map("agreed_return_points")
+  resolutionReason   String?                    @map("resolution_reason") @db.VarChar(320)
+  stoppedAt          DateTime?                  @map("stopped_at")
+  closedAt           DateTime?                  @map("closed_at")
+  settledLedgerId    String?                    @unique @map("settled_ledger_id") @db.Uuid
+  settledLedger      PointChange?               @relation("DeliverySettlement", fields: [settledLedgerId, orderId], references: [id, returnedOrderId], onDelete: Restrict, onUpdate: Restrict, map: "delivery_return_ledger_fkey")
+  createdAt          DateTime                   @default(now()) @map("created_at")
+  order              PublishingOrder            @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  assignee           Account?                   @relation("DeliveryAssignee", fields: [assigneeAccountId], references: [id], onDelete: Restrict)
+  audits             PublicationDeliveryAudit[]
+  workItems          PublicationWorkItem[]
+  workAudits         PublicationWorkAudit[]
 
   @@index([assigneeAccountId, createdAt, sequence], map: "publication_deliveries_assignee_deadline_idx")
   @@index([createdAt, sequence], map: "publication_deliveries_deadline_idx")
@@ -999,14 +1012,15 @@ model PublicationDelivery {
 }
 
 model PublicationWorkItem {
-  orderId       String              @map("order_id") @db.Uuid
-  slot          Int
-  revision      Int                 @default(1)
-  platformId    String              @map("platform_id") @db.Uuid
-  startedAt     DateTime?           @map("started_at")
-  preparation   Json?
-  result        Json?
-  delivery      PublicationDelivery @relation(fields: [orderId], references: [orderId], onDelete: Restrict)
+  orderId           String              @map("order_id") @db.Uuid
+  slot              Int
+  revision          Int                 @default(1)
+  platformId        String              @map("platform_id") @db.Uuid
+  startedAt         DateTime?           @map("started_at")
+  preparation       Json?
+  result            Json?
+  replacementTarget Json?               @map("replacement_target")
+  delivery          PublicationDelivery @relation(fields: [orderId], references: [orderId], onDelete: Restrict)
 
   @@id([orderId, slot])
   @@map("publication_work_items")
@@ -1041,6 +1055,8 @@ model PublicationDeliveryAudit {
   request            Json
   previousAssigneeId String?             @map("previous_assignee_id") @db.Uuid
   nextAssigneeId     String?             @map("next_assignee_id") @db.Uuid
+  beforeResolution   Json?               @map("before_resolution")
+  afterResolution    Json?               @map("after_resolution")
   createdAt          DateTime            @default(now()) @map("created_at")
   delivery           PublicationDelivery @relation(fields: [orderId], references: [orderId], onDelete: Restrict)
   actor              Account             @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
@@ -1093,32 +1109,43 @@ model PointAccount {
 }
 
 model PointChange {
-  actorKind         String           @default("ACCOUNT") @map("actor_kind") @db.VarChar(16)
-  rechargeOrderId   String?          @unique @map("recharge_order_id") @db.Uuid
-  rechargeOrder     RechargeOrder?   @relation("RechargeLedger", fields: [rechargeOrderId, accountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict, map: "point_changes_recharge_owner_fkey")
-  settledRecharge   RechargeOrder[]  @relation("SettledRechargeLedger")
-  publishingOrderId String?          @unique @map("publishing_order_id") @db.Uuid
-  publishingOrder   PublishingOrder? @relation(fields: [publishingOrderId, accountId], references: [id, accountId], onDelete: Restrict, map: "point_changes_order_owner_fkey")
-  id                String           @id @default(uuid()) @db.Uuid
-  accountId         String           @map("account_id") @db.Uuid
-  sequence          Int
-  kind              PointChangeKind
-  grantedDelta      Int              @map("granted_delta")
-  fundedDelta       Int              @default(0) @map("funded_delta")
-  balanceAfter      Int              @map("balance_after")
-  actorAccountId    String?          @map("actor_account_id") @db.Uuid
-  idempotencyKey    String?          @map("idempotency_key") @db.Uuid
-  reason            String           @db.VarChar(160)
-  internalNote      String?          @map("internal_note") @db.VarChar(320)
-  businessReference String?          @map("business_reference") @db.VarChar(160)
-  createdAt         DateTime         @default(now()) @map("created_at")
-  wallet            PointAccount     @relation(fields: [accountId], references: [accountId], onDelete: Restrict)
-  actor             Account?         @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
+  actorKind               String                @default("ACCOUNT") @map("actor_kind") @db.VarChar(16)
+  rechargeOrderId         String?               @unique @map("recharge_order_id") @db.Uuid
+  rechargeOrder           RechargeOrder?        @relation("RechargeLedger", fields: [rechargeOrderId, accountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict, map: "point_changes_recharge_owner_fkey")
+  settledRecharge         RechargeOrder[]       @relation("SettledRechargeLedger")
+  publishingOrderId       String?               @unique @map("publishing_order_id") @db.Uuid
+  publishingOrder         PublishingOrder?      @relation("OrderConsumption", fields: [publishingOrderId, accountId], references: [id, accountId], onDelete: Restrict, map: "point_changes_order_owner_fkey")
+  returnedOrderId         String?               @unique @map("returned_order_id") @db.Uuid
+  returnedOrder           PublishingOrder?      @relation("OrderReturn", fields: [returnedOrderId, accountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict, map: "point_changes_return_owner_fkey")
+  originalConsumptionId   String?               @unique @map("original_consumption_id") @db.Uuid
+  originalConsumption     PointChange?          @relation("ReturnConsumption", fields: [originalConsumptionId, returnedOrderId, accountId], references: [id, publishingOrderId, accountId], onDelete: Restrict, onUpdate: Restrict, map: "point_changes_original_consumption_fkey")
+  returns                 PointChange[]         @relation("ReturnConsumption")
+  settledDeliveries       PublicationDelivery[] @relation("DeliverySettlement")
+  returnRequest           Json?                 @map("return_request")
+  returnAgreementRevision Int?                  @map("return_agreement_revision")
+  id                      String                @id @default(uuid()) @db.Uuid
+  accountId               String                @map("account_id") @db.Uuid
+  sequence                Int
+  kind                    PointChangeKind
+  grantedDelta            Int                   @map("granted_delta")
+  fundedDelta             Int                   @default(0) @map("funded_delta")
+  balanceAfter            Int                   @map("balance_after")
+  actorAccountId          String?               @map("actor_account_id") @db.Uuid
+  idempotencyKey          String?               @map("idempotency_key") @db.Uuid
+  reason                  String                @db.VarChar(160)
+  internalNote            String?               @map("internal_note") @db.VarChar(320)
+  businessReference       String?               @map("business_reference") @db.VarChar(160)
+  createdAt               DateTime              @default(now()) @map("created_at")
+  wallet                  PointAccount          @relation(fields: [accountId], references: [accountId], onDelete: Restrict)
+  actor                   Account?              @relation(fields: [actorAccountId], references: [id], onDelete: Restrict)
 
   @@unique([accountId, sequence])
   @@unique([accountId, idempotencyKey])
   @@unique([publishingOrderId, accountId])
+  @@unique([returnedOrderId, accountId])
   @@unique([id, rechargeOrderId, accountId], map: "point_change_recharge_identity_key")
+  @@unique([id, publishingOrderId, accountId], map: "point_change_consumption_identity_key")
+  @@unique([id, returnedOrderId], map: "point_change_return_identity_key")
   @@map("point_changes")
 }
 

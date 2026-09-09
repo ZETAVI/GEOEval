@@ -1,5 +1,7 @@
 # Architecture review and scoped simplification
 
+Archived review history. The dated draft/slice dispositions below retain their original scope. Final bounded verification and accepted-owner reconciliation are indexed in [tasks](tasks.md); actual integration state belongs to PR #81, not the old recommendation text.
+
 Scope: Issue #73 proposed Delivery/Commerce seam at `main@0552aa7`, not application implementation or a completed Change.
 Review method: independent read-only reviewer first inspected the existing candidate and current code/ADR/Identity rules, then performed a bounded check against this draft. Lead reconciled the remaining exact findings below; no broad repeat review or runtime claim.
 
@@ -53,3 +55,37 @@ admission now explicitly takes original purchase time and migration corrects
 the existing sort projection, not paid facts. #77 points-module extraction is coordinated after a
 stable results checkpoint and before return implementation; recharge behavior
 does not enter this results diff.
+
+## Order-side continuation after points assembly
+
+At integrated `main@bcb81db`, independent order-side review and lead reconciliation
+confirm that normal fulfilment and points assembly are not reopened. The fixed
+[C1 producer handoff](https://github.com/ZETAVI/GEOEval/pull/82#issuecomment-5588365460)
+has now returned the accounting/schema window. Consumer inspection confirms the
+explicit reservation-aware capacity check, account-first transaction binding
+and recharge-specific actor/uniqueness rules; it is not a full review of the
+payment slice or proof of order-return behavior. No second accounting policy or
+unconsumed refund interface is needed.
+
+The next activation must cover negotiated effective targets, stopped/Closed
+preservation during correction/reassignment, and terminal-aware active lists.
+Existing normal-slice code is not incorrectly labeled a current defect merely
+because it does not yet implement those future states. Acceptance scenarios now
+live in design §4.1 and will be exercised through actual persistence/HTTP/pages
+once their actual transaction/HTTP/page adapters exist, not counted as passing
+runtime tests. The current #73 slice explicitly stacks on fixed C1 `59930dd`
+through PR #82 under the agreed write window; lower payment PRs remain unmerged.
+
+The lead does not adopt the review suggestion to prebuild stopped-slot ranges:
+the confirmed first-release sequence finishes retained work before one stop of
+the remainder. Such a range/partial-stop planner has no required caller today.
+The human owner now confirms zero-point termination by the current responsible
+operator, without administrator confirmation or a ledger entry. Incremental
+review finds no new owner or approval engine necessary. An existing positive
+agreement must be explicitly revised, not reset by a new-form default; its
+revision competes with administrator settlement under the same Delivery lock.
+Closed and Completed remain distinct and corrections/reassignment preserve both.
+Review status: ready for the approved bounded implementation after the explicit
+C1 stack/write-window alignment. Zero-close audit rollback, stale authority,
+positive-to-zero settlement race and terminal projections are targeted evidence,
+not a reason to repeat unaffected normal-delivery review.

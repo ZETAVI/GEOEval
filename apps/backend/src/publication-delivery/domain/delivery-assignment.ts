@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-export type DeliveryStatus = "PENDING_HANDLING" | "PUBLISHING" | "COMPLETED";
+export type DeliveryStatus =
+  | "PENDING_HANDLING"
+  | "PUBLISHING"
+  | "EXCEPTION_HANDLING"
+  | "COMPLETED"
+  | "CLOSED";
 export type DeliveryAssignment = {
   orderId: string;
   sequence: number;

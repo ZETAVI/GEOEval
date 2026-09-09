@@ -40,7 +40,11 @@ export class DeliveryAssignmentController {
   @Get()
   @ApiQuery({ name: "scope", required: false, enum: ["POOL", "MINE", "ALL"] })
   @ApiQuery({ name: "limit", required: false, type: Number })
-  @ApiQuery({ name: "state", required: false, enum: ["ACTIVE", "COMPLETED"] })
+  @ApiQuery({
+    name: "state",
+    required: false,
+    enum: ["ACTIVE", "COMPLETED", "CLOSED", "PENDING_RETURN"],
+  })
   @ApiQuery({ name: "cursorCreatedAt", required: false, type: String })
   @ApiQuery({ name: "cursorSequence", required: false, type: Number })
   @ApiOkResponse({ type: OperationalOrderPage })

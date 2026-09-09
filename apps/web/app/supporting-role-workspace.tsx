@@ -215,7 +215,7 @@ export function supportingRoleConfig(
         {
           title: "履约订单",
           description:
-            "查看已购订单、当前责任和处理记录，按需改派；退点与结算尚未接入。",
+            "查看履约与协商记录、按需改派，并在“待退点”中确认执行已约定退点。",
           status: "AVAILABLE",
           href: "/admin/delivery",
         },
@@ -261,8 +261,9 @@ export function supportingRoleConfig(
         {
           title: "协商异常与退点",
           description:
-            "协商替换、停止剩余工作与管理员退点将在下一切片接入；普通结果已在履约订单中处理。",
-          status: "FUTURE_CAPABILITY",
+            "进入“我的订单”处理协商替换或停止剩余发布；零额终止直接关闭，正额退点由管理员执行。",
+          status: "AVAILABLE",
+          href: "/operations/orders",
         },
       ],
     };
