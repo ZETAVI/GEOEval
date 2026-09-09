@@ -47,7 +47,37 @@ export const m4BrandRowsSchema = z
   })
   .strict();
 
-// Explicitly a content interpretation, not the legacy source-anchored contract.
+// Current experimental format. Legacy validators below remain for retained
+// evidence only; new mentions are never converted into summary/targetDescription.
+export const m4BrandMentionsSchema = z.object({
+  brands: z.array(z.object({
+    displayName: otherBrand.shape.displayName.describe("可辨识的商业品牌主体名，不细分具体产品或分店。"),
+    isFocusBrand: z.boolean().describe("该主体是否为focusBrand所指的品牌。"),
+    attitude,
+    mentionContext: z.array(z.string().trim().min(1).max(500))
+      .max(8)
+      .describe("分点摘录原文中的实质内容，不写空泛标题或解析过程；重点品牌保留更多相关原文。仅具名而无介绍时可为空数组。"),
+  }).strict()).max(11).describe("按首次出现顺序整理，一品牌一条；没有具体品牌时为空数组。"),
+}).strict();
+
+export function inspectM4BrandMentionsOutput(value: unknown) {
+  const output = m4BrandMentionsSchema.parse(value);
+  if (output.brands.filter((brand) => brand.isFocusBrand).length > 1)
+    throw new Error("Multiple focus brand rows");
+  if (new Set(output.brands.map((brand) => brand.displayName)).size !== output.brands.length)
+    throw new Error("Duplicate brand row");
+  const indexedBrands = output.brands.map((brand, index) => ({ ...brand, position: index + 1 }));
+  const focusIndex = output.brands.findIndex((brand) => brand.isFocusBrand);
+  return {
+    interpretationFormat: "BRAND_MENTIONS" as const,
+    output,
+    indexedBrands,
+    focusBrandIndex: focusIndex < 0 ? null : focusIndex,
+    competitors: indexedBrands.filter((brand) => !brand.isFocusBrand && brand.attitude !== "NEGATIVE"),
+  };
+}
+
+// Retained content interpretation, not the legacy source-anchored contract.
 const legacyBrandContentSummarySchema = z
   .object({
     target: z
@@ -155,10 +185,14 @@ export function buildM4BrandRowsTask(
   return {
     ...parserTask,
     systemInstruction: prompt.content,
-    userContext: { ...context, content: buildM4ReadingText(answer) },
+    userContext: {
+      focusBrand: z.string().trim().min(1).parse(context.companyName),
+      question: z.string().trim().min(1).parse(context.question),
+      content: buildM4ReadingText(answer),
+    },
     outputContract: {
       version: `${prompt.id}@${prompt.version}`,
-      jsonSchema: z.toJSONSchema(m4BrandRowsSchema, {
+      jsonSchema: z.toJSONSchema(m4BrandMentionsSchema, {
         target: "draft-2020-12",
       }),
     },

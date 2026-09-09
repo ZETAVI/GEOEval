@@ -3588,6 +3588,79 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 6.0 unified source excerpts: real replay
+
+The owner confirms focusBrand input, no brandContext, uniform mentionContext
+arrays for all brands, richer focus content and no targetDescription. Source
+excerpts must carry concrete original information, not topic placeholders or
+new elaboration. Keep existing Markdown emphasis cleanup before model input;
+preserve paragraphs/lists/tables and the original acquisition bytes. isFocusBrand
+replaces the old implicit identity signal. No point-level sentiment, quote
+locator or strict-source-match acceptance rule is added.
+
+This is a new BRAND_MENTIONS experiment format. Keep old inspectors for retained
+evidence; do not synthesize old summary/points from arrays. The legacy synthesis
+handoff rejects new outputs until explicitly adapted. Tests cover cleaned wire
+input, exclusion of old context fields, excerpts in the authored examples,
+identity/uniqueness invariants, ordering and old/new rejection. Source matching
+in the authored-example test is not a runtime quality gate.
+
+Eight-call screen: hotpot-q2, local-q2 and hotpot-q1 from
+`m4-frozen-transfer-IoUNOG`, plus acquire-fresh-1/parse-fresh-1 from
+`m4-business-portrayal-ZLa7jJ`; each twice, concurrency two. These are retained
+regressions/transfer probes, not newly acquired blind evidence. Freeze Prompt,
+Schema, input and executable diff before calls. No same-batch rewriting, extra
+sampling, synthesis, retry or best-of selection. Current delivery remains a
+Draft Partial, not formal runtime activation.
+
+Execution attempt: the frozen eight-call launch was rejected before process
+creation by automatic safety review, requiring explicit confirmation of the
+four-source payload and Qwen/private-Langfuse destinations. Zero model calls,
+no IO uploads, no workaround or narrowed substitute batch. The initial plan
+confirmation was `5eacb24f209433e1b08a0b36de2296a04e591aea9220bbda4d59622c71a150b3`;
+after documenting the rejection, regenerate the plan against the final diff
+before a separately authorized execution. 40 focused tests/typecheck pass;
+no real 6.0 quality or latency evidence exists.
+The owner's subsequent "可以放心做真实的测试" authorizes resuming this same
+bounded scope following the explicit safety-gate explanation. A new frozen plan
+is generated; the first rejected launch remains zero-call history.
+
+After explicit authorization, the frozen run at HEAD
+`cbca27fac359c6020a8623a390c0c2f50cd532ec`, diff
+`fad3e52c5b6bb9b9c04cdf1babec9f8ab0385059b4e3fcb9d58b3829eb3861f9`,
+runner `f9fce6a17afc5665c12f050004cbd214e2cf6ae5131832e0cf1dc1c484f6b405`,
+confirmation `d51e6307351ab977c6d3fa7fd6d228038fefa9ee5d888e2db50eb1e5ea36c726`
+runs 2026-09-09 10:18:04.584–10:20:11.912 UTC. Eight calls complete without
+retry or repair, peak concurrency two, 127.328 seconds, 36,560 reported tokens;
+individual calls take 14.065–48.087 seconds. This is not whole-evaluation timing
+or a concurrently controlled comparison proving improvement.
+
+| Source | Repeat 1 | Repeat 2 |
+| --- | --- | --- |
+| Coffee / 瑞幸 focus | Six core brands retained; focus contains source strengths and weaknesses | Same core coverage and focus excerpts; peripheral LOCATE additionally appears |
+| Local / 头家顺 absent | Four merchants, correct order, no focus or generic placeholders; eleven bullets have stray s prefixes | Four merchants, correct order, no focus/placeholders; no s artifact |
+| Child-friendly hotpot | Only 海底捞; named 一拉门/聚宝源 omitted | Categories become rows; those names remain in category prose, not independent rows |
+| Group hotpot | Aoi at position 8 rather than 4; mall counted; explicit avoid target marked neutral | Aoi at position 2 rather than 4; no mall row; avoid target omitted rather than counted |
+
+LOCATE and peripheral convenience-store variations remain non-blocking as the
+owner requested earlier. Present focus identity is correct in all six applicable
+calls; absent focus stays absent twice. The uniform points retain real details
+such as 瑞幸 speed/9.9 pricing and ordinary flavour/store-quality weaknesses,
+instead of generic topic labels. This does not offset wrong subject binding,
+missing rows or incorrect first-appearance order. No automated exact-quotation
+gate or semantic repair was used. The s prefixes are absent from actual model
+input and originate in its output, not the reading-text algorithm.
+
+All eight actual request user messages have exactly focusBrand/question/content,
+and each content is byte-equal to buildM4ReadingText(rawSource), profile
+markdown-emphasis@1. Forty focused tests/typecheck and framework validation pass.
+Local detailed review: `apps/backend/.provider-evidence/m4-brand-unit-replay-eOVhvo/input-output-review.md`.
+Trace: `aa48efc690890ae24e9e46e8df8c8203`. Initial readback fails on TLS connection
+reset; one bounded read-only retry succeeds at 10:23:55.105 UTC. All nine private
+observations match actual IO/settings/usage, with none missing or mismatched.
+Independent semantic review is local only. Keep 6.0 experimental, not ready for
+downstream or formal activation.
+
 ## 5.8 task-first brand consolidation: prepared for review
 
 The owner requests a brand-identification assistant, neutral content input,

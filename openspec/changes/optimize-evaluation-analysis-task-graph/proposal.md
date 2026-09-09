@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.8 task-first Prompt prepared for review; latest measured evidence is 5.7
+- Status: 6.0 real evidence reviewed; excerpt format usable, brand identity/order unresolved
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,63 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The [6.0 real replay](research/chain-quality-experiment.md#60-unified-source-excerpts-real-replay)
+completes all eight calls in 127.328 seconds, 36,560 reported tokens. All eight
+actual wire contents equal the existing AST-cleaned reading text; raw sources
+remain unchanged. Structured acceptance is 8/8, not semantic acceptance.
+Focus identity is preserved in six present-source calls and correctly absent in
+two calls. Coffee retains useful positive and negative source excerpts. However,
+both hotpot-q2 outputs omit the two named representatives (one keeps only the
+focus, one stores names under a category row); both hotpot-q1 outputs misorder
+Aoi. The first additionally counts a shopping centre and neutralizes an explicit
+avoid recommendation. One local-q2 output adds stray s prefixes absent from the
+input. Do not accept the current package as stable or a synthesis-ready input.
+
+Retain uniform excerpt arrays experimentally, keep frozen failures for targeted
+identity/order verification, and do not add spelling-specific filters or restart
+architecture/model changes from these eight calls. No further calls in this
+batch, no old-shape conversion, no #41 runtime or frontend integration. Detailed
+actual inputs/outputs and diagnostics remain local; telemetry readback is tracked
+in the research record.
+
+### Tested scope and authority
+
+The owner approves uniform per-brand mentionContext bullet excerpts, richer
+source content for focusBrand, no separate targetDescription, no brandContext,
+and source-faithful extraction rather than invented elaboration. Candidate 6.0
+implements the current experiment with focusBrand/question/cleaned content and
+displayName/isFocusBrand/attitude/mentionContext[]. Existing AST-based reading
+cleanup is unchanged; original sampling bytes remain intact. No quote offsets
+or exact-substring gate is added. Empty mentions are allowed for name-only rows.
+
+Architecture boundary: keep the new BRAND_MENTIONS result in the existing
+controlled-validation owner. Legacy inspectors remain only for historical data;
+the new output cannot be parsed by the old synthesis handoff and is never
+silently converted into summary/targetDescription. Program-derived first order,
+focus index and competitors are local diagnostics. No #41 runtime integration,
+database/queue/frontend/current-spec change. Rollback is the previous experiment
+revision; no data migration. Later synthesis adaptation remains a separate step.
+
+Freeze four retained real sources, two repeats each, at most eight Qwen Flash
+low calls with concurrency two. No acquisition, synthesis, retry, repair or
+within-batch changes. Provider/wire/basic-schema failure stops the batch;
+semantic/acceptance errors remain visible results. Only actual IO/settings/usage
+goes to existing private Langfuse. This is an absolute candidate screen, not
+an improvement claim against a concurrently measured baseline.
+
+The execution launch was rejected by automatic safety review before process
+creation because this four-source payload/destination scope needs explicit
+confirmation. Zero provider calls or uploads occurred; no alternate path was
+used. Ask the owner to authorize these four retained contents to the existing
+DashScope endpoint and actual IO logging to private Langfuse before retrying.
+40 focused tests/typecheck and framework validation pass. This is local
+preparation only, not semantic or synthesis acceptance.
+The owner then explicitly replies "可以放心做真实的测试" to the payload-gate
+explanation. Resume only the same four-source, eight-call Qwen/private-Langfuse
+scope after regenerating its frozen plan; do not broaden it.
+
+### Previous task-first preparation
 
 The owner requests a brand-identification assistant with an explicit task order:
 recognize brand-level subjects, merge all mentions in first-appearance order,

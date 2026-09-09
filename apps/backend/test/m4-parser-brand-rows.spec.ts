@@ -4,6 +4,8 @@ import { buildM4CustomerSummaryTask } from "../src/ai-execution/controlled-valid
 import {
   buildM4BrandRowsTask,
   inspectM4BrandRowsOutput,
+  inspectM4BrandMentionsOutput,
+  m4ContentHandoffSchema,
 } from "../src/ai-execution/controlled-validation/m4-parser-brand-rows.js";
 import { buildM4ReadingText } from "../src/ai-execution/controlled-validation/m4-reading-text.js";
 import {
@@ -55,12 +57,12 @@ describe("M4 content-oriented brand rows", () => {
     const before = structuredClone(prepared);
     const task = buildM4BrandRowsTask(prepared, source);
     expect(task.systemInstruction.startsWith(
-      "你是一名品牌识别解析助手。",
+      "你是一名品牌相关内容的语义解析助手。",
     )).toBe(true);
     expect(task.systemInstruction).not.toContain("GEO评测");
-    const { answerLines: _lines, ...context } = prepared.userContext;
     expect(task.userContext).toEqual({
-      ...context,
+      focusBrand: "青禾咖啡",
+      question: base.userContext.question,
       content: buildM4ReadingText(source),
     });
     expect(prepared).toEqual(before);
@@ -68,10 +70,13 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.userContext).not.toHaveProperty("answerText");
     expect(task.systemInstruction).not.toContain("answerText");
     expect(task.userContext).not.toHaveProperty("originalAnswer");
-    expect(task.userContext.companyName).toBe("青禾咖啡");
+    expect(task.userContext.focusBrand).toBe("青禾咖啡");
+    for (const field of ["companyName", "brandContext", "questionKind"]) expect(task.userContext).not.toHaveProperty(field);
+    const extra = buildM4BrandRowsTask({...prepared, userContext: {...prepared.userContext, brandContext: "无关背景", diagnostic: "不发送"}}, source);
+    expect(extra.userContext).toEqual(task.userContext);
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@5.8.0",
+      "experiment.m4.parser-brand-rows@6.0.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -88,7 +93,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(() => buildM4BrandRowsTask(base, "different")).toThrow("mismatch");
     expect(() =>
       buildM4BrandRowsTask(buildM4BrandRowsTask(base), source),
-    ).toThrow("reading view");
+    ).toThrow();
     expect(() =>
       buildM4BrandRowsTask({
         ...base,
@@ -102,42 +107,47 @@ describe("M4 content-oriented brand rows", () => {
       }),
     ).toThrow("Open-question");
   });
-  it("uses real coffee excerpts to summarize every brand and expand the focus brand", () => {
+  it("uses real excerpts as uniform bullet content, with richer focus content and no legacy description", () => {
     const task = buildM4BrandRowsTask(base);
-    const examples = [...task.systemInstruction.matchAll(/输出：\n(\{[^\n]+\})/g)];
+    const examples = [...task.systemInstruction.matchAll(/content：\n([\s\S]*?)\n输出：\n(\{[^\n]+\})/g)];
     expect(examples).toHaveLength(2);
-    expect(task.systemInstruction).not.toContain("虚构");
-    const result = inspectM4BrandRowsOutput(JSON.parse(examples[0]![1]!));
-    expect(result.output.brands.map((b) => b.displayName)).toEqual([
-      "Manner Coffee", "瑞幸咖啡",
-    ]);
-    expect(result.projected.output.target!.position).toBe(2);
-    expect(result.projected.output.otherBrands.map((b) => b.position)).toEqual([1]);
-    expect(result.output.brands[0]!.mentionContext).toContain("排队较长");
-    expect(result.output.brands[0]!.attitude).toBe("POSITIVE");
-    expect(result.output.brands.every((b) => b.mentionContext.length > 0)).toBe(true);
-    expect(result.projected.output.target!.summary).toContain("Luckin Coffee");
-    expect(result.projected.output.target!.points.map((p) => p.text)).toEqual([
-      "文中提到通过优惠券购买可满足20元内预算。",
-      "周边门店密集，购买方便。",
-      "口味标准化、不易踩雷，推荐生椰或丝绒拿铁。",
-      "适合快速喝一杯、对豆子风味没有极高要求的人。",
-    ]);
-    expect(result.output.brands.map((b) => b.displayName)).not.toContain("生椰拿铁");
-    expect(result.output.brands.map((b) => b.displayName)).not.toContain("江宁路店");
+    const clean = (text: string) => buildM4ReadingText(text).replace(/\s/g, "");
+    for (const example of examples) {
+      const result = inspectM4BrandMentionsOutput(JSON.parse(example[2]!));
+      expect(result.interpretationFormat).toBe("BRAND_MENTIONS");
+      expect(result).not.toHaveProperty("projected");
+      for (const brand of result.output.brands) {
+        expect(brand).not.toHaveProperty("targetDescription");
+        for (const point of brand.mentionContext) expect(clean(example[1]!)).toContain(clean(point));
+      }
+    }
+    const coffee = inspectM4BrandMentionsOutput(JSON.parse(examples[0]![2]!));
+    expect(coffee.output.brands.map((b) => b.displayName)).toEqual(["Manner Coffee", "瑞幸咖啡"]);
+    expect(coffee.focusBrandIndex).toBe(1);
+    expect(coffee.output.brands[1]!.mentionContext).toHaveLength(5);
+    expect(coffee.competitors.map((b) => [b.displayName, b.position])).toEqual([["Manner Coffee", 1]]);
+    const restaurant = inspectM4BrandMentionsOutput(JSON.parse(examples[1]![2]!));
+    expect(restaurant.output.brands.map((b) => b.displayName)).toEqual(["东明香", "新记"]);
+    expect(restaurant.focusBrandIndex).toBeNull();
+    expect(restaurant.indexedBrands.map((b) => b.position)).toEqual([1, 2]);
+    // Source matching verifies authored examples only, not a live acceptance rule.
   });
-  it("uses real restaurant excerpts without rows for branches, repeated aliases or unnamed categories", () => {
-    const examples = [...buildM4BrandRowsTask(base).systemInstruction.matchAll(
-      /输出：\n(\{[^\n]+\})/g,
-    )];
-    const result = inspectM4BrandRowsOutput(JSON.parse(examples[1]![1]!));
-    expect(result.output.brands.map((b) => b.displayName)).toEqual(["东明香", "新记"]);
-    expect(result.projected.output.target).toBeNull();
-    expect(result.output.brands.every((b) => b.targetDescription === null)).toBe(true);
-    expect(result.projected.competitors.map((b) => b.position)).toEqual([1, 2]);
-    expect(result.output.brands[0]!.mentionContext).toContain("价格较高");
-    expect(result.output.brands[1]!.mentionContext).toContain("装修简单");
-    // Authored worked examples verify the contract, not a measured LLM result.
+  it("keeps new mentions distinct from legacy handoff and derives positions without repairing semantic errors", () => {
+    const brand = {displayName: "青禾", isFocusBrand: true, attitude: "POSITIVE", mentionContext: ["原文相关内容。"]};
+    const input = {brands: [brand, {...brand, displayName: "山岚", isFocusBrand: false, attitude: "NEGATIVE"}]};
+    const before = structuredClone(input);
+    const result = inspectM4BrandMentionsOutput(input);
+    expect(input).toEqual(before);
+    expect(result.output).toEqual(input);
+    expect(result.competitors).toEqual([]);
+    expect(m4ContentHandoffSchema.safeParse(result.output).success).toBe(false);
+    expect(() => inspectM4BrandRowsOutput(result.output)).toThrow();
+    expect(() => inspectM4BrandMentionsOutput(raw())).toThrow();
+    expect(() => inspectM4BrandMentionsOutput({brands: [brand, brand]})).toThrow();
+    expect(() => inspectM4BrandMentionsOutput({brands: [brand, {...brand, displayName: "其他"}]})).toThrow("Multiple focus");
+    expect(() => inspectM4BrandMentionsOutput({brands: [{...brand, mentionContext: [""]}]})).toThrow();
+    expect(inspectM4BrandMentionsOutput({brands: [{...brand, mentionContext: []}]}).output.brands[0]!.mentionContext).toEqual([]);
+    expect(inspectM4BrandMentionsOutput({brands: []}).focusBrandIndex).toBeNull();
   });
   it("derives positions before filtering without quotations, extra summaries or semantic repair", () => {
     const value = raw(),
@@ -407,7 +417,10 @@ describe("M4 content-oriented brand rows", () => {
             choices: [
               {
                 finish_reason: "stop",
-                message: { content: JSON.stringify(raw()) },
+                message: { content: JSON.stringify({brands: [{
+                  displayName: "青禾咖啡", isFocusBrand: true, attitude: "POSITIVE",
+                  mentionContext: ["青禾咖啡安静但略贵。"],
+                }]}) },
               },
             ],
           },
