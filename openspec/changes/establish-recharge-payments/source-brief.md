@@ -48,7 +48,7 @@ nonce + "\n"
 - 5 秒内应答；成功 HTTP 200/204，错误 4xx/5xx。官方推荐尽快应答、异步执行业务。
 - `WECHATPAY/SIGNTEST/` 错签名探测必须拒绝，不能当成成功。
 
-GEOEval 的推导实现：验真后先持久保存安全观察及待处理标记，再 ACK；后台从数据库消费。它比“ACK 后 fire-and-forget”多一个必要的 durable inbox 边界，避免进程退出丢失已确认接收的支付。该 inbox 复用已有候选 PaymentObservation，不复制第二套事件表。
+GEOEval 的推导实现：验真后先持久保存安全观察及待处理标记，再 ACK；后台从数据库消费。它比“ACK 后 fire-and-forget”多一个必要的 durable inbox 边界，避免进程退出丢失已确认接收的支付。B0 用一张不可变 observation 表保存事实变体，一张 receipt 表保存去重身份、首份事实引用与处理/冲突状态，不复制第二套支付事实。
 
 通知 id 只用于通知去重，账务还必须依靠充值单/外部交易/流水业务唯一性。相同 id 不同内容需要异常检查；可信但未知订单、错误金额等进入安全差异记录，不写 funded。
 
@@ -111,3 +111,15 @@ A0 的实际代码测试和 P0 历史证据在 [verification](verification.md)�
 [PostgreSQL 18 Read Committed](https://www.postgresql.org/docs/18/transaction-iso.html)的 ON CONFLICT DO NOTHING 可能因当前语句不可见的并发结果而跳过插入。接收设计用后续语句读取唯一冲突行，观察与处理状态同事务，提交后 ACK。[P0 接收检查点](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5581997952)证明临时实现的提交屏障/并发/接收进程恢复，不能替代后续生产 repository、Worker 或 funded 事务。
 
 成功 API 应答先验签再解释；非 2xx/网络错误只提供诊断，不形成支付或关闭事实。账单文件是官方明确例外：先验签取得下载 URL/hash，再校验文件 hash；没有通用 skip-signature 开关。[官方说明](https://pay.wechatpay.cn/doc/v3/merchant/4013053249)
+
+## B0 框架与数据库边界核查（2026-09-08）
+
+[Nest 官方 raw-body 文档](https://docs.nestjs.com/faq/raw-body)要求创建宿主时设置 rawBody:true，保留内置 parser；useBodyParser 尊重该选项。B0 实测 Nest 11.2.2 的 JSON parser（2 MiB、inflate:false）和真实 IncomingMessage 多值头，缺失 rawBody 返回 503。应用宿主装配仍待 N1，不把测试配置当成当前 API 已支持。
+
+[微信回调注意事项](https://pay.wechatpay.cn/doc/v3/merchant/4012075420)要求无登录态验证、5 秒内应答、重复通知幂等与验签失败返回失败。3.5 秒应用处理预算、冲突事实持久化后 ACK 是项目实现选择，不是官方保证；不涵盖前置网络/正文读取耗时，部署入口仍需命名环境验证。
+
+Prisma 官网 transactions 页面本轮抓取失败，未作为已读证据。实际使用的 Prisma 7.9.1 生成声明支持 createMany/skipDuplicates 和 transaction 的 isolationLevel/maxWait/timeout；真实 PostgreSQL 测试验证后续语句看见并发胜者，以及 lock_timeout 引发整笔回滚。升级 Prisma、Nest/parser、隔离级别或入口代理时重新验证这些边界。当前证据由 [verification](verification.md)持有，不证明数据库存储崩溃、正式 Worker 或商户连通。
+
+## C1 数据库约束推导（2026-09-08）
+
+本轮新增决策只涉及系统入账键与未来容量约束；不重新选择微信 SDK 或重跑旧协议实验。[PostgreSQL 18 约束文档](https://www.postgresql.org/docs/18/ddl-constraints.html)明确：普通 UNIQUE 对 NULL 默认互不相等，CHECK 为 NULL 也满足约束，普通 CHECK 不能保证其他行的数据不变量。因此 design 6.3 的候选系统键 NULL 必须与 kind-specific 非空关联/旧行非空检查配套，R/S 汇总一致性不能伪装为跨行 CHECK。[显式锁文档](https://www.postgresql.org/docs/18/explicit-locking.html)支持用一致获取顺序减少死锁；实际 account → order → reservation → receipt 顺序及任务锁释放仍须用 C1/N1 并发测试证明。上述迁移尚未实施。

@@ -4,9 +4,9 @@
 
 ## 结论与用户批注
 
-**A0 独立适配器：implemented, ready for fixed-diff review；充值全链路与渠道启用：not ready。**
+**A0 适配器与 B0 独立通知接收：implemented，作者审查 ready；充值全链路与渠道启用：not ready。**
 
-用户已确认按上一轮独立模块范围构建并做初步测试，[A0 Decision checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258)开启当前非冲突写入窗口。范围只有 Recharge provider port、微信协议实现、针对性测试和所属契约；不触碰共享 schema/API/Commerce 或应用启用。此前准备阶段的写入等待不再阻挡这一包。
+用户已确认按上一轮独立模块范围构建并做初步测试，[A0 Decision checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258)开启A0 非冲突写入窗口。该阶段范围只有 Recharge provider port、微信协议实现、针对性测试和所属契约；不触碰共享 schema/API/Commerce 或应用启用。此前准备阶段的写入等待不再阻挡这一包。
 
 用户已确认 Native → H5 和内部积分模块提取，并认可当前设计继续推进。官方规则和固定例证核清后，首版选择现有 Node 标准 crypto 与窄 HTTP Adapter；不增加未经评估的第三方 SDK 或语言进程。运行时仍需按合同验证。
 
@@ -14,9 +14,9 @@
 
 ## 审查基线
 
-- main/工作区：`0552aa7e60d5aa6b99645692e6090e64544087d5`；当前真实充值未启用。
-- 履约：[PR #76 固定提交 2658295](https://github.com/ZETAVI/GEOEval/blob/2658295805238bef7a09d8047c6aafdf3632edc8/openspec/changes/establish-publication-delivery/design.md)，已批准在研设计，尚非 main 事实。
-- 最新协调核查：#73 的 [0a88a5b 固定结果 checkpoint](https://github.com/ZETAVI/GEOEval/pull/76#issuecomment-5581859806)及 live head 一致；owner 确认 points 提取仍未执行，不将结果提交或 CI 本身当作共享写入窗口。
+- accepted main：a550fc4（#76 已合并）；A0 同步后 dfe98bc，准确 head 两项 CI 均通过。
+- 履约积分装配：[PR #79@770a764](https://github.com/ZETAVI/GEOEval/pull/79)已实现但未合并；其验证由 [producer checkpoint](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5583740565)持有，不等于 funded writer/reservation 已存在。
+- B0 只使用 [通知新表 schema 窗口](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643)，独立叠加 A0；API/Identity/Commerce 保持原 owner。
 - 当前 Commerce：`publishing-commerce.module.ts` 把积分与媒体/文章/HTTP 装配在一起；`point-account.ts` 同时限制余额和账务序号；`point-account-lock.ts` 提供 wallet lock；原购买与拟议退点都是 wallet-first。
 - 当前 HTTP：`api-app.ts` 未保留 raw body；AccessGuard、CsrfGuard 默认限制外部回调，已有精确豁免元数据可复用。
 - 官方规范：普通商户 APIv3、普通 H5 API、回调/关单/验签正文、微信官方 SDK/示例与支付宝官方 Node SDK。
@@ -80,4 +80,51 @@
 
 用户已认可 CommercePointsModule 重构方向；#73 owner 已确认结果片稳定后的单 writer 短窗口。正式 proposal/design/spec/tasks 已建立，旧本地候选迁入本 change，避免双重设计 owner。14/14 官方原语、23 项离线响应、37/37 受控 HTTP 和 20/20 通知/PG 持久性证据边界详见 [verification](verification.md)，一条失败页面样例仍单独保留。
 
-复盘结论：A0 已在用户确认的独立窗口完成实现，88 项实际代码验证覆盖官方固定输入、操作字段差异、安全投影和受控 HTTPS。接口/实现不导入 Commerce、Prisma、Nest 或旧 probe，不读取环境、不注册 Controller；全工作区类型检查和后端构建通过。固定 Diff 的意图、工程及证据复核由 PR 记录。B0 框架接收、C0/N1 积分事务、Native/H5 客户旅程和运营恢复分别推进；生产 repository、Nest parser/Identity、Worker、预留/账本、真实渠道/浏览器/资金仍须对应验证。
+复盘结论：A0 已在用户确认的独立窗口完成实现，88 项实际代码验证覆盖官方固定输入、操作字段差异、安全投影和受控 HTTPS。接口/实现不导入 Commerce、Prisma、Nest 或旧 probe，不读取环境、不注册 Controller；全工作区类型检查和后端构建通过。固定 Diff 的意图、工程及证据复核由 PR 记录。B0 框架接收的后续实现证据见下一节；C0/N1 积分事务、Native/H5 客户旅程、运营恢复、真实渠道与资金仍须各自验证。
+
+## B0 实现复核
+
+固定范围：A0@dfe98bc → B0@4f30e10，[PR #80](https://github.com/ZETAVI/GEOEval/pull/80)。按意图、工程、证据三个角度自行复核，不冒充独立 reviewer。
+
+| 角度 | 结论和可核查边界 |
+| --- | --- |
+| 意图/模块 | 只增加通知验真后的可靠接收；现有 API 不注册模块，handler 豁免与业务入账权限分开。新端口不接触 Commerce；没有钱包、通用支付平台或新队列抽象 |
+| 持久性/并发 | 观察及 receipt 同事务；复合 FK 固定首份同身份观察，冲突变体只追加；READ COMMITTED 后续语句读取并发胜者；同事务失败不 ACK |
+| 安全/隐私 | 真实原始字节验签/GCM；多值签名头不合并；仅投影必要字段；精确 Identity 元数据、报文和等待上限；原始密文与付款人标识不入库 |
+| 修正后的完整性 | 内部调用传入非标准化时间可能使入库再读的事实摘要不一致，已补充规范化时间不变量及负例；数据库金额下界与 Adapter 的正整数规则一致 |
+| 恢复/迁移 | 新表迁移重放通过；待处理扫描不持久推进时间水位；过期响应不声称取消提交。只有完整 settlement 事务未来可设置 processedAt/推进余额 |
+| 证据 | 21 真实 Nest/Identity/PostgreSQL + 4 应用预算测试通过；现有 API 权限清单 2 项通过；类型、构建、格式/框架结果见 verification |
+
+当前没有未解决的本片 material finding。实际应用装配、进程/存储崩溃、Worker 领取/结算、冲突运营处置与公网商户回调仍属于各自后续验收；扫描结果不能直接授权入账。固定 PR、CI 和 schema 交还回执由该 PR/Issue 持有。
+
+## #79 消费方复核与 C1 结算设计（2026-09-08）
+
+用户要求判断重构程度并继续打磨主线，合并留待后续。固定审阅 #79 的 a550fc4..770a764，实际变化是两个模块声明、装配测试和顺序改变的生成接口；服务、仓储、余额算法、锁、schema 均未改。真实消费者证明不引入 Publishing/Delivery/Media/GEO，完整 API 验证实例/路由只注册一次。复用 producer 的 63 项针对性检查和准确 head CI，不把重新计数当新增测试。
+
+**结论：#79 对装配提取 ready；尚未完成 C1 资金能力是阶段边界，不能据此要求大范围重构。** 本任务不改 #79。现有 PointAccountService 依赖 Identity/HTTP 异常，其仓储自开事务，故不能直接充当充值原子写入口。最小后续是 Commerce 拥有的纯基础设施事务绑定 writer，复用账户锁和内部规则；不必须先再分一批 Nest modules。只有实际无 HTTP 消费者出现无法隔离的 runtime provider 依赖时才进一步拆装配。
+
+| 级别 / 归属 | 可达风险与依据 | 下一实施动作 |
+| --- | --- | --- |
+| must-fix / C1 新增预留时 | 旧 adjustGranted 只检查可用余额；旧 spendPoints 只检查当前 revision，分别可能占满入账余额或最后序号槽位 | 所有账务 writer 共享 G+F+R、V+S 不变量；数据库行级上限保护，reservation 明细/汇总同事务 |
+| must-fix / C1 跨模块写入 | 先调用会自行提交的账户服务、再更新充值状态，会留下半笔账 | Recharge repository 持有短事务；Commerce 绑定同一 tx，不反向 callback、不在事务内调用 Provider |
+| must-fix / C1 系统幂等 | 现有账户客户端键空间跨赠点/购买唯一；系统到账复用公开/客户端键可被先占用 | 系统以充值业务关联去重，保留旧客户端键空间；候选 NULL 策略见 design 6.3，迁移与负例必须证明旧约束未放松 |
+| must-fix / C1 nullable 迁移 | actor/key 变为可空后，旧 CHECK 中的相等表达式可能变 UNKNOWN 而通过 | 旧 kind 显式 IS NOT NULL；新 RECHARGE 行必须有非空业务关联和系统来源，不伪装用户再次操作 |
+| must-fix / N1 receipt 消费 | worker 拿到 pending 后可能发生冲突；未知通知永远占据队首会饿死正常付款 | settlement 锁内重读；区分可重试、已应用与有原因的待核查，后续可执行行不会被永久阻塞 |
+| retain / #73 退点语义 | 原来源返还、一次执行、Completed+待退点和停用客户旧义务均已确认 | 容量不足保留义务；不挪用 Recharge reservation，不新增退点预留产品规则或代替其 writer |
+
+### 下一片最小反证矩阵
+
+| 场景 | 必须观察到的结果 / 改变的实施决定 |
+| --- | --- |
+| G+F=M-20，R=20，同时赠送 1 点 | 拒绝挤占容量；本单 20 点仍能到账；不能只修 Recharge |
+| V=M-1，S=1，同时购买扣 1 点 | 扣点也被序号容量保护拒绝；到账消费 S 并推进 V，说明负增量同样要经过策略 |
+| 两个并发充值预留、同键创建重试 | R/S 明细与汇总一致，恢复同一个订单，不重复占用 |
+| 两个通知 ID / query+notify 指向同交易 | 一条 RECHARGE 流水、同一订单成功；交易不能资助另一账户订单 |
+| 客户创建键或公开订单 ID 先被购买使用 | 仍能结算已认证付款；旧购买/赠点的同键异意图继续冲突 |
+| reservation 转换、余额、ledger、订单、receipt 任一步失败 | 全部回滚，没有半笔账；提交后丢响应恢复原结果 |
+| listPending 后 conflict 先提交；账户先取得/receipt 后取得 | settlement 在锁内发现冲突，不使用过期扫描视图；无任务锁→账户锁倒序 |
+| 未知/错配通知排在队首，后面为有效付款 | 未知记录有待核查原因，后续正常工作仍可推进；不能把待核查当已到账 |
+| 客户停用、额度变更后重试已提交成功 | 恢复已提交结果，不重新授权新单/登录；新请求仍按当前资格执行 |
+| 退点遭遇满余额/预留槽位 | 保留管理员待办与原履约事实，禁止挪用别单预留或伪造赠点 |
+
+本轮只有设计变更，以上矩阵**尚未作为 C1 运行时测试执行**。既有 A0/B0 与 #79 证据不被替代；共享写入窗口未重开。具体新 writer/迁移须在该窗口固定后实施，真实支付/生产仍未授权。

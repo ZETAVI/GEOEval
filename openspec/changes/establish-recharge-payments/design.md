@@ -2,7 +2,7 @@
 
 方案日期：2026-09-08。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: P0 proposed design with owner-confirmed module direction; no runtime activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
+Status: A0/B0 implemented in unmerged PRs; C1 and later contracts proposed with owner-confirmed module direction; no runtime activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
 
 本次批注已确认 PC Native → 手机外部浏览器 H5 的推进顺序，并明确认可在 Publishing Commerce 内独立装配积分能力。Node 实现已在协议例证验证后选用标准 crypto 与窄 HTTP Adapter；一个活动充值单和实际异常资金处置细节不视为自动获批。本文在原位置修正，不建立第二版架构文件；具体协议证据由 [微信 APIv3 接口简报](source-brief.md)持有。
 
@@ -21,7 +21,7 @@ Publishing Commerce 继续拥有积分账户和追加式积分流水，并向 Re
 
 ## 2. 当前项目事实与不变边界
 
-当前受保护 `main@0552aa7e60d5aa6b99645692e6090e64544087d5` 已接受以下事实：
+当前受保护 `main@a550fc471bdac2ceb468c645e4b0e7dc5769ba88` 的代码/规范与已批准产品方向形成以下边界；其中真实充值仍未激活：
 
 - 客户充值人民币整数，按 `1 元 = 10 积分`增加 funded 积分；只有确认支付成功才入账；
 - 客户可见充值状态是 **待支付 / 确认中 / 充值成功 / 已关闭**；取消、失败和过期不入账；
@@ -138,7 +138,7 @@ apps/backend/src/recharge/
 
 ### 5.0 与现有模块的冲突及最小收束
 
-基线除 main 外，另审阅 [PR #76 固定提交 2658295 的履约设计](https://github.com/ZETAVI/GEOEval/blob/2658295805238bef7a09d8047c6aafdf3632edc8/openspec/changes/establish-publication-delivery/design.md)。它是已批准的在研方案，尚未合入 main。
+当前基线已包含 #76 正常履约。已核对 [PR #79@770a764](https://github.com/ZETAVI/GEOEval/pull/79)的实际模块和测试，以及该固定版本下的退点设计；#79 是待合并的装配提取，退点仍是拟议能力。
 
 | 责任 | 明确 owner / 入口 | 跨模块边界 |
 | --- | --- | --- |
@@ -149,7 +149,11 @@ apps/backend/src/recharge/
 | 责任人、发布结果、协商退点意图/资格 | Publication Delivery | 不写积分余额；退点实际执行仍由 Commerce 拥有 |
 | 公网通知解析、请求签名、响应验签 | Recharge 的渠道适配器 | 返回已认证渠道事实；与本地订单的最终匹配由 Recharge settlement 在事务中执行 |
 
-现有 `PublishingCommerceModule` 把媒体、文章接缝、Controller 和积分 providers 一起装配且未导出窄入口。首批必要重构是从其中分出 `CommercePointsModule`（仍位于 publishing-commerce 内），仅装配账户/流水/预留策略及事务绑定 writer；购买与退点沿用，API/Worker 只导入所需装配。不要提前把它迁出为通用 Wallet 服务，也不要用 `forwardRef` 绕过循环。
+#79 对第一步的重构已经到位：独立 `CommercePointsModule` 迁入现有服务、仓储、两个积分 Controller 和 useExisting 映射，仅导出 PointAccountService；没有改变账务或购买事务。它切断文章/媒体/履约装配依赖，仍依赖根 Identity/Persistence。此前要求在机械提取阶段同时交付预留/writer 的描述过宽，在此收束。
+
+现有 PointAccountService 负责 HTTP 错误映射、Identity 查询和管理/客户读写；PostgresPointAccountRepository.adjust 自己开启事务。Recharge 不调用该赠点服务完成系统入账。优先在 Commerce 的基础设施公开一个受控的事务绑定入口，返回仅供充值的 reserve/consume/release 能力；其实现不导入 HTTP service、Controller、IdentityModule 或 Recharge 模块。传入的数据库事务由 Recharge 持有，绑定入口不另行提交。该函数/小对象即可满足当前真实变点，无需先增加 CoreModule、全局 UnitOfWork 或通用 postDelta 框架。若未来消费者确实需要共享运行时 providers，再把已有实现装配为无 HTTP 的 CoreModule；那时移动 Controller 应保持原 API 注册一次。
+
+赠点和购买的公共接口保留，内部改用同一个 Commerce 容量策略；退点也须在自己的实际实施片消费该策略。#79 不因尚未实现未来结算而被判为不合格，也不由 #77 重复提取。
 
 原方案“RechargeOrder → PointAccount”的锁顺序统一改为 **PointAccount → RechargeOrder/Delivery settlement → 当前操作的观察或执行记录**，与购买 wallet-first 和 #73 退点 wallet-first 对齐。后台领取任务的短事务可以只锁任务行，但必须提交后才执行 settlement；禁止持有任务锁再反向获取钱包锁。
 
@@ -167,7 +171,7 @@ apps/backend/src/recharge/
 
 ### A0 实现卡：独立微信协议适配
 
-- 已确认执行范围：[Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258)。main-direct，base 0552aa7，唯一 #77 分支；运行时没有装配或环境变量读取，不依赖 Nest/Prisma/Commerce。
+- 已确认执行范围：[Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258)。首次实施为 main-direct/base 0552aa7，已同步 a550fc4，A0 当前 dfe98bc；运行时没有装配或环境变量读取，不依赖 Nest/Prisma/Commerce。
 - 业务 gateway 拥有 Native 发起、按商户单号查单、关单；协议入口另接受原始通知和未合并头部。内部拆分成熟 crypto 原语、单次 HTTPS 传输和微信字段解释；测试在真实外部 I/O seam 替换 transport，生产默认固定官方 HTTPS origin/TLS。
 - 查询携带被冻结的 merchant/app/order/amount 期望值。普通查单文档已成功读到：非成功状态可缺少 transaction_id/trade_type/amount；不得要求未支付单包含支付成功字段。SUCCESS 要形成可用支付证据则至少具备订单金额、币种、交易号和支付时刻；query 的选填 payer 字段保留 nullable，通知的必填 payer_total/payer_currency 不混用 query 规则。
 - 下单结果只给 QR 动作与原订单到期时刻，不以调用时刻不断延长二维码期限。关闭只认对应请求上下文的已验签空 204。Notification 证明渠道来源并保留原商户身份，匹配本地充值与持久化仍由下一切片负责。
@@ -183,17 +187,29 @@ A0 已实现的业务接口与类型由 [payment-gateway.ts](../../../apps/backe
 
 内部 HTTPS transport 返回有界原始响应；gateway 验签后才交给具体操作解释。配置快照、严格类型错误、一次请求、总时限、原始字节、可信 key 和 TLS 限制以实现和 [验证](verification.md)为准。任何成功证据仍须由 Recharge 在后续 settlement 事务中匹配并应用。H5/支付宝扩展进入各自切片；JSAPI/通用支付平台不在当前接口中预置。
 
-### 6.2 积分写入端口
+### 6.2 积分写入端口与事务责任
 
-```ts
-interface RechargeSettlementRepository {
-  reserve(command: ReserveRechargeCapacity): Promise<RechargeOrder>;
-  applyVerifiedPayment(command: ApplyVerifiedPayment): Promise<RechargeSettlementResult>;
-  closeVerifiedUnpaid(command: CloseVerifiedRecharge): Promise<RechargeOrder>;
-}
-```
+应用层继续只见 RechargeSettlementRepository：create/reserve、applyVerifiedPayment、closeVerifiedUnpaid；返回业务结果，不返回 Prisma client。以下是下一实施片合同，尚未激活。
 
-这是应用层能看到的端口。它的 PostgreSQL 实现内部打开 Prisma transaction，并调用 Publishing Commerce 提供的 infrastructure-private transaction-bound funded writer；只有这两个基础设施对象能看到 `Prisma.TransactionClient`。`applyVerifiedPayment` 必须同时检查充值业务身份、账户、积分数和幂等引用，并创建唯一的 `RECHARGE` PointChange。这个形态与现有发布购买的事务绑定 reader 一致，避免把数据库连接提升成领域合同。
+| 入口 | 责任和前置事实 | 同一事务的效果 |
+| --- | --- | --- |
+| Recharge 创建 | 读取客户与显式金额策略、冻结金额/商户身份/期限；同客户键先恢复原单，再限制新单 | 锁账户 → 建充值单 → Commerce 保留该单的积分容量与一个未来流水槽位；不得调用 Provider |
+| Commerce 事务绑定 writer：reserve | 同一事务内已锁账户；唯一 recharge/account 引用和固定点数 | 写 HELD reservation、增加账户 R/S；不改可用余额或账务序号 |
+| writer：consume | Recharge 已核对已认证成功与冻结订单；reservation 属于同账户/订单且点数完全一致 | 仅增加 funded、减少该单 R/S、推进一次账务序号、追加该单唯一 RECHARGE 流水；没有任意余额覆盖入口 |
+| writer：release | Recharge 在其事务内确认从未领取发送权，或已取得可信关闭依据 | 仅将该单 HELD 转 RELEASED、减少 R/S；重复释放无效果，不产生虚构点数流水 |
+| Recharge settlement | 拥有业务单/渠道事实匹配、重复交易与通知处理结论 | 关联真实支付事实、保存交易身份、消费 reservation、订单成功、receipt 处理结果一起提交；局部失败整体回滚 |
+
+绑定入口采用显式 `bind(tx)` 或等价小函数，生命周期仅在调用者事务内，账户锁由同一入口取得。Recharge 不能自己更新 PointAccount/PointChange；Commerce 不解析微信报文或拥有充值状态机。购买和退点保留各自已批准事务编排，仅共享账户锁、容量计算、余额/流水持久化规则。无跨模块 callback 让 Commerce 反向调用 Recharge。
+
+两种接口比较：扩展 HTTP PointAccountService 并再次开事务会破坏原子性且带入 Identity；泛用 applyDelta 暴露任意点数来源和业务关联。推荐的窄基础设施入口沿用本项目 transaction-bound reader 的依赖方向，增加真实需要的业务写能力。
+
+### 6.3 请求重试与系统入账身份
+
+现有 PointChange 的 account/idempotencyKey 唯一约束同时保护赠点与购买；其旧冲突语义保留。RechargeOrder 创建请求仍按 account/clientKey 幂等，但**系统到账的去重主体是 rechargeOrderId 与稳定外部交易身份**。不能把客户键、公开充值 UUID 或其可推导 UUID 直接塞进旧客户端键空间：另一次合法购买可能先占用同值，使已收款入账永久冲突。
+
+推荐的最小 schema 方向：RECHARGE 流水的客户端 idempotencyKey 为 NULL，使用独立非空 rechargeOrderId 唯一约束与 account 复合外键；现有赠点/购买/未来管理员退点仍必须有各自真实客户端请求键。相比给所有历史键重分命名空间，这保留旧唯一索引和旧调用者语义。PostgreSQL 默认 UNIQUE 的 NULL 互不相等，须由 kind-specific CHECK 明确哪些行允许 NULL，不能仅移除 NOT NULL 后放松旧约束。
+
+同样明确自动到账的 actor：推荐新 actorKind=SYSTEM、actorAccountId=NULL，旧操作回填/保持 ACCOUNT 与非空 actor。客户发起身份留在 RechargeOrder；系统确认引用真实通知/查询证据。旧 kind 的约束必须显式要求 actor/request key 非空，避免 SQL CHECK 的 UNKNOWN 被当作通过。查询和客户 DTO 不得泄露内部预留或来源；管理员历史可表达系统到账。这是待共享 schema 窗口验证的候选迁移，不改当前 ledger。
 
 ## 7. 数据模型与完整性约束
 
@@ -216,28 +232,36 @@ interface RechargeSettlementRepository {
 - `(provider, providerMerchantId, providerTransactionId)` 在非空时唯一；商户单号也按稳定商户身份约束。凭证 alias、key id 或版本轮换不能改变交易幂等身份；
 - `amountYuan > 0`、`amountFen = amountYuan * 100`、`fundedPoints = amountYuan * 10`，全程检查整数溢出；
 - `SUCCESSFUL` 必须有外部交易号、支付时间和唯一 PointChange 关联；
-- 一个 RechargeOrder 最多对应一条成功入账 PointChange；新增独立 `RECHARGE` 关联并使用 `(rechargeOrderId, accountId)` 复合 FK，保留原购买负流水/退点专属关联约束；账本使用由业务引用生成且可恢复的系统请求键，不能让客户键先被另一种账户操作占用后再阻止已收款入账；
+- 一个 RechargeOrder 最多对应一条成功入账 PointChange；新增独立 `RECHARGE` 关联并使用 `(rechargeOrderId, accountId)` 复合 FK，保留原购买负流水/退点专属关联约束；系统入账使用专属充值业务唯一关联，不占用客户端请求键空间（见 6.3），避免另一种操作先占键而阻止已收款入账；
 - 已保存的金额、汇率、商户订单号和成功外部交易身份不可修改。
 
 ### 7.2 预留 funded 入账容量
 
 当前积分总额上限是 `2,147,483,647`。如果只在支付成功后检查上限，会出现“客户已经付款，但并发管理员赠点令账户无法入账”的资金完整性缺口。
 
-建议由积分账户 owner 增加内部字段 `reservedFundedPoints`：
+由 Commerce 统一拥有 G=granted、F=funded、V=已提交账务序号、R=HELD 充值点数总额、S=HELD 充值流水槽位总数。推荐账户保存 R/S 汇总，另以唯一 recharge/account reservation 保留明细和 HELD → CONSUMED/RELEASED 的一次转换。任何改动都先锁账户，明细和汇总同事务；明细合计用于对账，不能让两个 writer 各维护一套算法。
 
-1. 创建 RechargeOrder 时，在同一短事务锁账户并预留 `fundedPoints` 容量；
-2. 所有增加积分的命令都验证 `granted + funded + reserved + delta <= MAX_POINTS`；
-3. 支付成功时把对应 reservation 原子转入 `fundedBalance`，总占用不增加；
-4. Provider 明确关闭后释放 reservation；待支付、确认中或未知状态不能提前释放；
-5. 客户可用余额不包含 reservation，发布购买也不消费 reservation。
+不可变式：`G,F,R,S,V >= 0`、`G+F+R <= M`、`V+S <= M`，M 是现有积分整数上界。数据库 CHECK 用扩大后的算术类型验证总和；R/S 默认 0 保持历史钱包。跨行汇总不伪装为普通 CHECK，而由同事务 writer 与对账检查承担。PointBalance 的客户/管理员读取仍只给现有字段；R/S 属内部容量快照。
 
-还要覆盖两处原方案遗漏：#73 的订单退点也是增加 funded/granted 的命令，必须遵守 `余额 + 预留` 上限；受限退点继续显示为未履行的义务，不挪用充值预留。当前 `revision/sequence` 也有整数上限，因此预留入账要同时保留未来一条流水的序号容量，其他账务写入不能把该容量用完。建议由同一个账户策略检查 `revision + 未结算充值保留槽位 + 本次新增流水 <= 上限`，而非把数值迁为 BigInt 后声称不会溢出。具体 reservation 可用唯一充值引用的记录表示，账户持有汇总值并可对账。
+| 操作 | 容量/余额转换 | 序号处理 |
+| --- | --- | --- |
+| 预留 q 点充值 | R += q，S += 1；必须在付款发起前成立 | V 不变，没有余额变动流水 |
+| 正常赠点、消费、订单退点 | 核对变化后的 G+F+R；消费仍先 granted 后 funded，退点仍按原消费来源 | V += 1，且新的 V+S 不超上限；扣点也不能占用留给已付款到账的最后槽位 |
+| 确认本单到账 q 点 | F += q，R -= q，S -= 1；只消费自己的 HELD 明细 | V += 1，因此 V+S 不增加 |
+| 安全关闭本单 | R -= q，S -= 1；不改 G/F | V 不变；保留 reservation 转换记录 |
+| 已提交业务结果重放 | 恢复原结果，不重新通过可变余额/新单额度 Gate | 不再推进 V 或 S |
+
+两个最小反例规定下一片必须改所有实际写入口：余额 M-20、R=20 时，旧赠点 +1 算法会挤占预留；V=M-1、S=1 时，旧购买算法会占用最后一个到账序号。它们是新增预留后会出现的风险，不是已启用产品的付款事故。
+
+#73 退点也是增加 G/F 的操作，必须保留已批准的原来源、一次实际返还和停用客户旧义务规则。容量不足或序号被预留时保持待退点可见，不能挪用充值 R/S、伪造赠点、修改原消费或自动释放未知支付。本轮不把所有未来退点提前变成容量 reservation，也不改变 #73 的受限义务处理决定。
 
 如果不做预留，就必须接受“已收款但积分无法自动到账”的人工负债，这不符合首版资金链路的完整性目标。预留只保护积分数值容量，不锁价格、媒体库存或发布选择。创建接口还需设账户级速率限制、批准的单笔最小/最大充值额和到期恢复；否则攻击者可以用未支付订单长期占用容量。
 
 ### 7.3 支付观察日志
 
 建议增加 append-only `PaymentObservation`：
+
+下列是全链路候选模型。B0 只实现已认证成功通知的观察/receipt，不伪造查单通知 ID；后续查询、关单和账单观察的 source/type 与迁移由 N1 收束后扩展，不声称 B0 已持有全部来源。
 
 - 来源：`INITIATION_RESPONSE` / `NOTIFICATION` / `QUERY` / `CLOSE_RESPONSE` / `BILL_RECONCILIATION`；
 - 归一状态、商户单号、平台交易号、订单总额、付款人实付额及各自币种、支付时间、Provider 配置别名；
@@ -284,13 +308,12 @@ Provider 文档允许某些系统异常按原参数重试，是否重试由 Rech
 
 ### 9.2 成功确认事务
 
-1. 在事务外取得并验证 PaymentObservation；
-2. Recharge settlement repository 先读取不可变订单账户引用，再开启事务按 PointAccount → RechargeOrder 顺序加锁并复核引用；
-3. 恢复已经成功的同一结果；拒绝同商户单号出现不同金额、币种、商户、应用或外部交易身份；
-4. 关联已保存的不可改写 observation，或为本次已认证查单结果插入观察；不能在此阶段因为同一通知已落库而跳过未完成入账；
-5. 将 reservation 转成 funded，写一条 `RECHARGE` PointChange、推进账户序号和余额；
-6. 将 RechargeOrder 置为 `SUCCESSFUL` 并关联 PointChange；
-7. 一起提交或一起回滚。
+1. 验签/解密或查询在事务外完成。通过稳定 merchant/order 引用找到不可变本地账户信息；未知订单先保存待核查原因，不借用回调自报账户创建钱包。
+2. 同一短事务按 **PointAccount → RechargeOrder → 本单 reservation → 当前 receipt/处理记录** 锁定；复核账户、商户、应用、商户单号、冻结订单总额/币种及真实外部交易身份。
+3. 先判断是否是相同已提交的业务结果并恢复；同一充值收到不同交易/金额等事实进入可见差异，不把“本地已经成功”当成忽略新冲突的理由。另一充值占用相同外部交易身份时不得转账或二次入账。
+4. 通知路径在锁内重读 hasConflict 与处理状态，验证引用的不可变事实；不得只相信 listPending 的旧快照。查单使用真实 QUERY 来源的观察，不伪造 notificationId 或完整付款人字段；与 B0 通知观察共享规范化事实投影，source-kind 的具体 schema 扩展在该片确定。
+5. Commerce writer 消费本单 reservation，更新余额/序号并追加唯一 RECHARGE 流水；Recharge 同事务保存支付事实关联、交易身份、成功状态和处理完成标记。
+6. 任一步失败整体回滚；提交后丢响应只重取同一个成功结果。队列/Provider/用户交互不进入事务，后台领取任务的短事务在此之前已提交并释放任务锁。
 
 重复回调、查单与回调竞争、进程在响应前退出，都只会恢复同一成功结果。
 
@@ -311,6 +334,12 @@ Provider 文档允许某些系统异常按原参数重试，是否重试由 Rech
 接收仓储必须将不可改写观察和可恢复处理状态放在同一事务。PostgreSQL Read Committed 下，ON CONFLICT DO NOTHING 可能因另一事务的唯一键而跳过插入，但当前语句快照看不到那行；用随后语句读取已存在事实再判断幂等，不使用一条 CTE 中 fallback SELECT 的“没读到”作为未接收结论。只有事务提交完成才给成功 ACK；提交结果未知时不先 ACK，后续同通知重试恢复已有事实。工程实现用连接池/参数化查询和有界事务时限，不能照搬实验中的逐次 docker/psql 启动。
 
 [通知持久性实验](verification.md)覆盖真实 raw HTTP/验签解密、并发唯一插入、提交前阻塞和接收进程 SIGKILL；它没有 Nest/Identity 装配、业务订单匹配、Worker lease 或 funded writer，不宣称上述后续链路已实现。实验使用观察与游标两张临时表，只验证逻辑原子性，不冻结最终 Prisma 物理表形态。
+
+### 10.1a 接收后的处理结果与公平恢复
+
+B0 的 ACCEPTED/204 只代表接收。下一片须在 receipt 的可变处理部分区分 PENDING、APPLIED/ALREADY_APPLIED、REVIEW_REQUIRED；准确字段由实际 repository 持有。验证成功却找不到本地订单、字段不匹配、冲突或已释放后迟到付款都进入具备原因的受限待核查记录，不通过设置 processedAt 虚报到账。已有成功后出现的新差异保留历史成功与新增告警事实，不自动撤销或再记分。
+
+临时数据库/传输失败仍可按行级 due time 有界重试；不能把最早的 100 条无法处理通知永远留在 pending 队首、饿死后续有效付款。扫描每轮读取当前可执行状态，不持久推进只增时间水位；运营另能找回待核查义务。处理状态与 ledger/order 的关系必须由同一 settlement 事务或明确的无资金效果审查事务确定。
 
 ### 10.2 主动查单
 
@@ -499,7 +528,7 @@ P0 已收束到本正式 change；已确认的入口与积分模块方向不再�
 
 ## 21. 本轮接缝回执与可实施的取消规则
 
-#73 履约 agent 已明确接受 CommercePointsModule 无行为变化提取的唯一执行 owner，安排在当前结果片稳定提交之后、订单退点实现之前；#77消费稳定 revision 并负责充值协议/Adapter。下一退点片会改专属流水、原来源分配、余额上限和 wallet-first writer。#77 当前不并发写共享 schema/API/Commerce，也不预设退点端口已存在。
+#73 履约 agent 已明确接受 CommercePointsModule 无行为变化提取的唯一执行 owner，安排在当前结果片稳定提交之后、订单退点实现之前；#77消费稳定 revision 并负责充值协议/Adapter。下一退点片会改专属流水、原来源分配、余额上限和 wallet-first writer。#77 的 A0 阶段不并发写共享 schema/API/Commerce；后续 B0 仅在第 22 节的显式窗口新增通知表，不预设退点端口已存在。
 
 本地发起事实使用 UNSENT / MAY_EXIST，独立于客户可见状态。第一次领取发送权前先持久标为 MAY_EXIST，此后超时、lease 失效、重启和 abort 都不能降回 UNSENT。cancelRequested 仅禁止未来发起，不等于远端关闭。
 
@@ -510,3 +539,17 @@ P0 已收束到本正式 change；已确认的入口与积分模块方向不再�
 - 本地 generation 可拒绝陈旧状态写入，但不能远程撤销已发送请求。验证必须覆盖“领取后停顿 → 取消/NOT_EXIST → 原请求才到达 Provider”，并核对稳定 out_trade_no 防重与关单语义。
 
 P0 本轮协议结果及限制见 [verification](verification.md)。正式实现顺序以 tasks 为准；上述保守终止边界不声明所有异常都能自动结束。
+
+## 22. B0 通知接收实施边界
+
+B0 已在 [PR #80](https://github.com/ZETAVI/GEOEval/pull/80)交付并[交还窗口](https://github.com/ZETAVI/GEOEval/pull/80#issuecomment-5584078408)。本节保留其固定边界，不是 C1 的共享写入许可。本片在 main@a550fc4 与 A0@dfe98bc 上线性叠加；[共享 schema 窗口](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643)仅授权 Recharge 新表和 additive migration。#73 继续拥有 CommercePointsModule 提取；本片不修改 API/Identity 装配、PointAccount/PointChange 或退点。独立 Nest 测试宿主装配真实 Controller/Repository，当前应用不注册支付路由。
+
+Recharge 拥有不可变 `RechargePaymentObservation` 与唯一 `RechargeNotificationReceipt`。观察按 provider/merchant/notification/factsSha256 去重，保留同一通知的不同可信事实；receipt 的复合外键只指向同身份的第一份观察。原始密文、付款人 OpenID 和密钥不持久化。金额用 bigint 保存并约束到安全整数范围；标准化事实版本固定为 1，由同一序列化函数供 Adapter 与 Repository 使用。数据库拒绝观察 UPDATE/DELETE，以及 receipt 身份/首份事实改写、冲突标记回退。
+
+接收事务使用 READ COMMITTED：插入观察（冲突不覆盖）→ 插入 receipt（冲突不覆盖）→ 后续独立语句读取 receipt → 必要时标记 hasConflict → 提交。后续读取避免同一 SQL 快照看不到并发胜者。已持久化重复与冲突都返回 204；ACK 只代表可靠接收。冲突保留并排除自动处理，不修改第一份事实。这取代 P0 临时实验的冲突 409 选择。数据库错误/提交结果未知返回 503，重试通过唯一约束恢复。
+
+Repository 仅提供 accept、getReceipt、有限 listPending/listConflicts；没有 markProcessed、入账或队列接口。pending 每轮从头扫描未处理且无冲突的记录，不用持久时间游标跳过迟提交事务。扫描不提供领取或结算保证；未来 settlement 必须在自己的事务中再次锁定核对 receipt/订单/账户。
+
+Controller 只在通知 handler 豁免 session/CSRF，使用 rawBody 与原始多值签名头。宿主须启用 Nest rawBody 和 JSON parser（2 MiB、inflate:false）；缺失 rawBody 为配置错误并拒绝 ACK。应用服务设置 3.5 秒处理预算，Prisma 事务限制等待和执行时间，PostgreSQL 另限制锁/语句等待。响应截止不声称撤销数据库事务；迟提交后渠道重试仍安全。
+
+多角度前置审查结论：边界 ready；验证须证明真实 HTTP 在提交前不 ACK、并发幂等/冲突保留、事务回滚、响应丢失后重试、连接重建后扫描、安全字段投影和已有身份规则。商户联调、当前 API 激活、Worker 与 funded 入账不属于本片完成主张。迁移只增表；有支付事实后不做丢表回滚。

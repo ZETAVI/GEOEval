@@ -61,6 +61,39 @@ The system SHALL authenticate provider-originated messages before business use, 
 - **THEN** both amounts and their currencies remain distinct in the safe payment evidence
 - **AND** frozen order matching uses the order total while later authorized financial consumers do not infer actual payment from credited points.
 
+#### Scenario: Same notification identity contains different authenticated facts
+
+- **WHEN** provider, merchant and notification ID match a receipt but the versioned canonical fact digest differs
+- **THEN** the new immutable variant and a monotonic conflict marker commit before delivery is acknowledged
+- **AND** the first observation is never overwritten, and the receipt is excluded from automatic pending scans
+- **AND** acknowledgement does not settle the conflict or grant permission to credit.
+
+#### Scenario: Notification reception outlives its response budget
+
+- **WHEN** the receiver cannot confirm durable acceptance within its processing budget
+- **THEN** it returns a retryable failure without claiming the database rolled back
+- **AND** a later commit is safely discovered by duplicate acceptance and database scans without a persistent timestamp watermark.
+
+#### Scenario: A pending scan becomes stale before settlement
+
+- **WHEN** a receipt becomes conflicting after a worker's scan and before its credit transaction
+- **THEN** settlement rechecks the receipt under the agreed lock order and does not credit from the stale scan
+- **AND** acquiring a task lease never leaves a receipt/task lock held while later acquiring the point-account lock.
+
+#### Scenario: Unresolvable notifications precede valid work
+
+- **WHEN** authenticated but unknown or mismatched notifications cannot automatically settle
+- **THEN** they retain a visible restricted review reason without being presented as paid
+- **AND** they do not permanently prevent later valid receipts from being selected
+- **AND** transient infrastructure failure remains distinguishable from a business discrepancy.
+
+#### Scenario: Notification module is constructed before application activation
+
+- **WHEN** the isolated module is tested with real Nest, Identity and PostgreSQL
+- **THEN** only its notification handler bypasses session and CSRF checks; cryptographic authentication remains required
+- **AND** missing raw bytes, unsupported encoding and excessive body size fail closed
+- **AND** the current customer application has no payment route until explicit composition work is completed.
+
 ### Requirement: Transport failures preserve business uncertainty
 
 The provider transport SHALL preserve the exact signed bytes, bound request/response resources and elapsed time, authenticate success responses before business parsing, and leave retry and terminal-state decisions to Recharge.
