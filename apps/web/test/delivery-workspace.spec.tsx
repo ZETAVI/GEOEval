@@ -168,7 +168,7 @@ describe("delivery pagination read baseline", () => {
 
 describe("delivery entry and customer status", () => {
   it.each([
-    ["NORMAL", "正常推进"],
+    ["NORMAL", "预计周期内"],
     ["NEARING_DEADLINE", "即将到期"],
     ["DELAYED", "已延期"],
     ["COMPLETED", "发布已完成"],
@@ -187,6 +187,7 @@ describe("delivery entry and customer status", () => {
       expect(html).toContain("预计完成");
       expect(html).not.toContain("已关闭");
       expect(html).not.toContain("已退款");
+      expect(html).not.toContain("正常推进");
     },
   );
   it("only asks to replace actual saved preparation or unsaved content edits", () => {

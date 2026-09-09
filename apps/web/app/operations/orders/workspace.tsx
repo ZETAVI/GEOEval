@@ -64,7 +64,7 @@ export function appendDeliveryPage(
 }
 
 const urgencyLabels = {
-  NORMAL: "正常推进",
+  NORMAL: "预计周期内",
   NEARING_DEADLINE: "即将到期 · 24 小时内",
   DELAYED: "已延期 · 优先跟进",
   COMPLETED: "发布已完成",
