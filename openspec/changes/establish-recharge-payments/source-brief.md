@@ -139,3 +139,15 @@ Prisma 官网 transactions 页面本轮抓取失败，未作为已读证据。�
 官方 API 示例有 `weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00`，调起页面另给出 `weixin://pay.weixin.qq.com/bizpayurl/up?pr=NwY5Mz9&groupid=00`。A0 固定 59930dd 的 URI 验证只接受旧 host/path。用真实 WechatPayGateway 与现有 wechatFixture 为这两个公开字符串构造受控签名应答，结果均为 INVALID_RESPONSE；旧 `/bizpayurl?pr=TEST` 对照通过。诊断 3 例中 2 失败 / 1 通过，证明字段解释过严，不是商户权限、TLS 或真实微信签名失败。该历史失败现已通过正式修复解决：两种当前例证纳入 gateway 回归，原受控 HTTPS 正向路径也使用 /up；80 + 20 项通过。既有失败材料保留，不将其从历史抹去。接受范围只扩展到已核查的支付目标，不放开任意 weixin 动作；URL 值原样返回，不重建 query。
 
 文档未承诺向不存在订单关单会留下防未来创建的 tombstone，也未提供对旧网络调用的 generation fence。MAY_EXIST 不能用 NOT_EXIST/lease/本地截止来自动释放，是针对该未证明边界的项目推导。QR 重试是否返回同值及实际续期、关闭与迟到发起的交错，仍须命名商户环境验证；本地受控网络仅验证我们如何处理这些结果，不代替微信端保证。
+
+## Native Web 组件来源与边界（2026-09-08）
+
+[Native 调起支付](https://pay.wechatpay.cn/doc/v3/merchant/4012791878)要求把 code_url 转为二维码展示，再由手机微信扫一扫付款；普通 Native 下单返回的并非官方 PC 托管收银页 URL。[H5 调起支付](https://pay.wechatpay.cn/doc/v3/merchant/4012791835)则明确从已配置域名跳转 h5_url，经过微信收银台中间页检查后支付。返回商户页面仍应查单，不能由回跳认定成功。这一区别支持 design 11.1a 的页面装配选择，不把 H5 链接作为 PC 方案。
+
+| 选择与核查 | 一手来源 | 实际使用范围 |
+| --- | --- | --- |
+| qrcode.react 4.2.0，运行时精确版本 | [维护者 README](https://github.com/zpao/qrcode.react)、npm registry 该版本元数据及本地安装包 LICENSE/源码声明 | QRCodeSVG/value/size/marginSize/level；4 模块静区。ISC，包内 QR Code generator 保留 MIT 声明。支持当前 React 19 peer，无新增运行时传递依赖（仅现有 React） |
+| jsqr 1.4.0，仅开发依赖 | [维护者仓库](https://github.com/cozmo/jsQR)、该版本 registry 元数据及安装包 LICENSE/声明 | Apache-2.0，无传递依赖。真实浏览器把渲染后 SVG 栅格化，再用独立解码器核对完整原值；未进入正常产品路由 |
+| 单一可订阅 controller | [React useSyncExternalStore](https://react.dev/reference/react/useSyncExternalStore) | 稳定快照/订阅/SSR 初值；实际 StrictMode 清理重放和超时竞争由项目测试验证，不以文档代替运行证据 |
+
+依赖由 #73 owner 交出的 Web manifest/lock 短窗口安装在项目内；锁文件只增加上述两个包，未更新既有版本。没有全局安装、远程二维码生成、第三方支付 SDK 或外部二维码数据传输。展示轮询 2 秒/60 秒、请求预算 8 秒与命令冷却 3 秒是本地 UI 策略；不宣称是微信限额、商户超时政策或服务端风控。库/React/二维码值来源变化时复核相应行为即可。

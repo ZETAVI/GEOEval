@@ -1,6 +1,6 @@
 # Change: Establish reliable recharge and WeChat web payment
 
-- Status: A0 in [PR #78](https://github.com/ZETAVI/GEOEval/pull/78); B0 in [PR #80](https://github.com/ZETAVI/GEOEval/pull/80); C1 atomic core implemented and locally verified in its linear successor; no application/payment activation
+- Status: A0 in [PR #78](https://github.com/ZETAVI/GEOEval/pull/78); B0 in [PR #80](https://github.com/ZETAVI/GEOEval/pull/80); C1 atomic core and an isolated Native checkout component implemented and verified in [PR #82](https://github.com/ZETAVI/GEOEval/pull/82); dispatch/customer API integration still pending; no application/payment activation
 - Issue: [#77](https://github.com/ZETAVI/GEOEval/issues/77)
 - Owner: ZETAVI
 - Lane/class: product delivery / architectural; Critical money boundary

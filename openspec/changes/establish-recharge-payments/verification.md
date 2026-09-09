@@ -143,3 +143,21 @@ N1 待实施的最小判别证据：
 复现：`pnpm --filter @geoeval/backend exec vitest run test/wechat-pay.gateway.spec.ts test/wechat-pay.https.spec.ts`（HTTPS 需允许 loopback）；`pnpm --filter @geoeval/backend typecheck`。修复前后的本地日志保留 /tmp/geoeval77-qr-regression-red.log、/tmp/geoeval77-qr-green.log、/tmp/geoeval77-qr-https-green.log；原研究诊断保留 artifacts，不再将失败描述为当前行为。
 
 此 URI 修复 locally verified；整体 N1 仍 partially verified，未增加发起/取消持久化、Worker、二维码页面或商户验证。后续不以重复密码学测试代替这些缺失的实际边界。
+
+## Native Web 组件验证（2026-09-08）
+
+本片以 5c1563b 为前置运行时，只新增独立组件与注入来源。二维码包含显式不可付款的合成订单值；全部页面动作均由测试来源返回。没有商户 API、凭据、资金或数据库操作。上节“未增加二维码页面”是 URI 修复片的历史边界，当前组件证据如下：
+
+| Claim | 最小判别证据 | Result / limit |
+| --- | --- | --- |
+| 本地生命周期 | `apps/web/test/native-checkout.spec.tsx` | **21 passed**：初始只读、有界轮询/请求、两个时限、错误客户端时钟、暂停/恢复、忽略 abort 的迟到响应、取消 ACK/丢响应/重载/跨标签、存储异常、终态/访问丢失、核验防连点、账户键隔离、StrictMode 和真实 SVG 输出 |
+| 既有 Web 兼容 | Web 全部测试、tsc --noEmit | **18 files / 122 passed**，typecheck 通过；不把静态测试称为真实客户 API 授权验证 |
+| 可解码 QR | 真 Next/React 浏览器中，Canvas 栅格化实际 SVG，独立 jsQR 解码 | 完整 URI 与输入逐字相同。没有手机微信扫码或支付成功证据 |
+| 浏览器恢复/语义 | 取消丢响应后重载；12 秒忽略 abort 的旧读取与取消竞争；QR 到期；来源成功/关闭；键盘 Enter 核验 | QR 不恢复，客户端不伪造关闭/到账，核验仍待支付有明确提示；轮询预算结束后人工刷新读取最终关闭。页面控制台无 error |
+| 窄屏布局 | 实际 CSS viewport 宽 374 px，随后恢复原视口 | document clientWidth = scrollWidth = 374；不展示需要另一台设备的 QR，按钮可访问。桌面/窄屏截图保留本地 `artifacts/recharge-native-ui/`，合成场景横幅明确 |
+| 产品隔离 | 停止预览脚本并确认临时 route 移除后 Web 生产构建 | Passed；构建路由表没有 `/native-checkout-preview` 或 `/recharges`。没有向当前应用装配支付模块 |
+| 依赖/共享写入 | 冻结锁文件安装；对前置 head 检查文件清单 | manifest 新增 qrcode.react 4.2.0、dev jsqr 1.4.0；lock 仅新增 26 行。backend、schema、API client/generated、全局 CSS 无改动；Next 临时生成声明已恢复 |
+
+复现：`pnpm --filter @geoeval/web test`、`pnpm --filter @geoeval/web typecheck`、`pnpm --filter @geoeval/web build`。浏览器 fixture 用 `node scripts/recharge/preview-native.mjs` 启动，监听 127.0.0.1:32577；脚本拒绝覆盖已有同名目录，普通退出清除临时路由。结束后确认该目录不存在再构建；意外强杀留下的临时页面必须先按脚本内容核对后清除。脚本不写账户/数据库或启动支付后端。
+
+格式、框架、Markdown link 与 Diff 检查以及准确提交/CI 结果由本片最终 PR checkpoint 记录。当前结论是独立 UI 组件 verified，整体 Native 链路 partially verified；尚缺真实客户 API、后台发起/关单/重建恢复、充值历史/发布上下文接线，以及商户权限和真实资金联调。已有 C1/A0/B0 资金/协议证据保持不变，不重复累计。

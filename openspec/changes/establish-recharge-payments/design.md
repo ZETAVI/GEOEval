@@ -2,7 +2,7 @@
 
 方案日期：2026-09-08。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0 and unregistered C1 implemented; N1/H5/operational activation remain proposed; no live recharge activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
+Status: A0/B0, unregistered C1 and an isolated Native Web component implemented; N1 dispatch/API integration, H5 and operational activation remain proposed; no live recharge activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
 
 本次批注已确认 PC Native → 手机外部浏览器 H5 的推进顺序，并明确认可在 Publishing Commerce 内独立装配积分能力。Node 实现已在协议例证验证后选用标准 crypto 与窄 HTTP Adapter；一个活动充值单和实际异常资金处置细节不视为自动获批。本文在原位置修正，不建立第二版架构文件；具体协议证据由 [微信 APIv3 接口简报](source-brief.md)持有。
 
@@ -410,6 +410,20 @@ B0 的 ACCEPTED/204 只代表接收。C1 使用 processedAt/appliedRechargeOrder
 - 待支付可以显示有效 QR；下单未知、取消中或支付截止后显示“正在确认支付结果”，停止展示 QR。轮询预算结束只提示稍后查订单，不伪装失败/关闭。只有本地 C1 成功提交后显示充值成功并刷新余额。
 - 显式选择取消只记录关闭意图，未核实前不承诺取消成功；离开页面不自动取消。已成功/已关闭停止展示动作；所有结果保留订单历史与统一客服入口，真实联系方式上线前提供。
 - 余额不足时先保存现有发布选择，再进入充值；返回引用限于账户拥有的 brand/selection 与允许的本地页面，不能接受任意 return_url。现有 pending-publishing-purchase 保存的是已确认购买请求，且 purchaseIntent 会拒绝 shortfall；不可拿它伪造待充值购买。使用轻量、按账户隔离的发布返回引用，恢复时重新读取保存的选择/文章及当前价格。原品牌与当前品牌不同则提示客户选择原上下文，不静默替换当前品牌。只有客户重新确认才提交购买。
+
+### 11.1a 可独立验证的 Native 页面切片
+
+已实现边界由 [controller](../../../apps/web/app/recharges/native-checkout-controller.ts) 与 [React 组件](../../../apps/web/app/recharges/native-checkout.tsx)持有，21 项行为回归见 [测试](../../../apps/web/test/native-checkout.spec.tsx)。实现证据和未接通部分统一记录在 verification，不把测试宿主当作客户支付页面。
+
+本切片提供 Web 私有的 NativeCheckout 组件和单一客户端 controller。未来 API mapping 只需提供本人订单安全快照、read/verify/cancel 三个有界方法，不把 C1 内部对象直接传到页面；本片没有默认 HTTP 地址、支付路由或后台注册。快照包含服务端采样时间供展示计时，wire DTO 在共享窗口确定后映射。
+
+选择单一可订阅 controller，而非多个互相触发的 React effect：它统一管理在途读取、操作失效标记、暂停/恢复、轮询预算与时间展示，React 只订阅稳定快照。源方法接受 AbortSignal；超时或旧请求失效不意味着远端操作被撤销。切换账户/订单和卸载立即失效旧结果，迟到响应不能恢复旧二维码或覆盖新订单。
+
+取消先保存按账户和订单隔离的最小本地意图标记，再发送命令并隐藏 QR；刷新和另一标签页都恢复该意图，命令 ACK 不等于已关闭。标记只在服务端终态确认后清理，不保存 QR/金额/凭据。若本地恢复记录不可用，不发出无法恢复的取消命令、不展示可能过时的 QR，提供安全重试/客服提示。支付/关闭仍完全由服务端状态决定。
+
+二维码由本地 SVG 库直接渲染，保留四模块静区，不嵌 logo 或外部图片。组件只暴露已批准的支付动作；移动窄屏不给长按/相册扫码承诺。独立测试宿主模拟本人订单读取与命令响应，必须明确其为合成场景；临时预览路由在验证后移除，产品不因预览而启用充值。
+
+普通商户 Native 返回 code_url，由商户页面展示二维码，手机微信扫码进入微信收银台；该接口不提供可直接跳转的官方 PC 托管收银页 URL。商户自己的独立收银页或当前页面内嵌属于同一 UI 装配选择，不改变充值/付款证据边界。H5 才返回 h5_url，经过官方收银台中间页校验并调起支付；它不能代替 PC Native。第三方托管收银方案不在当前已确认接口范围内。来源见 source-brief。
 
 ### 11.2 手机外部浏览器 H5
 
