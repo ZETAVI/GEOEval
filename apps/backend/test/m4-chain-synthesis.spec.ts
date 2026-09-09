@@ -52,6 +52,33 @@ const output = () => ({
 });
 
 describe("M4 real-chain synthesis preview", () => {
+  it("provides a complete narrative example without forcing themes in empty cases", () => {
+    const task = buildM4ChainSynthesisTask("青禾咖啡", inputs);
+    const narrative = buildM4ReportCompositionTasks(task).narrative;
+    const example = JSON.parse(
+      narrative.systemInstruction.split("输出：\n").at(-1)!,
+    );
+    expect(inspectM4TargetNarrativeOutput(example, task).output).toEqual(
+      example,
+    );
+    expect(example.positiveThemes[0].sampleIds).toEqual(["s1", "s2"]);
+    expect(example.negativeThemes[0].sampleIds).toEqual(["s1"]);
+    expect(example.directions).toHaveLength(1);
+    expect(
+      inspectM4TargetNarrativeOutput(
+        {
+          overview: "本批暂无可用内容。",
+          positiveThemes: [],
+          negativeThemes: [],
+          directions: [],
+        },
+        task,
+      ).output.directions,
+    ).toEqual([]);
+    expect(narrative.outputContract.version).toBe(
+      "experiment.m4.target-narrative@1.3.0",
+    );
+  });
   it("binds one required assignment slot to every unchanged brand record", () => {
     const task = buildM4ChainSynthesisTask("青禾咖啡", inputs);
     const before = structuredClone(task);

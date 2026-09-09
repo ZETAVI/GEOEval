@@ -111,10 +111,19 @@ The current role and decisions live in [the proposal](proposal.md).
 - [x] Freeze all assets at d54716f, acquire four new Qwen answers for two brands,
       parse each twice, and assemble two existing-component previews using first
       passes only. Sixteen calls complete; preserve the incomplete hotpot narrative.
-- [ ] Recheck only the hotpot narrative on its retained exact input and unchanged
-      Prompt/model in a separately bounded repetition. It returned empty themes/
-      directions despite ten input points. Do not resample or alter Parser 5.0;
-      decide on any narrative adjustment from recurrence evidence, not speculation.
+- [x] Owner approves a small second-layer adaptation plus retained baseline control,
+      rather than only replaying hotpot. Parser 5.0 remains frozen.
+
+## Current package — second-layer adaptation
+
+- [x] Prepare narrative 1.3 with accurate parsed-input meaning, clear output-unit
+      completion, one worked example and customer-relevant article-topic selection;
+      correct assignment evidence wording without changing its logic.
+- [ ] Verify narrative-only exact-summary deduplication, independent/absent/legacy
+      preservation, unmutated source tasks, valid example and unchanged output Schema.
+- [ ] Freeze/run eight narrative baseline/candidate calls over the retained hotpot
+      and appliance inputs twice each, medium/concurrency two, no Parser/resampling/
+      assignment/retry or within-batch changes. Review value as well as completeness.
 
 ## Retained report-level work
 

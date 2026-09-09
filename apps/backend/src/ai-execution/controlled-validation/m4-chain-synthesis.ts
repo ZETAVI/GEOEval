@@ -310,8 +310,9 @@ export function buildM4ReportCompositionTasks(
   const contract = (
     asset: typeof prompt,
     properties: NonNullable<typeof task.outputContract.jsonSchema.properties>,
+    contentVersion = 2,
   ) => ({
-    version: `${asset.id}@${asset.version}${note ? "+parser-content@2" : ""}`,
+    version: `${asset.id}@${asset.version}${note ? `+parser-content@${contentVersion}` : ""}`,
     jsonSchema: {
       type: "object" as const,
       properties,
@@ -328,9 +329,24 @@ export function buildM4ReportCompositionTasks(
     },
     narrative: {
       taskKind: "STRUCTURED_OUTPUT" as const,
-      systemInstruction: narrativePrompt.content + note,
-      userContext: narrativeContext,
-      outputContract: contract(narrativePrompt, narrativeProperties),
+      systemInstruction: narrativePrompt.content,
+      userContext: {
+        ...narrativeContext,
+        samples: narrativeContext.samples.map((sample) => {
+          // Only remove an exact duplicate in the explicitly content-based format.
+          // Retain absent-target explanations and independent legacy summaries.
+          if (
+            sample.interpretationBasis === "PARSER_CONTENT" &&
+            sample.target !== null &&
+            sample.sampleSummary === sample.target.summary
+          ) {
+            const { sampleSummary: _duplicate, ...rest } = sample;
+            return rest;
+          }
+          return sample;
+        }),
+      },
+      outputContract: contract(narrativePrompt, narrativeProperties, 3),
     },
   };
 }

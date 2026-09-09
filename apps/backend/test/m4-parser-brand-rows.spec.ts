@@ -260,7 +260,9 @@ describe("M4 content-oriented brand rows", () => {
       buildM4BrandAssignmentTask(task),
     ]) {
       expect(child.systemInstruction).toContain("不是逐字引文");
-      expect(child.outputContract.version).toContain("parser-content@2");
+      expect(child.outputContract.version).toContain(
+        child === split.narrative ? "parser-content@3" : "parser-content@2",
+      );
     }
     expect(() =>
       buildM4ChainSynthesisTask(
@@ -274,6 +276,40 @@ describe("M4 content-oriented brand rows", () => {
         samples.map((s) => ({ ...s, questionKind: "BRAND_DIRECTED" as const })),
       ),
     ).toThrow("open-question");
+  });
+  it("removes only exact duplicate content summaries from narrative context", () => {
+    const parsed = inspectM4BrandRowsOutput(raw()).projected;
+    const task = buildM4ChainSynthesisTask(
+      "青禾咖啡",
+      ["s1", "s2"].map((sampleId) => ({
+        sampleId,
+        question: "哪些咖啡？",
+        platformLabel: "千问",
+        originalAnswer: source,
+        parsedOutput: parsed.output,
+        interpretationFormat: "BRAND_CONTENT" as const,
+      })),
+    );
+    task.userContext.samples[1]!.sampleSummary = "独立补充的小结。";
+    const before = structuredClone(task);
+    const candidate = buildM4ReportCompositionTasks(task).narrative;
+    expect(candidate.userContext.samples[0]).not.toHaveProperty(
+      "sampleSummary",
+    );
+    expect(candidate.userContext.samples[0]!.target).toEqual(
+      task.userContext.samples[0]!.target,
+    );
+    expect(candidate.userContext.samples[1]).toHaveProperty(
+      "sampleSummary",
+      "独立补充的小结。",
+    );
+    expect(candidate.systemInstruction).not.toContain("正向和中性均可作为竞品");
+    expect(task).toEqual(before);
+    const unmarked = structuredClone(task);
+    delete unmarked.userContext.samples[0]!.interpretationBasis;
+    expect(
+      buildM4ReportCompositionTasks(unmarked).narrative.userContext.samples[0],
+    ).toHaveProperty("sampleSummary");
   });
   it("preserves neutral and negative labels through synthesis without reclassifying legacy false", () => {
     const parsed = inspectM4BrandRowsOutput({

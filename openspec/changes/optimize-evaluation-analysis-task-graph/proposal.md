@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.0 frozen transfer tested; narrative completeness needs a focused recheck
+- Status: Parser 5.0 frozen; second-layer adaptation candidate under comparison
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,23 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner approves the second-layer adaptation discussed after frozen transfer.
+Narrative 1.3 clarifies parsed-content inputs, theme completion, overall versus
+point attitude and article-topic value, with one complete fictional example.
+Frequent mention alone does not make routine process details a promotional topic;
+do not hardcode a waiting-area ban or delete that source information. Only exact
+duplicate sampleSummary is removed from explicitly content-based narrative inputs;
+independent/absent/legacy summaries and all points remain. Assignment 1.1 corrects
+the obsolete always-present evidence wording without changing its slots or behavior.
+
+Freeze eight narrative calls: captured 1.2 baseline versus the 1.3 adaptation,
+hotpot/appliance inputs twice each, Qwen medium/concurrency two. No sampling, Parser,
+assignment calls, retry or within-batch editing. Output shape and empty-case support
+stay unchanged. This is a coherent adaptation comparison, not isolated causal proof
+for any one Prompt sentence or summary deduplication.
+
+### Previous first-layer and frozen-transfer result
 
 The owner confirms neutral brands remain competitors, broadens positive to include
 ordinary qualified recommendations, and deprioritizes peripheral additions.

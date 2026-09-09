@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: 5.0 frozen transfer completed; narrative completeness under focused review;
+Status: Parser 5.0 frozen; second-layer adaptation under controlled comparison;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -14,7 +14,40 @@ real matrix, not minor wording, now drive the next bounded repair.
 Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
-### Current package — simple ternary attitude
+### Current package — second-layer parsed-content adaptation
+
+Architecture readiness: ready for this bounded experiment, not runtime acceptance.
+Ownership remains #42 controlled comparison and #41 final synthesis semantics.
+Keep Parser 5.0, output Schema, model/effort, IDs, original records and report
+assembly unchanged. No public contract, persistence, retry lifecycle or new Agent.
+
+Narrative 1.3 directly documents first-layer paraphrases and optional legacy
+evidence. Themes group meaningful aspects, including important single-sample
+signals; overview does not replace them. Overall positive attitude does not erase
+negative points. Choose one or two article topics for customer relevance and
+substantive content, not raw mention frequency or routine process detail alone.
+The owner's waiting-area feedback informs this general selection goal, not a new
+keyword prohibition. One fictional full-output example illustrates grouped themes,
+a retained drawback and a customer-relevant writing direction. Keep truly empty
+cases legal; no unconditional minimum theme count or new field is introduced.
+
+The narrative-only projection removes sampleSummary only when interpretationBasis
+is PARSER_CONTENT, target is present and sampleSummary exactly equals target.summary.
+Keep every point, target, source ID, question, coverage field and independent/absent/
+legacy summary. Input task objects are not mutated. Narrative includes its own
+context explanation rather than the shared competitor note; version suffix is
+parser-content@3. Grouping/assignment semantics remain unchanged; assignment 1.1
+only names mentionContext and optional legacy evidence accurately.
+
+Compare captured actual 1.2 baseline requests against current 1.3 on retained
+hotpot/appliance first-pass inputs twice each (8 calls, concurrency 2, Qwen medium).
+Same output Schema and source content, no sampling/Parser/grouping call or retries.
+Save exact inputs/outputs and inspect completeness, useful themes, article-topic
+value and latency separately. No attribution of empty output to a proven context
+failure; this coherent candidate changes instruction/example and exact deduplication.
+Telemetry contains actual model IO/settings/usage only; semantic review stays local.
+
+### Previous package — simple ternary attitude
 
 The owner deprioritizes peripheral convenience-store additions as well as LOCATE,
 rejects treating the previous variation as proven task-conflict causality, and
