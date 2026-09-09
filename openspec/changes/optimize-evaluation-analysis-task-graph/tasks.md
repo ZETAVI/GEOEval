@@ -105,9 +105,16 @@ The current role and decisions live in [the proposal](proposal.md).
       usage privately and keep review local. No automatic seventh call or synthesis.
 - [x] Assess core subjects, target/content and stable eligible membership without
       elevating peripheral additions to blockers or rewriting historical outputs.
-- [ ] Retain 5.0 for bounded fresh-source and synthesis/report validation; observe
+- [x] Retain 5.0 for bounded fresh-source and synthesis/report validation; observe
       whether individual point-label variation affects report meaning. Do not tune
       more same-source peripheral cases or treat changed eligibility as model accuracy.
+- [x] Freeze all assets at d54716f, acquire four new Qwen answers for two brands,
+      parse each twice, and assemble two existing-component previews using first
+      passes only. Sixteen calls complete; preserve the incomplete hotpot narrative.
+- [ ] Recheck only the hotpot narrative on its retained exact input and unchanged
+      Prompt/model in a separately bounded repetition. It returned empty themes/
+      directions despite ten input points. Do not resample or alter Parser 5.0;
+      decide on any narrative adjustment from recurrence evidence, not speculation.
 
 ## Retained report-level work
 

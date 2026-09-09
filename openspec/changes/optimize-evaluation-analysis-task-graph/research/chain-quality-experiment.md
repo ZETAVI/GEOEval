@@ -3588,6 +3588,68 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## Frozen new-source and report check
+
+The owner considers the remaining small cases non-blocking for more overall
+testing. Every Parser/narrative/assignment Prompt and executable asset stays frozen
+at `d54716f93acbb0d17b696841e3d7ce2aedcd2b51`. Retained cases had historical exposure,
+so this batch obtains new answers after freeze rather than claiming an unseen
+holdout. Public test targets are Haidilao and Ecovacs, with two manually scoped open
+questions each (gathering/service and pet-hair/automatic-cleaning needs). Test
+profile fields are scenario context, not accepted product facts or production
+Query Generator output. No factual verification/correction of platform claims.
+
+Manifest `744906cb9f67e747a5d64512d50538d0b8b8040c254e46d1a101e3c77a8cd32d`,
+runner hash `4e0bed43aa8a62daef8b2b4eaddc97d3150e1539a03fa1490db04b3494148736`.
+Exactly 16 calls/concurrency two: four natural Qwen3.7 Flash acquisitions using the
+existing Responses/search route; eight Qwen3.8 Flash low parses (each answer twice);
+four existing medium synthesis-component calls (assignment 1.0 and narrative 1.2).
+First-pass parses always feed synthesis, with no best-of, merging repetitions,
+resampling, retry/fallback, edits or runtime writes. Structured stages do not search.
+
+| Claim | Evidence and observed result |
+| --- | --- |
+| Candidate stays frozen | Actual asset/code hashes, messages and Schema checked; source acquired only after freeze; repeated Parser inputs identical |
+| Core target interpretation | All eight parses retain target and useful pros/cons; hotpot positions 1/1, appliance positions 3/2 agree across repetitions and source |
+| Subject consistency | Appliance lists repeat identically; hotpot secondary coverage varies and second passes contain generic categories. Preserve these outputs rather than classifying them as complete |
+| Parsed-only handoff | Actual two handoffs contain first-pass target/brand interpretations, never whole original answers |
+| Brand assignment | Both previews retain supplied independent brands; repeated appliance names merge correctly and eligible distinct-sample counts are 2/2/1/1 |
+| Narrative completeness | Appliance has overview, three positive themes, one negative theme and two content directions. Hotpot has overview only; all three arrays are empty despite ten input target points |
+| Wire and traces | Sixteen unique requests; raw Responses texts and Chat JSON equal saved output. Seventeen private Langfuse observations match actual IO/settings/usage |
+
+Hotpot empty arrays are present in the raw Provider JSON, not stripped by code.
+The input supplied favorable service/waiting content plus price/queue/privacy
+drawbacks; lack of source context is not the observed issue. No exact model cause
+has been established. This is a meaningful missing report component, unlike an
+edge-brand omission or stylistic preference. Structural assembly alone cannot
+accept this preview as complete, and the model output remains unmodified.
+Appliance directions are generally content-oriented, though longer than ideal;
+observe rather than expanding a wording gate. All conclusions describe sampled
+model claims, not verified store locations/product specifications.
+
+UTC run 2026-09-09 03:17:46.506 to 03:22:18.368: 271.862 seconds total, 49,807
+reported tokens. Acquisition calls 30.402–79.163 seconds, Parser calls 13.939–27.511
+seconds. Parallel assignment+narrative composition takes 14.146 seconds for hotpot
+and 20.698 seconds for appliances. The batch includes two brands, four acquisitions,
+eight repeated parses and two previews: it is not a formal 20-sample latency test,
+price/billing evidence, or generic stability rate. No failed model calls/retries.
+
+Reuse unchanged 50-test/typecheck/build evidence from the preceding candidate;
+this turn adds runtime wire/source/repetition/reference checks, not another claim
+that those tests were rerun. First private Langfuse readback hit transient TLS
+ECONNRESET; a read-only repeat succeeded without another model call or upload.
+Independent semantic review and rendered preview remain local.
+[Private actual-IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/32c544846bb8219cff265f4c2ab35d7c).
+Evidence directory: `apps/backend/.provider-evidence/m4-frozen-transfer-awR6cV/`,
+including `report-preview.md`, `input-output-review.md`, plan, raw stage records,
+source bindings, both handoffs and private-log readback.
+
+Decision: keep Parser 5.0 unchanged. Next use a small separately frozen repeat of
+the exact hotpot narrative input to check whether incomplete output recurs before
+considering a narrow narrative change. Do not extend this 16-call batch, resample,
+add Agents or alter formal runtime/other worktrees. Full 4x5, UI/database acceptance
+and failure-recovery delivery remain unverified under the existing #41/#42/#39 scope.
+
 ## Simple ternary and non-negative competitors
 
 At `ec6e20ab929b23612c651e24ef0aba92213e0236`, the owner accepts broader positive

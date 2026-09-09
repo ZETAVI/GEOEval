@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.0 retained for transfer/report validation after six-call regression
+- Status: 5.0 frozen transfer tested; narrative completeness needs a focused recheck
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -64,6 +64,15 @@ new gates; individual target-point polarity can still vary. Retain 5.0 for a bou
 fresh-source and synthesis/report check instead of more same-source tuning. Do not
 equate owner-approved neutral inclusion with model accuracy improvement or claim
 formal runtime acceptance, whole-report timing or generic stability. Batch ended.
+
+The owner asks to test overall behavior without further minor tuning. A separate
+[frozen new-source batch](research/chain-quality-experiment.md#frozen-new-source-and-report-check)
+keeps every Prompt/code asset unchanged at d54716f, acquires four new Qwen answers
+for two public brands, parses each twice, and composes previews from first-pass
+outputs only. All 16 requests complete, but one narrative returns only overview
+with empty themes/directions despite receiving useful target points. Hold 5.0;
+next replay only that narrative at unchanged input/model/Prompt to assess recurrence,
+without resampling, choosing better parses or raising peripheral coverage gates.
 
 ### Previous 4.2 result and decision
 

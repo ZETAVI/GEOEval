@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: 5.0 core regression completed; retained for transfer/report validation;
+Status: 5.0 frozen transfer completed; narrative completeness under focused review;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -63,6 +63,24 @@ Eligibility improved by an approved rule is not proof of better model semantics.
 Two offline actual old/new handoffs preserve ternary labels and old boolean meaning;
 no raw answer is sent to synthesis, and no synthesis model was called. The six-call
 batch is finished, with seven private model-IO observations verified.
+
+The next frozen batch at d54716f uses newly acquired public restaurant/appliance
+answers, not purported unseen retained developer cases. Four manually scoped open
+queries yield four samples; each is parsed twice with 5.0. Existing assignment 1.0
+and narrative 1.2 (+parser-content@2) compose two previews from first-pass parses
+only. No assets or runtime code change. This is one acquisition platform, not a
+formal 4x5 evaluation or approved Query Generator output.
+
+All 16 calls structurally complete. All eight target positions and useful target
+content agree with source; appliance brand lists repeat consistently, while hotpot
+secondary records/generic entries still vary. Both assignment results preserve
+their supplied identities and count eligible members correctly. Appliance narrative
+has themes and two directions; hotpot narrative has a usable overview but returns
+all themes/directions empty despite receiving ten target points. These arrays are
+already empty in Provider JSON, not lost by projection. Do not infer a precise
+model cause or turn structural assembly into semantic report acceptance. The next
+small check is unchanged-input repetition of that narrative alone; no first-layer
+Prompt retuning, automatic retry or added Agent in this completed batch.
 
 ### Previous package — concrete subjects and attitude guidance
 
