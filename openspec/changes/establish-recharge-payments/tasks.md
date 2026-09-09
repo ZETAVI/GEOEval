@@ -15,7 +15,7 @@ The approved route stays account recharge → verified payment → funded credit
 | Recovery and reconciliation | Same-order query/close, persisted due state/lease, stop-new-orders, T+1 discrepancy handling | Recovery and bill parsing can be implemented/tested with controlled inputs in their write package. Real bill/download and money-exception handling require account/finance decisions |
 | Activation | Limits, support, merchant/domain/secret rotation owners, bounded money test, financial reconciliation | Finance/product/operations supply these only before the corresponding live test or enablement. No production value is inferred from test configuration |
 
-Current planning: the user approved C1 implementation and cross-task coordination, recorded in [Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5587176110). #73 confirmed the single-writer window. #79 has since merged into accepted main@bcb81db, with [integration evidence](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726). A0/B0/C1 were synchronized linearly; only generated OpenAPI/client files conflicted and were regenerated from both accepted assembly and C1 DTO sources. C1 core is implemented and verified in PR #82; that PR owns exact-head CI and explicit window handback. N1 is the next implementation package. No payment PR merge or actual money authorization is inferred.
+Current planning: the user approved C1 implementation and cross-task coordination, recorded in [Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5587176110). #73 confirmed the single-writer window. #79 has since merged into accepted main@bcb81db, with [integration evidence](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726). A0/B0/C1 were synchronized linearly; only generated OpenAPI/client files conflicted and were regenerated from both accepted assembly and C1 DTO sources. C1 core is implemented and verified in PR #82; that PR owns exact-head CI and explicit window handback. N1 official-source design is the current bounded package; runtime/schema implementation follows its concrete tests and shared-writer alignment. No payment PR merge or actual money authorization is inferred.
 
 ## P0: Fixed inputs and reviewable contracts
 
@@ -71,11 +71,20 @@ Producer: [PR #79](https://github.com/ZETAVI/GEOEval/pull/79), fixed head 770a76
 
 ## N1: Native dispatch, recovery and customer journey
 
+The current user request first advances official-source design. Only this active change is written in this pass; C1 runtime and the returned #73 window stay fixed.
+
+- [x] Read current Native prepay/invoke/query/close and callback-query guidance; distinguish QR lifetime, provider payment deadline and verified close, and Native versus micropay states.
+- [x] Define dispatch/cancel generation, truthful attempts, same-parameter recovery, customer projection and saved publishing-return context in design sections 9–11; review their concrete failure boundaries.
+- [x] Reproduce an A0 compatibility defect with current official QR examples: two /up variants fail, legacy control passes. This is a recorded failed probe, not an acceptance pass.
+- [ ] First repair the over-restrictive Native action URI validation at its existing Adapter seam; retain the official examples as regressions and hostile URI/credential/control-character negatives. Do not hide the failed diagnosis behind unchanged old CI.
+- [ ] Before runtime work, agree the exact Recharge schema/attempt/migration and API/Worker/generated window with #73; choose the linear successor to fixed C1, retaining this same worktree. Keep consumer C1 evidence and pre-change refs explicit.
+
 - [ ] Implement stable merchant identity, UNSENT/MAY_EXIST, cancel intent, query/close convergence, generation fences and visible unresolved obligations. Do not infer remote cancellation from a local timeout or expired lease.
 - [ ] Register B0 and the verified core in the approved API/Worker composition with precise raw-body configuration and owner-bound customer commands. Recheck receipt state inside settlement; complete bounded due-state recovery and visible review-needed handling.
 - [ ] Add truthful non-success query/close/dispatch-attempt recovery records when dispatch is implemented; C1 already persists authenticated successful QUERY observations without fake notification IDs.
-- [ ] Build Native QR + local order status/history and publishing-shortage entry; preserve saved publishing intent and reprice/reconfirm on return.
+- [ ] Build Native QR + local order status/history and publishing-shortage entry; keep the two expiry clocks separate and preserve saved selection via an account-scoped return reference, not a forged pending purchase request. Reprice/reconfirm on return; no third-party QR service or automatic purchase.
 - [ ] Run real HTTP and desktop browser tests with a controlled adapter, missing callback, cancellation/late dispatch, expired QR and interrupted responses; distinguish them from real merchant proof.
+- [ ] Before enabling the customer journey, supply approved amount/shortcut policy with its administrator maintenance entry, active-order/rate limits, deadline and usable support contact; synthetic profile values are not production policy.
 - [ ] Verify named Native merchant products, domain, secret handoff and separately approved minimum real-money test when ready.
 
 ## H1: Complete mobile external-browser H5

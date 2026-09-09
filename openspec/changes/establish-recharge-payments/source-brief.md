@@ -8,7 +8,7 @@
 
 | 操作 | 方法/路径 | 项目需要的输入/输出 | 来源与限制 |
 | --- | --- | --- | --- |
-| Native 下单 | `POST /v3/pay/transactions/native` | 冻结的 appid、mchid、description、out_trade_no、amount、notify_url；成功动作是 code_url | [Native API](https://pay.wechatpay.cn/doc/v3/merchant/4012791877)、[官方 SDK API 表](https://github.com/wechatpay-apiv3/wechatpay-go/blob/main/docs/payments/native/README.md)；网页仍间歇超时；已通过官方 GitHub contents API 读取固定 revision 的 PrepayRequest、PrepayResponse 和 Amount 模型（见下文） |
+| Native 下单 | `POST /v3/pay/transactions/native` | 冻结的 appid、mchid、description、out_trade_no、amount、notify_url；成功动作是 code_url | [Native API](https://pay.wechatpay.cn/doc/v3/merchant/4012791877)、[官方 SDK API 表](https://github.com/wechatpay-apiv3/wechatpay-go/blob/main/docs/payments/native/README.md)；本轮已读现行网页全文；此前固定 SDK 模型证据保留，Native 编排新增事实见下文 N1 核查 |
 | H5 下单 | `POST /v3/pay/transactions/h5` | 同上，增加 scene_info 的 payer_client_ip 和 h5_info；输出 h5_url | [普通 H5 API](https://pay.wechatpay.cn/doc/v3/merchant/4012791834)，页面更新 2025-03-31，本轮已读正文 |
 | 按商户单号查单 | `GET /v3/pay/transactions/out-trade-no/{out_trade_no}?mchid=...` | GET 无请求 body；返回渠道状态，成功时核对交易身份/金额/时间 | [普通查单正文](https://pay.wechatpay.cn/doc/v3/merchant/4012791838)在 A0 构建前已成功读取，先前超时限制解除；以其字段可选性定义未支付与成功分支 |
 | 关单 | `POST /v3/pay/transactions/out-trade-no/{out_trade_no}/close` | body 为 mchid；成功 `204 No Content`，无交易对象 | [关单 API](https://pay.wechatpay.cn/doc/v3/merchant/4012791839)，页面更新 2024-12-11，本轮已读正文 |
@@ -92,7 +92,7 @@ find-docs 的已安装 CLI 查询不可用（ctx7 未安装），本轮改为直
 | 资金不变量 | 钱包/充值/退点并发和故障注入 | 重复积分、溢出、预留被占、关闭不释放/过早释放 |
 | 原生产品入口 | PC、iOS/Android 外部浏览器、真实 H5 域名/Referer | 以合成页面冒充真实调起 |
 
-A0 的实际代码测试和 P0 历史证据在 [verification](verification.md)分别记录，不累计成一个支付成功数字。生产数据库/积分事务、真实渠道和 Nest 回调入口仍未执行。刷新由产品模式、接口字段、SDK/运行时、商户/域名或 key 变化触发，不机械重复所有研究。
+A0 的实际代码测试和 P0 历史证据在 [verification](verification.md)分别记录，不累计成一个支付成功数字。B0/C1 已执行隔离 Nest/Identity/PostgreSQL 接收和积分事务；真实商户、生产数据库与当前应用激活仍未执行。刷新由产品模式、接口字段、SDK/运行时、商户/域名或 key 变化触发，不机械重复所有研究。
 
 ## 9. A0 实现使用的固定来源
 
@@ -122,4 +122,20 @@ Prisma 官网 transactions 页面本轮抓取失败，未作为已读证据。�
 
 ## C1 数据库约束推导（2026-09-08）
 
-本轮新增决策只涉及系统入账键与未来容量约束；不重新选择微信 SDK 或重跑旧协议实验。[PostgreSQL 18 约束文档](https://www.postgresql.org/docs/18/ddl-constraints.html)明确：普通 UNIQUE 对 NULL 默认互不相等，CHECK 为 NULL 也满足约束，普通 CHECK 不能保证其他行的数据不变量。因此 design 6.3 的候选系统键 NULL 必须与 kind-specific 非空关联/旧行非空检查配套，R/S 汇总一致性不能伪装为跨行 CHECK。[显式锁文档](https://www.postgresql.org/docs/18/explicit-locking.html)支持用一致获取顺序减少死锁；实际 account → order → reservation → receipt 顺序及任务锁释放仍须用 C1/N1 并发测试证明。上述迁移尚未实施。
+本轮新增决策只涉及系统入账键与未来容量约束；不重新选择微信 SDK 或重跑旧协议实验。[PostgreSQL 18 约束文档](https://www.postgresql.org/docs/18/ddl-constraints.html)明确：普通 UNIQUE 对 NULL 默认互不相等，CHECK 为 NULL 也满足约束，普通 CHECK 不能保证其他行的数据不变量。因此 design 6.3 的候选系统键 NULL 必须与 kind-specific 非空关联/旧行非空检查配套，R/S 汇总一致性不能伪装为跨行 CHECK。[显式锁文档](https://www.postgresql.org/docs/18/explicit-locking.html)支持用一致获取顺序减少死锁；实际 account → order → reservation → receipt 顺序及任务锁释放仍须用 C1/N1 并发测试证明。这些 C1 迁移现已实施并验证，具体边界见 verification；N1 编排迁移尚未实施。
+
+## N1 Native 编排与二维码核查（2026-09-08）
+
+本轮从现行 Native 产品目录读取正文，不再用 H5 页面标题代替 Native 生命周期说明。没有重新选择 SDK 或机械重跑旧密码学证据。
+
+| 官方事实 | 直接来源 | 项目设计影响 |
+| --- | --- | --- |
+| 下单结束时间与关闭不同；过近的期限会被调整为服务端下单后至少一分钟；QR 两小时有效，返回值不是固定值 | [Native 下单](https://pay.wechatpay.cn/doc/v3/merchant/4012791877)，页面更新 2025-03-31 | 首次/重试前检查剩余窗口；本地 deadline 不证明远端关闭。保留原参数、QR 单独展示期限，不硬编码旧 URI 形状 |
+| 未支付 Native 可用原参数重取 QR；普通取消/失败仍可能是 NOTPAY；扫一扫调起，不支持长按/相册识别 | [Native 开发指引](https://pay.wechatpay.cn/doc/v3/merchant/4012791891)、[Native 调起](https://pay.wechatpay.cn/doc/v3/merchant/4012791878)，后者更新 2025-03-21 | 二维码与订单分开；手机 H5 独立验收；不从页面动作推导资金状态 |
+| 认证查询的 SUCCESS/NOTPAY/CLOSED/REFUND 各有语义；REVOKED/USERPAYING/PAYERROR 标明只适用于付款码 | [Native 按商户单号查单](https://pay.wechatpay.cn/doc/v3/merchant/4012791880) | Native 不照搬付款码状态机；非成功响应不伪造成功字段，意外类型进入核查 |
+| 未支付订单可因客户取消或到期关单，成功是无正文 204 | [Native 关闭订单](https://pay.wechatpay.cn/doc/v3/merchant/4012791881)，更新 2024-12-11 | 认证 ACK 是独立关闭证据；业务错误/未查到不能当作它。该现行页没有规定普遍等待五分钟，不移植 V2/其他产品的旧规则 |
+| 前端有界轮询与后台补查、通知、T+1 核对互补；2 秒/60 秒及后台退避是示例，可按场景设置 | [回调和查单指引](https://pay.wechatpay.cn/doc/v3/merchant/4012075249)，更新 2024-12-18 | 页面仅查本地，受限命令合并后台调度；轮询结束不是订单关闭，用户离开不停止恢复 |
+
+官方 API 示例有 `weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00`，调起页面另给出 `weixin://pay.weixin.qq.com/bizpayurl/up?pr=NwY5Mz9&groupid=00`。A0 固定 59930dd 的 URI 验证只接受旧 host/path。用真实 WechatPayGateway 与现有 wechatFixture 为这两个公开字符串构造受控签名应答，结果均为 INVALID_RESPONSE；旧 `/bizpayurl?pr=TEST` 对照通过。诊断 3 例中 2 失败 / 1 通过，证明字段解释过严，不是商户权限、TLS 或真实微信签名失败。修复前不得声称当前 Adapter 已兼容现行 Native QR；N1 第一项是将两种官方例证纳入正式回归并修正校验，不丢弃必要安全边界。
+
+文档未承诺向不存在订单关单会留下防未来创建的 tombstone，也未提供对旧网络调用的 generation fence。MAY_EXIST 不能用 NOT_EXIST/lease/本地截止来自动释放，是针对该未证明边界的项目推导。QR 重试是否返回同值及实际续期、关闭与迟到发起的交错，仍须命名商户环境验证；本地受控网络仅验证我们如何处理这些结果，不代替微信端保证。

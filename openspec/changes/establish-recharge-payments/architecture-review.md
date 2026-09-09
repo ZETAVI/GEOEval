@@ -143,3 +143,19 @@
 | 兼容/隐私 | 原金额来源和客户余额投影保持；22 核心、2 新购买、1 新展示场景；73 路径不变，只有两种积分历史 DTO 合理扩展；旧数据升级逐字段一致 |
 
 当前本片无未解决 material finding。技术不等于上线政策：测试配置没有变成默认额度/时限；后续 #73 退点、进程/存储崩溃、dispatcher/Worker、Native/H5 浏览器、真实商户/资金仍需对应证据。结论为本片 ready for fixed PR review，整体充值主线仍 partially verified。C1 窗口到固定 PR/CI 与交还回执结束。
+
+
+## N1 官方来源设计复核（59930dd 运行时基线）
+
+本轮只修改 #77 active change；用户明确先按官方文档推进 Native 设计。比较真实 Adapter、C1 事务/订单、发布 pending-purchase 与现行 Native 来源，复用无变化 C1/A0/B0 证据。作者审查，不冒充独立 review。
+
+| Finding / 状态 | 具体可达后果 | 收束与下一证据 |
+| --- | --- | --- |
+| must-fix，已有 Adapter URI 过严，已复现未修复 | 官方 /up 链接验签后仍被拒绝，真实下单可能成功而二维码不可见 | N1 第一修复项；两种官方链接作为正式回归，保留恶意 URI 负例，不能靠旧通过数宣布现行兼容 |
+| must-fix，N1 到期/lease 误作远端 fence，设计已纠正 | 延迟下单可被微信调整为至少一分钟可支付，过早释放后发生付款 | MAY_EXIST 只依可信关闭结果释放；用延迟发送→取消→NOT_EXIST→迟到成功检验，当前不是运行时通过 |
+| must-fix，N1 丢弃旧 generation 的成功，设计已纠正 | 避免旧任务写入时顺便丢失已认证付款 | 陈旧 QR/计划写入被拒绝，付款事实仍经过 C1；两类结果分开检验 |
+| should-fix，Native 与付款码状态混用，设计已纠正 | 把客户取消微信收银台或意外 PAYERROR 直接当关闭 | Native NOTPAY/SUCCESS/CLOSED 与 REFUND 核查独立；不使用 USERPAYING/PAYERROR 作为正常 Native 转移 |
+| must-fix，误用现有 pending purchase 作为充值返回上下文，设计已纠正 | 为了绕过 shortfall 检查而构造已确认购买请求，可能误提交或保留过时价格 | 复用已保存 selection，单独保存账户限定返回引用；重新读报价与显式确认，保持购买恢复原语义 |
+| retain，共享修改窗口 | C1 未合并，#73 拟消费固定 59930dd 后写 Delivery/RETURN；并行改 schema 会损伤迁移/接口责任 | 本轮无 runtime/shared 写入；#73 持有其明确范围，N1 实施前再次对齐窗口与精确 base |
+
+设计在已确认的产品边界内可继续，当前无须重新询问模块所有权、充值兑换或付款凭证规则。额度/快捷金额/时限/客服联系方式与异常现金处置仍是对应产品/财务 Gate 的待定输入；测试 profile 不产生上线默认。结论：**ready for bounded N1 implementation planning；Native runtime not ready**，原因是已复现 URI 缺陷和尚未实现的调度/网页链路。真正接入前先以最小反例证明 9–11 节，而非再做整体钱包重构。

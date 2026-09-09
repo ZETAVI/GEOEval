@@ -97,3 +97,33 @@ Existing product-definition/Commerce activation markers are unchanged because no
 No actual merchant key, provider request, money or production database was used. Main test resources are the #77-only database and Redis 56577; cleanup handles newly referenced immutable test tables, never production. Primary protocol fixtures/evidence are reused, not counted as newly implemented crypto.
 
 C1 has no dispatcher, verified-close command, worker/lease scheduler, payment UI or production activation. Its 22 tests replace planned core claims with evidence; they do not prove future return semantics, controller activation, OS process/storage crash, real merchant limits or H5. Exact PR head/CI/window handback is owned by the PR checkpoint; do not treat a local or pre-rebase result as current full CI.
+
+
+## N1 设计与失败诊断（2026-09-08，运行时 59930dd）
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| 设计基于现行普通 Native | 本轮阅读全文的 prepay/invoke/query/close/development/callback-query 页面，直接链接在 source-brief | Passed，网页读取；不是实际商户权限或远端竞争验证 |
+| A0 与现行 QR 例证兼容 | 真实 WechatPayGateway + 现有 wechatFixture，各次同一配置的受控签名响应，仅改变 code_url | **Failed：3 例中 2 失败 / 1 通过**。两种官方 /up 返回 INVALID_RESPONSE，旧 URI 对照通过。根因为 host/path 固定校验；未运行真实 Provider，也未修复 |
+| C1 运行时/共享窗口保持 | `git diff 59930dd --name-only` 只含 #77 active change；临时诊断文件/日志保留本地 artifacts/recharge-native-design | Passed；不把诊断文件纳入已交付产品测试，也不删除其失败证据 |
+| 设计对齐 | 9–11 节、Recharge delta、tasks 和 architecture-review 同一合同；框架/Markdown/diff 检查 | 以本轮最终提交及 PR checkpoint 记录结果 |
+
+失败诊断复现：将本地 `artifacts/recharge-native-design/official-uri.diagnostic.spec.ts` 复制到 `apps/backend/test/native-official-uri.diagnostic.spec.ts`，执行 `pnpm --filter @geoeval/backend exec vitest run test/native-official-uri.diagnostic.spec.ts`。文件相对 import 针对临时 test 目录；运行前后都不读取凭据或数据库。日志保留在同一 artifacts 目录；正式修复应把两例迁入现有 gateway suite，并验证安全负例。退出时临时文件已移回研究目录，生产源代码未变。
+
+N1 待实施的最小判别证据：
+
+| 场景 | 必须证明 |
+| --- | --- |
+| 双击创建、页面丢响应、双 Worker 发起 | 同一意图/商户单号；一次有效发起权；结果可恢复 |
+| 第一次发起前取消与领取竞争 | UNSENT 仅一方胜出；已取得权利后保留 MAY_EXIST |
+| 旧执行者暂停→取消/NOT_EXIST→恢复发送 | 不提前释放，迟到付款仍只记一次；lease 不被当成微信 fence |
+| 旧 QR / 新 generation 与成功竞态 | 旧动作不能覆盖新状态，认证成功不丢弃 |
+| QR 两小时、deadline 剩不足一分钟、重载/同 URL 返回 | 展示期限不靠页面续期，过近不再发起，订单终态仍凭证据 |
+| 关单 204 / CLOSED / SUCCESS / REFUND / 付款码状态 | 保存真实来源；只在允许分支关闭或到账；无凭空付款字段 |
+| 提交关单/QR结果失败与 Worker 重建 | 同号查询恢复，无释放半笔账或新号重复收费 |
+| 页面多标签 verify、429、队首错误、Redis 不可用 | 合并受限调度、数据库恢复、正常订单可推进 |
+| 本人/他人/停用身份、CSRF、客户端伪造动作 | 读写权限和可见投影有真实 HTTP 负例；旧支付义务继续 |
+| 保存发布选择→充值→价格/文章变化或品牌切换 | 恢复正确上下文并重新核价确认，不伪造 pending purchase |
+| 桌面真实浏览器 QR/取消/超时/重载 | 本地二维码内容与安全动作一致；合成 adapter 明确标识，不能宣称微信扫码成功 |
+
+以上 N1 矩阵是未来验收定义，**Not run**。没有新增 N1 运行时通过数；当前设计/诊断为 partially verified，不能继承旧 CI 来声称网页支付完成。

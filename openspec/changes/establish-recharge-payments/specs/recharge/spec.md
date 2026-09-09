@@ -164,6 +164,40 @@ The system SHALL distinguish never-dispatched intent, an external order that may
 - **THEN** it reads the account-owned local recharge status and may request bounded verification
 - **AND** none of these client observations authorizes funded credit.
 
+### Requirement: Native actions and order deadlines remain distinct
+
+#### Scenario: An authenticated response uses a current documented Native URI
+
+- **WHEN** the authenticated Native response carries either documented /up URI form
+- **THEN** the adapter accepts the supported payment action without rewriting its value
+- **AND** it still rejects unsupported schemes, credentials and malformed action data.
+
+#### Scenario: QR expires while the order may still be payable
+
+- **WHEN** the QR display bound is reached or the page reloads
+- **THEN** the old QR is hidden without closing the order or extending its lifetime
+- **AND** any permitted refresh reuses the frozen merchant order and parameters
+- **AND** a cancelled or payment-expired order cannot obtain new dispatch permission.
+
+#### Scenario: A delayed initiate request reaches the provider after the local deadline
+
+- **WHEN** dispatch was already recorded as MAY_EXIST
+- **THEN** local expiry, an expired lease or a not-found result does not release reserved capacity
+- **AND** the system applies verified payment or closure evidence through the same atomic core.
+
+#### Scenario: A stale executor returns after cancellation
+
+- **WHEN** an old generation returns an authenticated QR or successful payment
+- **THEN** it cannot republish the QR or reverse the closing intent
+- **AND** authenticated success remains eligible for order matching and once-only settlement.
+
+#### Scenario: The customer returns to a saved publishing choice
+
+- **WHEN** recharge was entered from an insufficient-balance publishing review
+- **THEN** an account-scoped reference restores the saved article/selection context
+- **AND** current ownership, article, price and availability are rechecked
+- **AND** no pending purchase is fabricated and no purchase is submitted automatically.
+
 ### Requirement: Stopping new payments preserves old obligations
 
 #### Scenario: Recharge creation is disabled during an incident or rollback
