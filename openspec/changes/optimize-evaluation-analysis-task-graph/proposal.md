@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.0 ternary/non-negative candidate; no formal activation
+- Status: 5.0 retained for transfer/report validation after six-call regression
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -55,6 +55,15 @@ Freeze a new six-call regression over the same three authorized retained sources
 twice each, Qwen low/concurrency two. Stop on provider/wire/schema failure; no
 automatic resampling, retry, synthesis, seventh call or within-batch changes.
 This tests the combined candidate, not whether a specific sentence caused old errors.
+
+The [six-call result](research/chain-quality-experiment.md#simple-ternary-and-non-negative-competitors)
+shows consistent main restaurant membership and coffee attitudes in these repeats;
+neutral Starbucks is retained and both absent-target outputs omit unnamed/target
+placeholders. Peripheral omissions/combined rows remain recorded without becoming
+new gates; individual target-point polarity can still vary. Retain 5.0 for a bounded
+fresh-source and synthesis/report check instead of more same-source tuning. Do not
+equate owner-approved neutral inclusion with model accuracy improvement or claim
+formal runtime acceptance, whole-report timing or generic stability. Batch ended.
 
 ### Previous 4.2 result and decision
 

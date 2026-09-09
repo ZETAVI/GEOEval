@@ -98,13 +98,16 @@ The current role and decisions live in [the proposal](proposal.md).
 
 - [x] Prepare the single ternary field, non-negative competitor projection and
       parsed-only handoff; preserve legacy boolean meaning without inferred labels.
-- [ ] Verify wire/examples, order before filtering, negative target mention,
+- [x] Verify wire/examples, order before filtering, negative target mention,
       neutral inclusion/negative exclusion and strict new/old mixed aggregation.
-- [ ] Complete a separately frozen six-call Qwen low regression over the same
+- [x] Complete a separately frozen six-call Qwen low regression over the same
       three authorized sources twice, concurrency two; preserve actual IO/settings/
       usage privately and keep review local. No automatic seventh call or synthesis.
-- [ ] Assess core subjects, target/content and stable eligible membership without
+- [x] Assess core subjects, target/content and stable eligible membership without
       elevating peripheral additions to blockers or rewriting historical outputs.
+- [ ] Retain 5.0 for bounded fresh-source and synthesis/report validation; observe
+      whether individual point-label variation affects report meaning. Do not tune
+      more same-source peripheral cases or treat changed eligibility as model accuracy.
 
 ## Retained report-level work
 

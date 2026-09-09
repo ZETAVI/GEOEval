@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: 5.0 ternary attitude and non-negative competitor candidate under validation;
+Status: 5.0 core regression completed; retained for transfer/report validation;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -49,6 +49,20 @@ delta checks and private actual-IO telemetry follow the existing controlled runn
 This is a coherent Prompt/Schema/statistics candidate, not Prompt-only causality.
 Judge core subjects/target/content and retained competitor membership; peripheral
 coverage stays an observation and no historical output is relabeled as improved.
+
+Result at ec6e20a: six structures project. Main restaurant subjects and attitudes
+repeat consistently, with three non-target competitors retained both times; the
+closing alternative is omitted both times and remains visible in raw evidence.
+Main coffee subjects repeat with Starbucks neutral and eligible both times.
+Both absent-target outputs contain only the two named restaurants, no unnamed
+merchant/target placeholder. Target positions and useful descriptions remain.
+Peripheral combined/omitted rows and one target drawback's NEUTRAL/NEGATIVE point
+label variation remain observations. This supports moving the candidate to bounded
+new-source/report validation, not runtime selection or a general success rate.
+Eligibility improved by an approved rule is not proof of better model semantics.
+Two offline actual old/new handoffs preserve ternary labels and old boolean meaning;
+no raw answer is sent to synthesis, and no synthesis model was called. The six-call
+batch is finished, with seven private model-IO observations verified.
 
 ### Previous package — concrete subjects and attitude guidance
 

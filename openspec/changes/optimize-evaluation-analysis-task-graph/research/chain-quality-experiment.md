@@ -3588,6 +3588,64 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## Simple ternary and non-negative competitors
+
+At `ec6e20ab929b23612c651e24ef0aba92213e0236`, the owner accepts broader positive
+interpretation, neutral competitors and an explicit ternary field; peripheral
+supplemental omissions are deprioritized. The prior proposed two-task-conflict
+explanation is not an established cause and does not justify another architecture.
+Prompt 5.0.0 replaces positiveRecommendation with attitude, preserves ordinary
+drawbacks in concise content and avoids counting pros/cons or adding judgement tasks.
+
+New parsed contents preserve attitude for target and other brands. Program retains
+non-negative competitors without reranking, and target attitude never cancels a
+real mention. Preview names are competitors/eligibleSampleCount. Strict old-boolean
+and new-ternary handoff shapes coexist without inferring labels from old false;
+contradictory mixed fields fail. Synthesis gets parsed contents and the versioned
+parser-content@2 note, not the entire raw answer. No public/runtime contract changes.
+
+Manifest `4e0d1ec6547988c4d1ea6eb678d859205c9c48ec90913b57c0a47ed219a87140`,
+runner hash `e69c051434296179c44f8baae8d3de5b7d578c0d625e14bbf5ecb7599b4d160b`.
+Six Qwen3.8 Flash low calls/concurrency two, same three authorized sources twice.
+No acquisition/synthesis/retry/fallback or within-batch changes. Source/userContext
+remain equal; wire Schema differs only by the boolean-to-ternary field substitution.
+Actual wire equals the frozen request, all six raw JSON outputs equal saved outputs,
+six IDs are unique, and all six structures project. This is a combined candidate,
+not isolated Prompt causality, fresh transfer or six semantic-perfect passes.
+
+| Case | First | Repeat |
+| --- | --- | --- |
+| Restaurant | Four main named subjects, all positive; target position 1, useful pros/cons; three competitors retained | Same main subjects/attitudes/positions and three competitors |
+| Coffee | Main subjects intact; target position 2/positive; Starbucks neutral and retained; Arabica-related row negative | Same main attitudes/target position; Starbucks neutral and retained; Arabica negative |
+| Absent target | Two named restaurants/positive, no unnamed or target placeholder, target null | Same two named restaurants and null target |
+
+The closing restaurant alternative is omitted in both outputs; coffee peripheral
+names are sometimes combined/omitted. Raw evidence retains these facts, including
+LOCATE and convenience-store forms. Do not erase them or turn the owner's pragmatic
+scope into a full-coverage claim. The target coffee drawbacks' wording remains in
+both outputs, but their point polarity is NEUTRAL once and NEGATIVE once. Observe
+the eventual report effect rather than adding a perfection gate now. Main identities,
+target states and overall attitudes are more consistent in this small repetition;
+neutral inclusion is an intentional policy change, not a model accuracy gain.
+
+50 focused tests, backend typecheck/build, framework/link/diff and fixed-diff
+self-review pass at the scoped seam; this is not an independent-agent approval or
+formal PR completion. Two offline handoffs mix actual new and legacy outputs for
+restaurant/coffee, preserving labels and old boolean meaning without raw-answer
+context or extra model calls. Full-report/browser/runtime acceptance is not run.
+
+Start/end UTC: 2026-09-09 02:57:52.309 to 02:59:11.321; 79.012 seconds, 17,919
+reported tokens, individual calls 7.073–33.452 seconds. No full 20-sample timing,
+price/billing or speedup claim follows. Seven private Langfuse observations read
+back matching actual model IO/settings/usage; semantic review/projection stays local.
+[Private actual-IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/ef0474bc4fd12b0b2c038d1963ddda00).
+Complete inputs/outputs:
+`apps/backend/.provider-evidence/m4-ternary-attitude-WsEmYh/input-output-review.md`.
+
+Retain 5.0 for a bounded new-source and report-level check, rather than another
+same-source peripheral-repair round. No seventh call, runtime activation, merge,
+production or other worktree write. #41/#42 and #39 final acceptance remain open.
+
 ## Balanced attitude and simple target absence
 
 The owner explicitly approved the exact six-call Qwen/private-Langfuse batch and
