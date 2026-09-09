@@ -124,10 +124,12 @@ The current role and decisions live in [the proposal](proposal.md).
 - [x] Freeze/run eight narrative baseline/candidate calls over the retained hotpot
       and appliance inputs twice each, medium/concurrency two, no Parser/resampling/
       assignment/retry or within-batch changes. Review value as well as completeness.
-- [ ] Refine only article-topic selection and expression: candidate still prioritizes
-      waiting and sometimes presumes unprovided improvement material. Use a small
-      discriminating example of choosing/omitting useful topics, not a word blacklist,
-      extra Agent, new fields or forced nonempty output. First layer remains 5.0.
+- [x] Apply the owner's lighter alignment: narrative 1.3.1 gives one or two flexible
+      article/media angles, including strengths and information around weaknesses.
+      Update the existing example, without a rigid selection rubric or separate
+      paid topic-only round. First layer, input and Schema remain unchanged.
+- [ ] Observe 1.3.1 in the next bounded overall-report validation; local wording
+      checks do not establish model improvement or formal runtime acceptance.
 
 ## Retained report-level work
 

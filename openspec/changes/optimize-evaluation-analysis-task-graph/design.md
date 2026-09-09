@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: Parser 5.0 frozen; adaptation compared, article-topic quality not accepted;
+Status: Parser 5.0 frozen; practical guidance aligned, narrative 1.3.1 prepared;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -15,6 +15,19 @@ Original baseline: `main@ddadf77`; current main observed at `0552aa7`.
 PR #48 at `2905937` remains an unaccepted historical reference.
 
 ### Current package — second-layer parsed-content adaptation
+
+Latest owner alignment: current interpretation is broadly acceptable for continued
+testing; lightly broaden article/media directions rather than enforce a rigid
+topic-selection rubric. Narrative 1.3.1 allows strengths, scenarios, concerns,
+information gaps and content/media angles around weaknesses. The existing example
+now combines a positive experience with a price-value concern. It does not imply
+the underlying product/service has changed or guarantee GEO outcomes. Only Prompt
+wording/version and the example test change; no input/Schema/runtime code change.
+Do not keep earlier waiting-topic dissatisfaction as a mandatory dedicated repair
+round. Historical outputs remain unchanged. Local checks are not real-call quality
+evidence; fold the wording into the next bounded overall test.
+
+#### Retained 1.3 adaptation and comparison evidence
 
 Architecture readiness: ready for this bounded experiment, not runtime acceptance.
 Ownership remains #42 controlled comparison and #41 final synthesis semantics.

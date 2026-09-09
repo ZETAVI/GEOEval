@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: second-layer adaptation compared; article-topic quality still unaccepted
+- Status: practical multi-angle guidance aligned; narrative 1.3.1 lightly prepared
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,18 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner considers current interpretation broadly usable and requests only a light
+refinement: one or two flexible article/media directions can highlight strengths,
+address concerns or improve GEO information around weaknesses. Do not impose a
+single customer-choice framework or turn minor topic preferences into repeated
+repair gates. Narrative 1.3.1 changes only that paragraph and its existing example;
+first layer, handoff, Schema, model and task structure remain unchanged. This small
+wording change receives local example/contract verification, not another standalone
+paid comparison. Observe it in the next bounded overall-report validation without
+claiming new real-call improvement or changing formal acceptance requirements.
+
+### Previous second-layer comparison
 
 The owner approves the second-layer adaptation discussed after frozen transfer.
 Narrative 1.3 clarifies parsed-content inputs, theme completion, overall versus

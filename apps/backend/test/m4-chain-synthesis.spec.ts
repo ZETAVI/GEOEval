@@ -76,7 +76,7 @@ describe("M4 real-chain synthesis preview", () => {
       ).output.directions,
     ).toEqual([]);
     expect(narrative.outputContract.version).toBe(
-      "experiment.m4.target-narrative@1.3.0",
+      "experiment.m4.target-narrative@1.3.1",
     );
   });
   it("binds one required assignment slot to every unchanged brand record", () => {
