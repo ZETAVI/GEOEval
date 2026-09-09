@@ -79,9 +79,15 @@ The current role and decisions live in [the proposal](proposal.md).
       independently of structure and private Langfuse actual IO readback.
 - [x] Decide the next bounded step from real brand identity, coverage/order and
       portrayal; do not claim exact-match gate removal is semantic success.
-- [ ] Keep input/schema/model fixed for a bounded follow-up on generic/unnamed
-      records and recommendation eligibility, then use new sources for transfer.
-      Do not continue a multi-branch Prompt/schema sweep over the same cases.
+- [x] Keep input/schema/model fixed and prepare 4.1 Prompt-only calibration of
+      concrete subjects, absent-target null semantics and three attitude meanings.
+      Keep the existing boolean projection; do not silently add a ternary field.
+- [ ] Run six separately frozen Qwen low calls over the same three retained sources
+      twice, concurrency two; inspect raw outputs and actual model-only telemetry.
+      No resampling/synthesis/retry or edits within the batch.
+- [ ] Decide from the bounded result whether to retain the Prompt and proceed to
+      fresh-source transfer. LOCATE is deprioritized without rewriting old evidence;
+      do not start another multi-branch Prompt/schema sweep over the same cases.
 
 ## Retained report-level work
 

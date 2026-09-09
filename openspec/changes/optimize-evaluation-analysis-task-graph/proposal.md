@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 4.0 debugging candidate retained; semantic record boundaries remain
+- Status: 4.1 Prompt-only record/attitude calibration; runtime remains unselected
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,25 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner now confirms concrete named business subjects, no absent-target
+placeholder, and simple positive/neutral/negative attitude guidance. Prompt 4.1
+tests these meanings without changing the 4.0 input, Schema or projector. The
+existing boolean maps overall positive to true and neutral/negative to false;
+mentionContext retains the useful distinction. An explicit ternary wire field
+remains a later contract decision, not an implicit change to competitor metrics.
+An absent target means all actual other rows have null targetDescription and the
+projected target is null, not that actual other merchants are discarded.
+
+Freeze a separate six-call batch over the same restaurant, coffee and absent-target
+answers twice each, Qwen low/concurrency two. Reuse the reading algorithm, source
+and existing adapter; no acquisition, synthesis, retries, in-batch edits or runtime
+activation. LOCATE is owner-deprioritized, not retroactively removed from evidence.
+This is a developer regression of a Prompt package, not proof of general stability
+or separate causal effects. Review raw rows, target state, useful portrayal and
+recommendation eligibility before deciding on fresh-source transfer.
+
+### Previous completed 4.0 package
 
 The owner approves algorithmic formatting cleanup that retains lists/tables,
 removal of mandatory exact quotations/occurrences, and clear Prompt examples of

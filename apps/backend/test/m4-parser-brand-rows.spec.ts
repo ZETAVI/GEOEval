@@ -64,7 +64,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.userContext.companyName).toBe("青禾咖啡");
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@4.0.0",
+      "experiment.m4.parser-brand-rows@4.1.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -98,7 +98,7 @@ describe("M4 content-oriented brand rows", () => {
   it("demonstrates independent co-listed brands, aliases, repeats and a tail addition in one full example", () => {
     const task = buildM4BrandRowsTask(base);
     const example = JSON.parse(
-      task.systemInstruction.split("输出：\n").at(-1)!,
+      [...task.systemInstruction.matchAll(/输出：\n(\{[^\n]+\})/g)][0]![1]!,
     );
     const result = inspectM4BrandRowsOutput(example);
     expect(result.output.brands.map((b) => b.displayName)).toEqual([
@@ -115,6 +115,36 @@ describe("M4 content-oriented brand rows", () => {
     expect(
       result.projected.output.target!.points.map((p) => p.polarity),
     ).toEqual(["POSITIVE", "NEGATIVE"]);
+  });
+  it("provides a valid absent-target example with concrete subjects and three attitude meanings", () => {
+    const examples = [
+      ...buildM4BrandRowsTask(base).systemInstruction.matchAll(
+        /输出：\n(\{[^\n]+\})/g,
+      ),
+    ];
+    expect(examples).toHaveLength(2);
+    const result = inspectM4BrandRowsOutput(JSON.parse(examples[1]![1]!));
+    expect(result.output.brands.map((b) => b.displayName)).toEqual([
+      "岚谷咖啡",
+      "白石咖啡",
+      "南桥咖啡",
+    ]);
+    expect(
+      result.output.brands.every((b) => b.targetDescription === null),
+    ).toBe(true);
+    expect(result.projected.output.target).toBeNull();
+    expect(result.output.brands.map((b) => b.positiveRecommendation)).toEqual([
+      false,
+      true,
+      false,
+    ]);
+    expect(
+      result.projected.positiveCompetitors.map((b) => [
+        b.displayName,
+        b.position,
+      ]),
+    ).toEqual([["白石咖啡", 2]]);
+    // This validates the worked example and unchanged projection, not LLM semantics.
   });
   it("derives positions before filtering without quotations, extra summaries or semantic repair", () => {
     const value = raw(),
