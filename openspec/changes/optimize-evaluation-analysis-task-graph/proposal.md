@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Parser 5.1 branch-unit replay improved; full-chain identity gap not closed
+- Status: fresh 5.1 call chain tested; category and absence-row errors remain
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,23 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The [fresh 5.1 chain](research/chain-quality-experiment.md#fresh-branch-and-absent-target-chain)
+completed 16 calls at 0339de8 in 240.261 seconds. Naturally absent targets and
+brand-plus-branch answers were covered without source edits; all present target
+positions and null target states agree. No separate branch rows occurred, but
+category names still reach one report's competitors and an absent-target repeat
+adds a neutral target placeholder to competitor candidates. Structure success is
+not full semantic acceptance. Both narratives generate usable broad conclusions;
+17 private Langfuse observations match actual model IO and usage.
+
+Keep 5.1 frozen as the baseline. Next limit the Prompt-example comparison to
+concrete names within category-headed answers and absent-target omission; no new
+model, Schema, Agent, resampling loop or frontend activation. Do not reframe
+exposure absence as negative product/service facts. The existing target-as-
+competitor program path remains an integration gap, not repaired by these calls.
+
+### Previous branch-unit replay
 
 The owner confirms branches should not become separate brand records. The
 [5.1 Prompt-only replay](research/chain-quality-experiment.md#brand-level-branch-replay)

@@ -3588,6 +3588,48 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## Fresh branch and absent-target chain
+
+At `0339de812421e164d523c4ed6f521c8a00f99ee6`, freeze Parser 5.1.0, Narrative
+1.3.1 and Assignment 1.1.0. Four fresh natural questions cover Shanghai hotpot and
+Guangzhou Chaoshan restaurants, with two parses per answer and first-pass-only
+report composition. Observe naturally absent/branch cases; never remove names or
+resample to force coverage. This is single-platform/open-question validation, not
+4×5, direct-question, Query Generator, UI, runtime or recovery acceptance.
+
+Manifest `854cccda245189c3aa4f9ee7155669557cb6dbdc2095cfd0c93105af49e96bb5`;
+runner hash `08c0f96ccd827e1b5f1a3ea1752c4f002cd3f26bf217f03829940f1cd31aacea`.
+2026-09-09 06:52:55.412–06:56:55.673 UTC: 16/16 calls and structure/reference
+checks succeed, peak concurrency two, 240.261 seconds, 49,629 reported tokens.
+No retry, source repair, Prompt change or best-of substitution. Eight parses
+contain no independently split branch. Present target positions agree at 3 and 1;
+all four naturally absent-target parses project target=null.
+
+Two material semantic failures remain. A category-headed answer returns three
+category names as brand rows in pass one but concrete names in pass two. Assignment
+recovers one named representative from mentionContext, yet two generic categories
+remain in the actual first-pass competitor preview. A separate absent-target
+repeat adds a NEUTRAL target-name row saying only "not mentioned" with null target
+description. It does not create target exposure, but it enters projected
+competitors and shifts other positions; first-pass-only reporting means it is not
+shown in this report, not that it is fixed. One peripheral merchant omission and
+one ambiguous generic candidate are recorded without expanding the primary gate.
+
+Both narratives are usable at a broad reading level: present-target themes retain
+main meaning; absent-target overview/coverage correctly show non-appearance and
+the negative theme concerns exposure, not invented service/product criticism.
+Some optional writing examples are not in the current input and still need brand
+material support. No new perfection gate for topic preferences or wording.
+
+Seventeen private Langfuse observations read back exact model IO/settings/model/
+usage at 06:58:20.950 UTC, trace `c89e1d6f0258ec79548e2d3ce5f3b166`. Detailed local
+input/output review is
+`apps/backend/.provider-evidence/m4-frozen-transfer-OnkcYT/input-output-review.md`.
+Keep 5.1 as the baseline; next narrow demonstration coverage to category headings
+with named examples and truly absent-target row omission. No new Agent/model/
+Schema, automatic seventeenth call or frontend activation. The existing
+target-as-competitor program gap remains open for integration, not fixed here.
+
 ## Brand-level branch replay
 
 The owner confirms that a branch store is not a separate brand record. Parser
