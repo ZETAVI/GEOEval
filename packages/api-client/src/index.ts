@@ -205,8 +205,18 @@ async function apiRequest<T>(
   return (await response.json()) as T;
 }
 
-export function getPointBalance(baseUrl: string): Promise<PointBalance> {
-  return apiRequest(baseUrl, "/points", { cache: "no-store" });
+export function getPointBalance(
+  baseUrl: string,
+  signal?: AbortSignal,
+  expectedAccountId?: string,
+): Promise<PointBalance> {
+  return apiRequest(baseUrl, "/points", {
+    ...(expectedAccountId
+      ? { headers: { "x-geoeval-account": expectedAccountId } }
+      : {}),
+    cache: "no-store",
+    signal: signal ?? null,
+  });
 }
 export function getPointHistory(
   baseUrl: string,
@@ -1042,4 +1052,103 @@ export async function getFoundationRecord(
     throw new Error(`Read failed with status ${response.status}`);
   }
   return (await response.json()) as FoundationRecord;
+}
+
+export type RechargeOptions = components["schemas"]["RechargeOptionsResponse"];
+export type RechargeCreate = components["schemas"]["RechargeCreateRequest"];
+export type RechargeRead = components["schemas"]["RechargeReadResponse"];
+export type RechargePage = components["schemas"]["RechargePageResponse"];
+export type RechargeSummary = components["schemas"]["RechargeSummaryResponse"];
+function rechargeRequest<T>(
+  base: string,
+  accountId: string,
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
+  return apiRequest(base, path, {
+    ...init,
+    cache: "no-store",
+    headers: { ...init.headers, "x-geoeval-account": accountId },
+  });
+}
+export function getRechargeOptions(
+  base: string,
+  accountId: string,
+  signal?: AbortSignal,
+): Promise<RechargeOptions> {
+  return rechargeRequest(base, accountId, "/recharges/options", {
+    signal: signal ?? null,
+  });
+}
+export function createRecharge(
+  base: string,
+  accountId: string,
+  input: RechargeCreate,
+  signal?: AbortSignal,
+): Promise<RechargeRead> {
+  return rechargeRequest(base, accountId, "/recharges", {
+    method: "POST",
+    body: JSON.stringify(input),
+    signal: signal ?? null,
+  });
+}
+export function getRecharge(
+  base: string,
+  accountId: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<RechargeRead> {
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharges/${encodeURIComponent(id)}`,
+    { signal: signal ?? null },
+  );
+}
+export function listRecharges(
+  base: string,
+  accountId: string,
+  options: {
+    limit?: number;
+    cursor?: string;
+    status?: RechargeSummary["status"];
+  } = {},
+  signal?: AbortSignal,
+): Promise<RechargePage> {
+  const query = new URLSearchParams();
+  if (options.limit !== undefined) query.set("limit", String(options.limit));
+  if (options.cursor) query.set("cursor", options.cursor);
+  if (options.status) query.set("status", options.status);
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharges${query.size ? `?${query}` : ""}`,
+    { signal: signal ?? null },
+  );
+}
+export function requestRechargeVerification(
+  base: string,
+  accountId: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<{ accepted: true }> {
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharges/${encodeURIComponent(id)}/verify`,
+    { method: "POST", body: "{}", signal: signal ?? null },
+  );
+}
+export function cancelRecharge(
+  base: string,
+  accountId: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<{ accepted: true }> {
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharges/${encodeURIComponent(id)}/cancel`,
+    { method: "POST", body: "{}", signal: signal ?? null },
+  );
 }

@@ -122,6 +122,7 @@ const expectedControllerPolicies: Record<
   PublishingPackageCustomerController: customerOnly,
   PublishingOrderController: customerOnly,
   CustomerPublicationResultsController: customerOnly,
+  CustomerRechargeController: customerOnly,
   PublicationWorkController: (handler) => ({
     publicAccess: false,
     csrfExempt: false,

@@ -108,12 +108,12 @@ export function AccountPointsWorkspace() {
           <strong>{balance?.balance.toLocaleString()}</strong>
           <span>积分</span>
           <p>内容生成、编辑和确认不扣积分，发布订单提交时才会扣除。</p>
-          <button className="secondary-button" disabled>
-            在线充值（后续接入）
-          </button>
+          <a className="secondary-button" href="/recharges">
+            充值与记录 →
+          </a>
         </section>
         <div className="commerce-notice">
-          可查看平台赠送、调整及发布购买记录。确认购买前不会自动扣分或下单；在线充值尚未接入。
+          积分流水记录实际到账、调整、购买与退点；未付款的充值请从充值记录查看。确认购买前不会自动扣分或下单。
           <a href="/publishing">浏览发布方案 →</a>
         </div>
         <section>

@@ -16,6 +16,7 @@ import type {
   PaymentOrder,
   PaymentProof,
 } from "../application/payment-gateway.js";
+import type { RechargeCustomerQueries } from "../application/customer-recharge.js";
 import { RechargeError } from "../domain/recharge-order.js";
 import {
   canDispatchNative,
@@ -49,7 +50,9 @@ type SettlementItem = Awaited<
 >[number];
 
 /** Recharge execution journal. All wallet changes go through the existing Commerce transaction seam. */
-export class PostgresNativeRecoveryRepository implements NativeRecoveryRepository {
+export class PostgresNativeRecoveryRepository
+  implements NativeRecoveryRepository, RechargeCustomerQueries
+{
   constructor(
     private readonly prisma: PrismaService,
     private readonly core: PostgresRechargeRepository,
@@ -416,6 +419,58 @@ export class PostgresNativeRecoveryRepository implements NativeRecoveryRepositor
     });
   }
 
+  async findRequest(
+    accountId: string,
+    input: import("../domain/recharge-order.js").CreateRecharge,
+  ) {
+    const prior = await this.prisma.rechargeOrder.findUnique({
+      where: {
+        accountId_idempotencyKey: {
+          accountId,
+          idempotencyKey: input.idempotencyKey,
+        },
+      },
+    });
+    if (!prior) return null;
+    if (prior.amountYuan !== input.amountYuan || prior.method !== input.method)
+      throw new RechargeError("IDEMPOTENCY_CONFLICT");
+    return orderView(prior);
+  }
+
+  async listOwned(
+    accountId: string,
+    input: Parameters<RechargeCustomerQueries["listOwned"]>[1],
+  ) {
+    const rows = await this.prisma.rechargeOrder.findMany({
+      where: {
+        accountId,
+        ...(input.status ? { status: input.status } : {}),
+        ...(input.before
+          ? {
+              OR: [
+                { createdAt: { lt: input.before.createdAt } },
+                {
+                  createdAt: input.before.createdAt,
+                  id: { lt: input.before.id },
+                },
+              ],
+            }
+          : {}),
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: input.limit + 1,
+    });
+    const items = rows.slice(0, input.limit),
+      last = items.at(-1);
+    return {
+      items: items.map(orderView),
+      next:
+        rows.length > input.limit && last
+          ? { createdAt: last.createdAt, id: last.id }
+          : null,
+    };
+  }
+
   async readOwned(accountId: string, orderId: string, now: Date) {
     const o = await this.prisma.rechargeOrder.findFirst({
       where: { id: orderId, accountId },
@@ -471,7 +526,12 @@ export class PostgresNativeRecoveryRepository implements NativeRecoveryRepositor
     });
   }
 
-  async verifyOwned(accountId: string, orderId: string, now: Date) {
+  async verifyOwned(
+    accountId: string,
+    orderId: string,
+    now: Date,
+    minimumIntervalMs: number,
+  ) {
     await this.withOrder(orderId, accountId, async (tx, o) => {
       // The browser can request a check, never assert payment or supersede a running lease.
       if (
@@ -488,9 +548,22 @@ export class PostgresNativeRecoveryRepository implements NativeRecoveryRepositor
         })
       )
         return;
+      if (o.nativeFailureCount > 0) return; // Browser hints cannot bypass transport backoff.
+      const last = await tx.rechargeOperationAttempt.findFirst({
+        where: { orderId: o.id },
+        orderBy: { generation: "desc" },
+        select: { startedAt: true },
+      });
+      const due = new Date(
+        Math.max(
+          now.getTime(),
+          (last?.startedAt.getTime() ?? 0) + minimumIntervalMs,
+        ),
+      );
+      if (o.nativeNextActionAt && o.nativeNextActionAt <= due) return;
       await tx.rechargeOrder.update({
         where: { id: o.id },
-        data: { nativeNextOperation: "QUERY", nativeNextActionAt: now },
+        data: { nativeNextOperation: "QUERY", nativeNextActionAt: due },
       });
     });
   }

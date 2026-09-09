@@ -107,6 +107,10 @@ export function NativeCheckoutPanel({
     else if (state.recoveryBlocked)
       message = "暂时无法恢复这笔充值的操作记录，请刷新重试或联系客服。";
     else if (state.cancelPending) message = "取消结果正在确认，请勿再次支付。";
+    else if (order?.supportRequired)
+      message = "这笔充值需要平台核查，请保留订单并联系客服，勿重复支付。";
+    else if (order?.canVerify === false)
+      message = "暂时无法处理付款操作，订单已保留，请稍后查看或联系客服。";
     else if (order?.status === "CONFIRMING")
       message = "正在确认支付结果，请勿重复支付。";
     else if (!state.qrValue && state.remainingSeconds === 0)
@@ -190,15 +194,17 @@ export function NativeCheckoutPanel({
         )}
         {active && (
           <div className={styles.actions}>
-            {!state.cancelPending && !state.recoveryBlocked && (
-              <button
-                className={styles.primary}
-                disabled={working}
-                onClick={onVerify}
-              >
-                我已完成支付
-              </button>
-            )}
+            {!state.cancelPending &&
+              !state.recoveryBlocked &&
+              order.canVerify !== false && (
+                <button
+                  className={styles.primary}
+                  disabled={working}
+                  onClick={onVerify}
+                >
+                  我已完成支付
+                </button>
+              )}
             <button
               className={styles.secondary}
               disabled={!!state.busy}

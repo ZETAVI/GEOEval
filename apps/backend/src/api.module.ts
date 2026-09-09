@@ -1,5 +1,9 @@
 import { Module, type DynamicModule } from "@nestjs/common";
 
+import {
+  RechargeApiModule,
+  type RechargeApiConfiguration,
+} from "./recharge/recharge-api.module.js";
 import type { ApiConfig } from "./config/runtime-config.js";
 import { FoundationController } from "./foundation/foundation.controller.js";
 import { FoundationModule } from "./foundation/foundation.module.js";
@@ -26,7 +30,12 @@ import { MockVariantPreparer } from "./publication-delivery/infrastructure/mock-
 
 @Module({})
 export class ApiModule {
-  static register(config: ApiConfig): DynamicModule {
+  static register(
+    config: ApiConfig,
+    recharge: RechargeApiConfiguration | null = null,
+  ): DynamicModule {
+    if (config.runtimeEnvironment === "production" && recharge?.controlled)
+      throw new Error("CONTROLLED_RECHARGE_IN_PRODUCTION");
     const optimization = GeoOptimizationModule.register({
       writerMode: config.geoOptimizationWriterMode,
       runtimeEnvironment: config.runtimeEnvironment,
@@ -43,6 +52,7 @@ export class ApiModule {
         PublishingCommerceModule.register(optimization),
         PublicationDeliveryModule,
         NotificationApiModule,
+        RechargeApiModule.register(recharge),
         ReadinessModule,
         FoundationModule,
       ],

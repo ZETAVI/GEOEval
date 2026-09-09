@@ -92,7 +92,12 @@ export interface NativeRecoveryRepository {
     now: Date,
   ): Promise<NativeCheckoutSnapshot | null>;
   cancelOwned(accountId: string, orderId: string, now: Date): Promise<void>;
-  verifyOwned(accountId: string, orderId: string, now: Date): Promise<void>;
+  verifyOwned(
+    accountId: string,
+    orderId: string,
+    now: Date,
+    minimumIntervalMs: number,
+  ): Promise<void>;
   dueSettlements(
     now: Date,
     limit: number,

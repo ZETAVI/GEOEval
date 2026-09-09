@@ -6,6 +6,7 @@ import {
   type RechargeNotificationReceipt,
 } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
+import { PointAccountError } from "../../publishing-commerce/domain/point-account.js";
 import { bindRechargePoints } from "../../publishing-commerce/infrastructure/recharge-points-access.js";
 import type { NotificationIdentity } from "../application/notification-inbox.js";
 import type {
@@ -57,81 +58,90 @@ export class PostgresRechargeRepository implements RechargeRepository {
         method: input.method,
       },
       policy = { ...config };
-    return this.prisma.$transaction(async (tx) => {
-      const points = await bindRechargePoints(tx, accountId);
-      const prior = await tx.rechargeOrder.findUnique({
-        where: {
-          accountId_idempotencyKey: {
-            accountId,
-            idempotencyKey: request.idempotencyKey,
-          },
-        },
-      });
-      if (prior) {
-        if (
-          prior.amountYuan !== request.amountYuan ||
-          prior.method !== request.method
-        )
-          throw new RechargeError("IDEMPOTENCY_CONFLICT");
-        return orderView(prior);
-      }
-      if (this.native && !this.native.createEnabled)
-        throw new RechargeError("CREATION_DISABLED");
-      // Synchronize with Identity changes; customer deactivation cannot race a new order commit.
-      const [account] = await tx.$queryRaw<
-        Array<{ role: string; status: string }>
-      >`SELECT role,status FROM accounts WHERE id=CAST(${accountId} AS UUID) FOR SHARE`;
-      if (
-        !account ||
-        account.role !== "TERMINAL_CUSTOMER" ||
-        account.status !== "ACTIVE"
-      )
-        throw new RechargeError("ACCOUNT_NOT_ACTIVE");
-      if (
-        request.amountYuan < policy.minAmountYuan ||
-        request.amountYuan > policy.maxAmountYuan
-      )
-        throw new RechargeError("AMOUNT_NOT_ALLOWED");
-      if (
-        (await tx.rechargeOrder.count({
+    return this.prisma
+      .$transaction(async (tx) => {
+        const points = await bindRechargePoints(tx, accountId);
+        const prior = await tx.rechargeOrder.findUnique({
           where: {
-            accountId,
-            status: { in: ["PENDING_PAYMENT", "CONFIRMING"] },
+            accountId_idempotencyKey: {
+              accountId,
+              idempotencyKey: request.idempotencyKey,
+            },
           },
-        })) >= policy.maxActiveOrders
-      )
-        throw new RechargeError("ACTIVE_ORDER_LIMIT");
-      const now = new Date(),
-        id = randomUUID();
-      const order = await tx.rechargeOrder.create({
-        data: {
-          id,
-          accountId,
-          ...(this.native
-            ? {
-                nativeDescription: this.native.description,
-                nativeNotifyUrl: this.native.notifyUrl,
-                nativeNextOperation: "INITIATE",
-                nativeNextActionAt: now,
-              }
-            : {}),
-          ...request,
-          amountFen: BigInt(request.amountYuan) * 100n,
-          fundedPoints: request.amountYuan * POINTS_PER_YUAN,
-          provider: "WECHAT",
-          merchantId: policy.merchantId,
-          appId: policy.appId,
-          merchantOrderNo: id.replaceAll("-", ""),
-          currency: "CNY",
-          createdAt: now,
-          expiresAt: new Date(
-            now.getTime() + policy.paymentWindowSeconds * 1000,
-          ),
-        },
+        });
+        if (prior) {
+          if (
+            prior.amountYuan !== request.amountYuan ||
+            prior.method !== request.method
+          )
+            throw new RechargeError("IDEMPOTENCY_CONFLICT");
+          return orderView(prior);
+        }
+        if (this.native && !this.native.createEnabled)
+          throw new RechargeError("CREATION_DISABLED");
+        // Synchronize with Identity changes; customer deactivation cannot race a new order commit.
+        const [account] = await tx.$queryRaw<
+          Array<{ role: string; status: string }>
+        >`SELECT role,status FROM accounts WHERE id=CAST(${accountId} AS UUID) FOR SHARE`;
+        if (
+          !account ||
+          account.role !== "TERMINAL_CUSTOMER" ||
+          account.status !== "ACTIVE"
+        )
+          throw new RechargeError("ACCOUNT_NOT_ACTIVE");
+        if (
+          request.amountYuan < policy.minAmountYuan ||
+          request.amountYuan > policy.maxAmountYuan
+        )
+          throw new RechargeError("AMOUNT_NOT_ALLOWED");
+        if (
+          (await tx.rechargeOrder.count({
+            where: {
+              accountId,
+              status: { in: ["PENDING_PAYMENT", "CONFIRMING"] },
+            },
+          })) >= policy.maxActiveOrders
+        )
+          throw new RechargeError("ACTIVE_ORDER_LIMIT");
+        const now = new Date(),
+          id = randomUUID();
+        const order = await tx.rechargeOrder.create({
+          data: {
+            id,
+            accountId,
+            ...(this.native
+              ? {
+                  nativeDescription: this.native.description,
+                  nativeNotifyUrl: this.native.notifyUrl,
+                  nativeNextOperation: "INITIATE",
+                  nativeNextActionAt: now,
+                }
+              : {}),
+            ...request,
+            amountFen: BigInt(request.amountYuan) * 100n,
+            fundedPoints: request.amountYuan * POINTS_PER_YUAN,
+            provider: "WECHAT",
+            merchantId: policy.merchantId,
+            appId: policy.appId,
+            merchantOrderNo: id.replaceAll("-", ""),
+            currency: "CNY",
+            createdAt: now,
+            expiresAt: new Date(
+              now.getTime() + policy.paymentWindowSeconds * 1000,
+            ),
+          },
+        });
+        await points.reserve(order.id, order.fundedPoints);
+        return orderView(order);
+      }, txOptions)
+      .catch((error) => {
+        if (
+          error instanceof PointAccountError &&
+          error.code === "POINT_LIMIT_EXCEEDED"
+        )
+          throw new RechargeError("POINT_LIMIT_EXCEEDED");
+        throw error;
       });
-      await points.reserve(order.id, order.fundedPoints);
-      return orderView(order);
-    }, txOptions);
   }
 
   async findOwned(accountId: string, orderId: string) {

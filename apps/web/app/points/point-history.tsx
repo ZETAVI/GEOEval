@@ -45,6 +45,9 @@ export function PointHistoryList({
           {!showInternal && item.publishingOrderId && (
             <a href={`/orders/${item.publishingOrderId}`}>查看对应订单 →</a>
           )}
+          {!showInternal && item.rechargeOrderId && (
+            <a href={`/recharges/${item.rechargeOrderId}`}>查看充值订单 →</a>
+          )}
           {!showInternal && item.returnedOrderId && (
             <a href={`/orders/${item.returnedOrderId}`}>查看退点订单 →</a>
           )}

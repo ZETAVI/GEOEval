@@ -142,8 +142,9 @@ shared across Brands, with integer granted/funded balances and ordered history.
 
 - **WHEN** this stage shows available points and maintained packages
 - **THEN** customers can explicitly buy publishing services using available points
-- **AND** recharge remains unavailable; no external payment success, invoice or
-  fulfilment is fabricated.
+- **AND** the account recharge entry and saved-selection continuation follow
+  [Recharge](../recharge/spec.md); its default unavailable state does not
+  fabricate external payment success, invoices or fulfilment.
 
 ### Requirement: One explicitly saved publishing selection per Brand
 
@@ -186,7 +187,8 @@ owner-provided facts, not a price reservation, order, or authorization to debit.
 - **THEN** random mode shows package quantity/total/scope and non-guaranteed
   destinations; precise mode shows each named platform, quantity, unit and total
 - **AND** the quote shows unified balance, shortfall and a whole-renminbi
-  suggested recharge amount at ten points per yuan, with recharge still unavailable
+  suggested recharge amount at ten points per yuan; the recharge entry follows
+  Recharge's explicit availability and saved-selection boundary
 - **AND** precise prices refresh without rewriting intent; random totals do not
   change merely because precise platform unit prices changed
 - **AND** unavailable media or checked-integer overflow cannot produce a usable

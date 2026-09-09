@@ -71,7 +71,7 @@ describe("publishing choice and quote UI contract", () => {
     ).toBe(300);
     expect(estimatedPoints(selectionForm(selection), [], new Map())).toBeNull();
   });
-  it("shows shortage and changed-source guidance without claiming purchase, reserved price or online recharge", () => {
+  it("keeps changed or unsaved publishing choices disabled while explaining explicit confirmation after recharge", () => {
     const quote: PublishingQuote = {
       selectionRevision: 1,
       articleId: "a",
@@ -96,7 +96,7 @@ describe("publishing choice and quote UI contract", () => {
       problems: ["ARTICLE_CHANGED"],
     };
     const html = renderToStaticMarkup(
-      <QuoteSummary quote={quote} balance={200} dirty />,
+      <QuoteSummary quote={quote} balance={200} dirty onRecharge={() => {}} />,
     );
     for (const copy of [
       "媒体甲",
@@ -106,10 +106,12 @@ describe("publishing choice and quote UI contract", () => {
       "文章已更新",
       "未保存修改",
       "报价不保留价格",
-      "在线充值尚未接入",
+      "充值后仍需核对最新方案并确认购买",
+      "前往充值并保留已保存方案",
       "disabled",
     ])
       expect(html).toContain(copy);
     expect(html).not.toContain("购买成功");
+    expect(html.match(/disabled=""/g)).toHaveLength(2);
   });
 });

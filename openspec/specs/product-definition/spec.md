@@ -35,8 +35,10 @@
   history, explicitly saved random/precise selections and advisory quotes also
   use that owner. Exact-article purchase, atomic granted-first spending, immutable
   paid agreement, linked history and pending-order reads also use that owner.
-  This marker remains for real recharge and commission;
-  those future scenarios below do not activate their runtime capabilities.
+  Customer recharge API/history, controlled Native checkout and saved publishing
+  continuation now follow [Recharge](../recharge/spec.md). This marker is explicitly
+  retained for real-merchant/operational activation, maintained amount policy,
+  recharge invoices and commission; controlled testing does not activate them.
   Order admission, exclusive whole-order responsibility, explicit start/return
   and administrator reassignment now use [Publication Delivery](../publication-delivery/spec.md).
   Sparse work items, Mock/manual preparation, effective results/corrections,
@@ -1304,7 +1306,9 @@ replacement can rewrite the original purchased quantity or terms.
 
 Current wallet, granted adjustments, spending order, original-order returns and customer history SHALL
 follow [Publishing Commerce](../publishing-commerce/spec.md). The following
-scenarios preserve future recharge and commission requirements.
+scenarios preserve the remaining activation and commission requirements.
+Customer order states, safe cancellation, whole-renminbi creation, verified
+credit and publishing continuation follow [Recharge](../recharge/spec.md).
 
 #### Scenario: A customer needs points for an order
 
@@ -1315,52 +1319,16 @@ scenarios preserve future recharge and commission requirements.
 - **AND** the product does not imply that sign-ins, tasks, levels, or other
   reward mechanisms can generate points
 
-#### Scenario: A customer creates an online recharge
+#### Scenario: Real customer recharge is activated
 
-- **WHEN** the customer chooses to recharge
-- **THEN** the product provides administrator-maintained shortcut amounts and a
-  custom whole-renminbi amount
-- **AND** the customer can complete a self-service online payment
-- **AND** only confirmed payment success credits points at ten points per
-  renminbi
-- **AND** administrator allocation remains a separate grant, compensation, or
-  correction path rather than the normal recharge route
-- **AND** recharge discounts, bonus campaigns, and membership tiers are outside
+- **WHEN** the separately approved merchant and operational environment is ready
+- **THEN** self-service payment follows the Recharge contract, with
+  administrator-maintained shortcut amounts and a custom whole-renminbi amount
+- **AND** actual support contact content is maintained before activation
+- **AND** recharge discounts, bonus campaigns and membership tiers remain outside
   the initial product
-- **AND** the exact payment channel waits for merchant application and current
-  official-source validation after product and module boundaries are agreed
-
-#### Scenario: A publishing order has insufficient points
-
-- **WHEN** the customer attempts to continue with fewer points than the order
-  requires
-- **THEN** the product shows the required points, current balance, shortfall, and
-  suggested renminbi recharge amount
-- **AND** the customer can enter recharge without losing the prepared publishing
-  order
-- **AND** the prepared core article, publishing choice, selected media, and
-  quantities remain available through recharge
-- **AND** after a successful recharge the customer returns to the same
-  order-review context without automatic submission
-- **AND** the product rechecks current package or media availability and price
-  before submission
-- **AND** any change is clearly shown and requires customer reconfirmation
-- **AND** recharge does not reserve media inventory or lock an unpaid price
-
-#### Scenario: A customer follows a recharge order
-
-- **WHEN** the customer views a recharge order
-- **THEN** its state is **Pending payment**, **Confirming**, **Recharge
-  successful**, or **Closed**
-- **AND** cancellation, payment failure, or expiry never credits points and ends
-  as **Closed**
-- **AND** an unpaid order can be cancelled or expire
-- **AND** a successfully paid recharge does not provide a customer self-service
-  cash-refund flow in the initial product
-- **AND** exceptional payment or refund questions provide a consistent
-  customer-service entry for manual handling
-- **AND** the actual contact name, telephone, WeChat QR code, or other maintained
-  contact content can be confirmed later without changing the product boundary
+- **AND** channel enablement requires merchant entitlement and current
+  official-source validation; controlled tests alone do not satisfy that gate.
 
 Original-consumption source restoration and integer allocation now follow
 Publishing Commerce above. Granted consumption and returned points remain
@@ -1368,9 +1336,10 @@ ineligible for the future commission capability below.
 
 #### Scenario: A customer reviews point history
 
-- **WHEN** future recharge capabilities become active
-- **THEN** they extend the existing Commerce history with their truthful types
-  and related business entries while retaining the existing privacy boundary.
+- **WHEN** a recharge has actually credited the account
+- **THEN** Commerce history shows its RECHARGE entry linked to the Recharge order
+  while retaining the existing privacy boundary; unpaid orders remain in
+  Recharge history rather than being fabricated as point changes.
 
 #### Scenario: An administrator corrects a point balance
 
