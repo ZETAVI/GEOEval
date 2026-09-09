@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.2 fresh-answer gate failed; synthesis not run
+- Status: 5.3 prompting package not adopted; 5.2 diagnostic baseline retained
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,23 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The [5.3 combined prompting comparison](research/chain-quality-experiment.md#53-instruction-package-comparison-rejected)
+did not show benefit: both candidate category outputs remain wrong, whereas the
+baseline gets one of two correct; both versions avoid the old duplicate/absence
+failure in the other source. Eight calls are structurally accepted, not
+semantically successful. Clearer text and field descriptions are not proof of
+better behavior. The task-owned 5.3 changes have been restored to the unchanged
+5.2 baseline; the exact tested configuration remains in captured evidence.
+
+5.2 is still a failed full-chain diagnostic baseline, not ready for activation.
+Next isolate one prompting constituent with the same source and baseline before
+further downstream work, rather than simultaneously expanding instructions,
+examples and Schema descriptions. No new model/Agent/field structure or frontend
+change. The self-competitor program gap remains unfixed. Local IO is complete;
+two Langfuse call observations were not found in bounded readback.
+
+### Previous full-chain failure
 
 The [5.2 fresh-answer attempt](research/chain-quality-experiment.md#52-fresh-answer-chain-stopped-before-synthesis)
 stopped after 12 Provider-successful calls: the eighth parse contained duplicate

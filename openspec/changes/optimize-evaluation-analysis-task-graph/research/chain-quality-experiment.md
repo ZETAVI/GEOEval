@@ -3588,6 +3588,44 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 5.3 instruction-package comparison rejected
+
+The owner requests clearer complete prompting and discriminating negative examples.
+A 5.3 package reorganizes task/input/subject selection/identity/fields, adds brief
+contrast cases and aligns four JSON Schema descriptions. Actual fields, types,
+required sets, capacities, full input, model and projector remain unchanged.
+This tests the combined package, not any one constituent's causal effect.
+
+At fe574d4 plus diff hash
+`60c5f39381f6e534d4808ca3eb64e11c37950cc661e610ca728a369e67113baa`, manifest
+`58f99b47ee51e69118a7e9f45521c85ce6eb69cd857cd38bd76bff65c80a21fc` compares two
+retained failing sources, baseline/candidate twice each, reversed repeat order,
+Qwen low/concurrency two. Runner hash
+`f5b566dc2456334a7d4494caa991321207c996e4cf52ca67e191b07d41d69c3d`.
+Known acceptance failures are comparison outcomes, not cancellation triggers;
+Provider/wire/basic-schema failure still stops. No repair, retry or extra calls.
+
+2026-09-09 08:10:25.010–08:11:43.458 UTC: eight calls pass basic structure and
+acceptance, 78.448 seconds, 23,344 reported tokens. Category recognition fails in
+both candidate outputs versus one of two baseline outputs. On the duplicate/
+absent-target source both versions return four actual subjects without duplicates,
+generic placeholders or target status rows; old failures did not recur, so no
+candidate repair credit is warranted.
+
+Do not adopt 5.3. All three task-owned Prompt/schema-description/test changes were
+restored byte-for-byte to HEAD's 5.2 baseline; rejected Prompt and Schema remain
+in the captured plan and local review. Candidate 31 focused tests/typecheck pass;
+restored 30 tests pass. These do not prove semantic readiness. 5.2 remains a
+known-imperfect diagnostic baseline. Next isolate one prompting constituent,
+not another combined expansion; no new model/Agent/field structure or ninth call.
+
+Local full Prompt, input/output and decision:
+`apps/backend/.provider-evidence/m4-brand-unit-replay-U4ZeoT/input-output-review.md`.
+Two private Langfuse reads see root plus six of eight calls; the first local-source
+baseline/candidate observations remain missing. Seen IO/settings/model/usage match.
+Trace `1ae4e509072b6fa5f4cf11d2383ec197`; no reupload or channel switch. All raw
+evidence and independent review remain local.
+
 ## 5.2 fresh-answer chain stopped before synthesis
 
 At `7305e337e98a1a78fdb405183188f7e18f71da93`, freeze Parser 5.2.0, Narrative
