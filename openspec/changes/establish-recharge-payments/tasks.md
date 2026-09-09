@@ -71,13 +71,13 @@ Producer: [PR #79](https://github.com/ZETAVI/GEOEval/pull/79), fixed head 770a76
 
 ## N1: Native dispatch, recovery and customer journey
 
-The current user request first advances official-source design. Only this active change is written in this pass; C1 runtime and the returned #73 window stay fixed.
+Official-source design is complete. The current approved package repairs the existing Adapter URI boundary and its tests; C1 accounting/contracts stay fixed. #73 holds the shared schema/accounting/generated window in its [checkpoint](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5594459375).
 
 - [x] Read current Native prepay/invoke/query/close and callback-query guidance; distinguish QR lifetime, provider payment deadline and verified close, and Native versus micropay states.
 - [x] Define dispatch/cancel generation, truthful attempts, same-parameter recovery, customer projection and saved publishing-return context in design sections 9–11; review their concrete failure boundaries.
 - [x] Reproduce an A0 compatibility defect with current official QR examples: two /up variants fail, legacy control passes. This is a recorded failed probe, not an acceptance pass.
-- [ ] First repair the over-restrictive Native action URI validation at its existing Adapter seam; retain the official examples as regressions and hostile URI/credential/control-character negatives. Do not hide the failed diagnosis behind unchanged old CI.
-- [ ] Before runtime work, agree the exact Recharge schema/attempt/migration and API/Worker/generated window with #73; choose the linear successor to fixed C1, retaining this same worktree. Keep consumer C1 evidence and pre-change refs explicit.
+- [x] Repair the existing Adapter URI boundary: both documented /up targets and the legacy form work; malformed scheme/host/path, credentials, ports, fragments and raw whitespace/control bytes remain rejected. 80 gateway checks and 20 controlled HTTPS checks pass; the old failed diagnostic remains historical evidence.
+- [ ] Before shared runtime work, agree the exact Recharge schema/attempt/migration and API/Worker/generated window with #73; choose the linear successor to fixed C1, retaining this same worktree. Keep consumer C1 evidence and pre-change refs explicit.
 
 - [ ] Implement stable merchant identity, UNSENT/MAY_EXIST, cancel intent, query/close convergence, generation fences and visible unresolved obligations. Do not infer remote cancellation from a local timeout or expired lease.
 - [ ] Register B0 and the verified core in the approved API/Worker composition with precise raw-body configuration and owner-bound customer commands. Recheck receipt state inside settlement; complete bounded due-state recovery and visible review-needed handling.

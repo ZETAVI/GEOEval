@@ -99,7 +99,7 @@ No actual merchant key, provider request, money or production database was used.
 C1 has no dispatcher, verified-close command, worker/lease scheduler, payment UI or production activation. Its 22 tests replace planned core claims with evidence; they do not prove future return semantics, controller activation, OS process/storage crash, real merchant limits or H5. Exact PR head/CI/window handback is owned by the PR checkpoint; do not treat a local or pre-rebase result as current full CI.
 
 
-## N1 设计与失败诊断（2026-09-08，运行时 59930dd）
+## N1 设计与失败诊断（历史：2026-09-08，运行时 59930dd）
 
 | Claim | Evidence | Result / limit |
 | --- | --- | --- |
@@ -127,3 +127,19 @@ N1 待实施的最小判别证据：
 | 桌面真实浏览器 QR/取消/超时/重载 | 本地二维码内容与安全动作一致；合成 adapter 明确标识，不能宣称微信扫码成功 |
 
 以上 N1 矩阵是未来验收定义，**Not run**。没有新增 N1 运行时通过数；当前设计/诊断为 partially verified，不能继承旧 CI 来声称网页支付完成。
+
+
+## Native URI 修复证据
+
+本片解决前述历史诊断。生产改动仅 WechatPayGateway 的 URI 接受/拒绝边界，测试用现有 in-memory fixture；未接触商户、数据库、共享 contracts 或当前应用装配。
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| 官方 URI 与原安全边界 | 正式 gateway suite：加入 2 个官方成功例证和 10 个 malformed URI 负例 | 修复前 5 failed / 75 passed（两种 URI 与 3 个原始字节清理缺口）；修复后 **80 passed**。原 68 项其余协议证据复用同一 suite |
+| 实际 HTTPS 返回新版动作 | 现有 HTTPS suite 正向应答改用 /up，并断言完整原值；签名/TLS/负例保持 | **20 passed**。最初 sandbox listen EPERM，明确允许 loopback 后全部通过；非微信服务器或真实资金 |
+| 静态兼容 | Backend tsc --noEmit；受影响文件 Prettier；框架/Markdown validator；git diff --check | Passed；没有端口/schema/生成物变化 |
+| 局部性与连续性 | 对 8db5d66 的固定 Diff，#73 窗口与 runtime 文件清单 | 仅 1 个 gateway、2 份测试及 #77 文档；最终 revision/CI 与 producer 回执由 PR checkpoint 持有 |
+
+复现：`pnpm --filter @geoeval/backend exec vitest run test/wechat-pay.gateway.spec.ts test/wechat-pay.https.spec.ts`（HTTPS 需允许 loopback）；`pnpm --filter @geoeval/backend typecheck`。修复前后的本地日志保留 /tmp/geoeval77-qr-regression-red.log、/tmp/geoeval77-qr-green.log、/tmp/geoeval77-qr-https-green.log；原研究诊断保留 artifacts，不再将失败描述为当前行为。
+
+此 URI 修复 locally verified；整体 N1 仍 partially verified，未增加发起/取消持久化、Worker、二维码页面或商户验证。后续不以重复密码学测试代替这些缺失的实际边界。

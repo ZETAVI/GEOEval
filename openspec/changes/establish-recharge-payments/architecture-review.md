@@ -145,7 +145,7 @@
 当前本片无未解决 material finding。技术不等于上线政策：测试配置没有变成默认额度/时限；后续 #73 退点、进程/存储崩溃、dispatcher/Worker、Native/H5 浏览器、真实商户/资金仍需对应证据。结论为本片 ready for fixed PR review，整体充值主线仍 partially verified。C1 窗口到固定 PR/CI 与交还回执结束。
 
 
-## N1 官方来源设计复核（59930dd 运行时基线）
+## N1 官方来源设计复核（历史：59930dd 运行时基线）
 
 本轮只修改 #77 active change；用户明确先按官方文档推进 Native 设计。比较真实 Adapter、C1 事务/订单、发布 pending-purchase 与现行 Native 来源，复用无变化 C1/A0/B0 证据。作者审查，不冒充独立 review。
 
@@ -159,3 +159,14 @@
 | retain，共享修改窗口 | C1 未合并，#73 拟消费固定 59930dd 后写 Delivery/RETURN；并行改 schema 会损伤迁移/接口责任 | 本轮无 runtime/shared 写入；#73 持有其明确范围，N1 实施前再次对齐窗口与精确 base |
 
 设计在已确认的产品边界内可继续，当前无须重新询问模块所有权、充值兑换或付款凭证规则。额度/快捷金额/时限/客服联系方式与异常现金处置仍是对应产品/财务 Gate 的待定输入；测试 profile 不产生上线默认。结论：**ready for bounded N1 implementation planning；Native runtime not ready**，原因是已复现 URI 缺陷和尚未实现的调度/网页链路。真正接入前先以最小反例证明 9–11 节，而非再做整体钱包重构。
+
+
+## Native URI 修复复核
+
+当前用户授权继续执行已列出的修复。范围为现有 gateway 和两份测试，不改 PaymentGateway 端口、C1 账务、schema、DTO/generated、API/Worker 或 #73 分支。上节 URI must-fix 已解决，其余 N1 编排/网页仍未实现。
+
+- 意图：两种官方 /up 链接进入正式回归并保留原值；旧 URI 继续支持，没有转成支付成功或附带新网络请求。
+- 工程：仍先验签后解释动作；仅接受核查过的 payment host/path，拒绝其他动作、凭据、端口、fragment 和 URL parser 会静默清理的原始空白/控制字节。无需新依赖或解析框架。
+- 证据：新增正式回归修复前 5 失败 / 75 通过，修复后 80 通过；20 项受控 HTTPS 通过，其中正常下单/查询/关单及 UTF-8 测试已使用新版 URI。后端 typecheck 与格式/框架/链接检查通过。未变化的 C1 并发/升级证据复用，不据此声称 Native 调度或浏览器已完成。
+
+作者固定 Diff review 结论为本修复 ready；不冒充独立 review，不要求整体积分重构。真实商户与手机扫码仍待对应 Gate；现有两个官方 URI 的兼容主张已有执行证据。

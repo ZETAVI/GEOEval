@@ -136,6 +136,6 @@ Prisma 官网 transactions 页面本轮抓取失败，未作为已读证据。�
 | 未支付订单可因客户取消或到期关单，成功是无正文 204 | [Native 关闭订单](https://pay.wechatpay.cn/doc/v3/merchant/4012791881)，更新 2024-12-11 | 认证 ACK 是独立关闭证据；业务错误/未查到不能当作它。该现行页没有规定普遍等待五分钟，不移植 V2/其他产品的旧规则 |
 | 前端有界轮询与后台补查、通知、T+1 核对互补；2 秒/60 秒及后台退避是示例，可按场景设置 | [回调和查单指引](https://pay.wechatpay.cn/doc/v3/merchant/4012075249)，更新 2024-12-18 | 页面仅查本地，受限命令合并后台调度；轮询结束不是订单关闭，用户离开不停止恢复 |
 
-官方 API 示例有 `weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00`，调起页面另给出 `weixin://pay.weixin.qq.com/bizpayurl/up?pr=NwY5Mz9&groupid=00`。A0 固定 59930dd 的 URI 验证只接受旧 host/path。用真实 WechatPayGateway 与现有 wechatFixture 为这两个公开字符串构造受控签名应答，结果均为 INVALID_RESPONSE；旧 `/bizpayurl?pr=TEST` 对照通过。诊断 3 例中 2 失败 / 1 通过，证明字段解释过严，不是商户权限、TLS 或真实微信签名失败。修复前不得声称当前 Adapter 已兼容现行 Native QR；N1 第一项是将两种官方例证纳入正式回归并修正校验，不丢弃必要安全边界。
+官方 API 示例有 `weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00`，调起页面另给出 `weixin://pay.weixin.qq.com/bizpayurl/up?pr=NwY5Mz9&groupid=00`。A0 固定 59930dd 的 URI 验证只接受旧 host/path。用真实 WechatPayGateway 与现有 wechatFixture 为这两个公开字符串构造受控签名应答，结果均为 INVALID_RESPONSE；旧 `/bizpayurl?pr=TEST` 对照通过。诊断 3 例中 2 失败 / 1 通过，证明字段解释过严，不是商户权限、TLS 或真实微信签名失败。该历史失败现已通过正式修复解决：两种当前例证纳入 gateway 回归，原受控 HTTPS 正向路径也使用 /up；80 + 20 项通过。既有失败材料保留，不将其从历史抹去。接受范围只扩展到已核查的支付目标，不放开任意 weixin 动作；URL 值原样返回，不重建 query。
 
 文档未承诺向不存在订单关单会留下防未来创建的 tombstone，也未提供对旧网络调用的 generation fence。MAY_EXIST 不能用 NOT_EXIST/lease/本地截止来自动释放，是针对该未证明边界的项目推导。QR 重试是否返回同值及实际续期、关闭与迟到发起的交错，仍须命名商户环境验证；本地受控网络仅验证我们如何处理这些结果，不代替微信端保证。
