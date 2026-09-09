@@ -60,5 +60,29 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 - [x] Remove Commerce placeholder status ownership; no permanent dual writes. Generate OpenAPI/client and verify current customer routes compose true status.
 - [x] Rehearse the two resolution migrations on an empty DB and a separate actual 35→37 synthetic historical upgrade; preserve all old projections and new null/zero defaults. The granted-only historical sample is not production-corpus or physical-restore proof.
 - [x] Promote accepted Delivery behavior; update Commerce/product/glossary/vision/architecture and explicitly extract the relevant product-definition evolution marker. Existing ADR 0006 admission remains unchanged; settlement uses its already-approved owner-bound transaction approach without a new ADR or general framework.
-- [ ] Map final acceptance to real evidence; record skipped checks and future Writer/real recharge/#74 boundaries without appending their work here.
-- [ ] Open final acceptance PR, complete fixed-diff review and checks, obtain merge authorization, verify integrated revision and only then reconcile #73 closure/Project Done/workspace exit.
+- [x] Map final acceptance to existing implementation and evidence below; keep skipped checks and independently owned Writer/recharge/#74 work outside this outcome.
+- [ ] Obtain the bounded dependency-integration authorization and coordinate exact heads/base changes with the payment owner; review-ready status alone is not authority to merge its PRs.
+- [ ] After the lower dependency is integrated, promote existing PR #81 to the final acceptance transaction against main. Recheck the affected Diff, review, Checks, closing relationship and pre-integration reconciliation; do not create another branch or PR for the same outcome.
+- [ ] Verify the integrated revision, reconcile the stable Change and Issue closure, and only then set Project Done with an explicit workspace exit. No new order functionality is part of this gate.
+
+## Final acceptance index
+
+This index points to the evidence owners; it does not duplicate business rules or
+convert local verification into an accepted-main or production claim.
+
+| Approved outcome | Implementation / discriminating evidence | Disposition |
+| --- | --- | --- |
+| Paid order admits exactly one aggregate; exclusive responsibility, bounded lists and safe customer detail | [Delivery spec](../../specs/publication-delivery/spec.md), [assignment/admission integration tests](../../../apps/backend/test/delivery-assignment.integration.spec.ts), [PR #76 integration](https://github.com/ZETAVI/GEOEval/pull/76#issuecomment-5583603102) | Integrated normal slice; immutable purchase and role boundaries retained by the exception slice. |
+| Mock/manual preparation, direct results, correction and whole-order completion preserve the original article/quantity | Same assignment/work integration suite and PR #76 browser evidence | Integrated normal slice; generation does not count as publication. |
+| Negotiated precise replacement, continued compensation, zero closure and positive settled termination keep their distinct outcomes | [Resolution HTTP/DB tests](../../../apps/backend/test/delivery-resolution.integration.spec.ts), [Web resolution tests](../../../apps/web/test/delivery-resolution.spec.tsx), [approved browser completion](https://github.com/ZETAVI/GEOEval/pull/81#issuecomment-5597379967) | Verified on the PR branch, awaiting integration; all three isolated terminal outcomes are preserved. |
+| Original-source, capped, once-only administrator credit; no gift fallback; agreement races and rollback remain atomic | Resolution HTTP/DB tests plus [Commerce return arithmetic](../../../apps/backend/test/order-point-return.spec.ts) and [current Commerce owner](../../specs/publishing-commerce/spec.md) | Verified with real isolated database transactions and C1 reservation-aware capacity. |
+| Role entry, authority, explicit action, pending work, customer result and interrupted-request recovery form one usable path | Assignment/resolution tests, [role entry assertions](../../../apps/web/test/supporting-role-workspace.spec.tsx), PR #81 browser checkpoint | Approved role paths and 390px views passed. Browser outage proves a pre-dispatch failure and same-request reload recovery; successful-response loss is not claimed by that browser run. |
+| Migration and design reconciliation preserve history and singular ownership | [Recovery integration tests](../../../apps/backend/test/delivery-recovery.integration.spec.ts), §3 migration evidence above, current Delivery/Commerce specs and architecture | Empty and synthetic historical migration rehearsals passed. Product Definition's other unactivated capability markers remain explicitly retained; no new ADR or duplicate design owner. |
+
+Residual boundaries: real Writer/material preparation, external publication,
+real-money recharge, #74 UI/UX and production activation remain separate outcomes.
+The granted-only historical fixture is not a production-corpus rehearsal; physical
+restore/process-crash and deployment-ingress proof are not claimed. After any base
+change, recheck only evidence invalidated by that change. The current fixed-head
+review/CI and producer-consumer handoff remain owned by PR #81 and its linked
+checkpoint, not by another mutable status table here.

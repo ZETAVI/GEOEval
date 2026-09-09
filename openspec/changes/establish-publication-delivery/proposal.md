@@ -2,16 +2,18 @@
 
 Issue: https://github.com/ZETAVI/GEOEval/issues/73
 Change ID: `establish-publication-delivery`
-Class / phase: architectural / approved for bounded implementation.
+Class / phase: architectural / implemented and verified; awaiting dependency integration and closeout.
 
 Current activation: PR #76 integrated normal admission/responsibility, results,
 deadline lists and customer visibility at `main@a550fc4`; PR #79 integrated the
 no-behavior-change points assembly at `main@bcb81db`. This Change remains active
-for the manual exception/settlement outcome. #77 has fixed C1 at `59930dd` and
-returned the shared window; the current #73 implementation explicitly stacks on
-PR #82. Transaction/HTTP, migration and component evidence now cover the manual
-exception/return slice; browser acceptance and stack integration remain open in
-[tasks](tasks.md). #73 owns order
+for dependency integration and final closeout of the manual exception/settlement
+outcome. PR #81 stacks on PR #82; its exact accepted consumer baseline, combined
+verification and current shared-window handback are recorded in the
+[Delivery / Agent Coordination checkpoint](https://github.com/ZETAVI/GEOEval/pull/81#issuecomment-5597379967).
+Transaction/HTTP, migration, component and the approved isolated browser
+scenarios now cover the slice; final acceptance and the remaining integration
+gates are indexed in [tasks](tasks.md). #73 owns order
 meaning and customer/operations behavior, not a duplicate accounting engine.
 The original rationale below is not a claim that integrated capabilities remain absent.
 
@@ -41,7 +43,7 @@ The original rationale below is not a claim that integrated capabilities remain 
 - `supersede`: ADR 0005 保留历史；接入切片中记录其获批的窄范围扩展，仅包含履约聚合初始化，不把实际履约塞进购买事务。
 - `retain`: Product Definition 的 split-on-activation marker 仅执行履约部分，其余未激活能力继续保留；以实际文件标记为准，不为本包重写其他能力。
 - `retire`: 草案已从忽略的准备区一次性迁入本目录，旧候选只保留到本 owner 的指针，不再维护第二套设计。
-- Workspace: d92a / `codex/issue-73-publication-delivery` retain，当前异常切片从固定 C1 `59930dd` 线性依赖 PR #82，沿用 PR #81；正常履约和积分装配的已合并证据不重写。主 session 负责共享接口/schema/文档；有界辅助实现只写明确的 owner-local 文件。原 #65 与支付工作区、验收/恢复资料均保留。
-- #73 为 ZETAVI / P1，已按 Ready → In Progress 开始有界实施。用户明确批准此次与 #39 并行的 WIP 例外，不更改项目全局规则。#39/#42 owner 在 `6a7515a` 确认当前和下一实验切片均不写 Prisma、迁移、API 装配、生成客户端或 Web；共享接缝由 #73 负责，后续需求须先协调窗口。
-- PR: 首个 Draft PR 记录本切片未完成状态；每个纵向切片标明 Partial，最后验收 PR 才关闭 #73。本批准不包含合并、真实积分/渠道费用或生产激活。
-- Exit: retain；继续同一个 #73 outcome。正常结果链路已独立集成，本异常/退点切片仍需完成自己的浏览器验收和依赖集成，不复用正常链路的实机结论来冒充本片通过。
+- Workspace: d92a / `codex/issue-73-publication-delivery` retain，沿用 PR #81 和真实线性依赖，不再为最终验收创建另一分支或 PR。正常履约和积分装配的已合并证据不重写；原 #65、支付工作区和验收/恢复资料均保留。
+- Ownership: 本片实现窗口已结束。共享 schema/账务/DTO/generated/API 功能写入已按上述 checkpoint 交还支付 owner；订单侧仅负责自身验收对账与集成准备。新的共享需要先重新协调，不沿用早期 #39/#42 并行批准作为永久写入权。实际 Assignee、Priority 和阶段由 Issue 与 Project 持有。
+- PR: 已有 PR #81 进入审查，在非默认分支上仍为 Partial。下层依赖合入后再核对 Diff、Checks、验收和授权，将同一 PR 提升为最终关闭交易；不因 ready for review 自动合并下层支付 PR。真实资金、渠道调用和生产激活继续独立授权。
+- Exit: retain；本片批准的实机验收已经完成，剩余是依赖与 protected-main 集成、最终 Change/Issue 对账及明确工作区保留或退出。尚未完成这些门槛，不归档为已交付，也不宣称生产可用。
