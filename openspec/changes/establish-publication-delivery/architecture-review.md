@@ -70,9 +70,9 @@ preservation during correction/reassignment, and terminal-aware active lists.
 Existing normal-slice code is not incorrectly labeled a current defect merely
 because it does not yet implement those future states. Acceptance scenarios now
 live in design §4.1 and will be exercised through actual persistence/HTTP/pages
-once the dependency is integrated or an explicit dependent stack and next write
-window are agreed, not counted as passing runtime tests. The current design-only
-PR stays main-direct; C1 and its lower payment PRs remain unmerged.
+once their actual transaction/HTTP/page adapters exist, not counted as passing
+runtime tests. The current #73 slice explicitly stacks on fixed C1 `59930dd`
+through PR #82 under the agreed write window; lower payment PRs remain unmerged.
 
 The lead does not adopt the review suggestion to prebuild stopped-slot ranges:
 the confirmed first-release sequence finishes retained work before one stop of

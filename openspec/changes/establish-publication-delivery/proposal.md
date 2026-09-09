@@ -39,7 +39,7 @@ The original rationale below is not a claim that integrated capabilities remain 
 - `supersede`: ADR 0005 保留历史；接入切片中记录其获批的窄范围扩展，仅包含履约聚合初始化，不把实际履约塞进购买事务。
 - `retain`: Product Definition 的 split-on-activation marker 仅执行履约部分，其余未激活能力继续保留；以实际文件标记为准，不为本包重写其他能力。
 - `retire`: 草案已从忽略的准备区一次性迁入本目录，旧候选只保留到本 owner 的指针，不再维护第二套设计。
-- Workspace: d92a / `codex/issue-73-publication-delivery`，base `0552aa7e60d5aa6b99645692e6090e64544087d5`，主 session 为唯一 writer，main-direct。原 #65 分支保留，不删除既有验收或恢复资料。
+- Workspace: d92a / `codex/issue-73-publication-delivery` retain，当前异常切片从固定 C1 `59930dd` 线性依赖 PR #82，沿用 PR #81；正常履约和积分装配的已合并证据不重写。主 session 负责共享接口/schema/文档；有界辅助实现只写明确的 owner-local 文件。原 #65 与支付工作区、验收/恢复资料均保留。
 - #73 为 ZETAVI / P1，已按 Ready → In Progress 开始有界实施。用户明确批准此次与 #39 并行的 WIP 例外，不更改项目全局规则。#39/#42 owner 在 `6a7515a` 确认当前和下一实验切片均不写 Prisma、迁移、API 装配、生成客户端或 Web；共享接缝由 #73 负责，后续需求须先协调窗口。
 - PR: 首个 Draft PR 记录本切片未完成状态；每个纵向切片标明 Partial，最后验收 PR 才关闭 #73。本批准不包含合并、真实积分/渠道费用或生产激活。
 - Exit: retain；继续实现同一个 #73 outcome，首个结果链路经 HTTP/浏览器/真实隔离数据库验证后才请求该切片集成。不要把纯逻辑单测当完整业务验收。

@@ -66,7 +66,7 @@ The customer SHALL see one of the existing five fulfilment states and separately
 - **WHEN** all purchased publications have succeeded directly or through agreed replacement
 - **THEN** the order is Completed with full actual progress, even if agreed compensation is unpaid
 - **AND** the customer sees that agreed return as pending, never as already credited
-- **AND** administrator outstanding-return views include every saved unpaid agreement before and after Completed; execution becomes eligible only when retained work has finished or remaining work was stopped, without a separate submission/finalization workflow
+- **AND** administrator outstanding-return views include every positive saved unpaid agreement before and after Completed; execution becomes eligible only when retained work has finished or remaining work was stopped, without a separate submission/finalization workflow
 - **AND** later successful payment changes only return information, not Completed to Closed.
 
 #### Scenario: Agreed remaining work is terminated with a positive return

@@ -39,6 +39,8 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 - [x] Confirm zero-point termination: the current responsible operator closes directly with retained reason/history, no administrator and no ledger; zero is a new-form default, not an overwrite of an existing amount.
 - [x] Inspect the fixed #77 C1 contract at `59930dd`, verify the live unmerged stack and receive its explicit shared-window handback; reference the producer checkpoint without copying its contract/evidence.
 - [ ] Consume fixed C1 `59930dd` through the explicitly agreed linear stack on PR #82; recheck base/Diff/Checks and record the #73 Delivery/RETURN single-writer window before shared changes.
+- [x] Implement the owner-local negotiated-resolution/positive-settlement decisions and original-source return arithmetic, consuming C1 reservation-aware capacity; 50 pure tests pass. These are not yet connected to transaction/HTTP/page adapters and do not prove runtime authority, once-only credit or closure.
+- [ ] Bind these decisions to the locked Identity/Delivery/Commerce facts, exact-request replay and one atomic audit/ledger transaction; no runtime endpoint is activated until that complete path is verified.
 - [ ] Implement precise replacement/history and ordinary random reallocation distinction; continue operation without waiting for admin credit.
 - [ ] Implement explicitly saved order-level negotiated amount/version, eligibility from finished/stopped work and dedicated administrator unpaid-agreement list; no separate finalization workflow.
 - [ ] Implement one administrator confirmation/credit action, return kind/original consumption link/source allocation and exact actor-bound reload recovery.
