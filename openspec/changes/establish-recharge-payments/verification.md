@@ -195,3 +195,24 @@ N1 待实施的最小判别证据：
 | 充值期间其他设备更改余额/文章/选择/价格，或发票仍在补正 | 发布返回重新核价并要求明确购买；开票状态不阻挡已有余额使用 |
 
 当前结论为设计与学习记录 verified、运行时新增场景 pending；不重写已接受产品意义，不把参考站交互当作其 schema/一致性测试。
+
+## N1 后端持久恢复验证（2026-09-09）
+
+范围：`codex/issue-77-native-recovery`，基于 #81 固定 `990ece2781dcb2b08281f24282f698ed4635be22`。沿用实际 A0 协议、B0 inbox、C1 事务与 #73 RETURN；新增 runtime 仅显式构造，没有当前 API/Worker 注册。下列均为本地受控证据，不含真实商户/资金。
+
+| 完成主张 | 证据 | 结果与边界 |
+| --- | --- | --- |
+| 创建/领取/查询/关单可恢复且只一次记分 | [21 项 Native 集成测试](../../../apps/backend/test/native-recovery.integration.spec.ts)、[9 项本地规则测试](../../../apps/backend/test/native-recovery.spec.ts) | Passed。临时 RSA/APIv3 材料 + 实际 Adapter + 独立 PostgreSQL；不调用 provider |
+| 金额与旧模块责任保持 | Native、C1、B0、积分、购买、RETURN、Commerce 模块、Delivery resolution、当前 API 合并检查 | **144 passed、2 skipped，11 个文件**。其中旧 Delivery migration/recovery drill 的 2 项仅允许 #73 专属资源，按原有保护条件跳过；未改变或访问该资源 |
+| 中途失败不产生半笔账 | 结果事务最后一步触发器失败、关单后本地提交故障、入账后执行标记失败、重复 Worker/查单/通知竞争 | Passed；前两类保留义务并恢复，后一类重放 C1 不重复记分。连接重建通过，不声称做了 OS/磁盘故障测试 |
+| 取消/过期不假关闭 | 未发送本地取消；已发出取消后 ORDER_NOT_EXIST、迟到 QR/SUCCESS；支付到期后查关单 | Passed；容量只随 C1 到账或认证关闭释放，旧二维码不能重新出现 |
+| 恢复不会无限阻塞后续工作 | 失败领取/receipt 单独退避、批次为 1 时的后续有效单、鉴权失败立即核查、有限未知重试、重复旧 QR | Passed；宿主级频率/并发预算与告警尚待 Worker 接线 |
+| 增量迁移保留历史 | `geoeval_issue77_native_upgrade`：先部署 #81 的前 37 条迁移，写合成 UNSENT、MAY_EXIST 与历史 CLOSED 各一单，再部署第 38 条 | Passed。账户/余额/订单/3 条预留旧字段投影完全一致；旧请求快照/关闭证据未伪造，仅活动旧单增加可恢复 due。演练 SQL/快照/输出保留本地 `/tmp/geoeval77-native-upgrade/` |
+| 未激活当前客户支付、无生成漂移 | 后端 tsc/typecheck/build；在 backend 目录运行 OpenAPI 生成，再生成 API client 并检查 Diff；现有当前 API 测试 | Passed。没有新增公开支付 HTTP 合同或产品路由；Web 组件证据复用其不变基线，本轮未重做浏览器 |
+| 框架/源码格式/本地链接 | 项目框架校验、Prettier、`git diff --check` | Passed；其最终固定 revision 和 CI 由本片 PR 保存 |
+
+复现核心组合：显式指定自己所有的 `DATABASE_URL` 与 `REDIS_URL`，执行 backend Vitest 中 `native-recovery.spec.ts`、`native-recovery.integration.spec.ts`、`recharge-core.integration.spec.ts`、`recharge-notification.integration.spec.ts`、`point-accounts.integration.spec.ts`、`publishing-orders.integration.spec.ts`、`order-point-return.spec.ts`、`commerce-points-module.integration.spec.ts`、`delivery-resolution.integration.spec.ts`、`api.integration.spec.ts`。本次功能库为 `geoeval_issue77_native_n1`，Redis 为既有带 #77 标签的 `127.0.0.1:56577/0`；没有使用默认库或其他任务的清理入口。
+
+一次初始夹具错误把交易号写成超过协议上限，真实 Adapter 拒绝，修正合成数据后通过；OpenAPI 初次从仓库根运行未加载 backend decorators 配置，改用既定 backend 工作目录后生成通过。这两次失败不被计入通过数，也未通过放宽产品校验修复。
+
+本片结论：后端持久恢复 **verified within controlled assembly**；整体 #77 **partially verified**。客户 API/CSRF、常驻 Worker 与运营入口、成功通知/SSE、历史/发布返回、完整桌面旅程和真实商户测试仍 Not run。前节 8 个全链路场景中的实际 HTTP 进程退出、通知投递/SSE、历史和发布返回部分继续待验，不能用本片内部函数测试替代。

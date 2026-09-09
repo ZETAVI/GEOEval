@@ -77,6 +77,7 @@ export type SettlementResult =
 export class RechargeError extends Error {
   constructor(
     readonly code:
+      | "CREATION_DISABLED"
       | "INVALID_INPUT"
       | "AMOUNT_NOT_ALLOWED"
       | "ACCOUNT_NOT_ACTIVE"

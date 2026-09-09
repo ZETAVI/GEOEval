@@ -1271,12 +1271,14 @@ model RechargePaymentObservation {
   bodySha256            String                        @map("body_sha256") @db.VarChar(64)
   createdAt             DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
   receipts              RechargeNotificationReceipt[]
+  nativeAttempts        RechargeOperationAttempt[]
 
   @@unique([provider, merchantId, notificationId, factsSha256], map: "recharge_observation_facts_key")
   @@map("recharge_payment_observations")
 }
 
 model RechargeNotificationReceipt {
+  retryAfter             DateTime                   @default(now()) @map("retry_after") @db.Timestamptz(3)
   reviewReason           String?                    @map("review_reason") @db.VarChar(64)
   appliedRechargeOrderId String?                    @map("applied_recharge_order_id") @db.Uuid
   appliedOrder           RechargeOrder?             @relation(fields: [appliedRechargeOrderId, provider, merchantId], references: [id, provider, merchantId], onDelete: Restrict, onUpdate: Restrict, map: "recharge_receipt_applied_owner_fkey")
@@ -1295,6 +1297,24 @@ model RechargeNotificationReceipt {
 }
 
 model RechargeOrder {
+  nativeDescription       String?                    @map("native_description") @db.VarChar(127)
+  nativeNotifyUrl         String?                    @map("native_notify_url") @db.VarChar(256)
+  nativeGeneration        Int                        @default(0) @map("native_generation")
+  nativeCancelRequestedAt DateTime?                  @map("native_cancel_requested_at") @db.Timestamptz(3)
+  nativeNextOperation     String?                    @map("native_next_operation") @db.VarChar(16)
+  nativeNextActionAt      DateTime?                  @map("native_next_action_at") @db.Timestamptz(3)
+  nativeLeaseId           String?                    @map("native_lease_id") @db.Uuid
+  nativeLeaseUntil        DateTime?                  @map("native_lease_until") @db.Timestamptz(3)
+  nativeQrUrl             String?                    @map("native_qr_url") @db.VarChar(2048)
+  nativeQrExpiresAt       DateTime?                  @map("native_qr_expires_at") @db.Timestamptz(3)
+  nativeQrAttemptId       String?                    @map("native_qr_attempt_id") @db.Uuid
+  nativeCloseAttemptId    String?                    @map("native_close_attempt_id") @db.Uuid
+  nativeFailureCount      Int                        @default(0) @map("native_failure_count")
+  nativeReviewReason      String?                    @map("native_review_reason") @db.VarChar(64)
+  nativeAttempts          RechargeOperationAttempt[] @relation("NativeOrderOperations")
+  nativeQrAttempt         RechargeOperationAttempt?  @relation("NativeQrSource", fields: [nativeQrAttemptId, id], references: [id, orderId], onDelete: Restrict, onUpdate: Restrict)
+  nativeCloseAttempt      RechargeOperationAttempt?  @relation("NativeCloseSource", fields: [nativeCloseAttemptId, id], references: [id, orderId], onDelete: Restrict, onUpdate: Restrict)
+
   id                    String                        @id @default(uuid()) @db.Uuid
   accountId             String                        @map("account_id") @db.Uuid
   idempotencyKey        String                        @map("idempotency_key") @db.Uuid
@@ -1331,6 +1351,7 @@ model RechargeOrder {
   @@unique([provider, merchantId, merchantOrderNo], map: "recharge_merchant_order_key")
   @@unique([provider, merchantId, providerTransactionId], map: "recharge_provider_transaction_key")
   @@index([accountId, status])
+  @@index([nativeNextActionAt], map: "recharge_native_due_idx")
   @@map("recharge_orders")
 }
 
@@ -1346,4 +1367,35 @@ model RechargeCreditReservation {
 
   @@index([accountId, state])
   @@map("recharge_credit_reservations")
+}
+
+// One durable I/O attempt; payment facts remain owned by RechargePaymentObservation.
+model RechargeOperationAttempt {
+  id                   String                      @id @default(uuid()) @db.Uuid
+  orderId              String                      @map("order_id") @db.Uuid
+  generation           Int
+  kind                 String                      @db.VarChar(16)
+  requestSha256        String                      @map("request_sha256") @db.VarChar(64)
+  startedAt            DateTime                    @map("started_at") @db.Timestamptz(3)
+  finishedAt           DateTime?                   @map("finished_at") @db.Timestamptz(3)
+  resultKind           String?                     @map("result_kind") @db.VarChar(16)
+  resultSha256         String?                     @map("result_sha256") @db.VarChar(64)
+  diagnosticCode       String?                     @map("diagnostic_code") @db.VarChar(64)
+  tradeState           String?                     @map("trade_state") @db.VarChar(16)
+  verificationKeyId    String?                     @map("verification_key_id") @db.VarChar(128)
+  signedAtSeconds      BigInt?                     @map("signed_at_seconds")
+  receivedAt           DateTime?                   @map("received_at") @db.Timestamptz(3)
+  bodySha256           String?                     @map("body_sha256") @db.VarChar(64)
+  paymentObservationId String?                     @map("payment_observation_id") @db.Uuid
+  processingState      String?                     @map("processing_state") @db.VarChar(16)
+  processingDueAt      DateTime?                   @map("processing_due_at") @db.Timestamptz(3)
+  order                RechargeOrder               @relation("NativeOrderOperations", fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  qrOrders             RechargeOrder[]             @relation("NativeQrSource")
+  closedOrders         RechargeOrder[]             @relation("NativeCloseSource")
+  paymentObservation   RechargePaymentObservation? @relation(fields: [paymentObservationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([id, orderId])
+  @@unique([orderId, generation])
+  @@index([processingState, processingDueAt])
+  @@map("recharge_operation_attempts")
 }
