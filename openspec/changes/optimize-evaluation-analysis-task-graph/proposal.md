@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 4.1 prepared and locally verified; real-call authorization blocked
+- Status: 4.2 Prompt-only calibration; exact six-call batch approved
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -45,13 +45,15 @@ Current runtime semantics and history do not change in this experimental PR.
 ## Current evidence and next decision
 
 The owner now confirms concrete named business subjects, no absent-target
-placeholder, and simple positive/neutral/negative attitude guidance. Prompt 4.1
+placeholder, and simple positive/neutral/negative attitude guidance. Prompt 4.2
 tests these meanings without changing the 4.0 input, Schema or projector. The
 existing boolean maps overall positive to true and neutral/negative to false;
 mentionContext retains the useful distinction. An explicit ternary wire field
 remains a later contract decision, not an implicit change to competitor metrics.
-An absent target means all actual other rows have null targetDescription and the
-projected target is null, not that actual other merchants are discarded.
+The absent-target instruction simply omits the absent subject from JSON while
+interpreting other subjects normally. Neutral includes balanced pros/cons with no
+clear overall lean, as well as factual background; mixed wording alone is not
+neutral when the answer still clearly recommends or discourages the brand.
 
 Freeze a separate six-call batch over the same restaurant, coffee and absent-target
 answers twice each, Qwen low/concurrency two. Reuse the reading algorithm, source
@@ -66,9 +68,10 @@ pass. The frozen runner also proves all three user contexts, original answers an
 JSON Schemas equal the previous batch. Automatic safety review rejected execution
 before process creation because it requires explicit approval for this exact
 three-source/Qwen/private-Langfuse combination. No provider or telemetry request
-ran, no credential was injected, and no semantic improvement is claimed. Retain
-the candidate and manifest; obtain that specific approval rather than changing
-channel or silently reducing the rejected batch.
+ran, no credential was injected, and no semantic improvement was claimed. The
+owner has now explicitly approved that exact batch and clarified target absence
+and neutral attitude. Replace the unexecuted 4.1 Prompt with 4.2 and regenerate the
+manifest at the actual execution HEAD; do not reuse the rejected launch token.
 
 ### Previous completed 4.0 package
 

@@ -64,7 +64,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.userContext.companyName).toBe("青禾咖啡");
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@4.1.0",
+      "experiment.m4.parser-brand-rows@4.2.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -133,6 +133,7 @@ describe("M4 content-oriented brand rows", () => {
       result.output.brands.every((b) => b.targetDescription === null),
     ).toBe(true);
     expect(result.projected.output.target).toBeNull();
+    expect(result.output.brands[0]!.mentionContext).toContain("各有取舍");
     expect(result.output.brands.map((b) => b.positiveRecommendation)).toEqual([
       false,
       true,

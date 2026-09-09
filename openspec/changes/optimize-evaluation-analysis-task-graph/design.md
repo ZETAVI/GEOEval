@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: 4.1 locally verified; real-call launch blocked pending exact-payload approval;
+Status: 4.2 Prompt-only calibration; exact six-call batch approved by the owner;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -19,17 +19,23 @@ PR #48 at `2905937` remains an unaccepted historical reference.
 Architecture readiness: ready for bounded Prompt-only regression, not runtime
 acceptance. Reuse the 4.0 algorithm, Schema, adapter, telemetry and parsed-content
 handoff unchanged; no new module, field, dependency or persistence. Only the
-experimental Prompt asset advances to 4.1.0 and adds a second complete fictional
+experimental Prompt asset advances to 4.2.0 and retains a second complete fictional
 example covering absent target, generic/unnamed objects and three attitude meanings.
 
 The owner confirms concrete identifiable brands/merchants as row units. Category
-labels and unnamed objects are not rows. When the target is absent, actual other
-rows have null targetDescription and the existing projector returns null target;
-no synthetic absent-target row is requested. Overall positive, neutral and negative
+labels and unnamed objects are not rows. When the target is absent, the Prompt
+simply omits that subject and normally interprets the other actual subjects; do
+not overemphasize null on every row. Overall positive, neutral and negative
 attitudes guide interpretation of the answer rather than a new suitability verdict.
 Existing positiveRecommendation maps positive to true and neutral/negative to false;
 mentionContext retains useful pros/cons. Target point polarity is not overwritten
 by this whole-brand judgement. Do not imply the wire preserves three classes.
+
+Neutral now explicitly includes balanced pros/cons and a reserved/no-clear-lean
+stance, not just factual background. Positive remains an overall favorable or
+recommending stance despite drawbacks; negative remains overall criticism or
+discouragement despite some merits. Do not count adjectives or drawbacks. The
+second worked example now demonstrates a genuinely mixed neutral portrayal.
 
 Freeze six calls on the same three retained answers twice, Qwen low/concurrency
 two. No source retrieval, synthesis, retry, repair or edits between repetitions.
@@ -42,11 +48,10 @@ useful target content and recommendation eligibility. Prompt examples and struct
 tests are not semantic pass evidence. Fresh-source transfer follows this bounded
 package rather than another architecture sweep on the same cases.
 
-Execution gate: automatic safety review rejected process creation for this exact
-three-source outbound batch. No calls or telemetry upload occurred. Local focused
-tests and request equality checks pass; model behavior remains unverified. Do not
-work around the rejection; the owner must explicitly approve these three complete
-retained answers and both destinations before this manifest executes.
+Execution gate: the previous 4.1 launch was rejected before process creation. The
+owner has now explicitly confirmed the proposed six calls on these three retained
+answers to Qwen and actual-IO logging to the existing private Langfuse. Re-freeze
+at the 4.2 execution revision before running; no 4.1 model result exists.
 
 ### Previous package — algorithmic reading and content interpretation
 

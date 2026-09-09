@@ -79,14 +79,14 @@ The current role and decisions live in [the proposal](proposal.md).
       independently of structure and private Langfuse actual IO readback.
 - [x] Decide the next bounded step from real brand identity, coverage/order and
       portrayal; do not claim exact-match gate removal is semantic success.
-- [x] Keep input/schema/model fixed and prepare 4.1 Prompt-only calibration of
+- [x] Keep input/schema/model fixed and prepare 4.2 Prompt-only calibration of
       concrete subjects, absent-target null semantics and three attitude meanings.
       Keep the existing boolean projection; do not silently add a ternary field.
 - [ ] Run six separately frozen Qwen low calls over the same three retained sources
       twice, concurrency two; inspect raw outputs and actual model-only telemetry.
-      Blocked before launch by automatic safety review: obtain explicit approval
-      for these three payloads to Qwen and private Langfuse. No calls ran and no
-      credentials were injected. No resampling/synthesis/retry or in-batch edits.
+      The owner now explicitly approves this exact Qwen/private-Langfuse batch;
+      4.1 never ran. Re-freeze 4.2 at execution HEAD. No resampling/synthesis/retry
+      or in-batch edits.
 - [ ] Decide from the bounded result whether to retain the Prompt and proceed to
       fresh-source transfer. LOCATE is deprioritized without rewriting old evidence;
       do not start another multi-branch Prompt/schema sweep over the same cases.
