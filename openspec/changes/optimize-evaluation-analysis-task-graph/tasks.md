@@ -84,7 +84,9 @@ The current role and decisions live in [the proposal](proposal.md).
       Keep the existing boolean projection; do not silently add a ternary field.
 - [ ] Run six separately frozen Qwen low calls over the same three retained sources
       twice, concurrency two; inspect raw outputs and actual model-only telemetry.
-      No resampling/synthesis/retry or edits within the batch.
+      Blocked before launch by automatic safety review: obtain explicit approval
+      for these three payloads to Qwen and private Langfuse. No calls ran and no
+      credentials were injected. No resampling/synthesis/retry or in-batch edits.
 - [ ] Decide from the bounded result whether to retain the Prompt and proceed to
       fresh-source transfer. LOCATE is deprioritized without rewriting old evidence;
       do not start another multi-branch Prompt/schema sweep over the same cases.

@@ -3588,6 +3588,44 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## Concrete subjects and attitude calibration
+
+Prepared at `33b57845d6ea7272e6d120cd729362fe8b992180`; no real-call result.
+The owner confirms specific identifiable merchants/brands, ignoring categories,
+vague collective labels and unnamed objects. Target absence produces only actual
+other rows with null targetDescription and a null projected target, not an absence
+placeholder or deletion of actual other merchants. LOCATE is deprioritized, not
+removed retroactively or researched externally.
+
+Prompt 4.1 introduces simple overall positive/neutral/negative interpretation
+guidance and a second fictional worked example. Interpret the answer's attitude,
+not a fresh suitability verdict. Positive maps to the existing true boolean;
+neutral/negative map to false, with useful meaning retained in mentionContext.
+The wire does not contain a ternary field. Target point polarity remains separate.
+No score, new Agent, exact-quote gate or downstream schema migration is added.
+
+48 focused tests pass across brand rows, reading text, chain synthesis and customer
+summary; backend typecheck and framework/link/diff checks pass. The plan runner
+asserts exact equality of all three original answers, model user contexts and JSON
+Schemas against 4.0. The Prompt changes and examples are one calibration package,
+not separately isolated causes. Static examples do not prove model compliance.
+
+Manifest `a19f838f3d3b00e604460280b6f8f9f94e0297e92877b8fb258fc33702d7e610`
+froze six Qwen low calls, concurrency two, over restaurant/coffee/absent-target
+sources twice. Runner SHA-256:
+`551c3148c08e678ae10dbb576cf50d36b856c0f782a2b199655971f3442d12b4`.
+Automatic safety review rejected execution before process creation, requiring
+specific approval for the three complete payloads and the Qwen/private-Langfuse
+destination combination. No credentials were injected, provider calls ran, or
+telemetry was uploaded. Do not retry through another channel. A later documentation
+commit changes the tested HEAD and therefore requires regenerating the manifest
+before any approved execution. Do not treat the old digest as a live launch token.
+
+Next: obtain exact-payload approval, regenerate/freeze the plan at the actual
+execution revision, then perform only that batch. Retain all raw results and
+report record units, target state, content and eligibility separately. No claimed
+semantic improvement, 20-sample latency, runtime activation or #41 acceptance.
+
 ## Algorithmic reading and content interpretation
 
 At `63653908cbef31ec117f40ff6409c763b80d9576`, the owner-approved 4.0 package uses

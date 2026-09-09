@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 4.1 Prompt-only record/attitude calibration; runtime remains unselected
+- Status: 4.1 prepared and locally verified; real-call authorization blocked
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -61,6 +61,15 @@ This is a developer regression of a Prompt package, not proof of general stabili
 or separate causal effects. Review raw rows, target state, useful portrayal and
 recommendation eligibility before deciding on fresh-source transfer.
 
+At `33b5784`, 48 focused tests, backend typecheck, framework links and diff checks
+pass. The frozen runner also proves all three user contexts, original answers and
+JSON Schemas equal the previous batch. Automatic safety review rejected execution
+before process creation because it requires explicit approval for this exact
+three-source/Qwen/private-Langfuse combination. No provider or telemetry request
+ran, no credential was injected, and no semantic improvement is claimed. Retain
+the candidate and manifest; obtain that specific approval rather than changing
+channel or silently reducing the rejected batch.
+
 ### Previous completed 4.0 package
 
 The owner approves algorithmic formatting cleanup that retains lists/tables,
@@ -87,7 +96,7 @@ program-assigned references, never complete raw answers or fabricated evidence.
 Legacy quoted/line-based consumers still require their old contracts; current
 runtime, score formula, readiness and historical interpretations are unchanged.
 
-The [current design](design.md#current-package--algorithmic-reading-and-content-interpretation)
+The [4.0 design](design.md#previous-package--algorithmic-reading-and-content-interpretation)
 owns the implementation and source-research boundary. Freeze six authorized Qwen
 low calls: retained restaurant, coffee and absent-target answers twice each,
 concurrency two. No sampling/synthesis/retry/fallback, within-batch tuning, target

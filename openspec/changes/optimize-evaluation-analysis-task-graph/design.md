@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: 4.1 Prompt-only calibration; record and attitude meaning under validation;
+Status: 4.1 locally verified; real-call launch blocked pending exact-payload approval;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -41,6 +41,12 @@ real-world existence. Focus on generic/unnamed/placeholder rows, target meaning,
 useful target content and recommendation eligibility. Prompt examples and structural
 tests are not semantic pass evidence. Fresh-source transfer follows this bounded
 package rather than another architecture sweep on the same cases.
+
+Execution gate: automatic safety review rejected process creation for this exact
+three-source outbound batch. No calls or telemetry upload occurred. Local focused
+tests and request equality checks pass; model behavior remains unverified. Do not
+work around the rejection; the owner must explicitly approve these three complete
+retained answers and both destinations before this manifest executes.
 
 ### Previous package — algorithmic reading and content interpretation
 
