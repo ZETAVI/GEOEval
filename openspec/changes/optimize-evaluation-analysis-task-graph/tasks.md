@@ -119,11 +119,15 @@ The current role and decisions live in [the proposal](proposal.md).
 - [x] Prepare narrative 1.3 with accurate parsed-input meaning, clear output-unit
       completion, one worked example and customer-relevant article-topic selection;
       correct assignment evidence wording without changing its logic.
-- [ ] Verify narrative-only exact-summary deduplication, independent/absent/legacy
+- [x] Verify narrative-only exact-summary deduplication, independent/absent/legacy
       preservation, unmutated source tasks, valid example and unchanged output Schema.
-- [ ] Freeze/run eight narrative baseline/candidate calls over the retained hotpot
+- [x] Freeze/run eight narrative baseline/candidate calls over the retained hotpot
       and appliance inputs twice each, medium/concurrency two, no Parser/resampling/
       assignment/retry or within-batch changes. Review value as well as completeness.
+- [ ] Refine only article-topic selection and expression: candidate still prioritizes
+      waiting and sometimes presumes unprovided improvement material. Use a small
+      discriminating example of choosing/omitting useful topics, not a word blacklist,
+      extra Agent, new fields or forced nonempty output. First layer remains 5.0.
 
 ## Retained report-level work
 

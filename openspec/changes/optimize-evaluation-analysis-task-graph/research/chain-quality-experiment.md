@@ -3588,6 +3588,64 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## Second-layer context and topic adaptation
+
+The owner approves the prior second-layer adaptation proposal and points out that
+waiting arrangements are not a compelling article topic in this case. Implemented
+at `77386b0430955621454331c471252c342d751ad7`: narrative 1.3 clarifies paraphrased
+inputs, output-unit completion, overall/point attitudes and customer-value topic
+selection, with one full fictional example. The goal is not a waiting-keyword ban.
+Only exact duplicate summaries in explicit PARSER_CONTENT/present-target inputs
+are removed; independent, absent and legacy summaries remain. Narrative uses its
+own context description and parser-content@3, not the shared competitor note.
+Assignment 1.1 only updates obsolete mandatory-evidence wording. Parser 5.0 hash
+remains `d521555e877fd7bcd3157ee0b2dd040bc33e4f762a57ba88c71b047a611f234c`.
+
+Manifest `7a5c53ec2330342aed56f3220357dd44cb6dd5d0e9d1cbd8062ee9b1238a438d`,
+runner hash `9d1f83017107adbeacc06193374bb5037822a721a00f381e44f65612f9eb1ef0`.
+Eight narrative calls: captured actual 1.2 baseline vs 1.3 candidate, two retained
+brands twice each, Qwen medium/concurrency two with alternating pair order. Same
+Schema, sample IDs and source points; no sampling, first-layer, assignment, retry,
+fallback or within-batch edit. This coherent package is not single-variable causal
+proof. Both raw/control inputs are preserved, not reconstructed from modified code.
+
+| Case | Baseline repeats: positive/negative/directions | Candidate repeats | Quality observation |
+| --- | --- | --- | --- |
+| Hotpot | 2/1/2 and 2/1/1 | 3/2/1 and 3/2/2 | Both complete; candidate still over-prioritizes waiting, once as a standalone article topic |
+| Appliance | 3/1/1 and 2/1/1 | 3/2/1 and 4/2/2 | Candidate has useful scene-based direction, but once suggests showcasing unprovided simple-mode/connection improvements |
+
+All eight outputs have nonempty themes and directions; prior empty arrays did not
+recur in the unchanged baseline either. Do not claim the new Prompt fixed their
+cause, or that more themes mean better quality. Hotpot waiting remains a legitimate
+source observation but has not been satisfactorily deprioritized for article
+selection. Appliance specificity is not a factual audit failure claim; the relevant
+task drift is from a broad writing direction to presumed improvement material.
+Raw outcomes remain unedited. Retain the context/contract preparation but do not
+accept 1.3 as stable semantic delivery. No ninth call extends this batch.
+
+52 focused tests, backend typecheck/build and framework/link/diff checks pass.
+Tests cover duplicate-only removal, independent/legacy preservation, unmutated tasks,
+valid example IDs and legal genuinely empty cases. Actual candidate userContexts
+equal baseline after only intended deduplication; output JSON Schema is identical.
+Model Provider JSON and actual wire match saved records, eight IDs are unique, and
+nine private Langfuse observations match actual IO/settings/usage. No independent
+review/projection is uploaded. Assignment 1.1 has local verification only, not a
+real-call claim; formal runtime/other worktrees remain unchanged.
+
+UTC 2026-09-09 04:17:39.038 to 04:19:05.658, 86.620 seconds, 17,070 reported
+tokens. Baseline total 8,221 / mean 19.697 seconds; candidate 8,849 / mean 20.991
+seconds. Hotpot userContext chars 1611→1409, appliance 1468→1259, but instructions
+785→1151 with the worked example. Actual input tokens increase only 35/29 per call;
+this is not a token-reduction or speedup claim, and cache/sample size limit timing
+interpretation. Neither arm proves full-report or 20-sample stability.
+
+[Private actual-IO trace](https://us.cloud.langfuse.com/project/cmt8a7yah08gfad0en0kzckm8/traces/fd9e4c39d792090682a55f519747cf84).
+Complete input/output comparison:
+`apps/backend/.provider-evidence/m4-narrative-adaptation-f2FKH5/comparison-review.md`.
+Next keep first-layer, Schema and task structure fixed and improve only how the
+direction selects valuable topics and stays within broad writing guidance. Use a
+discriminating selection example, not new exception lists or blanket minimum counts.
+
 ## Frozen new-source and report check
 
 The owner considers the remaining small cases non-blocking for more overall

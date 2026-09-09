@@ -2,7 +2,7 @@
 
 ## Decision state and owners
 
-Status: Parser 5.0 frozen; second-layer adaptation under controlled comparison;
+Status: Parser 5.0 frozen; adaptation compared, article-topic quality not accepted;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot
 grouping remain retained candidates, with no runtime activation.
 No runtime topology or successful full-report timing is accepted.
@@ -46,6 +46,18 @@ Save exact inputs/outputs and inspect completeness, useful themes, article-topic
 value and latency separately. No attribution of empty output to a proven context
 failure; this coherent candidate changes instruction/example and exact deduplication.
 Telemetry contains actual model IO/settings/usage only; semantic review stays local.
+
+At 77386b0 all eight baseline/candidate outputs contain themes/directions and pass
+reference structure. The previous empty output does not recur even in the unchanged
+baseline, so this is not evidence that 1.3 fixed emptiness. Both candidate hotpot
+outputs still prioritize waiting details, including a standalone waiting topic;
+this does not meet the owner's topic-value feedback. Candidate appliance output
+includes useful scene-based content but once assumes unprovided simple-mode/software
+improvement material. These are direction-selection/expression observations, not
+proof of a specific model cause. No within-batch repair or extra call follows.
+Keep verified exact-summary/context adaptation, not a general semantic success claim.
+The next small candidate should demonstrate choosing/omitting article topics and
+staying at writing direction rather than presuming product/service improvements.
 
 ### Previous package — simple ternary attitude
 

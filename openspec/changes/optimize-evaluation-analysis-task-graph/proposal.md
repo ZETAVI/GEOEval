@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Parser 5.0 frozen; second-layer adaptation candidate under comparison
+- Status: second-layer adaptation compared; article-topic quality still unaccepted
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -58,6 +58,15 @@ hotpot/appliance inputs twice each, Qwen medium/concurrency two. No sampling, Pa
 assignment calls, retry or within-batch editing. Output shape and empty-case support
 stay unchanged. This is a coherent adaptation comparison, not isolated causal proof
 for any one Prompt sentence or summary deduplication.
+
+The [eight-call comparison](research/chain-quality-experiment.md#second-layer-context-and-topic-adaptation)
+is complete: both baseline and candidate now return themes/directions, so the old
+empty result did not recur and cannot be claimed fixed by 1.3. Exact-context
+adaptation is verified, but candidate hotpot directions still over-promote waiting
+and one appliance suggestion assumes unprovided software-improvement material.
+Retain the adaptation as an experimental candidate, not semantic acceptance.
+Next narrow topic selection/expression only; no ninth call, first-layer change,
+new field, forced nonempty rule or Agent. Assignment 1.1 had no real call this batch.
 
 ### Previous first-layer and frozen-transfer result
 
