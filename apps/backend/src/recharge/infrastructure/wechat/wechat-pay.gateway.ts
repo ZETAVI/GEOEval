@@ -176,21 +176,32 @@ export class WechatPayGateway
         200,
       );
       const value = object(data).code_url;
-      requireProtocol(typeof value === "string" && value.length <= 2048);
+      // URL parsing can discard whitespace/control bytes; the QR must retain its input.
+      requireProtocol(
+        typeof value === "string" &&
+          value.length <= 2048 &&
+          !/[\u0000-\u0020\u007f]/.test(value),
+      );
       let url: URL;
       try {
         url = new URL(value);
       } catch {
         throw new WechatProtocolError("INVALID_RESPONSE");
       }
+      // Accept the documented Native targets, keeping the opaque token/query intact.
+      const nativeTarget =
+        (url.hostname === "wxpay" &&
+          (url.pathname === "/bizpayurl" ||
+            url.pathname === "/bizpayurl/up")) ||
+        (url.hostname === "pay.weixin.qq.com" &&
+          url.pathname === "/bizpayurl/up");
       requireProtocol(
         url.protocol === "weixin:" &&
-          url.hostname === "wxpay" &&
+          nativeTarget &&
           !url.port &&
           !url.username &&
           !url.password &&
           !url.hash &&
-          url.pathname === "/bizpayurl" &&
           !!url.searchParams.get("pr"),
       );
       return {

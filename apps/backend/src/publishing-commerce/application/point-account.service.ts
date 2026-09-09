@@ -119,6 +119,9 @@ function customerChange(row: PointChangeRecord) {
     sequence: row.sequence,
     kind: row.kind,
     publishingOrderId: row.publishingOrderId,
+    ...(row.kind === "RECHARGE"
+      ? { rechargeOrderId: row.rechargeOrderId }
+      : {}),
     amount: row.grantedDelta + row.fundedDelta,
     balanceAfter: row.balanceAfter,
     reason: row.reason,
@@ -130,6 +133,7 @@ function adminChange(row: PointChangeRecord) {
     ...customerChange(row),
     accountId: row.accountId,
     actorAccountId: row.actorAccountId,
+    actorKind: row.actorKind,
     grantedDelta: row.grantedDelta,
     fundedDelta: row.fundedDelta,
     idempotencyKey: row.idempotencyKey,

@@ -26,6 +26,7 @@ import { WechatPayGateway } from "../src/recharge/infrastructure/wechat/wechat-p
 import { RechargeNotificationModule } from "../src/recharge/recharge-notification.module.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
 import { wechatFixture } from "./wechat-pay.fixture.js";
+import { rechargeTestTruncate } from "./recharge-test-data.js";
 
 const config = loadIntegrationApiConfig();
 const fixture = wechatFixture();
@@ -127,9 +128,7 @@ describe("Recharge durable notification ingress (real Nest, Identity and Postgre
   });
   beforeEach(async () => {
     // These are the two exclusive Recharge test tables in the supplied integration DB.
-    await control.query(
-      "TRUNCATE recharge_notification_receipts, recharge_payment_observations",
-    );
+    await control.query(rechargeTestTruncate);
   });
   afterEach(async () => {
     vi.restoreAllMocks();

@@ -25,6 +25,10 @@ import {
   present as packageView,
 } from "./postgres-publishing-package.repository.js";
 import { lockPointAccount } from "./point-account-lock.js";
+import {
+  checkPointCapacity,
+  PointAccountError,
+} from "../domain/point-account.js";
 import { PostgresDeliveryPurchaseAccess } from "../../publication-delivery/infrastructure/postgres-delivery-purchase-access.js";
 import type { DeliveryStatus } from "../../publication-delivery/domain/delivery-assignment.js";
 
@@ -128,6 +132,13 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
             "文章发布价格或范围已变化，请查看最新报价后重新确认，未扣分",
           );
         const spent = spendPoints(wallet, agreement.totalPoints);
+        try {
+          checkPointCapacity(spent.balance, wallet);
+        } catch (error) {
+          if (error instanceof PointAccountError)
+            throw new PurchaseError("POINT_LIMIT_EXCEEDED", error.message);
+          throw error;
+        }
         await tx.pointAccount.update({
           where: { accountId },
           data: spent.balance,

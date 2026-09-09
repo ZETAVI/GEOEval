@@ -15,6 +15,8 @@ export type NotificationReceipt = NotificationIdentity & {
   canonical: AuthenticatedPaymentNotification;
   hasConflict: boolean;
   processedAt: string | null;
+  reviewReason: string | null;
+  appliedRechargeOrderId: string | null;
 };
 
 export type NotificationAcceptance =
@@ -31,4 +33,5 @@ export interface NotificationInbox {
   /** Advisory scans only. Recheck under settlement locks before any future processing. */
   listPending(limit: number): Promise<NotificationReceipt[]>;
   listConflicts(limit: number): Promise<NotificationReceipt[]>;
+  listReviewRequired(limit: number): Promise<NotificationReceipt[]>;
 }

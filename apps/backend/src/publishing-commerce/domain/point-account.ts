@@ -34,17 +34,50 @@ export type PointBalance = {
   fundedBalance: number;
   revision: number;
 };
+/** Internal write snapshot. Public balance projections never expose reservations. */
+export type PointCapacity = PointBalance & {
+  reservedFundedPoints: number;
+  reservedLedgerSlots: number;
+};
+
+export function checkPointCapacity(
+  balance: PointBalance,
+  reserved: { reservedFundedPoints: number; reservedLedgerSlots: number },
+): void {
+  const values = [
+    balance.grantedBalance,
+    balance.fundedBalance,
+    balance.revision,
+    reserved.reservedFundedPoints,
+    reserved.reservedLedgerSlots,
+  ];
+  if (
+    values.some((v) => !Number.isSafeInteger(v) || v < 0 || v > MAX_POINTS) ||
+    balance.grantedBalance +
+      balance.fundedBalance +
+      reserved.reservedFundedPoints >
+      MAX_POINTS ||
+    balance.revision + reserved.reservedLedgerSlots > MAX_POINTS
+  ) {
+    throw new PointAccountError(
+      "POINT_LIMIT_EXCEEDED",
+      "积分余额或账务序号容量不足，请保留原业务记录后核查",
+    );
+  }
+}
 export type PointChangeRecord = {
   id: string;
   accountId: string;
   sequence: number;
-  kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER";
+  kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE";
   publishingOrderId: string | null;
   grantedDelta: number;
   fundedDelta: number;
   balanceAfter: number;
-  actorAccountId: string;
-  idempotencyKey: string;
+  actorKind: string;
+  actorAccountId: string | null;
+  idempotencyKey: string | null;
+  rechargeOrderId: string | null;
   reason: string;
   internalNote: string | null;
   businessReference: string | null;
