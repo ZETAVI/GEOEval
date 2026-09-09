@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.3 prompting package not adopted; 5.2 diagnostic baseline retained
+- Status: 5.4 single example shows absence benefit; category handling unresolved
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,23 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The [single-example 5.4 comparison](research/chain-quality-experiment.md#54-single-example-comparison-partial-benefit)
+preserves all 5.2 instructions and the full Schema/input/model, changing only one
+appended worked example. Four repetitions per arm/source show local absence
+benefit: candidate 4/4 retains real subjects without target placeholders, baseline
+1/4 does. Category core correctness is still 1/4 in each arm; candidate includes
+both category miscount and outright other-brand omission. Do not pool these into
+a misleading overall success rate or count omission as correction.
+
+Keep 5.4 as a partial experimental candidate, not a formal-ready Parser. Stop
+editing the observed absence handling for now; category interpretation still
+requires separate evidence before downstream acceptance. 31 focused tests and
+typecheck pass, 17 private Langfuse observations match actual IO/usage. No fresh
+sampling, synthesis, frontend, parameter or production changes in this comparison;
+the known self-competitor program gap remains unfixed.
+
+### Previous combined prompting package
 
 The [5.3 combined prompting comparison](research/chain-quality-experiment.md#53-instruction-package-comparison-rejected)
 did not show benefit: both candidate category outputs remain wrong, whereas the

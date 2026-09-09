@@ -65,7 +65,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.userContext.companyName).toBe("青禾咖啡");
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@5.2.0",
+      "experiment.m4.parser-brand-rows@5.4.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -129,7 +129,7 @@ describe("M4 content-oriented brand rows", () => {
         /输出：\n(\{[^\n]+\})/g,
       ),
     ];
-    expect(examples).toHaveLength(2);
+    expect(examples).toHaveLength(3);
     const result = inspectM4BrandRowsOutput(JSON.parse(examples[1]![1]!));
     expect(result.output.brands.map((b) => b.displayName)).toEqual([
       "岚谷咖啡",
@@ -162,6 +162,20 @@ describe("M4 content-oriented brand rows", () => {
       ["白石咖啡", 2],
     ]);
     // This validates the worked example and unchanged projection, not LLM semantics.
+  });
+  it("adds one compact contrast example without extra rows for categories, aliases or an absent target", () => {
+    const examples = [
+      ...buildM4BrandRowsTask(base).systemInstruction.matchAll(
+        /输出：\n(\{[^\n]+\})/g,
+      ),
+    ];
+    const result = inspectM4BrandRowsOutput(JSON.parse(examples[2]![1]!));
+    expect(result.output.brands.map((b) => b.displayName)).toEqual([
+      "白石酒家", "山岚涮肉",
+    ]);
+    expect(result.projected.output.target).toBeNull();
+    expect(result.projected.competitors.map((b) => b.position)).toEqual([1, 2]);
+    expect(result.output.brands[0]!.mentionContext).toContain("白石简称");
   });
   it("derives positions before filtering without quotations, extra summaries or semantic repair", () => {
     const value = raw(),

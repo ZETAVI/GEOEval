@@ -3588,6 +3588,44 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 5.4 single-example comparison: partial benefit
+
+Keep the complete 5.2 Prompt byte-for-byte and append one compact worked contrast
+example. Full user context and complete JSON Schema, including descriptions, are
+deep-equal; model/projector unchanged. The example demonstrates named merchants
+under category headings, alias/branch merging, generic placeholders and an absent
+target. This isolates one appended example, not its individual subclauses.
+
+At 2ea2e36 plus diff hash
+`6916722b096606b7b26d971e13d036256315a562a772dcc767cd458fcdb7a839`, manifest
+`6271af52a04eaa847782a0c372b47a65fcf3171ce3ea7d9c99d30ae8c2bede43` freezes two
+retained sources, baseline/candidate four repetitions each, planned alternating
+pair order, concurrency two. Runner hash
+`15e65f9b746dd25c2878051ff5cf137d12c5a06cdb035d30b6e1bfd63ae3ef58`.
+No sampling/synthesis/retry/repair/best-of or seventeenth call.
+
+2026-09-09 08:34:48.865–08:37:33.706 UTC: 16/16 provider, wire, basic-schema and
+acceptance checks pass, 164.841 seconds, 47,714 reported tokens. On the absent-
+target source the baseline produces a neutral target placeholder in 3/4 outputs
+(two also omit every actual merchant); candidate 4/4 preserves all four actual
+subjects without placeholders. No false target mention is claimed: placeholder
+targetDescription is null, but it still contaminates competitor candidates.
+
+Category coverage remains 1/4 core-correct in each arm. Candidate two outputs
+keep categories; a fourth output drops both clear other brands entirely. Do not
+credit no-category-by-omission as success. Keep ambiguity around a peripheral
+name separate from the core named-brand/category assessment. Target identity,
+position and primary content remain available but do not offset competitor errors.
+
+Retain 5.4 as a partial experimental candidate for the observed absence benefit,
+not a stable full-chain contract or evidence that category handling is solved.
+31 focused tests/typecheck pass; no formal model/field/Agent/runtime activation.
+Actual requests do not explicitly set temperature/top_p/seed; defaults and support
+are unverified and not claimed as the cause. No parameter change this batch.
+17 private Langfuse observations match actual IO/settings/model/usage at
+08:40:05.679 UTC, trace `4fcf045a3ec40f6f284438b29cfb8314`. Local detailed review:
+`apps/backend/.provider-evidence/m4-brand-unit-replay-uvtW1V/input-output-review.md`.
+
 ## 5.3 instruction-package comparison rejected
 
 The owner requests clearer complete prompting and discriminating negative examples.
