@@ -13,14 +13,14 @@ const points = z
     polarity: oldTarget.shape.points.element.shape.polarity.describe("本条观点的倾向：正向、负向、中性、褒贬混合或无法确定。"),
   }))
   .max(8)
-  .describe("本品牌的主要观点；没有具体观点时为空数组。");
+  .describe("重点品牌在全文中提到的具体特点、优缺点和适用场景等要点；没有具体观点时为空数组。");
 const mentionContext = z
   .string()
   .trim()
   .min(1)
   .max(500)
   .describe(
-    "对本品牌的简短介绍与评价，保留主要特点、优缺点及有用的别称或分店关系。",
+    "每个品牌都填写：汇总全文中与本品牌相关的主要特点、优点、不足和适用场景，合并重复意思，可自然概括。",
   );
 const targetDescription = z.object({ points }).strict();
 const attitude = z
@@ -28,13 +28,13 @@ const attitude = z
   .describe("内容对本品牌的整体态度：POSITIVE正向、NEUTRAL中性、NEGATIVE负向。");
 const brandRow = z
   .object({
-    displayName: otherBrand.shape.displayName.describe("具体商家或产品的品牌主体名，合并同品牌的别称和分店。"),
+    displayName: otherBrand.shape.displayName.describe("具体商家或品牌的主体名，不细分具体产品或分店。"),
     attitude,
     mentionContext,
     targetDescription: targetDescription
       .nullable()
       .describe(
-        "本条属于目标品牌时填写其主要观点；其他品牌为null。",
+        "重点品牌在简要汇总之外的详细内容要点；其他品牌已填写mentionContext，此处为null。",
       ),
   })
   .strict();

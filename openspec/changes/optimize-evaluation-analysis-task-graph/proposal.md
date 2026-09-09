@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.7 improves category sample; generic placeholders remain unresolved
+- Status: 5.8 task-first Prompt prepared for review; latest measured evidence is 5.7
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,21 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner requests a brand-identification assistant with an explicit task order:
+recognize brand-level subjects, merge all mentions in first-appearance order,
+summarize every brand and preserve more complete detail for the focus brand if
+present. Candidate 5.8 implements this wording and replaces fictional examples
+with traceable excerpts from two retained natural samples. Worked outputs are
+authored expectations, not provider results. Input keys, output structure,
+validation limits, model and projection remain unchanged; Schema descriptions
+align all-brand summaries and focus-brand detail. No new real calls in this turn.
+40 focused tests/typecheck pass; this verifies preparation, not semantic quality.
+The two example sources are development material, not held-out validation.
+Review the task and examples before measuring 5.8; do not attribute 5.7 outcomes
+to it or treat Prompt wording as the proven root cause.
+
+### Latest measured candidate
 
 The [5.4/5.6/5.7 comparison](research/chain-quality-experiment.md#57-neutral-input-and-schema-descriptions-comparison)
 completed twelve calls: category core correctness is 1/2, 0/2, 2/2 respectively;

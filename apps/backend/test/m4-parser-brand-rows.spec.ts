@@ -55,7 +55,7 @@ describe("M4 content-oriented brand rows", () => {
     const before = structuredClone(prepared);
     const task = buildM4BrandRowsTask(prepared, source);
     expect(task.systemInstruction.startsWith(
-      "识别并解析以下内容中的品牌，整理各品牌的介绍与评价。",
+      "你是一名品牌识别解析助手。",
     )).toBe(true);
     expect(task.systemInstruction).not.toContain("GEO评测");
     const { answerLines: _lines, ...context } = prepared.userContext;
@@ -71,7 +71,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.userContext.companyName).toBe("青禾咖啡");
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@5.7.0",
+      "experiment.m4.parser-brand-rows@5.8.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -102,86 +102,42 @@ describe("M4 content-oriented brand rows", () => {
       }),
     ).toThrow("Open-question");
   });
-  it("demonstrates brand-level branches, independent co-listed brands, aliases and a tail addition in one full example", () => {
+  it("uses real coffee excerpts to summarize every brand and expand the focus brand", () => {
     const task = buildM4BrandRowsTask(base);
-    const example = JSON.parse(
-      [...task.systemInstruction.matchAll(/输出：\n(\{[^\n]+\})/g)][0]![1]!,
-    );
-    const result = inspectM4BrandRowsOutput(example);
-    expect(result.output.brands.map((b) => b.displayName)).toEqual([
-      "青禾咖啡",
-      "山岚咖啡",
-      "晴川咖啡",
-      "墨云咖啡",
-    ]);
-    expect(result.projected.output.target!.position).toBe(1);
-    expect(result.projected.output.otherBrands.map((b) => b.position)).toEqual([
-      2, 3, 4,
-    ]);
-    expect(result.projected.output.target!.summary).toContain("Qinghe Coffee");
-    expect(result.projected.output.target!.summary).toContain("星岸店和河畔店");
-    expect(result.output.brands.map((b) => b.displayName)).not.toContain(
-      "星岸广场",
-    );
-    expect(result.output.brands.map((b) => b.displayName)).not.toContain("星岸店");
-    expect(task.systemInstruction).toContain("有用的别称或分店关系");
-    expect(
-      result.projected.output.target!.points.map((p) => p.polarity),
-    ).toEqual(["POSITIVE", "NEGATIVE"]);
-  });
-  it("uses concrete names under category headings and omits the absent target in the existing example", () => {
-    const examples = [
-      ...buildM4BrandRowsTask(base).systemInstruction.matchAll(
-        /输出：\n(\{[^\n]+\})/g,
-      ),
-    ];
+    const examples = [...task.systemInstruction.matchAll(/输出：\n(\{[^\n]+\})/g)];
     expect(examples).toHaveLength(2);
-    const result = inspectM4BrandRowsOutput(JSON.parse(examples[1]![1]!));
+    expect(task.systemInstruction).not.toContain("虚构");
+    const result = inspectM4BrandRowsOutput(JSON.parse(examples[0]![1]!));
     expect(result.output.brands.map((b) => b.displayName)).toEqual([
-      "岚谷咖啡",
-      "白石咖啡",
-      "南桥咖啡",
+      "Manner Coffee", "瑞幸咖啡",
     ]);
-    expect(
-      result.output.brands.every((b) => b.targetDescription === null),
-    ).toBe(true);
-    expect(result.projected.output.target).toBeNull();
-    expect(result.output.brands.map((b) => b.displayName)).not.toContain(
-      "青禾咖啡",
-    );
-    expect(result.output.brands.map((b) => b.displayName)).not.toContain(
-      "精品咖啡",
-    );
-    expect(buildM4BrandRowsTask(base).systemInstruction).toContain(
-      "目标参照不代表目标已出现",
-    );
-    expect(result.output.brands[0]!.mentionContext).toContain("各有取舍");
-    expect(result.output.brands.map((b) => b.attitude)).toEqual([
-      "NEUTRAL",
-      "POSITIVE",
-      "NEGATIVE",
+    expect(result.projected.output.target!.position).toBe(2);
+    expect(result.projected.output.otherBrands.map((b) => b.position)).toEqual([1]);
+    expect(result.output.brands[0]!.mentionContext).toContain("排队较长");
+    expect(result.output.brands[0]!.attitude).toBe("POSITIVE");
+    expect(result.output.brands.every((b) => b.mentionContext.length > 0)).toBe(true);
+    expect(result.projected.output.target!.summary).toContain("Luckin Coffee");
+    expect(result.projected.output.target!.points.map((p) => p.text)).toEqual([
+      "文中提到通过优惠券购买可满足20元内预算。",
+      "周边门店密集，购买方便。",
+      "口味标准化、不易踩雷，推荐生椰或丝绒拿铁。",
+      "适合快速喝一杯、对豆子风味没有极高要求的人。",
     ]);
-    expect(
-      result.projected.competitors.map((b) => [b.displayName, b.position]),
-    ).toEqual([
-      ["岚谷咖啡", 1],
-      ["白石咖啡", 2],
-    ]);
-    // This validates the worked example and unchanged projection, not LLM semantics.
+    expect(result.output.brands.map((b) => b.displayName)).not.toContain("生椰拿铁");
+    expect(result.output.brands.map((b) => b.displayName)).not.toContain("江宁路店");
   });
-  it("keeps the absent-target example free of category, placeholder and duplicate alias rows", () => {
-    const examples = [
-      ...buildM4BrandRowsTask(base).systemInstruction.matchAll(
-        /输出：\n(\{[^\n]+\})/g,
-      ),
-    ];
+  it("uses real restaurant excerpts without rows for branches, repeated aliases or unnamed categories", () => {
+    const examples = [...buildM4BrandRowsTask(base).systemInstruction.matchAll(
+      /输出：\n(\{[^\n]+\})/g,
+    )];
     const result = inspectM4BrandRowsOutput(JSON.parse(examples[1]![1]!));
-    expect(result.output.brands.map((b) => b.displayName)).toEqual([
-      "岚谷咖啡", "白石咖啡", "南桥咖啡",
-    ]);
+    expect(result.output.brands.map((b) => b.displayName)).toEqual(["东明香", "新记"]);
     expect(result.projected.output.target).toBeNull();
+    expect(result.output.brands.every((b) => b.targetDescription === null)).toBe(true);
     expect(result.projected.competitors.map((b) => b.position)).toEqual([1, 2]);
-    expect(result.output.brands.filter((b) => b.displayName === "白石咖啡")).toHaveLength(1);
+    expect(result.output.brands[0]!.mentionContext).toContain("价格较高");
+    expect(result.output.brands[1]!.mentionContext).toContain("装修简单");
+    // Authored worked examples verify the contract, not a measured LLM result.
   });
   it("derives positions before filtering without quotations, extra summaries or semantic repair", () => {
     const value = raw(),

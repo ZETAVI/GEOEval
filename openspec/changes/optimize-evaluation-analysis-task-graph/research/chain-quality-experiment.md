@@ -3588,6 +3588,41 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 5.8 task-first brand consolidation: prepared for review
+
+The owner requests a brand-identification assistant, neutral content input,
+explicit identification/whole-text consolidation/content extraction steps,
+simple summaries for every brand and richer content for a focus brand only if
+present. Retain the existing mentionContext for every brand and targetDescription
+for additional focus points; clarify their descriptions without changing the
+wire shape, enums, capacities, input constructor or projector. Products and
+branches contribute content to their brand instead of becoming separate rows.
+
+Replace both fictional Prompt examples with real source excerpts:
+
+- Coffee: `apps/backend/.provider-evidence/m4-business-portrayal-ZLa7jJ/acquire-fresh-2-result.json`,
+  modelOutput sections 1 and 2, from the Manner heading up to (excluding) section
+  3. Preserve the original focus (瑞幸咖啡) and question. Demonstrates whole-brand
+  names, branch/product detail as content, ordinary disadvantages and richer
+  focus content. Expected rows are Manner Coffee and 瑞幸咖啡.
+- Restaurants: `apps/backend/.provider-evidence/m4-frozen-transfer-OnkcYT/acquire-local-q1-result.json`,
+  modelOutput headings and advantage/limitation lines from sections 1 and 2,
+  section 4 heading/opening sentence and final recommendation paragraph. Every
+  excerpt line is verified verbatim; preserve original focus (头家顺) and query.
+  Expected rows are 东明香 and 新记, no unnamed category or absent focus row.
+
+These are excerpts, not whole-answer fixtures. Outputs are authored worked
+examples based on the excerpts, not copied successful LLM results. No claims
+about the real businesses are independently verified. No invented merchant or
+failure-token-specific prohibition is added. Both sources now belong to example
+development and must not count as independent validation.
+
+40 focused tests and backend typecheck pass. Output-Schema structure is unchanged
+after stripping descriptions. No 5.8 provider calls, Langfuse uploads, frontend,
+sampling, synthesis, activation or formal acceptance in this turn. Next review
+this coherent Prompt before a frozen real comparison; historical 5.7 failures
+remain live regression evidence, not proof that 5.8 has resolved them.
+
 ## 5.7 neutral input and Schema descriptions: comparison
 
 The owner permits Schema adjustment and real testing. Keep the concise task;
