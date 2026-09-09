@@ -30,7 +30,7 @@ describe("supporting role homes", () => {
     });
   });
 
-  it("exposes activated commerce entry points without implying fulfilment or real payment support", () => {
+  it("exposes activated commerce and administrator order-return entry points", () => {
     const cards = supportingRoleConfig("ADMINISTRATOR").cards;
     expect(cards).toEqual(
       expect.arrayContaining([
@@ -53,10 +53,13 @@ describe("supporting role homes", () => {
     );
     expect(
       cards.find((card) => card.title === "履约订单")?.description,
-    ).toContain("退点与结算尚未接入");
+    ).toContain("待退点");
+    expect(
+      cards.find((card) => card.title === "履约订单")?.description,
+    ).not.toContain("尚未接入");
   });
 
-  it("exposes operations claiming without pretending result or settlement support", () => {
+  it("exposes operations negotiation while retaining administrator-only positive credit", () => {
     const pending = supportingRoleConfig("OPERATIONS").cards.find(
       (card) => card.title === "待领取订单",
     );
@@ -65,6 +68,15 @@ describe("supporting role homes", () => {
       href: "/operations/orders",
     });
     expect(pending?.description).toContain("领取");
+    const resolution = supportingRoleConfig("OPERATIONS").cards.find(
+      (card) => card.title === "协商异常与退点",
+    );
+    expect(resolution).toMatchObject({
+      status: "AVAILABLE",
+      href: "/operations/orders",
+    });
+    expect(resolution?.description).toContain("零额终止直接关闭");
+    expect(resolution?.description).toContain("正额退点由管理员执行");
   });
 
   it.each(["ADMINISTRATOR", "OPERATIONS", "AGENT"] as const)(
