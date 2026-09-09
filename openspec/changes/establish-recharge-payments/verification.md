@@ -97,3 +97,101 @@ Existing product-definition/Commerce activation markers are unchanged because no
 No actual merchant key, provider request, money or production database was used. Main test resources are the #77-only database and Redis 56577; cleanup handles newly referenced immutable test tables, never production. Primary protocol fixtures/evidence are reused, not counted as newly implemented crypto.
 
 C1 has no dispatcher, verified-close command, worker/lease scheduler, payment UI or production activation. Its 22 tests replace planned core claims with evidence; they do not prove future return semantics, controller activation, OS process/storage crash, real merchant limits or H5. Exact PR head/CI/window handback is owned by the PR checkpoint; do not treat a local or pre-rebase result as current full CI.
+
+
+## N1 设计与失败诊断（历史：2026-09-08，运行时 59930dd）
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| 设计基于现行普通 Native | 本轮阅读全文的 prepay/invoke/query/close/development/callback-query 页面，直接链接在 source-brief | Passed，网页读取；不是实际商户权限或远端竞争验证 |
+| A0 与现行 QR 例证兼容 | 真实 WechatPayGateway + 现有 wechatFixture，各次同一配置的受控签名响应，仅改变 code_url | **Failed：3 例中 2 失败 / 1 通过**。两种官方 /up 返回 INVALID_RESPONSE，旧 URI 对照通过。根因为 host/path 固定校验；未运行真实 Provider，也未修复 |
+| C1 运行时/共享窗口保持 | `git diff 59930dd --name-only` 只含 #77 active change；临时诊断文件/日志保留本地 artifacts/recharge-native-design | Passed；不把诊断文件纳入已交付产品测试，也不删除其失败证据 |
+| 设计对齐 | 9–11 节、Recharge delta、tasks 和 architecture-review 同一合同；框架/Markdown/diff 检查 | 以本轮最终提交及 PR checkpoint 记录结果 |
+
+失败诊断复现：将本地 `artifacts/recharge-native-design/official-uri.diagnostic.spec.ts` 复制到 `apps/backend/test/native-official-uri.diagnostic.spec.ts`，执行 `pnpm --filter @geoeval/backend exec vitest run test/native-official-uri.diagnostic.spec.ts`。文件相对 import 针对临时 test 目录；运行前后都不读取凭据或数据库。日志保留在同一 artifacts 目录；正式修复应把两例迁入现有 gateway suite，并验证安全负例。退出时临时文件已移回研究目录，生产源代码未变。
+
+N1 待实施的最小判别证据：
+
+| 场景 | 必须证明 |
+| --- | --- |
+| 双击创建、页面丢响应、双 Worker 发起 | 同一意图/商户单号；一次有效发起权；结果可恢复 |
+| 第一次发起前取消与领取竞争 | UNSENT 仅一方胜出；已取得权利后保留 MAY_EXIST |
+| 旧执行者暂停→取消/NOT_EXIST→恢复发送 | 不提前释放，迟到付款仍只记一次；lease 不被当成微信 fence |
+| 旧 QR / 新 generation 与成功竞态 | 旧动作不能覆盖新状态，认证成功不丢弃 |
+| QR 两小时、deadline 剩不足一分钟、重载/同 URL 返回 | 展示期限不靠页面续期，过近不再发起，订单终态仍凭证据 |
+| 关单 204 / CLOSED / SUCCESS / REFUND / 付款码状态 | 保存真实来源；只在允许分支关闭或到账；无凭空付款字段 |
+| 提交关单/QR结果失败与 Worker 重建 | 同号查询恢复，无释放半笔账或新号重复收费 |
+| 页面多标签 verify、429、队首错误、Redis 不可用 | 合并受限调度、数据库恢复、正常订单可推进 |
+| 本人/他人/停用身份、CSRF、客户端伪造动作 | 读写权限和可见投影有真实 HTTP 负例；旧支付义务继续 |
+| 保存发布选择→充值→价格/文章变化或品牌切换 | 恢复正确上下文并重新核价确认，不伪造 pending purchase |
+| 桌面真实浏览器 QR/取消/超时/重载 | 本地二维码内容与安全动作一致；合成 adapter 明确标识，不能宣称微信扫码成功 |
+
+以上 N1 矩阵是未来验收定义，**Not run**。没有新增 N1 运行时通过数；当前设计/诊断为 partially verified，不能继承旧 CI 来声称网页支付完成。
+
+
+## Native URI 修复证据
+
+本片解决前述历史诊断。生产改动仅 WechatPayGateway 的 URI 接受/拒绝边界，测试用现有 in-memory fixture；未接触商户、数据库、共享 contracts 或当前应用装配。
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| 官方 URI 与原安全边界 | 正式 gateway suite：加入 2 个官方成功例证和 10 个 malformed URI 负例 | 修复前 5 failed / 75 passed（两种 URI 与 3 个原始字节清理缺口）；修复后 **80 passed**。原 68 项其余协议证据复用同一 suite |
+| 实际 HTTPS 返回新版动作 | 现有 HTTPS suite 正向应答改用 /up，并断言完整原值；签名/TLS/负例保持 | **20 passed**。最初 sandbox listen EPERM，明确允许 loopback 后全部通过；非微信服务器或真实资金 |
+| 静态兼容 | Backend tsc --noEmit；受影响文件 Prettier；框架/Markdown validator；git diff --check | Passed；没有端口/schema/生成物变化 |
+| 局部性与连续性 | 对 8db5d66 的固定 Diff，#73 窗口与 runtime 文件清单 | 仅 1 个 gateway、2 份测试及 #77 文档；最终 revision/CI 与 producer 回执由 PR checkpoint 持有 |
+
+复现：`pnpm --filter @geoeval/backend exec vitest run test/wechat-pay.gateway.spec.ts test/wechat-pay.https.spec.ts`（HTTPS 需允许 loopback）；`pnpm --filter @geoeval/backend typecheck`。修复前后的本地日志保留 /tmp/geoeval77-qr-regression-red.log、/tmp/geoeval77-qr-green.log、/tmp/geoeval77-qr-https-green.log；原研究诊断保留 artifacts，不再将失败描述为当前行为。
+
+此 URI 修复 locally verified；整体 N1 仍 partially verified，未增加发起/取消持久化、Worker、二维码页面或商户验证。后续不以重复密码学测试代替这些缺失的实际边界。
+
+## Native Web 组件验证（2026-09-08）
+
+本片以 5c1563b 为前置运行时，只新增独立组件与注入来源。二维码包含显式不可付款的合成订单值；全部页面动作均由测试来源返回。没有商户 API、凭据、资金或数据库操作。上节“未增加二维码页面”是 URI 修复片的历史边界，当前组件证据如下：
+
+| Claim | 最小判别证据 | Result / limit |
+| --- | --- | --- |
+| 本地生命周期 | `apps/web/test/native-checkout.spec.tsx` | **21 passed**：初始只读、有界轮询/请求、两个时限、错误客户端时钟、暂停/恢复、忽略 abort 的迟到响应、取消 ACK/丢响应/重载/跨标签、存储异常、终态/访问丢失、核验防连点、账户键隔离、StrictMode 和真实 SVG 输出 |
+| 既有 Web 兼容 | Web 全部测试、tsc --noEmit | **18 files / 122 passed**，typecheck 通过；不把静态测试称为真实客户 API 授权验证 |
+| 可解码 QR | 真 Next/React 浏览器中，Canvas 栅格化实际 SVG，独立 jsQR 解码 | 完整 URI 与输入逐字相同。没有手机微信扫码或支付成功证据 |
+| 浏览器恢复/语义 | 取消丢响应后重载；12 秒忽略 abort 的旧读取与取消竞争；QR 到期；来源成功/关闭；键盘 Enter 核验 | QR 不恢复，客户端不伪造关闭/到账，核验仍待支付有明确提示；轮询预算结束后人工刷新读取最终关闭。页面控制台无 error |
+| 窄屏布局 | 实际 CSS viewport 宽 374 px，随后恢复原视口 | document clientWidth = scrollWidth = 374；不展示需要另一台设备的 QR，按钮可访问。桌面/窄屏截图保留本地 `artifacts/recharge-native-ui/`，合成场景横幅明确 |
+| 产品隔离 | 停止预览脚本并确认临时 route 移除后 Web 生产构建 | Passed；构建路由表没有 `/native-checkout-preview` 或 `/recharges`。没有向当前应用装配支付模块 |
+| 依赖/共享写入 | 冻结锁文件安装；对前置 head 检查文件清单 | manifest 新增 qrcode.react 4.2.0、dev jsqr 1.4.0；lock 仅新增 26 行。backend、schema、API client/generated、全局 CSS 无改动；Next 临时生成声明已恢复 |
+
+复现：`pnpm --filter @geoeval/web test`、`pnpm --filter @geoeval/web typecheck`、`pnpm --filter @geoeval/web build`。浏览器 fixture 用 `node scripts/recharge/preview-native.mjs` 启动，监听 127.0.0.1:32577；脚本拒绝覆盖已有同名目录，普通退出清除临时路由。结束后确认该目录不存在再构建；意外强杀留下的临时页面必须先按脚本内容核对后清除。脚本不写账户/数据库或启动支付后端。
+
+格式、框架、Markdown link 与 Diff 检查以及准确提交/CI 结果由本片最终 PR checkpoint 记录。当前结论是独立 UI 组件 verified，整体 Native 链路 partially verified；尚缺真实客户 API、后台发起/关单/重建恢复、充值历史/发布上下文接线，以及商户权限和真实资金联调。已有 C1/A0/B0 资金/协议证据保持不变，不重复累计。
+
+## 参考站业务学习验证（2026-09-09 UTC）
+
+范围：用户指定的两个站点、随后提供的 Doit 页面/截图，以及授权填写企业付款资料后的待支付流转。完整脱敏观察在 source-brief；本节只界定证据强度。
+
+- **Observed**：OpenLux 金额/方式/付款资料复用与确认、微信第三方域名跳转/QR、未付记录、付款凭证说明、账户绑定/安全/通知字段、退款/提现回票和消费导出表单。个人设置首次报错，刷新后恢复；未执行账号安全操作、导出或邮件发送。
+- **Observed**：番瓜一笔 1 分待付单、本站 QR、手动扫码提示/核验等待、关闭后余额不变、已加载流水无该未付单；个人资料仅可见基础信息，会员为空。不能从已加载页面推断全站没有订单或开票功能。
+- **Partial / blocked**：支付宝已到 Doit，继续出现 Everonet Security Verification 标签；其访问审核超时，未读取后续网关，用户要求停止排障。没有验证支付宝扫码/回跳，未绕过审批。
+- **Not run**：两站真实付款、到账/关单最终一致性、正式开票与送达、退款/提现、真实收单协议、后端/schema/鉴权/事务审查。只凭 UI 不作这些完成主张。
+- **Project consistency**：核对 PaymentGateway 的 WECHAT/CNY/NATIVE 现状与 product-definition 电子普票的字段/唯一关联/处理状态；design 11.0 / 11.3 仅定义当前决策与后续边界。无 runtime、schema、依赖或已通过测试修改，故复用 82c281f 的代码证据，不重跑资金测试。
+- **Coordination**：在线读取 #81 当前 41d37c2 / Draft / base #82 和 comment5595292334；共享交还不等于合并或接收其未完成浏览器验收。未来实施拓扑由 tasks 约束。
+
+文档交付只需框架/本地链接、Diff 和脱敏检查。用户提供的税号、地址、邮箱和银行资料、具体账户/订单标识、支付会话 token 及可付款 QR 不进入这些文档、Git 或项目 tracker。所建待支付记录保留，不把未付款、关闭标签或回跳描述为已经取消。
+
+## 异步与全链路设计复核（2026-09-09）
+
+本轮通过：读取现有 B0/C1/Commerce/购买/Notification/API/Worker 源码，与产品定义及旧设计逐项比对；修正总时序和 attempt 定义的两处实际冲突。Chrome 复查番瓜的快捷确认、金额草稿与明细：`1.5` → 输入/按钮均为 `15`；超限 `883` 保留在输入而可用按钮为 `¥0.01`，移出焦点后仍复现。仅 UI 观察，不提交新订单，不推断该站后台会接受错误金额；已加载筛选范围提示也已直接读取。
+
+核对 main bcb81db、#81 c3b4800/Draft/base #82；只复用不变代码的既有证据，没有重新跑钱测试或宣称新同步/异步合同已实现。微信回调注意事项正文重读成功；回调/查单指引本次超时，沿用此前来源且不计作本次通过。当前差异仅 #77 active change，文档框架/链接、Diff 与脱敏为本片校验。
+
+以下是落实设计后必须执行的 **Not run** 场景，不累计到已有通过数：
+
+| 新的判别场景 | 应证明的行为 |
+| --- | --- |
+| 创建事务提交后、HTTP 响应和 worker 唤醒前进程退出 | 重建 API/Worker 后同键恢复一单/一预留，数据库扫描仍发起 |
+| 回调已 ACK 后暂停处理进程，再送重复通知并恢复 | 没有丢事实；只一次到账；接收 ACK 不等待结算进程 |
+| 外部查询持续慢，同时已有真实成功观察待结算 | 有界网络预算不饿死已收资金的数据库结算工作 |
+| 通知持久创建成功、Recharge 待办完成标记前进程退出 | 重投只保留一条通知，余额/流水不再变更；SSE 丢失仍可读订单 |
+| 快捷项后输入空/零/小数/超限/非法文本，或 create 响应未知后修改金额 | 不静默改价/回退档位/更换原未知请求的 key；没有重复活动付款路径 |
+| 成功订单可见后，一个较早余额请求才返回 | 旧响应被丢弃；刷新失败保留成功状态，不执行浏览器加分 |
+| 目标未付单在未加载的历史页、用户使用状态筛选 | 服务端筛选与游标覆盖正确账户范围；空态不误报全部无订单 |
+| 充值期间其他设备更改余额/文章/选择/价格，或发票仍在补正 | 发布返回重新核价并要求明确购买；开票状态不阻挡已有余额使用 |
+
+当前结论为设计与学习记录 verified、运行时新增场景 pending；不重写已接受产品意义，不把参考站交互当作其 schema/一致性测试。

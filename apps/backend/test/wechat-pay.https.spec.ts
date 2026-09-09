@@ -141,7 +141,8 @@ describe("actual WeChat adapter through controlled HTTPS", () => {
               JSON.stringify(
                 req.url === "/v3/pay/transactions/native"
                   ? {
-                      code_url: "weixin://wxpay/bizpayurl?pr=LOCAL",
+                      code_url:
+                        "weixin://wxpay/bizpayurl/up?pr=LOCAL&groupid=00",
                       extra: "充值🔒",
                     }
                   : f.trade(),
@@ -237,7 +238,13 @@ describe("actual WeChat adapter through controlled HTTPS", () => {
         description: "充值🔒",
         expiresAt: "2026-09-08T10:30:00+08:00",
       }),
-    ).toMatchObject({ ok: true, value: { kind: "QR_CODE" } });
+    ).toMatchObject({
+      ok: true,
+      value: {
+        kind: "QR_CODE",
+        url: "weixin://wxpay/bizpayurl/up?pr=LOCAL&groupid=00",
+      },
+    });
     expect(await gateway.query(f.order)).toMatchObject({
       ok: true,
       value: {

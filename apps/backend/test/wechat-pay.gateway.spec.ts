@@ -126,11 +126,37 @@ describe("WeChat official protocol fixtures in actual implementation", () => {
 
 describe("WeChat Native operation mapping", () => {
   it.each([
+    // Public URI examples: Native prepay 4012791877 and invocation 4012791878.
+    "weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00",
+    "weixin://pay.weixin.qq.com/bizpayurl/up?pr=NwY5Mz9&groupid=00",
+  ])("preserves the authenticated official Native URI %s", async (url) => {
+    const exchange = vi.fn(async () => f.response({ code_url: url }));
+    const result = await new WechatPayGateway(f.config(), exchange).initiate(
+      f.order,
+      input,
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      value: { kind: "QR_CODE", url },
+    });
+    expect(exchange).toHaveBeenCalledTimes(1);
+  });
+  it.each([
     "https://evil.invalid/pay",
     "weixin://evil.invalid/bizpayurl?pr=x",
     "weixin://wxpay/bizpayurl",
     "not-a-url",
-  ])("rejects an unexpected signed QR action %s", async (url) => {
+    "weixin://user@wxpay/bizpayurl/up?pr=x",
+    "weixin://pay.weixin.qq.com:443/bizpayurl/up?pr=x",
+    "weixin://wxpay/bizpayurl/up?pr=x#fragment",
+    "weixin://pay.weixin.qq.com.evil.invalid/bizpayurl/up?pr=x",
+    "weixin://wxpay/other-action?pr=x",
+    "weixin://wxpay/bizpayurl/up?pr=",
+    "weixin://wxpay/bizpayurl/up?pr=x\n",
+    "weixin://wx\tpay/bizpayurl?pr=x",
+    " weixin://wxpay/bizpayurl?pr=x",
+    "weixin://wxpay/bizpayurl?pr=x\u0000",
+  ])("rejects an unexpected signed QR action %j", async (url) => {
     const gateway = new WechatPayGateway(f.config(), async () =>
       f.response({ code_url: url }),
     );
