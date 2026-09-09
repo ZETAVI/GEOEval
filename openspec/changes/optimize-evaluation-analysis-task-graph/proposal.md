@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: practical multi-angle guidance aligned; narrative 1.3.1 lightly prepared
+- Status: Parser 5.1 branch-unit replay improved; full-chain identity gap not closed
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -44,15 +44,44 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
+The owner confirms branches should not become separate brand records. The
+[5.1 Prompt-only replay](research/chain-quality-experiment.md#brand-level-branch-replay)
+now passes six retained-source calls: all four restaurant parses omit extra
+branch/mall rows while preserving independent merchants; appliance identities,
+target positions and useful content remain. Keep this bounded candidate, not a
+claim of general stability or downstream repair. Same input/Schema/model; no
+sampling, synthesis, automatic retry or frontend activation. Thirty focused tests
+and backend typecheck pass. Next validate the subject boundary on small fresh
+coverage and then the complete call chain; the known target-returning-to-competitors
+code path remains an explicit integration gap if bad records recur.
+
+### Previous full-call-chain result
+
+The owner clarified the next gate as full real API calls, not frontend/runtime
+integration. The [frozen current-candidate test](research/chain-quality-experiment.md#current-candidate-full-call-chain-check)
+has completed at 596a1f5: 16 successful calls, two brands, four new open-question
+answers, eight parses and two composed previews, 272.709 seconds. Target identity
+and position agree in repeats and appliance grouping works. Restaurant first-pass
+parsing wrongly adds location-background malls and a target branch; the branch is
+correctly renamed to the target but still counted as a competitor. This semantic
+failure blocks calling the whole candidate stable, despite successful structures.
+Next isolate subject-unit interpretation and the target/competitor handoff gap,
+without blacklist rules, extra Agents or frontend activation. Log readback remains
+incomplete after an observation-count mismatch and two connection timeouts. This
+small single-platform batch is not 4×5, formal report or recovery acceptance.
+
+### Guidance refinement entering that test
+
 The owner considers current interpretation broadly usable and requests only a light
 refinement: one or two flexible article/media directions can highlight strengths,
 address concerns or improve GEO information around weaknesses. Do not impose a
 single customer-choice framework or turn minor topic preferences into repeated
 repair gates. Narrative 1.3.1 changes only that paragraph and its existing example;
 first layer, handoff, Schema, model and task structure remain unchanged. This small
-wording change receives local example/contract verification, not another standalone
-paid comparison. Observe it in the next bounded overall-report validation without
-claiming new real-call improvement or changing formal acceptance requirements.
+wording change received local example/contract verification, not another standalone
+paid comparison. It was included in the bounded overall-report validation above;
+that run is not isolated causal evidence of wording improvement and does not change
+formal acceptance requirements.
 
 ### Previous second-layer comparison
 

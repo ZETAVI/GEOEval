@@ -65,7 +65,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.userContext.companyName).toBe("青禾咖啡");
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@5.0.0",
+      "experiment.m4.parser-brand-rows@5.1.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -96,7 +96,7 @@ describe("M4 content-oriented brand rows", () => {
       }),
     ).toThrow("Open-question");
   });
-  it("demonstrates independent co-listed brands, aliases, repeats and a tail addition in one full example", () => {
+  it("demonstrates brand-level branches, independent co-listed brands, aliases and a tail addition in one full example", () => {
     const task = buildM4BrandRowsTask(base);
     const example = JSON.parse(
       [...task.systemInstruction.matchAll(/输出：\n(\{[^\n]+\})/g)][0]![1]!,
@@ -113,6 +113,12 @@ describe("M4 content-oriented brand rows", () => {
       2, 3, 4,
     ]);
     expect(result.projected.output.target!.summary).toContain("Qinghe Coffee");
+    expect(result.projected.output.target!.summary).toContain("星岸店和河畔店");
+    expect(result.output.brands.map((b) => b.displayName)).not.toContain(
+      "星岸广场",
+    );
+    expect(result.output.brands.map((b) => b.displayName)).not.toContain("星岸店");
+    expect(task.systemInstruction).toContain("门店关系或特点可留在mentionContext");
     expect(
       result.projected.output.target!.points.map((p) => p.polarity),
     ).toEqual(["POSITIVE", "NEGATIVE"]);
