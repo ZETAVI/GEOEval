@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: fresh 5.1 call chain tested; category and absence-row errors remain
+- Status: 5.2 category-name comparison improved; absence recurrence not disproven
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,22 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The [5.1/5.2 Prompt comparison](research/chain-quality-experiment.md#category-name-and-absent-target-prompt-comparison)
+completed eight identical-input calls. Both 5.1 category outputs contain generic
+types; both 5.2 outputs retain only concrete named subjects, correct target order
+and useful content. Both versions omit the absent target in both repeats, so the
+historical placeholder is not proven eliminated. The candidate changes only the
+subject/target instructions and existing example; inputs, Schema, model and
+downstream code stay fixed. Thirty focused tests and backend typecheck pass.
+
+Keep 5.2 for one bounded full-chain validation instead of more same-source rules.
+No new Agent, model, Schema, frontend or runtime activation. The known downstream
+target-as-competitor code path remains unfixed and must not be credited to this
+source-level improvement. This developer comparison does not prove general
+stability or formal report acceptance.
+
+### Previous fresh 5.1 result
 
 The [fresh 5.1 chain](research/chain-quality-experiment.md#fresh-branch-and-absent-target-chain)
 completed 16 calls at 0339de8 in 240.261 seconds. Naturally absent targets and

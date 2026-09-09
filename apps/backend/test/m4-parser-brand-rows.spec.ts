@@ -65,7 +65,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.userContext.companyName).toBe("青禾咖啡");
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@5.1.0",
+      "experiment.m4.parser-brand-rows@5.2.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -123,7 +123,7 @@ describe("M4 content-oriented brand rows", () => {
       result.projected.output.target!.points.map((p) => p.polarity),
     ).toEqual(["POSITIVE", "NEGATIVE"]);
   });
-  it("provides a valid absent-target example with concrete subjects and three attitude meanings", () => {
+  it("uses concrete names under category headings and omits the absent target in the existing example", () => {
     const examples = [
       ...buildM4BrandRowsTask(base).systemInstruction.matchAll(
         /输出：\n(\{[^\n]+\})/g,
@@ -140,6 +140,15 @@ describe("M4 content-oriented brand rows", () => {
       result.output.brands.every((b) => b.targetDescription === null),
     ).toBe(true);
     expect(result.projected.output.target).toBeNull();
+    expect(result.output.brands.map((b) => b.displayName)).not.toContain(
+      "青禾咖啡",
+    );
+    expect(result.output.brands.map((b) => b.displayName)).not.toContain(
+      "精品咖啡",
+    );
+    expect(buildM4BrandRowsTask(base).systemInstruction).toContain(
+      "不是另外需要填写的记录",
+    );
     expect(result.output.brands[0]!.mentionContext).toContain("各有取舍");
     expect(result.output.brands.map((b) => b.attitude)).toEqual([
       "NEUTRAL",

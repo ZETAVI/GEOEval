@@ -3588,6 +3588,40 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## Category-name and absent-target Prompt comparison
+
+Parser 5.2 clarifies concrete names under category headings and identifies the
+target only among the actual subject records. The existing second fictional
+example now combines category headings, named examples, an unnamed category and
+an absent target; the first branch/alias/co-list example is retained. No Schema,
+user context, model, projection, synthesis or formal contract change.
+
+At ec3f71c plus frozen tracked-diff SHA-256
+`0801fd24ee8d23718dfb3e59b266908fc34df9ee9accb0dd39e9d59642828c05`, manifest
+`c931b214317f76b11d99366af72d554df5569ab111b9cb137a182bf39a10a689` compares the
+exact prior 5.1 task with current 5.2 twice on each of two retained failing
+sources. Paired order reverses in repeat two; Qwen low, concurrency two, maximum
+eight calls, no retries/sampling/synthesis or semantic repair. Runner SHA-256
+`48f878a255d844eec435a87973bd22f51e6f110a8883000e094156849469a012`.
+
+2026-09-09 07:25:44.232–07:26:58.896 UTC: eight calls pass provider/wire/structure
+checks, 74.664 seconds, 22,960 reported tokens. Both baseline category outputs
+include generic types (one also adds a location); both candidate outputs retain
+only the target plus the two named representatives, in correct order, with useful
+target content. Both versions omit the absent target correctly in both repeats:
+the old placeholder did not recur, so elimination is not proven. This is evidence
+for the Prompt/example package on developer regressions, not general stability,
+isolated sentence causality, latency improvement or a repaired report path.
+
+Keep 5.2 as the next full-chain candidate, not a reason for further same-source
+rule expansion. Thirty focused tests and backend typecheck pass; identical input
+and JSON Schema are asserted. No second-layer/frontend/runtime activation or fix
+to the known target-as-competitor path. Detailed local inputs and outputs:
+`apps/backend/.provider-evidence/m4-brand-unit-replay-xwK2Cg/input-output-review.md`.
+Nine private Langfuse observations match actual IO/settings/model/usage at
+07:28:01.795 UTC, trace `5b3bcc2f3ed0cd4a68dfb01a67c53063`; semantic review and
+program projections remain local. No ninth model call follows the batch.
+
 ## Fresh branch and absent-target chain
 
 At `0339de812421e164d523c4ed6f521c8a00f99ee6`, freeze Parser 5.1.0, Narrative
