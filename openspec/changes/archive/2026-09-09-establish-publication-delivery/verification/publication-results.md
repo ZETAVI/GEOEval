@@ -1,5 +1,7 @@
 # Publication results checkpoint
 
+Historical slice evidence. Its original activation and follow-up statements below are preserved for attribution; final acceptance and integration pointers are in [the archived task index](../tasks.md).
+
 Scope: normal per-publication work and results after responsibility baseline
 `2658295`, not complete #73 fulfilment, merge or production activation.
 

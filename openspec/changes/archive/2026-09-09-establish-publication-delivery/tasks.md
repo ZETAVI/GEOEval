@@ -1,6 +1,6 @@
 # Delivery and verification plan
 
-Issue #73 controls approved business decisions. This checklist owns the bounded implementation sequence and evidence, not current product behavior.
+Archived implementation and verification record for Issue #73. Current behavior belongs to the reconciled specifications and code. The remaining external integration/closeout transaction is owned by PR #81, not a later feature backlog in this archive.
 
 ## 0. Approval and isolated write window
 
@@ -60,5 +60,40 @@ Issue #73 controls approved business decisions. This checklist owns the bounded 
 - [x] Remove Commerce placeholder status ownership; no permanent dual writes. Generate OpenAPI/client and verify current customer routes compose true status.
 - [x] Rehearse the two resolution migrations on an empty DB and a separate actual 35→37 synthetic historical upgrade; preserve all old projections and new null/zero defaults. The granted-only historical sample is not production-corpus or physical-restore proof.
 - [x] Promote accepted Delivery behavior; update Commerce/product/glossary/vision/architecture and explicitly extract the relevant product-definition evolution marker. Existing ADR 0006 admission remains unchanged; settlement uses its already-approved owner-bound transaction approach without a new ADR or general framework.
-- [ ] Map final acceptance to real evidence; record skipped checks and future Writer/real recharge/#74 boundaries without appending their work here.
-- [ ] Open final acceptance PR, complete fixed-diff review and checks, obtain merge authorization, verify integrated revision and only then reconcile #73 closure/Project Done/workspace exit.
+- [x] Map final acceptance to existing implementation and evidence below; keep skipped checks and independently owned Writer/recharge/#74 work outside this outcome.
+- [x] Obtain the bounded dependency-integration authorization and agree the producer/consumer execution boundary; see the [human Decision checkpoint](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5598444830). Review-ready status alone was not used as merge authority.
+- [x] Reconcile the completed implementation into its current owners and prepare this archive for the existing final PR, with the actual integration and workspace checks assigned below. No new order functionality or duplicate PR is introduced.
+- [x] Supplement segmented upgrades with one continuous main32→combined37 synthetic historical upgrade and post-upgrade HTTP old-request replay/once-only return checks; [evidence and independent second perspective](https://github.com/ZETAVI/GEOEval/pull/81#issuecomment-5598080649).
+
+### Final integration transaction — owned by PR #81
+
+After the payment owner integrates the fixed lower dependencies, the order owner
+retargets the existing PR to main and verifies its actual Diff, current Checks,
+completed reviews and Closes relationship before squash integration. The owner
+then verifies the integrated revision, native Issue closure, Project disposition,
+archived Change and explicit retain exit. These are execution gates, not claims
+that the merge has already happened. Keep Project in Review / Decision until that
+post-integration record is complete; use the PR's live record rather than adding
+an artificial follow-up code change to mark external actions in this archive.
+
+## Final acceptance index
+
+This index points to the evidence owners; it does not duplicate business rules or
+convert local verification into an accepted-main or production claim.
+
+| Approved outcome | Implementation / discriminating evidence | Disposition |
+| --- | --- | --- |
+| Paid order admits exactly one aggregate; exclusive responsibility, bounded lists and safe customer detail | [Delivery spec](../../../specs/publication-delivery/spec.md), [assignment/admission integration tests](../../../../apps/backend/test/delivery-assignment.integration.spec.ts), [PR #76 integration](https://github.com/ZETAVI/GEOEval/pull/76#issuecomment-5583603102) | Integrated normal slice; immutable purchase and role boundaries retained by the exception slice. |
+| Mock/manual preparation, direct results, correction and whole-order completion preserve the original article/quantity | Same assignment/work integration suite and PR #76 browser evidence | Integrated normal slice; generation does not count as publication. |
+| Negotiated precise replacement, continued compensation, zero closure and positive settled termination keep their distinct outcomes | [Resolution HTTP/DB tests](../../../../apps/backend/test/delivery-resolution.integration.spec.ts), [Web resolution tests](../../../../apps/web/test/delivery-resolution.spec.tsx), [approved browser completion](https://github.com/ZETAVI/GEOEval/pull/81#issuecomment-5597379967) | Verified on the PR branch, awaiting integration; all three isolated terminal outcomes are preserved. |
+| Original-source, capped, once-only administrator credit; no gift fallback; agreement races and rollback remain atomic | Resolution HTTP/DB tests plus [Commerce return arithmetic](../../../../apps/backend/test/order-point-return.spec.ts) and [current Commerce owner](../../../specs/publishing-commerce/spec.md) | Verified with real isolated database transactions and C1 reservation-aware capacity. |
+| Role entry, authority, explicit action, pending work, customer result and interrupted-request recovery form one usable path | Assignment/resolution tests, [role entry assertions](../../../../apps/web/test/supporting-role-workspace.spec.tsx), PR #81 browser checkpoint | Approved role paths and 390px views passed. Browser outage proves a pre-dispatch failure and same-request reload recovery; successful-response loss is not claimed by that browser run. |
+| Migration and design reconciliation preserve history and singular ownership | [Recovery integration tests](../../../../apps/backend/test/delivery-recovery.integration.spec.ts), §3 migration evidence above, current Delivery/Commerce specs and architecture | Empty and synthetic historical migration rehearsals passed. Product Definition's other unactivated capability markers remain explicitly retained; no new ADR or duplicate design owner. |
+
+Residual boundaries: real Writer/material preparation, external publication,
+real-money recharge, #74 UI/UX and production activation remain separate outcomes.
+The granted-only historical fixture is not a production-corpus rehearsal; physical
+restore/process-crash and deployment-ingress proof are not claimed. After any base
+change, recheck only evidence invalidated by that change. The current fixed-head
+review/CI and producer-consumer handoff remain owned by PR #81 and its linked
+checkpoint, not by another mutable status table here.

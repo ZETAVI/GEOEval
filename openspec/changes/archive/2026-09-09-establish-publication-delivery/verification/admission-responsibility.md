@@ -1,10 +1,12 @@
 # Admission and responsibility checkpoint
 
+Historical slice evidence. Its original activation and follow-up statements below are preserved for attribution; final acceptance and integration pointers are in [the archived task index](../tasks.md).
+
 Scope: first part of the #73 vertical slice, not complete result delivery or a
 merge/production gate. Runtime source now admits paid orders and supports
 exclusive responsibility; result recording, per-item preparation and point
 return remain visibly unavailable. Current behavior is reconciled into
-[Publication Delivery](../../../specs/publication-delivery/spec.md), Commerce,
+[Publication Delivery](../../../../specs/publication-delivery/spec.md), Commerce,
 the product-definition activation pointer and ADR 0006.
 
 ## Evidence
