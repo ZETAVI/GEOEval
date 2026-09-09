@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 5.2 category-name comparison improved; absence recurrence not disproven
+- Status: 5.2 fresh-answer gate failed; synthesis not run
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,23 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The [5.2 fresh-answer attempt](research/chain-quality-experiment.md#52-fresh-answer-chain-stopped-before-synthesis)
+stopped after 12 Provider-successful calls: the eighth parse contained duplicate
+brand rows and was rejected. Category names, unnamed placeholders and an absent-
+target status record also recur. All four planned synthesis calls are NOT RUN;
+there is no successful full-chain result or report. 265.297 seconds is the failed
+batch duration. Raw JSON reproduces the duplicate rejection offline; no program
+repair or additional model call was used to bypass the frozen stop condition.
+
+Hold 5.2 as a diagnostic baseline, not formal-ready. First isolate output-unit
+guidance and the target-matching step on the exact retained failures, then resume
+downstream validation from saved sampling rather than repeat broad acquisition.
+These next adjustments are hypotheses, not implemented fixes. No new model,
+Schema field structure, Agent, frontend or runtime activation; the separate
+target-as-competitor program gap remains unfixed and unexercised this batch.
+
+### Previous same-source comparison
 
 The [5.1/5.2 Prompt comparison](research/chain-quality-experiment.md#category-name-and-absent-target-prompt-comparison)
 completed eight identical-input calls. Both 5.1 category outputs contain generic

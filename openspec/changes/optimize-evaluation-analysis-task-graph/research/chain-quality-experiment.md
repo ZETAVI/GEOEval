@@ -3588,6 +3588,49 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 5.2 fresh-answer chain stopped before synthesis
+
+At `7305e337e98a1a78fdb405183188f7e18f71da93`, freeze Parser 5.2.0, Narrative
+1.3.1 and Assignment 1.1.0. Four retained questions receive fresh Qwen answers;
+each is parsed twice before planned first-pass-only synthesis. Same questions are
+not unseen query/domain holdouts. Manifest
+`73b26d3f05e875cc990ec23799b9f351fc49bc3365116a37d9ed9d461d6e4716`; runner hash
+`c156cdf7ca69fff21f7beca47c34083d6359c9d8f17fe6b71d0755c31c39b417`.
+
+Initial automatic approval timed out without creating a process; its one permitted
+retry succeeded before credential injection. Actual run 2026-09-09
+07:41:05.536–07:45:30.833 UTC, 265.297 seconds, 46,821 reported tokens, concurrency
+two. Twelve Provider calls succeed, but the last Parser output repeats one exact
+brand and several full-name/short-name subjects, includes unnamed placeholders
+and an absent-target status row. Normal finish_reason=stop, not truncation. Raw
+JSON replay deterministically throws Duplicate brand row; the program did not
+create the duplicates. Seven of eight parses pass acceptance, not semantic quality.
+
+The frozen failure gate stops the batch: all four planned synthesis calls are
+NOT RUN, no preview/report exists, and there is no thirteenth call, cleanup repair,
+retry or resampling. This 4m25s is a failed batch time, not successful report
+latency. Present target states are correct in the accepted parses, same-brand
+branches are not split, and one correctly marked negative brand is excluded from
+competitor candidates. These do not offset category and generic-name errors.
+
+Category-as-brand recurs in one new first-pass answer; another repeat invents a
+location-qualified unnamed merchant. The failing absent-target repeat emits a
+NEGATIVE/null status row, not a false target mention; do not claim that rejected
+record entered official competitors. Prior 5.2 regression success did not establish
+general stability or eliminate placeholders/duplicates.
+
+Hold 5.2 as a diagnostic baseline, not formal-ready. Next isolate output-unit and
+target-state guidance on these exact failures before replaying saved sources into
+the downstream chain; avoid more broad resampling or name blacklists. Field-local
+guidance and a clearer subject-selection step are hypotheses, not implemented
+fixes. No new model, field structure, Agent, runtime or frontend activation. The
+separate known target-as-competitor program path remains unfixed/unexercised here.
+Full local IO and review:
+`apps/backend/.provider-evidence/m4-frozen-transfer-IoUNOG/input-output-review.md`.
+Thirteen private Langfuse observations match actual IO/settings/model/usage at
+07:47:12.522 UTC, trace `4134028f6ce14555e110e999c95be889`; independent review
+and projected diagnostics remain local.
+
 ## Category-name and absent-target Prompt comparison
 
 Parser 5.2 clarifies concrete names under category headings and identifies the
