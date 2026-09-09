@@ -11,6 +11,9 @@ import {
 } from "vitest";
 import { createApiApp } from "../src/api-app.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
+import { Prisma } from "../src/generated/prisma/client.js";
+import { PostgresOperationsIdentityReader } from "../src/identity/infrastructure/postgres-operations-identity-reader.js";
+import { PostgresDeliveryAssignmentRepository } from "../src/publication-delivery/infrastructure/postgres-delivery-assignment.repository.js";
 import { PointAccountService } from "../src/publishing-commerce/application/point-account.service.js";
 import { MediaSupplyService } from "../src/media-supply/application/media-supply.service.js";
 import { PostgresOrderReturnAccess } from "../src/publishing-commerce/infrastructure/postgres-order-return-access.js";
@@ -173,6 +176,108 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
   });
   const returned = () =>
     prisma.pointChange.findMany({ where: { kind: "ORDER_RETURN" } });
+
+  it("keeps detail authority and private agreement history in one snapshot across reassignment", async () => {
+    const entered = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    let paused = false;
+    // Only pause a real SELECT; transaction isolation and concurrent writes still
+    // execute against PostgreSQL. The direct-read path also makes the old leak reproducible.
+    const pauseRead = (db: Prisma.TransactionClient) =>
+      new Proxy(db, {
+        get(target, property) {
+          if (property !== "publicationDelivery")
+            return Reflect.get(target, property);
+          return {
+            ...target.publicationDelivery,
+            findUnique: async (
+              args: Prisma.PublicationDeliveryFindUniqueArgs,
+            ) => {
+              const row = await target.publicationDelivery.findUnique(args);
+              if (!paused) {
+                paused = true;
+                entered.resolve();
+                await release.promise;
+              }
+              return row;
+            },
+          };
+        },
+      });
+    const readClient = new Proxy(prisma, {
+      get(target, property) {
+        if (property === "$transaction")
+          return (
+            run: (tx: Prisma.TransactionClient) => Promise<unknown>,
+            options?: { isolationLevel: Prisma.TransactionIsolationLevel },
+          ) => target.$transaction((tx) => run(pauseRead(tx)), options);
+        return Reflect.get(pauseRead(target), property);
+      },
+    });
+    const repository = new PostgresDeliveryAssignmentRepository(
+      readClient,
+      app.get(PostgresOperationsIdentityReader),
+    );
+    const actor = {
+      accountId: ids[2]!,
+      role: "OPERATIONS" as const,
+      sessionId: randomUUID(),
+    };
+    const originalRevision = (await current()).revision;
+    const pending = repository.detail(actor, orderId);
+    try {
+      await Promise.race([
+        entered.promise,
+        pending.then(() => {
+          throw new Error("Detail read did not pause");
+        }),
+      ]);
+      expect(
+        (
+          await action("reassign", 0, {
+            expectedRevision: originalRevision,
+            idempotencyKey: randomUUID(),
+            assigneeAccountId: ids[3],
+            reason: "读取期间改派",
+          })
+        ).status,
+      ).toBe(200);
+      expect(
+        (
+          await action("resolution", 3, {
+            expectedRevision: (await current()).revision,
+            idempotencyKey: randomUUID(),
+            mode: "CONTINUE",
+            points: 100,
+            reason: "新责任人私密协商",
+          })
+        ).status,
+      ).toBe(200);
+      release.resolve();
+      const snapshot = await pending;
+      expect(snapshot.revision).toBe(originalRevision);
+      expect(
+        snapshot.history.every((entry) => entry.revision <= originalRevision),
+      ).toBe(true);
+      expect(JSON.stringify(snapshot)).not.toContain("新责任人私密协商");
+      expect((await http(`/delivery/orders/${orderId}`, 2)).status).toBe(404);
+      // A stale administrator claim cannot override Identity's current operations role.
+      await expect(
+        repository.detail({ ...actor, role: "ADMINISTRATOR" }, orderId),
+      ).rejects.toThrow("未找到");
+      const nextActor = { ...actor, accountId: ids[3]! };
+      await prisma.account.update({
+        where: { id: ids[3] },
+        data: { status: "INACTIVE" },
+      });
+      await expect(repository.detail(nextActor, orderId)).rejects.toThrow(
+        "当前账号无权",
+      );
+    } finally {
+      release.resolve();
+      await pending.catch(() => {});
+    }
+  });
 
   it("zero closes 2/3 with retained history, no ledger, safe customer results, closed history and replay", async () => {
     expect((await publish(1)).status).toBe(200);

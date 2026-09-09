@@ -74,34 +74,45 @@ export class PostgresDeliveryAssignmentRepository {
   }
 
   async detail(actor: AuthenticatedPrincipal, orderId: string) {
-    if (actor.role !== "OPERATIONS" && actor.role !== "ADMINISTRATOR")
-      throw new ForbiddenException();
-    const row = await this.prisma.publicationDelivery.findUnique({
-      where: { orderId },
-    });
-    if (
-      !row ||
-      (actor.role !== "ADMINISTRATOR" &&
-        row.assigneeAccountId !== null &&
-        row.assigneeAccountId !== actor.accountId)
-    )
-      throw new NotFoundException("未找到可处理的订单");
-    const history = await this.prisma.publicationDeliveryAudit.findMany({
-      where: { orderId },
-      orderBy: { revision: "desc" },
-      take: 50,
-      select: {
-        revision: true,
-        actorAccountId: true,
-        request: true,
-        previousAssigneeId: true,
-        nextAssigneeId: true,
-        beforeResolution: true,
-        afterResolution: true,
-        createdAt: true,
+    return this.prisma.$transaction(
+      async (tx) => {
+        const [current] = await this.identities.lockAccounts(tx, [
+          actor.accountId,
+        ]);
+        if (
+          current?.status !== "ACTIVE" ||
+          !["OPERATIONS", "ADMINISTRATOR"].includes(current.role)
+        )
+          throw new ForbiddenException("当前账号无权读取履约详情");
+        const row = await tx.publicationDelivery.findUnique({
+          where: { orderId },
+        });
+        if (
+          !row ||
+          (current.role !== "ADMINISTRATOR" &&
+            row.assigneeAccountId !== null &&
+            row.assigneeAccountId !== actor.accountId)
+        )
+          throw new NotFoundException("未找到可处理的订单");
+        const history = await tx.publicationDeliveryAudit.findMany({
+          where: { orderId },
+          orderBy: { revision: "desc" },
+          take: 50,
+          select: {
+            revision: true,
+            actorAccountId: true,
+            request: true,
+            previousAssigneeId: true,
+            nextAssigneeId: true,
+            beforeResolution: true,
+            afterResolution: true,
+            createdAt: true,
+          },
+        });
+        return { ...row, history };
       },
-    });
-    return { ...row, history };
+      { isolationLevel: "RepeatableRead" },
+    );
   }
 
   async act(

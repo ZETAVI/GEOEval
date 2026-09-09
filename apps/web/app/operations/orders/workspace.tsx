@@ -39,7 +39,7 @@ const actionLabels: Record<string, string> = {
   REPORT_EXCEPTION: "记录异常",
   CLEAR_EXCEPTION: "解除异常",
   SAVE_RESOLUTION: "保存协商处理",
-  SETTLE_RETURN: "执行协商退点",
+  RETURN_POINTS: "执行协商退点",
 };
 
 export function appendDeliveryPage(
