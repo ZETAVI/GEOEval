@@ -95,13 +95,15 @@ ALTER TABLE recharge_operation_attempts ADD CONSTRAINT recharge_operation_shape 
 
 CREATE FUNCTION recharge_preserve_native_order() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
+  IF TG_OP='UPDATE' THEN
   IF ROW(NEW.native_description,NEW.native_notify_url) IS DISTINCT FROM ROW(OLD.native_description,OLD.native_notify_url)
     OR NEW.native_generation < OLD.native_generation
     OR (OLD.native_cancel_requested_at IS NOT NULL AND NEW.native_cancel_requested_at IS DISTINCT FROM OLD.native_cancel_requested_at)
     OR (OLD.native_close_attempt_id IS NOT NULL AND NEW.native_close_attempt_id IS DISTINCT FROM OLD.native_close_attempt_id) THEN
     RAISE EXCEPTION 'Native request snapshot and cancellation are immutable' USING ERRCODE='23514';
   END IF;
-  IF NEW.status='CLOSED' AND OLD.status<>'CLOSED' AND NEW.dispatch_state='MAY_EXIST' AND NOT EXISTS (
+  END IF;
+  IF NEW.status='CLOSED' AND NEW.dispatch_state='MAY_EXIST' AND (TG_OP='INSERT' OR OLD.status<>'CLOSED') AND NOT EXISTS (
     SELECT 1 FROM recharge_operation_attempts a WHERE a.id=NEW.native_close_attempt_id AND a.order_id=NEW.id AND a.result_kind='CLOSED' AND a.kind IN ('QUERY','CLOSE') AND a.finished_at IS NOT NULL AND a.body_sha256 IS NOT NULL
   ) THEN RAISE EXCEPTION 'Dispatched recharge needs authenticated closure' USING ERRCODE='23514'; END IF;
   IF NEW.native_qr_attempt_id IS NOT NULL AND NOT EXISTS (
@@ -112,7 +114,7 @@ BEGIN
   ) THEN RAISE EXCEPTION 'Native lease requires its own generation' USING ERRCODE='23514'; END IF;
   RETURN NEW;
 END; $$;
-CREATE TRIGGER recharge_native_order_guard BEFORE UPDATE ON recharge_orders FOR EACH ROW EXECUTE FUNCTION recharge_preserve_native_order();
+CREATE TRIGGER recharge_native_order_guard BEFORE INSERT OR UPDATE ON recharge_orders FOR EACH ROW EXECUTE FUNCTION recharge_preserve_native_order();
 
 CREATE FUNCTION recharge_preserve_operation() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN

@@ -60,6 +60,11 @@ export function createNativeRecoveryRuntime(input: {
     preparation.notifyUrl !== input.channel.notifyUrl
   )
     throw new Error("NATIVE_CHANNEL_CONFIGURATION");
+  if (
+    recharge.paymentWindowSeconds * 1000 <
+    input.recovery.minimumDispatchWindowMs
+  )
+    throw new Error("NATIVE_DISPATCH_WINDOW");
   const repository = new PostgresRechargeRepository(input.prisma, preparation);
   const core = new RechargeCoreService(repository, recharge);
   const recoveryRepository = new PostgresNativeRecoveryRepository(

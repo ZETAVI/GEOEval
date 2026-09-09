@@ -146,6 +146,18 @@ describe("durable Native recovery with PostgreSQL and authenticated controlled W
   });
   afterAll(() => prisma.$disconnect());
 
+  it("rejects a payment window too short for its explicit dispatch budget", () => {
+    expect(() =>
+      createNativeRecoveryRuntime({
+        prisma,
+        recharge: { ...recharge, paymentWindowSeconds: 60 },
+        preparation,
+        channel,
+        recovery: policy,
+      }),
+    ).toThrow("NATIVE_DISPATCH_WINDOW");
+  });
+
   it("commits order, frozen request, reservation and due work together; replays while creation is disabled", async () => {
     const o = await create();
     expect(requests).toHaveLength(0);
@@ -432,6 +444,41 @@ describe("durable Native recovery with PostgreSQL and authenticated controlled W
       prisma.rechargeOrder.update({
         where: { id: o.id },
         data: { nativeDescription: "changed" },
+      }),
+    ).rejects.toThrow();
+    // A direct insert is also a new terminal fact, not grandfathered historical data.
+    await expect(
+      prisma.$transaction(async (tx) => {
+        const id = randomUUID();
+        await tx.rechargeOrder.create({
+          data: {
+            id,
+            accountId: customer,
+            idempotencyKey: randomUUID(),
+            amountYuan: 1,
+            amountFen: 100n,
+            fundedPoints: 10,
+            provider: "WECHAT",
+            merchantId: recharge.merchantId,
+            appId: recharge.appId,
+            merchantOrderNo: id.replaceAll("-", ""),
+            method: "WECHAT_NATIVE",
+            currency: "CNY",
+            status: "CLOSED",
+            dispatchState: "MAY_EXIST",
+            expiresAt: new Date(o.expiresAt),
+            closedAt: now,
+          },
+        });
+        await tx.rechargeCreditReservation.create({
+          data: {
+            rechargeOrderId: id,
+            accountId: customer,
+            points: 10,
+            state: "RELEASED",
+            completedAt: now,
+          },
+        });
       }),
     ).rejects.toThrow();
     const a = await prisma.rechargeOperationAttempt.findFirstOrThrow({
