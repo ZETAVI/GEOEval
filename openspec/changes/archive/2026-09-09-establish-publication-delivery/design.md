@@ -1,7 +1,7 @@
 # Publication Delivery architecture proposal
 
-Status: approved for bounded implementation; not merged or production-activated. The human owner approved the architecture and non-conflicting parallel implementation, followed by the scoped simplification recorded below.
-Owner and control: [proposal](proposal.md). This replaces the previous local architecture candidate, not current specs.
+Status: archived design rationale. The approved decisions and implementation are reconciled into the current Delivery/Commerce specifications and executable owners; this file preserves the choices and staged refinements rather than owning current runtime truth.
+Historical context and final integration pointers: [proposal](proposal.md). No production or real-payment activation is implied.
 
 ## 1. Capability and dependency direction
 
@@ -66,7 +66,7 @@ views. No stored urgency, timer, automatic failure/refund or new workflow owner.
 
 Normal delivery is integrated by PR #76 and points assembly by PR #79
 (`main@bcb81db`). Current module ownership is documented in the
-[architecture overview](../../../docs/architecture/overview.md), with the
+[architecture overview](../../../../docs/architecture/overview.md), with the
 executable declaration in `publishing-commerce/commerce-points.module.ts`.
 This completed extraction is not a reservation, funded-credit or order-return
 implementation and is not reopened as a larger wallet refactor.
@@ -91,8 +91,8 @@ the agreement, eligibility and terminal decision; Commerce owns ledger/balance
 writes in the same transaction. The producer checkpoint owns the detailed ABI
 and evidence; receiving it is not order-return runtime verification. The resulting
 order-return transaction, stored invariants and owner boundaries now live in the
-[Commerce specification](../../specs/publishing-commerce/spec.md) and
-[architecture overview](../../../docs/architecture/overview.md). Task completion
+[Commerce specification](../../../specs/publishing-commerce/spec.md) and
+[architecture overview](../../../../docs/architecture/overview.md). Task completion
 and remaining browser/integration gates are recorded in [tasks](tasks.md).
 
 ## 4. Fulfilment and settlement are separate facts

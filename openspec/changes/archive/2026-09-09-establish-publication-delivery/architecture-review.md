@@ -1,5 +1,7 @@
 # Architecture review and scoped simplification
 
+Archived review history. The dated draft/slice dispositions below retain their original scope. Final bounded verification and accepted-owner reconciliation are indexed in [tasks](tasks.md); actual integration state belongs to PR #81, not the old recommendation text.
+
 Scope: Issue #73 proposed Delivery/Commerce seam at `main@0552aa7`, not application implementation or a completed Change.
 Review method: independent read-only reviewer first inspected the existing candidate and current code/ADR/Identity rules, then performed a bounded check against this draft. Lead reconciled the remaining exact findings below; no broad repeat review or runtime claim.
 
