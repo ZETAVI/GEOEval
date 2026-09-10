@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 6.3 Hy3/DeepSeek replay retains core content; model-only attribution remains unproven
+- Status: Fresh six-query matrix narrows non-thinking candidates; excerpt capacity needs reconciliation
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,37 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner authorizes a broader real-query/model/configuration matrix. Six new
+queries span dining, coffee, robot vacuums, hotels, collaboration software and
+marketing services; assigned Qwen3.7/Doubao samplers produce three answers each.
+Prompt 6.3 is frozen before sampling and source expectations before parsing.
+All three parsers then use identical whole cleaned inputs and JSON Object mode:
+off/0.4 versus on/0.6, twice each. Native on effort is low for Qwen/Hy3, high for
+DeepSeek because this model maps low to high. Six acquisitions and 72 parses
+finish without retry, resampling, repair, provider failure or profile suspension.
+
+Keep DeepSeek-off/0.4 and Hy3-off/0.4 as the two next candidates; do not select a
+unique winner from small latency differences. Their medians are 7.150 and 8.016
+seconds with consistent core subject/focus handling in this bounded review.
+Qwen-off has a coffee omission and one focus-model-content gap; Qwen-on has
+coffee order/omission and generic-provider miscounts. Hy3-on returns non-array
+brands in four calls. On profiles are slower, without a uniform quality gain.
+
+Schema acceptance is 58/72: four wrong shapes and ten excerpt-count rejections.
+Most count rejections contain useful source content. JSON Object did not send
+the maxItems:8 restriction, while the Prompt asks for complete excerpts. Reconcile
+that contract/task mismatch before another Prompt rewrite or formal selection;
+do not silently truncate useful output or call all rejected results hallucinated.
+No Schema change or runtime activation is performed in this batch.
+
+All six sources, 72 actual parser wires/raw JSON values and 80 private Langfuse
+observations (7 acquisition + 73 parsing) are verified. Only six independent
+sources were tested, not 72 independent examples. Secondary mentions/subbrand
+granularity remain separate observations. See the
+[fresh matrix evidence](research/chain-quality-experiment.md#fresh-six-query-model-and-configuration-matrix).
+
+### Previous retained-source cross-model comparison
 
 The owner additionally requests the same Prompt on Hy3 through Tencent TokenHub
 and DeepSeek V4 Flash through Alibaba. Both use thinking off/temperature 0.4,

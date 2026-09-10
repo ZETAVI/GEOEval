@@ -3588,6 +3588,109 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## Fresh six-query model and configuration matrix
+
+The owner requests more new real-query outputs across models and configurations.
+Freeze Prompt 6.3 before acquiring any source. Six ordinary queries cover dining
+(陶陶居 focus), coffee (Manner), robot vacuums (石头), hotels (全季), collaboration
+software (飞书), and marketing services (互动派). Existing Doubao sampling handles
+dining/robot/software; Qwen3.7 handles coffee/hotel/agency. Search is offered through
+existing acquisition routes and observed separately. Do not rewrite source claims
+or select answers after observing parser performance. The source-only expectations
+are frozen after acquisition but before any parser call; questionable subbrand
+granularity and secondary mentions are marked as observations, not hard failures.
+
+Each source goes to Qwen3.8 Flash, TokenHub Hy3 and Alibaba DeepSeek V4 Flash, with
+off/temperature 0.4 and on/temperature 0.6, twice per configuration. On effort is
+native low for Qwen/Hy3 and high for DeepSeek: the Alibaba model maps low/medium
+to high. All 72 parser requests use JSON Object, identical system/user messages,
+the unchanged local Schema and max_tokens 8192. This is a comparison of practical
+profile bundles, not isolated temperature/thinking causality or equivalent native
+reasoning depth. All 36 on calls return reasoning text; none of the 36 off calls
+does. Model-internal effective temperature is not independently echoed.
+
+Six acquisition calls: 2026-09-10 03:46:09.757–03:49:29.876 UTC, 200.119 seconds,
+33,179 reported tokens, peak concurrency two. Seventy-two parser calls:
+03:51:16.197–04:03:06.029 UTC, 709.832 seconds, 376,261 reported tokens, peak
+concurrency three. Total 78 calls / 409,440 tokens. No retries, extra sampling,
+repair, profile suspension or provider failure. All parser finish reasons are
+stop. Parser batches run sequential query/configuration groups with three models
+in parallel; this duration is not a twenty-sample formal evaluation time.
+
+| Profile | Mean / median / max seconds | Total tokens | Schema accepted | Wrong shape | Count-only rejection |
+| --- | --- | --- | --- | --- | --- |
+| Qwen off/0.4 | 13.513 / 9.898 / 52.887 | 50,695 | 10/12 | 0 | 2 |
+| Qwen low/0.6 | 21.211 / 20.770 / 30.057 | 65,004 | 9/12 | 0 | 3 |
+| Hy3 off/0.4 | 7.712 / 8.016 / 9.615 | 50,405 | 10/12 | 0 | 2 |
+| Hy3 low/0.6 | 45.233 / 46.073 / 63.641 | 96,473 | 7/12 | 4 | 1 |
+| DeepSeek off/0.4 | 7.371 / 7.150 / 10.947 | 50,639 | 10/12 | 0 | 2 |
+| DeepSeek high/0.6 | 17.885 / 16.638 / 32.968 | 63,045 | 12/12 | 0 | 0 |
+
+The 58/72 Schema acceptance count is not a semantic-quality score. Ten failures
+are only the max-eight-excerpts check; four are Hy3-on wrong root/array types.
+In JSON Object mode maxItems is not sent to the model, and Prompt 6.3 does not
+state the eight-item limit. All profiles are asked for source-complete excerpts;
+the rich agency answer exposes this contract/task mismatch across models. Do not
+reject the content as hallucination, silently truncate it, or alter the frozen
+batch to hide the mismatch. No Schema or Prompt correction is made this turn.
+
+Decision-relevant semantic examples:
+
+- Coffee opens by comparing Starbucks and Peet's against the budget, then
+  introduces Manner and three other recommendations. Qwen-off omits the first
+  two once and restores them in its repeat. Qwen-on first appends them at the
+  end and then omits them; Manner is incorrectly first in both on results.
+  Hy3-off and both DeepSeek profiles retain the six-brand source order.
+- Robot answers introduce two 石头 models. Qwen-off once retains G20 content
+  but loses the separate P10S Pro content; its repeat restores it. Qwen-on once
+  returns ten useful focus bullets and fails only the capacity limit.
+- Qwen-on twice outputs generic boutique-agency/MCN categories as brands.
+  DeepSeek-on retains the named secondary MCN examples. Other configurations
+  mostly keep the two main firms; secondary omissions remain separate observations.
+- Hy3-on returns brands:0 for hotel r1 and agency r2, brands:1 plus comment for
+  coffee r2, and brands:0 with brand fields at root for robot r2. These values are
+  present in raw provider JSON with finish_reason stop, not local projection or
+  max-token truncation. The evidence does not isolate TokenHub internals from the
+  underlying model's responsibility.
+- Dining focus is absent and stays absent in all twelve results; software core
+  subjects and focus advantages/limitations remain usable in all twelve. Hotel
+  subbrand inclusion varies. DeepSeek-on has one secondary-brand ordering issue
+  and one secondary price-attribution observation, not a perfect-output claim.
+
+Prefer DeepSeek-off/0.4 and Hy3-off/0.4 for the next bounded delivery decision;
+their small latency difference does not justify a unique winner. Reconcile the
+eight-item limit and source-complete extraction first, then adapt the selected
+first-layer result to the second-layer contract and validate the full chain at
+its own boundary. Do not automatically add more model variants or rewrite the
+Prompt again. No formal model selection, runtime activation, main merge, second-
+layer adaptation, frontend test or current-spec change has happened here.
+
+Only six independent fresh sources were evaluated (one focus absent/five present),
+not 72 independent questions. Some brands occur in historical examples. This is
+not a fully unseen-brand benchmark. Source commercial claims are not independently
+fact-checked. Provider tokenizers/cache and native reasoning depths differ; token
+counts are not cross-provider prices or guaranteed production latency.
+
+Evidence directory `apps/backend/.provider-evidence/m4-fresh-matrix-GI1S7m` holds
+the two plans, frozen runner, six source records, pre-parse `source-review.json`,
+72 requests/results, both summaries, local `semantic-review.json` and
+`comparison-report.md` with full cleaned inputs and an output index. All actual
+wires, models and raw JSON are checked. Acquisition trace
+`1b5624d45a5189fea687cdcfdbfb764e` (7 observations) and parse trace
+`df7fb894352ef27415cd71ffd9ac1bf2` (73 observations) were read back at 04:04 UTC:
+private, exact IO/settings/usage, no missing or mismatched records. An earlier
+readback launch timed out during permission review before execution; the one
+bounded retry succeeded. Semantic review remains local.
+
+Frozen HEAD `915d3d604b55a99f8957444c495c93dbccc6916f`, clean tracked diff;
+runner `3067234a871bdc2913f1f769dd28f3845e056f8f6aaadfbdbca725028466b1e6`;
+acquisition confirmation `92157ee1fd39bfc6b171a7e7476281724c2a81820cb90a1cc2cb587afc53c72b`;
+parse confirmation `013c569ece468bee45f2ed10cad110226713ced31b0dcbf7e5bdc08d468d63df`;
+source-review hash `8bd3768854448f4c14b3a216e649d1be1ba527920a178f36628758142f3df18c`;
+Prompt hash `50195457e3b369fc52055fa75878762fefd8effbadaf040b2f28a90a235fb05e`.
+Reuse unchanged focused tests; validate framework/link/diff for this evidence-only
+update. No new runtime test/build is claimed.
+
 ## 6.3 cross-model replay: Hy3 and DeepSeek V4 Flash
 
 The owner authorizes the same Prompt on Hy3 via Tencent TokenHub and DeepSeek
