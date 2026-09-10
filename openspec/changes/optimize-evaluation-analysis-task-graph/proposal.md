@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 6.3 real replay exposes unstable identity and source-content fidelity
+- Status: 6.3 thinking-profile replay supports off/0.4 as a faster validation candidate
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,31 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner replaces the unexecuted 0.5/0.3 temperature plan with two profiles:
+thinking low + temperature 0.6, and thinking off + temperature 0.4 (omit
+reasoning_effort). Prompt 6.3, Schema, whole cleaned inputs and model are fixed.
+Twelve real calls compare three retained sources twice per profile, concurrency
+two, without resampling/retry/repair. The two settings are a combined-profile
+comparison, not an isolated temperature or thinking causal test.
+
+Both profiles retain the expected subjects/order/focus and useful source content
+in all six outputs in this bounded review. Off/0.4 averages 6.811 seconds versus
+13.993 seconds for low/0.6; every paired call is faster. Reported total tokens
+are 21,365 versus 23,495. Off/0.4 has two extra colon-only list items in one output
+that otherwise contains full excerpts, and a branch suffix in another. These
+are residual formatting/normalization issues, not missing all content or invented
+focus. No prior major subject/content failure recurs in this batch.
+
+Prefer off/0.4 for the next bounded transfer validation, not formal adoption.
+Only three retained sources and one focus-present source were tested. There is
+no contemporaneous default-temperature control, so the earlier failures' cause
+is still unproven. All 12 actual wires and raw outputs are checked; all 13 private
+Langfuse observations match IO/settings/usage. No production adapter/route change,
+runtime activation or second-layer handoff. See the
+[profile comparison](research/chain-quality-experiment.md#63-thinking-profile-comparison-low06-versus-off04).
+
+### Previous 6.3 replay with temperature omitted
 
 The owner requests a small Prompt clarification: brands usually have related
 description/evaluation; search their surrounding and later context. focusBrand

@@ -3588,6 +3588,73 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 6.3 thinking-profile comparison: low06 versus off04
+
+The owner supersedes the 0.5/0.3 request before any real calls with thinking
+low/temperature 0.6 versus thinking off/temperature 0.4. The off profile omits
+reasoning_effort. Prompt 6.3, Schema, model, source messages and AST cleanup
+are unchanged from `m4-brand-unit-replay-4opqh6`. The official
+[Chat Completions reference](https://help.aliyun.com/zh/model-studio/qwen-api-via-openai-chat-completions)
+documents a 0.6 floor for Qwen3.8 thinking mode; neither profile's effective
+server-side temperature is echoed, so record requested values, not invented
+effective-setting observations. This comparison changes two settings together.
+
+Twelve calls, three sources twice per profile, peak concurrency two. No fresh
+sampling, automatic retry, repair or thirteenth call. Each source/round pairs
+both profiles; scheduling submission order is reversed in round two (actual
+network start order may differ). Only actual IO/settings/usage goes to private
+Langfuse. The local runner passes captured adapter bodies plus profile settings
+to the existing HTTP execution/normalization function; no shared adapter or
+runtime route is changed.
+
+2026-09-10 03:05:08.990–03:06:33.216 UTC, 84.226 seconds wall clock.
+
+| Measure | Thinking low / 0.6 | Thinking off / 0.4 |
+| --- | --- | --- |
+| Calls; wire/Schema/existing acceptance checks | 6; 6/6 | 6; 6/6 |
+| Mean / median latency | 13.993 / 12.276 s | 6.811 / 6.103 s |
+| Range | 8.633–26.387 s | 4.352–11.632 s |
+| Reported total / completion tokens | 23,495 / 4,627 | 21,365 / 2,641 |
+| Non-empty returned reasoning content | 6/6 | 0/6 |
+
+Off/0.4 is faster in all six pairs: 51.3% lower mean latency, 9.1% fewer total
+reported tokens, 42.9% fewer completion tokens. Cached input amounts vary by
+round; these are observed batch results, not production guarantees or a price
+calculation. Batch wall clock is paired first-layer replay, not a twenty-sample
+full evaluation or either profile's standalone end-to-end time.
+
+Semantic review: all twelve preserve the expected subjects, first-appearance
+order, focus absence/presence and substantive source content. No invented focus,
+extra category/background subject, duplicate subject or non-source URL appears.
+The firm focus's qualification caveat and location uncertainty are retained in
+all four company outputs. The off/0.4 restaurant second output has an extra
+`":"` entry in each of two otherwise substantive mentionContext arrays; this
+is not the earlier all-colon empty-content failure. The off/0.4 company second
+output retains the Guangzhou branch suffix. Low/0.6 once uses the owner-accepted
+晟府一号店 alias. 普济 is positive in both low runs and neutral in both off runs;
+both remain competitor-eligible, so do not grow a new rule for this marginal
+attitude distinction. Structure acceptance is not a claim of perfect semantics.
+
+Decision: off/0.4 is the preferred next bounded transfer-validation candidate.
+Keep Prompt frozen instead of immediately extending task rules. Six calls per
+profile and only three retained sources (one focus-present source) cannot prove
+broad stability. No contemporary omitted-temperature/default-1.0 control exists;
+the earlier errors cannot yet be causally assigned to temperature or thinking.
+No formal selection, runtime activation, second-layer handoff or frontend work.
+
+Evidence: `apps/backend/.provider-evidence/m4-temperature-replay-CEzcDI` holds
+the frozen plan/runner, twelve requests/results, summary, full local
+`input-output-review.md`, and `langfuse-readback.json`. All twelve actual bodies
+match frozen profiles; their messages and Schema match the prior baseline,
+and raw provider JSON equals modelOutput. Private trace
+`8c6bad9eb6901c431e479a499e55ce6d` read back thirteen observations at
+03:07:30.832 UTC, exact IO/settings/usage with no missing/mismatched calls.
+Frozen HEAD `c6af00b8ab2c66eb5935de0f78323b8f324bc5d2`, clean tracked diff,
+runner `0f65403c64d3d7f75555979cdb43714085f60f22aabec3d7d317cbbe23be1211`,
+confirmation `87502337d6a956ca6d06f23cfd62f2b8ce07acf33df8d60ba7f110d8c335f99f`.
+Reuse the unchanged thirteen focused tests from c6af00b; no source-code behavior
+changed. Framework/link and diff checks cover this evidence-only update.
+
 ## 6.3 every brand receives source content: real replay
 
 The owner asks to express the normal expectation that brands have related
