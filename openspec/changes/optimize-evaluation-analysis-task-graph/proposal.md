@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 6.1 Prompt refinement prepared; latest measured evidence remains 6.0
+- Status: 6.2 regression reviewed; example aligned, category and empty-content failures remain
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,41 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The [6.2 eight-call regression](research/chain-quality-experiment.md#62-complete-section-worked-example-real-replay)
+runs in 154.589 seconds with 43,475 reported tokens. Both group-hotpot outputs
+place Aoi fourth and do not create a shopping-centre row, but this source is
+example-development material. Child-hotpot still miscounts a category once;
+one local sample returns four brands whose mentionContext values are only [":"],
+confirmed in raw provider JSON, whereas its repeat contains useful excerpts.
+Coffee focus content remains useful, with a combined peripheral brand label
+retained as an observation. No blanket stability or example-specific causal
+claim. Eight actual wire contents match the existing reading cleanup; thirteen
+focused tests/framework checks pass. All nine private Langfuse observations
+match actual IO despite a shutdown warning. No extra calls or repairs.
+
+Keep the full-section standard example, but do not activate the candidate or
+adapt the second layer around invalid content. The next narrow priority is
+actual excerpt completeness and category/subject interpretation, not more
+format-normalization experiments, blanket word bans or a new model/Schema.
+
+### Tested example and scope
+
+The owner requests complete source/output formatting for the Aoi example.
+Candidate 6.2 preserves the 6.1 task and first two examples, replacing only its
+short contrast with the entire original section 3, standard brands JSON and a
+separate explanation. The example parses only the section: focusBrand remains
+the original 海底捞, absent from this excerpt but present in the full answer.
+Expected output is authored from the excerpt, not a provider result.
+
+Replay the same four previously authorized retained sources, twice each, at
+most eight Qwen Flash low calls/concurrency two with actual IO to existing
+private Langfuse. Input cleaning/Schema/runtime remain unchanged. No acquisition,
+retry, repair, ninth call or extra Markdown experiment. 6.1 was not measured;
+6.2 is an absolute regression screen, not a causal comparison. The Aoi source
+now overlaps example development and cannot demonstrate held-out generalization.
+
+### Previous task refinement and priorities
 
 The owner narrows this iteration to Prompt refinement: no Markdown input
 normalization experiment or s-specific filter. Candidate 6.1 keeps the same

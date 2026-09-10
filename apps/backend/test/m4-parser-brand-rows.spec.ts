@@ -76,7 +76,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(extra.userContext).toEqual(task.userContext);
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@6.1.0",
+      "experiment.m4.parser-brand-rows@6.2.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -110,7 +110,7 @@ describe("M4 content-oriented brand rows", () => {
   it("uses real excerpts as uniform bullet content, with richer focus content and no legacy description", () => {
     const task = buildM4BrandRowsTask(base);
     const examples = [...task.systemInstruction.matchAll(/content：\n([\s\S]*?)\n输出：\n(\{[^\n]+\})/g)];
-    expect(examples).toHaveLength(2);
+    expect(examples).toHaveLength(3);
     const clean = (text: string) => buildM4ReadingText(text).replace(/\s/g, "");
     for (const example of examples) {
       const result = inspectM4BrandMentionsOutput(JSON.parse(example[2]!));
@@ -130,6 +130,11 @@ describe("M4 content-oriented brand rows", () => {
     expect(restaurant.output.brands.map((b) => b.displayName)).toEqual(["东明香", "新记"]);
     expect(restaurant.focusBrandIndex).toBeNull();
     expect(restaurant.indexedBrands.map((b) => b.position)).toEqual([1, 2]);
+    const aoi = inspectM4BrandMentionsOutput(JSON.parse(examples[2]![2]!));
+    expect(aoi.output.brands.map((b) => b.displayName)).toEqual(["Aoi（葵日本料理）"]);
+    expect(aoi.focusBrandIndex).toBeNull();
+    expect(aoi.output.brands[0]!.mentionContext).toHaveLength(4);
+    expect(aoi.output.brands[0]!.mentionContext.at(-1)).toContain("缺点是价格偏高");
     // Source matching verifies authored examples only, not a live acceptance rule.
   });
   it("keeps new mentions distinct from legacy handoff and derives positions without repairing semantic errors", () => {

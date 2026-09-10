@@ -3588,6 +3588,59 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 6.2 complete-section worked example: real replay
+
+Replace 6.1's two-line Aoi contrast with the complete original section 3 from
+`m4-frozen-transfer-IoUNOG/acquire-hotpot-q1-result.json`, preserving its heading,
+introductory context, suggested venues, location, food/environment and evaluation.
+Keep the original focusBrand/query and label that only this section is parsed.
+The authored brands JSON contains one Aoi（葵日本料理） row with false focus flag,
+positive overall attitude and four source-excerpt bullets. Category/location
+reasoning and the section-versus-full-answer absence distinction stay outside
+the JSON. Three authored examples pass the existing Schema and excerpt checks.
+
+Main task text and first two examples are unchanged from 6.1; Schema, input,
+model, reading cleanup and program logic unchanged. Reuse the same authorized
+four-source replay, twice per source, max eight calls/concurrency two. Provider,
+wire/basic-schema failure stops the batch; semantic errors remain visible without
+repair. No fresh sampling, automatic retry, new endpoint or external data scope.
+The hotpot-q1 source now overlaps the Prompt example: report development
+regression, not independent generalization. No concurrent baseline, and 6.1
+had no real calls, so do not attribute any change specifically to this example.
+
+Frozen HEAD `731e87cfeb129687a1697fb26c32b0d723f6603c`, diff
+`d5fa21433a50d1b092784dfb396450e3aa25ce2aee07b26d229b4af637a1226d`,
+runner `e7098aea3691c2b184bcfbb49bf3dd6d839d6abf141430d3ec1ae07131dcdcf6`,
+confirmation `1d6274eb0ece1a90b6d359d820f0383a8a7ee242d2fc1b022a6c47fd067b6341`.
+2026-09-10 02:08:49.147–02:11:23.736 UTC: eight calls, peak concurrency two,
+154.589 seconds, 43,475 reported tokens. Individual latency 10.052–47.685 seconds.
+This is a first-layer regression run, not whole-evaluation latency.
+
+| Source | First output | Second output |
+| --- | --- | --- |
+| Group hotpot | Aoi fourth, no mall row, meaningful focus excerpts | Same order and mall exclusion; one source math-arrow formatting remnant |
+| Child hotpot | A category becomes a brand; supplemental pair not standalone | Named pair retained, no category rows |
+| Local / focus absent | Four merchants in order, but every mentionContext is [":"] | Four merchants in order with substantive content, no focus/placeholders |
+| Coffee | Useful focus strengths/weaknesses; LOCATE/% Arabica combined | Useful focus content; same combined peripheral label |
+
+The punctuation-only content is present in rawResponse.choices[0].message.content,
+not introduced by projection or telemetry. Count it as missing semantic content,
+not a successful parse merely because JSON/Schema and acceptance checks pass.
+All eight provider/wire/structure checks pass; identity of the focus is correct
+when present and absent as expected. No runtime punctuation filter, repair or
+ninth call. Supplemental coverage and marginal attitude differences keep the
+owner's lower priority; clear category mistakes and empty content remain material.
+
+Eight HTTP user-message content fields equal buildM4ReadingText(rawSource), with
+only focusBrand/question/content. Thirteen focused tests and framework checks
+pass; unchanged Schema/runtime is not reworked. Langfuse shutdown emits a warning,
+but readback at 02:13:16.290 UTC confirms all nine private observations match
+actual IO/settings/usage, with none missing. Trace
+`8864558b1d84e71b8ae46a3e6c03ddf6`; semantic review stays local at
+`apps/backend/.provider-evidence/m4-brand-unit-replay-gGekWj/input-output-review.md`.
+Keep 6.2 as a measured experimental candidate, not accepted runtime/synthesis
+input or independent evidence of generalization.
+
 ## 6.1 subject scope, stable order and clean excerpts: prepared
 
 At the owner's request, show the unchanged 6.0 baseline before editing, then
