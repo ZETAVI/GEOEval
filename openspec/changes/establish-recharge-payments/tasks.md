@@ -115,7 +115,7 @@ Official-source design, the Adapter URI repair and the independent Web component
 - [x] Connect one amount draft, recoverable create request, independent Native detail and all-state history through generated API contracts.
 - [x] Connect account/history and saved publishing-return reference; re-read balance/quote and require explicit purchase.
 - [x] Verify real HTTP security/privacy/recovery, index migration and the default disabled host; then exercise actual browser against the controlled API/database/gateway.
-- [ ] Fixed-diff review, current-owner/evidence reconciliation and PR/CI. Keep #77 open and real merchant/Worker operational activation separate.
+- [x] Fixed-diff review, current-owner/evidence reconciliation and PR/CI delivered in [#84](https://github.com/ZETAVI/GEOEval/pull/84); #77 remains open and real merchant/Worker operational activation separate.
 
 ## N3: Resident recharge worker and process recovery
 
@@ -124,4 +124,13 @@ Official-source design, the Adapter URI repair and the independent Web component
 - [x] Add the isolated worker module/factory and two bounded independent lanes; guard configured activation and expose safe aggregate diagnostics.
 - [x] Stop future claim attempts without interrupting in-flight provider/commit work; drain before Prisma shutdown and preserve unresolved obligations after a hard kill.
 - [x] Verify actual Nest/PostgreSQL/child-process independence, SIGTERM/SIGKILL, signed delayed success, once-only settlement and stop-new-order recovery.
-- [ ] Fixed diff review, canonical lifecycle reconciliation, exact-head CI/Partial PR and workspace exit; #77 remains open.
+- [x] Fixed diff review, canonical lifecycle reconciliation, exact-head CI/Partial [#85](https://github.com/ZETAVI/GEOEval/pull/85) and retained workspace exit; #77 remains open.
+
+## N4: Durable successful-recharge notification
+
+- [x] Read exact #85/main/Issue and current M4 shared-window acknowledgement; define Notification/Recharge ownership and fixed client wire contract in the N4 card.
+- [x] Write one private delivery obligation with the successful credit transaction; add forward migration and monotonic identity/delivery constraints, without historical backfill.
+- [x] Add idempotent Notification publishing and opt-in independent Worker delivery; retain recoverable failures without changing money facts.
+- [x] Extend typed notification target and account-fenced HTTP/SSE/client behavior; preserve evaluation notices and safe explicit order navigation.
+- [x] Verify rollback, duplicate/late failures, process restart, old-data upgrade, current HTTP/SSE and actual browser behavior.
+- [x] Complete fixed-diff reviews, canonical specs and local required checks. N4 is a Partial upper slice; its PR Delivery checkpoint owns exact-head CI, current window handback and workspace exit. #77 remains open.

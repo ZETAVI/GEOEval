@@ -20,14 +20,28 @@ export class EvaluationRetryNotificationTargetResponse {
   runId!: string;
 }
 
+export class RechargeNotificationTargetResponse {
+  @ApiProperty({ type: String, enum: ["RECHARGE_ORDER"] })
+  kind!: "RECHARGE_ORDER";
+  @ApiProperty({ type: String, format: "uuid" })
+  rechargeOrderId!: string;
+}
+
 export class NotificationResponse {
   @ApiProperty({ type: String })
   id!: string;
   @ApiProperty({
     type: String,
-    enum: ["EVALUATION_COMPLETED", "EVALUATION_RETRY_REQUIRED"],
+    enum: [
+      "EVALUATION_COMPLETED",
+      "EVALUATION_RETRY_REQUIRED",
+      "RECHARGE_SUCCESSFUL",
+    ],
   })
-  kind!: "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED";
+  kind!:
+    | "EVALUATION_COMPLETED"
+    | "EVALUATION_RETRY_REQUIRED"
+    | "RECHARGE_SUCCESSFUL";
   @ApiProperty({ type: String })
   title!: string;
   @ApiProperty({ type: String })
@@ -35,13 +49,15 @@ export class NotificationResponse {
   @ApiProperty({
     type: () => Object,
     oneOf: [
+      { $ref: getSchemaPath(RechargeNotificationTargetResponse) },
       { $ref: getSchemaPath(EvaluationReportNotificationTargetResponse) },
       { $ref: getSchemaPath(EvaluationRetryNotificationTargetResponse) },
     ],
   })
   target!:
     | EvaluationReportNotificationTargetResponse
-    | EvaluationRetryNotificationTargetResponse;
+    | EvaluationRetryNotificationTargetResponse
+    | RechargeNotificationTargetResponse;
   @ApiProperty({ type: String, format: "date-time" })
   occurredAt!: Date;
   @ApiProperty({ type: String, format: "date-time", nullable: true })

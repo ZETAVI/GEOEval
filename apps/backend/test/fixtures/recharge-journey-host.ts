@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { createRechargeWorkerApp } from "../../src/recharge/recharge-worker.module.js";
 import { randomUUID } from "node:crypto";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { createApiApp } from "../../src/api-app.js";
@@ -18,7 +19,10 @@ const database = new URL(config.databaseUrl),
 if (
   database.hostname !== "127.0.0.1" ||
   database.port !== "55432" ||
-  database.pathname !== "/geoeval_issue77_customer_browser_n2" ||
+  ![
+    "/geoeval_issue77_customer_browser_n2",
+    "/geoeval_issue77_notifications_browser_n4",
+  ].includes(database.pathname) ||
   redis.hostname !== "127.0.0.1" ||
   redis.port !== "56577" ||
   redis.pathname !== "/2"
@@ -199,7 +203,28 @@ server.get(
     }),
 );
 await app.listen(33577, "127.0.0.1");
+const worker =
+  database.pathname === "/geoeval_issue77_notifications_browser_n4"
+    ? await createRechargeWorkerApp(
+        {
+          databaseUrl: config.databaseUrl,
+          runtimeEnvironment: "test",
+          controlled: true,
+          native: fixture.configuration,
+          notifications: { retryDelayMs: 500 },
+          scheduling: {
+            orderIntervalMs: 500,
+            settlementIntervalMs: 500,
+            notificationIntervalMs: 500,
+            failureIntervalMs: 1000,
+            drainWarningMs: 1000,
+          },
+        },
+        { handleSignals: false },
+      )
+    : null;
 const timer = setInterval(() => {
+  if (worker) return;
   if (pause) return;
   if (!orderWork) {
     orderWork = runtime
@@ -224,6 +249,7 @@ console.log(
 async function stop() {
   clearInterval(timer);
   await Promise.allSettled([orderWork, settlementWork]);
+  await worker?.close();
   await app.close();
   process.exit(0);
 }

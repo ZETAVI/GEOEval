@@ -35,6 +35,32 @@ export class NotificationEventHandler {
     private readonly repository: NotificationRepository,
   ) {}
 
+  async publishRecharge(input: {
+    orderId: string;
+    recipientAccountId: string;
+    points: number;
+    occurredAt: Date;
+  }): Promise<void> {
+    const value = z
+      .object({
+        orderId: z.string().uuid(),
+        recipientAccountId: z.string().uuid(),
+        points: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+        occurredAt: z.date(),
+      })
+      .strict()
+      .parse(input);
+    await this.repository.materialize({
+      recipientAccountId: value.recipientAccountId,
+      sourceEventId: value.orderId,
+      kind: "RECHARGE_SUCCESSFUL",
+      title: "充值积分已到账",
+      summary: `本次充值 ${value.points} 积分已到账，可查看充值订单。`,
+      target: { kind: "RECHARGE_ORDER", rechargeOrderId: value.orderId },
+      occurredAt: value.occurredAt,
+    });
+  }
+
   async handle(event: ProductOutboxWorkEvent): Promise<void> {
     if (event.eventType === "evaluation.report.accepted") {
       const payload = completedSchema.parse(event.payload);

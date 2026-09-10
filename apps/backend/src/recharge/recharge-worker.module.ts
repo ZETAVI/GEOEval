@@ -4,6 +4,9 @@ import {
   type INestApplicationContext,
 } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import { NotificationApplicationModule } from "../notification/notification-application.module.js";
+import { NotificationEventHandler } from "../notification/application/notification-event.handler.js";
+import { createRechargeNotificationRuntime } from "./recharge-notification.runtime.js";
 import { PersistenceModule } from "../infrastructure/persistence.module.js";
 import { PrismaService } from "../infrastructure/prisma.service.js";
 import { createNativeRecoveryRuntime } from "./native-recovery.runtime.js";
@@ -18,6 +21,7 @@ export type RechargeWorkerConfiguration = {
   controlled: boolean;
   native: Omit<Parameters<typeof createNativeRecoveryRuntime>[0], "prisma">;
   scheduling: RechargeWorkerPolicy;
+  notifications?: { retryDelayMs: number };
 };
 
 /** Explicit dedicated host: no customer controllers, Identity, AI, Redis or secret loader. */
@@ -34,18 +38,53 @@ export class RechargeWorkerModule {
       recovery: { ...input.native.recovery },
     };
     const scheduling = { ...input.scheduling };
+    const notificationRetryDelay = input.notifications?.retryDelayMs;
+    if (
+      (notificationRetryDelay !== undefined) !==
+      (scheduling.notificationIntervalMs !== undefined)
+    )
+      throw new Error("INCOMPLETE_NOTIFICATION_LANE");
     return {
       module: RechargeWorkerModule,
-      imports: [PersistenceModule.register(input.databaseUrl)],
+      imports: [
+        PersistenceModule.register(input.databaseUrl),
+        ...(input.notifications ? [NotificationApplicationModule] : []),
+      ],
       providers: [
         {
           provide: RechargeWorkerRuntime,
-          inject: [PrismaService],
-          useFactory: (prisma: PrismaService) =>
-            new RechargeWorkerRuntime(
-              createNativeRecoveryRuntime({ ...native, prisma }),
+          inject: [
+            PrismaService,
+            ...(input.notifications ? [NotificationEventHandler] : []),
+          ],
+          useFactory: (
+            prisma: PrismaService,
+            notifications?: NotificationEventHandler,
+          ) => {
+            const recovery = createNativeRecoveryRuntime({ ...native, prisma });
+            const delivery =
+              notifications && notificationRetryDelay !== undefined
+                ? createRechargeNotificationRuntime(
+                    prisma,
+                    notifications,
+                    notificationRetryDelay,
+                  )
+                : undefined;
+            return new RechargeWorkerRuntime(
+              {
+                runOrders: (limit, stop) => recovery.runOrders(limit, stop),
+                runSettlements: (limit, stop) =>
+                  recovery.runSettlements(limit, stop),
+                ...(delivery
+                  ? {
+                      runNotifications: (limit: number, stop?: AbortSignal) =>
+                        delivery.run(limit, stop),
+                    }
+                  : {}),
+              },
               scheduling,
-            ),
+            );
+          },
         },
       ],
       exports: [RechargeWorkerRuntime],

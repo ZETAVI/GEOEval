@@ -238,3 +238,51 @@ describe("Native stop signal fences only future work", () => {
     expect(settleQuery).not.toHaveBeenCalled();
   });
 });
+
+it("requires both sides of notification opt-in and drains its independent lane", async () => {
+  vi.useFakeTimers();
+  const base = {
+    runOrders: vi.fn(async () => ({ claimed: 0, failed: 0 })),
+    runSettlements: vi.fn(async () => ({ applied: 0, reviewed: 0, failed: 0 })),
+  };
+  expect(
+    () =>
+      new RechargeWorkerRuntime(base, {
+        ...policy,
+        notificationIntervalMs: 100,
+      }),
+  ).toThrow("INCOMPLETE_NOTIFICATION_LANE");
+  const inactive = new RechargeWorkerRuntime(base, policy, () => {});
+  workers.push(inactive);
+  expect(inactive.snapshot().notifications).toBeNull();
+  let release!: () => void;
+  const runNotifications = vi.fn(async () => {
+    await new Promise<void>((r) => {
+      release = r;
+    });
+    return { delivered: 1, reviewed: 0, failed: 0 };
+  });
+  expect(
+    () => new RechargeWorkerRuntime({ ...base, runNotifications }, policy),
+  ).toThrow("INCOMPLETE_NOTIFICATION_LANE");
+  const active = new RechargeWorkerRuntime(
+    { ...base, runNotifications },
+    { ...policy, notificationIntervalMs: 100 },
+    () => {},
+  );
+  workers.push(active);
+  active.onApplicationBootstrap();
+  await vi.advanceTimersByTimeAsync(500);
+  expect(runNotifications).toHaveBeenCalledTimes(1);
+  expect(base.runSettlements.mock.calls.length).toBeGreaterThan(3);
+  const stopping = active.stop();
+  expect(active.snapshot().phase).toBe("stopping");
+  release();
+  await stopping;
+  expect(active.snapshot().notifications?.result).toEqual({
+    delivered: 1,
+    reviewed: 0,
+    failed: 0,
+  });
+  expect(active.snapshot().phase).toBe("stopped");
+});

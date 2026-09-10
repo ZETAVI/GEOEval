@@ -15,8 +15,8 @@ drives that runtime independently of customer API, Identity, evaluation and Redi
 The ordinary API exposes authenticated history and recovery of committed creation
 requests, with new payment creation disabled. A configured test host can exercise
 the same customer API, signed notifications and durable recovery. This boundary
-does not activate a real merchant, production Worker, H5, invoices or customer
-success notifications.
+does not activate a real merchant, production Worker, H5 or invoices. Customer success notifications require a separately
+configured delivery lane.
 
 ## Requirements
 
@@ -110,7 +110,34 @@ success notifications.
   default host SHALL register no provider callback, gateway or payment timer.
   Explicit controlled configuration SHALL be labelled and rejected in production.
 - Operational merchant configuration, maintained amount policy/support, Worker
-  budgets, notifications and real-money acceptance remain separately gated.
+  budgets and real-money acceptance remain separately gated.
 - The history-index migration SHALL preserve existing money and order facts.
   Disabling new creation or reverting presentation SHALL not delete facts,
   reservations or the processing capability needed for existing obligations.
+
+
+### Requirement: Durable post-settlement customer notification
+
+- The first successful C1 credit SHALL insert one Recharge-owned notification
+  delivery row in the same transaction as the order, funded balance, reservation
+  consumption and unique RECHARGE ledger. Failure to insert rolls back that
+  uncommitted credit; existing trusted observations remain recoverable.
+- An already successful order SHALL not add another obligation. Forward migration
+  SHALL preserve old money/order/notification data and SHALL not backfill old
+  successful orders, including later payment-fact replay.
+- The private obligation SHALL reference immutable successful-order facts, keep
+  identity/occurrence immutable, and advance delivery monotonically. It SHALL NOT
+  duplicate payment proofs or use the order's financial review reason for notices.
+- A separately opt-in Worker lane SHALL ask Notification to materialize the notice
+  before marking delivery. This lane SHALL remain independent of slow Native I/O,
+  use bounded work and join shutdown drain. No configuration means no delivery;
+  all committed obligations remain available for later activation.
+- Notification/materialization failures SHALL never undo committed points. A
+  temporary error defers that row to permit later work; source-identity conflict
+  stops its automatic retries with a restricted classification. Conditional writes
+  SHALL prevent stale failures from reversing successful delivery or conflict hold.
+- A process killed after materialization but before the delivery marker SHALL
+  retry the same source and preserve the one notice and its read state. No new
+  claim lease or generic evaluation Outbox is required for this idempotent effect.
+- Disabling the notification lane is a compatible operational fallback; deleting
+  obligations, notifications or money facts is not its rollback mechanism.

@@ -17,6 +17,7 @@ if (
   database.port !== "55432" ||
   !(
     database.pathname === "/geoeval_issue77_worker_n3" ||
+    database.pathname === "/geoeval_issue77_notifications_n4" ||
     (process.env.CI === "true" && database.pathname === "/geoeval")
   ) ||
   basename(file) !== "provider.json" ||

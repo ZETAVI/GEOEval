@@ -123,6 +123,9 @@ describe("atomic recharge core with real protocol, Nest and PostgreSQL", () => {
     await control.query(
       "DROP TRIGGER IF EXISTS issue77_settlement_failure ON recharge_credit_reservations",
     );
+    await control.query(
+      "DROP TRIGGER IF EXISTS issue77_settlement_failure ON recharge_notification_deliveries",
+    );
     await control.query("DROP FUNCTION IF EXISTS issue77_settlement_failure()");
     await clearCustomerData(prisma);
   });
@@ -513,6 +516,7 @@ describe("atomic recharge core with real protocol, Nest and PostgreSQL", () => {
     });
   });
   it.each([
+    "recharge_notification_deliveries",
     "recharge_orders",
     "recharge_notification_receipts",
     "point_changes",
@@ -532,8 +536,14 @@ describe("atomic recharge core with real protocol, Nest and PostgreSQL", () => {
             ? "NEW.kind = 'RECHARGE'"
             : table === "recharge_credit_reservations"
               ? "NEW.state = 'CONSUMED'"
-              : "NEW.processed_at IS NOT NULL";
-      const event = table === "point_changes" ? "INSERT" : "UPDATE";
+              : table === "recharge_notification_deliveries"
+                ? "TRUE"
+                : "NEW.processed_at IS NOT NULL";
+      const event =
+        table === "point_changes" ||
+        table === "recharge_notification_deliveries"
+          ? "INSERT"
+          : "UPDATE";
       await control.query(
         `CREATE TRIGGER issue77_settlement_failure BEFORE ${event} ON ${table} FOR EACH ROW WHEN (${predicate}) EXECUTE FUNCTION issue77_settlement_failure()`,
       );
@@ -545,6 +555,7 @@ describe("atomic recharge core with real protocol, Nest and PostgreSQL", () => {
         reservedLedgerSlots: 1,
       });
       expect(await prisma.pointChange.count()).toBe(0);
+      expect(await prisma.rechargeNotificationDelivery.count()).toBe(0);
       expect(await core.findOwned(customerId, order.id)).toMatchObject({
         status: "PENDING_PAYMENT",
       });
@@ -556,6 +567,7 @@ describe("atomic recharge core with real protocol, Nest and PostgreSQL", () => {
         `DROP TRIGGER issue77_settlement_failure ON ${table}`,
       );
       expect((await core.applyNotification(identity)).kind).toBe("APPLIED");
+      expect(await prisma.rechargeNotificationDelivery.count()).toBe(1);
     },
   );
   it("recovers committed success after discarded response and host replacement", async () => {

@@ -318,6 +318,9 @@ export class PostgresRechargeRepository implements RechargeRepository {
             ledgerId: ledger.id,
           },
         });
+        await tx.rechargeNotificationDelivery.create({
+          data: { orderId: order.id },
+        });
         await markApplied(tx, receipt, order.id);
         return { kind: "APPLIED", order: orderView(settled) };
       }, txOptions);

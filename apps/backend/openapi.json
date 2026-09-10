@@ -2128,6 +2128,15 @@
         "operationId": "NotificationController_list",
         "parameters": [
           {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account, never selects recipient",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "cursor",
             "required": false,
             "in": "query",
@@ -2166,7 +2175,17 @@
     "/notifications/read-all": {
       "put": {
         "operationId": "NotificationController_markAllRead",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account, never selects recipient",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -2188,6 +2207,15 @@
       "put": {
         "operationId": "NotificationController_markRead",
         "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account, never selects recipient",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "notificationId",
             "required": true,
@@ -2217,7 +2245,25 @@
     "/notifications/events": {
       "get": {
         "operationId": "NotificationController_events",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account, never selects recipient",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expectedAccountId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -7497,6 +7543,25 @@
           "expectedRevision"
         ]
       },
+      "RechargeNotificationTargetResponse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "RECHARGE_ORDER"
+            ]
+          },
+          "rechargeOrderId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "kind",
+          "rechargeOrderId"
+        ]
+      },
       "EvaluationReportNotificationTargetResponse": {
         "type": "object",
         "properties": {
@@ -7555,7 +7620,8 @@
             "type": "string",
             "enum": [
               "EVALUATION_COMPLETED",
-              "EVALUATION_RETRY_REQUIRED"
+              "EVALUATION_RETRY_REQUIRED",
+              "RECHARGE_SUCCESSFUL"
             ]
           },
           "title": {
@@ -7566,6 +7632,9 @@
           },
           "target": {
             "oneOf": [
+              {
+                "$ref": "#/components/schemas/RechargeNotificationTargetResponse"
+              },
               {
                 "$ref": "#/components/schemas/EvaluationReportNotificationTargetResponse"
               },
