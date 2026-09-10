@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildM4ReportMessages,
   buildM4ReportSampleTask,
   inspectM4ReportSample,
   prepareM4ReportSamples,
@@ -9,6 +10,20 @@ import {
   inspectM4ReportComposition,
   composeM4ReportPipelinePreview,
 } from "../src/ai-execution/controlled-validation/m4-report-pipeline.js";
+
+it("requests a data instance and preserves the complete user context and schema", () => {
+  const input = buildM4ReportSampleTask({
+    focusBrand: "青禾",
+    question: "有哪些品牌？",
+    questionKind: "INDUSTRY_RECOMMENDATION",
+    originalAnswer: "**青禾**适合聚餐。\n山岚也可考虑。",
+  });
+  const messages = buildM4ReportMessages(input);
+  expect(messages[0].content).toContain("Schema 只说明字段和类型，不是要返回的答案");
+  expect(messages[0].content.endsWith(JSON.stringify(input.outputContract.jsonSchema))).toBe(true);
+  expect(JSON.parse(messages[1].content)).toEqual(input.userContext);
+  expect(messages[0].content).not.toContain("输出JSON结构：");
+});
 
 const focus = {
   displayName: "青禾",

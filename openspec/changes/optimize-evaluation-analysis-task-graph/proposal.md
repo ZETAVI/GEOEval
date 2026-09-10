@@ -44,6 +44,23 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
+The owner's latest review accepts approximate platform wording and reasonable
+rank-based comparisons as non-blocking observations, not a new semantic gate.
+The current bounded package clarifies data-instance output instructions and
+shortens report labels/perception with Prompt guidance rather than tighter
+rejection thresholds. It adds three-brand coverage: 头家顺/头家夜粥, 互动派,
+and owner-confirmed 广州公园前 gram 酸种披萨. The local report will foreground
+poor parsing examples and direct model comparisons, with raw JSON secondary.
+The eight-call old/new output-suffix comparison has run; it does not demonstrate
+a reliable repair. Nine-query coverage uses five retained real answers and four
+new acquisitions, then six profiles (54 parses and up to 36 matched second-layer
+calls). General output errors do not stop other planned cells. Existing samples
+and program contracts are not rewritten to manufacture successful results.
+All 102 calls, including the diagnostic, have now executed. The
+[three-brand checkpoint](research/chain-quality-experiment.md#three-brand-refinement-and-problem-first-review--2026-09-10)
+owns measured results, recoverable-container versus content distinctions,
+remaining grouping differences, soft length misses and telemetry gaps.
+
 The owner approves the report-oriented pipeline documented in
 [the active design](design.md#approved-report-oriented-experiment):
 open/direct single-call content parsing with sample cards and polarity points,

@@ -52,6 +52,21 @@ const kinds = z.enum([
   "CHARACTERISTIC_TWO",
 ]);
 
+// Experiment-only message assembly. Keep the schema instruction next to its
+// executable owner rather than duplicating it in each private replay runner.
+export function buildM4ReportMessages(input: StructuredOutputAttemptInput) {
+  return [
+    {
+      role: "system" as const,
+      content:
+        input.systemInstruction +
+        "\n\n请根据输入完成任务，输出一个符合以下 JSON Schema 的数据对象。Schema 只说明字段和类型，不是要返回的答案；请填写实际解析结果，不要复述 Schema。仅输出 JSON 对象本身，不加代码围栏或解释。\n" +
+        JSON.stringify(input.outputContract.jsonSchema),
+    },
+    { role: "user" as const, content: JSON.stringify(input.userContext) },
+  ];
+}
+
 function task(
   part: "open" | "direct" | "resolution" | "composition",
   userContext: Record<string, unknown>,

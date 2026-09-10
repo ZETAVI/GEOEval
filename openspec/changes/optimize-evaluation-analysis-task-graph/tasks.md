@@ -2,6 +2,18 @@
 
 ## Current checkpoint
 
+### Three-brand Prompt refinement and problem-first report
+
+- [x] Treat minor narrative/rank interpretation differences as observations,
+      not blocking requirements; retain existing statistical calculations.
+- [x] Clarify Schema versus data-instance output in experiment-owned messages;
+      add soft length guidance, not new length rejection rules.
+- [x] Run eight fixed-input old/new suffix calls. No reliable repair established.
+- [x] Complete nine-query three-brand source set, six-profile parsing and matched
+      second-layer testing without shape-error early stopping.
+- [x] Review poor parsing against actual source content; rebuild local HTML
+      around failed examples, model differences and readable output excerpts.
+
 ### Approved report-oriented matrix
 
 - [x] Align report outputs and sequential resolution/statistics/composition.

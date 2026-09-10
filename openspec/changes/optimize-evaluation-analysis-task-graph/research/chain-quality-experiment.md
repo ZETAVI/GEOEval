@@ -1,5 +1,101 @@
 # M4 Chain Quality Experiment
 
+## Three-brand refinement and problem-first review — 2026-09-10
+
+Owner adjustments: minor platform wording and reasonable rank-based conclusions
+are observations, not new rejection gates. Prompt 1.1 adds a clearer
+data-instance instruction through `buildM4ReportMessages`, an explicit
+same-paragraph/distinct-brand distinction, and soft length targets for sample
+cards, theme labels and brand perception. Schemas and program statistics retain
+their existing acceptance boundaries. No runtime activation or additional Agent.
+
+### Output-suffix diagnostic
+
+Four historical failure inputs were each called once with the old suffix and
+once with the instance-explicit suffix, preserving task instructions, input,
+Schema and provider settings. DS-low's two first-layer inputs pass in both
+arms. Hy3-off composition passes with the old suffix and fails with the new;
+Hy3-low composition fails in both. Old/new acceptance is 3/4 versus 2/4.
+This does **not** demonstrate a reliable repair or isolate the root cause.
+Returned raw text establishes that Schema echoes and escaped giant keys occur
+before local domain parsing. No response repair or retry was applied.
+
+### Three-brand results
+
+Nine queries cover 头家顺/头家夜粥, 互动派 and the owner-confirmed 广州公园前 gram
+酸种披萨, with one direct, one open recommendation and one needs-based query each.
+Five original answers are retained real samples; four new Qwen3.7/Doubao calls
+complete the source set. Head focus remains the original `头家顺`; the owner-known
+alias is not secretly inserted into input. Source review was saved before parsing.
+All six profiles process all nine sources once. DS-off has a complete valid
+three-source handoff for each brand, so no fallback/omission is used. Second-layer
+comparisons share those parsed sources and DS-off resolution, including its
+unrepaired brand-grouping differences.
+
+| Profile | First layer / 9; mean seconds | Resolution / 3; mean seconds | Composition / 3; mean seconds |
+| --- | --- | --- | --- |
+| Qwen off | 8; 9.2 | 3; 2.0 | 3; 17.0 |
+| Qwen low | 9; 19.7 | 3; 8.7 | 3; 33.5 |
+| DeepSeek off | 9; 6.4 | 3; 1.9 | 3; 9.8 |
+| DeepSeek low | 9; 9.7 | 3; 7.8 | 3; 23.7 |
+| Hy3 off | 9; 5.0 | 3; 1.8 | 0; 27.2 |
+| Hy3 low | 5; 31.9 | 3; 14.7 | 0; 52.4 |
+
+These are original structural acceptance counts, not semantic pass rates. All
+54 parses and 36 matched second-layer calls were executed, despite individual
+output failures. Together with four acquisitions and eight diagnostic calls,
+actual total is **102 calls / 334,839 provider-reported tokens**. Batch wall times:
+105.235 seconds acquisition, 262.106 parsing, 43.819 resolution and 181.623
+composition. This remains a comparison matrix, not a formal report SLA test.
+
+Decision-relevant examples:
+
+- On the agency table row `厚拓科技 / 凡象品牌`, Qwen off and both DS profiles
+  split subjects; Qwen low and Hy3 off merge them. A clearer instruction does not
+  eliminate contextual grouping differences across configurations.
+- Hy3 off generates `猎德社区小潮汕菜馆` from a generic unnamed passage. Other
+  accepted versions retain only the two named restaurants in that answer.
+- All accepted head-open outputs detect 头家夜粥, but only DS-off marks it as
+  focus. Brand extraction and focus-identity matching are different observations;
+  do not grade unavailable alias knowledge as an unexplained omission.
+- Agency resolution differs on 广东声势传媒/广州声势传媒. Qwen and low profiles
+  group the brand; DS-off/Hy3-off preserve regional forms separately. Under the
+  consumer-brand unit, grouping is the preferred interpretation, not a verified
+  corporate-identity claim. The matched composition baseline remains unchanged.
+- Qwen off's rejected agency-scene output is a valid singleton JSON array around
+  the expected object. An offline unwrap passes `inspectM4ReportSample` without
+  changing any field. Original acceptance remains 8/9; this is recoverable
+  container variation, not missing content or proof of a deployed recovery path.
+- All six pizza profiles preserve named subjects/order and actual focus absence
+  in the two open answers. New compositions show labels of 4–9 characters, but
+  perception still ranges 152–242 characters against a 100–160 soft target.
+  Concision is improved as an instruction, not fully achieved in every result.
+- Hy3 still has six unusable composition outputs. The low setting is not a
+  universal quality improvement; DS-low has useful grouping/concision examples
+  this time, so the previous batch alone must not eliminate it as a candidate.
+
+### Evidence and limits
+
+Ignored evidence: `m4-output-diagnostic-Ft2ruP` and `m4-three-brand-0qeZ51`.
+Both store frozen plans, actual requests/results, settings and usage. Local HTML
+`m4-problems.html` replaces the overview-first presentation with selected poor
+examples, source excerpts and six-profile cards; full input/JSON stays available
+inside disclosure sections. The old report and raw results are preserved.
+
+Private Langfuse readback matches all 18 resolution and all 18 composition
+generations. First-layer readback has 51 observations against expected 55: four
+generations are absent and one existing generation differs from the local
+comparison. Diagnostic/acquisition readback requests fail to fetch. No remote
+repair, duplicate insertion or trace deletion was attempted. Local evidence is
+complete, but remote telemetry reconciliation is not claimed complete.
+
+Verification: nine focused pipeline tests, backend typecheck/build, framework
+and local links pass. The HTML's embedded data and selection logic are tested
+locally; loopback preview returns 200. Browser visual QA not run. GitHub live
+reads encountered TLS timeouts, so remote planning/body synchronization remains
+pending rather than being reported as current. Keep this as an experimental
+Partial under #42; do not merge or enable the runtime from these results alone.
+
 ## Report-oriented six-profile matrix — completed 2026-09-10
 
 The owner-approved report-oriented experiment supersedes the unexecuted
