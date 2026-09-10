@@ -1,5 +1,102 @@
 # M4 Chain Quality Experiment
 
+## Report-oriented six-profile matrix — completed 2026-09-10
+
+The owner-approved report-oriented experiment supersedes the unexecuted
+44-call retained-source plan below. Current task responsibilities remain in
+[the active design](../design.md#approved-report-oriented-experiment), with
+experimental prompts and schemas owned by the executable assets, not this log.
+
+### Actual execution and comparisons
+
+Twelve fresh answers cover 陶陶居 and 飞书, each with a direct, open recommendation
+and needs-based query, sampled once on Qwen3.7 and Doubao. All six analysis
+profiles use identical source text, frozen prompts, JSON Object with Schema in
+the system message, temperature 0.6 and no search. DeepSeek uses the approved
+0731 snapshot. Raw answers remain separate from derived Markdown reading text.
+
+The initial matrix executed 12 acquisitions, 61 parses and 12 sequential
+second-layer calls. After the owner requested complete model coverage instead
+of profile-level stopping on malformed output, a separately frozen continuation
+completed all 11 never-attempted Hy3 parser cells and 20 matched component calls.
+Four exact DS-off component controls were reused, not recalled. Total: **116
+actual calls, 477,628 provider-reported tokens**, no automatic retries.
+
+| Profile | First layer accepted / 12; mean seconds | Matched resolution / 2; mean seconds | Matched composition / 2; mean seconds |
+| --- | --- | --- | --- |
+| Qwen off | 12; 13.3 | 2; 4.4 | 2; 28.8 |
+| Qwen low | 12; 23.4 | 2; 32.9 | 2; 54.1 |
+| DeepSeek off | 12; 8.9 | 2; 3.0 | 2; 20.2 |
+| DeepSeek low | 8; 13.1 | 2; 6.7 | 2; 32.7 |
+| Hy3 off | 10; 12.5 | 2; 3.3 | 0; 14.0 |
+| Hy3 low | 6; 43.6 | 1; 20.6 | 0; 68.0 |
+
+Acceptance means structural/program validation, not semantic success. Means
+include rejected calls. Each profile/source was attempted once: this is not a
+repeated stability estimate. Matched resolution uses the same DS-off first-layer
+records, and matched composition uses the same DS-off resolved handoff. Neither
+is evidence that a failed profile can complete its own end-to-end chain.
+The baseline's content flaws are retained, not silently repaired.
+
+Six sequential previews separately consume their own valid Qwen off/low or
+DS-off parser outputs. Their resolution-plus-composition times are 21.1–91.3
+seconds. Acquisition batch wall time is 387.111 seconds at concurrency two;
+initial parse 672.521 seconds, sequential components 159.241 seconds and
+continuation 531.664 seconds at concurrency three. These mixed-profile batches
+do not establish the formal four-question/five-platform 3–5 minute budget.
+Cache/usage differences and unverified billing prevent a paid-cost ranking.
+
+### Decision-relevant findings
+
+- Qwen off/low and DS-off are usable structural candidates for further bounded
+  work. Software parsing still combines Notion/Wolai as one brand in Qwen
+  outputs; DS-off omits 我来 in that same answer. Do not treat schema validity
+  as proof that every brand was retained.
+- DS-low returns the JSON Schema instead of a data instance in four first-layer
+  calls. Hy3 failures include escaped giant keys and malformed/truncated output;
+  all four matched compositions fail. The system suffix “输出JSON结构” may be
+  ambiguous, but its causal role is unproven. Inspect this interface before
+  blaming model capability or extending business exception lists.
+- Program-owned counts are correct for the inspected baseline: 陶陶居 appears
+  in two of four open samples at positions 2 and 1; 飞书 appears in all four at
+  positions 1, 1, 2 and 1. Direct samples are excluded. Qwen-low's own dining
+  preview nevertheless describes 稻香 as multi-platform when both occurrences
+  are on Doubao. Valid references do not prevent narrative extrapolation.
+- Software answers disagree about external-user registration and free-tier
+  limits. Some summaries assert the favorable side while also listing the
+  contrary limitation. Preserve this difference naturally, without online
+  adjudication. Article directions can be shorter and should remain directions,
+  not operational redesign or unsupported comparative superiority.
+- Point references support deterministic distinct-sample theme counts. Their
+  presence is not a guarantee of semantic alignment between every theme and
+  every point; no exhaustive semantic pass-rate is claimed.
+
+### Evidence, observability and delivery state
+
+Private local evidence directories: `m4-report-matrix-4TjGX6` and
+`m4-report-completion-mfGtco` under the ignored backend `.provider-evidence`.
+Frozen runner hashes are
+`8076c9f9c82dc143d17a4c771759fb8e3e119dada48184c4c6a10024537b0c86`
+and `1eb6f783bd3490dc2875d2899504b533a37609fd06bd8783d2931f039333449f`.
+The local standalone webpage shows all 72 first-layer results, 24 matched
+component results and six separate previews, including actual messages and
+failures. It is not published or committed with private raw content.
+
+Langfuse is **partially reconciled**: acquisition and initial composition
+readbacks match. Two original failed parser outputs were logged as null; an
+attempted generation-update created two additional rows instead of completing
+the original rows. No trace was deleted. Continuation readback finds 31 of the
+expected 32 observations, missing one generation; other found records match
+actual input/output/settings/usage and the trace is private. All actual calls
+remain locally recoverable. Independent semantic review stays local.
+
+Verification: 41 focused tests, backend typecheck/build and framework/local-link
+checks passed. Report data assertions and script-level selection tests cover
+72 parser, 24 matched and six sequential views; loopback HTTP returns 200.
+Browser visual QA was not run. No Worker/public report/DB/frontend activation,
+PR merge or production delivery is claimed. Next: bounded output-contract
+diagnosis, concise synthesis fidelity, then formal-scale timing after selection.
+
 ## Mention-array synthesis preparation and approved Alibaba snapshot
 
 The owner approves subsequent Alibaba DeepSeek calls using

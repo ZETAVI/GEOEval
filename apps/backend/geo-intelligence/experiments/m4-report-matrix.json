@@ -1,0 +1,61 @@
+{
+  "version": "m4-report-matrix@1",
+  "queries": [
+    {
+      "key": "dining-direct",
+      "brandKey": "dining",
+      "focusBrand": "陶陶居",
+      "kind": "BRAND_DIRECTED",
+      "query": "陶陶居是一家怎样的粤菜餐饮品牌？它的主要菜品、用餐体验、适合人群和常见不足有哪些？"
+    },
+    {
+      "key": "dining-open",
+      "brandKey": "dining",
+      "focusBrand": "陶陶居",
+      "kind": "INDUSTRY_RECOMMENDATION",
+      "query": "广州天河区有哪些适合家庭正餐的粤菜餐厅值得比较？希望了解各家的特点和大致价位。"
+    },
+    {
+      "key": "dining-scene",
+      "brandKey": "dining",
+      "focusBrand": "陶陶居",
+      "kind": "CHARACTERISTIC_ONE",
+      "query": "广州天河周末带父母吃饭，四个人，人均150元左右，想吃口味清淡些的粤菜、环境方便聊天，有哪些餐厅可以考虑？"
+    },
+    {
+      "key": "software-direct",
+      "brandKey": "software",
+      "focusBrand": "飞书",
+      "kind": "BRAND_DIRECTED",
+      "query": "飞书主要适合什么类型的团队？在文档协作、任务安排和在线会议方面有哪些特点、优势和使用局限？"
+    },
+    {
+      "key": "software-open",
+      "brandKey": "software",
+      "focusBrand": "飞书",
+      "kind": "INDUSTRY_RECOMMENDATION",
+      "query": "20人的小型内容团队想统一文档协作、任务安排和在线会议，有哪些协作工具品牌值得比较，各有什么特点？"
+    },
+    {
+      "key": "software-scene",
+      "brandKey": "software",
+      "focusBrand": "飞书",
+      "kind": "CHARACTERISTIC_ONE",
+      "query": "一个20人的内容团队经常与外部客户协作，希望文档共同编辑、任务跟踪方便，又不想培训和费用太高，有哪些办公协作工具可以考虑？"
+    }
+  ],
+  "samplers": [
+    "qwen",
+    "doubao"
+  ],
+  "limits": {
+    "acquisition": 12,
+    "parse": 72,
+    "secondLayer": 24,
+    "acquisitionConcurrency": 2,
+    "analysisConcurrency": 3,
+    "timeoutMs": 180000,
+    "maxTokens": 8192
+  },
+  "repeats": 1
+}

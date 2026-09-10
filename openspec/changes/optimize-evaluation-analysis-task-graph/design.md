@@ -1,6 +1,71 @@
 # Design: Evidence-led Evaluation Analysis
 
-## Decision state and owners
+## Approved report-oriented experiment
+
+The owner approves two single-call first-layer configurations (open/direct),
+then brand resolution/filtering, program statistics, and report composition.
+All are experiment-only under #42; #41 retains formal synthesis ownership.
+This supersedes current-package assumptions below, which are historical.
+The old 44-call retained-source plan is retired without execution, not resumed.
+
+Latest owner correction: complete every bounded model cell; an invalid generation
+is an observed outcome, not grounds to skip all later samples on that profile.
+The initial matrix performed 12 acquisitions, 61 parses and 12 second-layer calls.
+Its automatic protocol stops skipped eleven Hy3 parses. A separately frozen
+continuation fills exactly those eleven never-attempted cells and adds twenty
+matched second-layer calls, reusing four exact DS-off calls. Total ceiling is
+116 actual model requests, not unlimited retries. Security/permission/funds
+boundaries remain. Original failures and stopped manifest remain immutable.
+
+Matched resolution and composition tests independently use the same DS-off
+first-layer input and the same DS-off resolved statistics; failed resolution
+does not hide another model's composition measurement. These are component
+controls, not that model's complete end-to-end report. Existing six end-to-end
+previews remain a separate evidence set. Known baseline omissions are not fixed.
+
+### Architecture readiness
+
+Ready for bounded implementation/validation, not runtime activation.
+`m4-report-pipeline.ts` owns the coherent card/point/report contract. Older
+chain-synthesis and brand-row formats remain replay-only; do not convert new
+outputs into old shapes or revise historical evidence. Reuse Markdown cleaning,
+provider execution and telemetry. No datastore, queue, agent loop, new package,
+public schema, formal score or production activation changes.
+
+- Open/direct share text/polarity content points and one target card summary.
+  Direct answers do not contribute open rankings or competitor occurrences.
+- Points have no arbitrary item-count cap; program assigns reference IDs.
+- Resolution receives record IDs, names and content only. Null filters non-brand
+  outliers; a missing slot is an error, never implicit filtering.
+- Preserve source positions before filtering. Deduplicate occurrences by sample,
+  exclude negative competitors and focus rows; no alias repair or hidden reranking.
+- Composition waits for resolution and receives target points, questions,
+  platform facts and compact occurrence/position statistics. It does not receive
+  raw answers, full competitor descriptions or duplicate card summaries.
+- Output separates performance, brand perception, positive/negative themes and
+  one/two media directions. Program validates references and counts theme support
+  by distinct sample, not number of points or repeated mentions.
+- Failed upstream arms never become absence or complete previews. No automatic
+  retries in the diagnostic batch; exact upstream hashes identify dependencies.
+  Recovery reuses retained outputs. Production 17/20 acceptance is unchanged.
+
+### Verification route
+
+Local tests cover input shapes, content preservation, null filtering, positions,
+reference integrity, theme counts and sequential composition prerequisites.
+Then freeze six natural queries for 陶陶居 and 飞书: direct, open recommendation,
+and needs-based open query each. Qwen3.7 and Doubao each answer every query once.
+Twelve independent answers feed six profiles: Qwen3.8 Flash, DeepSeek V4 Flash
+0731 and Hy3, each off/low. Each profile resolves/composes its own two brand
+handoffs: 12 acquisition + 72 parse + 24 second-layer calls, 108 max.
+Concurrency 2 acquisition / 3 analysis, no automatic expansion or retries.
+All analysis profiles use JSON Object with explicit Schema and temperature 0.6:
+Qwen3.8 thinking clamps lower values to 0.6. This is not a model-only comparison
+against earlier tests. Prompts freeze before sampling; source review before parse.
+Only actual IO/settings/usage go to private Langfuse; independent review is local.
+The old payload safety rejection is not bypassed; resolve any new exact-batch gate.
+
+## Historical decision state and owners
 
 Status: Parser 5.0 frozen; practical guidance aligned, narrative 1.3.1 prepared;
 experimental customer-summary baseline remains 1.4.0. Narrative 1.2.0 and fixed-slot

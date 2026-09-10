@@ -1,6 +1,13 @@
 {
-  "version": "m4-model-comparison@1",
+  "version": "m4-model-comparison@2",
   "models": [
+    {
+      "key": "qwen",
+      "providerKey": "alibaba-model-studio",
+      "model": "qwen3.8-flash",
+      "endpoint": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "secretKey": "QWEN_API_KEY"
+    },
     {
       "key": "deepseek",
       "providerKey": "alibaba-model-studio",
@@ -16,7 +23,7 @@
       "secretKey": "YUANBAO_API_KEY"
     }
   ],
-  "temperature": 0.4,
+  "temperature": 0.6,
   "thinkingProfiles": ["off", "low"],
   "responseFormat": "json_object"
 }

@@ -70,13 +70,10 @@ describe("M4 real-chain synthesis preview", () => {
       ),
     ).routes;
     expect(
-      config.models.find(
-        (m: { providerKey: string }) =>
-          m.providerKey === "alibaba-model-studio",
-      ).model,
+      config.models.find((m: { key: string }) => m.key === "deepseek").model,
     ).toBe("deepseek-v4-flash-0731");
     expect(config.thinkingProfiles).toEqual(["off", "low"]);
-    expect(config.temperature).toBe(0.4);
+    expect(config.temperature).toBe(0.6);
     expect(
       routes.find(
         (r: { routePolicyId: string }) =>

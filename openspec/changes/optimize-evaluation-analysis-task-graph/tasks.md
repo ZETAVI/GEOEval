@@ -2,6 +2,23 @@
 
 ## Current checkpoint
 
+### Approved report-oriented matrix
+
+- [x] Align report outputs and sequential resolution/statistics/composition.
+- [x] Implement open/direct card and polarity-point contract; keep old replay formats.
+- [x] Implement explicit null filtering and compact program-owned performance input.
+- [x] Implement distinct performance/perception and reference-backed theme assembly.
+- [x] Verify focused contracts and freeze six queries/twelve fresh sources/six profiles.
+- [x] Execute bounded acquisition, review sources, then parse and compose;
+      complete all six profiles after the owner removed shape-error early stops.
+- [x] Review exact IO, content quality, theme support, elapsed time and telemetry;
+      publish a local input/output report and disclose telemetry gaps.
+- [ ] Reconcile two original failed-output Langfuse records and one missing
+      completion generation; local evidence is complete, remote logging is not.
+- [ ] Reconcile Issue/PR with measured results or exact blockers; do not activate runtime.
+
+Older unchecked probe tasks below are historical, not authorization to run them.
+
 Historical probes are evidence, not a remaining backlog:
 [experiment record](research/chain-quality-experiment.md).
 The current role and decisions live in [the proposal](proposal.md).

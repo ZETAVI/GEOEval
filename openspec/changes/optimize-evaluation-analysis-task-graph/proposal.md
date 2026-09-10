@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Mention-array handoff prepared; Alibaba snapshot approved; exact-payload external-call gate remains
+- Status: Report-oriented six-profile evidence under review; output-contract and synthesis-quality follow-up remains
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -44,37 +44,59 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
-The owner approves `deepseek-v4-flash-0731` for subsequent Alibaba DeepSeek
-access, including native low reasoning. The current experiment's model settings
-live in `apps/backend/geo-intelligence/experiments/m4-model-comparison.json`.
-Tencent DeepSeek acquisition is a different provider route and remains unchanged.
-Historical request/model identities and archived decisions are not rewritten.
-There is no active Alibaba DeepSeek production route to switch in this checkout.
+The owner approves the report-oriented pipeline documented in
+[the active design](design.md#approved-report-oriented-experiment):
+open/direct single-call content parsing with sample cards and polarity points,
+brand resolution with explicit null filtering, program statistics, then full
+report composition. Performance assessment and brand perception are separate;
+themes retain point references and are counted by distinct sample. No raw
+acquisition text, redundant card summaries or full competitor descriptions enter
+composition. This is a new experiment contract, not a runtime activation.
 
-The owner removes the arbitrary eight-item excerpt cap. The new mention contract
-is `mentions-contract@2`; Prompt 6.3 text and historical validators remain.
-Offline revalidation accepts 68/72 retained matrix outputs (previously 58/72);
-the ten restored results lose no content. Four Hy3-on wrong-shape outputs remain
-rejected. This is contract reconciliation, not a higher semantic-quality rate.
+The current experiment assets are
+[task prompts](../../../apps/backend/geo-intelligence/experiments/m4-report-pipeline.json),
+[model settings](../../../apps/backend/geo-intelligence/experiments/m4-model-comparison.json)
+and [query matrix](../../../apps/backend/geo-intelligence/experiments/m4-report-matrix.json).
+Existing brand-row and chain-synthesis assets remain historical replay paths;
+the previously unexecuted 44-call plan is superseded, not resumed.
 
-The experimental synthesis seam now accepts `BRAND_MENTIONS` directly, keeping
-ordered excerpt arrays, overall attitude and program-derived positions. Focus
-records are excluded from competitor inputs. No legacy summary/points or exact
-evidence is manufactured; no raw acquisition content is sent downstream.
-Narrative 1.4.0 adapts its input explanation, preserving existing GEO direction
-scope. Existing fixed-slot assignment and program counting remain unchanged.
+The bounded matrix includes 陶陶居 and 飞书, each with direct, open recommendation
+and needs-based questions. Qwen3.7 and Doubao each sample all six queries once.
+Six profiles (Qwen3.8 Flash, DeepSeek 0731 and Hy3, each off/low) parse identical
+sources. The original plan allowed up to 108 calls, with valid own-profile
+handoffs carried through resolution and composition; the owner-approved
+completion below supersedes its early-stop policy and call ceiling.
+Analysis uses JSON Object with explicit Schema and temperature 0.6 in all arms;
+Qwen3.8 thinking has a documented 0.6 floor. Prompts freeze before sampling and
+source review before parsing. No business data or old rejected payloads are used.
+Actual IO/settings/usage go to private Langfuse; independent review stays local.
 
-The next bounded batch uses six distinct retained answers (three each for
-头家顺 and 互动派): 12 first-layer off calls, then up to 32 assignment/narrative
-calls across DeepSeek 0731 and Hy3 off/low. All use temperature 0.4, JSON Object
-with the actual Schema included in the system message, concurrency two and no
-resampling, search, retry or repair. Parser repeats are not independent samples.
-This tests retained-answer-to-preview composition, not production 4×5 latency.
+Forty-one focused tests, backend typecheck and build pass. The initial batch
+completed 12 acquisitions, 61 parses and 12 second-layer calls. The owner then
+explicitly corrected the stopping policy: finish all bounded model cells and
+retain invalid outputs as results. A new frozen continuation completed eleven
+never-attempted Hy3 parses and twenty matched second-layer calls; four exact
+DS-off controls were reused. Cumulative actual calls are 116, without rerunning earlier
+requests. Matched components use one fixed DS-off handoff, independently of the
+tested profile's first-layer failures; do not claim they are full end-to-end
+successes. Failed upstream results never become absence or repaired valid data.
+Alibaba DeepSeek is pinned to `deepseek-v4-flash-0731`; Tencent acquisition,
+official report eligibility, metric rules and immutable history remain unchanged.
 
-No new provider request has executed: automatic safety review rejected launch
-pending explicit authorization for these six payloads to Alibaba, Tencent and
-private Langfuse. Local implementation and verification may continue. Do not
-retry through another channel or report this batch as measured.
+All six profiles now have twelve first-layer attempts and two matched attempts
+per second-layer component. First-layer structural acceptance is 12/12 for both
+Qwen profiles and DS-off, 8/12 DS-low, 10/12 Hy3-off and 6/12 Hy3-low. Matched
+composition accepts both brands for Qwen/DS off/low and neither for Hy3 off/low.
+These are not semantic-quality rates or repeatability evidence. Six own-profile
+sequential previews are retained separately. The next bounded uncertainty is
+Schema-versus-data output instruction and synthesis fidelity, not another broad
+matrix or runtime activation. See the [measured checkpoint](research/chain-quality-experiment.md#report-oriented-six-profile-matrix--completed-2026-09-10)
+for detailed scope, limitations and incomplete Langfuse reconciliation.
+
+Previous capacity reconciliation remains valid: removing the current-format
+eight-point cap accepted 68/72 retained raw outputs offline, restoring ten
+count-only rejections without truncation; four Hy3-on shape failures remained.
+This was contract reconciliation, not a semantic-quality improvement.
 
 ### Previous fresh six-query matrix
 
