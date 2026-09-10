@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 6.0 real evidence reviewed; excerpt format usable, brand identity/order unresolved
+- Status: 6.1 Prompt refinement prepared; latest measured evidence remains 6.0
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,24 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner narrows this iteration to Prompt refinement: no Markdown input
+normalization experiment or s-specific filter. Candidate 6.1 keeps the same
+Schema, input constructor, AST cleanup, model, focus/attitude instructions and
+the two worked examples. Refine only subject/context-role distinction,
+first-appearance order that stays fixed while gathering later excerpts, and
+plain excerpt strings without layout prefixes. Add a short real Aoi/location
+contrast after the examples; food-specific category illustrations stay there,
+not in the industry-neutral main rule. No new provider calls in this turn.
+
+Owner-calibrated priority: category/location miscounts and reordered included
+brands are the focus. Supplemental brand omissions and the discussed neutral
+attitude variation remain observations, not independent blocking thresholds.
+Do not turn this tolerance into an instruction to omit all supplemental brands
+or change the existing competitor inclusion calculation. Thirteen focused tests
+pass; 6.1 behavior still needs live evidence before an acceptance claim.
+
+### Latest measured candidate
 
 The [6.0 real replay](research/chain-quality-experiment.md#60-unified-source-excerpts-real-replay)
 completes all eight calls in 127.328 seconds, 36,560 reported tokens. All eight

@@ -3588,6 +3588,37 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 6.1 subject scope, stable order and clean excerpts: prepared
+
+At the owner's request, show the unchanged 6.0 baseline before editing, then
+refine its Prompt rather than add a Markdown A/B experiment. Main subject rules
+stay industry-neutral: distinguish the actual commercial subject from product,
+service/category descriptions and location/background names. Food-category
+examples belong in a short illustrative tail, not a restaurant-only rule.
+Order is established on first appearance; later mentions add content without
+moving a row. Array items contain substantive excerpt text, not layout bullets,
+numbering or stray prefixes; meaningful original numbers remain intact.
+
+The two complete 6.0 worked examples remain byte-identical. Add only a short
+local contrast from `m4-frozen-transfer-IoUNOG/acquire-hotpot-q1-result.json`:
+the original section-3 heading and its Aoi/Kerry Centre recommendation line,
+verified verbatim. This demonstrates a named merchant versus category and
+location, not a complete answer's brand order or a permanent shopping-centre
+exclusion. Do not provide a fabricated wrong JSON result as an example.
+
+The owner treats supplemental omissions and the discussed neutral-attitude
+variation as observations rather than hard gates for this iteration. Clear
+category/location miscounts and incorrect order of included brands remain the
+priority. This does not direct the model to drop all supplements or change
+programmatic competitor eligibility.
+
+Changes are limited to Prompt/version, corresponding version assertion and
+the existing research/proposal. Schema, input, reading algorithm, new-format
+inspector, old/new handoff rejection and shared runtime surfaces are unchanged.
+Thirteen focused tests pass; no new provider call, Langfuse write, normalization
+test, character filter or second-layer activation. Do not attribute 6.0 results
+to the unmeasured 6.1 wording or claim the Markdown-to-s hypothesis is proven.
+
 ## 6.0 unified source excerpts: real replay
 
 The owner confirms focusBrand input, no brandContext, uniform mentionContext
