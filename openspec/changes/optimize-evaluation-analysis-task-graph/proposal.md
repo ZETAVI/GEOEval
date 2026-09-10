@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 6.2 regression reviewed; example aligned, category and empty-content failures remain
+- Status: 6.3 real replay exposes unstable identity and source-content fidelity
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,42 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner requests a small Prompt clarification: brands usually have related
+description/evaluation; search their surrounding and later context. focusBrand
+controls detail, not whether a brand receives excerpts. Do not turn that normal
+expectation into invented content. 6.3 modifies only this task explanation and
+removes the focus paragraph's emphasis on empty arrays; Schema still permits
+genuine name-only cases. No field/model/guard/retry change or LOCATE-specific rule.
+
+Stop using the ambiguous coffee/LOCATE and child-hotpot cases in this round.
+Freeze six calls: two repeats of the original local-q2 punctuation-only failure,
+plus retained q3-doubao restaurant content and s2 marketing-company content.
+The latter two are not in current Prompt examples. These are retained real
+answers, not fresh sampling or a blind benchmark. Existing Qwen Flash low,
+concurrency two, actual IO to private Langfuse; no retries/repair/seventh call.
+Judge substantive excerpts, source fidelity, focus identity, included-brand
+order and obvious category/location miscounts separately.
+
+The six-call batch is now measured: 81.473 seconds and 26,863 reported tokens.
+All six wire/basic-schema checks pass, five existing acceptance checks pass,
+but this is not semantic acceptance. Both restaurant repeats preserve two named
+subjects and substantive content. The original local-q2 second repeat invents
+focus rows and duplicates records (rejected by the existing multiple-focus
+guard); the company second repeat expands three firms to eleven subjects,
+including background places/platforms, and inserts a non-source image URL and
+invented descriptions. Both failures are present in raw provider JSON, not
+introduced by cleanup/projection. No colon-only excerpt recurs; that does not
+establish a net quality improvement. No paired baseline ran, so the Prompt
+change is not a proven cause of either improvement or failure.
+
+All seven private Langfuse observations match actual IO/settings/usage. Local
+review and exact inputs/outputs are retained in
+`m4-brand-unit-replay-4opqh6/input-output-review.md`. Hold formal adoption and
+second-layer handoff; no further calls, repair, lexical guard or model change
+in this batch. See the [6.3 evidence](research/chain-quality-experiment.md#63-every-brand-receives-source-content-real-replay).
+
+### Previous measured candidate
 
 The [6.2 eight-call regression](research/chain-quality-experiment.md#62-complete-section-worked-example-real-replay)
 runs in 154.589 seconds with 43,475 reported tokens. Both group-hotpot outputs

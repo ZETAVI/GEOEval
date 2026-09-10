@@ -3588,6 +3588,75 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 6.3 every brand receives source content: real replay
+
+The owner asks to express the normal expectation that brands have related
+context and to skip the ambiguous LOCATE optimization. Clarify that every
+identified brand receives excerpts and focus changes only detail. Preserve
+the no-invention boundary and name-only empty-array allowance in the unchanged
+Schema. No new fields, lexical filters, model/format change or runtime repair.
+The three worked examples remain unchanged.
+
+Use three retained complete sources, twice each (six-call maximum):
+- `m4-frozen-transfer-IoUNOG/acquire-local-q2-result.json` and
+  `parse-local-q2-1-request.json`: known colon-only failure, target absent.
+- `m4-merchant-matrix-LeoVP1/acquire-q3-doubao-result.json` and
+  `parse-q3-doubao-request.json`: two named restaurants and an unnamed category,
+  focus 头家顺 absent.
+- `m4-live-open-chain-PmUTIk/acquire-s2-result.json` and
+  `parse-s2-request.json`: three named marketing firms, focus 互动派 third;
+  surrounding place/platform names are background.
+
+The two replacement sources are not in current Prompt examples; they were
+inspected before freezing and are not a fresh blind benchmark. No new acquisition,
+search, automatic retry, repair or seventh call. Keep AST-cleaned whole input,
+Qwen Flash low, concurrency two and only actual IO/settings/usage in existing
+private Langfuse. Semantic review remains local. Retain historical LOCATE and
+child-hotpot evidence without using them as this round's tuning targets.
+
+Measured 2026-09-10 02:40:53.740–02:42:15.213 UTC: six calls, peak concurrency
+two, 81.473 seconds, 26,863 reported tokens. This is first-layer retained-source
+replay, not fresh sampling or the full twenty-sample evaluation budget.
+
+| Source | Repeat 1 | Repeat 2 | Latency (seconds) |
+| --- | --- | --- | --- |
+| local-q2, focus absent | Four real merchants with substantive excerpts | Eleven records: generic label, invented focus, duplicates and combined distinct names; six true focus flags; existing guard rejects | 20.972 / 20.032 |
+| Two restaurants, focus absent | Two subjects, source content, correct order, no focus | Same two subjects, useful shorter excerpts, no unnamed category/focus | 12.844 / 11.167 |
+| Three marketing firms, focus third | Three firms in order; preserves focus qualifications/uncertainty | Eleven subjects including places and lookup platforms; non-source image URL in all rows and invented descriptions | 12.025 / 28.150 |
+
+All six pass wire/basic-schema checks. Five pass existing acceptance checks,
+but agencies-2 is semantically wrong despite program acceptance. No colon-only
+excerpt recurs, yet two repeats contain major subject/content errors; do not
+describe 6.3 as stable or treat 5/6 acceptance as a semantic pass rate. No paired
+6.2 control ran, and repeated source cache usage differs, so neither quality
+nor latency improvement can be attributed to the changed wording.
+
+Verified provenance: all six raw provider message JSON values equal modelOutput;
+all sanitized wire bodies equal frozen wires. The agencies-2 image URL is absent
+from the complete actual input, including system examples, and raw source. It
+was not fetched. The local-q2 false focus row borrows the source's general
+reservation advice; content does not mention that focus brand. Program cleanup
+or projection therefore did not create these errors. Generative continuation
+beyond valid subjects, all-brand excerpt pressure, and focus-context bias remain
+hypotheses, not proven causes. A future bounded same-source instruction contrast
+should discriminate these before another broad rewrite; do not add name bans,
+extra agents, or full raw-answer input to synthesis.
+
+Private Langfuse trace `c1b4e07278c8a7a1b6b1c21f100d51bc` read back seven
+observations at 02:47:03 UTC: exact IO/settings/usage, no missing/mismatched calls,
+root metadata only. Semantic review stays local. Evidence directory
+`apps/backend/.provider-evidence/m4-brand-unit-replay-4opqh6` contains frozen
+plan/runner, six requests/results, summary, `langfuse-readback.json`, and full
+`input-output-review.md`. Frozen HEAD `d42205fd73f778c1bb0a92b542b991e87e2af2d4`,
+diff `19cc428fc957e2f7a094f2f0a9c05c8451964635e5b316444ce62ec9ed9dc432`,
+runner `2800ffbe9fb0c1dcc7c3d63e5d1d9abfc495d7a72bbfbb7438d2fc7608028f61`,
+confirmation `b87f49ee6733e3723573b3438c0d5c2648dee01050e53f2d70a90024cf4ede15`.
+
+Decision: keep the task clarification as a measured experimental candidate,
+not an accepted stable Parser. No seventh call, retry, repair, runtime activation,
+Schema change or second-layer handoff. Thirteen focused tests pass; their scope
+is authored examples/contract/input behavior, not stochastic semantic stability.
+
 ## 6.2 complete-section worked example: real replay
 
 Replace 6.1's two-line Aoi contrast with the complete original section 3 from

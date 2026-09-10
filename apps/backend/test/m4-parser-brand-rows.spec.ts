@@ -76,7 +76,7 @@ describe("M4 content-oriented brand rows", () => {
     expect(extra.userContext).toEqual(task.userContext);
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@6.2.0",
+      "experiment.m4.parser-brand-rows@6.3.0",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
