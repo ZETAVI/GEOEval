@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: 6.3 thinking-profile replay supports off/0.4 as a faster validation candidate
+- Status: 6.3 Hy3/DeepSeek replay retains core content; model-only attribution remains unproven
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,29 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner additionally requests the same Prompt on Hy3 through Tencent TokenHub
+and DeepSeek V4 Flash through Alibaba. Both use thinking off/temperature 0.4,
+provider-native switches and common JSON Object mode. Official Alibaba guidance
+lists DeepSeek for JSON Object, not JSON Schema. Actual system/user messages
+remain identical; the same local Schema checks results. Prior Qwen JSON Schema
+runs therefore remain references, not strictly matched model-only controls.
+
+Twelve calls (three retained sources twice/model) show expected core subjects,
+order, focus and substantive source content in both models, with no prior major
+failure reproduced. Hy3 averages 5.969 seconds and usually separates excerpts
+into points; DeepSeek averages 4.460 seconds but both restaurant outputs keep
+multiple ideas in one long array item. DeepSeek once retains a branch suffix.
+All twelve wire/identity/Schema/acceptance checks and thirteen private Langfuse
+observations match. No retries, fresh sampling, repair or extra calls.
+
+Do not infer that Qwen is intrinsically the cause: its off/0.4 core results were
+also usable and format constraints differ. If model attribution is the next
+decision, align Qwen to the same JSON Object task before changing Prompt again.
+That comparison is not executed here. No runtime switch or second-layer handoff.
+See [cross-model evidence](research/chain-quality-experiment.md#63-cross-model-replay-hy3-and-deepseek-v4-flash).
+
+### Previous same-model thinking comparison
 
 The owner replaces the unexecuted 0.5/0.3 temperature plan with two profiles:
 thinking low + temperature 0.6, and thinking off + temperature 0.4 (omit

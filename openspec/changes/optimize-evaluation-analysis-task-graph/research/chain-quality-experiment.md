@@ -3588,6 +3588,76 @@ worktrees remain unchanged. The existing Draft Partial PR and evidence are retai
 | Summary | c1faed629a1fe72b553973d3ad03f90dd59d941b04c34a21596f3f4081c3128b |
 | Runner | 7805969c22bf4c461037bc92a89d24739bda13010ed19d249353180f65cd1c0a |
 
+## 6.3 cross-model replay: Hy3 and DeepSeek V4 Flash
+
+The owner authorizes the same Prompt on Hy3 via Tencent TokenHub and DeepSeek
+V4 Flash via Alibaba, with supplied credentials kept in process only. Both use
+temperature 0.4, thinking disabled, no reasoning_effort, and JSON Object mode.
+The [Tencent Chat reference](https://intl.cloud.tencent.com/document/product/1300/82345)
+documents `thinking: {type: disabled}`; the
+[Alibaba DeepSeek reference](https://help.aliyun.com/zh/model-studio/deepseek-api)
+documents enable_thinking. The
+[structured output guide](https://help.aliyun.com/zh/model-studio/qwen-structured-output)
+lists DeepSeek under JSON Object, with only listed Qwen families under JSON
+Schema. Therefore both new models use common JSON Object, with unchanged local
+Schema validation. Actual Prompt/examples and all three user-context inputs are
+identical to the prior frozen 6.3 wires, without added Schema text or rewriting.
+This differs from previous Qwen's JSON Schema server-side constraint, so do not
+use these results as a strictly isolated model-only ranking.
+
+Twelve real calls (three retained complete sources, twice per model), peak
+concurrency two, 2026-09-10 03:14:47.530–03:15:24.498 UTC: 36.968 seconds wall
+clock. No acquisition/search, automatic retry, repair or thirteenth call. No
+profile suspended. Both use existing endpoints and /chat/completions; no shared
+adapter/route/runtime configuration is edited. All actual returned model names
+match, and all twelve responses have no non-empty reasoning_content.
+
+| Measure | Hy3 / TokenHub | DeepSeek V4 Flash / Alibaba |
+| --- | --- | --- |
+| Calls; wire/Schema/existing acceptance | 6; 6/6 | 6; 6/6 |
+| Mean / median latency | 5.969 / 4.864 s | 4.460 / 3.895 s |
+| Range | 3.844–12.065 s | 3.481–5.999 s |
+| Total / completion tokens | 21,507 / 2,583 | 21,245 / 2,131 |
+
+Both models retain the expected core subjects/order/focus with substantive
+source descriptions in all six outputs in this bounded review. No invented
+focus, duplicate subject, background/category miscount, non-source image URL or
+punctuation-only excerpt appears. Hy3 generally splits content into useful
+points (restaurant outputs three/five points per brand). DeepSeek twice keeps
+each restaurant's long multi-topic paragraph as a single array item: information
+is retained, but the one-main-idea-per-point instruction is not fully met.
+DeepSeek once retains the Guangzhou branch suffix; Hy3 uses reasonable abbreviated
+names in one repeat. Focus-company caveats remain in both. Hy3 marks the focus
+company and optional hotpot brand positive, DeepSeek neutral; record this marginal
+attitude distinction without declaring a new failure or scoring rule.
+
+Prior Qwen off/0.4 averaged 6.811 seconds on the same sources but JSON Schema;
+its core content also passed this bounded semantic review, with one stray-colon
+output and one branch suffix. Different modes, tokenizers, cache observations,
+provider serving and execution times prevent pure model or price conclusions.
+Only three retained sources, one focus-present, were exercised. Do not claim
+general stability, full-chain latency or that Qwen itself caused earlier failures.
+
+Decision: keep both as usable candidates without formal model selection. Hy3's
+point organization better matches the present task in this batch; DeepSeek is
+faster but paragraph-heavy on one source. If continuing model attribution,
+first align Qwen to common JSON Object/offswitch/0.4 on frozen input rather than
+rewriting Prompt. That additional Qwen comparison is not performed in this batch.
+No production activation, second-layer handoff, new current spec or frontend work.
+
+Evidence directory `apps/backend/.provider-evidence/m4-cross-model-replay-HJTH3F`
+holds plan/runner, twelve requests/results, summary, full local
+`input-output-review.md` and readback. Twelve actual bodies match frozen profiles;
+system/user messages match prior Qwen input and raw JSON equals modelOutput.
+Private Langfuse trace `40b69e9a334bd4dffd508d1d570b3532` read back thirteen
+observations at 03:16:18.005 UTC: exact IO/settings/model/usage, no missing or
+mismatched calls. Semantic review stays local. Frozen HEAD
+`f727ca148cb044caca0022a765b527fcf5f46743`, clean tracked diff, runner
+`c9842e090404b6beccf0c3d82c1aff7e9bb4c84ee23034c2260e9f79cc51f6e2`,
+confirmation `aaa587f1052b47e3a9cb4c9c625fb80e04b4369e0ced5cec5c08ed7c3da269fa`.
+Reuse unchanged thirteen focused tests; framework/link/diff checks cover this
+evidence-only update. No build or full evaluation is represented as rerun.
+
 ## 6.3 thinking-profile comparison: low06 versus off04
 
 The owner supersedes the 0.5/0.3 request before any real calls with thinking
