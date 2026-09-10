@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Fresh six-query matrix narrows non-thinking candidates; excerpt capacity needs reconciliation
+- Status: Mention-array handoff prepared; Alibaba snapshot approved; exact-payload external-call gate remains
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,40 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+The owner approves `deepseek-v4-flash-0731` for subsequent Alibaba DeepSeek
+access, including native low reasoning. The current experiment's model settings
+live in `apps/backend/geo-intelligence/experiments/m4-model-comparison.json`.
+Tencent DeepSeek acquisition is a different provider route and remains unchanged.
+Historical request/model identities and archived decisions are not rewritten.
+There is no active Alibaba DeepSeek production route to switch in this checkout.
+
+The owner removes the arbitrary eight-item excerpt cap. The new mention contract
+is `mentions-contract@2`; Prompt 6.3 text and historical validators remain.
+Offline revalidation accepts 68/72 retained matrix outputs (previously 58/72);
+the ten restored results lose no content. Four Hy3-on wrong-shape outputs remain
+rejected. This is contract reconciliation, not a higher semantic-quality rate.
+
+The experimental synthesis seam now accepts `BRAND_MENTIONS` directly, keeping
+ordered excerpt arrays, overall attitude and program-derived positions. Focus
+records are excluded from competitor inputs. No legacy summary/points or exact
+evidence is manufactured; no raw acquisition content is sent downstream.
+Narrative 1.4.0 adapts its input explanation, preserving existing GEO direction
+scope. Existing fixed-slot assignment and program counting remain unchanged.
+
+The next bounded batch uses six distinct retained answers (three each for
+头家顺 and 互动派): 12 first-layer off calls, then up to 32 assignment/narrative
+calls across DeepSeek 0731 and Hy3 off/low. All use temperature 0.4, JSON Object
+with the actual Schema included in the system message, concurrency two and no
+resampling, search, retry or repair. Parser repeats are not independent samples.
+This tests retained-answer-to-preview composition, not production 4×5 latency.
+
+No new provider request has executed: automatic safety review rejected launch
+pending explicit authorization for these six payloads to Alibaba, Tencent and
+private Langfuse. Local implementation and verification may continue. Do not
+retry through another channel or report this batch as measured.
+
+### Previous fresh six-query matrix
 
 The owner authorizes a broader real-query/model/configuration matrix. Six new
 queries span dining, coffee, robot vacuums, hotels, collaboration software and

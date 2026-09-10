@@ -8,12 +8,20 @@ import { buildM4ReadingText } from "./m4-reading-text.js";
 const oldTarget = m4CustomerSummarySchema.shape.target.unwrap();
 const otherBrand = m4CustomerSummarySchema.shape.otherBrands.element;
 const points = z
-  .array(oldTarget.shape.points.element.omit({ evidence: true }).extend({
-    text: oldTarget.shape.points.element.shape.text.describe("内容中关于本品牌的一条主要观点，可自然概括。"),
-    polarity: oldTarget.shape.points.element.shape.polarity.describe("本条观点的倾向：正向、负向、中性、褒贬混合或无法确定。"),
-  }))
+  .array(
+    oldTarget.shape.points.element.omit({ evidence: true }).extend({
+      text: oldTarget.shape.points.element.shape.text.describe(
+        "内容中关于本品牌的一条主要观点，可自然概括。",
+      ),
+      polarity: oldTarget.shape.points.element.shape.polarity.describe(
+        "本条观点的倾向：正向、负向、中性、褒贬混合或无法确定。",
+      ),
+    }),
+  )
   .max(8)
-  .describe("重点品牌在全文中提到的具体特点、优缺点和适用场景等要点；没有具体观点时为空数组。");
+  .describe(
+    "重点品牌在全文中提到的具体特点、优缺点和适用场景等要点；没有具体观点时为空数组。",
+  );
 const mentionContext = z
   .string()
   .trim()
@@ -25,10 +33,14 @@ const mentionContext = z
 const targetDescription = z.object({ points }).strict();
 const attitude = z
   .enum(["POSITIVE", "NEUTRAL", "NEGATIVE"])
-  .describe("内容对本品牌的整体态度：POSITIVE正向、NEUTRAL中性、NEGATIVE负向。");
+  .describe(
+    "内容对本品牌的整体态度：POSITIVE正向、NEUTRAL中性、NEGATIVE负向。",
+  );
 const brandRow = z
   .object({
-    displayName: otherBrand.shape.displayName.describe("具体商家或品牌的主体名，不细分具体产品或分店。"),
+    displayName: otherBrand.shape.displayName.describe(
+      "具体商家或品牌的主体名，不细分具体产品或分店。",
+    ),
     attitude,
     mentionContext,
     targetDescription: targetDescription
@@ -43,37 +55,62 @@ export const m4BrandRowsSchema = z
     brands: z
       .array(brandRow)
       .max(11)
-      .describe("实际出现的品牌，一主体一条，按首次出现顺序排列；没有具体品牌时为空数组。"),
+      .describe(
+        "实际出现的品牌，一主体一条，按首次出现顺序排列；没有具体品牌时为空数组。",
+      ),
   })
   .strict();
 
 // Current experimental format. Legacy validators below remain for retained
 // evidence only; new mentions are never converted into summary/targetDescription.
-export const m4BrandMentionsSchema = z.object({
-  brands: z.array(z.object({
-    displayName: otherBrand.shape.displayName.describe("可辨识的商业品牌主体名，不细分具体产品或分店。"),
-    isFocusBrand: z.boolean().describe("该主体是否为focusBrand所指的品牌。"),
-    attitude,
-    mentionContext: z.array(z.string().trim().min(1).max(500))
-      .max(8)
-      .describe("分点摘录原文中的实质内容，不写空泛标题或解析过程；重点品牌保留更多相关原文。仅具名而无介绍时可为空数组。"),
-  }).strict()).max(11).describe("按首次出现顺序整理，一品牌一条；没有具体品牌时为空数组。"),
-}).strict();
+export const m4BrandMentionsSchema = z
+  .object({
+    brands: z
+      .array(
+        z
+          .object({
+            displayName: otherBrand.shape.displayName.describe(
+              "可辨识的商业品牌主体名，不细分具体产品或分店。",
+            ),
+            isFocusBrand: z
+              .boolean()
+              .describe("该主体是否为focusBrand所指的品牌。"),
+            attitude,
+            mentionContext: z
+              .array(z.string().trim().min(1).max(500))
+              .describe(
+                "分点摘录原文中的实质内容，不写空泛标题或解析过程；重点品牌保留更多相关原文。仅具名而无介绍时可为空数组。",
+              ),
+          })
+          .strict(),
+      )
+      .max(11)
+      .describe("按首次出现顺序整理，一品牌一条；没有具体品牌时为空数组。"),
+  })
+  .strict();
 
 export function inspectM4BrandMentionsOutput(value: unknown) {
   const output = m4BrandMentionsSchema.parse(value);
   if (output.brands.filter((brand) => brand.isFocusBrand).length > 1)
     throw new Error("Multiple focus brand rows");
-  if (new Set(output.brands.map((brand) => brand.displayName)).size !== output.brands.length)
+  if (
+    new Set(output.brands.map((brand) => brand.displayName)).size !==
+    output.brands.length
+  )
     throw new Error("Duplicate brand row");
-  const indexedBrands = output.brands.map((brand, index) => ({ ...brand, position: index + 1 }));
+  const indexedBrands = output.brands.map((brand, index) => ({
+    ...brand,
+    position: index + 1,
+  }));
   const focusIndex = output.brands.findIndex((brand) => brand.isFocusBrand);
   return {
     interpretationFormat: "BRAND_MENTIONS" as const,
     output,
     indexedBrands,
     focusBrandIndex: focusIndex < 0 ? null : focusIndex,
-    competitors: indexedBrands.filter((brand) => !brand.isFocusBrand && brand.attitude !== "NEGATIVE"),
+    competitors: indexedBrands.filter(
+      (brand) => !brand.isFocusBrand && brand.attitude !== "NEGATIVE",
+    ),
   };
 }
 
@@ -191,7 +228,7 @@ export function buildM4BrandRowsTask(
       content: buildM4ReadingText(answer),
     },
     outputContract: {
-      version: `${prompt.id}@${prompt.version}`,
+      version: `${prompt.id}@${prompt.version}+mentions-contract@2`,
       jsonSchema: z.toJSONSchema(m4BrandMentionsSchema, {
         target: "draft-2020-12",
       }),

@@ -7,10 +7,15 @@ import {
   inspectM4CustomerSummaryOutput,
   m4CustomerSummarySchema,
 } from "./m4-parser-customer-summary.js";
-import { m4ContentHandoffSchema } from "./m4-parser-brand-rows.js";
+import {
+  inspectM4BrandMentionsOutput,
+  m4ContentHandoffSchema,
+} from "./m4-parser-brand-rows.js";
 
 const contentNote =
   "\n\n标记为PARSER_CONTENT的样本由首层整理而来：mentionContext、points和summary是内容概括，不是逐字引文或已核验事实。结合这些语境理解品牌和目标表现；不假定拿到了完整原回答或精确引用。若记录含attitude，它表示整体正向、中性或负向；正向和中性均可作为竞品，统计由程序负责。";
+const mentionsNote =
+  "\n\n标记为PARSER_MENTIONS的样本保留首层按品牌整理的mentionContext摘录数组和整体attitude。摘录可以包含不同倾向的具体内容，不把整体态度当成每条内容的倾向。这里只提供整理后的内容，不是完整原文或外部核验事实；位次、提及和统计由程序保留。";
 
 const text = (max: number) => z.string().trim().min(1).max(max);
 const id = z.string().regex(/^[a-z][a-z0-9-]{0,63}$/);
@@ -103,10 +108,20 @@ export type M4ChainSample = {
   originalAnswer: string;
   parsedOutput: unknown;
   questionKind?: EvaluationQuestionKind;
-  interpretationFormat?: "BRAND_CONTENT";
+  interpretationFormat?: "BRAND_CONTENT" | "BRAND_MENTIONS";
 };
 
 function sourceView(companyName: string, sample: M4ChainSample) {
+  if (sample.interpretationFormat === "BRAND_MENTIONS") {
+    if (sample.questionKind === "BRAND_DIRECTED")
+      throw new Error("Brand-mentions format is open-question only");
+    const parsed = inspectM4BrandMentionsOutput(sample.parsedOutput);
+    return {
+      target: parsed.indexedBrands.find((brand) => brand.isFocusBrand) ?? null,
+      otherBrands: parsed.indexedBrands.filter((brand) => !brand.isFocusBrand),
+      sampleSummary: undefined,
+    };
+  }
   if (sample.interpretationFormat === "BRAND_CONTENT") {
     if (sample.questionKind === "BRAND_DIRECTED")
       throw new Error("Brand-content format is open-question only");
@@ -189,11 +204,16 @@ export function buildM4ChainSynthesisTask(
       question: sample.question,
       platformLabel: sample.platformLabel,
       questionKind,
-      ...(sample.interpretationFormat === "BRAND_CONTENT"
-        ? { interpretationBasis: "PARSER_CONTENT" as const }
-        : {}),
+      interpretationBasis:
+        sample.interpretationFormat === "BRAND_CONTENT"
+          ? ("PARSER_CONTENT" as const)
+          : sample.interpretationFormat === "BRAND_MENTIONS"
+            ? ("PARSER_MENTIONS" as const)
+            : undefined,
       target: restored.target,
-      sampleSummary: restored.sampleSummary,
+      ...(restored.sampleSummary === undefined
+        ? {}
+        : { sampleSummary: restored.sampleSummary }),
       otherBrands: restored.otherBrands.map((brand, index) => ({
         ...brand,
         id: id.parse(`${sample.sampleId}-b${index + 1}`),
@@ -241,6 +261,9 @@ export function buildM4ChainSynthesisTask(
       prompt.content +
       (inputs.some((s) => s.interpretationFormat === "BRAND_CONTENT")
         ? contentNote
+        : "") +
+      (inputs.some((s) => s.interpretationFormat === "BRAND_MENTIONS")
+        ? mentionsNote
         : ""),
     userContext: {
       companyName,
@@ -262,7 +285,7 @@ export function buildM4ChainSynthesisTask(
       samples,
     },
     outputContract: {
-      version: `${prompt.id}@${prompt.version}${inputs.some((s) => s.interpretationFormat === "BRAND_CONTENT") ? "+parser-content@2" : ""}`,
+      version: `${prompt.id}@${prompt.version}${inputs.some((s) => s.interpretationFormat === "BRAND_CONTENT") ? "+parser-content@2" : ""}${inputs.some((s) => s.interpretationFormat === "BRAND_MENTIONS") ? "+parser-mentions@1" : ""}`,
       jsonSchema: z.toJSONSchema(boundSchema, {
         target: "draft-2020-12",
       }),
@@ -303,6 +326,9 @@ export function buildM4ReportCompositionTasks(
   )
     ? contentNote
     : "";
+  const mentions = task.userContext.samples.some(
+    (s) => s.interpretationBasis === "PARSER_MENTIONS",
+  );
   const { otherBrands, ...narrativeContext } =
     flattenM4ChainSynthesisTask(task).userContext;
   const { brandGroups, ...narrativeProperties } =
@@ -312,7 +338,7 @@ export function buildM4ReportCompositionTasks(
     properties: NonNullable<typeof task.outputContract.jsonSchema.properties>,
     contentVersion = 2,
   ) => ({
-    version: `${asset.id}@${asset.version}${note ? `+parser-content@${contentVersion}` : ""}`,
+    version: `${asset.id}@${asset.version}${note ? `+parser-content@${contentVersion}` : ""}${mentions ? "+parser-mentions@1" : ""}`,
     jsonSchema: {
       type: "object" as const,
       properties,
@@ -323,7 +349,8 @@ export function buildM4ReportCompositionTasks(
   return {
     grouping: {
       taskKind: "STRUCTURED_OUTPUT" as const,
-      systemInstruction: groupingPrompt.content + note,
+      systemInstruction:
+        groupingPrompt.content + note + (mentions ? mentionsNote : ""),
       userContext: { otherBrands },
       outputContract: contract(groupingPrompt, { brandGroups: brandGroups! }),
     },
@@ -338,6 +365,7 @@ export function buildM4ReportCompositionTasks(
           if (
             sample.interpretationBasis === "PARSER_CONTENT" &&
             sample.target !== null &&
+            "summary" in sample.target &&
             sample.sampleSummary === sample.target.summary
           ) {
             const { sampleSummary: _duplicate, ...rest } = sample;
@@ -378,14 +406,18 @@ export function buildM4BrandAssignmentTask(
   )
     ? contentNote
     : "";
+  const mentions = task.userContext.samples.some(
+    (s) => s.interpretationBasis === "PARSER_MENTIONS",
+  );
   return {
     taskKind: "STRUCTURED_OUTPUT" as const,
-    systemInstruction: assignmentPrompt.content + note,
+    systemInstruction:
+      assignmentPrompt.content + note + (mentions ? mentionsNote : ""),
     userContext: {
       otherBrands: flattenM4ChainSynthesisTask(task).userContext.otherBrands,
     },
     outputContract: {
-      version: `${assignmentPrompt.id}@${assignmentPrompt.version}${note ? "+parser-content@2" : ""}`,
+      version: `${assignmentPrompt.id}@${assignmentPrompt.version}${note ? "+parser-content@2" : ""}${mentions ? "+parser-mentions@1" : ""}`,
       jsonSchema: z.toJSONSchema(brandAssignmentSchema(task), {
         target: "draft-2020-12",
       }),

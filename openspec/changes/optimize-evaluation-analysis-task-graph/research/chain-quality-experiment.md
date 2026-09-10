@@ -1,5 +1,75 @@
 # M4 Chain Quality Experiment
 
+## Mention-array synthesis preparation and approved Alibaba snapshot
+
+The owner approves subsequent Alibaba DeepSeek calls using
+`deepseek-v4-flash-0731`. The exact future experiment selection is maintained in
+[model comparison settings](../../../../apps/backend/geo-intelligence/experiments/m4-model-comparison.json),
+not inferred from the older matrix. Tencent acquisition and historical model
+identities stay unchanged. Current Alibaba documentation explicitly supports
+native low for the 0731 snapshot:
+[DeepSeek API](https://help.aliyun.com/zh/model-studio/deepseek-api)
+(verified 2026-09-10). No formal runtime route is activated.
+
+The owner's excerpt-count decision removes only `mentionContext.max(8)` from
+the current experimental mention contract. Per-item content and brand-list
+constraints remain. Prompt 6.3 content is unchanged; the output contract has
+the distinct suffix `+mentions-contract@2`. Offline replay of the previous
+72 immutable raw outputs accepts 68 instead of 58, restoring ten count-only
+rejections without truncation. The four Hy3-on non-array outputs remain invalid.
+Original result files and original reported acceptance stay unchanged.
+
+### Architecture and handoff boundary
+
+Readiness: ready for controlled verification, not runtime activation.
+The existing `m4-chain-synthesis.ts` seam explicitly consumes
+`BRAND_MENTIONS`, retaining array excerpts and overall attitude. It derives
+positions before separating focus and other records, does not synthesize old
+points/summary/evidence, and does not send raw acquisition text downstream.
+Fixed-slot assignment and existing distinct-sample counting are reused.
+Narrative 1.4.0 adjusts only the input-reading explanation and keeps the
+one/two GEO article-direction scope. This is an in-memory experiment, with
+no datastore, worker, public report schema or migration change.
+
+Malformed first-layer output is rejected, not treated as absence. The planned
+runner requires all three inputs of a business/handoff arm before synthesis.
+Both second-layer components must validate before a preview is emitted.
+No retry, fallback or prose/identity repair is introduced. Existing exact
+duplicate legacy-summary suppression remains format-scoped.
+
+### Frozen intended real-call boundary
+
+- Six distinct retained sources: `m4-merchant-matrix-LeoVP1` q2-ernie,
+  q3-doubao, q4-ernie for 头家顺; `m4-live-open-chain-PmUTIk` s1/s2 and
+  `m4-fresh-matrix-GI1S7m` agency for 互动派.
+- First layer: both candidate models off, 12 calls. Second layer: each
+  three-source handoff tested with both models off/low, assignment and narrative
+  separately, up to 32 calls. Maximum total 44, concurrency two.
+- Same temperature 0.4, JSON Object and actual Schema included in the system
+  message; this differs from the old matrix's hidden Schema and is not a
+  model-only comparison against that historical batch.
+- No fresh acquisition, search, resampling, automatic retry or repair. Each
+  parsed repeat is an alternative handoff, never another independent sample.
+- Keep focusBrand=头家顺 without injecting the owner-known 头家夜粥 alias. Observe
+  missed focus identity honestly; do not silently fix it before synthesis.
+- Only actual model IO/settings/usage to private Langfuse; separate quality
+  review remains local. No formal 20-sample latency or broad stability claim.
+
+Launch was rejected by automatic safety review before process creation:
+explicit authorization for these six exact retained payloads to Alibaba,
+Tencent and Langfuse is required. **Zero new provider calls executed.**
+Do not work around this rejection. The runner is retained locally at
+`apps/backend/.provider-evidence/m4-mentions-chain.ts`; re-freeze its exact
+code/input digest after authorization and before launch.
+
+Verification: 33 focused tests across brand rows and chain synthesis pass;
+backend typecheck and project-framework/local-link validation pass. Tests cover
+unlimited excerpt count, unchanged per-item validation, raw-free handoff, no
+invented legacy fields, missing focus, focus exclusion from competitors,
+first-occurrence positions, neutral/negative eligibility, bound references,
+invalid handoffs, and provider-specific model selection. Real provider support
+for this account, output quality, latency and new Langfuse readback are **not run**.
+
 ## Question and authority
 
 Does a clearer semantic task and sufficient evidence context improve raw

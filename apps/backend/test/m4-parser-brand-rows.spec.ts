@@ -56,9 +56,9 @@ describe("M4 content-oriented brand rows", () => {
   it("uses one reading string and preserves the original source and target context", () => {
     const before = structuredClone(prepared);
     const task = buildM4BrandRowsTask(prepared, source);
-    expect(task.systemInstruction.startsWith(
-      "你是一名品牌相关内容的语义解析助手。",
-    )).toBe(true);
+    expect(
+      task.systemInstruction.startsWith("你是一名品牌相关内容的语义解析助手。"),
+    ).toBe(true);
     expect(task.systemInstruction).not.toContain("GEO评测");
     expect(task.userContext).toEqual({
       focusBrand: "青禾咖啡",
@@ -71,12 +71,23 @@ describe("M4 content-oriented brand rows", () => {
     expect(task.systemInstruction).not.toContain("answerText");
     expect(task.userContext).not.toHaveProperty("originalAnswer");
     expect(task.userContext.focusBrand).toBe("青禾咖啡");
-    for (const field of ["companyName", "brandContext", "questionKind"]) expect(task.userContext).not.toHaveProperty(field);
-    const extra = buildM4BrandRowsTask({...prepared, userContext: {...prepared.userContext, brandContext: "无关背景", diagnostic: "不发送"}}, source);
+    for (const field of ["companyName", "brandContext", "questionKind"])
+      expect(task.userContext).not.toHaveProperty(field);
+    const extra = buildM4BrandRowsTask(
+      {
+        ...prepared,
+        userContext: {
+          ...prepared.userContext,
+          brandContext: "无关背景",
+          diagnostic: "不发送",
+        },
+      },
+      source,
+    );
     expect(extra.userContext).toEqual(task.userContext);
     expect(task.userContext.question).toBe(base.userContext.question);
     expect(task.outputContract.version).toBe(
-      "experiment.m4.parser-brand-rows@6.3.0",
+      "experiment.m4.parser-brand-rows@6.3.0+mentions-contract@2",
     );
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toMatch(
       /exactText|occurrence|startLine|endLine|evidence/,
@@ -109,7 +120,11 @@ describe("M4 content-oriented brand rows", () => {
   });
   it("uses real excerpts as uniform bullet content, with richer focus content and no legacy description", () => {
     const task = buildM4BrandRowsTask(base);
-    const examples = [...task.systemInstruction.matchAll(/content：\n([\s\S]*?)\n输出：\n(\{[^\n]+\})/g)];
+    const examples = [
+      ...task.systemInstruction.matchAll(
+        /content：\n([\s\S]*?)\n输出：\n(\{[^\n]+\})/g,
+      ),
+    ];
     expect(examples).toHaveLength(3);
     const clean = (text: string) => buildM4ReadingText(text).replace(/\s/g, "");
     for (const example of examples) {
@@ -118,28 +133,58 @@ describe("M4 content-oriented brand rows", () => {
       expect(result).not.toHaveProperty("projected");
       for (const brand of result.output.brands) {
         expect(brand).not.toHaveProperty("targetDescription");
-        for (const point of brand.mentionContext) expect(clean(example[1]!)).toContain(clean(point));
+        for (const point of brand.mentionContext)
+          expect(clean(example[1]!)).toContain(clean(point));
       }
     }
     const coffee = inspectM4BrandMentionsOutput(JSON.parse(examples[0]![2]!));
-    expect(coffee.output.brands.map((b) => b.displayName)).toEqual(["Manner Coffee", "瑞幸咖啡"]);
+    expect(coffee.output.brands.map((b) => b.displayName)).toEqual([
+      "Manner Coffee",
+      "瑞幸咖啡",
+    ]);
     expect(coffee.focusBrandIndex).toBe(1);
     expect(coffee.output.brands[1]!.mentionContext).toHaveLength(5);
-    expect(coffee.competitors.map((b) => [b.displayName, b.position])).toEqual([["Manner Coffee", 1]]);
-    const restaurant = inspectM4BrandMentionsOutput(JSON.parse(examples[1]![2]!));
-    expect(restaurant.output.brands.map((b) => b.displayName)).toEqual(["东明香", "新记"]);
+    expect(coffee.competitors.map((b) => [b.displayName, b.position])).toEqual([
+      ["Manner Coffee", 1],
+    ]);
+    const restaurant = inspectM4BrandMentionsOutput(
+      JSON.parse(examples[1]![2]!),
+    );
+    expect(restaurant.output.brands.map((b) => b.displayName)).toEqual([
+      "东明香",
+      "新记",
+    ]);
     expect(restaurant.focusBrandIndex).toBeNull();
     expect(restaurant.indexedBrands.map((b) => b.position)).toEqual([1, 2]);
     const aoi = inspectM4BrandMentionsOutput(JSON.parse(examples[2]![2]!));
-    expect(aoi.output.brands.map((b) => b.displayName)).toEqual(["Aoi（葵日本料理）"]);
+    expect(aoi.output.brands.map((b) => b.displayName)).toEqual([
+      "Aoi（葵日本料理）",
+    ]);
     expect(aoi.focusBrandIndex).toBeNull();
     expect(aoi.output.brands[0]!.mentionContext).toHaveLength(4);
-    expect(aoi.output.brands[0]!.mentionContext.at(-1)).toContain("缺点是价格偏高");
+    expect(aoi.output.brands[0]!.mentionContext.at(-1)).toContain(
+      "缺点是价格偏高",
+    );
     // Source matching verifies authored examples only, not a live acceptance rule.
   });
   it("keeps new mentions distinct from legacy handoff and derives positions without repairing semantic errors", () => {
-    const brand = {displayName: "青禾", isFocusBrand: true, attitude: "POSITIVE", mentionContext: ["原文相关内容。"]};
-    const input = {brands: [brand, {...brand, displayName: "山岚", isFocusBrand: false, attitude: "NEGATIVE"}]};
+    const brand = {
+      displayName: "青禾",
+      isFocusBrand: true,
+      attitude: "POSITIVE",
+      mentionContext: ["原文相关内容。"],
+    };
+    const input = {
+      brands: [
+        brand,
+        {
+          ...brand,
+          displayName: "山岚",
+          isFocusBrand: false,
+          attitude: "NEGATIVE",
+        },
+      ],
+    };
     const before = structuredClone(input);
     const result = inspectM4BrandMentionsOutput(input);
     expect(input).toEqual(before);
@@ -148,11 +193,52 @@ describe("M4 content-oriented brand rows", () => {
     expect(m4ContentHandoffSchema.safeParse(result.output).success).toBe(false);
     expect(() => inspectM4BrandRowsOutput(result.output)).toThrow();
     expect(() => inspectM4BrandMentionsOutput(raw())).toThrow();
-    expect(() => inspectM4BrandMentionsOutput({brands: [brand, brand]})).toThrow();
-    expect(() => inspectM4BrandMentionsOutput({brands: [brand, {...brand, displayName: "其他"}]})).toThrow("Multiple focus");
-    expect(() => inspectM4BrandMentionsOutput({brands: [{...brand, mentionContext: [""]}]})).toThrow();
-    expect(inspectM4BrandMentionsOutput({brands: [{...brand, mentionContext: []}]}).output.brands[0]!.mentionContext).toEqual([]);
-    expect(inspectM4BrandMentionsOutput({brands: []}).focusBrandIndex).toBeNull();
+    expect(() =>
+      inspectM4BrandMentionsOutput({ brands: [brand, brand] }),
+    ).toThrow();
+    expect(() =>
+      inspectM4BrandMentionsOutput({
+        brands: [brand, { ...brand, displayName: "其他" }],
+      }),
+    ).toThrow("Multiple focus");
+    expect(() =>
+      inspectM4BrandMentionsOutput({
+        brands: [{ ...brand, mentionContext: [""] }],
+      }),
+    ).toThrow();
+    expect(
+      inspectM4BrandMentionsOutput({
+        brands: [{ ...brand, mentionContext: [] }],
+      }).output.brands[0]!.mentionContext,
+    ).toEqual([]);
+    expect(
+      inspectM4BrandMentionsOutput({ brands: [] }).focusBrandIndex,
+    ).toBeNull();
+  });
+  it("retains all source excerpts without an arbitrary point-count limit", () => {
+    const mentionContext = Array.from(
+      { length: 21 },
+      (_, i) => `原文实际内容${i + 1}。`,
+    );
+    const input = {
+      brands: [
+        {
+          displayName: "青禾",
+          isFocusBrand: true,
+          attitude: "POSITIVE",
+          mentionContext,
+        },
+      ],
+    };
+    const result = inspectM4BrandMentionsOutput(input);
+    expect(result.output).toEqual(input);
+    expect(result.output.brands[0]!.mentionContext).toHaveLength(21);
+    expect(() => inspectM4BrandMentionsOutput({ brands: 0 })).toThrow();
+    expect(() =>
+      inspectM4BrandMentionsOutput({
+        brands: [{ ...input.brands[0], mentionContext: [""] }],
+      }),
+    ).toThrow();
   });
   it("derives positions before filtering without quotations, extra summaries or semantic repair", () => {
     const value = raw(),
@@ -422,10 +508,18 @@ describe("M4 content-oriented brand rows", () => {
             choices: [
               {
                 finish_reason: "stop",
-                message: { content: JSON.stringify({brands: [{
-                  displayName: "青禾咖啡", isFocusBrand: true, attitude: "POSITIVE",
-                  mentionContext: ["青禾咖啡安静但略贵。"],
-                }]}) },
+                message: {
+                  content: JSON.stringify({
+                    brands: [
+                      {
+                        displayName: "青禾咖啡",
+                        isFocusBrand: true,
+                        attitude: "POSITIVE",
+                        mentionContext: ["青禾咖啡安静但略贵。"],
+                      },
+                    ],
+                  }),
+                },
               },
             ],
           },

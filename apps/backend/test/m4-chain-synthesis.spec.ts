@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   buildM4ChainSynthesisTask,
@@ -52,6 +53,140 @@ const output = () => ({
 });
 
 describe("M4 real-chain synthesis preview", () => {
+  it("pins the approved Alibaba snapshot without changing Tencent acquisition", () => {
+    const config = JSON.parse(
+      readFileSync(
+        new URL(
+          "../geo-intelligence/experiments/m4-model-comparison.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    const routes = JSON.parse(
+      readFileSync(
+        new URL("../ai-execution/real-routes.json", import.meta.url),
+        "utf8",
+      ),
+    ).routes;
+    expect(
+      config.models.find(
+        (m: { providerKey: string }) =>
+          m.providerKey === "alibaba-model-studio",
+      ).model,
+    ).toBe("deepseek-v4-flash-0731");
+    expect(config.thinkingProfiles).toEqual(["off", "low"]);
+    expect(config.temperature).toBe(0.4);
+    expect(
+      routes.find(
+        (r: { routePolicyId: string }) =>
+          r.routePolicyId === "evaluation.deepseek",
+      ),
+    ).toMatchObject({
+      providerKey: "tencent-tokenhub",
+      requestedModel: "deepseek-v4-flash",
+    });
+  });
+  it("hands off complete ordered mention arrays without raw text or invented legacy fields", () => {
+    const excerpts = Array.from({ length: 12 }, (_, i) => `源内容要点${i + 1}`);
+    const brands = [
+      {
+        displayName: "山岚",
+        isFocusBrand: false,
+        attitude: "NEUTRAL",
+        mentionContext: excerpts,
+      },
+      {
+        displayName: "青禾",
+        isFocusBrand: true,
+        attitude: "POSITIVE",
+        mentionContext: excerpts,
+      },
+      {
+        displayName: "晴川",
+        isFocusBrand: false,
+        attitude: "NEGATIVE",
+        mentionContext: ["不推荐"],
+      },
+    ];
+    const samples = inputs.map((s, i) => ({
+      ...s,
+      originalAnswer: "RAW_TEXT_MUST_NOT_BE_SENT",
+      interpretationFormat: "BRAND_MENTIONS" as const,
+      parsedOutput: {
+        brands: i === 0 ? brands : brands.filter((b) => !b.isFocusBrand),
+      },
+    }));
+    const task = buildM4ChainSynthesisTask("青禾", samples);
+    const assignment = buildM4BrandAssignmentTask(task);
+    const narrative = buildM4ReportCompositionTasks(task).narrative;
+    expect(narrative.userContext.samples[0]!.target).toMatchObject({
+      position: 2,
+      mentionContext: excerpts,
+    });
+    expect(narrative.userContext.samples[1]!.target).toBeNull();
+    expect(narrative.userContext.samples[0]).not.toHaveProperty(
+      "sampleSummary",
+    );
+    expect(narrative.userContext.samples[0]!.target).not.toHaveProperty(
+      "points",
+    );
+    expect(narrative.userContext.samples[0]!.target).not.toHaveProperty(
+      "summary",
+    );
+    expect(narrative.userContext.samples[0]).not.toHaveProperty("otherBrands");
+    expect(assignment.userContext.otherBrands[0]!.mentionContext).toEqual(
+      excerpts,
+    );
+    expect(assignment.userContext.otherBrands.map((b) => b.position)).toEqual([
+      1, 3, 1, 2,
+    ]);
+    expect(
+      assignment.userContext.otherBrands.some((b) => b.displayName === "青禾"),
+    ).toBe(false);
+    expect(JSON.stringify([narrative, assignment])).not.toContain(
+      "RAW_TEXT_MUST_NOT_BE_SENT",
+    );
+    expect(narrative.outputContract.version).toContain("+parser-mentions@1");
+    expect(task.userContext.coverage.mentionedSampleCount).toBe(1);
+    const assignments = Object.fromEntries(
+      assignment.userContext.otherBrands.map((b) => [b.id, b.displayName]),
+    );
+    const preview = composeM4AssignedReportPreview(
+      { assignments },
+      {
+        overview: "青禾在一条样本被提及",
+        positiveThemes: [],
+        negativeThemes: [],
+        directions: [],
+      },
+      task,
+    );
+    expect(preview.competitorPreview).toEqual([
+      {
+        displayName: "山岚",
+        members: ["s1-b1", "s2-b1"],
+        eligibleSampleCount: 2,
+      },
+    ]);
+    expect(() =>
+      buildM4ChainSynthesisTask(
+        "青禾",
+        samples.map((s) => ({ ...s, parsedOutput: { brands: 0 } })),
+      ),
+    ).toThrow();
+    expect(() =>
+      inspectM4TargetNarrativeOutput(
+        {
+          overview: "未知引用",
+          positiveThemes: [{ summary: "未知", sampleIds: ["s9"] }],
+          negativeThemes: [],
+          directions: [],
+        },
+        task,
+      ),
+    ).toThrow("Unknown evidence sample");
+  });
   it("provides a complete narrative example without forcing themes in empty cases", () => {
     const task = buildM4ChainSynthesisTask("青禾咖啡", inputs);
     const narrative = buildM4ReportCompositionTasks(task).narrative;
@@ -76,7 +211,7 @@ describe("M4 real-chain synthesis preview", () => {
       ).output.directions,
     ).toEqual([]);
     expect(narrative.outputContract.version).toBe(
-      "experiment.m4.target-narrative@1.3.1",
+      "experiment.m4.target-narrative@1.4.0",
     );
   });
   it("binds one required assignment slot to every unchanged brand record", () => {
