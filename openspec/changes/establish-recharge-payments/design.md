@@ -2,7 +2,7 @@
 
 方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 now connects authenticated customer API/history and controlled desktop checkout; current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real merchant/Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims.
+Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real merchant/Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims.
 
 已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
@@ -728,3 +728,16 @@ QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字
 - **最小反例**：真实 HTTP 的角色/账户/CSRF、敏感字段缺失、分页筛选和跨账户游标；默认未开放、关闭创建仍能恢复旧单；反复 verify 不提高网关频率。浏览器覆盖严格金额、创建丢响应重载、二维码、取消/迟到成功、历史重开、充值成功后的余额/发布重新核价；商户扫码、H5和真实资金明确不算通过。
 
 作者架构审查结论：可在上述窗口实施；没有依据要求重构 Commerce 或改变 RETURN 合同。新增索引可前向部署，回退页面/新建入口时保留 N1 数据及旧义务处理；不得回滚或删除已确认账务。当前实际状态和证据继续由 tasks/verification 与本片 PR 持有。
+
+## N3 常驻恢复与进程生命周期实施卡
+
+用户在 N2 交付后批准继续既定主线。本片从 #84@89f0dbd 线性推进，只完成 Recharge 自有恢复 runtime 的独立 Nest 后台装配与故障验证，不修改通用/评测 Worker、Commerce/RETURN、schema、客户 API 或生产配置。
+
+- **现有接缝**：N1 已持有 due/lease/attempt 和原子到账；本片只驱动 `runOrders` / `runSettlements`。相较塞入现有评测 Worker 或新建 BullMQ 支付队列，选择独立 RechargeWorkerModule + PostgreSQL 扫描：没有新的持久权威，Redis/网页/API/通知接收进程退出不会抹除支付待办。
+- **生命周期/背压**：两条 lane 各一次只驱动一项工作、彼此独立；完成后按显式间隔继续扫描，不用异步 setInterval 叠加在途调用。进程本地间隔只控制本进程负载；持久领取与幂等仍由 N1/C1 决定，不声称多副本商户总 QPS 已限流。
+- **退出**：收到停止请求后取消后续计时并通过 AbortSignal 在扫描/下一次领取之前停下；已开始领取/外部调用/结算仍等到真实完成，不向 gateway 传取消假象。Nest `beforeApplicationShutdown` 等 drain，Prisma 仍在 `onApplicationShutdown` 才关闭。等待超限报告一次 `DRAIN_PENDING`，继续等待、不声称完成或取消；外部 supervisor 可强杀，之后按持久义务恢复。
+- **配置与可观测性**：宿主必须显式给出数据库、渠道/政策、两个扫描间隔、失败间隔与 drain 告警时限。模块不读 merchant 环境变量、不内建真商户或测试默认；controlled 在 production 被拒绝。只暴露进程阶段、lane 时间与计数快照，日志是固定分类与汇总，不输出原始错误、订单/商户/密钥/HTTP 内容。review-required 与基础设施失败分开。
+- **验证**：虚拟时间证明独立 lane、无重入、失败间隔、停止与告警；真实 Nest 证明无 Web/Identity/AI/Redis 装配且 drain 先于断库；真实子进程证明 SIGTERM 在途完成、SIGKILL 后同单查询/一次到账、慢渠道期间通知到账照常进行，以及关闭新发起仍处理已有付款/关单。
+- **迁移/恢复/剩余 Gate**：无 schema 迁移，不回滚账务；普通 API/Worker 无支付启用。正式 secret 装载、部署与多副本预算、客户通知和运营 HTTP/UI 留在后续片。真实资金、机器/存储崩溃不是本片子进程测试的完成主张。
+
+前置作者架构审查：边界 ready，职责/数据锁与现有 N1/C1 一致。必须通过真实退出/重建证据后才声称常驻恢复有效；不以 timers 或配置存在证明进程级恢复。

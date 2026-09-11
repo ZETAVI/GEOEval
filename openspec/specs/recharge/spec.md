@@ -9,6 +9,8 @@ binding for reservations and credit. Customer commands and safe reads are owned 
 the [Native runtime](../../../apps/backend/src/recharge/native-recovery.runtime.ts)
 and its repositories own dispatch and settlement. Payment adapter contracts remain
 in [PaymentGateway](../../../apps/backend/src/recharge/application/payment-gateway.ts).
+The explicitly configured [resident worker](../../../apps/backend/src/recharge/recharge-worker.module.ts)
+drives that runtime independently of customer API, Identity, evaluation and Redis.
 
 The ordinary API exposes authenticated history and recovery of committed creation
 requests, with new payment creation disabled. A configured test host can exercise
@@ -76,6 +78,31 @@ success notifications.
   Recharge SHALL not reserve media, lock price, submit or purchase automatically.
 - Confirmed success SHALL not expose customer self-service cash refund. A
   consistent support entry SHALL retain the order identity for manual handling.
+
+### Requirement: Resident recovery and truthful process shutdown
+
+- The configured worker SHALL use existing durable order and settlement scans,
+  with one in-flight item per independent lane and an explicit delay after each
+  completion. A slow provider SHALL not block the settlement lane. Local pacing
+  SHALL not be presented as a merchant-wide or multi-replica rate limit.
+- Stopping SHALL prevent future scan/claim attempts. A claim, provider call or
+  commit already begun SHALL finish through the existing uncertainty and durable
+  completion rules; stopping SHALL not manufacture provider cancellation.
+- Shutdown SHALL wait for those lanes before Persistence disconnects. Exceeding
+  the configured drain-warning time SHALL report pending work and continue
+  waiting, never declare a drained worker or release money reservations.
+- SIGKILL cannot run cleanup. A replacement process SHALL rediscover the same
+  committed due/lease records, query the same merchant order and use once-only
+  settlement. Process-crash evidence SHALL not imply machine/storage durability
+  or verified real-merchant behavior.
+- Process diagnostics SHALL distinguish started/stopping/stopped, lane failure
+  and business review. Only fixed classifications, lane timestamps and counts
+  may be emitted; raw errors, credentials and payment/customer identifiers SHALL
+  not be exposed. A reporting failure SHALL not change payment results.
+- Configuration SHALL be explicit. The dedicated module SHALL import no
+  customer controllers, Identity, AI or Redis; the existing ordinary entry
+  points SHALL not activate it implicitly. Signal-hook ownership and an external
+  supervisor's forced-stop policy remain the deploying host's responsibility.
 
 ### Requirement: Explicit activation and compatible rollback
 

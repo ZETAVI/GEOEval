@@ -240,3 +240,22 @@ Reproduce HTTP/Web/type/build with the project scripts. Full backend tests requi
 Browser host: `apps/backend/test/fixtures/recharge-journey-host.ts`, run from backend with `node --import tsx test/fixtures/recharge-journey-host.ts`; it requires exactly loopback `geoeval_issue77_customer_browser_n2` and Redis 56577 DB2, refuses a non-empty seed database, and listens on 33577. Start the ordinary Web dev server on 32577 with API `http://localhost:33577`; open localhost to isolate the cookie from other worktrees. Only this test host registers `/__test/*` controls. All fake payment actions are signed through the real notification handler and carry an explicit controlled banner. Its process-local gateway map is not persistent merchant state, so this fixture does not prove provider restart or real WeChat availability. Keep or recreate only its named isolated environment; never truncate another owner's data to rerun it.
 
 Author review separates scope fidelity, engineering boundaries and evidence: no payment result is accepted from the client, Commerce still owns money writes, RETURN is unchanged, default host remains disabled, and browser return cannot auto-purchase. Corrected narrow issues found while reviewing: account-fenced balance refresh, stale source callback after abort, recovering another tab's frozen amount in the visible input, and storage failure during publishing return falling back to server-owned selection. No independent full N2 review is claimed. Merchant permissions/keys, production Worker/limits/support policy, successful-recharge notifications, H5, reconciliation and real-money acceptance remain unfinished #77 work.
+
+## N3 常驻 Worker 与真实子进程恢复（2026-09-09）
+
+基线：#84@89f0dbd，线性上层 N3；本片只增加 Recharge 独立 Nest 常驻装配和调度器，N1 两个扫描方法增加可选停止信号。无 schema/公开 HTTP/生成合同、Commerce/RETURN、通用/评测 Worker、环境密钥或生产启用改动。当前生命周期已收束至 [Recharge spec](../../specs/recharge/spec.md)和实际 worker/module。
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| 调度、背压与可见状态 | `recharge-worker.spec.ts` 的 8 cases | 两条 lane 独立、每条一项在途、完成后间隔、不重复启动、基础设施失败与业务 review 区分、失败退避/恢复、日志接收端故障不改变任务、私有错误不输出、快照复制、drain 超时仍等待、重复 stop 和停止后的领取屏障，passed |
+| 真 Nest 边界 | `recharge-worker.integration.spec.ts` 的独立 app case | ModulesContainer 证明无 Identity/Commerce/Media/AI/Redis/HTTP Controller，实际 Prisma shutdown hook 观察 worker 已 stopped，controlled/production 冲突被拒绝，passed |
+| 强制终止 | 同套真实子进程 case | 已持久领取/MAY_EXIST、合成渠道已接收发起而尚未返回时 SIGKILL；新 Node 进程在 lease 到期后查询同一商户单，可信成功只一次到账；重复认证通知仍一条 RECHARGE，未重新 INITIATE，passed |
+| 慢调用和优雅退出 | 同套真实子进程 case | 一笔 QUERY 被阻塞时另一笔已持久认证通知照常到账；SIGTERM 后 DRAIN_PENDING 不提前退出、无新领取；放开响应后结果落库、STOPPED 后退出。重建且 initiation=false，旧单继续 CLOSE，无新发起，未发出的单/预留保留，passed |
+| 原有 N1/C1 回归 | 新 11 cases + 22 Native + 22 atomic-core integration | **4 files / 55 passed**，实际 PostgreSQL 与合成签名渠道；重叠集合不另行累计 |
+| 工程边界 | workspace typecheck、backend build、全格式、框架/本地链接、diff check | Passed；未变化的 Web/HTTP合同和协议 HTTPS 证据复用 #84/#83 的准确 head CI，最终 N3 CI 由其 PR 持有 |
+
+测试失败如实处置：初次两个进程未启动，隔离 guard 拒绝了父/子不同临时目录；单变量诊断显示父进程为 macOS TMPDIR、最小环境子进程为 `/tmp`，只将相同 TMPDIR 显式传递，未放宽 guard。随后重复通知等待失败，最小诊断读回 PAYMENT_CONFLICT；测试每次生成新的 success_time 与已到账事实不同。改为合成商户持有固定付款时间、重送沿用该时间，未改变 production 的付款事实冲突检查。诊断时 `-t` 排除的用例不算 skip 通过；最终上述 55 项无 skip。
+
+复现：显式指定 loopback `geoeval_issue77_worker_n3` 的 DATABASE_URL 与隔离 REDIS_URL 后回放当前 39 条迁移，运行 `pnpm --filter @geoeval/backend test test/recharge-worker.spec.ts test/recharge-worker.integration.spec.ts test/native-recovery.integration.spec.ts test/recharge-core.integration.spec.ts`。本片本地 Redis 未启动、没有依赖它。进程测试只接受命名数据库，或 GitHub CI 的 disposable `/geoeval`，其他目标按测试 gate 跳过；子进程继承最小环境并再次核对 NODE_ENV、数据库和自身临时目录。合成“商户已收到”状态文件在 child 外保留，父进程只杀自己创建的子进程，结束后全部回收。
+
+证据范围不包含：机器断电/存储恢复、生产 secret 装载、实际微信公网调用、部署 supervisor、跨副本全商户预算、运营 API/UI、到账通知或真实资金。模块的 STARTED 是生命周期事件，不是商户可用或支付成功证明。调用真实默认 HTTPS adapter 时仍有其既有整体超时；注入的卡住调用只用于验证 drain 不伪报完成。

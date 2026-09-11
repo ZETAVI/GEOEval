@@ -185,3 +185,13 @@ Prisma 官网 transactions 页面本轮抓取失败，未作为已读证据。�
 微信直连 [Native 官方调起](https://pay.wechatpay.cn/doc/v3/merchant/4012791878)仍要求商户把 code_url 转为 QR 展示；支付宝的页面链接/表单与 H5 的跳转能力分别见本 brief 的官方接口来源。**支付方式、实际服务商和呈现动作需要区分**；具体字段/依赖及不变量在 design 11.0 / 11.3 收束，不从竞品 UI 推造第三方 API。刷新条件是选定实际服务商/商户产品，或其接口、返回/取消语义、开票范围发生变化。
 
 用户在后续批注中明确具体收银形式不是当前重点；本次补查只学习金额确认/明细，不新建待付单、不重试受阻网关。渠道选择只限制对应真实 Adapter/商户启用，不限制共用业务设计。重新读取的[微信回调注意事项](https://pay.wechatpay.cn/doc/v3/merchant/4012075420)仍要求 5 秒内应答、正确处理重复通知及验签失败。由此结合本地资金完整性选择“持久 inbox 后 ACK、后台结算、数据库补扫”，是项目设计，不是声称官方指定了某个队列。回调/查单指引页面本次抓取超时，沿用此前明确记录的内容，不记为本次读取成功。
+
+## N3 后台生命周期来源（2026-09-09）
+
+决策只涉及已有 Native runtime 的常驻驱动，微信协议、密码学、Prisma 事务与 Node HTTPS 8 秒整体超时仍复用未变化证据。
+
+- [Nest lifecycle](https://docs.nestjs.com/fundamentals/lifecycle-events)：本次读到 shutdown hooks 需显式启用；异步 hook 按阶段等待，`beforeApplicationShutdown` 先于 `onApplicationShutdown`；`app.close()` 本身不替应用清理残留 timer。现有 PrismaService 在最后阶段断开，故支付 drain 放在前一阶段。仓库 Nest 11.2.2 的真实 app 测试验证实际顺序。
+- [Node 24 process signals](https://nodejs.org/docs/latest-v24.x/api/process.html#signal-events)：本次读到 SIGTERM/SIGINT listener 改变默认退出行为，SIGKILL 无法拦截；本片不注册伪 crash cleanup，而用持久记录和另一个实际进程恢复。页面当前显示 v24.20.0，CI/local 24.12.0 的具体行为以实际测试为准。
+- Node timers 文档页面/固定源码本次读取失败或超时，未计为通过来源；已安装 Node 类型文档的 ref/unref 说明与实际定时器测试共同约束本进程持续运行/关闭。不从 timer 存在推断跨进程调度、持久性或总 QPS 保证。
+
+不增加依赖、队列服务或通用后台框架。刷新触发：Nest/Node major/lifecycle 变化、从独立进程改为共享宿主、引入全局商户限流或改变 provider/DB 超时与退出政策。
