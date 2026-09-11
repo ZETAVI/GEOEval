@@ -1,6 +1,6 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Report-oriented six-profile evidence under review; output-contract and synthesis-quality follow-up remains
+- Status: Controlled full chain accepted; runtime integration decision pending
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
@@ -43,6 +43,203 @@ first-appearance order, including formerly co-listed names as separate positions
 Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
+
+Prompt2.1 adds only general simplified/traditional and full-/half-width identity
+wording. The retained Taotaoju regression fixes 東園/东园2/2 without regressing
+White Swan or Bingsheng. A fresh42-call Taotaoju chain then completes with20/20
+acquisitions,20/20 parses, one valid name resolution and one valid composition,
+no retries. Open target mention is13/15 and every present/absent result agrees
+with literal source-name presence. Resolution converts106 source competitor rows
+through51 names into39 groups with no target leakage. Total time238.644s is
+inside the accepted3–5 minute range. Customer summary/perception lengths are126/
+154 characters, with3 positive themes,3 negative themes,2 article directions
+and no internal IDs in prose. This is the first complete fresh acceptance for
+the selected controlled chain. Runtime integration, current-spec reconciliation
+and frontend adaptation remain separate work.
+
+The owner now selects a name-level resolution interface instead of either
+record-ID candidate. Exact repeated `displayName` values are aggregated with
+their contexts; the Agent returns readable `observedNames` grouped under one
+brand subject, or in `ignoredNames`. The program retains name-to-source-record
+mapping and validates exact, exclusive name coverage before restoring sample
+statistics. It does not expose internal IDs or ask the Agent to invent group
+IDs. Focused tests18/18, backend typecheck and build pass. The three retained
+inputs reduce285 records to170 unique names. After exact transfer confirmation,
+all six DS0731-off calls pass strict name coverage. Fangsuo and Taotaoju produce
+identical memberships twice; Taizuidiao preserves every core identity and varies
+only on whether three vague descriptions are ignored. Mean call latency is
+9.945s and mean total tokens8,814. Private Langfuse contains seven expected
+observations and all six actual inputs, outputs, settings and usage match local
+evidence. Select this experimental resolution interface; runtime and full-chain
+acceptance remain separate decisions.
+
+The approved12-call resolution-contract comparison now answers the structural
+question. Both a root record-to-name map and groupId record map cover every ID
+exclusively6/6. groupId is more membership-repeatable on two of three datasets,
+but67% larger,53% slower and still splits White Swan venues once. The simpler
+root map repairs historical Taizuidiao core grouping and has only peripheral or
+one BingSheng semantic variation. Do not adopt artificial group IDs. See the
+[contract checkpoint](research/chain-quality-experiment.md#resolution-output-contract-comparison--2026-09-11).
+This historical result rejects artificial group IDs, but its root-map proposal
+is superseded by the owner-selected name-level candidate above.
+
+Fresh Guangzhou Taotaoju acceptance does not pass end to end. All20 acquisitions
+succeed and19/20 parses are valid; one parser duplicates 陶陶居 and 陶陶居社区店.
+Grouped1.2 covers all100 records but assigns one 白天鹅 record to both 银灯 and
+白天鹅, so composition is not called. Time to rejection is251.257s, not a
+successful report time. See the [fresh candidate checkpoint](research/chain-quality-experiment.md#taotaoju-current-candidate-full-chain-evaluation--2026-09-11).
+Do not add retries or another self-check sentence. The subsequent comparison
+rejects groupId indirection in favor of the simpler root assignment map. Runtime
+integration remains out of scope.
+
+Owner selects DeepSeek0731 nonthinking and closes further model selection.
+Open Prompt1.4 repairs the two known Gram&Gram focus misses4/4 while retaining
+the unnamed-shop negative2/2. An end-check-only grouped1.1 still misses the same
+Fangsuo record twice; grouped1.2 changes the single-call workflow to assign each
+ID before merging and then passes the exact95-record input2/2 with identical
+complete groups. Jinpeng control remains valid. This supports the owner-requested
+workflow check without retry-first design. See the [selected-candidate Prompt
+checkpoint](research/chain-quality-experiment.md#selected-deepseek-prompt14-and-grouped-workflow12--2026-09-11).
+At that checkpoint the next decision was a normal20-sample chain. The current
+checkpoint above now supplies that acceptance; no runtime/default switch yet.
+
+The owner reopens a bounded DS-off/Hy3-off selection comparison on the Qwen
+failure/control inputs. Offline-corrected results: both parsers17/17; DeepSeek
+groups2/3 and composes3/3, Hy3 groups1/3 and composes0/3 because of corrupted
+JSON keys. Hy3 recognizes two gram aliases that DeepSeek misses. Therefore
+DeepSeek remains the better single-model candidate; a Hy3-parser/DeepSeek-
+downstream combination is only a next validation candidate, not an activated
+choice. See the [selection checkpoint](research/chain-quality-experiment.md#deepseek-off--hy3-off-selection-replay--2026-09-11).
+
+Composition1.6 now includes the approved task-only brand-promotion/GEO article
+direction refinement, without new examples. The all-Qwen-off replay finishes130
+calls across gram/Jinpeng/Fangsuo, twice each. First-layer107/120, grouped4/6 and
+composition4/4 pass local contracts. Four partial-sample previews take67–104s,
+none has20 valid parses. Thirteen raw array-shaped replies omit the required
+wrapper/card; two group outputs repeat IDs, with one exposing compound brands
+already merged upstream. Article framing improves, but some specifics remain
+unsupported. All130 private trace contents/settings/usage match readback after
+accounting for existing JSON serialization normalization. No default/runtime
+switch. See the [current whole-analysis checkpoint](research/chain-quality-experiment.md#qwen-off-whole-analysis-replay-with-composition16--2026-09-11).
+Next prioritize output-shape and one-brand-per-record handoff, not another broad
+model matrix or additional article-writing prohibitions.
+
+Current Qwen-off composition1.5 is now tested on two20-sample contexts twice.
+All4 calls pass schema/references, preserve grouped statistics and match private
+trace readback. Customer prose has no internal IDs and3/4 outputs meet the soft
+length targets. Both Jinpeng directions still drift into service-product design,
+so content acceptance is partial. This reuses DS-off first-layer parses and Qwen
+groups, not an all-Qwen full-chain run. See the
+[current composition checkpoint](research/chain-quality-experiment.md#qwen-composition15-verification--2026-09-11).
+
+Owner-requested DS-low/Qwen-off targeted comparison is complete. Qwen off repairs
+gram focus in2/2 and covers both group sets in4/4; all8 Qwen local checks pass.
+Three DS-low group outputs truncate under8192; a separate16384 Jinpeng check
+completes twice, but takes98–104s. The owner stops further DS testing. Prioritize
+Qwen off for subsequent first-layer/grouping validation, not an automatic default
+switch. That comparison did not test composition; the subsequent current-version
+result above now supersedes the prior evidence gap. Historical1.1 small-context
+reports remain reference only. See the [model-option checkpoint](research/chain-quality-experiment.md#ds-low--qwen-off-targeted-comparison--2026-09-11).
+
+Owner treats the remaining scenario wording as nonblocking. After exact-scope
+authorization, broader fixed-candidate replay completes128 actual calls:120 parses,
+6 resolutions and2 compositions; four dependent compositions are skipped after
+rejected resolution. Only Thai produces both complete reports; gram has repeated
+inconsistent focus/competitor identity, and Jinpeng omits one grouped member in
+both runs. All128 actual IO records match private trace readback. See the
+[broader checkpoint](research/chain-quality-experiment.md#broader-frozen-chain-stability--2026-09-11).
+
+The owner also requests a new brand and delegates choice. Guangzhou 方所 adds20
+fresh sources and20 valid parses, but its95-record resolution omits two records,
+so composition is not called.41 actual calls,233.991s to failure, not successful
+full-report time; all41 private trace records match. Full-chain stability remains
+unmet despite healthy provider responses. Preserve frozen findings and prioritize
+group coverage and identity handoff, not another prose sweep. See the
+[new-brand checkpoint](research/chain-quality-experiment.md#fangsuo-new-brand-full-chain-attempt--2026-09-11).
+
+Latest composition1.5 only adjusts two expression instructions per owner
+feedback: exact customer-prose/reference separation and measured wording.
+Task scope, input, Schema and other stages stay unchanged. The subsequently
+approved four-call1.5 batch passes all existing local checks and private trace
+readback. No internal IDs appear in customer prose and the prior definite
+positioning assertion does not recur. One Jinpeng summary still attributes an
+open appearance to the directed scenario. Retain1.5 as a controlled wording
+candidate, not full semantic/runtime approval. See the
+[wording checkpoint](research/chain-quality-experiment.md#composition15-wording-validation--2026-09-11).
+
+Composition1.4 is now a separately versioned controlled prose refinement;
+open/direct/resolution1.3 remain unchanged. Four exact-context real calls pass
+local contracts and private trace readback. Perception is about20% shorter on
+average, but only one of four outputs meets both soft length goals. Some text
+still overstates "actual" positioning, exposes internal question IDs or loosely
+mixes open/directed findings. Retain the bounded improvement, not a full semantic
+stability claim. No new model matrix, sampling, webpage or runtime activation.
+The [prose checkpoint](research/chain-quality-experiment.md#composition-prose-refinement--2026-09-11)
+owns concrete outputs and remaining acceptance observations.
+
+After explicit real-call authorization, the unchanged 24-call grouping/Schema
+manifest executed completely. All16 resolutions passed local checks. Grouped
+outputs preserved the inspected Thai brand memberships in all four runs; the
+assignment interface still split 大头虾 in all four. Composition passed4/4 with
+full Schema but only1/4 with bare omission: an extra root field once, point IDs
+used as sample IDs twice. No demonstrated latency benefit from omission. See
+the [measured comparison](research/chain-quality-experiment.md#schema-and-grouping-cross-comparison--2026-09-10).
+
+The next bounded candidate uses explicit groups for identity and a compact
+composition output skeleton with distinct point/sample reference instructions.
+Local contracts remain authoritative; no silent output repair or re-grouping by
+display name. Eighteen focused tests pass. After exact-batch authorization, all
+six follow-up calls passed: four fixed-context and two grouped integration
+outputs. Compact input averages17% fewer tokens than full Schema, not a measured
+speedup. References and grouping statistics hold; some narratives contradict
+their own mention count and remain verbose. Preserve these as visible follow-up
+findings, not broad stability claims. No new sampling, webpage, runtime activation
+or production changes. Current selected Prompt1.3/default route stays unchanged.
+
+Prompt1.3 unseen-brand validation for 广州泰咀刁 completed all64 calls with no
+technical failures/retries: twenty fresh sources and two full parsing/report
+passes. First full pipeline213.333s; same-source replay56.664s. Target recognition
+is consistent (the contextually matched 泰嘴刁 spelling contributes1/15 at
+position7; five directed answers retain target content). Competitor resolution
+still splits 大头虾6 into3+3 and 泰爱里5 into4+1, changing the top list. One
+named restaurant is filtered in the first pass and retained in the second.
+Keep the selected model/Prompt; pause new-brand expansion and inspect the
+resolver on one frozen input rather than continue broad sampling or claim
+comprehensive stability. See the
+[Taizuidiao checkpoint](research/chain-quality-experiment.md#taizuidiao-unseen-brand-full-chain--2026-09-10).
+
+The owner-approved Prompt 1.3 refinement is complete with ten successful real
+calls. Both parses split distinct co-listed brands while preserving aliases;
+both fixed-input resolutions unify 大成 and 盈科 branches; both downstream
+seam passes retain recovered names and correct counts. No new acquisitions or
+automatic retries were used. Nineteen previous parses are reused per seam pass,
+so this is bounded repair evidence, not a full twenty-sample new-version test.
+Retain the candidate and stop tuning the same examples; next is the proposed
+广州泰咀刁 full-chain coverage, without reopening a model matrix. See the
+[current repair checkpoint](research/chain-quality-experiment.md#co-listed-subject-repair--2026-09-10).
+
+The Jinpeng cross-industry batch has completed 64 real calls without technical
+failure/retry: twenty sources, two complete parsing/report passes. First full
+pipeline is 216.202 seconds; same-source replay is 63.782 seconds. Both preserve
+the observed 2/15 open mentions at positions 7 and 1, consistent with inspected
+source presence. All 64 private Langfuse IO/settings/usage records match readback.
+Target stability and time passed in that 1.2 batch, not full semantic acceptance:
+both passes combine distinct co-listed firms into one row that resolution drops,
+and kept 大成/盈科 head-office and branch labels in separate groups. The bounded
+repair above addresses those two findings; old outputs remain unchanged.
+See the
+[Jinpeng checkpoint](research/chain-quality-experiment.md#jinpeng-cross-industry-full-chain--2026-09-10).
+
+Prompt 1.2.0 targeted replay is now complete: eight first-layer calls and two
+exact-input 44-record resolution calls. Unsupported gram attribution did not
+recur, positive focus/order cases remained intact, and all five 乐凯撒 records
+received one name in both outputs. The owner accepts two retained unnamed-shop
+records as a non-blocking observation. One output still splits The Pizza Factory
+solely by whitespace. That surface-only comparison issue is now corrected
+locally and verified against both retained outputs before the Jinpeng batch.
+Raw assignments are unchanged; semantic alias grouping still belongs to the LLM.
+See the [current targeted design](design.md#current-targeted-identity-repair)
+and [measured checkpoint](research/chain-quality-experiment.md#targeted-identity-repair--2026-09-10).
 
 The owner has selected DeepSeek V4 Flash 0731 / thinking off as the main
 candidate, with Qwen off as an unactivated backup. Broad model comparison is

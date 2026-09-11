@@ -1,5 +1,35 @@
 # Architecture Review: Evaluation Analysis Experiments
 
+## Name-level2.1 full-chain checkpoint
+
+- Fixed diff: working tree after the owner-approved Prompt2.1 regression and
+  fresh42-call Taotaoju chain, against branch HEAD `d0ff25f`.
+- Intent: matches Issue #42's controlled experiment boundary. One supported
+  writing-equivalence criterion is added; no model matrix, retry-first design,
+  runtime activation or frontend change is introduced.
+- Engineering: `observedName + mentionContext` is the complete model-facing
+  identity interface. Exact name-to-source-record mapping, exclusive coverage,
+  focus exclusion and per-sample statistics remain cohesive in the existing
+  program owner. No dependency, persistence, migration or external runtime
+  route is added. The interface cannot split two unrelated entities with the
+  exact same observed name or an upstream compound row; these remain explicit
+  residuals rather than speculative machinery.
+- Evidence:18/18 focused tests, backend typecheck/build, repository formatting,
+  project framework/link validation and diff hygiene pass. Prompt2.1 retained
+  replay passes2/2; the fresh chain passes20 acquisition,20 parse, one resolution
+  and one composition call in238.644s with no retry. Both private Langfuse traces
+  match all44 actual inputs, outputs, settings and usage.
+- Continuity: current design/proposal/tasks/research own the accepted controlled
+  result. Current runtime specs remain intentionally unchanged. Live Issue #42
+  is `Review / Decision`; PR #62 remains Draft, behind main, and its remote CI
+  predates this working tree. The old CI formatting failure is repaired locally
+  but not yet pushed or rechecked remotely.
+- Verdict: `ready with follow-up` for committing the controlled experiment to
+  PR #62. Not ready for runtime activation, PR merge or Issue closure until the
+  branch is synchronized, remote CI is green, and runtime/spec/frontend ownership
+  is explicitly decided. The 点都德/毕德寮 brand-line counting ambiguity is a
+  product-policy follow-up, not a blocker for the validated mechanism.
+
 - Baseline: `main@ddadf77`; supersedes the review at `537895b`
 - Result: `ready with follow-up` for experimental preparation;
   `not ready` for runtime topology selection or activation

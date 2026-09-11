@@ -9,6 +9,7 @@ const asset = z
   .object({
     id: z.string(),
     version: z.string(),
+    compositionVersion: z.string().optional(),
     open: z.string(),
     direct: z.string(),
     resolution: z.string(),
@@ -40,8 +41,8 @@ const brand = z
   .strict();
 export const m4ReportSampleSchema = z
   .object({
-    cardInterpretation: text(600),
     brands: z.array(brand),
+    cardInterpretation: text(600),
   })
   .strict();
 type SampleOutput = z.infer<typeof m4ReportSampleSchema>;
@@ -54,17 +55,62 @@ const kinds = z.enum([
 
 // Experiment-only message assembly. Keep the schema instruction next to its
 // executable owner rather than duplicating it in each private replay runner.
-export function buildM4ReportMessages(input: StructuredOutputAttemptInput) {
+export function buildM4ReportMessages(
+  input: StructuredOutputAttemptInput,
+  schemaMode: "full" | "omit" | "compact" = "full",
+) {
   return [
     {
       role: "system" as const,
       content:
         input.systemInstruction +
-        "\n\n请根据输入完成任务，输出一个符合以下 JSON Schema 的数据对象。Schema 只说明字段和类型，不是要返回的答案；请填写实际解析结果，不要复述 Schema。仅输出 JSON 对象本身，不加代码围栏或解释。\n" +
-        JSON.stringify(input.outputContract.jsonSchema),
+        (schemaMode === "full"
+          ? "\n\n请根据输入完成任务，输出一个符合以下 JSON Schema 的数据对象。Schema 只说明字段和类型，不是要返回的答案；请填写实际解析结果，不要复述 Schema。仅输出 JSON 对象本身，不加代码围栏或解释。\n" +
+            JSON.stringify(input.outputContract.jsonSchema)
+          : schemaMode === "compact"
+            ? compactCompositionGuide(input)
+            : "\n\n请根据输入完成任务，按上述输出要求返回填有实际结果的 JSON 对象。仅输出 JSON 对象本身，不加代码围栏或解释。"),
     },
     { role: "user" as const, content: JSON.stringify(input.userContext) },
   ];
+}
+
+// Composition-only experiment: derive the shape and bounds from the same
+// contract used locally, without repeating all allowed evidence IDs in prose.
+function compactCompositionGuide(input: StructuredOutputAttemptInput) {
+  if (!input.outputContract.version.includes(".composition@"))
+    throw Error("Compact guide is only defined for report composition");
+  const bounds: string[] = [];
+  const shape = (schema: any, path: string): unknown => {
+    if (schema === false || schema.not) return null;
+    if (schema.type === "object")
+      return Object.fromEntries(
+        Object.entries(schema.properties).map(([key, value]) => [
+          key,
+          shape(value, path ? `${path}.${key}` : key),
+        ]),
+      );
+    if (schema.type === "array") {
+      if (schema.minItems || schema.maxItems !== undefined)
+        bounds.push(
+          `${path}：${schema.minItems ?? 0}–${schema.maxItems ?? "不限"}项`,
+        );
+      const item = shape(schema.items, `${path}[]`);
+      return item === null ? [] : [item];
+    }
+    if (schema.maxLength)
+      bounds.push(`${path}：${schema.minLength ?? 0}–${schema.maxLength}字符`);
+    return schema.enum?.[0] ?? "填写实际内容";
+  };
+  const skeleton = shape(input.outputContract.jsonSchema, "");
+  return (
+    "\n\n输出一个 JSON 数据对象，字段和嵌套层级如下，所有字段都要保留，不增加其他字段。骨架中的文字和 ID 仅示意位置，请根据输入填写实际结果；没有适用内容的列表填写空数组。\n" +
+    JSON.stringify(skeleton) +
+    "\npositiveThemes、negativeThemes 的 pointIds 引用 samples[].target.mentionContext[].id，表示具体内容点；directions 的 sampleIds 引用 samples[].sampleId，表示整条样本。两类 ID 不可混用，复制输入中对应层级的 ID。\n" +
+    "格式范围（不是要求写满）：" +
+    bounds.join("；") +
+    "。仅输出 JSON 对象本身，不加代码围栏或解释。"
+  );
 }
 
 function task(
@@ -77,7 +123,7 @@ function task(
     systemInstruction: asset[part],
     userContext,
     outputContract: {
-      version: `${asset.id}.${part}@${asset.version}`,
+      version: `${asset.id}.${part}@${part === "composition" ? (asset.compositionVersion ?? asset.version) : asset.version}`,
       jsonSchema: z.toJSONSchema(schema, { target: "draft-2020-12" }),
     },
   };
@@ -194,6 +240,24 @@ function records(samples: Prepared) {
     })),
   );
 }
+
+function observedBrandNames(samples: Prepared) {
+  const names = new Map<
+    string,
+    { observedName: string; mentionContext: string[] }
+  >();
+  for (const record of records(samples)) {
+    const entry = names.get(record.displayName) ?? {
+      observedName: record.displayName,
+      mentionContext: [],
+    };
+    for (const point of record.mentionContext)
+      if (!entry.mentionContext.includes(point))
+        entry.mentionContext.push(point);
+    names.set(record.displayName, entry);
+  }
+  return [...names.values()];
+}
 function resolutionSchema(samples: Prepared) {
   return z
     .object({
@@ -224,38 +288,75 @@ function summarize(samples: Prepared) {
     positions: mentioned.map((s) => s.target!.position),
   };
 }
-export function inspectM4ReportResolution(
-  value: unknown,
-  samples: Prepared,
-  focusBrand: string,
-) {
-  const output = resolutionSchema(samples).parse(value);
-  const all = samples.flatMap((s) =>
+// Compare presentation whitespace only. Keep Latin word boundaries and all
+// name characters; identity/alias decisions still belong to resolution.
+function brandNameSpacingKey(name: string) {
+  return name
+    .trim()
+    .replace(/\s+/gu, " ")
+    .replace(/(\p{Script=Han}) (?=[\p{Script=Latin}\p{Number}])/gu, "$1")
+    .replace(/([\p{Script=Latin}\p{Number}]) (?=\p{Script=Han})/gu, "$1");
+}
+
+function resolutionRows(samples: Prepared) {
+  return samples.flatMap((s) =>
     s.otherBrands.map((b) => ({
       ...b,
       sampleId: s.sampleId,
       platformLabel: s.platformLabel,
     })),
   );
-  const targetNames = new Set(
+}
+function focusNameKeys(samples: Prepared, focusBrand: string) {
+  return new Set(
     [
       focusBrand,
       ...samples.flatMap((s) => (s.target ? [s.target.displayName] : [])),
-    ].map((s) => s.normalize("NFKC").toLocaleLowerCase()),
+    ].map((s) => brandNameSpacingKey(s.normalize("NFKC").toLocaleLowerCase())),
   );
-  const grouped = new Map<string, typeof all>();
+}
+
+export function inspectM4ReportResolution(
+  value: unknown,
+  samples: Prepared,
+  focusBrand: string,
+) {
+  const output = resolutionSchema(samples).parse(value);
+  const all = resolutionRows(samples);
+  const targetNames = focusNameKeys(samples, focusBrand);
+  const grouped = new Map<
+    string,
+    { displayName: string; members: typeof all }
+  >();
   for (const row of all) {
     const name = output.assignments[row.id];
     if (name === null) continue;
     if (name === undefined) throw Error("Missing resolution slot");
-    if (targetNames.has(name.normalize("NFKC").toLocaleLowerCase()))
+    if (
+      targetNames.has(
+        brandNameSpacingKey(name.normalize("NFKC").toLocaleLowerCase()),
+      )
+    )
       throw Error("Resolved competitor is focus brand; requires review");
-    const members = grouped.get(name) ?? [];
-    members.push(row);
-    grouped.set(name, members);
+    const key = brandNameSpacingKey(name);
+    const group = grouped.get(key) ?? { displayName: name, members: [] };
+    group.members.push(row);
+    grouped.set(key, group);
   }
-  const competitors = [...grouped]
-    .flatMap(([displayName, members]) => {
+  return {
+    output,
+    competitors: summarizeResolutionGroups([...grouped.values()]),
+  };
+}
+
+function summarizeResolutionGroups(
+  groups: Array<{
+    displayName: string;
+    members: ReturnType<typeof resolutionRows>;
+  }>,
+) {
+  return groups
+    .flatMap(({ displayName, members }) => {
       const eligible = members.filter((m) => m.attitude !== "NEGATIVE");
       const perSample = new Map<string, number>();
       for (const m of eligible) {
@@ -282,7 +383,89 @@ export function inspectM4ReportResolution(
         b.occurrenceCount - a.occurrenceCount ||
         a.displayName.localeCompare(b.displayName),
     );
-  return { output, competitors };
+}
+
+const groupedResolutionSchema = z
+  .object({
+    brandGroups: z.array(
+      z
+        .object({
+          displayName: text(120),
+          observedNames: z.array(text(120)).min(1),
+        })
+        .strict(),
+    ),
+    ignoredNames: z.array(text(120)),
+  })
+  .strict();
+
+// Experimental name-level resolution. Internal record IDs stay in the program;
+// the model only groups the observed names and uses their content for context.
+export function buildM4ReportGroupedResolutionTask(
+  samples: Prepared,
+): StructuredOutputAttemptInput {
+  const prompt = JSON.parse(
+    readFileSync(
+      new URL(
+        "../../../geo-intelligence/experiments/m4-resolution-groups.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ) as { id: string; version: string; instruction: string };
+  return {
+    taskKind: "STRUCTURED_OUTPUT",
+    systemInstruction: prompt.instruction,
+    userContext: { brandNames: observedBrandNames(samples) },
+    outputContract: {
+      version: `${prompt.id}@${prompt.version}`,
+      jsonSchema: z.toJSONSchema(groupedResolutionSchema, {
+        target: "draft-2020-12",
+      }),
+    },
+  };
+}
+
+export function inspectM4ReportGroupedResolution(
+  value: unknown,
+  samples: Prepared,
+  focusBrand: string,
+) {
+  const output = groupedResolutionSchema.parse(value);
+  const rows = new Map<string, ReturnType<typeof resolutionRows>>();
+  for (const row of resolutionRows(samples)) {
+    const matches = rows.get(row.displayName) ?? [];
+    matches.push(row);
+    rows.set(row.displayName, matches);
+  }
+  const seen = new Set<string>();
+  const take = (name: string) => {
+    const matches = rows.get(name);
+    if (!matches) throw Error("Unknown resolution name");
+    if (seen.has(name)) throw Error("Repeated resolution name");
+    seen.add(name);
+    return matches;
+  };
+  const targetNames = focusNameKeys(samples, focusBrand);
+  const groups = output.brandGroups.map((group) => {
+    if (
+      targetNames.has(
+        brandNameSpacingKey(
+          group.displayName.normalize("NFKC").toLocaleLowerCase(),
+        ),
+      )
+    )
+      throw Error("Resolved competitor is focus brand; requires review");
+    return {
+      displayName: group.displayName,
+      members: group.observedNames.flatMap(take),
+    };
+  });
+  output.ignoredNames.forEach(take);
+  if (seen.size !== rows.size) throw Error("Missing resolution member");
+  // Group membership, not display text, is the identity used for counting.
+  // Exact observed names are expanded back to all source records only here.
+  return { output, competitors: summarizeResolutionGroups(groups) };
 }
 function reportSchema(samples: Prepared) {
   const points = samples.flatMap(
@@ -325,6 +508,27 @@ export function buildM4ReportCompositionTask(
   resolution: unknown,
 ) {
   const resolved = inspectM4ReportResolution(resolution, samples, focusBrand);
+  return compositionTask(focusBrand, samples, resolved.competitors);
+}
+
+export function buildM4ReportGroupedCompositionTask(
+  focusBrand: string,
+  samples: Prepared,
+  resolution: unknown,
+) {
+  const resolved = inspectM4ReportGroupedResolution(
+    resolution,
+    samples,
+    focusBrand,
+  );
+  return compositionTask(focusBrand, samples, resolved.competitors);
+}
+
+function compositionTask(
+  focusBrand: string,
+  samples: Prepared,
+  competitors: ReturnType<typeof summarizeResolutionGroups>,
+) {
   const questions = [...new Set(samples.map((s) => s.questionId))].map(
     (questionId) => {
       const group = samples.filter((s) => s.questionId === questionId);
@@ -349,7 +553,7 @@ export function buildM4ReportCompositionTask(
     {
       focusBrand: text(120).parse(focusBrand),
       performance: { ...summarize(samples), questions, platforms },
-      competitors: resolved.competitors.slice(0, 5),
+      competitors: competitors.slice(0, 5),
       samples: samples.map((s) => ({
         sampleId: s.sampleId,
         questionId: s.questionId,
@@ -411,11 +615,33 @@ export function composeM4ReportPipelinePreview(
   composition: unknown,
 ) {
   const brands = inspectM4ReportResolution(resolution, samples, focusBrand);
+  return reportPreview(samples, brands.competitors, composition);
+}
+
+export function composeM4ReportGroupedPipelinePreview(
+  focusBrand: string,
+  samples: Prepared,
+  resolution: unknown,
+  composition: unknown,
+) {
+  const brands = inspectM4ReportGroupedResolution(
+    resolution,
+    samples,
+    focusBrand,
+  );
+  return reportPreview(samples, brands.competitors, composition);
+}
+
+function reportPreview(
+  samples: Prepared,
+  competitors: ReturnType<typeof summarizeResolutionGroups>,
+  composition: unknown,
+) {
   const report = inspectM4ReportComposition(composition, samples);
   return {
     experimental: true,
     ...report,
-    competitors: brands.competitors.slice(0, 5),
+    competitors: competitors.slice(0, 5),
     cards: samples.map((s) => ({
       sampleId: s.sampleId,
       cardInterpretation: s.cardInterpretation,

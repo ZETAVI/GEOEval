@@ -44,10 +44,7 @@
       "query": "一个20人的内容团队经常与外部客户协作，希望文档共同编辑、任务跟踪方便，又不想培训和费用太高，有哪些办公协作工具可以考虑？"
     }
   ],
-  "samplers": [
-    "qwen",
-    "doubao"
-  ],
+  "samplers": ["qwen", "doubao"],
   "limits": {
     "acquisition": 12,
     "parse": 72,

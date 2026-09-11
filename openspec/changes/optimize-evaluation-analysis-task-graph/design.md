@@ -1,11 +1,373 @@
 # Design: Evidence-led Evaluation Analysis
 
+## Prompt2.1 and fresh full-chain acceptance
+
+One evidence-backed wording change adds simplified/traditional and full-/half-
+width writing differences to the existing name-identity criteria. It does not
+add a case-specific example, field, Agent, normalization library or program
+guess. The retained Taotaoju input then merges the known 東園/东园 pair2/2 while
+preserving White Swan and Bingsheng groups2/2. One run groups 毕德寮 with 点都德
+and one keeps them separate; because the input explicitly calls it a high-end
+line of 点都德, this is an unresolved brand-line policy ambiguity rather than a
+structural failure. Do not encode a rule from it in this change.
+
+A subsequent fresh Taotaoju chain completes20/20 acquisitions,20/20 parses,
+one name-level resolution and one composition without retry. Every parsed focus
+row has explicit source-name support, while the two absent open results also
+lack the name in their sources. The resolver restores106 source competitor rows
+through51 unique names into39 groups without target leakage. The final report
+passes references/statistics, contains no internal ID in customer prose and
+finishes in238.644s. This verifies the controlled candidate end to end within
+the3–5 minute target; it does not activate the runtime or settle the ambiguous
+brand-line policy.
+
+## Name-level resolution candidate
+
+The owner rejects internal record IDs and artificial group IDs as model-facing
+concepts. The current experimental seam therefore aggregates exact observed
+names before resolution. Each model input item contains only `observedName` and
+the deduplicated `mentionContext` collected for that name. The output contains
+`brandGroups: [{displayName, observedNames}]` and `ignoredNames`.
+
+The application retains the reversible mapping from each exact observed name to
+all source records. After local validation proves that every input name appears
+exactly once, the application expands group membership back to the original
+sample, platform, position and attitude records. It does not infer aliases,
+split model groups or repair membership. This removes meaningless bookkeeping
+from the Agent while preserving deterministic evidence restoration and existing
+per-sample counting.
+
+This interface deliberately treats repeated identical observed names as one
+identity decision within an evaluation. It cannot split two unrelated entities
+that use exactly the same parsed name; their aggregated contexts remain visible
+to the Agent, and such a demonstrated collision would reopen the boundary. It
+also cannot repair an upstream row that already combines several brand names.
+Those are explicit limits, not reasons to retain record IDs in the normal model
+task.
+
+Local contract coverage passes18/18 focused tests plus backend typecheck/build.
+The retained Fangsuo, Taotaoju and Taizuidiao inputs shrink from95/100/90 source
+records to50/57/63 unique names. After exact transfer confirmation, the six-call
+DeepSeek0731-off replay passes exact exclusive name coverage6/6. Fangsuo and
+Taotaoju repeat memberships are identical; Taizuidiao differs only on three
+vague, non-brand descriptions while its core brand memberships remain stable.
+No full JSON Schema or internal record ID is present in the actual model
+messages. This selects the name-level interface inside the controlled candidate,
+not the whole analysis chain for runtime use.
+
+## Fresh acceptance result and remaining seam
+
+Taotaoju20-sample fresh acquisition reaches19 valid parses but grouped1.2
+duplicates one clear 白天鹅 record into 银灯 and 白天鹅. Every ID is covered and
+no unknown ID appears, so the workflow-first change fixes the prior omission
+class without enforcing exclusivity. The guard rejects before composition.
+
+Do not add retry-first recovery, another prose self-check or deterministic
+identity repair. The later owner decision and passing replay supersede the root record-ID map as
+the preferred interface: exact source names are aggregated before the Agent and
+grouped by readable names. Internal IDs remain application-only evidence keys.
+The historical contract comparison below remains useful evidence against
+artificial group IDs, not the current candidate.
+
+## Selected DeepSeek prompt workflow
+
+Owner selects DeepSeek0731 nonthinking across the analysis chain. Open1.4 keeps
+one Agent/call while ordering work as subject recognition then focus matching.
+Grouped1.2 historically tested assign-before-merge with model-facing IDs. The
+selected name-level2.1 interface now keeps one Agent/call but aggregates exact
+names before grouping; local validators remain rejection boundaries and do not
+infer identities. Do not design recovery around retries.
+
+Known cases now pass: Gram&Gram positives4/4, unnamed-shop negatives2/2, and the
+same Fangsuo95-record grouped input2/2 with identical complete output. The prior
+end-check-only wording failed2/2, so completion comes from reordering the Agent's
+work, not merely repeating a constraint. No new Agent, batch split, schema enum
+or program repair. A normal20-sample current-version chain remains required
+before runtime integration.
+
+## Current DS/Hy3 selection boundary
+
+The bounded same-context comparison now supports DeepSeek off as the better
+single-model option:17/17 corrected parses,2/3 groups and3/3 composition. Hy3
+also parses17/17 and has better focus-alias recall, but groups1/3 and produces
+0/3 valid composition objects. Preserve the potential layer-specific seam:
+Hy3 parsing plus DeepSeek grouping/composition may be tested as one ordinary
+end-to-end candidate. Do not activate it or add fallback routing from targeted
+component evidence. The Fangsuo compound-brand rows remain an upstream contract
+problem shared by both models.
+
+## Current all-Qwen validation boundary
+
+Owner approves composition1.6 task-only direction wording, adding explicit
+brand-promotion/GEO writing intent and allowing strengths or weaknesses as useful
+article angles. No examples, Schema changes or additional validation mechanisms.
+Open/direct1.3 and grouped1.0 remain fixed. Reuse60 retained gram/Jinpeng/Fangsuo
+sources, two complete analysis passes, Qwen3.8 Flash off/temp0.6/max8192 at all
+three stages. Maximum132 calls/concurrency5, no acquisition, retries, fallback,
+webpage or runtime/default activation. Report raw failures rather than repair
+outputs. This tests original-answer-to-report, not new five-platform sampling.
+
+Completed130 calls:107/120 parses,4/6 groups,4/4 composition pass; four previews
+contain18–19 valid samples. The two rejected passes contain17 and16 valid samples.
+No pass contains20 valid parses. Array-only responses omit required
+cards, and compound first-layer brand rows can force incompatible downstream
+one-ID/one-group assignment. Existing rejection remains intact; do not silently
+wrap/fabricate output or multi-assign IDs. Article task framing improves without
+establishing full-chain stability. All130 private trace JSON contents/settings/
+usage match; serialized whitespace is normalized by the existing mask.
+
+## Current model-option validation
+
+The owner subsequently approves four composition1.5 calls: Jinpeng and Fangsuo
+twice each, fixed Qwen-off temperature0.6/max_tokens8192/compact guide. Reuse
+the existing20-sample DS-off parses and successful Qwen groups. No changed
+interface, first-layer output, original source, new guard or additional Agent.
+This is composition plus preview verification, not a wholly Qwen-executed chain.
+All4 real calls now pass structural/reference and trace checks, with statistics
+preserved. No customer IDs found and3/4 meet soft length goals. Article directions
+still drift into service-product design in both Jinpeng outputs; content
+acceptance is partial and no runtime/default switch is implied.
+
+Measured outcome: Qwen off is the preferred next first-layer/grouping candidate,
+not a whole-chain selection. Two budget-expanded DS-low calls explain truncation
+but cost98–104s; the owner stops further DS testing. At that checkpoint no current
+Qwen composition had run; the subsequent approved test above fills that limited
+evidence gap. Historical1.1 three-sample outputs remain distinct from1.5
+compact20-sample acceptance. No runtime activation.
+
+Owner explicitly requests DS low and Qwen nonthinking comparison after broader
+chain failures. This reopens only a bounded configuration comparison, not Prompt
+redesign or a broad matrix. Two failed first-layer inputs (gram identity and
+Fangsuo qualifier preservation) and two failed group inputs (Jinpeng124 records,
+Fangsuo95 records) each run twice on both configurations:16 calls. Exact messages,
+Schema and temperature0.6 stay fixed; max_tokens8192 is equal, with truncation
+classified separately if thinking consumes that budget. Historical DS-off
+outputs are controls, not randomized contemporaneous executions. No extra guard,
+sampling, retry, fallback, webpage or runtime activation. Existing provider
+adapter and private telemetry path are reused without interface changes.
+
+## Current broader validation boundary
+
+Owner accepts the residual scenario wording as nonblocking and requests broader
+tests of the current candidate, not a new design. Reuse60 retained original
+answers across gram/Jinpeng/Taizuidiao through two full parsing/grouped-resolution/
+composition passes, at most132 calls and concurrency5, no automatic retry or
+sampling. Existing module entry points compose directly; no new product code or
+interface. Separate per-brand traces support complete readback. Failed upstream
+work is disclosed, never treated as absence or a complete report. Safety review
+initially rejected this expanded batch; after exact-scope confirmation, the
+unchanged manifest completed128 calls, with4 compositions skipped after rejected
+resolution. Thai completes both reports; gram and Jinpeng do not. This is
+parse-through-report coverage, not
+fresh sampling or full product Worker/frontend performance evidence.
+
+The owner additionally requests a new brand and delegates selection. Use Guangzhou
+方所 bookstore to cover retail/cultural space rather than another restaurant/law
+firm. Four queries cover direct understanding, broad bookstore comparison,
+humanities/literature/art selection, and a weekend browsing experience. These
+are query scenarios, not asserted facts. Reuse unchanged five-platform routes
+and previously verified adapters; current route-config hash matches the retained
+Thai run. Controlled42-call acquisition/parse/group/compose pipeline, shared
+concurrency5, no retry/fallback, unchanged current candidate. No frontend/Worker
+activation or broader topology change. The retained replay completes first.
+The new batch then finishes41 calls but no report: two of95 resolution records
+are unaccounted for, preventing composition. No automatic fix or retry occurs.
+Both batches expose integration acceptance gaps; do not select the whole chain
+from prior component-level successes or equate HTTP success with report validity.
+
+## Composition expression refinement
+
+Latest owner-approved1.5 is wording-only: retain all1.4 task definitions and
+contexts, replace the vague internal-number sentence with the exact agreed
+customer-prose/reference-field instruction, and add one measured-tone sentence.
+Do not shift the task toward judging cross-answer consistency. No input-field
+removal, display scanner, new guard or automatic retry. The subsequently
+approved four-call1.5 replay passes existing structure/reference checks and
+actual-IO trace readback; customer IDs and the definite-positioning assertion
+do not recur. Scenario attribution remains incorrect in one Jinpeng summary.
+Previous1.4 evidence remains historical rather than relabeled. Keep the wording
+candidate without claiming complete semantic stability or runtime activation.
+
+The owner approves a small prose-only refinement on the existing candidate.
+Composition1.4 keeps the same user contexts, compact format guide, output Schema,
+DS0731 off/temp0.6 and statistics. Ask for one core conclusion with one or two
+useful supporting facts; brand perception selects a few distinguishing impressions
+instead of repeating a business/credential inventory. State the overall-versus-
+partial mention boundary once. Soft length goals remain observations, not extra
+reject/retry rules. No added Agent, postprocessor, model matrix or new sampling.
+
+Architecture readiness is light and ready for this controlled boundary. The
+existing prompt asset optionally versions composition separately so changing its
+prose does not relabel unchanged open/direct/resolution1.3 instructions. No public
+contract, persistence or runtime route changes. Four frozen calls compare the
+same two historical fixed inputs twice; actual IO remains private in Langfuse,
+independent review local. Candidate adoption depends on content inspection, not
+only valid JSON or shorter character counts.
+
+Measured checkpoint:4/4 local contract and private trace checks pass. Brand
+perception averages20% shorter, but only one output meets both soft length goals.
+Unsupported "actual positioning" language, internal question labels and loose
+open/directed wording remain in some outputs. Retain as a partially supported
+controlled candidate, not formal runtime approval; do not add more automatic
+calls or restructure the workflow from this small prose experiment.
+
+## Explicit-group resolution comparison
+
+This section records the earlier record-ID-based comparison. Its findings remain
+valid evidence, but the owner-selected name-level candidate at the top of this
+design supersedes it as the next interface under test.
+
+Latest owner request adds a Schema-input comparison. The new frozen package
+contains24 calls: two datasets x assignment/groups x full/omit Schema x two
+repeats (16), plus two fixed composition contexts x full/omit x two repeats (8).
+The omit arm keeps existing task/field prose and JSON-object instructions, but
+does not append a Schema or a replacement compact Schema. Full local validation
+is unchanged; the default still appends Schema. Fixed composition inputs are
+independent of this batch's resolver outputs, so this is not full-chain evidence.
+Some local bounds only appear in the full Schema; any failures need that context.
+
+After the initial rejection and explicit user authorization, the unchanged
+24-call package completed. Grouping improves the inspected memberships; bare
+Schema omission is not suitable for composition (1/4 local passes versus4/4).
+The earlier eight-call package remains unexecuted and superseded. See the
+research checkpoint for exact evidence and failure classification.
+
+Owner approves testing groups of record IDs against per-record name assignment,
+and makes 原味坊 filtering a non-blocking observation. The current1.3 candidate
+is not switched. An experiment-only grouped entry uses the identical records
+and identity/filtering criteria, returning groups with one displayName and
+memberIds plus excludedIds. Each input ID must appear exactly once across those
+collections. Unknown/repeated/missing IDs are structural failures. Group
+membership, not repeated display text, determines statistics; equal labels do
+not silently merge different groups. Semantic grouping mistakes remain possible.
+
+Architecture readiness: ready for bounded comparison, not runtime adoption.
+Use the existing module and share only the existing distinct-sample/negative-
+exclusion statistics; retain legacy assignment behavior. No new external
+dependency, persistence, Agent or additional call per resolution. No conversion
+of grouped output into legacy display-name assignments. Owner-authorized local
+integration now shares composition assembly/preview through group-derived
+statistics directly, while the selected default stays unchanged. Historical
+raw results stay unchanged.
+
+Follow-up: compact composition guidance derives its skeleton and applicable
+bounds from the existing local contract, omits repeated ID enumerations, and
+explains pointIds versus sampleIds at their actual input paths. This keeps one
+contract owner, no external library, no additional Agent or call. A six-call
+batch reuses two fixed contexts twice and one grouped integration per brand.
+DS0731 off/temp0.6/concurrency2, no retry/resampling. After initial rejection and
+explicit authorization, the unchanged six-call batch completed:4/4 fixed-context
+and2/2 grouped integration pass. Compact averages17% fewer input tokens than full
+Schema without a demonstrated latency benefit. Prefer this controlled candidate;
+retain full validation and unchanged selected/runtime defaults. Narrative
+contradictions and verbosity remain visible follow-up, not structural failures.
+
+## Current Taizuidiao unseen-brand validation
+
+The owner approves proceeding with 广州泰咀刁 after the targeted1.3 repair.
+Freeze the same Prompt1.3/Schema/model/settings/code; only the brand and four
+public query scenarios change: direct restaurant understanding, Guangzhou
+Southeast Asian restaurant comparison, sour/spicy/aromatic Thai-style demand,
+and four-to-six-person shared-dish dining at a100–150RMB scenario budget. These
+are test query scenarios, not asserted attributes of the focus restaurant.
+
+Reuse the proven five-platform acquisition/parse runner with shared concurrency
+five: twenty fresh sources, a complete first parse/resolve/compose pass and a
+complete same-source replay. Normal64 calls, maximum108 including at most one
+failed-stage analysis retry; no acquisition retry, source rewrite or model
+fallback. Preserve all independent failures; no ordinary shape-error early stop.
+Actual IO/settings/usage go to the existing private Langfuse; independent review
+stays local. No frontend, production or formal runtime activation.
+
+Inspect real target aliases/absence against source, ordered independent brand
+subjects, practical same-brand grouping, theme usefulness and report coherence,
+full elapsed time and any failed-stage retry. Accepted unnamed-shop observations
+and modest expression differences are not new blockers. No Prompt tuning during
+this frozen batch; ordinary source variation is not automatically a parser bug.
+
+Measured outcome: full execution/time and target recognition pass for this
+batch, but resolver grouping/retention is not consistently correct. Keep new
+sampling paused for a retained same-input resolver comparison. The existing
+whitespace comparator does not fold Latin case or remove brand descriptors;
+do not silently expand it into identity repair. No additional implementation
+or Prompt changes were made during this validation.
+
+## Current co-listed-subject repair
+
+Prompt 1.3.0 supersedes 1.2.0 for new experiments. The owner approves explaining
+brand-level records rather than source paragraph/table-row units, assigning
+shared descriptions to each applicable brand, and contrasting actual 盈科/京师
+co-listing with 金杜/KWM aliases. Resolution unifies the brand rather than
+registered office names; real 大成/盈科 branch examples establish that level.
+Schema, reading text, input organization, model/settings and program logic are
+unchanged in this iteration. No blind separator splitting or suffix stripping.
+
+Ten bounded calls pass the targeted checks: two source contexts twice, two
+unchanged old resolution inputs, then two seam passes replacing only q2-qwen
+while reusing nineteen old parses. Both downstream passes preserve the recovered
+brands, 大成6/盈科6 and target2/15 at positions7/1. This is not a complete fresh
+twenty-sample parse or proof of unseen-brand stability. The measured
+[checkpoint](research/chain-quality-experiment.md#co-listed-subject-repair--2026-09-10)
+owns residual variability and evidence. Stop tuning these examples; next
+coverage can proceed to the already proposed 广州泰咀刁 full-chain batch.
+
+## Current targeted identity repair
+
+Prompt 1.2.0 supersedes the scale batch's frozen 1.1.0 for new controlled
+replays only. Open parsing identifies content subjects before marking focus and
+writing the card. Sample Schema presents brands before cardInterpretation;
+field types and acceptance constraints are unchanged. Resolution reads the
+whole record set and fills one consistent name for each same-brand group;
+null is for unidentifiable subjects, not unfamiliar or minority brands.
+
+Ten calls reuse four exact source contexts twice and the failed 44-record
+resolution context twice. DS0731 off, temperature 0.6, concurrency two; no
+resampling or automatic retries. Actual IO/settings/usage are logged privately;
+independent review stays local. Known failure fragments now appear as teaching
+examples, so these are targeted regressions, not unseen generalization tests.
+
+The replay removes false focus attribution and unifies 乐凯撒. The owner accepts
+the retained unnamed-shop records as non-blocking; no more Prompt rules for
+them. The experiment comparator now collapses repeated whitespace and removes
+spacing only at Han/Latin-or-number boundaries. It retains Latin word boundaries,
+punctuation and all name characters, keeps the first label for display and
+preserves raw assignments. Identity decisions still belong to the model.
+Focused tests and re-projection of both exact outputs give three Pizza Factory
+samples without changing five 乐凯撒 samples. This owner-local, reversible
+comparison change introduces no interface, dependency, persistence or runtime
+activation; architecture readiness is light and ready for controlled validation.
+Proceed to new-brand full-chain work; do not activate the Worker or expand the
+model matrix. Results are owned by the
+[identity-repair checkpoint](research/chain-quality-experiment.md#targeted-identity-repair--2026-09-10).
+
+## Jinpeng cross-industry validation
+
+Freeze Prompt 1.2.0 and DS0731 off at temperature 0.6. Four public queries cover
+Guangzhou 金鹏律师事务所 directly, general Guangzhou enterprise-law-firm
+comparison, SME ongoing counsel for contracts/employment, and cross-border
+commercial/dispute-resolution service presentation. These are research queries,
+not legal advice on an actual client case or assertions about a firm's services.
+Use the existing five acquisition routes and shared concurrency five.
+
+Twenty acquisitions and parses, resolution/statistics/composition, then one
+same-source parse/resolve/compose replay: 64 normal calls, 108 hard ceiling
+allowing one retry per failed analysis stage. No acquisition retry, fallback,
+resampling or new recovery drill. Reuse the passing composition-only recovery
+evidence. Continue independent cells despite ordinary output failures. Preserve
+both attempts and exact input/output privately; telemetry includes actual IO,
+settings and usage only, never independent semantic review.
+
+Review target presence against source (not merely inter-run agreement), core
+brand order and grouping, card content and theme usefulness, complete coverage
+and actual full-pipeline time. Minor wording and accepted unnamed-shop cases
+remain observations. All changes remain controlled experiments under #42/#62.
+
 ## Selected-candidate scale acceptance
 
 The owner accepts DeepSeek V4 Flash 0731 / thinking off as the single main
 candidate, Qwen off as an unactivated backup. Stop broad profile matrices.
-Freeze Prompt 1.1.0, Schema, reading text, messages and temperature; only the
-controlled orchestration changes. Existing product Worker/report contracts are
+The completed scale batch froze Prompt 1.1.0, Schema, reading text, messages and
+temperature; only controlled orchestration changed. Existing Worker/report contracts are
 not activated. This section supersedes the historical matrix plans below.
 
 Architecture readiness: bounded validation, no new production lifecycle.
