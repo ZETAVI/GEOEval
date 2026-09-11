@@ -4,6 +4,10 @@
 
 本文件只拥有协议证据、差异和待验证点；业务架构由 [架构候选方案](design.md)持有。当前使用官方现行 APIv3 的 RSA 路径和微信支付公钥验签作为研究基线；不是“所有最新能力必须引入”，也不意味着商户权限、SDK 和代码实现已经通过验证。
 
+## R1 操作感知失败核查（2026-09-11）
+
+本轮读取[微信 Native 商户订单号查单](https://pay.wechatpay.cn/doc/v3/merchant/4012791880)错误说明：404 ORDER_NOT_EXIST 要求核对订单是否创建，429 表示频率限制，500 为系统错误。项目保留原有“发起未知后查单404仍核验原单”的恢复行为，避免丢失迟到付款；该选择由现有反例与有界调度支持，不把404解释为已关闭，也不声称官方承诺最终一致性。INITIATE/CLOSE 的不明404及其他未知组合仍受限；401/403不得按普通临时故障重试。精确可重试集合由 domain classifier 持有。
+
 ## 1. 官方接口面
 
 | 操作 | 方法/路径 | 项目需要的输入/输出 | 来源与限制 |
@@ -201,3 +205,15 @@ Prisma 官网 transactions 页面本轮抓取失败，未作为已读证据。�
 本次复核 [PostgreSQL 18 ALTER TYPE](https://www.postgresql.org/docs/18/sql-altertype.html)：事务内新增 enum 值需提交后才能使用；N4 迁移只增值，不在该事务插入该种通知。复核 [CREATE TRIGGER](https://www.postgresql.org/docs/18/sql-createtrigger.html)：行级 constraint trigger 可延迟到事务末，适用于通知待办与已完成充值的关联验证；普通 CHECK 不承担跨行账务校验。
 
 Notification 现有 source UUID 唯一、upsert 不更新已读、SSE revision/list 恢复、ProductOutbox 评测路由和前端无条件选 Brand 均直接读当前源码。版本未变的 Nest 生命周期、原支付认证和 C1 事务证据继续复用；不新增库、网络服务或支付 Provider 调用。具体并发和失败语义由本片真实 PostgreSQL/HTTP/进程验证，不从 SQL 语法推断通过。
+
+
+## R1 恢复与对账补查
+
+本轮仅核实影响下一片边界的普通商户 APIv3 文档，未下载商户账单或调用支付接口。
+
+- [支付回调和查单实现指引](https://pay.wechatpay.cn/doc/v3/merchant/4012075249)：后台主动查单、可调整的递增间隔和次日交易账单核对互补。本文据此选择有预算的恢复；具体算法不是官方强制方案。
+- [申请交易账单](https://pay.wechatpay.cn/doc/v3/merchant/4013071227)：GET /v3/bill/tradebill，按日期和账单类型申请；文档说明每日10点后生成昨日账单、金额单位元、支持近三个月。响应给出 hash_type/hash_value 与5分钟有效下载地址。生成中、无账单、限流和服务错误有不同含义，不能都当空账单。
+- 摘要用于校验文件一致性，不代替来源认证。下载接口链接本轮抓取失败；下载请求认证、压缩摘要计算顺序、文件格式和完整性校验细则留待 O1 对照完整下载文档与受控样本固定。本轮不声称这些细节已确认。
+- 本地直接证据：网关 UNRESOLVED 附带 httpStatus，但 Native attempt 仅存 diagnosticCode；RETRY_EXHAUSTED 阻断 due 扫描，客户 supportRequired 来自统一 reviewRequired。R1 必须同时处理错误分类、历史兼容与提示，不能只提高 maxFailures 或移除扫描过滤。
+
+设计归属为 design14，验收在 R1 tasks；账单只触发逐单认证复核，未新增账单直写积分权威。刷新条件是正式商户/账单类型/下载格式或对应接口规则变化。

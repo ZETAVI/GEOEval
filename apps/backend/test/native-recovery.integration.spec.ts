@@ -46,6 +46,7 @@ const policy: NativeRecoveryPolicy = {
   queryIntervalMs: 5_000,
   retryDelayMs: 10_000,
   maxFailures: 3,
+  slowRetryDelayMs: 60_000,
 };
 
 describe("durable Native recovery with PostgreSQL and authenticated controlled WeChat", () => {
@@ -59,10 +60,13 @@ describe("durable Native recovery with PostgreSQL and authenticated controlled W
     state: string,
     qr: string,
     transportFailure: boolean,
+    httpFailure: number | null,
     requests: WechatHttpRequest[];
   const gateway = new WechatPayGateway(f.config(), async (req) => {
     requests.push(req);
     if (transportFailure) throw new Error("controlled disconnect");
+    if (httpFailure !== null)
+      return f.response({ code: "controlled-error" }, httpFailure);
     if (req.path.endsWith("/native")) return f.response({ code_url: qr });
     if (req.path.endsWith("/close")) {
       state = "CLOSED";
@@ -139,6 +143,7 @@ describe("durable Native recovery with PostgreSQL and authenticated controlled W
     qr = "weixin://wxpay/bizpayurl/up?pr=NATIVE77";
     requests = [];
     transportFailure = false;
+    httpFailure = null;
   });
   afterEach(async () => {
     vi.restoreAllMocks();
@@ -395,7 +400,7 @@ describe("durable Native recovery with PostgreSQL and authenticated controlled W
     expect((await runtime().read(customer, o.id))!.qr).toBeNull();
   });
 
-  it("retains reservations on unexpected trade states and bounded transport retries", async () => {
+  it("retains reservations on unexpected trade states and defers exhausted transport retries", async () => {
     const o = await create();
     await runtime().runOrders(5);
     state = "REFUND";
@@ -411,12 +416,111 @@ describe("durable Native recovery with PostgreSQL and authenticated controlled W
       await runtime().runOrders(5);
       advance(policy.retryDelayMs);
     }
-    expect((await stored(second.id)).nativeReviewReason).toBe(
-      "RETRY_EXHAUSTED",
-    );
+    expect((await stored(second.id)).nativeReviewReason).toBe("SLOW_RETRY");
     expect((await wallet()).reservedFundedPoints).toBe(20);
     expect(await runtime().runOrders(5)).toMatchObject({ claimed: 0 });
   });
+
+  it("keeps slow recovery durable across reconnect and credits once without customer intervention", async () => {
+    const o = await create();
+    transportFailure = true;
+    for (let i = 1; i <= 5; i++) {
+      expect(await runtime().runOrders(1)).toEqual({ claimed: 1, failed: 1 });
+      const row = await stored(o.id);
+      const delay =
+        i >= policy.maxFailures ? policy.slowRetryDelayMs : policy.retryDelayMs;
+      expect(row.nativeNextActionAt!.getTime()).toBe(now.getTime() + delay);
+      expect(row.nativeFailureCount).toBe(i);
+      expect((await runtime().read(customer, o.id))!.reviewRequired).toBe(
+        false,
+      );
+      await runtime().verify(customer, o.id);
+      expect((await stored(o.id)).nativeNextActionAt).toEqual(
+        row.nativeNextActionAt,
+      );
+      await prisma.$disconnect();
+      await prisma.$connect();
+      advance(delay - 1);
+      expect(await runtime().runOrders(1)).toEqual({ claimed: 0, failed: 0 });
+      advance(1);
+    }
+    transportFailure = false;
+    state = "SUCCESS";
+    await runtime().runOrders(1);
+    expect(requests.at(-1)!.method).toBe("GET");
+    await runtime().runSettlements(1);
+    await runtime().runSettlements(1);
+    expect((await stored(o.id)).status).toBe("SUCCESSFUL");
+    expect((await wallet()).fundedBalance).toBe(10);
+    expect((await wallet()).reservedFundedPoints).toBe(0);
+    expect(
+      await prisma.pointChange.count({
+        where: { accountId: customer, kind: "RECHARGE" },
+      }),
+    ).toBe(1);
+    expect(requests.filter((r) => r.path.endsWith("/native"))).toHaveLength(1);
+  });
+
+  it("closes an expired slow-retry order automatically after connectivity returns", async () => {
+    const o = await create();
+    transportFailure = true;
+    for (let i = 0; i < 3; i++) {
+      await runtime().runOrders(1);
+      advance(policy.retryDelayMs);
+    }
+    transportFailure = false;
+    now = new Date(new Date(o.expiresAt).getTime() + 1);
+    await runtime().runOrders(1);
+    expect((await stored(o.id)).nativeNextOperation).toBe("CLOSE");
+    expect((await stored(o.id)).nativeReviewReason).toBeNull();
+    await runtime().runOrders(1);
+    expect((await stored(o.id)).status).toBe("CLOSED");
+    expect((await wallet()).reservedFundedPoints).toBe(0);
+    expect((await wallet()).fundedBalance).toBe(0);
+  });
+
+  it.each([401, 403, 400, 404, 429, 503])(
+    "persists HTTP %s and never turns it into payment evidence",
+    async (status) => {
+      const o = await create();
+      httpFailure = status;
+      await runtime({ maxFailures: 1 }).runOrders(1);
+      const row = await stored(o.id);
+      const temporary = [429, 503].includes(status);
+      const classification = temporary
+        ? "TEMPORARY"
+        : [401, 403].includes(status)
+          ? "REJECTED"
+          : "UNKNOWN";
+      const attempt = await prisma.rechargeOperationAttempt.findFirstOrThrow({
+        where: { orderId: o.id },
+      });
+      expect(attempt).toMatchObject({
+        errorHttpStatus: status,
+        failureClass: classification,
+        paymentObservationId: null,
+      });
+      expect(row.nativeReviewReason).toBe(
+        temporary
+          ? "SLOW_RETRY"
+          : classification === "REJECTED"
+            ? "RESPONSE_REJECTED"
+            : "RESPONSE_UNKNOWN",
+      );
+      expect((await wallet()).fundedBalance).toBe(0);
+      expect((await wallet()).reservedFundedPoints).toBe(10);
+      if (!temporary) {
+        advance(86_400_000);
+        expect((await runtime().runOrders(1)).claimed).toBe(0);
+      }
+      await expect(
+        prisma.rechargeOperationAttempt.update({
+          where: { id: attempt.id },
+          data: { errorHttpStatus: 418 },
+        }),
+      ).rejects.toThrow();
+    },
+  );
 
   it("disabling initiation still allows old obligations to query and settle", async () => {
     const o = await create();

@@ -21,6 +21,7 @@ import { RechargeError } from "../domain/recharge-order.js";
 import {
   canDispatchNative,
   nativeQrDeadline,
+  nativeFailure,
   planNativeQuery,
   type NativeOperationKind,
 } from "../domain/native-recovery.js";
@@ -42,8 +43,14 @@ const txOptions = {
 };
 const active = ["PENDING_PAYMENT", "CONFIRMING"];
 const qrWarning = "QR_REFRESH_UNPROVEN";
+// Older executors conservatively skip this marker; new code still requires the normal claim lock.
+const slowRetry = "SLOW_RETRY";
 const runnableReview = {
-  OR: [{ nativeReviewReason: null }, { nativeReviewReason: qrWarning }],
+  OR: [
+    { nativeReviewReason: null },
+    { nativeReviewReason: qrWarning },
+    { nativeReviewReason: slowRetry },
+  ],
 };
 type SettlementItem = Awaited<
   ReturnType<NativeRecoveryRepository["dueSettlements"]>
@@ -225,6 +232,7 @@ export class PostgresNativeRecoveryRepository
         o.nativeGeneration === attempt.generation;
       const response = result.response;
       if (!response.ok) {
+        const diagnostic = nativeFailure(claim.kind, response.error);
         await tx.rechargeOperationAttempt.update({
           where: { id: attempt.id },
           data: {
@@ -232,32 +240,38 @@ export class PostgresNativeRecoveryRepository
             resultSha256,
             resultKind: "UNRESOLVED",
             diagnosticCode: response.error.code,
+            ...diagnostic,
           },
         });
         if (current && isActive(o)) {
-          const count = o.nativeFailureCount + 1;
-          const rejected =
-            response.error.kind === "INVALID_REQUEST" ||
-            /^(AUTH_|INVALID_RESPONSE|INCOMPLETE_PAYMENT|IDENTITY_MISMATCH|AMOUNT_MISMATCH|UNSUPPORTED_TRADE_TYPE)/.test(
-              response.error.code,
-            );
+          const count = Math.min(o.nativeFailureCount + 1, 2_147_483_647);
+          const temporary = diagnostic.failureClass === "TEMPORARY";
+          const slow = count >= policy.maxFailures;
           await tx.rechargeOrder.update({
             where: { id: o.id },
             data: {
               ...idle(),
               nativeFailureCount: count,
               status: "CONFIRMING",
-              ...(count >= policy.maxFailures || rejected
+              ...(temporary
                 ? {
-                    nativeReviewReason: rejected
-                      ? "RESPONSE_REJECTED"
-                      : "RETRY_EXHAUSTED",
-                  }
-                : {
+                    nativeReviewReason:
+                      o.nativeReviewReason === qrWarning
+                        ? qrWarning
+                        : slow
+                          ? slowRetry
+                          : null,
                     nativeNextOperation: "QUERY",
                     nativeNextActionAt: new Date(
-                      now.getTime() + policy.retryDelayMs,
+                      now.getTime() +
+                        (slow ? policy.slowRetryDelayMs : policy.retryDelayMs),
                     ),
+                  }
+                : {
+                    nativeReviewReason:
+                      diagnostic.failureClass === "REJECTED"
+                        ? "RESPONSE_REJECTED"
+                        : "RESPONSE_UNKNOWN",
                   }),
             },
           });
@@ -404,6 +418,9 @@ export class PostgresNativeRecoveryRepository
           data: {
             ...idle(),
             nativeFailureCount: 0,
+            ...(o.nativeReviewReason === slowRetry
+              ? { nativeReviewReason: null }
+              : {}),
             nativeNextOperation: decision,
             status:
               stopped(o, now) || !usableQr(o, now)
@@ -494,7 +511,9 @@ export class PostgresNativeRecoveryRepository
       nextActionAt: isActive(o)
         ? (o.nativeNextActionAt?.toISOString() ?? null)
         : null,
-      reviewRequired: o.reviewReason !== null || o.nativeReviewReason !== null,
+      reviewRequired:
+        o.reviewReason !== null ||
+        (o.nativeReviewReason !== null && o.nativeReviewReason !== slowRetry),
     };
   }
 
@@ -690,7 +709,10 @@ function isActive(o: StoredOrder) {
   return active.includes(o.status);
 }
 function blocked(o: StoredOrder) {
-  return o.nativeReviewReason !== null && o.nativeReviewReason !== qrWarning;
+  return (
+    o.nativeReviewReason !== null &&
+    ![qrWarning, slowRetry].includes(o.nativeReviewReason)
+  );
 }
 function stopped(o: StoredOrder, now: Date) {
   return o.nativeCancelRequestedAt !== null || o.expiresAt <= now;

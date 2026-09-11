@@ -182,7 +182,7 @@ The system SHALL distinguish never-dispatched intent, an external order that may
 #### Scenario: Read failure or verification waiting ends
 
 - **WHEN** a browser read fails, the bounded verification request times out or automatic polling ends
-- **THEN** the UI returns control with safe refresh, order-history and support paths
+- **THEN** the UI returns control with safe refresh and order-history paths; the persistent support entry remains independent
 - **AND** these presentation conditions do not invent a fifth business state, claim payment/closure or stop durable background recovery
 - **AND** a customer-reported scan never becomes verified scan or payment evidence.
 
@@ -257,3 +257,53 @@ The system SHALL distinguish never-dispatched intent, an external order that may
 - **WHEN** new recharge and new payment initiation are disabled
 - **THEN** existing accepted notifications, provider query/close, once-only settlement and reconciliation continue with compatible schema and trusted credentials
 - **AND** payment, reservation and ledger history are retained.
+
+
+### Requirement: Bounded transient recovery with safe escalation (R1)
+
+Recharge SHALL distinguish retryable technical failures from unsafe or unknown outcomes. Exhausting a short retry phase SHALL not by itself abandon a recoverable payment obligation. Recovery SHALL preserve existing financial verification and idempotency.
+
+#### Scenario: Temporary outage exceeds the short retry phase
+
+- **WHEN** a classified temporary failure reaches the configured short-phase limit
+- **THEN** the same order retains a durable slower next verification time and bounded work
+- **AND** process replacement and customer refresh do not reset that policy
+- **AND** eventual authenticated success settles once; expiry triggers verified closure rather than speculative release
+- **AND** alerting does not manufacture an order terminal state or a human assignment.
+
+#### Scenario: A held order predates the new recovery policy
+
+- **WHEN** an old RETRY_EXHAUSTED record is considered for forward recovery
+- **THEN** only an active order without monetary conflict and with demonstrably transient evidence may resume
+- **AND** missing HTTP classification is not inferred from a generic historic diagnostic
+- **AND** existing attempts, observations, reservations and ledgers are preserved.
+
+#### Scenario: Authentication or financial evidence is unsafe
+
+- **WHEN** authentication, merchant identity or financial matching fails
+- **THEN** retry policy never bypasses the corresponding verification/hold
+- **AND** an unauthenticated incoming request cannot mutate a normal order into a hold.
+
+### Requirement: Simple customer status with separate support (R1)
+
+Customer detail, history and checkout SHALL retain the four existing business states and use their common short copy owned by the current Recharge spec and recharge-status.ts. Internal retry phases SHALL NOT introduce customer states or public recovery-stage hints solely for presentation.
+
+#### Scenario: An unresolved payment is being recovered
+
+- **WHEN** an order is confirming while automatic recovery or restricted review is pending
+- **THEN** the customer sees the common confirming message without technical recovery-stage details
+- **AND** permissions, payment expiry and suppression of stale QR actions remain unchanged
+- **AND** local loading failures do not overwrite the last known order state or assert a backend shutdown.
+
+#### Scenario: Customer support remains independent
+
+- **WHEN** a recharge state, retry phase or internal review reason changes
+- **THEN** the status message does not promote, hide or relocate the persistent support entry
+- **AND** support placement, interaction and channels remain a later independent discussion
+- **AND** R1 does not add a support workflow or customer support requirement to complete ordinary payment recovery.
+
+#### Scenario: Credit succeeded while notification or later diagnosis is pending
+
+- **WHEN** the credit transaction is committed
+- **THEN** customer success and the existing ledger remain authoritative
+- **AND** message retries or later internal review do not turn it into unpaid or credit again.

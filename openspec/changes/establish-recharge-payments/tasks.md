@@ -8,14 +8,30 @@ The approved route stays account recharge → verified payment → funded credit
 
 | Package | Concrete acceptance | Actual dependency / current action |
 | --- | --- | --- |
-| A0: WeChat operation adapter | Native initiate, query and close interpret authenticated protocol results; notification decrypts to a safe observation; exact required fields and frozen identity are validated; no activation | Technically independent of C0 and merchant credentials. A0 window approved and implementation/tests complete locally; confined to Recharge and its tests, no shared composition/schema writes |
-| B0: Notification acceptance and recovery | Real Nest handler and Identity exemptions; observation + receipt commit before ACK; host/connection replacement and DB scans | Implemented under the B0 schema window: 25 new tests plus 2 current API inventory tests passed. Module remains unregistered in the current application; no settlement/worker claim |
-| C0/C1: Points seam and first atomic credit | Reserve amount/sequence capacity, unique payment settlement and ledger, concurrent grant/purchase/recharge, transaction rollback | #79 assembly is accepted on main; C1 implements and verifies the first atomic core in PR #82. Future #73 returns must consume its explicit capacity snapshot. Host/connection replacement is tested; OS/storage crash and return execution remain separate |
-| Native/H5 customer journey | Own-order access/history, QR/local polling, saved publishing choice and reconfirmation; external-mobile H5 IP/domain/return | UI/API contracts can be prepared now. Executable journey needs N1; real browser launch additionally needs the named product entitlement, domain and controlled merchant environment |
-| Recovery and reconciliation | Same-order query/close, persisted due state/lease, stop-new-orders, T+1 discrepancy handling | Recovery and bill parsing can be implemented/tested with controlled inputs in their write package. Real bill/download and money-exception handling require account/finance decisions |
-| Activation | Limits, support, merchant/domain/secret rotation owners, bounded money test, financial reconciliation | Finance/product/operations supply these only before the corresponding live test or enablement. No production value is inferred from test configuration |
+| R1 recovery/status | Transient failures recover under bounded scheduling; unsafe facts remain held; customer hints match persisted work | Implemented and locally verified in PR #87; required CI and review status live in the PR |
+| Management read-only | Find each order, payment evidence, credit and independent notification state | Reuse accepted records and R1 projection; role scope is not expanded by this plan |
+| O1 reconciliation | Verify daily coverage, compare provider/order/ledger, query discrepancies and settle only through existing C1 | Official request metadata read; download/format details and synthetic samples still required before implementation |
+| H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
+| Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
 
-Current planning: complete authorized integration and post-merge reconciliation first. The next credential-free design boundary is O1 operational lookup and bounded recovery; H1 follows the approved browser route. Actual merchant configuration, amount/support policy and real-money activation retain their gates. Manual-experience preparation was canceled by the owner; it is not a remaining acceptance prerequisite.
+Current planning: R1 transient-failure recovery and simple four-state customer copy precede management actions. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. The [execution checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630151311) records the authorized bounded implementation and refreshed M4 non-overlap confirmation. #77 entered In Progress for R1 and returns to Review / Decision at the review handback. Management read-only views, reconciliation and H1 follow their own bounded acceptance. Manual-experience preparation is canceled and cleaned up.
+
+## R1: Transient recovery and truthful status
+
+- [x] Recheck main7c5a4a5, #77 and the merged N1–N4 contracts; distinguish existing persistence from the missing recovery behavior.
+- [x] Inspect retry exhaustion, loss of HTTP status in persisted attempts, and reviewRequired → supportRequired projection; specify the smallest change in design14.
+- [x] Align owner intent: improve reliability without requiring full automation; keep financial holds, same-order identity, four customer states and once-only credit.
+- [x] Define simple customer four-state copy, necessary internal diagnostics and focused verification below; management page implementation and the independent persistent support entry remain later discussions.
+- [x] Refine implementation contract in design14.1a: nullable immutable attempt outcome metadata, explicit slow-delay policy, conservative legacy evidence, and API/Worker status separation. Customer processingHint expansion is retired; internal stages do not become user states. Implemented evidence and remaining limits are recorded in verification.
+- [x] Implement operation-aware TEMPORARY/REJECTED/UNKNOWN classification, immutable HTTP status metadata and durable short/slow policy. QUERY 404 remains conservative same-order verification; other unclassified 4xx are held.
+- [x] Verify the additive migration from all 40 previous migrations: only two known transport-exhausted fixtures resume; ambiguous HTTP_ERROR, monetary hold and closed fixtures, all old attempts and accounting snapshots remain unchanged. Old scanner skips SLOW_RETRY. The shared schema window was confirmed before edits.
+- [x] Share four short status messages across history/detail/QR; retain permissions, terminal-state priority and account fencing. Local read failures remain local and the existing support entry is unchanged; no DTO extension.
+- [x] Verify recovery beyond the old ceiling, same-order success and expiry/close, duplicate/late facts, stale completion and progress of later work using the existing core/customer/notification regressions plus new recovery cases.
+- [x] Kill a real Worker child during slow recovery and restart it: due time/count persist, replacement settles once without another INITIATE. No machine/storage-loss or multi-replica budget claim.
+- [x] Verify 401/403, signature/amount/identity safeguards and ambiguous historical failures remain restricted. Existing unauthenticated receipt and C1 money guards are reused unchanged.
+- [x] Run 117 distinct targeted backend cases and 182 Web cases, workspace typecheck, format and full build. The initially skipped process cases were subsequently executed. Customer HTTP and rendered/controller tests are covered; no new browser/manual experience or real merchant run.
+- [x] Reconcile current specs, design and author review; retain the active Change and #77. PR #87 owns final required CI and review/merge state; local passes do not imply merge or activation.
+
 
 ## P0: Fixed inputs and reviewable contracts
 

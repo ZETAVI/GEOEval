@@ -70,6 +70,7 @@ export function rechargeApiFixture() {
       queryIntervalMs: 5_000,
       retryDelayMs: 10_000,
       maxFailures: 3,
+      slowRetryDelayMs: 60_000,
     },
     verifier: gateway,
     controlled: true,

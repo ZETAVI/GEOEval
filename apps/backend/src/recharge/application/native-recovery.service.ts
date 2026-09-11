@@ -17,8 +17,10 @@ const policySchema = z
     queryIntervalMs: z.number().int().min(1000),
     retryDelayMs: z.number().int().min(1000),
     maxFailures: z.number().int().min(1).max(100),
+    slowRetryDelayMs: z.number().int().min(1000).max(86_400_000),
   })
-  .strict();
+  .strict()
+  .refine((p) => p.slowRetryDelayMs >= p.retryDelayMs);
 
 /** Explicitly driven worker lanes; no environment lookup, timer or public HTTP route. */
 export class NativeRecoveryService {
@@ -82,6 +84,7 @@ export class NativeRecoveryService {
           this.policy,
           this.clock(),
         );
+        if (!result.response.ok) failed++;
       } catch {
         failed++;
         try {

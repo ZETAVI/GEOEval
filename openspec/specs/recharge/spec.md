@@ -67,6 +67,40 @@ configured delivery lane.
   for the settlement lane. Retries and concurrent query/notification delivery
   SHALL converge on one credit. This is separate from customer notification UI.
 
+### Requirement: Bounded transient recovery
+
+- Classified TIMEOUT, TRANSPORT, RESPONSE_INTERRUPTED and HTTP 429/5xx failures
+  SHALL retain same-order QUERY work. QUERY 404 SHALL also retain bounded
+  verification, without proving absence, payment or closure. Authentication,
+  identity/amount mismatch and unclassified failures SHALL retain protection.
+- The explicit policy SHALL switch from short retry delay to `slowRetryDelayMs`
+  at `maxFailures`; the slow delay SHALL not be shorter than the short delay.
+  Counts and next due time SHALL commit with the operation outcome. Restart and
+  customer verification SHALL not reset backoff, extend expiry or release funds.
+- Attempt failure class and optional HTTP status SHALL be immutable after
+  completion. New runtime failures SHALL write classification; legacy all-null
+  metadata remains compatible and SHALL not be filled with guessed evidence.
+- Legacy exhausted orders SHALL resume only when active, without financial hold
+  or lease, and with finished current-generation transport-failure evidence.
+  Historical ambiguous HTTP errors and terminal orders SHALL remain unchanged.
+  The SLOW_RETRY marker SHALL prevent old scanners from consuming resumed work;
+  reverting the executor pauses that work and SHALL NOT delete its obligation.
+- Authenticated success/closure SHALL still use existing financial matching,
+  reservation and once-only settlement. Neither HTTP diagnostics nor retry
+  exhaustion SHALL manufacture financial terminal states.
+
+### Requirement: Simple customer copy
+
+- History and checkout SHALL share four business labels and the corresponding
+  short copy owned by [recharge-status](../../../apps/web/app/recharges/recharge-status.ts).
+  Internal recovery phases SHALL not introduce public states or extra DTO hints.
+- Local read/operation failures SHALL remain separate feedback and SHALL not
+  overwrite the last known order state. Browser polling pause SHALL not imply
+  that server recovery stopped. Notification failure SHALL not downgrade credit.
+- The existing persistent support entry SHALL not be moved, hidden or highlighted
+  according to order/retry state. Its later placement and service design are
+  independent of this payment change; command permissions remain enforced.
+
 ### Requirement: Explicit publishing continuation
 
 - Publishing keeps the saved article and selection. Its recharge entry SHALL
