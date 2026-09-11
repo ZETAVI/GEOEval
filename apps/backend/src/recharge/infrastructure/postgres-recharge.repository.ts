@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import {
   Prisma,
   type RechargeOrder as StoredOrder,
@@ -25,7 +25,10 @@ import {
 import {
   paymentObservationData,
   storedPaymentFacts,
+  queryObservationKey,
 } from "./stored-payment-observation.js";
+
+import type { NativePreparation } from "../application/native-recovery.js";
 
 type Source =
   | { kind: "NOTIFICATION"; identity: NotificationIdentity }
@@ -42,7 +45,10 @@ const txOptions = {
 
 /** Owns Recharge only. Commerce binds the same transaction and owns every point mutation. */
 export class PostgresRechargeRepository implements RechargeRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly native?: NativePreparation,
+  ) {}
 
   create(accountId: string, input: CreateRecharge, config: RechargeConfig) {
     const request = {
@@ -69,6 +75,8 @@ export class PostgresRechargeRepository implements RechargeRepository {
           throw new RechargeError("IDEMPOTENCY_CONFLICT");
         return orderView(prior);
       }
+      if (this.native && !this.native.createEnabled)
+        throw new RechargeError("CREATION_DISABLED");
       // Synchronize with Identity changes; customer deactivation cannot race a new order commit.
       const [account] = await tx.$queryRaw<
         Array<{ role: string; status: string }>
@@ -99,6 +107,14 @@ export class PostgresRechargeRepository implements RechargeRepository {
         data: {
           id,
           accountId,
+          ...(this.native
+            ? {
+                nativeDescription: this.native.description,
+                nativeNotifyUrl: this.native.notifyUrl,
+                nativeNextOperation: "INITIATE",
+                nativeNextActionAt: now,
+              }
+            : {}),
           ...request,
           amountFen: BigInt(request.amountYuan) * 100n,
           fundedPoints: request.amountYuan * POINTS_PER_YUAN,
@@ -185,9 +201,7 @@ export class PostgresRechargeRepository implements RechargeRepository {
     proof: PaymentProof,
   ): Promise<SettlementResult> {
     const data = paymentObservationData(facts, proof);
-    const queryKey = createHash("sha256")
-      .update(`QUERY\n${orderId}\n${data.factsSha256}`)
-      .digest("hex");
+    const queryKey = queryObservationKey(orderId, data.factsSha256);
     const order = await this.prisma.rechargeOrder.findUnique({
       where: { id: orderId },
     });
@@ -397,7 +411,7 @@ function matchesOrder(o: StoredOrder, f: PaymentFacts) {
     (f.tradeType === null || f.tradeType === "NATIVE")
   );
 }
-function orderView(o: StoredOrder): RechargeOrder {
+export function orderView(o: StoredOrder): RechargeOrder {
   return {
     id: o.id,
     accountId: o.accountId,

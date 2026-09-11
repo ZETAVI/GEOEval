@@ -2,7 +2,7 @@
 
 方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0, unregistered C1 and an isolated Native Web component implemented; N1 dispatch/API integration, H5 and operational activation remain proposed; no live recharge activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
+Status: A0/B0, C1, an isolated Native Web component and the explicitly constructed N1 backend recovery runtime are implemented on the linear Issue #77 stack. Customer API/Worker registration, full browser journey, H5 and operational activation remain proposed; no live recharge activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
 
 已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
@@ -45,7 +45,7 @@ Publishing Commerce 继续拥有积分账户和追加式积分流水，并向 Re
 
 删除测试：如果未来删除微信适配器，Recharge Order、funded 入账、发布复核与支付宝适配器仍应成立；如果删除 Recharge，Publishing Commerce 的积分购买仍能工作。这个结果说明业务能力和渠道协议没有互相吞并。
 
-本单冻结一个收单身份，首批只保留一个当前支付动作；不为二维码、会话再建同义充值订单。第 9 节的操作 attempt 记录是已确定的恢复需要，用于逐次网络调用及未决结果，不能再与“独立付款意图”混称为一个活动尝试。操作历史可多条，不因此允许并开不同金额、单号或渠道的付款路径。物理 schema 在 N1 固定实施片落实，C1 当前尚未持有该操作表。
+本单冻结一个收单身份，首批只保留一个当前支付动作；不为二维码、会话再建同义充值订单。第 9 节的操作 attempt 记录是已确定的恢复需要，用于逐次网络调用及未决结果，不能再与“独立付款意图”混称为一个活动尝试。操作历史可多条，不因此允许并开不同金额、单号或渠道的付款路径。N1 的物理 schema 由 RechargeOrder 与 RechargeOperationAttempt 持有；C1 原子到账仍是唯一积分写入路径。
 
 ## 4. 端到端链路
 
@@ -214,7 +214,7 @@ A0 已实现的业务接口与类型由 [payment-gateway.ts](../../../apps/backe
 
 ### 6.2 积分写入端口与事务责任
 
-C1 已实现的应用合同由 [recharge-order.ts](../../../apps/backend/src/recharge/domain/recharge-order.ts)与 [RechargeCoreService](../../../apps/backend/src/recharge/application/recharge-core.service.ts)持有：创建、本人读取、UNSENT 取消、通知及已认证成功查单的应用。返回业务结果，不返回 Prisma client；当前应用未注册。可信关单与调度仍待 N1。
+C1 已实现的应用合同由 [recharge-order.ts](../../../apps/backend/src/recharge/domain/recharge-order.ts)与 [RechargeCoreService](../../../apps/backend/src/recharge/application/recharge-core.service.ts)持有：创建、本人读取、UNSENT 取消、通知及已认证成功查单的应用。返回业务结果，不返回 Prisma client；当前应用未注册。可信关单与调度由本分支的 N1 内部 runtime 持有，尚未注册到当前 API/Worker。
 
 | 入口 | 责任和前置事实 | 同一事务的效果 |
 | --- | --- | --- |
@@ -322,7 +322,7 @@ stateDiagram-v2
 
 ### 9.1 创建与下单
 
-以下为 N1 的实施合同，尚未实现；C1 的固定运行时不因此改变。
+以下后端恢复合同已在 [Native runtime](../../../apps/backend/src/recharge/native-recovery.runtime.ts)、[应用端口](../../../apps/backend/src/recharge/application/native-recovery.ts)、[调度服务](../../../apps/backend/src/recharge/application/native-recovery.service.ts)与 [持久仓储](../../../apps/backend/src/recharge/infrastructure/postgres-native-recovery.repository.ts)实现。第 1 项的实际 HTTP 路由与定时 Worker 装配仍是下一片；当前只接受宿主显式构造和有界调用，不读环境凭据、不自动启动。
 
 1. 客户创建请求只提交金额、方式和幂等键。短事务创建/恢复本地订单并预留容量；新单的首次 due 待办与订单同事务提交，HTTP 随后返回本地结果，不等待渠道。唤醒丢失或 API 在响应前退出后，Worker 仍可重扫已提交订单；同键重试先恢复已有结果，不重复冻结容量。
 2. 第一次发起前冻结 `description`、`notify_url` 与已有商户/AppID/单号/金额/支付截止时间；订单不随配置更新改参数。保留显式凭证定位能力用于旧商户义务；密钥轮换允许替换认证材料，不改变原请求的业务参数。
@@ -331,7 +331,7 @@ stateDiagram-v2
 5. 单独短事务保存 attempt 结果，当前 generation 才可发布二维码或改变后续计划；取消/终态已经赢得竞争时不再展示迟到二维码。晚到的认证成功事实仍交 C1 匹配/结算，不能仅因 generation 过期而丢弃真实付款。
 6. 未知响应保留原商户单号并先查单；允许重试时始终使用同一冻结参数。查询未支付但 QR 丢失/过期时才请求受控同号重取；到期或取消意图禁止重新发起。没有任何错误分支自动生成另一张可收费订单。
 
-数据选择：在 RechargeOrder 上增加本轮真正需要的取消意图、generation、due/lease 和当前支付动作引用；新增 Recharge 自有 attempt 记录，保存操作/请求摘要、发起与结束时刻、有限诊断及认证结果引用。订单状态仍只有一个可变权威。相比再引入一张同义 execution 主记录，这样少一个发起/关闭状态同步问题；相比只保存最后一次错误，attempt 能保留进程丢响应时的未决外部义务。具体 SQL 在 N1 实施窗口固定，不提前增加通用支付队列或任意事件 JSON 仓库。迁移对旧 UNSENT 不伪造已发起；已有 MAY_EXIST 缺请求快照时只允许核验/关闭，不从当前配置猜造一份历史重试参数。
+数据选择：在 RechargeOrder 上增加本轮真正需要的取消意图、generation、due/lease 和当前支付动作引用；新增 Recharge 自有 attempt 记录，保存操作/请求摘要、发起与结束时刻、有限诊断及认证结果引用。订单状态仍只有一个可变权威。相比再引入一张同义 execution 主记录，这样少一个发起/关闭状态同步问题；相比只保存最后一次错误，attempt 能保留进程丢响应时的未决外部义务。SQL 已在 N1 的增量迁移固定，不提前增加通用支付队列或任意事件 JSON 仓库。迁移对旧 UNSENT 不伪造已发起；已有 MAY_EXIST 缺请求快照时只允许核验/关闭，不从当前配置猜造一份历史重试参数。
 
 attempt 的成功付款引用 C1 observation；NOTPAY/CLOSED/REFUND 与关单 ACK 使用真实来源的受限结果结构，不能编造 transactionId、payer、通知 ID，也不能把未认证错误写成支付事实。客户端、下单尝试和成功交易有各自幂等键，不复用一个键代替所有业务身份。
 
@@ -413,7 +413,7 @@ B0 的 ACCEPTED/204 只代表接收。C1 使用 processedAt/appliedRechargeOrder
 
 复用现有 Notification 的持久通知和 app-shell SSE 刷新机制，不新增支付专用 WebSocket。当前 Notification 只实现 Evaluation kinds/targets，充值 kind/本人订单 target 仍须在对应接线片明确增加，不能声称目前已经通用。
 
-采用成功充值上一个最小持久通知待办标记，与 SUCCESSFUL/流水同事务写入；Worker 按充值单业务身份向 Notification 幂等写入后再标记已处理。跨这两次提交中断只会重投，不能丢失或创建重复客户通知；通知不可用不回滚资金，保留可补投待办。具体标记与接口在 N1 共享实施片落实，不扩展 Evaluation outbox 承担支付工作。
+采用成功充值上一个最小持久通知待办标记，与 SUCCESSFUL/流水同事务写入；Worker 按充值单业务身份向 Notification 幂等写入后再标记已处理。跨这两次提交中断只会重投，不能丢失或创建重复客户通知；通知不可用不回滚资金，保留可补投待办。具体标记与接口在客户 API/成功通知接线片落实，不扩展 Evaluation outbox 承担支付工作。
 
 SSE 只提示重读，不携带入账权威；断线后本人订单/通知列表仍可读取。首次网页接线继续用已有有界轮询，SSE 仅在现有通知接线后改善刷新时机。看到 SUCCESSFUL 后使旧余额请求失效，再读取 Commerce 的 balance/revision；旧响应不得覆盖新余额，也不在浏览器做余额加法。余额暂未读到时显示正在更新，不能把已确认成功降成付款失败。
 
@@ -699,4 +699,19 @@ Controller 只在通知 handler 豁免 session/CSRF，使用 rawBody 与原始�
 
 QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字段 profile；查询没有 notificationId，不补造缺少的付款人金额/币种。观察不可改写，已确认 ledger/终态不可反向改写。可信差异使非终态进入 Confirming 并保存 reviewReason，Closed/Successful 保留原终态及新增差异；不自动处理已关闭后迟到资金。
 
-当前只有显式配置的测试宿主装配核心；API/Worker、Native 调起/查单恢复/关单、客户二维码和 H5 页面、真实商户/资金均未启用。核心测试使用合成真实签名与真实 PostgreSQL；不能把它称为已完成网页支付或真实商户联调。下一步按 tasks 的 N1 推进，真实限额、异常资金处置和生产 Gate 仍独立。
+当前只有显式配置的宿主装配核心与 Native 后端恢复 runtime；Native 发起/查单/关单已可在受控网关和真实 PostgreSQL 上执行。当前 API/Worker、客户支付路由、H5 页面、真实商户/资金均未启用。核心测试使用合成真实签名与真实 PostgreSQL；不能把它称为已完成网页支付或真实商户联调。下一步按 tasks 的 N1 推进，真实限额、异常资金处置和生产 Gate 仍独立。
+
+
+## N1 后端执行边界的落实
+
+此次线性上层以 #81 的功能提交 `990ece2781dcb2b08281f24282f698ed4635be22` 为基线，消费已交还的 Delivery/ORDER_RETURN，而不是反向修改 #82。共享新增仅 Recharge 的 schema/迁移及必要的测试清理清单；Commerce 的预留/消费/释放实现和 RETURN 约束不另建副本。
+
+异步不是用户强制的架构要求。本片选择持久接收后确认、出站网络与账务事务分离，是为了让已有 B0 的应答预算和 C1 的短事务成立，并让未知网络结果可以恢复。`runOrders` 与 `runSettlements` 是分开的有界调用；实际 Worker 的周期、全局时长/并发预算与商户告警仍在宿主接线片配置，不声称当前已有常驻支付进程。
+
+成功 QUERY 先持久保存真实观察和 PENDING 处理引用，再经 C1 原子提交订单/预留消费/余额/唯一流水。执行记录的 APPLIED 标记允许稍后提交：若两次提交之间中断，重新送入 C1 恢复同一账务结果；它不是第二个到账权威。B0 通知则继续由 C1 同事务推进原 receipt。两个来源按各自 due 时刻合并选取，临时失败单独后移，业务核查不占普通队首。
+
+认证失败与协议/身份不符立即暂停该订单自动执行；传输未知按显式次数与间隔重试，耗尽后保留义务及待核查原因。新建订单开关与再次发起开关分开，关闭它们不阻止旧查询、关单和入账。runtime 要求显式派发窗口，最低门槛给现有 Adapter 默认请求预算和时钟留出余量；修改真实请求时限时须同步核对该窗口，不能把它当作远端关闭证明。
+
+数据库新增约束保护冻结请求、取消意图、操作身份与完成结果不可改写；已发出订单转 CLOSED 要有本单真实 QUERY CLOSED 或关单 ACK 引用。旧历史已关闭订单不被伪造补证据；旧未决订单不从新配置补造发起参数。迁移是增量升级，停止新建/发起并保留恢复执行是回退方式；已有出站义务后不得删表、抹除预留或退回无法处理旧义务的宿主。
+
+客户 HTTP/CSRF、充值历史、发布选择返回、Notification/SSE、商户级限流和人工处置入口仍由后续接线片实现。本片没有因为共享窗口开放而一并扩张这些边界。

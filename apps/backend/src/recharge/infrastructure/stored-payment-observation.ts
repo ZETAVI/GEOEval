@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { RechargePaymentObservation } from "../../generated/prisma/client.js";
 import { paymentFactsSha256 } from "../application/payment-facts.js";
 import type {
@@ -102,4 +103,10 @@ export function storedNotification(
       bodySha256: c.bodySha256,
     },
   };
+}
+
+export function queryObservationKey(orderId: string, factsSha256: string) {
+  return createHash("sha256")
+    .update(`QUERY\n${orderId}\n${factsSha256}`)
+    .digest("hex");
 }
