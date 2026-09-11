@@ -44,6 +44,19 @@ Current runtime semantics and history do not change in this experimental PR.
 
 ## Current evidence and next decision
 
+The owner has selected DeepSeek V4 Flash 0731 / thinking off as the main
+candidate, with Qwen off as an unactivated backup. Broad model comparison is
+closed for this package. The next scope is the
+[selected-candidate scale acceptance](design.md#selected-candidate-scale-acceptance),
+with executable settings in
+[candidate configuration](../../../apps/backend/geo-intelligence/experiments/m4-report-candidate.json).
+The four-question/five-platform gram plan, same-source replay and composition-only
+recovery simulation are frozen locally. Launch was rejected by automatic safety
+review before process creation: **zero calls executed**. The gate requires
+explicit confirmation of five sampling endpoints, raw/derived replay to Alibaba,
+private Langfuse actual IO export and the bounded call count. Do not reroute or
+reuse another command to bypass this rejection. Runtime activation is still out.
+
 The owner's latest review accepts approximate platform wording and reasonable
 rank-based comparisons as non-blocking observations, not a new semantic gate.
 The current bounded package clarifies data-instance output instructions and

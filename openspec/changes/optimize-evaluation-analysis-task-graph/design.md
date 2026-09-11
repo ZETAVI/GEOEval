@@ -1,5 +1,34 @@
 # Design: Evidence-led Evaluation Analysis
 
+## Selected-candidate scale acceptance
+
+The owner accepts DeepSeek V4 Flash 0731 / thinking off as the single main
+candidate, Qwen off as an unactivated backup. Stop broad profile matrices.
+Freeze Prompt 1.1.0, Schema, reading text, messages and temperature; only the
+controlled orchestration changes. Existing product Worker/report contracts are
+not activated. This section supersedes the historical matrix plans below.
+
+Architecture readiness: bounded validation, no new production lifecycle.
+Use the existing five sampling adapters and program-owned report pipeline.
+Four frozen public consumer queries for 广州公园前 gram 酸种披萨 each go to five
+platforms. Pipeline acquisition into parsing with a shared limit of five active
+requests, then resolve and compose. Each acquisition is attempted once; failed
+analysis may retry that exact stage once, preserving both raw results. No model
+fallback, no full-batch resampling, no purchase or billing/configuration change.
+Use the same immutable source set for one further parse/resolve/compose pass.
+Finally simulate an unavailable composition artifact in a separate recovery
+record and call only composition again; assert source/parser/resolution hashes
+and acquisition-call count are unchanged. This proves the controlled runner,
+not production Worker recovery. Normal path is 65 calls, hard ceiling 110 when
+all analysis attempts need their one retry. Failed/missing sources are explicit;
+partial previews never masquerade as a complete twenty-sample pass.
+
+Acceptance evidence: baseline full elapsed time and stage latencies, valid
+sample coverage, target/brand/order drift across replay, usable target content,
+bounded retry behavior, and downstream-only recovery. Mere wording differences
+and modest length misses are not blockers. Frontend integration follows a
+separate delivery step once this evidence is reviewed.
+
 ## Approved report-oriented experiment
 
 The owner approves two single-call first-layer configurations (open/direct),

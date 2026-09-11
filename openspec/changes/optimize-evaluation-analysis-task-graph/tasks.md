@@ -2,6 +2,20 @@
 
 ## Current checkpoint
 
+### Selected-candidate scale acceptance
+
+- [x] Owner selects DeepSeek 0731 off; freeze Prompt 1.1.0 and existing Schema.
+- [x] Prepare twenty-sample shared-concurrency-five preflight and bounded
+      analysis retry/replay/recovery runner; preserve all original evidence.
+- [ ] Resolve exact-batch external-transfer authorization required by automatic
+      safety review; launch rejected before process creation, zero calls.
+- [ ] Run four questions across five real sampling platforms through the
+      selected Parser, resolution and composition; report actual coverage/time.
+- [ ] Reparse the same original answers once and compare core semantic outputs.
+- [ ] Verify bounded failed-stage retry and downstream-only recovery without
+      resampling or rewriting original evidence; distinguish simulation/runtime.
+- [ ] Reconcile the measured candidate decision before Worker/frontend activation.
+
 ### Three-brand Prompt refinement and problem-first report
 
 - [x] Treat minor narrative/rank interpretation differences as observations,

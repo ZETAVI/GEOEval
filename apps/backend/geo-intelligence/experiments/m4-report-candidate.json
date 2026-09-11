@@ -1,0 +1,17 @@
+{
+  "version": "m4-report-candidate@1",
+  "scope": "controlled-scale-validation-only",
+  "providerKey": "alibaba-model-studio",
+  "model": "deepseek-v4-flash-0731",
+  "endpoint": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "temperature": 0.6,
+  "thinking": false,
+  "promptVersion": "1.1.0",
+  "maxTokens": 8192,
+  "timeoutMs": 180000,
+  "concurrency": 5,
+  "maxAnalysisAttempts": 2,
+  "maxAcquisitionAttempts": 1,
+  "expectedSampleCount": 20,
+  "automaticModelFallback": false
+}

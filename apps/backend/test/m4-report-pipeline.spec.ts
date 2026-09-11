@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   buildM4ReportMessages,
   buildM4ReportSampleTask,
@@ -10,6 +11,22 @@ import {
   inspectM4ReportComposition,
   composeM4ReportPipelinePreview,
 } from "../src/ai-execution/controlled-validation/m4-report-pipeline.js";
+
+it("freezes the selected experiment candidate without enabling runtime fallback", () => {
+  const candidate = JSON.parse(readFileSync(new URL("../geo-intelligence/experiments/m4-report-candidate.json", import.meta.url), "utf8"));
+  expect(candidate).toMatchObject({
+    scope: "controlled-scale-validation-only",
+    model: "deepseek-v4-flash-0731",
+    thinking: false,
+    temperature: 0.6,
+    promptVersion: "1.1.0",
+    concurrency: 5,
+    expectedSampleCount: 20,
+    maxAcquisitionAttempts: 1,
+    maxAnalysisAttempts: 2,
+    automaticModelFallback: false,
+  });
+});
 
 it("requests a data instance and preserves the complete user context and schema", () => {
   const input = buildM4ReportSampleTask({
