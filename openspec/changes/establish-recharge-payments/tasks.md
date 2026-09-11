@@ -8,14 +8,28 @@ The approved route stays account recharge → verified payment → funded credit
 
 | Package | Concrete acceptance | Actual dependency / current action |
 | --- | --- | --- |
-| A0: WeChat operation adapter | Native initiate, query and close interpret authenticated protocol results; notification decrypts to a safe observation; exact required fields and frozen identity are validated; no activation | Technically independent of C0 and merchant credentials. A0 window approved and implementation/tests complete locally; confined to Recharge and its tests, no shared composition/schema writes |
-| B0: Notification acceptance and recovery | Real Nest handler and Identity exemptions; observation + receipt commit before ACK; host/connection replacement and DB scans | Implemented under the B0 schema window: 25 new tests plus 2 current API inventory tests passed. Module remains unregistered in the current application; no settlement/worker claim |
-| C0/C1: Points seam and first atomic credit | Reserve amount/sequence capacity, unique payment settlement and ledger, concurrent grant/purchase/recharge, transaction rollback | #79 assembly is accepted on main; C1 implements and verifies the first atomic core in PR #82. Future #73 returns must consume its explicit capacity snapshot. Host/connection replacement is tested; OS/storage crash and return execution remain separate |
-| Native/H5 customer journey | Own-order access/history, QR/local polling, saved publishing choice and reconfirmation; external-mobile H5 IP/domain/return | UI/API contracts can be prepared now. Executable journey needs N1; real browser launch additionally needs the named product entitlement, domain and controlled merchant environment |
-| Recovery and reconciliation | Same-order query/close, persisted due state/lease, stop-new-orders, T+1 discrepancy handling | Recovery and bill parsing can be implemented/tested with controlled inputs in their write package. Real bill/download and money-exception handling require account/finance decisions |
-| Activation | Limits, support, merchant/domain/secret rotation owners, bounded money test, financial reconciliation | Finance/product/operations supply these only before the corresponding live test or enablement. No production value is inferred from test configuration |
+| R1 recovery/status | Transient failures recover under bounded scheduling; unsafe facts remain held; customer hints match persisted work | Next proposed package; classify outcomes and legacy records before schema/DTO implementation |
+| Management read-only | Find each order, payment evidence, credit and independent notification state | Reuse accepted records and R1 projection; role scope is not expanded by this plan |
+| O1 reconciliation | Verify daily coverage, compare provider/order/ledger, query discrepancies and settle only through existing C1 | Official request metadata read; download/format details and synthetic samples still required before implementation |
+| H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
+| Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
 
-Current planning: complete authorized integration and post-merge reconciliation first. The next credential-free design boundary is O1 operational lookup and bounded recovery; H1 follows the approved browser route. Actual merchant configuration, amount/support policy and real-money activation retain their gates. Manual-experience preparation was canceled by the owner; it is not a remaining acceptance prerequisite.
+Current planning: R1 transient-failure recovery and truthful status now precede management actions. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. This planning package updates the existing Change; #77 stays Review / Decision while the implementation/migration and shared-contract window are finalized. No second product parent is silently put In Progress alongside M4. Management read-only views, reconciliation and H1 follow their own bounded acceptance. Manual-experience preparation is canceled and cleaned up.
+
+## R1: Transient recovery and truthful status (next bounded slice)
+
+- [x] Recheck main7c5a4a5, #77 and the merged N1–N4 contracts; distinguish existing persistence from the missing recovery behavior.
+- [x] Inspect retry exhaustion, loss of HTTP status in persisted attempts, and reviewRequired → supportRequired projection; specify the smallest change in design14.
+- [x] Align owner intent: improve reliability without requiring full automation; keep financial holds, same-order identity, four customer states and once-only credit.
+- [x] Define customer/management/backend status meanings and focused verification below; management page implementation remains a later slice.
+- [ ] Fix operation-aware transient/hard/unknown classification, durable slow scheduling and explicit host policy. Preserve HTTP outcome classification needed for safe restart; do not retry arbitrary 4xx merely because the gateway returns UNRESOLVED.
+- [ ] Determine and verify the additive storage/legacy transition: known transient RETRY_EXHAUSTED may resume; ambiguous old HTTP_ERROR, monetary holds and closed/successful orders must not be blindly requeued. Obtain the shared schema/DTO/generated/client writer window before those edits.
+- [ ] Connect safe customer status across detail/history/QR, preserving old API compatibility, terminal-state priority, account fencing and the distinction between frontend refresh pause and backend recovery.
+- [ ] Verify continued recovery after the old attempt ceiling, same-order success and expiry/close, notification arrival during backoff, crash/restart, stale completion and no starvation. Use explicit synthetic policies; they are not production limits.
+- [ ] Verify 401/403, invalid signature, amount/identity conflicts and ambiguous historical failures remain held; external unauthenticated notices cannot freeze an order.
+- [ ] Verify concurrency and message-only failure cannot create duplicate credit or downgrade success; actual HTTP/UI views tell the same truth through reload and account changes.
+- [ ] Reconcile current specs only after implementation passes; fixed diff/CI and Partial PR retain #77 open. Real merchant activation and multi-replica merchant-wide budgets remain separate gates.
+
 
 ## P0: Fixed inputs and reviewable contracts
 

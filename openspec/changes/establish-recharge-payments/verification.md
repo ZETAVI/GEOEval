@@ -1,6 +1,14 @@
 # Recharge verification
 
-Current snapshot: 2026-09-09. Accepted main@0c09041 includes A0/B0/C1 and #73 returns. [#83](https://github.com/ZETAVI/GEOEval/pull/83) is the unmerged N1 dependency, synchronized at 929633d; N2 evidence is recorded below. Earlier dated sections are historical scope/evidence, not current claims of route absence. Current safe customer behavior is reconciled into [Recharge](../../specs/recharge/spec.md). #77 remains open for real merchant and operational acceptance.
+Current accepted code: main7c5a4a5 contains A0/B0/C1 and N1–N4; exact merge/CI and post-merge evidence live in the [integration closeout](https://github.com/ZETAVI/GEOEval/pull/86#issuecomment-5628433299). Earlier dated sections are historical scope/evidence. R1 design changes are proposed below, not executed behavior. #77 remains open for reliability, operational/mobile and real-merchant acceptance.
+
+## R1 planning verification
+
+- Reviewed the actual exhaustion filter, persisted diagnostic shape, customer supportRequired mapping and existing expiry/close/process tests; no new runtime pass is claimed.
+- Current official callback/query guidance and transaction-bill request metadata were read; the download-detail page was unavailable, so its protocol/format details remain unverified in source-brief.
+- Design review separates current behavior, agreed direction and proposed implementation. Existing state/ledger ownership is preserved; detailed numeric host policy and additive legacy compatibility belong to implementation review, not invented production defaults.
+- Project framework/local Markdown links and diff whitespace checks pass for the planning changes. Runtime/HTTP/browser/migration tests for R1 are **not run** because no implementation changed; their discriminating cases are listed in R1 tasks.
+
 
 ## A0 implementation evidence
 

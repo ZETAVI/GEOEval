@@ -257,3 +257,46 @@ The system SHALL distinguish never-dispatched intent, an external order that may
 - **WHEN** new recharge and new payment initiation are disabled
 - **THEN** existing accepted notifications, provider query/close, once-only settlement and reconciliation continue with compatible schema and trusted credentials
 - **AND** payment, reservation and ledger history are retained.
+
+
+### Requirement: Bounded transient recovery with safe escalation (R1 proposed)
+
+Recharge SHALL distinguish retryable technical failures from unsafe or unknown outcomes. Exhausting a short retry phase SHALL not by itself abandon a recoverable payment obligation. Recovery SHALL preserve existing financial verification and idempotency.
+
+#### Scenario: Temporary outage exceeds the short retry phase
+
+- **WHEN** a classified temporary failure reaches the configured short-phase limit
+- **THEN** the same order retains a durable slower next verification time and bounded work
+- **AND** process replacement and customer refresh do not reset that policy
+- **AND** eventual authenticated success settles once; expiry triggers verified closure rather than speculative release
+- **AND** alerting does not manufacture an order terminal state or a human assignment.
+
+#### Scenario: A held order predates the new recovery policy
+
+- **WHEN** an old RETRY_EXHAUSTED record is considered for forward recovery
+- **THEN** only an active order without monetary conflict and with demonstrably transient evidence may resume
+- **AND** missing HTTP classification is not inferred from a generic historic diagnostic
+- **AND** existing attempts, observations, reservations and ledgers are preserved.
+
+#### Scenario: Authentication or financial evidence is unsafe
+
+- **WHEN** authentication, merchant identity or financial matching fails
+- **THEN** retry policy never bypasses the corresponding verification/hold
+- **AND** an unauthenticated incoming request cannot mutate a normal order into a hold.
+
+### Requirement: Truthful status across surfaces (R1 proposed)
+
+The four customer business states SHALL remain unchanged. Customer hints and management diagnostics SHALL project actual persistent processing facts without exposing private payment data or promising unconfigured recovery.
+
+#### Scenario: Customer waits while recovery is scheduled
+
+- **WHEN** an unresolved order has a durable automatic verification plan
+- **THEN** customer detail/history explain that plan without requiring customer intervention
+- **AND** page polling exhaustion only describes the page, not a backend shutdown
+- **AND** configuration pause is not presented as active automatic recovery.
+
+#### Scenario: Credit succeeded while notification or later diagnosis is pending
+
+- **WHEN** the credit transaction is committed
+- **THEN** customer success and the existing ledger remain authoritative
+- **AND** message retries or later internal review do not turn it into unpaid or credit again.

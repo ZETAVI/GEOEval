@@ -17,6 +17,7 @@ Customers need a reliable account-recharge path before paying points for publish
 - Publishing Commerce owns points, reservations and the narrow transaction binding used by Recharge; its independently assembled points capability needs no standalone wallet service. Publication Delivery owns fulfilment and return eligibility.
 - Recharge uses whole-renminbi amounts, ten funded points per yuan, four customer states and explicit publishing reconfirmation. Returns, cancellation, QR expiry and client completion cannot manufacture payment facts.
 - Official interface rules and discriminating evidence precede dependent integration. Security, concurrency, compatible recovery and financial consistency remain mandatory.
+- The owner confirmed reliability rather than mandatory full automation: ordinary transient failures should recover with bounded work, while unsafe financial discrepancies retain human escalation. R1 recovery and truthful cross-surface status precede management actions; read-only management and reconciliation follow. This is the next proposed behavior, not a claim that the merged implementation already supports slow recovery after retry exhaustion.
 
 ## Scope
 
@@ -45,7 +46,7 @@ Documentation impact: update existing owners and retire obsolete execution summa
 
 ## Coordination and workspace
 
-The [integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) authorizes the four Partial PRs and supersedes earlier merge-permission limits. The user canceled manual-experience preparation after confirming their own verification; its untracked drafts are retained as local artifacts and are not product source. No real-money or production authority follows from this decision.
+The [integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) authorized the four now-merged Partial PRs and superseded their earlier merge-permission limits. The user canceled manual-experience preparation and later authorized cleanup: canceled scripts, the stopped dedicated Redis container and the merged temporary integration worktree were removed; test records, databases, the Redis volume and research evidence were retained. No real-money or production authority follows from these decisions.
 
 Earlier implementation and shared-writer windows remain evidenced by their PRs and the [N4 decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5611948972). That window has been returned. Future shared schema, public-contract or accounting writes require a fresh occupancy check; no other task worktree is modified by this integration.
 
