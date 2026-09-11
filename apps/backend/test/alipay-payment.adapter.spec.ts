@@ -509,3 +509,14 @@ it("treats signed notification IDs as opaque bounded strings", () => {
     value: { notificationId: "event-id:opaque/value" },
   });
 });
+
+it("uses the official sandbox 15-hour limit independently from production", () => {
+  const input = { description: "充值", expiresAt: "2026-09-12T00:00:00Z" };
+  expect(adapter().preparePage(order, input).ok).toBe(false);
+  const production = new AlipayPaymentAdapter(
+    { ...config, environment: "production" },
+    () => now,
+  );
+  expect(production.preparePage(order, input).ok).toBe(true);
+  expect(http).not.toHaveBeenCalled();
+});

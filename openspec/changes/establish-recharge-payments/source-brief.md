@@ -42,6 +42,14 @@
 
 下一步使用临时测试密钥、受控HTTP响应和隔离数据库验证；协议定稿阶段只有源码/文档研究；后续A1a已使用临时密钥验证真实SDK，仍没有生成商户密钥或调用沙箱/正式支付，具体执行证据见verification。SDK升级、目标接口变化、通知字段变化、商户绑定/签名模式变更时才重新核对受影响部分。
 
+### A1a 实际传输依据与验证
+
+固定运行版本为SDK4.14.0、urllib4.9.0、Undici7.29.1。Context7检索指向[Undici公开Dispatcher文档](https://github.com/nodejs/undici/blob/main/docs/docs/api/Dispatcher.md)和[interceptor文档](https://github.com/nodejs/undici/blob/main/docs/docs/api/Interceptors.md)；当前文档含v8说明，因此实际实现再对照已锁定7.29.1的types/dispatcher、dispatcher.compose与connector源码，并以真实SDK/HTTPS验证，未升级依赖。
+
+源码证明：SDK curl传入agent到urllib dispatcher；urllib默认允许10次重定向，SDK没有覆写；Undici handler的请求开始回调在连接建立后才可获得活动请求controller，单靠该钩子不足以取消TLS握手。实施选择每次调用的私有Agent、连接器AbortSignal和现代compose回调，避免全局拦截或强杀共享池。代价是调用间不复用TLS连接；后续优化不能降低隔离和完整期限保证。128KiB响应上限、identity编码和16KiB默认头上限是本地约束，不冒充支付宝标准。
+
+PC沙箱[当前说明](https://opendocs.alipay.com/open/00dn7o)明确time_expire最多当前时间15小时，已与正式协议15天上限区分。电脑沙箱可用专用买家账号登录付款、支持query/close；它不替代正式银行卡/花呗或真实账单验收。沙箱控制台已打开，但仍需用户登录；未取得沙箱应用/签名配置，不声称已调用官方沙箱。
+
 ## O1a 一致读取依据（2026-09-11）
 
 决策仅涉及已锁定 Prisma 7.9.1 / PostgreSQL 的读取事务，不升级依赖。[Prisma v7 事务参考](https://docs.prisma.io/docs/orm/v7/prisma-client/queries/transactions)支持交互事务的隔离级别与等待/执行时限；[PostgreSQL Repeatable Read](https://www.postgresql.org/docs/current/transaction-iso.html#XACT-REPEATABLE-READ)说明同事务查询保持快照。本片显式设置只读事务，验证订单/流水关系查询期间第二连接完成到账也不会拼接不同版本。原无版本Prisma网址已转向v8，不能用它的新版API替代项目v7接口；本轮通过官方v7页面、已安装生成类型和实际数据库测试核对。实现/驱动/数据库版本或关系查询方式变化时重新验证。

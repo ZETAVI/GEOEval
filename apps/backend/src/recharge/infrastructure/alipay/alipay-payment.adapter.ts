@@ -1,4 +1,10 @@
-import { AlipaySdk, AlipayRequestError } from "alipay-sdk";
+import {
+  AlipaySdk,
+  AlipayRequestError,
+  type AlipayCURLOptions,
+} from "alipay-sdk";
+import { Agent, type Dispatcher } from "undici";
+import { alipayCallTransport, transportFailure } from "./alipay-transport.js";
 import {
   createPrivateKey,
   createPublicKey,
@@ -97,6 +103,18 @@ function failure<T>(
   error: unknown,
   kind: "INVALID_INPUT" | "INVALID_NOTIFICATION" | "UNRESOLVED",
 ): AlipayResult<T> {
+  const transport = transportFailure(error);
+  if (transport)
+    return {
+      ok: false,
+      error: {
+        kind,
+        code: transport.code,
+        recovery: ["DEADLINE", "ABORTED"].includes(transport.code)
+          ? "RETRY"
+          : "REVIEW",
+      },
+    };
   let code =
     error instanceof AlipayProtocolError ? error.message : "PROTOCOL_ERROR";
   let recovery: "RETRY" | "VERIFY" | "REVIEW" = "REVIEW";
@@ -148,9 +166,17 @@ export class AlipayPaymentAdapter {
   readonly #notifyUrl: string;
   readonly #returnUrl: string;
   readonly #keyId: string;
+  readonly #createPool: (signal: AbortSignal) => Dispatcher;
+  readonly #inflight = new Set<Promise<void>>();
+  readonly #origin: string;
+  readonly #timeoutMs: number;
+  readonly #maxPaymentWindowMs: number;
+  #disposed = false;
+  #disposal?: Promise<void>;
   constructor(
     config: AlipayConfig,
     readonly clock: () => Date = () => new Date(),
+    createPool?: (signal: AbortSignal) => Dispatcher,
   ) {
     try {
       requireValue(
@@ -202,6 +228,10 @@ export class AlipayPaymentAdapter {
         };
       }
       this.#keyId = publicId(publicKey);
+      this.#origin = ENDPOINTS[config.environment];
+      this.#timeoutMs = config.timeoutMs;
+      this.#maxPaymentWindowMs =
+        (config.environment === "sandbox" ? 15 : 15 * 24) * 3600_000;
       this.#sdk = new AlipaySdk({
         appId: this.#appId,
         privateKey: key.export({ type: "pkcs8", format: "pem" }).toString(),
@@ -213,11 +243,27 @@ export class AlipayPaymentAdapter {
         timeout: config.timeoutMs,
         ...verification,
       });
+      this.#createPool =
+        createPool ??
+        ((signal) =>
+          new Agent({
+            connections: 1,
+            pipelining: 1,
+            maxHeaderSize: 16 * 1024,
+            connect: { timeout: config.timeoutMs, signal },
+          }));
     } catch {
       throw new AlipayProtocolError("ALIPAY_CONFIG_INVALID");
     }
   }
+  /** Stop new outgoing work; drain bounded in-flight requests and close owned sockets. */
+  dispose(): Promise<void> {
+    this.#disposed = true;
+    return (this.#disposal ??= Promise.all([...this.#inflight]).then(() => {}));
+  }
+
   #order(order: PaymentOrder): PaymentOrder {
+    requireValue(!this.#disposed, "ADAPTER_DISPOSED");
     requireValue(
       order.appId === this.#appId && order.merchantId === this.#merchantId,
       "IDENTITY_MISMATCH",
@@ -241,7 +287,7 @@ export class AlipayPaymentAdapter {
       requireValue(
         Number.isFinite(expiry.getTime()) &&
           expiry.getTime() - now.getTime() >= 60_000 &&
-          expiry.getTime() - now.getTime() <= 15 * 86400_000,
+          expiry.getTime() - now.getTime() <= this.#maxPaymentWindowMs,
         "INVALID_INPUT",
       );
       requireValue(
@@ -375,6 +421,7 @@ export class AlipayPaymentAdapter {
   async #request(
     order: PaymentOrder,
     operation: "query" | "close",
+    signal?: AbortSignal,
   ): Promise<
     AlipayResult<{ data: Record<string, unknown>; proof: AlipaySdkProof }>
   > {
@@ -384,11 +431,32 @@ export class AlipayPaymentAdapter {
     } catch (error) {
       return failure(error, "INVALID_INPUT");
     }
+    const path = `/v3/alipay/trade/${operation}`;
+    const call = alipayCallTransport(this.#createPool, {
+      origin: this.#origin,
+      path,
+      timeoutMs: this.#timeoutMs,
+      ...(signal ? { signal } : {}),
+      ...(this.#sdk.config.alipayCertSn
+        ? { certificateSn: this.#sdk.config.alipayCertSn }
+        : {}),
+    });
+    let release!: () => void;
+    const finished = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    this.#inflight.add(finished);
     try {
-      const path = `/v3/alipay/trade/${operation}`;
+      call.check();
       const response = await this.#sdk.curl("POST", path, {
         body: { out_trade_no: o.merchantOrderNo },
+        // SDK narrows this public option to ProxyAgent; urllib consumes Dispatcher.
+        // The pinned SDK transport tests exercise this structural compatibility.
+        agent: call.dispatcher as unknown as NonNullable<
+          AlipayCURLOptions["agent"]
+        >,
       });
+      call.check();
       requireValue(response.responseHttpStatus === 200);
       const data = record(response.data);
       requireValue(
@@ -411,13 +479,21 @@ export class AlipayPaymentAdapter {
       };
     } catch (error) {
       return failure(error, "UNRESOLVED");
+    } finally {
+      try {
+        await call.finish();
+      } finally {
+        this.#inflight.delete(finished);
+        release();
+      }
     }
   }
   async query(
     order: PaymentOrder,
+    signal?: AbortSignal,
   ): Promise<AlipayResult<{ trade: AlipayTrade; proof: AlipaySdkProof }>> {
     const expected = { ...order };
-    const response = await this.#request(expected, "query");
+    const response = await this.#request(expected, "query", signal);
     if (!response.ok) return response;
     try {
       const trade = this.#trade(response.value.data, "QUERY");
@@ -430,14 +506,17 @@ export class AlipayPaymentAdapter {
       return failure(error, "UNRESOLVED");
     }
   }
-  async close(order: PaymentOrder): Promise<
+  async close(
+    order: PaymentOrder,
+    signal?: AbortSignal,
+  ): Promise<
     AlipayResult<{
       kind: "CLOSE_ACKNOWLEDGED";
       transactionId: string;
       proof: AlipaySdkProof;
     }>
   > {
-    const response = await this.#request(order, "close");
+    const response = await this.#request(order, "close", signal);
     if (!response.ok) return response;
     try {
       return {

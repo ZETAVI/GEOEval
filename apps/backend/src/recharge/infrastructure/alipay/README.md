@@ -15,6 +15,8 @@ truthfully represent this protocol. The common frozen `PaymentOrder` is reused.
   The caller must persist its obligation before exposing that material. It uses
   Shanghai calendar times and the original absolute deadline. The result is for
   a dedicated controlled document, never arbitrary HTML in the application UI.
+  The sandbox maximum is 15 hours; the protocol production maximum is 15 days.
+  Business policy may impose a shorter window.
 - `verifyNotification` accepts raw form bytes, rejects duplicates and malformed
   encoding, decodes once, verifies RSA2, and matches the configured app/merchant.
   It accepts delayed notifications and IDs through 128 characters. Its caller
@@ -33,8 +35,27 @@ truthfully represent this protocol. The common frozen `PaymentOrder` is reused.
   the SDK exception or raw request/response. SYSTEM_ERROR may be HTTP 400 and is
   retryable. NOT_EXIST and status errors request verification, never release.
 - There is no automatic retry inside this adapter. The caller owns retry budgets,
-  consistency and recovery. The SDK timeout is passed explicitly; it is not
-  claimed to be a full-operation cancellation deadline or response-size guard.
+  consistency and recovery. `alipayCallTransport` supplies a separate connection
+  pool per query/close, an absolute monotonic deadline and an AbortSignal reaching
+  the TLS connector as well as the active response. It destroys that pool before
+  completing the call; it does not interrupt another call. `dispose()` rejects
+  new outgoing work and idempotently waits for in-flight cleanup. Cancellation
+  is local I/O cancellation, never proof that Alipay cancelled the trade; its
+  result remains UNRESOLVED for the owning recovery process.
+- The transport accepts exactly one POST to the frozen origin/path, rejects
+  redirects before urllib can follow them, requests identity encoding and rejects
+  encoded responses. It bounds the response to 128 KiB before SDK parsing and
+  checks required success authentication headers and the configured certificate
+  serial. These limits are local policy, not provider-published limits.
+- The SDK types its public `agent` option as ProxyAgent while urllib accepts a
+  Dispatcher. One local cast bridges that typing mismatch; actual HTTPS tests
+  cover the pinned SDK/urllib/Undici combination. There is no global dispatcher
+  mutation, monkey-patch or SDK fork. Undici 7.29.1 was already in the dependency
+  closure and is now a direct pinned dependency, without upgrading it.
+- Each call creates a connection rather than sharing keep-alive state across
+  calls. This deliberately favors isolated cancellation for this bounded payment
+  workload. A future pooling change must retain pre-connect cancellation and
+  prove that cancelling one order cannot interrupt another.
 
 ## Evidence and remaining activation work
 
@@ -44,13 +65,16 @@ transport and supplies controlled response bytes; assertions check requests and
 signatures independently using Node crypto. These are transport-substitution
 tests, not a real network, merchant, sandbox or financial acceptance test.
 
+`test/alipay-payment.https.spec.ts` additionally runs the unmodified SDK, urllib
+and Undici against local HTTPS, with ephemeral TLS and signing certificates. Only
+DNS/port/CA are redirected to the local service. It covers signed query/close,
+certificate serial checks, both redirect kinds, response limits, stalled TLS,
+stalled headers, trickling bodies, cancellation, concurrency and disposal.
+
 Before runtime assembly, complete the versioned observation/receipt migration,
 durable form issue/restore, authenticated customer/notification HTTP wiring and
-same-transaction credit. Also verify real transport origin/redirect behavior,
-response-size limits and total request deadline/cancellation: the current SDK
-interface alone does not establish these guarantees. Production assembly must
-not proceed until that transport boundary is exercised and bounded. Keep SDK
-debug payload logging disabled in the eventual payment host.
+same-transaction credit. Local HTTPS is not official sandbox or real-merchant
+acceptance. Keep SDK debug payload logging disabled in the eventual payment host.
 
 Per-channel recovery follows authenticated evidence. Routine transient cases
 should recover automatically; genuinely ambiguous financial outcomes retain
