@@ -12,19 +12,20 @@ Customers need a reliable account-recharge path before paying points for publish
 ## Confirmed direction
 
 - Latest owner decision (2026-09-11): enterprise Alipay registration and certification are complete; website payment products are not yet verified open. Alipay PC website payment is the next integration, followed by Alipay mobile website payment. Existing WeChat Native remains accepted; WeChat H5 is deferred. JSAPI remains a separate decision.
+- Website preparation is a minimal truthful static page at geohdp.com, whose company-held ICP filing the owner confirmed. It is isolated from existing applications on the nominated Alibaba Cloud host; app.geohdp.com is reserved. Full application launch and production login are not prerequisites. Exact public company/contact/ICP text and final deployment remain to complete.
 - Customers choose amount/method locally, use the selected cashier and return to local order management. Cashier presentation is replaceable; a future provider requires its own official interface and merchant evidence.
 - Local commands commit synchronously; channel work and accepted payment receipts are processed asynchronously. Receipt acceptance commits before ACK; ACK does not wait for atomic local settlement. Customer reads and notification delivery never own payment truth.
 - Publishing Commerce owns points, reservations and the narrow transaction binding used by Recharge; its independently assembled points capability needs no standalone wallet service. Publication Delivery owns fulfilment and return eligibility.
 - Recharge uses whole-renminbi amounts, ten funded points per yuan, four customer states and explicit publishing reconfirmation. Returns, cancellation, QR expiry and client completion cannot manufacture payment facts.
 - Official interface rules and discriminating evidence precede dependent integration. Security, concurrency, compatible recovery and financial consistency remain mandatory.
-- The owner confirmed reliability rather than mandatory full automation: ordinary transient failures should recover with bounded work, while unsafe financial discrepancies retain human escalation. R1 recovery and truthful cross-surface status precede management actions; read-only management and reconciliation follow. R1 is merged through PR #87. The owner accepted administrator read-only recharge lookup as the next bounded slice; O1a is implemented and locally verified in PR #88, with accepted behavior reconciled into the Recharge spec. PR #88 owns live CI/merge state; main is not yet claimed to include O1a.
+- The owner confirmed reliability rather than mandatory full automation: ordinary transient failures should recover with bounded work, while unsafe financial discrepancies retain human escalation. R1 recovery and truthful cross-surface status precede management actions; read-only management and reconciliation follow. R1 is merged through PR #87. The owner accepted administrator read-only recharge lookup as the next bounded slice; O1a is merged through PR #88, with accepted behavior reconciled into the Recharge spec; its integration checkpoint owns exact merge and CI evidence.
 - The owner subsequently simplified customer presentation to the existing four statuses and short copy. No public recovery-stage hint is added for that purpose. Customer support is a separate persistent entry; its placement and interaction are deferred, and R1 does not highlight or change it based on payment state.
 
 ## Scope
 
 In: Recharge lifecycle and ports; bounded Commerce points extraction; durable authenticated notification acceptance and active query/close; once-only funded credit; PC Native, Alipay PC/mobile website payments and external-browser H5; operational reconciliation and recovery needed for activation.
 
-Out: changing publication fulfilment/point-return semantics; treating point returns as cash refunds; JSAPI, aggregate acquiring, commissions, tax integration, a general payment platform or new service deployment. Real money and production enablement retain named-environment and financial controls.
+Out: changing publication fulfilment/point-return semantics; treating point returns as cash refunds; JSAPI, aggregate acquiring, commissions, tax integration, a general payment platform or full application deployment. A minimal static public introduction is included in website-payment preparation. Real money and production enablement retain named-environment and financial controls.
 
 ## Current owners and reconciliation
 
