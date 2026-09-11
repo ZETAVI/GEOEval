@@ -1,6 +1,6 @@
 # Recharge verification
 
-Date: 2026-09-08. Current accepted main: bcb81db after [#79 integration](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726). A0/B0 historical matrices below retain their original evidence; the current C1 implementation/combination is recorded in the C1 section. Rebased stack: A0@47fb404 → B0@8d39710 → C1 implementation@be89fe0. Exact-head CI belongs to the corresponding PR.
+Current snapshot: 2026-09-09. Accepted main@0c09041 includes A0/B0/C1 and #73 returns. [#83](https://github.com/ZETAVI/GEOEval/pull/83) is the unmerged N1 dependency, synchronized at 929633d; N2 evidence is recorded below. Earlier dated sections are historical scope/evidence, not current claims of route absence. Current safe customer behavior is reconciled into [Recharge](../../specs/recharge/spec.md). #77 remains open for real merchant and operational acceptance.
 
 ## A0 implementation evidence
 
@@ -218,3 +218,25 @@ N1 待实施的最小判别证据：
 本片结论：后端持久恢复 **verified within controlled assembly**；整体 #77 **partially verified**。客户 API/CSRF、常驻 Worker 与运营入口、成功通知/SSE、历史/发布返回、完整桌面旅程和真实商户测试仍 Not run。前节 8 个全链路场景中的实际 HTTP 进程退出、通知投递/SSE、历史和发布返回部分继续待验，不能用本片内部函数测试替代。
 
 固定 Diff 复核进一步复现两个反例（修复前均 failed）：付款时限短于派发预算仍允许构造，以及直接 INSERT 无关闭证据的 MAY_EXIST/CLOSED 记录。现分别在 runtime 构造和新增迁移的 INSERT/UPDATE guard 修复；最终 22 项 Native 集成、组合 145 passed/2 skipped，并重新从 37 迁移带旧数据升级到最终 38 SQL。旧历史已关闭记录仍原样保留。
+
+## N2 客户 API 与受控桌面旅程（2026-09-09）
+
+Scope: #83 的线性客户接线片；普通 API 始终无商户配置，测试宿主明确注入合成签名渠道。全部数据为本地合成数据，不含用户提供的开票资料、真实商户 key 或真实付款。实现入口与当前行为由 [Recharge spec](../../specs/recharge/spec.md)、实际 controller/runtime 及生成 OpenAPI 持有。
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| 真实客户 HTTP 边界 | `recharge-customer.integration.spec.ts` 9 cases | 会话/角色/CSRF/预期账户、他人订单 404、无敏感字段、严格金额与空命令、同键恢复、筛选先于稳定分页/游标绑定、GET 不出站、verify 持久频率、取消确认与关闭、通知 ACK 后独立结算、默认未配置仍读历史/恢复且无 QR/回调，passed |
+| 完整装配与既有能力 | 后端整套 66 files；首次有效运行 612 passed / 1 failed / 2 skipped，失败为新增客户控制器未登记访问策略清单 | 将新控制器加入既有 customerOnly，未放宽任何 guard；修复后该清单 2 cases + 上述 9 HTTP cases 共 11 passed。其余 612 通过证据复用；两个既有 skip 不计通过。最终准确 head 全量 CI 由 PR Checks 持有 |
+| Web 创建恢复与接口接线 | 10 create-controller cases、7 actual-client/source cases，以及既有 Native 21 cases | 单一金额、同键/超时/重载/跨标签恢复、存储失败不发送、账户错位、取消/迟到响应、cookie/CSRF/account/no-store、202 非成功与 abort 后无余额副作用，passed；Web 全套 21 files / 150 passed |
+| 旧测试语义收束 | 原发布测试只因旧文案“在线充值尚未接入”失败 | 改为验证本次获准入口、未保存/失效方案两个按钮保持禁用、充值后明确核价购买；未删去购买保护检查 |
+| 38 → 39 前向升级 | 新隔离库回放 #83 的 38 条迁移，实际 runtime 建一单/100 点容量预留，再部署本次索引迁移 | accounts/point_accounts/point_changes/recharge_orders/reservations/attempts 六表完整 JSON 快照不变，SHA256 `2f831e9e5a70da5616ce25ef7600bd34224455084e2b7056e66f643db355f525`；原请求复用原单、无第二次预留；两个索引定义正确 |
+| 完整桌面旅程 | Chrome → 本地真实 API/Identity/PostgreSQL → 合成签名 WeChat adapter | 已保存发布方案/余额 0 → 严格金额 → ¥10 创建响应在提交后中断 → 刷新并恢复同一单 → QR → 点击完成仍待支付 → 签名通知先 204、暂停结算时余额仍 0/预留 100 → 恢复后成功 100 → 重复通知仅一条 RECHARGE → 回原品牌/文章/方案、读取新报价与余额、仍须购买确认。未点击最终购买，发布订单 0 |
+| 取消与历史 | 浏览器另建 ¥1 合成未付单，已观察 QR 后暂停后台并取消 | QR 立即隐藏，重载仍确认中且预留 10 保留；恢复后台查询/关单后关闭并释放，无额外到账；历史全量显示成功/关闭两单，服务器筛选关闭仅一单 |
+| 构建/契约 | workspace typecheck、完整 `pnpm build`、生成 OpenAPI/client | Passed；构建包含 `/recharges` 与动态详情，未引入测试控制路由。准确格式/生成漂移与最终 CI 由 PR checkpoint 补充 |
+| 本轮响应式检查的限度 | Chrome viewport capability 请求 390 px，但实际 DOM 连续读取仍 1612 px | 未生效，已 reset；不将其计作 N2 新窄屏浏览器证据。沿用未变化 Native 组件的既有 374 px 证据；H5/实际手机支付仍未验证 |
+
+Reproduce HTTP/Web/type/build with the project scripts. Full backend tests require an explicitly isolated PostgreSQL database after `pnpm db:migrate`, and isolated Redis. This round used `geoeval_issue77_customer_n2` / Redis 56577 DB1; migration rehearsal used `geoeval_issue77_customer_upgrade_n2`. Do not point reset/truncate tests at a shared or production database.
+
+Browser host: `apps/backend/test/fixtures/recharge-journey-host.ts`, run from backend with `node --import tsx test/fixtures/recharge-journey-host.ts`; it requires exactly loopback `geoeval_issue77_customer_browser_n2` and Redis 56577 DB2, refuses a non-empty seed database, and listens on 33577. Start the ordinary Web dev server on 32577 with API `http://localhost:33577`; open localhost to isolate the cookie from other worktrees. Only this test host registers `/__test/*` controls. All fake payment actions are signed through the real notification handler and carry an explicit controlled banner. Its process-local gateway map is not persistent merchant state, so this fixture does not prove provider restart or real WeChat availability. Keep or recreate only its named isolated environment; never truncate another owner's data to rerun it.
+
+Author review separates scope fidelity, engineering boundaries and evidence: no payment result is accepted from the client, Commerce still owns money writes, RETURN is unchanged, default host remains disabled, and browser return cannot auto-purchase. Corrected narrow issues found while reviewing: account-fenced balance refresh, stale source callback after abort, recovering another tab's frozen amount in the visible input, and storage failure during publishing return falling back to server-owned selection. No independent full N2 review is claimed. Merchant permissions/keys, production Worker/limits/support policy, successful-recharge notifications, H5, reconciliation and real-money acceptance remain unfinished #77 work.

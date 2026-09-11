@@ -13,6 +13,12 @@ import {
   type MediaCategory,
 } from "@geoeval/api-client";
 import { useEffect, useRef, useState } from "react";
+import {
+  rechargeEntryKey,
+  rechargeReturnKey,
+  readReturnBrand,
+  uuid,
+} from "../recharges/recharge-intent.js";
 import { CustomerSidebar } from "../customer-sidebar.js";
 import {
   loadRoleSession,
@@ -94,6 +100,29 @@ export function PublishingWorkspace() {
         listCustomerMedia(apiBaseUrl),
         listMediaCategories(apiBaseUrl),
       ]);
+      const returnedOrder = new URLSearchParams(window.location.search).get(
+        "rechargeOrder",
+      );
+      if (uuid(returnedOrder)) {
+        let originalBrand: string | null = null;
+        try {
+          originalBrand = readReturnBrand(
+            sessionStorage.getItem(
+              rechargeReturnKey(next.account.id, returnedOrder),
+            ),
+          );
+        } catch {
+          setNotice(
+            "充值返回位置暂不可读取；当前品牌的已保存方案已重新加载，请核对后继续。",
+          );
+        }
+        if (originalBrand)
+          setNotice(
+            workspace.brand?.id === originalBrand
+              ? "已返回原品牌的已保存方案；余额、文章与报价已重新读取，请核对后明确确认购买。"
+              : "充值前的方案属于另一品牌。请先在“我的品牌”中选回原品牌，再核对已保存方案；系统没有替你切换品牌或购买。",
+          );
+      }
       setData(workspace);
       setForm(selectionForm(workspace.selection));
       setPackages(offers);
@@ -257,7 +286,7 @@ export function PublishingWorkspace() {
           </a>
         </section>
         <div className="commerce-notice">
-          保存选择不会扣分、锁价或产生订单；只有明确确认购买后才会扣分并创建待处理订单。在线充值尚未接入。
+          保存选择不会扣分、锁价或产生订单；只有明确确认购买后才会扣分并创建待处理订单。充值后也需重新核价并确认购买。
         </div>
         {error && (
           <p className="form-error" role="alert">
@@ -480,6 +509,18 @@ export function PublishingWorkspace() {
           </div>
         </section>
         <QuoteSummary
+          onRecharge={() => {
+            if (!data.brand || !data.selection || dirty || busy) return;
+            try {
+              sessionStorage.setItem(
+                rechargeEntryKey(session.account.id),
+                data.brand.id,
+              );
+              window.location.assign("/recharges");
+            } catch {
+              setError("暂时无法保存充值返回位置，请重试；已保存方案仍保留。");
+            }
+          }}
           quote={data.quote}
           balance={data.balance}
           dirty={dirty}

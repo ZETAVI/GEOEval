@@ -6,6 +6,9 @@ export type NativeCheckoutOrder = Readonly<{
   status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
   paymentExpiresAt: string;
   canCancel: boolean;
+  canVerify?: boolean;
+  cancelRequested?: boolean;
+  supportRequired?: boolean;
   qr: Readonly<{ value: string; expiresAt: string }> | null;
 }>;
 export type NativeCheckoutRead =
@@ -270,7 +273,9 @@ export class NativeCheckoutController {
           order: value.order,
           phase: "ready",
           busy: null,
-          cancelPending: done ? false : this.state.cancelPending,
+          cancelPending: done
+            ? false
+            : this.state.cancelPending || value.order.cancelRequested === true,
           recoveryBlocked: done ? false : this.state.recoveryBlocked,
           notice:
             !done && this.verificationRequested
@@ -303,6 +308,7 @@ export class NativeCheckoutController {
       this.now() - this.lastCommandAt < this.policy.commandCooldownMs
     )
       return;
+    if (kind === "verify" && this.state.order.canVerify === false) return;
     if (kind === "cancel") {
       if (!this.state.order?.canCancel) return;
       try {

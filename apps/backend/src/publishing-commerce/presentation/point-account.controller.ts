@@ -1,5 +1,7 @@
 import {
   Body,
+  ConflictException,
+  Headers,
   Controller,
   Get,
   HttpCode,
@@ -11,6 +13,7 @@ import {
 } from "@nestjs/common";
 import {
   ApiBody,
+  ApiHeader,
   ApiOkResponse,
   ApiParam,
   ApiQuery,
@@ -38,7 +41,20 @@ export class PointCustomerController {
   ) {}
   @Get()
   @ApiOkResponse({ type: PointBalanceResponse })
-  balance(@CurrentPrincipal() principal: AuthenticatedPrincipal) {
+  @ApiHeader({
+    name: "x-geoeval-account",
+    required: false,
+    description: "Optional expected-account fence for a payment return",
+  })
+  balance(
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
+    @Headers("x-geoeval-account") expected: string | undefined,
+  ) {
+    if (expected && expected.toLowerCase() !== principal.accountId)
+      throw new ConflictException({
+        code: "ACCOUNT_CHANGED",
+        message: "登录账号已变化，请重新读取积分。",
+      });
     return this.points.customerBalance(principal.accountId);
   }
   @Get("changes")

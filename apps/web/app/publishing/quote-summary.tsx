@@ -12,12 +12,14 @@ export function QuoteSummary({
   dirty,
   busy = false,
   onReview,
+  onRecharge,
 }: {
   quote: PublishingQuote | null;
   balance: number;
   dirty: boolean;
   busy?: boolean;
   onReview?: () => void;
+  onRecharge?: () => void;
 }) {
   return (
     <section
@@ -78,7 +80,7 @@ export function QuoteSummary({
             <p>
               还差 {quote.shortfall.toLocaleString()} 积分，按 10
               积分/元约需充值 {quote.suggestedRechargeYuan}{" "}
-              元。在线充值尚未接入。
+              元。充值后仍需核对最新方案并确认购买。
             </p>
           )}
           {quote.problems.map((problem) => (
@@ -118,6 +120,15 @@ export function QuoteSummary({
       >
         核对并购买
       </button>
+      {!!quote?.shortfall && onRecharge && (
+        <button
+          className="secondary-button"
+          disabled={busy || dirty || !!quote.problems.length}
+          onClick={onRecharge}
+        >
+          前往充值并保留已保存方案
+        </button>
+      )}
       <p>
         <a href="/account">查看积分与流水 →</a>
       </p>

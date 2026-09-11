@@ -1,0 +1,131 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(230px, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.create {
+  display: grid;
+  gap: 16px;
+}
+.create h2,
+.history h2 {
+  margin: 0;
+}
+.shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.amount {
+  display: grid;
+  gap: 8px;
+  max-width: 380px;
+}
+.amount input,
+.historyHeading select {
+  padding: 12px 14px;
+  border: 1px solid #b9ccc3;
+  border-radius: 8px;
+  font: inherit;
+  background: white;
+  color: #17392b;
+}
+.amount input[aria-invalid="true"] {
+  border-color: #a83232;
+}
+.methods {
+  border: 1px solid #d6e2dc;
+  border-radius: 10px;
+  padding: 14px;
+}
+.methods input {
+  accent-color: #176043;
+  margin-right: 8px;
+}
+.total {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid #d6e2dc;
+}
+.total strong {
+  color: #176043;
+}
+.guide p {
+  line-height: 1.8;
+}
+.controlled {
+  padding: 14px 18px;
+  background: #fff6de;
+  border: 1px solid #e4ca8a;
+  border-radius: 10px;
+  color: #6d4e11;
+}
+.history {
+  margin-top: 36px;
+}
+.historyHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.historyHeading label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.orders {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  border-top: 1px solid #d6e2dc;
+}
+.orders li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 24px;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid #d6e2dc;
+}
+.orders p {
+  margin: 6px 0;
+  color: #5a7165;
+}
+.orders small {
+  overflow-wrap: anywhere;
+  color: #5a7165;
+}
+.balance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 20px;
+}
+.detailNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  color: #5a7165;
+}
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .orders li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+  .orders li > a {
+    grid-column: 1/-1;
+  }
+}

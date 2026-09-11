@@ -2,7 +2,7 @@
 
 方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0, C1, an isolated Native Web component and the explicitly constructed N1 backend recovery runtime are implemented on the linear Issue #77 stack. Customer API/Worker registration, full browser journey, H5 and operational activation remain proposed; no live recharge activation. Control: [proposal](proposal.md). Sequence: [tasks](tasks.md). This file replaces the local research candidate and does not replace current specs.
+Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 now connects authenticated customer API/history and controlled desktop checkout; current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real merchant/Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims.
 
 已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
@@ -715,3 +715,16 @@ QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字
 数据库新增约束保护冻结请求、取消意图、操作身份与完成结果不可改写；已发出订单转 CLOSED 要有本单真实 QUERY CLOSED 或关单 ACK 引用。旧历史已关闭订单不被伪造补证据；旧未决订单不从新配置补造发起参数。迁移是增量升级，停止新建/发起并保留恢复执行是回退方式；已有出站义务后不得删表、抹除预留或退回无法处理旧义务的宿主。
 
 客户 HTTP/CSRF、充值历史、发布选择返回、Notification/SSE、商户级限流和人工处置入口仍由后续接线片实现。本片没有因为共享窗口开放而一并扩张这些边界。
+
+## N2 客户接线实施卡
+
+用户已批准客户 API、充值历史、二维码页面与受控桌面旅程。固定基线为 #83@9d27b92，本工作树使用其线性上层 `codex/issue-77-customer-recharge`；四条依赖已按单独授权合入 main@0c09041；#83 经 929633d 同步该主干，仅接收履约归档差异。N2 继续线性叠加 #83，不回写下层，也不取得 #83/N2 合并权限。
+
+- **所有权与接口**：Recharge 增加 options/create/detail/list/verify/cancel 的客户合同；金额、订单与积分写入继续经过 N1/C1。查询仓储复用 Recharge 自有数据，不让 HTTP 直接接收内部订单、proof、商户信息、预留或任意回跳链接。Identity 继续是角色/会话/CSRF 权威；`x-geoeval-account` 只校验浏览器预期账号与真实 principal 一致，不能选择账户。
+- **启用边界**：默认 ApiModule 只提供安全读取与已提交请求恢复，options 返回未开放，无 gateway/回调/后台定时器。受控宿主显式注入相同 API/Native runtime 与通知 verifier，启用 rawBody、明确测试提示；production 拒绝 controlled 配置。实际商户加载、运营预算和管理员快捷金额维护入口仍属正式启用片，不提供假默认密钥或生产测试档。
+- **持久性**：历史在账户/状态筛选后以 createdAt/id 分页，游标绑定账户与筛选；只加相应索引，不改钱事实。GET 不出站、不续 QR。verify 只能合并既有 due，最近持久 attempt 与显式 queryInterval 约束出站频率，不能绕过失败退避；取消保持 N1 的原子关闭/未知义务规则。
+- **Web 恢复**：金额保留单一原始草稿，非法小数/超限不改写或回退；先保存账户绑定的创建请求，再发送，未知结果只能以相同内容/key恢复。只保存必要意图/发布返回引用，不保存 QR、商户凭据或付款证明。默认入口可查看未开放说明和历史；Native 独立页面复用已有 controller，账号或订单变化使旧响应失效。
+- **发布衔接**：只从已保存选择进入充值，保留账户限定 brand 引用，成功后恢复原上下文并重新读取报价；跨设备切换品牌时提示而不替用户更换。充值不会生成 pending purchase、自动扣点或提交发布订单。成功后的余额从服务器重读，旧余额响应失效。
+- **最小反例**：真实 HTTP 的角色/账户/CSRF、敏感字段缺失、分页筛选和跨账户游标；默认未开放、关闭创建仍能恢复旧单；反复 verify 不提高网关频率。浏览器覆盖严格金额、创建丢响应重载、二维码、取消/迟到成功、历史重开、充值成功后的余额/发布重新核价；商户扫码、H5和真实资金明确不算通过。
+
+作者架构审查结论：可在上述窗口实施；没有依据要求重构 Commerce 或改变 RETURN 合同。新增索引可前向部署，回退页面/新建入口时保留 N1 数据及旧义务处理；不得回滚或删除已确认账务。当前实际状态和证据继续由 tasks/verification 与本片 PR 持有。

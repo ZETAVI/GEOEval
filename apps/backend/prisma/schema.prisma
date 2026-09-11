@@ -1350,7 +1350,8 @@ model RechargeOrder {
   @@unique([id, provider, merchantId], map: "recharge_order_merchant_identity_key")
   @@unique([provider, merchantId, merchantOrderNo], map: "recharge_merchant_order_key")
   @@unique([provider, merchantId, providerTransactionId], map: "recharge_provider_transaction_key")
-  @@index([accountId, status])
+  @@index([accountId, status, createdAt, id], map: "recharge_account_status_history_idx")
+  @@index([accountId, createdAt, id], map: "recharge_account_history_idx")
   @@index([nativeNextActionAt], map: "recharge_native_due_idx")
   @@map("recharge_orders")
 }

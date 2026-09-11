@@ -948,6 +948,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/recharges/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerRechargeController_options"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/recharges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerRechargeController_list"];
+        put?: never;
+        post: operations["CustomerRechargeController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/recharges/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerRechargeController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/recharges/{id}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerRechargeController_verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/recharges/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerRechargeController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/brands/{brandId}/evaluation-report": {
         parameters: {
             query?: never;
@@ -2404,6 +2484,83 @@ export interface components {
         };
         NotificationReadAllResponse: {
             unreadCount: number;
+        };
+        RechargeOptionsResponse: {
+            available: boolean;
+            controlled: boolean;
+            minAmountYuan: number | null;
+            maxAmountYuan: number | null;
+            shortcutAmounts: number[];
+            methods: "WECHAT_NATIVE"[];
+            pointsPerYuan: number;
+            supportMessage: string | null;
+        };
+        RechargeCreateRequest: {
+            amountYuan: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+            /** @enum {string} */
+            method: "WECHAT_NATIVE";
+        };
+        RechargeQrResponse: {
+            value: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        RechargeDetailResponse: {
+            /** Format: uuid */
+            id: string;
+            amountYuan: number;
+            points: number;
+            /** @enum {string} */
+            method: "WECHAT_NATIVE";
+            /** @enum {string} */
+            status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            paymentExpiresAt: string;
+            /** Format: date-time */
+            paidAt: string | null;
+            /** Format: date-time */
+            closedAt: string | null;
+            cancelRequested: boolean;
+            canVerify: boolean;
+            canCancel: boolean;
+            supportRequired: boolean;
+            qr: components["schemas"]["RechargeQrResponse"] | null;
+        };
+        RechargeReadResponse: {
+            order: components["schemas"]["RechargeDetailResponse"];
+            /** Format: date-time */
+            serverTime: string;
+        };
+        RechargeSummaryResponse: {
+            /** Format: uuid */
+            id: string;
+            amountYuan: number;
+            points: number;
+            /** @enum {string} */
+            method: "WECHAT_NATIVE";
+            /** @enum {string} */
+            status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            paymentExpiresAt: string;
+            /** Format: date-time */
+            paidAt: string | null;
+            /** Format: date-time */
+            closedAt: string | null;
+        };
+        RechargePageResponse: {
+            items: components["schemas"]["RechargeSummaryResponse"][];
+            nextCursor: string | null;
+        };
+        RechargeCommandRequest: Record<string, never>;
+        RechargeAcceptedResponse: {
+            /** @enum {boolean} */
+            accepted: true;
         };
         EvaluationBrandSnapshotResponse: {
             companyName: string;
@@ -4304,6 +4461,160 @@ export interface operations {
             };
         };
     };
+    CustomerRechargeController_options: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account; never overrides the authenticated owner */
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeOptionsResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+                status?: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
+            };
+            header: {
+                /** @description Expected signed-in account; never overrides the authenticated owner */
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargePageResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account; never overrides the authenticated owner */
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RechargeCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeReadResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeController_detail: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account; never overrides the authenticated owner */
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeReadResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeController_verify: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account; never overrides the authenticated owner */
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RechargeCommandRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeAcceptedResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeController_cancel: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account; never overrides the authenticated owner */
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RechargeCommandRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeAcceptedResponse"];
+                };
+            };
+        };
+    };
     EvaluationController_currentReport: {
         parameters: {
             query?: never;
@@ -4692,7 +5003,10 @@ export interface operations {
     PointCustomerController_balance: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional expected-account fence for a payment return */
+                "x-geoeval-account"?: string;
+            };
             path?: never;
             cookie?: never;
         };

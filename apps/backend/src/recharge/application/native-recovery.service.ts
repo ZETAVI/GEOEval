@@ -48,7 +48,12 @@ export class NativeRecoveryService {
   }
   async verify(accountId: string, orderId: string) {
     this.identifiers(accountId, orderId);
-    await this.repository.verifyOwned(accountId, orderId, this.clock());
+    await this.repository.verifyOwned(
+      accountId,
+      orderId,
+      this.clock(),
+      this.policy.queryIntervalMs,
+    );
     return this.read(accountId, orderId);
   }
   async runOrders(limit: number) {

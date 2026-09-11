@@ -2228,6 +2228,274 @@
         ]
       }
     },
+    "/recharges/options": {
+      "get": {
+        "operationId": "CustomerRechargeController_options",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account; never overrides the authenticated owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RechargeOptionsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "recharges"
+        ]
+      }
+    },
+    "/recharges": {
+      "post": {
+        "operationId": "CustomerRechargeController_create",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account; never overrides the authenticated owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RechargeCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RechargeReadResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "recharges"
+        ]
+      },
+      "get": {
+        "operationId": "CustomerRechargeController_list",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account; never overrides the authenticated owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "PENDING_PAYMENT",
+                "CONFIRMING",
+                "SUCCESSFUL",
+                "CLOSED"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RechargePageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "recharges"
+        ]
+      }
+    },
+    "/recharges/{id}": {
+      "get": {
+        "operationId": "CustomerRechargeController_detail",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account; never overrides the authenticated owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RechargeReadResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "recharges"
+        ]
+      }
+    },
+    "/recharges/{id}/verify": {
+      "post": {
+        "operationId": "CustomerRechargeController_verify",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account; never overrides the authenticated owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RechargeCommandRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RechargeAcceptedResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "recharges"
+        ]
+      }
+    },
+    "/recharges/{id}/cancel": {
+      "post": {
+        "operationId": "CustomerRechargeController_cancel",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account; never overrides the authenticated owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RechargeCommandRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RechargeAcceptedResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "recharges"
+        ]
+      }
+    },
     "/brands/{brandId}/evaluation-report": {
       "get": {
         "operationId": "EvaluationController_currentReport",
@@ -2785,7 +3053,17 @@
     "/points": {
       "get": {
         "operationId": "PointCustomerController_balance",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Optional expected-account fence for a payment return",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -7348,6 +7626,294 @@
         },
         "required": [
           "unreadCount"
+        ]
+      },
+      "RechargeOptionsResponse": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "controlled": {
+            "type": "boolean"
+          },
+          "minAmountYuan": {
+            "type": "integer",
+            "nullable": true
+          },
+          "maxAmountYuan": {
+            "type": "integer",
+            "nullable": true
+          },
+          "shortcutAmounts": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "WECHAT_NATIVE"
+              ]
+            }
+          },
+          "pointsPerYuan": {
+            "type": "integer"
+          },
+          "supportMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "available",
+          "controlled",
+          "minAmountYuan",
+          "maxAmountYuan",
+          "shortcutAmounts",
+          "methods",
+          "pointsPerYuan",
+          "supportMessage"
+        ]
+      },
+      "RechargeCreateRequest": {
+        "type": "object",
+        "properties": {
+          "amountYuan": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "WECHAT_NATIVE"
+            ]
+          }
+        },
+        "required": [
+          "amountYuan",
+          "idempotencyKey",
+          "method"
+        ]
+      },
+      "RechargeQrResponse": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "value",
+          "expiresAt"
+        ]
+      },
+      "RechargeDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amountYuan": {
+            "type": "integer"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "WECHAT_NATIVE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_PAYMENT",
+              "CONFIRMING",
+              "SUCCESSFUL",
+              "CLOSED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paymentExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cancelRequested": {
+            "type": "boolean"
+          },
+          "canVerify": {
+            "type": "boolean"
+          },
+          "canCancel": {
+            "type": "boolean"
+          },
+          "supportRequired": {
+            "type": "boolean"
+          },
+          "qr": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RechargeQrResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "amountYuan",
+          "points",
+          "method",
+          "status",
+          "createdAt",
+          "paymentExpiresAt",
+          "paidAt",
+          "closedAt",
+          "cancelRequested",
+          "canVerify",
+          "canCancel",
+          "supportRequired",
+          "qr"
+        ]
+      },
+      "RechargeReadResponse": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "$ref": "#/components/schemas/RechargeDetailResponse"
+          },
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "order",
+          "serverTime"
+        ]
+      },
+      "RechargeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amountYuan": {
+            "type": "integer"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "WECHAT_NATIVE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_PAYMENT",
+              "CONFIRMING",
+              "SUCCESSFUL",
+              "CLOSED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paymentExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "amountYuan",
+          "points",
+          "method",
+          "status",
+          "createdAt",
+          "paymentExpiresAt",
+          "paidAt",
+          "closedAt"
+        ]
+      },
+      "RechargePageResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RechargeSummaryResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "RechargeCommandRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "RechargeAcceptedResponse": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "accepted"
         ]
       },
       "EvaluationBrandSnapshotResponse": {
