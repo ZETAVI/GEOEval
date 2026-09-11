@@ -7,14 +7,19 @@
 - [x] Owner selects DeepSeek 0731 off; freeze Prompt 1.1.0 and existing Schema.
 - [x] Prepare twenty-sample shared-concurrency-five preflight and bounded
       analysis retry/replay/recovery runner; preserve all original evidence.
-- [ ] Resolve exact-batch external-transfer authorization required by automatic
-      safety review; launch rejected before process creation, zero calls.
-- [ ] Run four questions across five real sampling platforms through the
+- [x] Resolve exact-batch external-transfer authorization: owner explicitly
+      confirms named endpoints/raw-derived content/cost; unchanged manifest
+      approved and executed after the original zero-call rejection.
+- [x] Run four questions across five real sampling platforms through the
       selected Parser, resolution and composition; report actual coverage/time.
-- [ ] Reparse the same original answers once and compare core semantic outputs.
-- [ ] Verify bounded failed-stage retry and downstream-only recovery without
-      resampling or rewriting original evidence; distinguish simulation/runtime.
+- [x] Reparse the same original answers once and compare core semantic outputs;
+      stable target counters conceal one repeated false focus assignment.
+- [x] Verify controlled composition-only recovery without resampling or
+      rewriting evidence. No real failures occurred, so natural retry was not
+      exercised and product Worker recovery remains unverified.
 - [ ] Reconcile the measured candidate decision before Worker/frontend activation.
+      Scale/time pass; false target attribution and competitor splitting remain
+      semantic follow-up, without reopening the model matrix.
 
 ### Three-brand Prompt refinement and problem-first report
 

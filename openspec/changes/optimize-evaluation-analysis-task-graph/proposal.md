@@ -51,11 +51,21 @@ closed for this package. The next scope is the
 with executable settings in
 [candidate configuration](../../../apps/backend/geo-intelligence/experiments/m4-report-candidate.json).
 The four-question/five-platform gram plan, same-source replay and composition-only
-recovery simulation are frozen locally. Launch was rejected by automatic safety
-review before process creation: **zero calls executed**. The gate requires
-explicit confirmation of five sampling endpoints, raw/derived replay to Alibaba,
-private Langfuse actual IO export and the bounded call count. Do not reroute or
-reuse another command to bypass this rejection. Runtime activation is still out.
+recovery simulation are frozen locally. The first launch was rejected before
+process creation with zero calls. The owner subsequently explicitly confirmed
+the named sampling services, raw/derived replay to Alibaba, private Langfuse
+actual IO export and bounded cost scope. The unchanged frozen manifest was
+approved and launched as `m4-candidate-scale-uETbW8`; no rerouting or bypass was
+used. Runtime activation is still out.
+The batch has now finished: 65 real calls with no technical failure; twenty
+samples parsed in each pass, baseline pipeline 245.290 seconds, replay 49.242
+seconds and composition-only simulated recovery 14.719 seconds. All 65 private
+Langfuse generation records match the actual IO/settings/usage readback.
+Semantic acceptance is not granted: one source without gram is attributed to
+the focus brand in both passes, and competitor canonical names split during
+replay. The next action remains a bounded correction within the selected
+candidate, not a new model sweep or frontend activation. See the
+[scale result](research/chain-quality-experiment.md#selected-candidate-scale-run--2026-09-10).
 
 The owner's latest review accepts approximate platform wording and reasonable
 rank-based comparisons as non-blocking observations, not a new semantic gate.

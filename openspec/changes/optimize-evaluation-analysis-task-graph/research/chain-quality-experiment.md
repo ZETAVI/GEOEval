@@ -1,5 +1,91 @@
 # M4 Chain Quality Experiment
 
+## Selected-candidate scale run — 2026-09-10
+
+The owner's explicit confirmation resolves the previous exact-batch transfer
+gate. The original manifest hash
+`5a689cd7ccc0dce5314b062271ccb766de43c0ffff32d3419ee3baa22806b9fe`
+was executed unchanged; no workaround or alternate destination was used.
+The selected candidate stays DS `deepseek-v4-flash-0731`, thinking off,
+temperature 0.6, Prompt 1.1.0, unchanged Schema and message assembly.
+
+### Execution and recovery
+
+- Twenty new public answers: four frozen queries for 广州公园前 gram 酸种披萨
+  across DeepSeek, Doubao, Qwen, Ernie and Hunyuan. Existing sampling routes are
+  unchanged; the Tencent DeepSeek acquisition route is separate from Alibaba
+  DS0731 analysis. Shared acquisition/parse concurrency peaked at five.
+- Twenty first parses, resolution and composition; twenty parses of the exact
+  same original answers, resolution and composition; one composition-only
+  simulated recovery. **65 calls / 510,609 provider-reported tokens**, every
+  request structurally accepted on its first attempt. No automatic retry or
+  fallback was needed. Token totals are not cross-provider paid-cost estimates.
+- Baseline acquisition-through-preview elapsed **245.290 seconds** (4m05s).
+  Same-source parse-through-preview replay **49.242 seconds**. Composition-only
+  recovery **14.719 seconds**. Combined experiment wall time 309.535 seconds
+  includes replay/recovery and is not the single-report latency.
+- Recovery simulates an unavailable downstream artifact without deleting the
+  original. Source, prepared-parser and resolution hashes stay unchanged;
+  acquisition count remains twenty. It proves the controlled task reuse, not
+  database/lease/Worker restart recovery. The configured failed-stage retry
+  branch was not exercised by an actual error and is not claimed verified.
+
+### Why semantic acceptance is still pending
+
+Both previews report six mentions among fifteen open answers (40%) with positions
+4, 3, 1, 1, 1, 1, and all twenty samples preserve focus presence/position across
+the two passes. This agreement conceals a repeated error:
+
+- `q3-hunyuan` input names 乐凯撒, OGGI and miss Lee, alongside an unnamed
+  Beijing Road Neapolitan pizza shop. It contains no gram/Gram & Gram mention.
+  First parsing creates a positive focus row `gram酸种披萨`, assigning the unnamed
+  shop's oven/pizza description to it. Replay again creates a focus row, this
+  time neutral with an empty point array. This is unsupported target attribution,
+  not reasonable alias normalization or merely different wording. Raw inputs and
+  outputs are retained; reported 40% is an observed erroneous candidate output,
+  not endorsed product truth.
+- Baseline resolution maps five 乐凯撒 records to `乐凯撒`; replay keeps
+  `乐凯撒·榴莲比萨` (two), `乐凯撒比萨` (two), `乐凯撒披萨` (one). The resulting top
+  competitor list changes. This is an actual brand-grouping inconsistency, not
+  simply a display-label preference. Ordinary point/excerpt variation between
+  passes remains in the input, so this is not a single-variable resolver-only
+  experiment.
+- One 必胜客 record changes from neutral to negative, changing its eligibility.
+  Other differences include a possible named merchant in an answer's ending
+  being retained on replay, reasonable Mama Mia name formatting, and generic
+  Neapolitan-shop rows not consistently filtered. Keep these distinct from the
+  two primary issues rather than inventing one averaged quality score.
+- `q4-deepseek` acquisition says information is insufficient and proposes another
+  search, without providing a list. It passes the current technical acquisition
+  and parser checks but is not a substantively completed answer. Do not call
+  its lack of target content a parser omission, or hide this source-quality
+  limitation behind the twenty structural passes.
+
+Decision: scale/time and controlled downstream reuse pass, semantic acceptance
+does not. Keep the selected DS-off candidate and isolate false focus attribution
+and canonical-brand output consistency before frontend/runtime integration.
+No Prompt edits, business repairs, reranking, additional model comparison or
+resampling were performed after viewing this batch.
+
+### Evidence and verification
+
+Ignored evidence directory: `m4-candidate-scale-uETbW8`. Immutable source-set hash:
+`7246435133d82ad0ffd015503fca10759169950dd51a3d94479998c28e7503f8`.
+Actual request/result files, both previews, recovery dependencies and the frozen
+runner are retained. Local `m4-scale.html` foregrounds the repeated attribution
+error and competitor split, then provides twenty before/after input-output views.
+
+Private Langfuse trace `86326de0a5641d311c1ab27e9b5caa44` has all 66 expected
+observations: root plus 65 generations. Actual IO, settings and usage match for
+all calls; separate semantic review was not uploaded. This does not retroactively
+resolve older batches' logging gaps.
+
+Reuse ten passing focused candidate/pipeline tests and preflight concurrency
+checks: code/config/dependencies are unchanged. HTML data/selection checks cover
+all twenty dual-pass views and exact source retention; loopback HTTP is 200.
+Browser visual QA, formal score/UI/Worker integration, natural failure retry,
+production delivery and merge acceptance remain outside this evidence.
+
 ## Three-brand refinement and problem-first review — 2026-09-10
 
 Owner adjustments: minor platform wording and reasonable rank-based conclusions
