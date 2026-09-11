@@ -12,7 +12,7 @@
 | --- | --- |
 | PC/H5产品及申请 | [PC](https://opendocs.alipay.com/open/270/105898)、[H5](https://opendocs.alipay.com/open/00f7nf)：签约后仍需技术集成；网站可访问且经营/商品信息完整，ICP备案主体一致，不一致时按要求授权。对应开通链接[PC](https://b.alipay.com/page/product-mall/product-detail/I1080300001000041203)、[H5](https://b.alipay.com/page/product-mall/product-detail/I1080300001000041949)；各自状态以[商家产品记录](https://mrchportalweb.alipay.com/dynlink/productSign/signManage.htm)为准 |
 | 应用与绑定 | [自研准备](https://opendocs.alipay.com/open/270/01didh)、[创建应用](https://opendocs.alipay.com/open/009yp4)、[绑定](https://opendocs.alipay.com/open/0128wr)、[开通产品](https://opendocs.alipay.com/open/009ypa)：网页/移动应用、APPID、上线及同主体商家PID绑定；自研产品开通按应用上线后流程办理 |
-| 加签配置 | [密钥配置](https://opendocs.alipay.com/open/02nlga)、[官方Node SDK](https://github.com/alipay/alipay-sdk-nodejs-all)：RSA2，SDK推荐公钥证书模式，提供私钥及三种证书；公钥模式也有正式支持。工具默认PKCS8与SDK默认PKCS1应通过keyType/格式转换明确匹配。npm latest 与发布包均为4.14.0；已下载源码审阅但未安装，实施时精确锁定版本和完整性 |
+| 加签配置 | [密钥配置](https://opendocs.alipay.com/open/02nlga)、[官方Node SDK](https://github.com/alipay/alipay-sdk-nodejs-all)：RSA2，SDK推荐公钥证书模式，提供私钥及三种证书；公钥模式也有正式支持。工具默认PKCS8与SDK默认PKCS1应通过keyType/格式转换明确匹配。npm latest 与发布包均为4.14.0；研究时下载源码审阅，A1a已精确安装并锁定完整性；执行证据见verification |
 | PC执行和事实 | [快速接入](https://opendocs.alipay.com/open/00dn7k)、[异步通知](https://opendocs.alipay.com/open/00dn7l)：pageExecute生成网页动作，并不代表服务器已创建远端交易；通知与主动查单共同确认。通知以success应答且不能重定向，验签之外必须核对商家/应用/订单/金额，保留幂等处理 |
 | 沙箱边界 | [PC沙箱](https://opendocs.alipay.com/open/00dn7o)、[手机沙箱](https://opendocs.alipay.com/open/00f7np)：可在产品签约前并行开发，身份/数据/网关与正式隔离；仅余额等受限场景，账单是模板，不能证明正式对账。尚未实际调用 |
 
@@ -40,7 +40,7 @@
 
 取证方式：open/llms索引的官方Markdown用于v2字段和通知；从官方query页“查看V3版本”进入v3目录，直接读取page/query/close与验签规则正文；查询和关闭均在电脑网站支付目录，不能因为内页沿用“当面付”场景标签就推断PC不支持。v3的llms地址没有得到有效索引，未把HTML壳或搜索摘要当证据。Node公开发布包比示例代码优先：旧API页可能写pageExec，当前SDK明确提供pageExecute；示例中的加号、旧时间、其他产品码与多余参数不复制。
 
-下一步使用临时测试密钥、受控HTTP响应和隔离数据库验证；本轮是源码/文档研究，没有执行SDK、生成商户密钥或调用沙箱/正式支付。SDK升级、目标接口变化、通知字段变化、商户绑定/签名模式变更时才重新核对受影响部分。
+下一步使用临时测试密钥、受控HTTP响应和隔离数据库验证；协议定稿阶段只有源码/文档研究；后续A1a已使用临时密钥验证真实SDK，仍没有生成商户密钥或调用沙箱/正式支付，具体执行证据见verification。SDK升级、目标接口变化、通知字段变化、商户绑定/签名模式变更时才重新核对受影响部分。
 
 ## O1a 一致读取依据（2026-09-11）
 

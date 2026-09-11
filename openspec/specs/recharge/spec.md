@@ -18,6 +18,11 @@ the same customer API, signed notifications and durable recovery. This boundary
 does not activate a real merchant, production Worker, H5 or invoices. Customer success notifications require a separately
 configured delivery lane.
 
+The isolated [Alipay protocol adapter](../../../apps/backend/src/recharge/infrastructure/alipay/README.md)
+provides tested SDK-level page/notification/query/close handling. It is not
+assembled into these customer routes, the worker or persistence. Its presence
+and installed SDK do not enable Alipay payments or change the current V1 records.
+
 ## Requirements
 
 ### Requirement: Customer identity and safe order reads

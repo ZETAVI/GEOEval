@@ -30,6 +30,7 @@
     "@opentelemetry/sdk-node": "0.221.0",
     "@prisma/adapter-pg": "7.9.1",
     "@prisma/client": "7.9.1",
+    "alipay-sdk": "4.14.0",
     "bullmq": "6.2.1",
     "fast-xml-parser": "5.10.1",
     "fflate": "0.8.3",
