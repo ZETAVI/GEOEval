@@ -1,8 +1,26 @@
-# 微信 APIv3 网页支付接口证据与合同准备
+# 网页支付接口证据与合同准备
 
 访问日期：2026-09-08。Owner：[Issue #77](https://github.com/ZETAVI/GEOEval/issues/77)。范围：境内普通商户直连，Native PC 后 H5 手机外部浏览器；不将服务商、合单或指定身份支付的附加要求混进基础支付。
 
 本文件只拥有协议证据、差异和待验证点；业务架构由 [架构候选方案](design.md)持有。当前使用官方现行 APIv3 的 RSA 路径和微信支付公钥验签作为研究基线；不是“所有最新能力必须引入”，也不意味着商户权限、SDK 和代码实现已经通过验证。
+
+## A1 支付宝接入准备（2026-09-11，当前新增优先项）
+
+用户确认企业支付宝注册和认证已完成，产品尚未核实开通；先PC官网收银台，再手机网站支付。已读以下当前原始官方正文（动态页面或其官方llms索引给出的.md），不是从第三方教程推定账号权限：
+
+| 主题 | 官方来源与关键事实 |
+| --- | --- |
+| PC/H5产品及申请 | [PC](https://opendocs.alipay.com/open/270/105898)、[H5](https://opendocs.alipay.com/open/00f7nf)：签约后仍需技术集成；网站可访问且经营/商品信息完整，ICP备案主体一致，不一致时按要求授权。对应开通链接[PC](https://b.alipay.com/page/product-mall/product-detail/I1080300001000041203)、[H5](https://b.alipay.com/page/product-mall/product-detail/I1080300001000041949)；各自状态以[商家产品记录](https://mrchportalweb.alipay.com/dynlink/productSign/signManage.htm)为准 |
+| 应用与绑定 | [自研准备](https://opendocs.alipay.com/open/270/01didh)、[创建应用](https://opendocs.alipay.com/open/009yp4)、[绑定](https://opendocs.alipay.com/open/0128wr)、[开通产品](https://opendocs.alipay.com/open/009ypa)：网页/移动应用、APPID、上线及同主体商家PID绑定；自研产品开通按应用上线后流程办理 |
+| 加签配置 | [密钥配置](https://opendocs.alipay.com/open/02nlga)、[官方Node SDK](https://github.com/alipay/alipay-sdk-nodejs-all)：RSA2，SDK推荐公钥证书模式，提供私钥及三种证书；公钥模式也有正式支持。工具默认PKCS8与SDK默认PKCS1应通过keyType/格式转换明确匹配。仓库package当前为4.14.0，未安装，安装前核对正式发布包/锁文件 |
+| PC执行和事实 | [快速接入](https://opendocs.alipay.com/open/00dn7k)、[异步通知](https://opendocs.alipay.com/open/00dn7l)：pageExecute生成网页动作，并不代表服务器已创建远端交易；通知与主动查单共同确认。通知以success应答且不能重定向，验签之外必须核对商家/应用/订单/金额，保留幂等处理 |
+| 沙箱边界 | [PC沙箱](https://opendocs.alipay.com/open/00dn7o)、[手机沙箱](https://opendocs.alipay.com/open/00f7np)：可在产品签约前并行开发，身份/数据/网关与正式隔离；仅余额等受限场景，账单是模板，不能证明正式对账。尚未实际调用 |
+
+协议准备中特别保留：TRADE_CLOSED可指未付款关闭，也可指付款后全额退款；TRADE_SUCCESS/TRADE_FINISHED与已采用付款事实相结合。不能复制微信的状态解释、body解析或通知ACK；SDK的checkNotifySignV2避免已解析form的重复decode。商家净结算收入、买家实付和订单总额不可混用，积分继续按本地冻结订单与匹配的交易总额结算。
+
+官方资料存在局部不一致：通用创建应用页将应用网关标为选填，PC准备页标为必填；支付通知正文明确使用支付API传入的notify_url。实施需区分应用网关、支付notify_url、return_url和OAuth回调，按目标产品检测核对。PC准备页含“已开通当面付无需再次开通”和另一产品编号的立即开通链接，不能据此推断网站支付权限；采用PC/H5产品介绍中的各自链接。H5沙箱正文同时写不支持浏览器内支付与iOS可模拟H5登录，移动验收前需再核对实际支持；当前先PC。
+
+公开费率/新商家结算规则只作申请预期，公司额度、费率、有效期、结算安排必须看自己的协议/后台；本轮未登录私有商家后台、签约、配置或转交密钥。账户级状态由#75/管理员回执持有；协议与实现阶段由#77持有。资料/产品政策、SDK版本、商家/应用或选定接口变化时重新核对。
 
 ## O1a 一致读取依据（2026-09-11）
 

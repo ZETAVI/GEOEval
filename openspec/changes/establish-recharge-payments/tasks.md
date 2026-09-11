@@ -9,12 +9,13 @@ The approved route stays account recharge → verified payment → funded credit
 | Package | Concrete acceptance | Actual dependency / current action |
 | --- | --- | --- |
 | R1 recovery/status | Transient failures recover under bounded scheduling; unsafe facts remain held; customer hints match persisted work | Merged through PR #87; implementation and CI evidence remain in that PR |
-| Management read-only | Find each order, payment confirmation, credit and independent notification state | Implemented and locally verified in PR #88; current CI/merge state belongs to the PR |
+| Management read-only | Find each order, payment confirmation, credit and independent notification state | Merged in PR #88 at mainadb0df9; merge and CI evidence belong to that PR |
+| A1 Alipay website payment | PC official cashier, authenticated receipt/query and once-only credit, then mobile website payment | Current owner priority; enterprise registration/certification confirmed, product/app/domain/key readiness still to confirm; design15A |
 | O1 reconciliation | Verify daily coverage, compare provider/order/ledger, query discrepancies and settle only through existing C1 | Official request metadata read; download/format details and synthetic samples still required before implementation |
 | H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
 | Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
 
-Current planning: R1 transient-failure recovery and simple four-state customer copy precede management actions. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. The [execution checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630151311) records the authorized bounded implementation and refreshed M4 non-overlap confirmation. #77 entered In Progress for R1 and returns to Review / Decision at the review handback. Management read-only views, reconciliation and H1 follow their own bounded acceptance. Manual-experience preparation is canceled and cleaned up.
+Current planning: R1 and O1a are merged. The owner now prioritizes Alipay PC website payment, followed by Alipay mobile website payment; enterprise registration/certification are confirmed, product opening is not. The earlier WeChat-H5-first ordering is superseded. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. The [execution checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630151311) records the authorized bounded implementation and refreshed M4 non-overlap confirmation. #77 entered In Progress for R1 and returns to Review / Decision at the review handback. Reconciliation and WeChat H1 remain later bounded acceptance; Alipay is next. Manual-experience preparation is canceled and cleaned up.
 
 ## R1: Transient recovery and truthful status
 
@@ -46,6 +47,17 @@ Current planning: R1 transient-failure recovery and simple four-state customer c
 - [x] Complete browser login/navigation, inactive-account search, customer/status/date filtering, detail and return, pending message on successful credit, and API-offline local error with filter retention. Native date-picker interaction verified the date range; synthetic data only.
 - [x] Reconcile current Recharge spec, design, source/review/verification. Typecheck, formatting and full build pass; only two GET paths and three response schemas added, prior OpenAPI paths/schemas unchanged. PR #88 owns final required CI and submission status; #77 remains open.
 
+
+## A1: Alipay PC first, then mobile website payment (preparation)
+
+- [x] Record owner priority change and confirmed enterprise certification; distinguish product opening, app上线/APPID binding and technical configuration from merchant registration.
+- [x] Read current official PC/H5 introductions, self-development preparation, app creation/binding/keys/product opening, PC payment/notification and sandbox documents; keep the scope/contradictions in source-brief.
+- [x] Prepare a finance/technical handoff checklist with official product links and a status-only receipt; no private merchant login, application submission, credential generation or provider/funds call performed.
+- [ ] Confirm official website/ICP subject and service materials, app identity/binding, signing mode and PC/H5 product status using administrator receipts.
+- [ ] Fix Alipay protocol/SDK version and bounded channel-neutral seams against existing WeChat-only schema/contracts; specify receipt identity, decimal money, form decoding, paid/closed/refund meaning and forward compatibility before implementation.
+- [ ] Implement PC hosted-page action, authenticated notification/query/close and durable same-order recovery; preserve old WeChat orders and once-only Commerce credit. No generic payment orchestration rewrite.
+- [ ] Verify ephemeral-key protocol cases, migrations, repeat notifications, wrong identity/amount, return without payment, close/late-result races and old-channel compatibility; then separately exercise named sandbox and real merchant.
+- [ ] Extend to mobile website payment and named mobile browsers after PC acceptance; keep WeChat in-app/JSAPI and H5 sandbox limitations explicit.
 
 ## P0: Fixed inputs and reviewable contracts
 

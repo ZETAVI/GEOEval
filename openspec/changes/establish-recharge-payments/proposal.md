@@ -1,4 +1,4 @@
-# Change: Establish reliable recharge and WeChat web payment
+# Change: Establish reliable recharge and web payments
 
 - Status: A0/B0/C1 and N1–N4 are implemented and verified in their bounded slices. The owner authorized integration of [#83](https://github.com/ZETAVI/GEOEval/pull/83), [#84](https://github.com/ZETAVI/GEOEval/pull/84), [#85](https://github.com/ZETAVI/GEOEval/pull/85) and [#86](https://github.com/ZETAVI/GEOEval/pull/86); those PRs own live merge/head/check evidence. H5, operational acceptance and real activation remain unfinished. The whole Change remains active.
 - Issue: [#77](https://github.com/ZETAVI/GEOEval/issues/77)
@@ -11,7 +11,7 @@ Customers need a reliable account-recharge path before paying points for publish
 
 ## Confirmed direction
 
-- PC Native comes first, followed by mobile external-browser H5. JSAPI remains outside this pair.
+- Latest owner decision (2026-09-11): enterprise Alipay registration and certification are complete; website payment products are not yet verified open. Alipay PC website payment is the next integration, followed by Alipay mobile website payment. Existing WeChat Native remains accepted; WeChat H5 is deferred. JSAPI remains a separate decision.
 - Customers choose amount/method locally, use the selected cashier and return to local order management. Cashier presentation is replaceable; a future provider requires its own official interface and merchant evidence.
 - Local commands commit synchronously; channel work and accepted payment receipts are processed asynchronously. Receipt acceptance commits before ACK; ACK does not wait for atomic local settlement. Customer reads and notification delivery never own payment truth.
 - Publishing Commerce owns points, reservations and the narrow transaction binding used by Recharge; its independently assembled points capability needs no standalone wallet service. Publication Delivery owns fulfilment and return eligibility.
@@ -22,9 +22,9 @@ Customers need a reliable account-recharge path before paying points for publish
 
 ## Scope
 
-In: Recharge lifecycle and ports; bounded Commerce points extraction; durable authenticated notification acceptance and active query/close; once-only funded credit; PC Native and external-browser H5; operational reconciliation and recovery needed for activation.
+In: Recharge lifecycle and ports; bounded Commerce points extraction; durable authenticated notification acceptance and active query/close; once-only funded credit; PC Native, Alipay PC/mobile website payments and external-browser H5; operational reconciliation and recovery needed for activation.
 
-Out: changing publication fulfilment/point-return semantics; treating point returns as cash refunds; JSAPI, Alipay implementation, aggregate acquiring, commissions, tax integration, a general payment platform or new service deployment. Real money and production enablement retain named-environment and financial controls.
+Out: changing publication fulfilment/point-return semantics; treating point returns as cash refunds; JSAPI, aggregate acquiring, commissions, tax integration, a general payment platform or new service deployment. Real money and production enablement retain named-environment and financial controls.
 
 ## Current owners and reconciliation
 
