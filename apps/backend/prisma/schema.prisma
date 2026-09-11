@@ -1384,6 +1384,8 @@ model RechargeOperationAttempt {
   resultKind           String?                     @map("result_kind") @db.VarChar(16)
   resultSha256         String?                     @map("result_sha256") @db.VarChar(64)
   diagnosticCode       String?                     @map("diagnostic_code") @db.VarChar(64)
+  errorHttpStatus      Int?                        @map("error_http_status")
+  failureClass         String?                     @map("failure_class") @db.VarChar(16)
   tradeState           String?                     @map("trade_state") @db.VarChar(16)
   verificationKeyId    String?                     @map("verification_key_id") @db.VarChar(128)
   signedAtSeconds      BigInt?                     @map("signed_at_seconds")

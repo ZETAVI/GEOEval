@@ -1,4 +1,7 @@
-import type { TradeObservation } from "../application/payment-gateway.js";
+import type {
+  GatewayResult,
+  TradeObservation,
+} from "../application/payment-gateway.js";
 
 export type NativeOperationKind = "INITIATE" | "QUERY" | "CLOSE";
 
@@ -51,4 +54,56 @@ export function nativeQrDeadline(input: {
   );
   if (!Number.isFinite(deadline)) throw new Error("NATIVE_QR_TIME_INVALID");
   return new Date(deadline);
+}
+
+export type NativeFailureClass = "TEMPORARY" | "REJECTED" | "UNKNOWN";
+
+/** Diagnostics control retry only; an HTTP error never proves payment or closure. */
+export function nativeFailure(
+  operation: NativeOperationKind,
+  error: Extract<GatewayResult<never>, { ok: false }>["error"],
+): {
+  failureClass: NativeFailureClass;
+  errorHttpStatus: number | null;
+} {
+  const status =
+    Number.isInteger(error.httpStatus) &&
+    error.httpStatus! >= 100 &&
+    error.httpStatus! <= 599
+      ? error.httpStatus!
+      : null;
+  let failureClass: NativeFailureClass = "UNKNOWN";
+  if (error.kind !== "UNRESOLVED") failureClass = "REJECTED";
+  else if (error.code === "HTTP_ERROR") {
+    if (
+      status === 429 ||
+      (status !== null && status >= 500) ||
+      (operation === "QUERY" && status === 404)
+    )
+      failureClass = "TEMPORARY";
+    else if (status === 401 || status === 403) failureClass = "REJECTED";
+  } else if (error.httpStatus === undefined) {
+    if (["TIMEOUT", "TRANSPORT", "RESPONSE_INTERRUPTED"].includes(error.code))
+      failureClass = "TEMPORARY";
+    else if (
+      [
+        "INVALID_INPUT",
+        "AUTH_HEADERS",
+        "AUTH_TIMESTAMP",
+        "AUTH_KEY",
+        "AUTH_SIGNATURE",
+        "DECRYPTION",
+        "INVALID_RESPONSE",
+        "INCOMPLETE_PAYMENT",
+        "IDENTITY_MISMATCH",
+        "AMOUNT_MISMATCH",
+        "UNSUPPORTED_TRADE_TYPE",
+        "REDIRECT",
+        "RESPONSE_SIZE",
+        "CONTENT_ENCODING",
+      ].includes(error.code)
+    )
+      failureClass = "REJECTED";
+  }
+  return { failureClass, errorHttpStatus: status };
 }

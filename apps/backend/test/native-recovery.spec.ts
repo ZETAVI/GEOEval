@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canDispatchNative,
+  nativeFailure,
   nativeQrDeadline,
   planNativeQuery,
 } from "../src/recharge/domain/native-recovery.js";
@@ -86,5 +87,85 @@ describe("Native recovery boundaries", () => {
         paymentExpiresAt: new Date(now.getTime() + 60_000),
       }).getTime() - now.getTime(),
     ).toBe(60_000);
+  });
+});
+
+describe("Native failure evidence classification", () => {
+  it.each([429, 500, 502, 503, 599])(
+    "HTTP %s can schedule recovery but is no payment fact",
+    (httpStatus) => {
+      expect(
+        nativeFailure("INITIATE", {
+          kind: "UNRESOLVED",
+          code: "HTTP_ERROR",
+          httpStatus,
+        }),
+      ).toEqual({ failureClass: "TEMPORARY", errorHttpStatus: httpStatus });
+    },
+  );
+  it.each([401, 403])("HTTP %s remains restricted", (httpStatus) => {
+    expect(
+      nativeFailure("INITIATE", {
+        kind: "UNRESOLVED",
+        code: "HTTP_ERROR",
+        httpStatus,
+      }).failureClass,
+    ).toBe("REJECTED");
+  });
+  it.each([400, 404, 409, 499, undefined, 600, NaN])(
+    "ambiguous HTTP %s cannot enter automatic recovery",
+    (httpStatus) => {
+      expect(
+        nativeFailure("INITIATE", {
+          kind: "UNRESOLVED",
+          code: "HTTP_ERROR",
+          httpStatus,
+        }).failureClass,
+      ).toBe("UNKNOWN");
+    },
+  );
+  it.each(["TRANSPORT", "TIMEOUT", "RESPONSE_INTERRUPTED"] as const)(
+    "%s keeps retryable uncertainty",
+    (code) => {
+      expect(nativeFailure("INITIATE", { kind: "UNRESOLVED", code })).toEqual({
+        failureClass: "TEMPORARY",
+        errorHttpStatus: null,
+      });
+      expect(
+        nativeFailure("INITIATE", { kind: "UNRESOLVED", code, httpStatus: 503 })
+          .failureClass,
+      ).toBe("UNKNOWN");
+    },
+  );
+  it.each([
+    "AUTH_SIGNATURE",
+    "AUTH_KEY",
+    "IDENTITY_MISMATCH",
+    "AMOUNT_MISMATCH",
+    "INVALID_RESPONSE",
+    "REDIRECT",
+    "CONTENT_ENCODING",
+  ] as const)("%s cannot be retried past verification", (code) => {
+    expect(
+      nativeFailure("INITIATE", { kind: "UNRESOLVED", code }).failureClass,
+    ).toBe("REJECTED");
+  });
+  it("an inconclusive query can be retried while other 404 operations remain unknown", () => {
+    const error = {
+      kind: "UNRESOLVED",
+      code: "HTTP_ERROR",
+      httpStatus: 404,
+    } as const;
+    expect(nativeFailure("QUERY", error).failureClass).toBe("TEMPORARY");
+    expect(nativeFailure("CLOSE", error).failureClass).toBe("UNKNOWN");
+  });
+  it("does not reinterpret an invalid invocation as a temporary server error", () => {
+    expect(
+      nativeFailure("INITIATE", {
+        kind: "INVALID_REQUEST",
+        code: "HTTP_ERROR",
+        httpStatus: 503,
+      }).failureClass,
+    ).toBe("REJECTED");
   });
 });

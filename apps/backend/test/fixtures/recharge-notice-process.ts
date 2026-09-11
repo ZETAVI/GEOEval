@@ -13,6 +13,7 @@ if (
   database.port !== "55432" ||
   !(
     database.pathname === "/geoeval_issue77_notifications_n4" ||
+    database.pathname === "/geoeval_issue77_recovery_r1" ||
     (process.env.CI === "true" && database.pathname === "/geoeval")
   )
 )

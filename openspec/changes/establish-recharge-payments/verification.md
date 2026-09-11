@@ -1,16 +1,33 @@
 # Recharge verification
 
-Current accepted code: main7c5a4a5 contains A0/B0/C1 and N1–N4; exact merge/CI and post-merge evidence live in the [integration closeout](https://github.com/ZETAVI/GEOEval/pull/86#issuecomment-5628433299). Earlier dated sections are historical scope/evidence. R1 design changes are proposed below, not executed behavior. #77 remains open for reliability, operational/mobile and real-merchant acceptance.
+Current accepted code: main7c5a4a5 contains A0/B0/C1 and N1–N4; exact merge/CI and post-merge evidence live in the [integration closeout](https://github.com/ZETAVI/GEOEval/pull/86#issuecomment-5628433299). Earlier dated sections are historical scope/evidence. R1 is implemented and locally verified below; PR #87 owns its live required CI and merge state. #77 remains open for reliability, operational/mobile and real-merchant acceptance.
 
-## R1 planning verification
+## R1 implementation evidence
 
-- The latest owner clarification retires expanded customer recovery hints: four-state short copy is sufficient, local read failure stays local, and the persistent support entry is independent and deferred. This is a design correction; runtime presentation has not changed.
+Scope: transient Native recovery and simple customer copy, based on main7c5a4a5. [Execution/window checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630151311); [PR #87](https://github.com/ZETAVI/GEOEval/pull/87) owns the fixed commit and required CI. This is author verification, not independent review or production evidence.
 
-- Reviewed the actual exhaustion filter, persisted diagnostic shape, customer supportRequired mapping and existing expiry/close/process tests; no new runtime pass is claimed.
-- Current official callback/query guidance and transaction-bill request metadata were read; the download-detail page was unavailable, so its protocol/format details remain unverified in source-brief.
-- Design review separates current behavior, agreed direction and proposed implementation. Existing state/ledger ownership is preserved; detailed numeric host policy and additive legacy compatibility belong to implementation review, not invented production defaults.
-- Project framework/local Markdown links and diff whitespace checks pass for the planning changes. Runtime/HTTP/browser/migration tests for R1 are **not run** because no implementation changed; their discriminating cases are listed in R1 tasks.
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| Failures retain bounded slow scheduling and safe classification | `native-recovery.spec.ts`, `native-recovery.integration.spec.ts`; immutable metadata and 401/403/400/404/429/503 cases | Same-order recovery past threshold, expiry/close, persisted plan across connection replacement, no speculative credit/release |
+| Process replacement does not reset slow work | `recharge-worker.integration.spec.ts` | All 5 child-process tests passed, including slow-query SIGKILL/restart with unchanged due/count and once-only settlement; no replacement INITIATE |
+| Core/customer/notification compatibility | Seven targeted backend files listed below | 117 distinct passes: 106 non-process cases, then all 10 previously gated process cases, then one new slow-recovery process case (Worker file rerun: 5 passes). Initial 10 skips were subsequently executed, not counted as passes |
+| Existing data remains intact | Real PostgreSQL upgrade from 40 old migrations to new 41st; five seeded legacy cases | TRANSPORT/TIMEOUT requeued; ambiguous HTTP_ERROR, financial hold and closed orders unchanged. Attempts, wallets, reservations and ledger snapshots identical; old scanner selects none of the requeued rows. Rehearsal tooling/snapshots retained locally; not production data or a concurrent mixed-version deployment |
+| Short customer copy does not reinterpret financial state | Full Web suite, including six `recharge-status.spec.tsx` cases and existing checkout controller tests | 182 tests / 24 files passed; four labels/messages, local read failure preserves success, frontend polling pause does not imply Worker stopped, support unchanged |
+| Workspace/interface compatibility | `pnpm typecheck`, `pnpm format:check`, `pnpm build` | Passed; full build regenerated OpenAPI/client without a diff. No new public DTO, merchant mode or dependency |
 
+Reproduction uses a dedicated project-named PostgreSQL database migrated with `pnpm db:migrate` and a dedicated Redis DB. The child-process tests intentionally allow only the named local test databases or CI; never widen that guard to arbitrary application data.
+
+```bash
+pnpm --filter @geoeval/backend exec vitest run test/native-recovery.spec.ts test/native-recovery.integration.spec.ts test/recharge-worker.spec.ts test/recharge-customer.integration.spec.ts test/recharge-core.integration.spec.ts test/recharge-worker.integration.spec.ts test/recharge-notice-delivery.integration.spec.ts
+pnpm --filter @geoeval/web test
+pnpm typecheck
+pnpm format:check
+pnpm build
+```
+
+Review counterexample: an initially over-broad 404 hold broke the existing uncertain INITIATE → QUERY 404 → late successful payment scenario. The existing regression was retained and classification narrowed by operation: QUERY 404 schedules bounded same-order verification; other ambiguous 4xx stay held. This is not provider evidence of nonexistence, closure or eventual consistency. Worker failure counts now include failed gateway calls, so diagnostics do not falsely report zero failures.
+
+No new manual browser experience, real merchant/funds, public callback, alert recipient, reconciliation executor, H5 or multi-replica budget validation. Existing N1–N4 browser/security evidence is reused only where behavior is unchanged. Required CI on the submitted commit remains authoritative for readiness; local counts are not a full backend-suite claim.
 
 ## A0 implementation evidence
 

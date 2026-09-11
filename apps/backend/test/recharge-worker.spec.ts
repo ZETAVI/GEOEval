@@ -159,6 +159,7 @@ describe("Native stop signal fences only future work", () => {
     queryIntervalMs: 1000,
     retryDelayMs: 1000,
     maxFailures: 3,
+    slowRetryDelayMs: 60_000,
   };
   function runtime(
     repo: Partial<NativeRecoveryRepository>,
@@ -214,7 +215,7 @@ describe("Native stop signal fences only future work", () => {
     );
     expect(await service.runOrders(10, abort.signal)).toEqual({
       claimed: 1,
-      failed: 0,
+      failed: 1,
     });
     expect(claim).toHaveBeenCalledTimes(1);
     expect(gateway.query).toHaveBeenCalledTimes(1);

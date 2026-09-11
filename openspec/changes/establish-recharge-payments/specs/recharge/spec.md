@@ -259,7 +259,7 @@ The system SHALL distinguish never-dispatched intent, an external order that may
 - **AND** payment, reservation and ledger history are retained.
 
 
-### Requirement: Bounded transient recovery with safe escalation (R1 proposed)
+### Requirement: Bounded transient recovery with safe escalation (R1)
 
 Recharge SHALL distinguish retryable technical failures from unsafe or unknown outcomes. Exhausting a short retry phase SHALL not by itself abandon a recoverable payment obligation. Recovery SHALL preserve existing financial verification and idempotency.
 
@@ -284,9 +284,9 @@ Recharge SHALL distinguish retryable technical failures from unsafe or unknown o
 - **THEN** retry policy never bypasses the corresponding verification/hold
 - **AND** an unauthenticated incoming request cannot mutate a normal order into a hold.
 
-### Requirement: Simple customer status with separate support (R1 proposed)
+### Requirement: Simple customer status with separate support (R1)
 
-Customer detail, history and checkout SHALL retain the four existing business states and use their common short copy defined in design14.2. Internal retry phases SHALL NOT introduce customer states or public recovery-stage hints solely for presentation.
+Customer detail, history and checkout SHALL retain the four existing business states and use their common short copy owned by the current Recharge spec and recharge-status.ts. Internal retry phases SHALL NOT introduce customer states or public recovery-stage hints solely for presentation.
 
 #### Scenario: An unresolved payment is being recovered
 

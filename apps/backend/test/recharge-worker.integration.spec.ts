@@ -35,6 +35,7 @@ const permitted =
   database.port === "55432" &&
   (database.pathname === "/geoeval_issue77_worker_n3" ||
     database.pathname === "/geoeval_issue77_notifications_n4" ||
+    database.pathname === "/geoeval_issue77_recovery_r1" ||
     (process.env.CI === "true" && database.pathname === "/geoeval"));
 type Provider = {
   initiationEnabled: boolean;
@@ -356,6 +357,46 @@ describe.skipIf(!permitted)(
       });
       expect((await stop(second)).signal).toBe("SIGTERM");
     }, 15000);
+    it("preserves a slow retry through SIGKILL and a replacement process settles the same order", async () => {
+      const order = await create();
+      const first = await start("transient-query");
+      const held = await until(
+        () =>
+          prisma.rechargeOrder.findUniqueOrThrow({ where: { id: order.id } }),
+        (row) => row.nativeReviewReason === "SLOW_RETRY",
+      );
+      expect(held.nativeFailureCount).toBe(3);
+      expect((await stop(first, "SIGKILL")).signal).toBe("SIGKILL");
+      const provider = await read();
+      provider.release = true;
+      provider.orders[held.merchantOrderNo]!.state = "SUCCESS";
+      provider.orders[held.merchantOrderNo]!.paidAt = new Date().toISOString();
+      await write(provider);
+      const second = await start("transient-query");
+      const restarted = await prisma.rechargeOrder.findUniqueOrThrow({
+        where: { id: order.id },
+      });
+      expect(restarted.nativeNextActionAt).toEqual(held.nativeNextActionAt);
+      expect(restarted.nativeFailureCount).toBe(3);
+      await until(
+        () =>
+          prisma.rechargeOrder.findUniqueOrThrow({ where: { id: order.id } }),
+        (row) => row.status === "SUCCESSFUL",
+      );
+      expect(second.events.some((e) => e.operation === "INITIATE")).toBe(false);
+      expect(
+        await prisma.pointChange.count({ where: { kind: "RECHARGE" } }),
+      ).toBe(1);
+      expect(
+        await prisma.pointAccount.findUniqueOrThrow({ where: { accountId } }),
+      ).toMatchObject({
+        fundedBalance: 10,
+        reservedFundedPoints: 0,
+        revision: 1,
+      });
+      await stop(second);
+    }, 20000);
+
     it("credits during a slow query, drains SIGTERM without claiming more, then closes old work with initiation disabled", async () => {
       const first = await create(),
         paid = await create();

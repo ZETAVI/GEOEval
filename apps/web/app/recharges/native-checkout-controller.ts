@@ -134,7 +134,7 @@ export class NativeCheckoutController {
     } catch {
       this.publish({
         recoveryBlocked: true,
-        notice: "暂时无法恢复这笔充值的操作记录，请刷新重试或联系客服。",
+        notice: "操作记录暂不可用，请重试",
       });
     }
     this.updateDisplay();
@@ -234,7 +234,7 @@ export class NativeCheckoutController {
       this.publish({
         phase: "unavailable",
         busy: null,
-        notice: "暂时无法确认支付结果，请刷新状态，勿重复支付。",
+        notice: "加载失败，请重试",
       });
     } else if (value.kind === "access-denied") {
       this.denyAccess();
@@ -253,7 +253,7 @@ export class NativeCheckoutController {
         this.publish({
           phase: "unavailable",
           busy: null,
-          notice: "充值记录暂不可用，请刷新重试。",
+          notice: "加载失败，请重试",
         });
       } else {
         // Anchor to request start, not the client wall clock or response completion.
@@ -279,7 +279,7 @@ export class NativeCheckoutController {
           recoveryBlocked: done ? false : this.state.recoveryBlocked,
           notice:
             !done && this.verificationRequested
-              ? "尚未确认支付结果，请稍后刷新，勿重复支付。"
+              ? "正在确认支付结果，请勿重复支付"
               : "",
         });
       }
@@ -316,7 +316,7 @@ export class NativeCheckoutController {
       } catch {
         this.publish({
           recoveryBlocked: true,
-          notice: "取消请求尚未发出，请稍后重试或联系客服。",
+          notice: "取消请求未发出，请重试",
         });
         this.updateDisplay();
         return;
@@ -330,8 +330,8 @@ export class NativeCheckoutController {
       cancelPending: kind === "cancel" || this.state.cancelPending,
       notice:
         kind === "cancel"
-          ? "正在确认取消结果，请勿再次支付。"
-          : "正在核验支付结果，请勿重复支付。",
+          ? "取消结果待确认，请勿重复支付"
+          : "正在确认支付结果，请勿重复支付",
     });
     this.updateDisplay();
     const { token, value } = await this.call((signal) =>
@@ -347,11 +347,11 @@ export class NativeCheckoutController {
       notice:
         value === "accepted"
           ? kind === "cancel"
-            ? "取消请求已提交，正在确认最终结果。"
-            : "核验请求已提交，请等待订单状态更新。"
+            ? "取消结果待确认，请勿重复支付"
+            : "正在确认支付结果，请勿重复支付"
           : kind === "cancel"
-            ? "取消结果尚未确认，请刷新状态或联系客服，勿再次支付。"
-            : "暂时无法核验，请稍后刷新状态。",
+            ? "取消结果待确认，请勿重复支付"
+            : "暂时无法核验，请稍后重试",
     });
     await this.refresh();
   }

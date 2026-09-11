@@ -9,6 +9,7 @@ import {
   type NativeCheckoutState,
 } from "./native-checkout-controller.js";
 import styles from "./native-checkout.module.css";
+import { rechargeLabels, rechargeMessages } from "./recharge-status.js";
 
 const browserMemory: CancellationMemory = {
   read: (key) => localStorage.getItem(key) === "requested",
@@ -66,12 +67,7 @@ export function NativeCheckout({
     />
   );
 }
-const stateLabels = {
-  PENDING_PAYMENT: "待支付",
-  CONFIRMING: "确认中",
-  SUCCESSFUL: "充值成功",
-  CLOSED: "已关闭",
-};
+
 export function NativeCheckoutPanel({
   state,
   onRefresh,
@@ -99,26 +95,17 @@ export function NativeCheckoutPanel({
     : closed
       ? "这笔充值已关闭"
       : "微信扫码充值";
-  let message = state.phase === "loading" ? "正在读取充值记录…" : state.notice;
-  if (!message) {
-    if (success)
-      message = "充值已确认成功。返回后请重新核对发布方案，再确认购买。";
-    else if (closed) message = "这笔订单已结束。如需充值，请返回后重新创建。";
-    else if (state.recoveryBlocked)
-      message = "暂时无法恢复这笔充值的操作记录，请刷新重试或联系客服。";
-    else if (state.cancelPending) message = "取消结果正在确认，请勿再次支付。";
-    else if (order?.supportRequired)
-      message = "这笔充值需要平台核查，请保留订单并联系客服，勿重复支付。";
-    else if (order?.canVerify === false)
-      message = "暂时无法处理付款操作，订单已保留，请稍后查看或联系客服。";
-    else if (order?.status === "CONFIRMING")
-      message = "正在确认支付结果，请勿重复支付。";
-    else if (!state.qrValue && state.remainingSeconds === 0)
-      message = "正在核实订单，请刷新状态，勿重复支付。";
-    else if (!state.qrValue)
-      message = "支付二维码正在准备中，请稍候或刷新状态。";
-    else message = "订单已准备好，请核对充值金额后完成支付。";
-  }
+  const message = order
+    ? rechargeMessages[order.status]
+    : state.phase === "loading"
+      ? "正在加载…"
+      : "加载失败，请重试";
+  const feedback =
+    state.phase === "unavailable"
+      ? "加载失败，请重试"
+      : !success && !closed && state.notice !== message
+        ? state.notice
+        : "";
   const countdown = `${Math.floor(state.remainingSeconds / 60)}:${String(state.remainingSeconds % 60).padStart(2, "0")}`;
   return (
     <div className={styles.frame}>
@@ -132,7 +119,7 @@ export function NativeCheckoutPanel({
             <span
               className={`${styles.badge} ${success ? styles.success : ""}`}
             >
-              {stateLabels[order.status]}
+              {rechargeLabels[order.status]}
             </span>
           )}
         </header>
@@ -165,6 +152,11 @@ export function NativeCheckoutPanel({
         <p className={styles.message} role="status" aria-live="polite">
           {message}
         </p>
+        {feedback && feedback !== message && (
+          <p className={styles.message} role="status">
+            {feedback}
+          </p>
+        )}
         {state.qrValue && (
           <div className={styles.qrArea}>
             <div className={styles.qr}>
@@ -189,7 +181,7 @@ export function NativeCheckoutPanel({
         )}
         {active && state.pollingEnded && (
           <p className={styles.help} role="status">
-            暂未确认支付结果。自动刷新已暂停，你可以稍后刷新状态或从充值记录中继续查看，请勿重复支付。
+            页面自动刷新已暂停，可稍后查看充值记录。
           </p>
         )}
         {active && (

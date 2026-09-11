@@ -244,7 +244,7 @@ describe("Native checkout local lifecycle", () => {
     await c.command("cancel");
     expect(f.source.cancel).not.toHaveBeenCalled();
     expect(c.getSnapshot().qrValue).toBeNull();
-    expect(c.getSnapshot().notice).toContain("尚未发出");
+    expect(c.getSnapshot().notice).toContain("未发出");
   });
   it("does not show a QR when cancellation recovery cannot be read", async () => {
     const f = fixture();

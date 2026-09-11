@@ -18,6 +18,7 @@ if (
   !(
     database.pathname === "/geoeval_issue77_worker_n3" ||
     database.pathname === "/geoeval_issue77_notifications_n4" ||
+    database.pathname === "/geoeval_issue77_recovery_r1" ||
     (process.env.CI === "true" && database.pathname === "/geoeval")
   ) ||
   basename(file) !== "provider.json" ||
@@ -79,6 +80,8 @@ const gateway = new WechatPayGateway(f.protocol.config(), async (request) => {
     operation: "QUERY",
     merchantOrderNo: no,
   });
+  if (mode === "transient-query" && !state.release)
+    return f.protocol.response({ code: "SYSTEM_ERROR" }, 503);
   if (mode === "hold-query") while (!(await read()).release) await sleep(20);
   state = await read();
   const current = state.orders[no]!;
@@ -112,6 +115,10 @@ await createRechargeWorkerApp({
       leaseMs: 1500,
       queryIntervalMs: 1000,
       retryDelayMs: 1000,
+      slowRetryDelayMs:
+        mode === "transient-query"
+          ? 4000
+          : f.configuration.recovery.slowRetryDelayMs,
     },
   },
   scheduling: {

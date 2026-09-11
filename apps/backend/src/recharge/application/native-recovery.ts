@@ -26,7 +26,9 @@ export type NativeRecoveryPolicy = Readonly<{
   leaseMs: number;
   queryIntervalMs: number;
   retryDelayMs: number;
+  /** Short retry threshold; transient failures continue on the slower schedule. */
   maxFailures: number;
+  slowRetryDelayMs: number;
 }>;
 
 /** Safe routing metadata must be assembled with this gateway, never supplied by a browser. */
