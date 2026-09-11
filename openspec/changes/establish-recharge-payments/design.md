@@ -2,7 +2,7 @@
 
 方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real merchant/Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims.
+Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; N4 adds durable post-settlement notices and account-safe customer navigation; current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real merchant/Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims. The [current integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) supersedes their earlier merge-authority limitations.
 
 已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
@@ -21,7 +21,7 @@ Publishing Commerce 继续拥有积分账户和追加式积分流水，并向 Re
 
 ## 2. 当前项目事实与不变边界
 
-当前受保护 `main@bcb81db5f567c5f0c3bced0c57df7b3dd8b83aa6` 的代码/规范与已批准产品方向形成以下边界；其中真实充值仍未激活：
+以下保留设计起点 `main@bcb81db5f567c5f0c3bced0c57df7b3dd8b83aa6` 的历史边界。当前已实现行为以本文首段链接的 Recharge、Commerce 和 Notification 规范及源码为准；真实充值仍未激活：
 
 - 客户充值人民币整数，按 `1 元 = 10 积分`增加 funded 积分；只有确认支付成功才入账；
 - 客户可见充值状态是 **待支付 / 确认中 / 充值成功 / 已关闭**；取消、失败和过期不入账；
