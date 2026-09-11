@@ -21,7 +21,7 @@
 
 ## Partial integration
 
-- [ ] Rebase the clean PR on current `origin/main`, run all applicable required
+- [x] Rebase the clean PR on current `origin/main`, run all applicable required
       checks and resolve review findings.
 - [ ] Keep PR #62 as `Part of #42 — does not close`; merge only the controlled
       candidate and current decision record.

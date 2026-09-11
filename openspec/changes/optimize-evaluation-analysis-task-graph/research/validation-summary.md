@@ -80,3 +80,8 @@ evidence files are not committed.
 This evidence accepts the controlled candidate and the three-to-five-minute
 budget. It does not verify formal Worker retry/resume, API/report persistence,
 frontend rendering, deployment or production behavior.
+
+The clean PR revision also passes both Required Checks. Full project CI covers
+database generation/migration, formatting, typecheck, backend/Web tests, complete
+build and generated-artifact drift inspection. This verifies compatibility with
+the current main baseline, not runtime activation of the controlled candidate.

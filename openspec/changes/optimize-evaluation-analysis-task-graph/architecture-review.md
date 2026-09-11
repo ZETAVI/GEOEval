@@ -30,9 +30,12 @@ production side effect is introduced.
 ## Evidence and residuals
 
 Focused parser/report and Markdown-cleaning tests, backend typecheck/build,
-repository formatting, framework/link validation and diff hygiene are required
-on the clean base. The real42-call run proves the controlled route and semantic
-shape, not formal Worker recovery or frontend delivery.
+repository formatting, framework/link validation and diff hygiene pass on the
+clean base. Both Required Checks pass; the full CI includes dependency install,
+infrastructure startup, Prisma generation, migrations, format, typecheck, all
+backend and Web tests, complete build and generated-artifact drift inspection.
+The real42-call run proves the controlled route and semantic shape, not formal
+Worker recovery or frontend delivery.
 
 Two explicit residuals remain:
 
