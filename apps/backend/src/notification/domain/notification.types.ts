@@ -1,9 +1,15 @@
 import { z } from "zod";
 
 export type NotificationKind =
-  "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED";
+  "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED" | "RECHARGE_SUCCESSFUL";
 
 export const notificationTargetSchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      kind: z.literal("RECHARGE_ORDER"),
+      rechargeOrderId: z.string().uuid(),
+    })
+    .strict(),
   z
     .object({
       kind: z.literal("EVALUATION_REPORT"),
@@ -49,3 +55,9 @@ export type NotificationRevision = {
   latestNotificationId: string | null;
   unreadCount: number;
 };
+
+export class NotificationSourceConflict extends Error {
+  constructor() {
+    super("NOTIFICATION_SOURCE_CONFLICT");
+  }
+}

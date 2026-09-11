@@ -1,60 +1,54 @@
 # Change: Establish reliable recharge and WeChat web payment
 
-- Status: A0 in [PR #78](https://github.com/ZETAVI/GEOEval/pull/78); B0 in [PR #80](https://github.com/ZETAVI/GEOEval/pull/80); C1 atomic core and an isolated Native checkout component implemented and verified in [PR #82](https://github.com/ZETAVI/GEOEval/pull/82); dispatch/customer API integration still pending; no application/payment activation
+- Status: A0/B0/C1 and N1–N4 are implemented and verified in their bounded slices. The owner authorized integration of [#83](https://github.com/ZETAVI/GEOEval/pull/83), [#84](https://github.com/ZETAVI/GEOEval/pull/84), [#85](https://github.com/ZETAVI/GEOEval/pull/85) and [#86](https://github.com/ZETAVI/GEOEval/pull/86); those PRs own live merge/head/check evidence. H5, operational acceptance and real activation remain unfinished. The whole Change remains active.
 - Issue: [#77](https://github.com/ZETAVI/GEOEval/issues/77)
 - Owner: ZETAVI
 - Lane/class: product delivery / architectural; Critical money boundary
 
 ## Why
 
-GEOEval already owns account points and atomic publishing purchases, but customers cannot yet recharge online. Finance is progressing merchant assets under #75. The engineering work can establish a reliable recharge boundary before credentials arrive, while avoiding conflicting edits to #73's publication delivery and upcoming point-return path.
+Customers need a reliable account-recharge path before paying points for publishing. Finance continues merchant qualification and assets under #75. Credential-free engineering has now established the Native order, payment recovery, atomic funded credit, customer journey and durable customer notification. Controlled verification does not establish real merchant or funds readiness.
 
 ## Confirmed direction
 
-- The owner accepted PC Native followed by mobile external-browser H5. JSAPI is outside this first pair of slices.
-- Reference-site exploration clarifies the customer flow: choose amount/method locally, use the selected cashier presentation, then return to local order management. The owner subsequently confirmed that the concrete cashier is replaceable and must not block shared business design. Existing Native remains the controlled channel baseline; official provider/merchant evidence gates only the corresponding real adapter and activation (design 11.0).
-- The execution choice is synchronous local intention/command commit, asynchronous channel work and receipt processing, and atomic local points settlement. Customer read/notification delivery never owns payment truth; the overall sequence and operation-attempt terminology are aligned in design 3–4 / 9–11.
-- The owner accepted independently assembling point-account capability inside Publishing Commerce, with explicit responsibility for recharge, purchase and point return; no standalone wallet service.
-- Confirmed product rules remain whole-yuan amounts, ten points per yuan, funded-only recharge, four customer states and explicit publishing reconfirmation after recharge.
-- Official interface rules and discriminating evidence precede SDK choice and runtime integration. Security, concurrency, rollback and consistency are part of the outcome.
+- PC Native comes first, followed by mobile external-browser H5. JSAPI remains outside this pair.
+- Customers choose amount/method locally, use the selected cashier and return to local order management. Cashier presentation is replaceable; a future provider requires its own official interface and merchant evidence.
+- Local commands commit synchronously; channel work and accepted payment receipts are processed asynchronously. Receipt acceptance commits before ACK; ACK does not wait for atomic local settlement. Customer reads and notification delivery never own payment truth.
+- Publishing Commerce owns points, reservations and the narrow transaction binding used by Recharge; its independently assembled points capability needs no standalone wallet service. Publication Delivery owns fulfilment and return eligibility.
+- Recharge uses whole-renminbi amounts, ten funded points per yuan, four customer states and explicit publishing reconfirmation. Returns, cancellation, QR expiry and client completion cannot manufacture payment facts.
+- Official interface rules and discriminating evidence precede dependent integration. Security, concurrency, compatible recovery and financial consistency remain mandatory.
 
 ## Scope
 
-In: formal Recharge lifecycle/ports; a bounded Commerce points extraction; verified notification inbox and active query/close; atomic funded credit; PC Native and external-browser H5; operational reconciliation and recovery needed to enable those flows.
+In: Recharge lifecycle and ports; bounded Commerce points extraction; durable authenticated notification acceptance and active query/close; once-only funded credit; PC Native and external-browser H5; operational reconciliation and recovery needed for activation.
 
-Out: changing #73's fulfilment semantics; pretending point returns are cash refunds; JSAPI, Alipay implementation, aggregate acquiring, commissions, tax integration, general payment platform or new service deployment. Real money and production enablement keep their named-environment and financial controls.
+Out: changing publication fulfilment/point-return semantics; treating point returns as cash refunds; JSAPI, Alipay implementation, aggregate acquiring, commissions, tax integration, a general payment platform or new service deployment. Real money and production enablement retain named-environment and financial controls.
 
-## Impact and canonical owners
+## Current owners and reconciliation
 
-- Recharge gains the new business module and current spec only after accepted implementation.
-- Publishing Commerce retains PointAccount/PointChange, origin allocation and money idempotency; its current spec later gains recharge-credit and reservation rules.
-- Identity's customer role/ownership/CSRF behavior remains; only provider callbacks use precise existing public/CSRF-exempt route metadata plus cryptographic authentication.
-- API/Worker composition gains narrow Recharge/Commerce points imports. Existing Evaluation outbox remains Evaluation-owned.
-- Existing accepted sources: [product definition](../../specs/product-definition/spec.md), [Commerce spec](../../specs/publishing-commerce/spec.md), [ADR 0005](../../../docs/architecture/adr/0005-atomic-publishing-purchase.md). This change does not declare their future behavior already active.
+- [Recharge](../../specs/recharge/spec.md) owns accepted customer orders, Native recovery, worker lifecycle, explicit activation and post-settlement delivery obligations; executable ports and schema own exact interfaces and constraints.
+- [Publishing Commerce](../../specs/publishing-commerce/spec.md) owns PointAccount/PointChange, origin allocation, purchase and atomic recharge/return writes. [Publication Delivery](../../specs/publication-delivery/spec.md) owns fulfilment and return eligibility.
+- [Notification](../../specs/notification/spec.md) owns materialized customer notices, read state and account-safe navigation. Identity remains the session/role/CSRF authority.
+- [Product definition](../../specs/product-definition/spec.md) owns product meaning and future invoice rules; [ADR 0005](../../../docs/architecture/adr/0005-atomic-publishing-purchase.md) owns the existing purchase transaction rationale.
 
-Documentation impact: move the former local architecture, review and API brief into this change; update the remaining #75 preparation indexes to link here. No second active architecture candidate or glossary. On acceptance, reconcile executable owners/current specs and the affected ADR, then archive this change. Current-spec evolution markers are untouched in P0.
-
-## Coordination and workspace
-
-Historical A0/B0 base was a550fc4 after [#76 integration](https://github.com/ZETAVI/GEOEval/pull/76#issuecomment-5583603102). A0 was rebased without code changes to dfe98bc; its new exact-head CI passed. The points extraction was implemented in [PR #79](https://github.com/ZETAVI/GEOEval/pull/79), with its own [producer evidence](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5583740565). It has since been [integrated into main@bcb81db](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726). That assembly-only change does not provide reservations/writer; C1 now implements them under its own approved window.
-
-The [A0 approval](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5582243258) starts a bounded non-conflicting code package on codex/issue-77-wechat-adapter from 0552aa7, reusing this workspace. Scope is Recharge protocol/business ports, the Native gateway, targeted tests/public fixtures and this owner-local change. No schema, application composition, customer API/UI, Commerce or environment activation changes. Existing locked project dependencies are installed; no new payment dependency is introduced.
-
-P0 experiments remain local research material. Executable types own A0/B0 behavior; the remaining points/orchestration sections are proposed behavior. Existing locked dependencies are reused without new payment packages.
-
-The [B0 window](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5583465643) assigns only additive Recharge observation/receipt schema and owned code to #77. #73 retains points/module/return ownership; the [B0 handoff](https://github.com/ZETAVI/GEOEval/pull/80#issuecomment-5584078408) ended that window, and later shared writes require a new coordination checkpoint. B0 uses a linear stacked branch `codex/issue-77-recharge-notification-inbox` against A0; it does not edit current API/Identity composition or any Commerce table. Host composition is exercised only by a real Nest/Identity integration test. Neither PR is implicitly authorized to merge or deploy.
-
-Workspace exit: retain this #77 worktree, A0/B0 branches, the pre-rebase A0 recovery tag and local research artifacts. Only the named #77 test database/Redis are used. PRs own fixed diffs/evidence; this does not activate Recharge in main or production.
+Documentation impact: update existing owners and retire obsolete execution summaries in place. The detailed design retains historical slice boundaries explicitly; exact implementation is not duplicated into a new design document. Archive the Change only when its remaining acceptance and workspace exit are complete.
 
 ## Acceptance
 
-- [x] User-confirmed module and browser direction is explicit; actual owner/PR state has been refreshed.
-- [x] #73 coordination identifies the extraction boundary and deferred shared write window.
-- [x] Proposal, design, behavior deltas and ordered tasks have a single active home.
-- [x] Published WeChat request-signature and official Java AES-256-GCM vectors are checked offline, with tamper negatives and clear limits.
-- [ ] Runtime contracts, DB constraints, concurrent idempotency, inbox recovery and Native/H5 journeys are implemented and tested in their named slices.
-- [ ] Required merchant products/environment, business amount limits and operational cash-exception handling are settled before dependent activation.
+- [x] Module, money and browser boundaries are explicit; the points extraction is adequate and has been consumed without a broad rewrite.
+- [x] Official signature/AES vectors, protocol tamper cases, database constraints, concurrent idempotency, durable receipt/dispatch recovery and atomic credit have bounded evidence.
+- [x] Customer API, order history, Native QR and explicit publishing return have controlled HTTP/browser evidence.
+- [x] Resident worker process recovery and durable account-safe customer notices have focused, process and browser evidence.
+- [ ] H5 implementation and named iOS/Android external-browser journeys.
+- [ ] Operational lookup, reconciliation, safe recovery, maintained amount/support policies and real-environment configuration.
+- [ ] Required merchant products, financial test controls, real-channel/funds verification and separately authorized production activation.
 
-Current execution: the user approved [C1 implementation](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5587176110) and #73 confirmed its [bounded shared writer window](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5587081614). C1 core is implemented on a linear successor to #80, now including #79 from accepted main. It does not alter #73 fulfilment/return semantics or authorize payment PR merge, live merchant calls or application activation.
+## Coordination and workspace
 
-Concrete architecture, failure cases and verification: [design](design.md), [review](architecture-review.md), [source brief](source-brief.md), [verification](verification.md), [tasks](tasks.md).
+The [integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) authorizes the four Partial PRs and supersedes earlier merge-permission limits. The user canceled manual-experience preparation after confirming their own verification; its untracked drafts are retained as local artifacts and are not product source. No real-money or production authority follows from this decision.
+
+Earlier implementation and shared-writer windows remain evidenced by their PRs and the [N4 decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5611948972). That window has been returned. Future shared schema, public-contract or accounting writes require a fresh occupancy check; no other task worktree is modified by this integration.
+
+Workspace exit: retain the #77 workspace and local research/recovery evidence. PRs and the Issue own live merge, branch and cleanup state. The Change remains open for its unfinished acceptance rather than serving as a second mutable merge ledger.
+
+Remaining design, evidence and sequence: [design](design.md), [review](architecture-review.md), [source brief](source-brief.md), [verification](verification.md), [tasks](tasks.md).

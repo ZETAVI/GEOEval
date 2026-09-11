@@ -121,6 +121,10 @@ export type EvaluationReportHistory =
 export type Notification = components["schemas"]["NotificationResponse"];
 export type NotificationList =
   components["schemas"]["NotificationListResponse"];
+export type NotificationRequestContext = {
+  signal?: AbortSignal;
+  expectedAccountId?: string;
+};
 export type IndustryCatalog = components["schemas"]["IndustryCatalogResponse"];
 export type MediaPlatformAdmin =
   components["schemas"]["MediaPlatformAdminResponse"];
@@ -666,9 +670,14 @@ export function updateBrand(
 export function selectCurrentBrand(
   apiBaseUrl: string,
   brandId: string,
+  request?: { signal?: AbortSignal; expectedAccountId?: string },
 ): Promise<Brand> {
   return apiRequest(apiBaseUrl, `/brands/${brandId}/current`, {
     method: "PUT",
+    ...(request?.signal ? { signal: request.signal } : {}),
+    ...(request?.expectedAccountId
+      ? { headers: { "x-geoeval-account": request.expectedAccountId } }
+      : {}),
   });
 }
 
@@ -822,25 +831,44 @@ export function getEvaluationReport(
 export function listNotifications(
   apiBaseUrl: string,
   options: { limit?: number; cursor?: string } = {},
+  request?: NotificationRequestContext,
 ): Promise<NotificationList> {
   return apiRequest(apiBaseUrl, `/notifications${queryString(options)}`, {
-    cache: "no-store",
+    ...notificationRequestInit(request),
   });
 }
 
 export function markNotificationRead(
   apiBaseUrl: string,
   notificationId: string,
+  request?: NotificationRequestContext,
 ): Promise<Notification> {
   return apiRequest(apiBaseUrl, `/notifications/${notificationId}/read`, {
     method: "PUT",
+    ...notificationRequestInit(request),
   });
 }
 
 export function markAllNotificationsRead(
   apiBaseUrl: string,
+  request?: NotificationRequestContext,
 ): Promise<{ unreadCount: number }> {
-  return apiRequest(apiBaseUrl, "/notifications/read-all", { method: "PUT" });
+  return apiRequest(apiBaseUrl, "/notifications/read-all", {
+    method: "PUT",
+    ...notificationRequestInit(request),
+  });
+}
+
+function notificationRequestInit(
+  request?: NotificationRequestContext,
+): RequestInit {
+  return {
+    cache: "no-store",
+    ...(request?.signal ? { signal: request.signal } : {}),
+    ...(request?.expectedAccountId
+      ? { headers: { "x-geoeval-account": request.expectedAccountId } }
+      : {}),
+  };
 }
 
 export function listAdminMediaPlatforms(

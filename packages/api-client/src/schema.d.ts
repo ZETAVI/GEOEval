@@ -2452,6 +2452,12 @@ export interface components {
             intent: components["schemas"]["RandomPublishingIntent"] | components["schemas"]["PrecisePublishingIntent"];
             expectedRevision: number;
         };
+        RechargeNotificationTargetResponse: {
+            /** @enum {string} */
+            kind: "RECHARGE_ORDER";
+            /** Format: uuid */
+            rechargeOrderId: string;
+        };
         EvaluationReportNotificationTargetResponse: {
             /** @enum {string} */
             kind: "EVALUATION_REPORT";
@@ -2468,10 +2474,10 @@ export interface components {
         NotificationResponse: {
             id: string;
             /** @enum {string} */
-            kind: "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED";
+            kind: "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED" | "RECHARGE_SUCCESSFUL";
             title: string;
             summary: string;
-            target: components["schemas"]["EvaluationReportNotificationTargetResponse"] | components["schemas"]["EvaluationRetryNotificationTargetResponse"];
+            target: components["schemas"]["RechargeNotificationTargetResponse"] | components["schemas"]["EvaluationReportNotificationTargetResponse"] | components["schemas"]["EvaluationRetryNotificationTargetResponse"];
             /** Format: date-time */
             occurredAt: string;
             /** Format: date-time */
@@ -4388,7 +4394,10 @@ export interface operations {
                 cursor?: string;
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Expected signed-in account, never selects recipient */
+                "x-geoeval-account"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -4407,7 +4416,10 @@ export interface operations {
     NotificationController_markAllRead: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Expected signed-in account, never selects recipient */
+                "x-geoeval-account"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -4426,7 +4438,10 @@ export interface operations {
     NotificationController_markRead: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Expected signed-in account, never selects recipient */
+                "x-geoeval-account"?: string;
+            };
             path: {
                 notificationId: string;
             };
@@ -4446,8 +4461,13 @@ export interface operations {
     };
     NotificationController_events: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: {
+                expectedAccountId?: string;
+            };
+            header?: {
+                /** @description Expected signed-in account, never selects recipient */
+                "x-geoeval-account"?: string;
+            };
             path?: never;
             cookie?: never;
         };

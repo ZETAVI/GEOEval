@@ -34,6 +34,7 @@ const permitted =
   database.hostname === "127.0.0.1" &&
   database.port === "55432" &&
   (database.pathname === "/geoeval_issue77_worker_n3" ||
+    database.pathname === "/geoeval_issue77_notifications_n4" ||
     (process.env.CI === "true" && database.pathname === "/geoeval"));
 type Provider = {
   initiationEnabled: boolean;
@@ -248,6 +249,50 @@ describe.skipIf(!permitted)(
           },
         }),
       ).toThrow("CONTROLLED_RECHARGE_IN_PRODUCTION");
+    });
+    it("opt-in mounts only Notification application and drives its durable lane", async () => {
+      const app = await createRechargeWorkerApp(
+        {
+          databaseUrl: config.databaseUrl,
+          runtimeEnvironment: "test",
+          controlled: true,
+          native: f.configuration,
+          notifications: { retryDelayMs: 100 },
+          scheduling: {
+            orderIntervalMs: 100,
+            settlementIntervalMs: 100,
+            notificationIntervalMs: 100,
+            failureIntervalMs: 200,
+            drainWarningMs: 200,
+          },
+        },
+        { handleSignals: false },
+      );
+      try {
+        const names = [...app.get(ModulesContainer).values()].map(
+          (m) => m.metatype.name,
+        );
+        expect(names).toContain("NotificationApplicationModule");
+        expect(names.join(" ")).not.toMatch(
+          /Identity|Media|BackgroundWork|ApiModule|Telemetry/,
+        );
+        expect(
+          [...app.get(ModulesContainer).values()].flatMap((m) => [
+            ...m.controllers,
+          ]),
+        ).toHaveLength(0);
+        await until(
+          () =>
+            app.get(RechargeWorkerRuntime).snapshot().notifications
+              ?.lastFinishedAt,
+          Boolean,
+        );
+        expect(
+          app.get(RechargeWorkerRuntime).snapshot().notifications?.result,
+        ).toEqual({ delivered: 0, reviewed: 0, failed: 0 });
+      } finally {
+        await app.close();
+      }
     });
     it("recovers the same order after SIGKILL between provider receipt and local result commit", async () => {
       const order = await create();

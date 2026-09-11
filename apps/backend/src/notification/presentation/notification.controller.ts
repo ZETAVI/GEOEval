@@ -1,5 +1,8 @@
 import {
   Controller,
+  ConflictException,
+  Header,
+  Headers,
   Get,
   Inject,
   Param,
@@ -10,6 +13,7 @@ import {
 } from "@nestjs/common";
 import {
   ApiExtraModels,
+  ApiHeader,
   ApiOkResponse,
   ApiParam,
   ApiProduces,
@@ -33,6 +37,7 @@ import { ReadinessState } from "../../readiness.js";
 import { NotificationService } from "../application/notification.service.js";
 import type { NotificationView } from "../domain/notification.types.js";
 import {
+  RechargeNotificationTargetResponse,
   EvaluationReportNotificationTargetResponse,
   EvaluationRetryNotificationTargetResponse,
   NotificationListResponse,
@@ -42,9 +47,15 @@ import {
 
 @ApiTags("notifications")
 @ApiExtraModels(
+  RechargeNotificationTargetResponse,
   EvaluationReportNotificationTargetResponse,
   EvaluationRetryNotificationTargetResponse,
 )
+@ApiHeader({
+  name: "x-geoeval-account",
+  required: false,
+  description: "Expected signed-in account, never selects recipient",
+})
 @RequireAccountRoles("TERMINAL_CUSTOMER")
 @Controller("notifications")
 export class NotificationController {
@@ -55,6 +66,7 @@ export class NotificationController {
   ) {}
 
   @Get()
+  @Header("Cache-Control", "no-store")
   @ApiOkResponse({ type: NotificationListResponse })
   @ApiQuery({
     name: "limit",
@@ -66,9 +78,11 @@ export class NotificationController {
   @ApiQuery({ name: "cursor", required: false, type: String })
   list(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
+    @Headers("x-geoeval-account") expected: string | undefined,
     @Query("limit") limit?: string,
     @Query("cursor") cursor?: string,
   ): Promise<NotificationListResponse> {
+    assertAccount(principal.accountId, expected);
     return this.notifications
       .list(principal.accountId, limit, cursor)
       .then((page) => ({
@@ -78,20 +92,26 @@ export class NotificationController {
   }
 
   @Put("read-all")
+  @Header("Cache-Control", "no-store")
   @ApiOkResponse({ type: NotificationReadAllResponse })
   markAllRead(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
+    @Headers("x-geoeval-account") expected: string | undefined,
   ): Promise<NotificationReadAllResponse> {
+    assertAccount(principal.accountId, expected);
     return this.notifications.markAllRead(principal.accountId);
   }
 
   @Put(":notificationId/read")
+  @Header("Cache-Control", "no-store")
   @ApiOkResponse({ type: NotificationResponse })
   @ApiParam({ name: "notificationId", type: String })
   markRead(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
+    @Headers("x-geoeval-account") expected: string | undefined,
     @Param("notificationId") notificationId: string,
   ): Promise<NotificationResponse> {
+    assertAccount(principal.accountId, expected);
     return this.notifications
       .markRead(principal.accountId, notificationId)
       .then(presentNotification);
@@ -99,9 +119,12 @@ export class NotificationController {
 
   @Sse("events")
   @ApiProduces("text/event-stream")
+  @ApiQuery({ name: "expectedAccountId", required: false, type: String })
   events(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
+    @Query("expectedAccountId") expected?: string,
   ): Observable<MessageEvent> {
+    assertAccount(principal.accountId, expected);
     return timer(0, 2_000).pipe(
       switchMap(() => from(this.notifications.revision(principal.accountId))),
       map((revision) => ({
@@ -125,4 +148,15 @@ function presentNotification(
   notification: NotificationView,
 ): NotificationResponse {
   return notification;
+}
+
+function assertAccount(accountId: string, expected: unknown) {
+  if (
+    expected !== undefined &&
+    (typeof expected !== "string" || expected.toLowerCase() !== accountId)
+  )
+    throw new ConflictException({
+      code: "ACCOUNT_CHANGED",
+      message: "登录账号已变化，请重新打开通知。",
+    });
 }

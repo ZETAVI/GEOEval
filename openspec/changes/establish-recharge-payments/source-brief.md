@@ -195,3 +195,9 @@ Prisma 官网 transactions 页面本轮抓取失败，未作为已读证据。�
 - Node timers 文档页面/固定源码本次读取失败或超时，未计为通过来源；已安装 Node 类型文档的 ref/unref 说明与实际定时器测试共同约束本进程持续运行/关闭。不从 timer 存在推断跨进程调度、持久性或总 QPS 保证。
 
 不增加依赖、队列服务或通用后台框架。刷新触发：Nest/Node major/lifecycle 变化、从独立进程改为共享宿主、引入全局商户限流或改变 provider/DB 超时与退出政策。
+
+## N4 持久通知边界来源（2026-09-09）
+
+本次复核 [PostgreSQL 18 ALTER TYPE](https://www.postgresql.org/docs/18/sql-altertype.html)：事务内新增 enum 值需提交后才能使用；N4 迁移只增值，不在该事务插入该种通知。复核 [CREATE TRIGGER](https://www.postgresql.org/docs/18/sql-createtrigger.html)：行级 constraint trigger 可延迟到事务末，适用于通知待办与已完成充值的关联验证；普通 CHECK 不承担跨行账务校验。
+
+Notification 现有 source UUID 唯一、upsert 不更新已读、SSE revision/list 恢复、ProductOutbox 评测路由和前端无条件选 Brand 均直接读当前源码。版本未变的 Nest 生命周期、原支付认证和 C1 事务证据继续复用；不新增库、网络服务或支付 Provider 调用。具体并发和失败语义由本片真实 PostgreSQL/HTTP/进程验证，不从 SQL 语法推断通过。

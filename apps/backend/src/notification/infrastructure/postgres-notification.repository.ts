@@ -5,6 +5,8 @@ import { PrismaService } from "../../infrastructure/prisma.service.js";
 import type { NotificationRepository } from "../domain/notification.repository.js";
 import {
   notificationTargetSchema,
+  NotificationSourceConflict,
+  type NotificationKind,
   type StoredNotificationView,
   type NotificationView,
 } from "../domain/notification.types.js";
@@ -16,7 +18,8 @@ export class PostgresNotificationRepository implements NotificationRepository {
   async materialize(
     input: Parameters<NotificationRepository["materialize"]>[0],
   ): Promise<void> {
-    await this.prisma.notification.upsert({
+    const target = notificationTargetSchema.parse(input.target);
+    const stored = await this.prisma.notification.upsert({
       where: { sourceEventId: input.sourceEventId },
       create: {
         recipientAccountId: input.recipientAccountId,
@@ -31,6 +34,15 @@ export class PostgresNotificationRepository implements NotificationRepository {
       },
       update: {},
     });
+    // The stable source identity may be replayed, but never silently reassigned.
+    const existingTarget = notificationTargetSchema.safeParse(stored.target);
+    if (
+      stored.recipientAccountId !== input.recipientAccountId ||
+      stored.kind !== input.kind ||
+      !existingTarget.success ||
+      JSON.stringify(existingTarget.data) !== JSON.stringify(target)
+    )
+      throw new NotificationSourceConflict();
   }
 
   async list(
@@ -119,7 +131,7 @@ function mapStoredNotification(
 
 function mapNotification(notification: {
   id: string;
-  kind: "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED";
+  kind: NotificationKind;
   title: string;
   summary: string;
   target: Prisma.JsonValue;

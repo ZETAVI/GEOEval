@@ -2,7 +2,7 @@
 
 方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real merchant/Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims.
+Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; N4 adds durable post-settlement notices and account-safe customer navigation; current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real merchant/Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims. The [current integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) supersedes their earlier merge-authority limitations.
 
 已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
@@ -21,7 +21,7 @@ Publishing Commerce 继续拥有积分账户和追加式积分流水，并向 Re
 
 ## 2. 当前项目事实与不变边界
 
-当前受保护 `main@bcb81db5f567c5f0c3bced0c57df7b3dd8b83aa6` 的代码/规范与已批准产品方向形成以下边界；其中真实充值仍未激活：
+以下保留设计起点 `main@bcb81db5f567c5f0c3bced0c57df7b3dd8b83aa6` 的历史边界。当前已实现行为以本文首段链接的 Recharge、Commerce 和 Notification 规范及源码为准；真实充值仍未激活：
 
 - 客户充值人民币整数，按 `1 元 = 10 积分`增加 funded 积分；只有确认支付成功才入账；
 - 客户可见充值状态是 **待支付 / 确认中 / 充值成功 / 已关闭**；取消、失败和过期不入账；
@@ -741,3 +741,18 @@ QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字
 - **迁移/恢复/剩余 Gate**：无 schema 迁移，不回滚账务；普通 API/Worker 无支付启用。正式 secret 装载、部署与多副本预算、客户通知和运营 HTTP/UI 留在后续片。真实资金、机器/存储崩溃不是本片子进程测试的完成主张。
 
 前置作者架构审查：边界 ready，职责/数据锁与现有 N1/C1 一致。必须通过真实退出/重建证据后才声称常驻恢复有效；不以 timers 或配置存在证明进程级恢复。
+
+## N4 到账通知实施卡
+
+用户已确认继续既定到账通知主线。固定基线 #85@2bc8fd3；#77 单独拥有本片共享 schema/Notification/DTO/generated/notification-center 窗口，消费 M4 当前 #42 未占用回执，不修改其实验、依赖或评测 dispatcher。真实支付、生产、开票和受限运营处置仍是后续 Gate。
+
+- **持久所有权**：选择一单一行的 Recharge 私有通知待办，而非再给已终结的支付订单叠加通知重试字段；付款与通知完成具有不同生命周期。待办仅含订单关联、事件时间、下次时间、已送达时间、失败计数和安全分类，不复制付款金额/证明，不建立通用队列。
+- **原子性**：C1 首次成功事务同时写成功/余额/流水/通知待办；同一订单的重入不新建，迁移前成功单不自动补发。待办写入失败让未提交的钱事务一起回滚，既有可信观察仍可恢复。之后的通知物化和标记是两个短提交，任何通知失败不得撤销已经提交的资金。
+- **接口**：Notification 新增 `RECHARGE_SUCCESSFUL`，target=`{kind:"RECHARGE_ORDER",rechargeOrderId}`，通过窄的 `publishRecharge` 入口校验收到的订单身份、接收账户、积分和事件时间。`sourceEventId` 使用服务器生成的充值单 UUID 作为本事件稳定业务身份；不接受客户幂等键。复用 source unique，重投不改消息或 readAt；遇到同身份的 recipient/kind/target 冲突则显式拒绝并留受限核查分类。
+- **异步与恢复**：独立通知通道只处理已提交的待办，通过 Notification 成功持久化后再标记送达。唯一/幂等物化与条件标记已足够承受并发重投，不再增加领取租约；失败后移 due 防止饿死，已送达不被迟到失败回退。SOURCE_CONFLICT 停自动重投并保留问题；普通基础设施错误继续有界间隔重试。关闭通知通道保留所有待办，不影响查单/到账。
+- **Worker**：以显式通知配置增加第三通道，复用 N3 的一项在途与 drain；不把通知放入 Native 协议服务，不依赖 Redis/AI。普通宿主仍未配置支付。策略值由宿主显式提供，配置缺失时不发送通知。
+- **客户边界**：通知只提示已到账并打开本人订单；充值 target 不选品牌、不购买、不在浏览器计算余额。复用现有 SSE（仅 revision hint）和列表；HTTP 新客户端带可选 x-geoeval-account，SSE可选expectedAccountId只校验principal，均不选择owner。清空切换账户后的旧状态，对读/已读/导航作代际失效和请求时限保护。旧无预期账户参数的调用保持原鉴权行为。
+- **数据库约束**：待办身份/事件时间不可改，必须关联已成功并有 RECHARGE 流水的订单；已送达单向推进。失败分类不能写金融 reviewReason。新增 enum只增值；迁移不在同一事务使用新增值、不补造历史通知。
+- **验收**：成功事务中新待办失败回滚；重复/并发只有一份待办和消息；通知失败资金不变且后项推进；物化后ACK前强杀再启动、已读不重置；身份冲突保留待核查；默认不开通、旧数据升级不变、评测通知兼容；新旧账户/忽略abort的迟到响应/SSE断开/直接订单跳转真实HTTP与浏览器。
+
+前置及实现后架构复核已完成；没有需要扩展 Commerce 或建设通用事件平台的依据。共享写入遵循主负责后端/schema/generated、前端执行者负责手写 client/通知组件与自有测试。实际接口与规则归 [Recharge spec](../../specs/recharge/spec.md)、[Notification spec](../../specs/notification/spec.md)及其实现；验证与浏览器复验限制归 [verification](verification.md)。

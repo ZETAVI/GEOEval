@@ -1,6 +1,6 @@
 # Tasks
 
-Owner #77. A0/B0/C1 and #73 return integration are accepted on main@0c09041; the [producer integration checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5599308720) and [delivery closeout](https://github.com/ZETAVI/GEOEval/pull/81#issuecomment-5599403670) own exact evidence. #83@929633d remains unmerged; N2 is its upper customer API/controlled-journey slice. Earlier package rows retain their original scope; current accepted customer semantics are reconciled into [Recharge](../../specs/recharge/spec.md). No real merchant or production Worker is activated.
+Owner #77. A0/B0/C1 and publication return are accepted on main; N1–N4 implementation and controlled verification are complete. The owner authorized the four Partial PRs in the [integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476). [#83](https://github.com/ZETAVI/GEOEval/pull/83), [#84](https://github.com/ZETAVI/GEOEval/pull/84), [#85](https://github.com/ZETAVI/GEOEval/pull/85) and [#86](https://github.com/ZETAVI/GEOEval/pull/86) own live merge/head/check evidence. Current behavior is reconciled into [Recharge](../../specs/recharge/spec.md), Commerce and Notification. H1/O1/activation remain unfinished; no real merchant or production Worker is enabled. Earlier package rows record historical implementation scope, not current merge authority.
 
 ## Remaining work and actual dependencies
 
@@ -15,7 +15,7 @@ The approved route stays account recharge → verified payment → funded credit
 | Recovery and reconciliation | Same-order query/close, persisted due state/lease, stop-new-orders, T+1 discrepancy handling | Recovery and bill parsing can be implemented/tested with controlled inputs in their write package. Real bill/download and money-exception handling require account/finance decisions |
 | Activation | Limits, support, merchant/domain/secret rotation owners, bounded money test, financial reconciliation | Finance/product/operations supply these only before the corresponding live test or enablement. No production value is inferred from test configuration |
 
-Current planning: the user approved C1 implementation and cross-task coordination, recorded in [Decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5587176110). #73 confirmed the single-writer window. #79 has since merged into accepted main@bcb81db, with [integration evidence](https://github.com/ZETAVI/GEOEval/pull/79#issuecomment-5587460726). A0/B0/C1 were synchronized linearly; only generated OpenAPI/client files conflicted and were regenerated from both accepted assembly and C1 DTO sources. C1 core is implemented and verified in PR #82; that PR owns exact-head CI and explicit window handback. N1 implementation sequence and shared-write prerequisites are maintained in its task list below. No payment PR merge or actual money authorization is inferred.
+Current planning: complete authorized integration and post-merge reconciliation first. The next credential-free design boundary is O1 operational lookup and bounded recovery; H1 follows the approved browser route. Actual merchant configuration, amount/support policy and real-money activation retain their gates. Manual-experience preparation was canceled by the owner; it is not a remaining acceptance prerequisite.
 
 ## P0: Fixed inputs and reviewable contracts
 
@@ -89,7 +89,7 @@ Official-source design, the Adapter URI repair and the independent Web component
 - [x] Add truthful non-success query/close/dispatch-attempt recovery records when dispatch is implemented; C1 already persists authenticated successful QUERY observations without fake notification IDs.
 - [x] Build the isolated Native QR/status component and local lifecycle: bounded polling, separate expiry clocks, cancellation recovery across reload/tabs, stale-response invalidation, truthful terminal states and narrow-screen handling. All 21 focused tests and 122 Web tests pass; real browser decoding, cancellation/late-response, reload, expiry, keyboard and narrow layout verified with an explicitly synthetic source. No customer API, merchant scan or automatic purchase claim.
 - [x] Connect the component to authenticated local order APIs, history and publishing-shortage entry. Preserve one explicit amount draft and reject invalid custom input without fallback; retain same-key create recovery and truthful history scope. Restore saved selection via an account-scoped return reference, not a forged pending purchase request; reprice/reconfirm on return. Implement actual source mapping/access/CSRF tests in the shared API window.
-- [ ] At customer activation, add the minimal durable successful-recharge notification work and actual Notification kind/target mapping. Verify crash/repeated delivery, optional SSE loss and stale balance responses; notification failure must not reverse credited points. No generic event bus or payment-only socket service.
+- [x] N4 implements durable successful-recharge notification work and Notification kind/target mapping. Crash/repeated delivery, account fencing, SSE refresh and off-page retry have evidence. Customer activation still requires explicit delivery configuration; notification failure does not reverse credited points.
 - [x] Run real HTTP and desktop browser tests with the controlled adapter: interrupted create/reload, QR, cancellation/reload, signed callback ACK before settlement, duplicate payment facts, one credit and explicit publishing return. Reuse N1 tests for missing callback/late dispatch/expired QR; do not claim new browser or real merchant evidence for those unchanged cases.
 - [ ] Before enabling the customer journey, supply approved amount/shortcut policy with its administrator maintenance entry, active-order/rate limits, deadline and usable support contact; synthetic profile values are not production policy.
 - [ ] Verify named Native merchant products, domain, secret handoff and separately approved minimum real-money test when ready.
@@ -115,7 +115,7 @@ Official-source design, the Adapter URI repair and the independent Web component
 - [x] Connect one amount draft, recoverable create request, independent Native detail and all-state history through generated API contracts.
 - [x] Connect account/history and saved publishing-return reference; re-read balance/quote and require explicit purchase.
 - [x] Verify real HTTP security/privacy/recovery, index migration and the default disabled host; then exercise actual browser against the controlled API/database/gateway.
-- [ ] Fixed-diff review, current-owner/evidence reconciliation and PR/CI. Keep #77 open and real merchant/Worker operational activation separate.
+- [x] Fixed-diff review, current-owner/evidence reconciliation and PR/CI delivered in [#84](https://github.com/ZETAVI/GEOEval/pull/84); #77 remains open and real merchant/Worker operational activation separate.
 
 ## N3: Resident recharge worker and process recovery
 
@@ -124,4 +124,13 @@ Official-source design, the Adapter URI repair and the independent Web component
 - [x] Add the isolated worker module/factory and two bounded independent lanes; guard configured activation and expose safe aggregate diagnostics.
 - [x] Stop future claim attempts without interrupting in-flight provider/commit work; drain before Prisma shutdown and preserve unresolved obligations after a hard kill.
 - [x] Verify actual Nest/PostgreSQL/child-process independence, SIGTERM/SIGKILL, signed delayed success, once-only settlement and stop-new-order recovery.
-- [ ] Fixed diff review, canonical lifecycle reconciliation, exact-head CI/Partial PR and workspace exit; #77 remains open.
+- [x] Fixed diff review, canonical lifecycle reconciliation, exact-head CI/Partial [#85](https://github.com/ZETAVI/GEOEval/pull/85) and retained workspace exit; #77 remains open.
+
+## N4: Durable successful-recharge notification
+
+- [x] Read exact #85/main/Issue and current M4 shared-window acknowledgement; define Notification/Recharge ownership and fixed client wire contract in the N4 card.
+- [x] Write one private delivery obligation with the successful credit transaction; add forward migration and monotonic identity/delivery constraints, without historical backfill.
+- [x] Add idempotent Notification publishing and opt-in independent Worker delivery; retain recoverable failures without changing money facts.
+- [x] Extend typed notification target and account-fenced HTTP/SSE/client behavior; preserve evaluation notices and safe explicit order navigation.
+- [x] Verify rollback, duplicate/late failures, process restart, old-data upgrade, current HTTP/SSE and actual browser behavior.
+- [x] Complete fixed-diff reviews, canonical specs and local required checks. N4 is a Partial upper slice; its PR Delivery checkpoint owns exact-head CI, current window handback and workspace exit. #77 remains open.

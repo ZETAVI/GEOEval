@@ -3,9 +3,9 @@
 ## Purpose
 
 Define the accepted first durable in-product notification capability. This
-increment owns terminal-customer evaluation-completed and retry-required
+increment owns terminal-customer evaluation-completed, retry-required and recharge-successful
 notices, account-scoped read state, and a recoverable realtime refresh hint. It
-does not own the source evaluation result, other product-role events, external
+does not own source evaluation results or recharge/point accounting, other product-role events, external
 channels, retention policy, deletion, or subscription settings.
 
 ## Requirements
@@ -13,7 +13,8 @@ channels, retention policy, deletion, or subscription settings.
 ### Requirement: Durable idempotent inbox
 
 Notification SHALL materialize one recipient-owned notice from each approved
-business-result Outbox fact before that fact is marked delivered.
+business-result fact before its owning delivery obligation is marked delivered.
+Evaluation uses its Outbox; Recharge owns its private post-settlement obligation.
 
 #### Scenario: An evaluation reaches a customer-relevant result
 
@@ -61,8 +62,35 @@ the durable inbox.
 
 ## Current environment boundary
 
-The first implementation covers only terminal-customer evaluation completion
-and retry-required events in the deterministic local environment. Production
+The implementation covers terminal-customer evaluation completion, retry-required
+and successful-recharge notices in controlled local environments. Recharge delivery
+requires an explicitly configured worker lane; migration does not backfill old
+successful orders. Production
 proxy buffering and reconnect behavior, notification retention, load, external
 channels, and event production for operations, administrators, and agents are
 later release gates.
+
+### Requirement: Recharge notice identity and destination
+
+- Notification SHALL accept an internal validated recharge order UUID, recipient,
+  positive integer funded points and occurrence time through `publishRecharge`.
+  It SHALL materialize `RECHARGE_SUCCESSFUL` with a `RECHARGE_ORDER` target; no
+  merchant, payment proof, financial review reason or client idempotency key is exposed.
+- The order UUID SHALL identify its once-only success notice. Replay preserves
+  the existing title, summary and `readAt`; a different recipient, kind or target
+  under that identity SHALL be rejected explicitly, never acknowledged as delivered.
+- Opening a recharge notice SHALL revalidate/mark the owned notice and open the
+  owned recharge detail. It SHALL neither select a Brand nor submit a purchase.
+
+### Requirement: Account change and bounded browser requests
+
+- Notification HTTP may carry `x-geoeval-account`; SSE may carry
+  `expectedAccountId`. If supplied, either SHALL match the authenticated account,
+  including rejecting malformed/repeated expected-identity values. Neither selects
+  a recipient. Legacy callers without a fence retain existing authentication.
+- Lists and read mutations SHALL use `no-store`. The browser SHALL bound list,
+  read and destination-selection requests, ignore responses after unmount or any
+  account generation change (including A to B to A), and clear private state on
+  access loss. An older list SHALL not overwrite a later read mutation.
+- SSE/focus/reconnect hints SHALL coalesce during active work and perform an
+  ordinary durable refresh. Temporary failures retain a visible retry path.

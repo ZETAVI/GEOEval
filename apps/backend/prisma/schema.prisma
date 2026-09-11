@@ -140,6 +140,7 @@ enum CoreArticleStatus {
 enum NotificationKind {
   EVALUATION_COMPLETED
   EVALUATION_RETRY_REQUIRED
+  RECHARGE_SUCCESSFUL
 }
 
 enum MediaPlatformStatus {
@@ -1343,6 +1344,7 @@ model RechargeOrder {
   settledLedger         PointChange?                  @relation("SettledRechargeLedger", fields: [ledgerId, id, accountId], references: [id, rechargeOrderId, accountId], onDelete: Restrict, onUpdate: Restrict, map: "recharge_order_settled_ledger_fkey")
   paidObservation       RechargePaymentObservation?   @relation("RechargePaidSource", fields: [paidObservationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   queryObservations     RechargePaymentObservation[]  @relation("RechargeQuerySource")
+  notificationDelivery  RechargeNotificationDelivery?
   receipts              RechargeNotificationReceipt[]
 
   @@unique([accountId, idempotencyKey])
@@ -1399,4 +1401,18 @@ model RechargeOperationAttempt {
   @@unique([orderId, generation])
   @@index([processingState, processingDueAt])
   @@map("recharge_operation_attempts")
+}
+
+// Recharge owns the durable obligation; Notification owns the materialized customer message.
+model RechargeNotificationDelivery {
+  orderId       String        @id @map("order_id") @db.Uuid
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  nextAttemptAt DateTime?     @default(now()) @map("next_attempt_at") @db.Timestamptz(3)
+  deliveredAt   DateTime?     @map("delivered_at") @db.Timestamptz(3)
+  failureCount  Int           @default(0) @map("failure_count")
+  lastError     String?       @map("last_error") @db.VarChar(32)
+  order         RechargeOrder @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([nextAttemptAt, orderId], map: "recharge_notification_due_idx")
+  @@map("recharge_notification_deliveries")
 }

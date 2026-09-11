@@ -5,9 +5,15 @@ import {
   markAllNotificationsRead,
   markNotificationRead,
   selectCurrentBrand,
-  type Notification,
 } from "@geoeval/api-client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { NotificationCenterController } from "./notification-center-controller.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -17,37 +23,68 @@ export function CustomerNotificationCenter({
 }: {
   accountId: string | undefined;
 }) {
-  const [items, setItems] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  // A→B→A creates a fresh mounted scope rather than reviving the first A.
+  return accountId ? (
+    <AccountNotificationCenter key={accountId} accountId={accountId} />
+  ) : null;
+}
 
-  const refresh = useCallback(async () => {
-    if (!accountId) return;
-    const result = await listNotifications(apiBaseUrl, { limit: 10 });
-    setItems(result.items);
-    setUnreadCount(result.unreadCount);
-  }, [accountId]);
+function AccountNotificationCenter({ accountId }: { accountId: string }) {
+  const [open, setOpen] = useState(false);
+  const controller = useMemo(
+    () =>
+      new NotificationCenterController(
+        accountId,
+        {
+          list: (request) =>
+            listNotifications(apiBaseUrl, { limit: 10 }, request),
+          markRead: (id, request) =>
+            markNotificationRead(apiBaseUrl, id, request),
+          markAllRead: (request) =>
+            markAllNotificationsRead(apiBaseUrl, request),
+          selectBrand: (id, request) =>
+            selectCurrentBrand(apiBaseUrl, id, request),
+        },
+        (path) => window.location.assign(path),
+      ),
+    [accountId],
+  );
+  const { items, unreadCount, refreshing, busy, accessLost, message } =
+    useSyncExternalStore(
+      controller.subscribe,
+      controller.getSnapshot,
+      controller.getServerSnapshot,
+    );
+
+  useLayoutEffect(() => {
+    controller.start();
+    return () => controller.stop();
+  }, [controller]);
 
   useEffect(() => {
-    if (!accountId) return;
-    void refresh().catch(() => undefined);
-    const events = new EventSource(`${apiBaseUrl}/notifications/events`, {
-      withCredentials: true,
-    });
-    const refreshFromHint = () => void refresh().catch(() => undefined);
+    if (accessLost) return;
+    const events = new EventSource(
+      `${apiBaseUrl}/notifications/events?expectedAccountId=${encodeURIComponent(accountId)}`,
+      {
+        withCredentials: true,
+      },
+    );
+    const refreshFromHint = () => void controller.refresh();
     events.addEventListener("refresh", refreshFromHint);
     events.onopen = refreshFromHint;
-    const onFocus = () => refreshFromHint();
-    window.addEventListener("focus", onFocus);
+    // EventSource does not expose HTTP status; the fenced read detects access loss.
+    events.onerror = refreshFromHint;
+    window.addEventListener("focus", refreshFromHint);
     return () => {
-      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("focus", refreshFromHint);
       events.removeEventListener("refresh", refreshFromHint);
+      events.onopen = null;
+      events.onerror = null;
       events.close();
     };
-  }, [accountId, refresh]);
+  }, [accountId, controller, accessLost]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const baseTitle = document.title.replace(/^\(\d+\)\s*/, "");
     document.title =
       unreadCount > 0 ? `(${unreadCount}) ${baseTitle}` : baseTitle;
@@ -60,34 +97,6 @@ export function CustomerNotificationCenter({
     () => items.find((item) => item.readAt === null),
     [items],
   );
-
-  async function openNotification(notification: Notification) {
-    setMessage("");
-    try {
-      if (notification.readAt === null) {
-        await markNotificationRead(apiBaseUrl, notification.id);
-      }
-      await selectCurrentBrand(apiBaseUrl, notification.target.brandId);
-      if (notification.target.kind === "EVALUATION_REPORT") {
-        window.location.assign(
-          `/diagnosis/reports/${notification.target.reportId}?brandId=${notification.target.brandId}`,
-        );
-      } else {
-        window.location.assign("/diagnosis");
-      }
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "暂时无法打开通知");
-    }
-  }
-
-  async function markAllRead() {
-    try {
-      await markAllNotificationsRead(apiBaseUrl);
-      await refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "操作失败，请重试");
-    }
-  }
 
   return (
     <>
@@ -106,14 +115,39 @@ export function CustomerNotificationCenter({
             <header>
               <strong>通知中心</strong>
               {unreadCount > 0 && (
-                <button type="button" onClick={() => void markAllRead()}>
+                <button
+                  type="button"
+                  disabled={busy || accessLost}
+                  onClick={() => void controller.markAllRead()}
+                >
                   全部已读
                 </button>
               )}
             </header>
-            {message && <p className="notification-error">{message}</p>}
+            {message && (
+              <div className="notification-error" role="alert">
+                <p>{message}</p>
+                <button
+                  type="button"
+                  disabled={busy || refreshing}
+                  onClick={() =>
+                    accessLost
+                      ? window.location.reload()
+                      : void controller.retry()
+                  }
+                >
+                  {accessLost ? "重新载入页面" : "重试"}
+                </button>
+              </div>
+            )}
             {items.length === 0 ? (
-              <p className="notification-empty">暂无通知</p>
+              <p className="notification-empty">
+                {refreshing
+                  ? "正在读取通知…"
+                  : accessLost || message
+                    ? "通知暂不可用"
+                    : "暂无通知"}
+              </p>
             ) : (
               <div className="notification-list">
                 {items.map((item) => (
@@ -121,7 +155,8 @@ export function CustomerNotificationCenter({
                     type="button"
                     key={item.id}
                     className={item.readAt ? "read" : "unread"}
-                    onClick={() => void openNotification(item)}
+                    disabled={busy || accessLost}
+                    onClick={() => void controller.openNotification(item.id)}
                   >
                     <span>
                       <strong>{item.title}</strong>
@@ -139,7 +174,11 @@ export function CustomerNotificationCenter({
         <button
           type="button"
           className="notification-prompt"
-          onClick={() => void openNotification(newestUnread)}
+          disabled={busy || accessLost}
+          onClick={() => {
+            setOpen(true);
+            void controller.openNotification(newestUnread.id);
+          }}
         >
           <strong>{newestUnread.title}</strong>
           <span>{newestUnread.summary}</span>

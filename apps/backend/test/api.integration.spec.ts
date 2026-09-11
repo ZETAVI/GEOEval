@@ -442,6 +442,70 @@ describe("customer-entry HTTP contract", () => {
       },
     });
 
+    const rechargeOrderId = randomUUID();
+    const rechargeNotice = await prisma.notification.create({
+      data: {
+        recipientAccountId: owner.id,
+        sourceEventId: rechargeOrderId,
+        kind: "RECHARGE_SUCCESSFUL",
+        title: "充值积分已到账",
+        summary: "本次充值 10 积分已到账。",
+        target: { kind: "RECHARGE_ORDER", rechargeOrderId },
+        occurredAt: new Date(),
+      },
+    });
+    for (const [path, method] of [
+      ["/notifications", "GET"],
+      ["/notifications/read-all", "PUT"],
+      [`/notifications/${rechargeNotice.id}/read`, "PUT"],
+      [`/notifications/events?expectedAccountId=${randomUUID()}`, "GET"],
+      [
+        `/notifications/events?expectedAccountId=${owner.id}&expectedAccountId=${owner.id}`,
+        "GET",
+      ],
+    ]) {
+      const response = await fetch(`${baseUrl}${path}`, {
+        method,
+        headers: {
+          ...browserMutationHeaders(ownerCookie),
+          "x-geoeval-account": randomUUID(),
+        },
+      });
+      expect(response.status).toBe(409);
+      expect(await response.json()).toMatchObject({ code: "ACCOUNT_CHANGED" });
+    }
+    expect(
+      (
+        await prisma.notification.findUniqueOrThrow({
+          where: { id: rechargeNotice.id },
+        })
+      ).readAt,
+    ).toBeNull();
+    const noCsrf = await fetch(
+      `${baseUrl}/notifications/${rechargeNotice.id}/read`,
+      {
+        method: "PUT",
+        headers: {
+          cookie: ownerCookie,
+          "x-geoeval-account": owner.id,
+          "content-type": "application/json",
+        },
+      },
+    );
+    expect(noCsrf.status).toBe(403);
+    const fencedPage = await fetch(`${baseUrl}/notifications`, {
+      headers: { cookie: ownerCookie, "x-geoeval-account": owner.id },
+    });
+    expect(fencedPage.headers.get("cache-control")).toBe("no-store");
+    expect(await fencedPage.json()).toMatchObject({
+      items: expect.arrayContaining([
+        expect.objectContaining({
+          kind: "RECHARGE_SUCCESSFUL",
+          target: { kind: "RECHARGE_ORDER", rechargeOrderId },
+        }),
+      ]),
+    });
+
     const listResponse = await fetch(`${baseUrl}/notifications?limit=1`, {
       headers: { cookie: ownerCookie },
     });
@@ -452,7 +516,7 @@ describe("customer-entry HTTP contract", () => {
       nextCursor: string;
     };
     expect(list.items).toHaveLength(1);
-    expect(list.unreadCount).toBe(2);
+    expect(list.unreadCount).toBe(3);
     expect(list.nextCursor).toEqual(expect.any(String));
     expect(JSON.stringify(list)).not.toContain("sourceEventId");
 

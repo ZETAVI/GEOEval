@@ -8,6 +8,7 @@ import type { NativeRecoveryService } from "./application/native-recovery.servic
 const policySchema = z
   .object({
     orderIntervalMs: z.number().int().min(100).max(60_000),
+    notificationIntervalMs: z.number().int().min(100).max(60_000).optional(),
     settlementIntervalMs: z.number().int().min(100).max(60_000),
     failureIntervalMs: z.number().int().min(100).max(300_000),
     drainWarningMs: z.number().int().min(100).max(300_000),
@@ -16,15 +17,20 @@ const policySchema = z
   .refine(
     (p) =>
       p.failureIntervalMs >=
-      Math.max(p.orderIntervalMs, p.settlementIntervalMs),
+      Math.max(
+        p.orderIntervalMs,
+        p.settlementIntervalMs,
+        p.notificationIntervalMs ?? 0,
+      ),
   );
 export type RechargeWorkerPolicy = z.infer<typeof policySchema>;
-type Lane = "orders" | "settlements";
+type Lane = "orders" | "settlements" | "notifications";
 type Phase = "created" | "running" | "stopping" | "stopped";
 type Result = {
   failed: number;
   claimed?: number;
   applied?: number;
+  delivered?: number;
   reviewed?: number;
 };
 type LaneState = {
@@ -46,7 +52,9 @@ export type RechargeWorkerEvent = Readonly<{
   lane?: Lane;
   count?: number;
 }>;
-type Work = Pick<NativeRecoveryService, "runOrders" | "runSettlements">;
+type Work = Pick<NativeRecoveryService, "runOrders" | "runSettlements"> & {
+  runNotifications?: (limit: number, stop?: AbortSignal) => Promise<Result>;
+};
 
 /** Scheduling only. Durable ownership, deadlines and settlement stay in Native/C1. */
 export class RechargeWorkerRuntime
@@ -61,6 +69,7 @@ export class RechargeWorkerRuntime
   private readonly lanes: Record<Lane, LaneState> = {
     orders: blank(),
     settlements: blank(),
+    notifications: blank(),
   };
   constructor(
     private readonly work: Work,
@@ -68,6 +77,11 @@ export class RechargeWorkerRuntime
     private readonly report: (event: RechargeWorkerEvent) => void = reportEvent,
   ) {
     this.policy = Object.freeze(policySchema.parse(policy));
+    if (
+      (this.policy.notificationIntervalMs !== undefined) !==
+      (work.runNotifications !== undefined)
+    )
+      throw new Error("INCOMPLETE_NOTIFICATION_LANE");
   }
 
   onApplicationBootstrap() {
@@ -76,10 +90,17 @@ export class RechargeWorkerRuntime
     this.emit({ kind: "STARTED" });
     this.schedule("orders", 0);
     this.schedule("settlements", 0);
+    if (this.work.runNotifications) this.schedule("notifications", 0);
   }
   snapshot() {
     return {
       phase: this.phase,
+      notifications: this.work.runNotifications
+        ? {
+            ...this.lanes.notifications,
+            result: copy(this.lanes.notifications.result),
+          }
+        : null,
       orders: { ...this.lanes.orders, result: copy(this.lanes.orders.result) },
       settlements: {
         ...this.lanes.settlements,
@@ -136,20 +157,25 @@ export class RechargeWorkerRuntime
       result =
         lane === "orders"
           ? await this.work.runOrders(1, this.stopSignal.signal)
-          : await this.work.runSettlements(1, this.stopSignal.signal);
+          : lane === "settlements"
+            ? await this.work.runSettlements(1, this.stopSignal.signal)
+            : await this.work.runNotifications!(1, this.stopSignal.signal);
     } catch {
       result = { failed: 1 }; // Never log raw errors, request data or credentials.
     }
     // Explicit projection also prevents injected runtimes from exporting private fields.
     state.result = {
       failed: result.failed,
+      ...(lane === "notifications" && result.delivered !== undefined
+        ? { delivered: result.delivered }
+        : {}),
       ...(lane === "orders" && result.claimed !== undefined
         ? { claimed: result.claimed }
         : {}),
       ...(lane === "settlements" && result.applied !== undefined
         ? { applied: result.applied }
         : {}),
-      ...(lane === "settlements" && result.reviewed !== undefined
+      ...(lane !== "orders" && result.reviewed !== undefined
         ? { reviewed: result.reviewed }
         : {}),
     };
@@ -172,7 +198,9 @@ export class RechargeWorkerRuntime
         ? this.policy.failureIntervalMs
         : lane === "orders"
           ? this.policy.orderIntervalMs
-          : this.policy.settlementIntervalMs,
+          : lane === "settlements"
+            ? this.policy.settlementIntervalMs
+            : this.policy.notificationIntervalMs!,
     );
   }
   private emit(event: RechargeWorkerEvent) {
