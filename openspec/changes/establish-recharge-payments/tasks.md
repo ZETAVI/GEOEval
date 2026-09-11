@@ -22,6 +22,7 @@ Current planning: R1 transient-failure recovery and truthful status now precede 
 - [x] Inspect retry exhaustion, loss of HTTP status in persisted attempts, and reviewRequired → supportRequired projection; specify the smallest change in design14.
 - [x] Align owner intent: improve reliability without requiring full automation; keep financial holds, same-order identity, four customer states and once-only credit.
 - [x] Define customer/management/backend status meanings and focused verification below; management page implementation remains a later slice.
+- [x] Refine implementation contract in design14.1a: nullable immutable attempt outcome metadata, explicit slow-delay policy, conservative legacy evidence, and API/Worker status separation. These are candidate changes, not runtime verification.
 - [ ] Fix operation-aware transient/hard/unknown classification, durable slow scheduling and explicit host policy. Preserve HTTP outcome classification needed for safe restart; do not retry arbitrary 4xx merely because the gateway returns UNRESOLVED.
 - [ ] Determine and verify the additive storage/legacy transition: known transient RETRY_EXHAUSTED may resume; ambiguous old HTTP_ERROR, monetary holds and closed/successful orders must not be blindly requeued. Obtain the shared schema/DTO/generated/client writer window before those edits.
 - [ ] Connect safe customer status across detail/history/QR, preserving old API compatibility, terminal-state priority, account fencing and the distinction between frontend refresh pause and backend recovery.
