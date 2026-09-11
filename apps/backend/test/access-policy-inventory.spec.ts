@@ -123,6 +123,11 @@ const expectedControllerPolicies: Record<
   PublishingOrderController: customerOnly,
   CustomerPublicationResultsController: customerOnly,
   CustomerRechargeController: customerOnly,
+  AdminRechargeController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["ADMINISTRATOR"],
+  }),
   PublicationWorkController: (handler) => ({
     publicAccess: false,
     csrfExempt: false,

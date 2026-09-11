@@ -101,6 +101,31 @@ configured delivery lane.
   according to order/retry state. Its later placement and service design are
   independent of this payment change; command permissions remain enforced.
 
+### Requirement: Administrator read-only recharge lookup
+
+- Only a current ADMINISTRATOR SHALL read the management list/detail endpoints.
+  The expected-account header SHALL fence the actor, never select a customer.
+  Customer, operations and agent sessions SHALL not gain this financial access.
+- The list SHALL support exact customer/order, four-state and creation-time
+  filters with bounded stable `createdAt/id` pagination. Cursors SHALL bind the
+  actor and normalized filters. Inactive customer history SHALL remain readable.
+- Management reads SHALL use a read-only consistent snapshot and explicit field
+  projection. Order terms, adopted payment confirmation, unique credit record,
+  latest completed query and customer-message delivery SHALL remain distinct.
+  Missing confirmation SHALL not mean nonpayment; pending message delivery or
+  later review SHALL not erase or downgrade an existing credit record.
+- GET SHALL work without a merchant configuration and SHALL not call a provider,
+  mutate an order/ledger/reservation or schedule work. The projection SHALL not
+  expose credentials, proofs, raw payloads, QR actions or lease internals.
+- The admin list/detail pages SHALL preserve simple four-state presentation and
+  separately show payment, credit, query and delivery times. Read failures SHALL
+  remain local feedback; stale account/filter/unmount/timeout responses SHALL not
+  replace current data. Permission loss SHALL clear financial views.
+- This read capability SHALL NOT introduce administrator payment, point-credit,
+  cancellation, retry, cash refund or reconciliation commands. Exact fields are
+  owned by [Admin DTO](../../../apps/backend/src/recharge/presentation/admin-recharge.dto.ts)
+  and generated OpenAPI; the independent admin module owns assembly.
+
 ### Requirement: Explicit publishing continuation
 
 - Publishing keeps the saved article and selection. Its recharge entry SHALL

@@ -2,6 +2,16 @@
 
 审查日期：2026-09-08。Owner：[Issue #77](https://github.com/ZETAVI/GEOEval/issues/77)。对象：[架构候选方案](design.md)、[微信 APIv3 协议证据](source-brief.md)。主审自行复核，无独立 reviewer 或真实支付执行。
 
+## O1a 实施作者审查
+
+对象：PR #88 的管理员只读查询，基线main29d115d；用户确认design14.4并授权实施，共享窗口见[执行记录](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630711415)。以下按需求、工程、证据三个维度自行复核，不声称独立review。
+
+- 需求：列表/详情覆盖客户、单号、金额积分、四状态、付款与到账；无管理员支付写命令，无新客户状态或客服流程。普通API无商户仍可读取。
+- 工程：管理员控制器/查询端口独立装配；最小Prisma投影经只读RepeatableRead查询已有关系，未导入Native runtime或积分writer。角色/操作者与目标客户分开；安全映射不透传协议数据。前端按代际和时限隔离请求，不把读取结果变成资金事实。
+- 证据：6项新增真实HTTP/PG反例、10项新增Web案例、实际浏览器及完整构建；既有客户/API/身份与控制器权限清单合计31项通过，全部Web192项通过。旧OpenAPI路径/schema逐项相等，仅增加两条GET与三类响应。详见verification。
+
+结论：本地实现可提交必需CI，无未解决的实质审查发现。没有大规模查询容量证据，不能宣称全局查询已完成规模验收；当前不以三行小样本推导额外索引或新架构。管理员对账/恢复写操作、正式宿主配置与资金验证仍未实现。当前Recharge spec已同步；active Change保留后续真正未完成的范围。
+
 ## R1 实施作者审查
 
 基线 main7c5a4a5；范围是 Recharge 故障分类、原有恢复仓储、两项 attempt 元数据、前向迁移和客户短文案。用户已批准该有界主线，共享窗口见 [执行记录](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630151311)。审查按需求一致性、工程边界和证据分别进行；不声称独立 reviewer。

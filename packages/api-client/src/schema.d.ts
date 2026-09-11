@@ -1028,6 +1028,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/recharges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminRechargeController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/recharges/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminRechargeController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/brands/{brandId}/evaluation-report": {
         parameters: {
             query?: never;
@@ -2567,6 +2599,66 @@ export interface components {
         RechargeAcceptedResponse: {
             /** @enum {boolean} */
             accepted: true;
+        };
+        AdminRechargeSummaryResponse: {
+            /** Format: uuid */
+            id: string;
+            amountYuan: number;
+            points: number;
+            /** @enum {string} */
+            method: "WECHAT_NATIVE";
+            /** @enum {string} */
+            status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            paymentExpiresAt: string;
+            /** Format: date-time */
+            paidAt: string | null;
+            /** Format: date-time */
+            closedAt: string | null;
+            /** Format: uuid */
+            accountId: string;
+            accountMobile: string;
+        };
+        AdminRechargePageResponse: {
+            items: components["schemas"]["AdminRechargeSummaryResponse"][];
+            nextCursor: string | null;
+        };
+        AdminRechargeDetailResponse: {
+            /** Format: uuid */
+            id: string;
+            amountYuan: number;
+            points: number;
+            /** @enum {string} */
+            method: "WECHAT_NATIVE";
+            /** @enum {string} */
+            status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            paymentExpiresAt: string;
+            /** Format: date-time */
+            paidAt: string | null;
+            /** Format: date-time */
+            closedAt: string | null;
+            /** Format: uuid */
+            accountId: string;
+            accountMobile: string;
+            merchantOrderNo: string;
+            providerTransactionId: string | null;
+            /** Format: uuid */
+            ledgerId: string | null;
+            creditedPoints: number | null;
+            /** Format: date-time */
+            creditedAt: string | null;
+            /** Format: date-time */
+            lastQueriedAt: string | null;
+            diagnostic: string | null;
+            /** @enum {string|null} */
+            notificationState: "PENDING" | "DELIVERED" | null;
+            /** Format: date-time */
+            notificationDeliveredAt: string | null;
         };
         EvaluationBrandSnapshotResponse: {
             companyName: string;
@@ -4631,6 +4723,60 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RechargeAcceptedResponse"];
+                };
+            };
+        };
+    };
+    AdminRechargeController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+                createdBefore?: string;
+                createdFrom?: string;
+                status?: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
+                orderId?: string;
+                accountId?: string;
+            };
+            header: {
+                /** @description Expected administrator identity; never the target customer */
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRechargePageResponse"];
+                };
+            };
+        };
+    };
+    AdminRechargeController_detail: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected administrator identity; never the target customer */
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRechargeDetailResponse"];
                 };
             };
         };

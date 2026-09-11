@@ -1,6 +1,37 @@
 # Recharge verification
 
-Current accepted code: main7c5a4a5 contains A0/B0/C1 and N1–N4; exact merge/CI and post-merge evidence live in the [integration closeout](https://github.com/ZETAVI/GEOEval/pull/86#issuecomment-5628433299). Earlier dated sections are historical scope/evidence. R1 is implemented and locally verified below; PR #87 owns its live required CI and merge state. #77 remains open for reliability, operational/mobile and real-merchant acceptance.
+Current accepted code: main29d115d contains A0/B0/C1, N1–N4 and R1; exact merge/CI and post-merge evidence live in the [integration closeout](https://github.com/ZETAVI/GEOEval/pull/86#issuecomment-5628433299). Earlier dated sections are historical scope/evidence. R1 merge evidence lives in PR #87; O1a is implemented and locally verified in PR #88, not yet claimed merged. #77 remains open for reliability, operational/mobile and real-merchant acceptance.
+
+## O1a administrator lookup evidence
+
+[Execution/window](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630711415); [PR #88](https://github.com/ZETAVI/GEOEval/pull/88) owns the submitted revision, required CI and review/merge state. Existing R1 payment behavior is unchanged; this is an author-reviewed read capability, not independent review or production activation.
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| Current admin only, safe historical reads without merchant | `admin-recharge.integration.spec.ts` through ordinary `createApiApp(config, false)` | 6 new cases passed with real PostgreSQL and HTTP; non-admin roles denied, actor changes fenced, inactive customer retained, unknown order unavailable |
+| Consistent facts with no payment effects | Same suite, plus actual concurrent settlement on a second connection while admin transaction holds its read-only snapshot | Old snapshot remains pending without ledger; next read sees successful order and its ledger. Financial snapshots and gateway call counts unchanged by GET; payment/credit/message timestamps distinct |
+| Bounded pagination and private projection | Tied creation-time records, changed filter/actor cursor, invalid params, exact response-key checks | Passed; only selected safe fields returned; no QR, merchant configuration, raw error or proof fields |
+| Existing API and access policies remain explicit | Customer recharge, API, identity-access HTTP and access-policy inventory suites | 31 distinct backend cases passed across five files; the inventory was updated to require ADMINISTRATOR for the new controller, not relaxed |
+| UI request lifetimes and presentation | `admin-recharge.spec.tsx` + full Web suite | 10 new cases; 192 total passes / 25 files. Late/ignored-abort responses, changed actor, timeout/unmount, pagination retry, unconfirmed payment, successful credit with pending message or conflict |
+| Actual browser journey | Isolated localhost API/Web, synthetic admin/customer, real session and GET routes | Login → navigation → inactive-customer search → customer/status filter → detail/return → date filter with native picker → no results → API offline error; date filter retained. Full-page list/detail screenshots inspected; no manual payment execution |
+| Build and public contract compatibility | typecheck, format, full build, framework/local links, old-vs-new OpenAPI comparison | Passed. Two GET paths and three response schemas added; every prior path/schema unchanged. No schema migration or package change |
+
+Initial test-fixture failures were corrected without changing payment logic: reservation key spelling, frozen creation timestamps for the tie case, and recovery clock alignment before synthetic dispatch. Browser setup first lacked its dedicated loopback CORS origin; only the temporary test host was corrected. The browser helper's date `fill` did not update the native input, so the real date picker and keyboard selection were used to verify the unchanged page.
+
+Query-plan evidence: on three valid synthetic orders, the global list SELECT used a sequential scan plus sort (0.082 ms observed). This verifies the actual query executes, not scale performance; no speculative schema/index change was introduced. No live merchant, real funds, H5, full reconciliation or large-volume performance claim.
+
+Reproduction: supply the dedicated PostgreSQL/Redis test targets, apply existing migrations, then run:
+
+```bash
+pnpm --filter @geoeval/backend exec vitest run test/admin-recharge.integration.spec.ts test/recharge-customer.integration.spec.ts test/access-policy-inventory.spec.ts test/identity-access-http.integration.spec.ts test/api.integration.spec.ts
+pnpm --filter @geoeval/web test
+pnpm typecheck
+pnpm format:check
+pnpm build
+python3 scripts/validate_project_framework.py
+```
+
+Browser harness/fixture records remain local evidence, outside product source. Temporary API/Web are stopped after verification; test Redis is stopped at handback, with test records preserved. Required CI remains recorded on the exact submitted PR revision.
 
 ## R1 implementation evidence
 

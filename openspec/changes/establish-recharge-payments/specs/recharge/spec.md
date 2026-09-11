@@ -308,7 +308,7 @@ Customer detail, history and checkout SHALL retain the four existing business st
 - **THEN** customer success and the existing ledger remain authoritative
 - **AND** message retries or later internal review do not turn it into unpaid or credit again.
 
-### Requirement: Administrator read-only recharge lookup (O1a proposed)
+### Requirement: Administrator read-only recharge lookup (O1a)
 
 Administrators SHALL be able to list and inspect persisted recharge records without enabling a merchant or invoking payment work. This capability SHALL preserve the four order states and SHALL NOT grant manual payment, credit, close or retry commands.
 

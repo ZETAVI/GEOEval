@@ -213,6 +213,12 @@ export function supportingRoleConfig(
           href: "/admin/points",
         },
         {
+          title: "充值记录",
+          description: "查询客户充值订单、付款确认与积分到账记录。",
+          status: "AVAILABLE",
+          href: "/admin/recharges",
+        },
+        {
           title: "履约订单",
           description:
             "查看履约与协商记录、按需改派，并在“待退点”中确认执行已约定退点。",
