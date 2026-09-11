@@ -344,3 +344,19 @@ Final frontend review corrected one reachable retry gap: a failed notice could m
 The full browser journey above passed before this narrow final retry change. Two initial final-patch browser attempts were stopped by automatic approval review timeouts. After the user requested a retry, the same head87ac9b7 passed the [final browser recheck](https://github.com/ZETAVI/GEOEval/pull/86#issuecomment-5612813968): the first mark-read returned a controlled503, a real SSE arrival moved the original notice off the first page, and retry still authorized the original ID and opened its successful recharge order. The server recorded2 read requests, the original readAt stayed unchanged, funded balance remained10, reserved capacity0, balance revision1 and publishing purchases0. No browser verification blocker remains; this synthetic journey does not prove real merchant or funds readiness.
 
 Final local validation: `pnpm typecheck`, `pnpm format:check`, `python3 scripts/validate_project_framework.py`, `git diff --check` and `pnpm build` passed. The controlled API/Worker and Web ports33577/32577 were stopped; Worker reported STOPPING then STOPPED. Dedicated databases and existing local artifacts are retained, and no other task environment was stopped. Exact PR/CI evidence is recorded on the N4 Delivery checkpoint.
+
+## A1 协议方案核查（2026-09-11）
+
+本轮是研究/设计，无支付实现或依赖安装。源码基线8eb5759；官方SDK发布元数据、包源码和官方PC/v3动态正文已核对，具体来源由source-brief的A1段持有。
+
+| 主张 | 本轮证据/结论 |
+| --- | --- |
+| 页面仍pageExecute，查询/关闭支持v3 POST | 官方v3三份接口正文与SDK4.14.0 README/source，已核对 |
+| 现有格式存在实际兼容工作 | 当前payment-gateway、stored-payment-observation、inbox、recharge repository及迁移CHECK逐项核对；发现长notify_id、可选时间、原始proof、非成功通知和关闭语义差异 |
+| 不需要新钱包或重复恢复系统 | 现有Commerce绑定和due/lease/attempt/settlement接口可继续复用；具体改动列入design15A |
+| 官方包身份 | tarball摘要与npm发布元数据比较，结果由本轮执行输出持有；没有执行包脚本 |
+| SDK与数据库真实行为已通过 | **未执行**。后续A1a临时密钥/受控HTTP，A1b隔离PG迁移和并发测试，不以源码审阅替代 |
+| 自然过期、丢关单响应可自动安全收尾 | **尚未证明**；必须按design15A专项取得字段/生命周期证据后再验收自动收尾 |
+| 沙箱、正式商户、公网回调及真实资金 | **未执行**；等待各自条件，官网登录暂停不阻塞协议层开发 |
+
+文档型变更验证使用diff检查、项目框架/本地链接校验；不重复运行未变更的支付测试。本段不宣称整体支付宝已完成。
