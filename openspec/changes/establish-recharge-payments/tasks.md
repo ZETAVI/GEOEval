@@ -8,8 +8,8 @@ The approved route stays account recharge → verified payment → funded credit
 
 | Package | Concrete acceptance | Actual dependency / current action |
 | --- | --- | --- |
-| R1 recovery/status | Transient failures recover under bounded scheduling; unsafe facts remain held; customer hints match persisted work | Implemented and locally verified in PR #87; required CI and review status live in the PR |
-| Management read-only | Find each order, payment evidence, credit and independent notification state | Reuse accepted records and R1 projection; role scope is not expanded by this plan |
+| R1 recovery/status | Transient failures recover under bounded scheduling; unsafe facts remain held; customer hints match persisted work | Merged through PR #87; implementation and CI evidence remain in that PR |
+| Management read-only | Find each order, payment confirmation, credit and independent notification state | Next approved slice; bounded design in 14.4, no runtime change in this planning patch |
 | O1 reconciliation | Verify daily coverage, compare provider/order/ledger, query discrepancies and settle only through existing C1 | Official request metadata read; download/format details and synthetic samples still required before implementation |
 | H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
 | Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
@@ -32,6 +32,18 @@ Current planning: R1 transient-failure recovery and simple four-state customer c
 - [x] Run 117 distinct targeted backend cases and 182 Web cases, workspace typecheck, format and full build. The initially skipped process cases were subsequently executed. Customer HTTP and rendered/controller tests are covered; no new browser/manual experience or real merchant run.
 - [x] Reconcile current specs, design and author review; retain the active Change and #77. PR #87 owns final required CI and review/merge state; local passes do not imply merge or activation.
 
+
+## O1a: Administrator read-only recharge lookup (approved scope; design prepared)
+
+- [x] Owner accepted the read-only slice after R1; PR #87 is merged at main29d115d. No manual payment mutation or expanded account role is implied.
+- [x] Inspect Recharge order/attempt/observation/notification records, existing Commerce ledger relation, administrator account search, sidebar and role guards. Record the small read boundary in design14.4.
+- [x] Separate provider payment time, local credit time, latest query time and message-delivery time; no fabricated generic order updatedAt or new payment state.
+- [ ] Before runtime/shared-contract edits, refresh M4/API/generated/sidebar occupancy and the active execution window. This planning patch keeps #77 Review / Decision.
+- [ ] Implement administrator-only list/detail read ports and minimal DTOs; no provider/runtime dependency, mutation, schema business table or copied ledger. Verify query plan before deciding whether read indexes are necessary.
+- [ ] Connect the existing admin shell and customer-account search to recharge list/detail. Reuse shared four-state labels; amount, points, customer and order references remain explicit.
+- [ ] Verify authorization and stale-account fencing, stable filtered pagination, inactive-customer history, consistent order/ledger reads, safe field projection, and zero payment/ledger/queue writes on GET.
+- [ ] Verify list/detail navigation, filters, empty/load-failure states and success while customer-message delivery is pending; run relevant HTTP/Web checks and a bounded browser check of the implemented page.
+- [ ] Reconcile accepted behavior into the current Recharge spec with implementation. This plan does not mark the page, live merchant or reconciliation executor complete.
 
 ## P0: Fixed inputs and reviewable contracts
 
