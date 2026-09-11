@@ -18,6 +18,7 @@ Customers need a reliable account-recharge path before paying points for publish
 - Recharge uses whole-renminbi amounts, ten funded points per yuan, four customer states and explicit publishing reconfirmation. Returns, cancellation, QR expiry and client completion cannot manufacture payment facts.
 - Official interface rules and discriminating evidence precede dependent integration. Security, concurrency, compatible recovery and financial consistency remain mandatory.
 - The owner confirmed reliability rather than mandatory full automation: ordinary transient failures should recover with bounded work, while unsafe financial discrepancies retain human escalation. R1 recovery and truthful cross-surface status precede management actions; read-only management and reconciliation follow. This is the next proposed behavior, not a claim that the merged implementation already supports slow recovery after retry exhaustion.
+- The owner subsequently simplified customer presentation to the existing four statuses and short copy. No public recovery-stage hint is added for that purpose. Customer support is a separate persistent entry; its placement and interaction are deferred, and R1 does not highlight or change it based on payment state.
 
 ## Scope
 

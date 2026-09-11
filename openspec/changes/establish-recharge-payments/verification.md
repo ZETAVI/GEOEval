@@ -4,6 +4,8 @@ Current accepted code: main7c5a4a5 contains A0/B0/C1 and N1–N4; exact merge/CI
 
 ## R1 planning verification
 
+- The latest owner clarification retires expanded customer recovery hints: four-state short copy is sufficient, local read failure stays local, and the persistent support entry is independent and deferred. This is a design correction; runtime presentation has not changed.
+
 - Reviewed the actual exhaustion filter, persisted diagnostic shape, customer supportRequired mapping and existing expiry/close/process tests; no new runtime pass is claimed.
 - Current official callback/query guidance and transaction-bill request metadata were read; the download-detail page was unavailable, so its protocol/format details remain unverified in source-brief.
 - Design review separates current behavior, agreed direction and proposed implementation. Existing state/ledger ownership is preserved; detailed numeric host policy and additive legacy compatibility belong to implementation review, not invented production defaults.

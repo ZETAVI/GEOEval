@@ -14,21 +14,21 @@ The approved route stays account recharge → verified payment → funded credit
 | H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
 | Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
 
-Current planning: R1 transient-failure recovery and truthful status now precede management actions. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. This planning package updates the existing Change; #77 stays Review / Decision while the implementation/migration and shared-contract window are finalized. No second product parent is silently put In Progress alongside M4. Management read-only views, reconciliation and H1 follow their own bounded acceptance. Manual-experience preparation is canceled and cleaned up.
+Current planning: R1 transient-failure recovery and simple four-state customer copy precede management actions. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. This planning package updates the existing Change; #77 stays Review / Decision while the implementation/migration and shared-contract window are finalized. No second product parent is silently put In Progress alongside M4. Management read-only views, reconciliation and H1 follow their own bounded acceptance. Manual-experience preparation is canceled and cleaned up.
 
 ## R1: Transient recovery and truthful status (next bounded slice)
 
 - [x] Recheck main7c5a4a5, #77 and the merged N1–N4 contracts; distinguish existing persistence from the missing recovery behavior.
 - [x] Inspect retry exhaustion, loss of HTTP status in persisted attempts, and reviewRequired → supportRequired projection; specify the smallest change in design14.
 - [x] Align owner intent: improve reliability without requiring full automation; keep financial holds, same-order identity, four customer states and once-only credit.
-- [x] Define customer/management/backend status meanings and focused verification below; management page implementation remains a later slice.
-- [x] Refine implementation contract in design14.1a: nullable immutable attempt outcome metadata, explicit slow-delay policy, conservative legacy evidence, and API/Worker status separation. These are candidate changes, not runtime verification.
+- [x] Define simple customer four-state copy, necessary internal diagnostics and focused verification below; management page implementation and the independent persistent support entry remain later discussions.
+- [x] Refine implementation contract in design14.1a: nullable immutable attempt outcome metadata, explicit slow-delay policy, conservative legacy evidence, and API/Worker status separation. Customer processingHint expansion is retired; internal stages do not become user states. These are candidate changes, not runtime verification.
 - [ ] Fix operation-aware transient/hard/unknown classification, durable slow scheduling and explicit host policy. Preserve HTTP outcome classification needed for safe restart; do not retry arbitrary 4xx merely because the gateway returns UNRESOLVED.
 - [ ] Determine and verify the additive storage/legacy transition: known transient RETRY_EXHAUSTED may resume; ambiguous old HTTP_ERROR, monetary holds and closed/successful orders must not be blindly requeued. Obtain the shared schema/DTO/generated/client writer window before those edits.
-- [ ] Connect safe customer status across detail/history/QR, preserving old API compatibility, terminal-state priority, account fencing and the distinction between frontend refresh pause and backend recovery.
+- [ ] Use the same four short status messages across detail/history/QR; preserve terminal-state priority, account fencing and operation permissions. Local loading failures do not change order status. Do not add recovery-stage DTO fields or alter/highlight the independent support entry.
 - [ ] Verify continued recovery after the old attempt ceiling, same-order success and expiry/close, notification arrival during backoff, crash/restart, stale completion and no starvation. Use explicit synthetic policies; they are not production limits.
 - [ ] Verify 401/403, invalid signature, amount/identity conflicts and ambiguous historical failures remain held; external unauthenticated notices cannot freeze an order.
-- [ ] Verify concurrency and message-only failure cannot create duplicate credit or downgrade success; actual HTTP/UI views tell the same truth through reload and account changes.
+- [ ] Verify concurrency and message-only failure cannot create duplicate credit or downgrade success; actual HTTP/UI views preserve the four-state copy through reload and account changes, with no state-driven support promotion.
 - [ ] Reconcile current specs only after implementation passes; fixed diff/CI and Partial PR retain #77 open. Real merchant activation and multi-replica merchant-wide budgets remain separate gates.
 
 

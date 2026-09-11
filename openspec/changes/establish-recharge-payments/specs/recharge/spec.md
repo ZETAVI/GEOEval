@@ -182,7 +182,7 @@ The system SHALL distinguish never-dispatched intent, an external order that may
 #### Scenario: Read failure or verification waiting ends
 
 - **WHEN** a browser read fails, the bounded verification request times out or automatic polling ends
-- **THEN** the UI returns control with safe refresh, order-history and support paths
+- **THEN** the UI returns control with safe refresh and order-history paths; the persistent support entry remains independent
 - **AND** these presentation conditions do not invent a fifth business state, claim payment/closure or stop durable background recovery
 - **AND** a customer-reported scan never becomes verified scan or payment evidence.
 
@@ -284,16 +284,23 @@ Recharge SHALL distinguish retryable technical failures from unsafe or unknown o
 - **THEN** retry policy never bypasses the corresponding verification/hold
 - **AND** an unauthenticated incoming request cannot mutate a normal order into a hold.
 
-### Requirement: Truthful status across surfaces (R1 proposed)
+### Requirement: Simple customer status with separate support (R1 proposed)
 
-The four customer business states SHALL remain unchanged. Customer hints and management diagnostics SHALL project actual persistent processing facts without exposing private payment data or promising unconfigured recovery.
+Customer detail, history and checkout SHALL retain the four existing business states and use their common short copy defined in design14.2. Internal retry phases SHALL NOT introduce customer states or public recovery-stage hints solely for presentation.
 
-#### Scenario: Customer waits while recovery is scheduled
+#### Scenario: An unresolved payment is being recovered
 
-- **WHEN** an unresolved order has a durable automatic verification plan
-- **THEN** customer detail/history explain that plan without requiring customer intervention
-- **AND** page polling exhaustion only describes the page, not a backend shutdown
-- **AND** configuration pause is not presented as active automatic recovery.
+- **WHEN** an order is confirming while automatic recovery or restricted review is pending
+- **THEN** the customer sees the common confirming message without technical recovery-stage details
+- **AND** permissions, payment expiry and suppression of stale QR actions remain unchanged
+- **AND** local loading failures do not overwrite the last known order state or assert a backend shutdown.
+
+#### Scenario: Customer support remains independent
+
+- **WHEN** a recharge state, retry phase or internal review reason changes
+- **THEN** the status message does not promote, hide or relocate the persistent support entry
+- **AND** support placement, interaction and channels remain a later independent discussion
+- **AND** R1 does not add a support workflow or customer support requirement to complete ordinary payment recovery.
 
 #### Scenario: Credit succeeded while notification or later diagnosis is pending
 
