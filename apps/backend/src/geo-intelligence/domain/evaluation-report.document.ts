@@ -225,64 +225,66 @@ export function buildEvaluationReportDocument(input: {
     )
     .slice(0, 5);
 
-  return evaluationReportDocumentSchema.parse({
-    overview: {
-      recommendationAssessment:
-        input.synthesis.recommendationAssessment.summary,
-      brandPerception: input.synthesis.brandPerception.summary,
-      recommendationIndex: {
-        score: input.metrics.recommendationIndex.displayScore,
-        stars: input.metrics.recommendationIndex.starScore,
-        mentionRate: input.metrics.recommendationIndex.mentionRate,
-        mentionCount: input.metrics.recommendationIndex.mentionCount,
-        validOpenSampleCount:
-          input.metrics.recommendationIndex.validOpenSampleCount,
+  return protectCustomerDocument(
+    evaluationReportDocumentSchema.parse({
+      overview: {
+        recommendationAssessment:
+          input.synthesis.recommendationAssessment.summary,
+        brandPerception: input.synthesis.brandPerception.summary,
+        recommendationIndex: {
+          score: input.metrics.recommendationIndex.displayScore,
+          stars: input.metrics.recommendationIndex.starScore,
+          mentionRate: input.metrics.recommendationIndex.mentionRate,
+          mentionCount: input.metrics.recommendationIndex.mentionCount,
+          validOpenSampleCount:
+            input.metrics.recommendationIndex.validOpenSampleCount,
+        },
+        typicalPosition: input.metrics.typicalPosition,
+        coverage: {
+          validSampleCount: input.metrics.coverage.validSampleCount,
+          totalSampleCount: input.metrics.coverage.totalSampleCount,
+          missingSampleCount: input.metrics.coverage.missingSampleCount,
+        },
       },
-      typicalPosition: input.metrics.typicalPosition,
-      coverage: {
-        validSampleCount: input.metrics.coverage.validSampleCount,
-        totalSampleCount: input.metrics.coverage.totalSampleCount,
-        missingSampleCount: input.metrics.coverage.missingSampleCount,
+      platforms: input.metrics.platforms.map((platform) => ({
+        platformKey: platform.platformKey,
+        platformLabel: platform.platformLabel,
+        validSampleCount: platform.validSampleCount,
+        totalSampleCount: platform.totalSampleCount,
+        validOpenSampleCount: platform.validOpenSampleCount,
+        mentionCount: platform.mentionCount,
+        mentionRate: platform.mentionRate,
+        typicalPosition: typicalPositionFromPositions(
+          platform.mentionedPositions,
+        ),
+      })),
+      themes: {
+        positive: input.synthesis.themes.positive.map((theme) => ({
+          themeId: theme.themeId,
+          label: theme.label,
+          summary: theme.summary,
+          evidence: evidenceSummary(theme.evidenceRefs, samplePlatforms),
+        })),
+        negative: input.synthesis.themes.negative.map((theme) => ({
+          themeId: theme.themeId,
+          label: theme.label,
+          summary: theme.summary,
+          evidence: evidenceSummary(theme.evidenceRefs, samplePlatforms),
+        })),
       },
-    },
-    platforms: input.metrics.platforms.map((platform) => ({
-      platformKey: platform.platformKey,
-      platformLabel: platform.platformLabel,
-      validSampleCount: platform.validSampleCount,
-      totalSampleCount: platform.totalSampleCount,
-      validOpenSampleCount: platform.validOpenSampleCount,
-      mentionCount: platform.mentionCount,
-      mentionRate: platform.mentionRate,
-      typicalPosition: typicalPositionFromPositions(
-        platform.mentionedPositions,
-      ),
-    })),
-    themes: {
-      positive: input.synthesis.themes.positive.map((theme) => ({
-        themeId: theme.themeId,
-        label: theme.label,
-        summary: theme.summary,
-        evidence: evidenceSummary(theme.evidenceRefs, samplePlatforms),
+      competitors,
+      directions: input.synthesis.customerDirections.map((direction) => ({
+        directionId: direction.directionId,
+        currentProblem: direction.currentProblem,
+        recommendedDirection: direction.recommendedDirection,
+        intendedImprovement: direction.intendedImprovement,
+        evidence: evidenceSummary(direction.evidenceRefs, samplePlatforms),
       })),
-      negative: input.synthesis.themes.negative.map((theme) => ({
-        themeId: theme.themeId,
-        label: theme.label,
-        summary: theme.summary,
-        evidence: evidenceSummary(theme.evidenceRefs, samplePlatforms),
-      })),
-    },
-    competitors,
-    directions: input.synthesis.customerDirections.map((direction) => ({
-      directionId: direction.directionId,
-      currentProblem: direction.currentProblem,
-      recommendedDirection: direction.recommendedDirection,
-      intendedImprovement: direction.intendedImprovement,
-      evidence: evidenceSummary(direction.evidenceRefs, samplePlatforms),
-    })),
-    // Synthesis limitations remain internal analysis context. The first
-    // customer report has no free-form implementation-note surface.
-    limitations: [],
-  });
+      // Synthesis limitations remain internal analysis context. The first
+      // customer report has no free-form implementation-note surface.
+      limitations: [],
+    }),
+  );
 }
 
 export function parseStoredEvaluationReportDocument(
@@ -294,8 +296,87 @@ export function parseStoredEvaluationReportDocument(
   }
   const document = evaluationReportDocumentSchema.parse(payload);
   // Keep older immutable documents readable without re-exposing notes that
-  // were accepted before the customer projection boundary was tightened.
-  return { ...document, limitations: [] };
+  // were accepted before the customer projection boundary was tightened, and
+  // apply the same minimum narrative guard used for newly materialized reports.
+  return protectCustomerDocument({ ...document, limitations: [] });
+}
+
+function protectCustomerDocument(
+  document: EvaluationReportDocument,
+): EvaluationReportDocument {
+  const safeThemes = (themes: EvaluationReportDocument["themes"]["positive"]) =>
+    themes.filter(
+      (theme) =>
+        isSafeCustomerText(theme.label) && isSafeCustomerText(theme.summary),
+    );
+  const safeDirections = document.directions.filter(
+    (direction) =>
+      isSafeCustomerText(direction.currentProblem) &&
+      isSafeCustomerText(direction.recommendedDirection) &&
+      isSafeCustomerText(direction.intendedImprovement),
+  );
+  const fallbackEvidence = document.directions[0]?.evidence ?? {
+    sampleCount: document.overview.coverage.validSampleCount,
+    platforms: document.platforms.map((platform) => platform.platformKey),
+  };
+  return evaluationReportDocumentSchema.parse({
+    ...document,
+    overview: {
+      ...document.overview,
+      recommendationAssessment: isSafeCustomerText(
+        document.overview.recommendationAssessment,
+      )
+        ? document.overview.recommendationAssessment
+        : fallbackRecommendationAssessment(document),
+      brandPerception: isSafeCustomerText(document.overview.brandPerception)
+        ? document.overview.brandPerception
+        : "本轮有效样本形成了可供参考的品牌观察，具体差异可结合下方平台结果查看。",
+    },
+    themes: {
+      positive: safeThemes(document.themes.positive),
+      negative: safeThemes(document.themes.negative),
+    },
+    competitors: document.competitors.filter((competitor) =>
+      isSafeCustomerText(competitor.displayName),
+    ),
+    directions:
+      safeDirections.length > 0
+        ? safeDirections
+        : [
+            {
+              directionId: "customer-safe-direction",
+              currentProblem: "品牌在相关问题中的可见度和表达仍有提升空间。",
+              recommendedDirection:
+                "围绕真实业务信息，持续补充清晰、一致且可验证的品牌内容。",
+              intendedImprovement: "帮助各平台更准确地理解品牌及其服务特点。",
+              evidence: fallbackEvidence,
+            },
+          ],
+    limitations: [],
+  });
+}
+
+function fallbackRecommendationAssessment(
+  document: EvaluationReportDocument,
+): string {
+  const recommendation = document.overview.recommendationIndex;
+  if (recommendation.mentionCount === 0) {
+    return "本轮开放问题的有效样本中，尚未观察到该品牌被提及。";
+  }
+  return `本轮 ${recommendation.validOpenSampleCount} 条开放问题有效样本中，品牌被提及 ${recommendation.mentionCount} 次；不同平台的可见度仍有差异。`;
+}
+
+function isSafeCustomerText(value: string): boolean {
+  const internalTerms =
+    /\b(?:BRAND_DIRECTED|OPEN_DISCOVERY|INDUSTRY_RECOMMENDATION|CHARACTERISTIC_(?:ONE|TWO)|targetRole|observationId|sampleId|brandMentionId|sampleRef|observationRef|candidateRef|evidenceRefs|questionKind)\b/i;
+  const uuidOrFragment =
+    /\b[0-9a-f]{8}(?:-[0-9a-f]{4}){1,4}(?:-[0-9a-f]{8,12})?\b/i;
+  const structuralResidue = /[{}\[\]]{2,}/;
+  return (
+    !internalTerms.test(value) &&
+    !uuidOrFragment.test(value) &&
+    !structuralResidue.test(value)
+  );
 }
 
 function evidenceSummary(

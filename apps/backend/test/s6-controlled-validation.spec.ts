@@ -31,12 +31,15 @@ describe("S6 controlled provider validation", () => {
     );
   });
 
-  it("publishes exact five-call and nine-call manifests without protected inputs", () => {
+  it("publishes exact bounded manifests without protected inputs", () => {
     const sampling = publicS6ControlledManifest(
       buildS6ControlledBatch("sampling-smoke"),
     );
     const semantic = publicS6ControlledManifest(
       buildS6ControlledBatch("semantic-probe"),
+    );
+    const synthesisQuality = publicS6ControlledManifest(
+      buildS6ControlledBatch("synthesis-quality-probe"),
     );
 
     expect(sampling.maxExternalRequests).toBe(5);
@@ -81,7 +84,28 @@ describe("S6 controlled provider validation", () => {
         .filter((call) => call.providerKey === "tencent-tokenhub")
         .every((call) => call.structuredReasoningEffort === null),
     ).toBe(true);
-    const publicText = JSON.stringify([sampling, semantic]);
+    expect(synthesisQuality.maxExternalRequests).toBe(4);
+    expect(
+      synthesisQuality.calls.map((call) => [
+        call.fixtureId,
+        call.providerKey,
+        call.maxExternalRequests,
+      ]),
+    ).toEqual([
+      ["Y02", "alibaba-model-studio", 1],
+      ["Y03", "alibaba-model-studio", 1],
+      ["Y02", "alibaba-model-studio", 1],
+      ["Y03", "alibaba-model-studio", 1],
+    ]);
+    expect(
+      synthesisQuality.calls.every(
+        (call) =>
+          call.instructionProfile ===
+            "evaluation.overall-synthesis.common@4.0.0" &&
+          call.outputContractVersion === "evaluation.overall-synthesis-model@4",
+      ),
+    ).toBe(true);
+    const publicText = JSON.stringify([sampling, semantic, synthesisQuality]);
     for (const protectedValue of [
       "systemInstruction",
       "userContext",

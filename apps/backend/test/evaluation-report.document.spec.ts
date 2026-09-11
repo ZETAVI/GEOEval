@@ -65,12 +65,35 @@ describe("evaluation report document", () => {
       ],
     });
 
-    expect(
-      parseStoredEvaluationReportDocument("evaluation.report-document@1", {
+    const protectedDocument = parseStoredEvaluationReportDocument(
+      "evaluation.report-document@1",
+      {
         ...document,
+        overview: {
+          ...document.overview,
+          recommendationAssessment:
+            "BRAND_DIRECTED 的 targetRole 引用了 00000000-0000-4000-8000-000000000001。}}}",
+        },
+        directions: [
+          {
+            ...document.directions[0]!,
+            currentProblem: "请查看 observationId。",
+          },
+        ],
         limitations: ["evidenceRefs 使用内部样本编号。"],
-      }).limitations,
-    ).toEqual([]);
+      },
+    );
+
+    expect(protectedDocument.limitations).toEqual([]);
+    expect(JSON.stringify(protectedDocument)).not.toContain("BRAND_DIRECTED");
+    expect(JSON.stringify(protectedDocument)).not.toContain("targetRole");
+    expect(JSON.stringify(protectedDocument)).not.toContain("observationId");
+    expect(JSON.stringify(protectedDocument)).not.toContain(
+      "00000000-0000-4000-8000-000000000001",
+    );
+    expect(protectedDocument.directions).toContainEqual(
+      expect.objectContaining({ directionId: "customer-safe-direction" }),
+    );
   });
 
   it("owns the customer-facing theme and direction limits", () => {

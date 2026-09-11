@@ -42,7 +42,8 @@ import {
 
 export const S6_CONTROLLED_MANIFEST_VERSION = "s6-controlled-call-manifest@1";
 
-export type S6ControlledBatchId = "sampling-smoke" | "semantic-probe";
+export type S6ControlledBatchId =
+  "sampling-smoke" | "semantic-probe" | "synthesis-quality-probe";
 
 export type S6ControlledCase = {
   fixtureId: string;
@@ -181,7 +182,9 @@ const FIXED_QUESTIONS = [
 export function buildS6ControlledBatch(
   id: S6ControlledBatchId,
 ): S6ControlledBatch {
-  return id === "sampling-smoke" ? samplingSmokeBatch() : semanticProbeBatch();
+  if (id === "sampling-smoke") return samplingSmokeBatch();
+  if (id === "semantic-probe") return semanticProbeBatch();
+  return synthesisQualityProbeBatch();
 }
 
 export function publicS6ControlledManifest(
@@ -310,6 +313,29 @@ function semanticProbeBatch(): S6ControlledBatch {
       "鉴权、权限、模型或请求配置错误",
     ],
     cases,
+  };
+}
+
+function synthesisQualityProbeBatch(): S6ControlledBatch {
+  const qwenRoute = "evaluation.overall-synthesis.qwen-primary@1";
+  return {
+    id: "synthesis-quality-probe",
+    description:
+      "以复杂和稀疏综合样本各重复两次，采集客户报告质量、品牌决策完整性和单 Agent 稳定性的评审证据。",
+    automaticTransportRetries: 0,
+    stopConditions: [
+      "任何请求失败均停止本批，脚本不自动重试",
+      "路由或返回模型身份不一致",
+      "任一结构化响应无效或品牌候选未完整分类",
+      "任一结果未通过既有业务语义契约",
+      "鉴权、权限、模型或请求配置错误",
+    ],
+    cases: [
+      synthesisCase("Y02", qwenRoute, 1),
+      synthesisCase("Y03", qwenRoute, 1),
+      synthesisCase("Y02", qwenRoute, 2),
+      synthesisCase("Y03", qwenRoute, 2),
+    ],
   };
 }
 

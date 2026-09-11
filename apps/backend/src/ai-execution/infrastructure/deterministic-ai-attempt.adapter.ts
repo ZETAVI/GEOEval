@@ -282,110 +282,110 @@ function deterministicQuestionGeneration(
 function deterministicOverallSynthesis(
   userContext: Record<string, unknown>,
 ): Record<string, unknown> {
-  const samples = requiredArray(userContext, "samples").map((value) =>
+  const samples = requiredArray(userContext, "evidenceSamples").map((value) =>
     requiredRecordValue(value, "synthesis sample"),
   );
   if (samples.length === 0) {
     throw new Error("Deterministic synthesis input has no valid samples");
   }
   const sampleReferences = samples.slice(0, 40).map((sample) => ({
-    sampleId: requiredString(sample, "sampleId"),
-    observationId: null,
+    sampleRef: requiredString(sample, "sampleRef"),
+    observationRef: null,
   }));
   const openReferences = samples
     .filter(
-      (sample) => requiredString(sample, "questionKind") !== "BRAND_DIRECTED",
+      (sample) =>
+        requiredString(sample, "questionPurpose") !== "了解品牌自身呈现",
     )
     .slice(0, 40)
     .map((sample) => ({
-      sampleId: requiredString(sample, "sampleId"),
-      observationId: null,
+      sampleRef: requiredString(sample, "sampleRef"),
+      observationRef: null,
     }));
   const directReferences = samples
     .filter(
-      (sample) => requiredString(sample, "questionKind") === "BRAND_DIRECTED",
+      (sample) =>
+        requiredString(sample, "questionPurpose") === "了解品牌自身呈现",
     )
     .slice(0, 40)
     .map((sample) => ({
-      sampleId: requiredString(sample, "sampleId"),
-      observationId: null,
+      sampleRef: requiredString(sample, "sampleRef"),
+      observationRef: null,
     }));
   const observations = samples.flatMap((sample) => {
-    const semantic = requiredRecord(sample, "semantic");
-    return semanticObservations(semantic).map((observation) => ({
-      sampleId: requiredString(sample, "sampleId"),
-      observationId: requiredString(observation, "observationId"),
-      polarity: requiredString(observation, "polarity"),
-    }));
+    return optionalArray(sample, "observations").map((value) => {
+      const observation = requiredRecordValue(value, "synthesis observation");
+      return {
+        sampleRef: requiredString(sample, "sampleRef"),
+        observationRef: requiredString(observation, "observationRef"),
+        tone: requiredString(observation, "tone"),
+      };
+    });
   });
 
   const groupMap = new Map<
     string,
     {
-      groupId: string;
       displayName: string;
       members: Array<{
-        sampleId: string;
-        brandMentionId: string;
+        candidateRef: string;
         relationship:
           | "SAME_NAME"
           | "TRANSLATION_OR_ABBREVIATION"
           | "STORE_FORMAT"
           | "SUBORDINATE_BRAND_LINE";
       }>;
-      resolutionBasis: Array<{
-        kind: "ANSWER_CONTEXT";
-        explanation: string;
-        sourceUrl: null;
-      }>;
+      explanation: string;
     }
   >();
-  for (const sample of samples) {
-    const semantic = requiredRecord(sample, "semantic");
-    const otherBrands = optionalArray(semantic, "otherBrands");
-    for (const value of otherBrands) {
-      const brand = requiredRecordValue(value, "other brand");
-      const displayName = requiredString(brand, "displayName");
-      const normalized = deterministicBrandGroup(displayName);
-      let group = groupMap.get(normalized.key);
-      if (!group) {
-        group = {
-          groupId: `brand-group-${groupMap.size + 1}`,
-          displayName: normalized.displayName,
-          members: [],
-          resolutionBasis: [
-            {
-              kind: "ANSWER_CONTEXT",
-              explanation: "根据样本中保留的品牌名称关系进行确定性归组。",
-              sourceUrl: null,
-            },
-          ],
-        };
-        groupMap.set(normalized.key, group);
-      }
-      group.members.push({
-        sampleId: requiredString(sample, "sampleId"),
-        brandMentionId: requiredString(brand, "brandMentionId"),
-        relationship: normalized.subordinate
-          ? "SUBORDINATE_BRAND_LINE"
-          : "SAME_NAME",
-      });
+  const candidates = requiredArray(userContext, "brandCandidates").map(
+    (value) => requiredRecordValue(value, "brand candidate"),
+  );
+  for (const candidate of candidates) {
+    const names = requiredArray(candidate, "names");
+    const displayName = names.find(
+      (name): name is string => typeof name === "string" && name.length > 0,
+    );
+    if (!displayName) {
+      throw new Error("Deterministic synthesis brand candidate has no name");
     }
+    const normalized = deterministicBrandGroup(displayName);
+    let group = groupMap.get(normalized.key);
+    if (!group) {
+      group = {
+        displayName: normalized.displayName,
+        members: [],
+        explanation: "根据紧凑候选中的明显名称关系进行归组。",
+      };
+      groupMap.set(normalized.key, group);
+    }
+    group.members.push({
+      candidateRef: requiredString(candidate, "candidateRef"),
+      relationship: normalized.subordinate
+        ? "SUBORDINATE_BRAND_LINE"
+        : "SAME_NAME",
+    });
   }
 
   const positiveRefs = observations
-    .filter((observation) => observation.polarity === "POSITIVE")
+    .filter((observation) => observation.tone === "正面")
     .slice(0, 60)
-    .map(({ sampleId, observationId }) => ({ sampleId, observationId }));
+    .map(({ sampleRef, observationRef }) => ({ sampleRef, observationRef }));
   const negativeRefs = observations
-    .filter((observation) => observation.polarity === "NEGATIVE")
+    .filter((observation) => observation.tone === "负面")
     .slice(0, 60)
-    .map(({ sampleId, observationId }) => ({ sampleId, observationId }));
+    .map(({ sampleRef, observationRef }) => ({ sampleRef, observationRef }));
   const directionEvidence =
     openReferences.length > 0 ? openReferences : sampleReferences;
+  const proposedGroups = [...groupMap.values()];
 
   return {
-    brandEntityGroups: [...groupMap.values()],
+    brandEntityGroups: proposedGroups.filter(
+      (group) => group.members.length >= 2,
+    ),
+    independentCandidateRefs: proposedGroups
+      .filter((group) => group.members.length === 1)
+      .map((group) => group.members[0]!.candidateRef),
     recommendationAssessment: {
       summary:
         "当前品牌在开放问题中的可见度存在差异，应结合提及与位置综合理解。",
@@ -403,7 +403,6 @@ function deterministicOverallSynthesis(
           ? []
           : [
               {
-                themeId: "positive-evidence",
                 label: "已有正向认知",
                 summary: "部分回答保留了可用于强化的正向品牌描述。",
                 evidenceRefs: positiveRefs,
@@ -414,7 +413,6 @@ function deterministicOverallSynthesis(
           ? []
           : [
               {
-                themeId: "negative-evidence",
                 label: "仍有认知缺口",
                 summary: "部分回答呈现了需要后续内容优化的负向表现。",
                 evidenceRefs: negativeRefs,
@@ -423,7 +421,6 @@ function deterministicOverallSynthesis(
     },
     customerDirections: [
       {
-        directionId: "strengthen-discovery",
         currentProblem: "品牌在不同开放问题和平台中的出现情况不够稳定。",
         recommendedDirection:
           "围绕核心优势持续补充结构清晰、可被引用的公开内容。",
@@ -437,7 +434,6 @@ function deterministicOverallSynthesis(
         "后续写作应以真实品牌资料和本轮可见度缺口为基础，强化可验证的品牌定位与优势表达。",
       priorities: [
         {
-          guidanceId: "visibility-priority",
           label: "优先改善开放问题可见度",
           detail: "围绕行业和品牌特色建立清楚、稳定且不夸大的内容信号。",
           evidenceRefs: directionEvidence.slice(0, 80),
@@ -445,7 +441,6 @@ function deterministicOverallSynthesis(
       ],
       writingAngles: [
         {
-          guidanceId: "evidence-led-writing",
           label: "使用证据支撑的品牌表达",
           detail: "结合用户资料组织品牌定位、核心特色、适用人群和使用场景。",
           evidenceRefs: directionEvidence.slice(0, 80),
@@ -455,26 +450,6 @@ function deterministicOverallSynthesis(
     },
     limitations: ["本结果来自当前有效样本，仅反映本轮评测状态。"],
   };
-}
-
-function semanticObservations(
-  semantic: Record<string, unknown>,
-): Record<string, unknown>[] {
-  const keys = [
-    "targetObservations",
-    "statedIdentity",
-    "positioning",
-    "offerings",
-    "audiences",
-    "recommendationReasons",
-    "conditions",
-    "queryFit",
-  ];
-  return keys.flatMap((key) =>
-    optionalArray(semantic, key).map((value) =>
-      requiredRecordValue(value, `semantic observation ${key}`),
-    ),
-  );
 }
 
 function deterministicBrandGroup(value: string): {

@@ -8,9 +8,56 @@ import {
   type OverallSynthesisOutput,
   type OverallSynthesisSampleContext,
 } from "../src/geo-intelligence/domain/overall-synthesis.contract.js";
-import { parseAndProjectOverallSynthesisModelOutput } from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
+import {
+  buildOverallSynthesisModelReferenceProjection,
+  overallSynthesisModelJsonSchema,
+  parseAndProjectOverallSynthesisModelOutput,
+} from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
 
 describe("overall synthesis contract", () => {
+  it("publishes one strict, self-describing model output form", () => {
+    const schema = overallSynthesisModelJsonSchema as {
+      description?: string;
+      additionalProperties?: boolean;
+      required?: string[];
+      properties?: Record<
+        string,
+        {
+          description?: string;
+          properties?: Record<string, { description?: string }>;
+        }
+      >;
+    };
+    expect(schema.description).toBe("一份完整的评测综合决策和证据引用");
+    expect(schema.additionalProperties).toBe(false);
+    expect(schema.required).toEqual(
+      expect.arrayContaining([
+        "brandEntityGroups",
+        "independentCandidateRefs",
+        "recommendationAssessment",
+        "brandPerception",
+        "themes",
+        "customerDirections",
+        "internalGuidance",
+        "limitations",
+      ]),
+    );
+    for (const field of schema.required ?? []) {
+      expect(schema.properties?.[field]?.description, field).toBeTruthy();
+    }
+    for (const field of [
+      "summary",
+      "priorities",
+      "writingAngles",
+      "cautions",
+    ]) {
+      expect(
+        schema.properties?.internalGuidance?.properties?.[field]?.description,
+        `internalGuidance.${field}`,
+      ).toBeTruthy();
+    }
+  });
+
   it("accepts complete evidence-linked grouping", () => {
     const context = synthesisContext();
     const output = validOutput(context);
@@ -54,39 +101,66 @@ describe("overall synthesis contract", () => {
     );
   });
 
-  it("projects model proposals into stable identities and singleton brand groups", () => {
+  it("projects explicit model decisions into stable brand groups", () => {
     const context = synthesisContext();
     const domainOutput = validOutput(context);
+    const references = buildOverallSynthesisModelReferenceProjection(context);
+    const sampleRef = references.evidenceSamples[0]!.sampleRef;
+    const observationRef =
+      references.evidenceSamples[0]!.observations[0]!.observationRef;
     const output = parseAndProjectOverallSynthesisModelOutput(
       {
         brandEntityGroups: [],
-        recommendationAssessment: domainOutput.recommendationAssessment,
-        brandPerception: domainOutput.brandPerception,
+        independentCandidateRefs: [references.brandCandidates[0]!.candidateRef],
+        recommendationAssessment: {
+          summary: domainOutput.recommendationAssessment.summary,
+          evidenceRefs: [{ sampleRef, observationRef: null }],
+        },
+        brandPerception: {
+          summary: domainOutput.brandPerception.summary,
+          evidenceRefs: [{ sampleRef, observationRef }],
+        },
         themes: {
           positive: domainOutput.themes.positive.map(
             ({ themeId: _themeId, ...theme }) => ({
-              ...theme,
-              evidenceRefs: [
-                ...theme.evidenceRefs,
-                {
-                  sampleId: context[0]!.sampleId,
-                  observationId: "starbucks-reserve",
-                },
-              ],
+              label: theme.label,
+              summary: theme.summary,
+              evidenceRefs: [{ sampleRef, observationRef }],
             }),
           ),
           negative: [],
         },
         customerDirections: domainOutput.customerDirections.map(
-          ({ directionId: _directionId, ...direction }) => direction,
+          ({
+            directionId: _directionId,
+            evidenceRefs: _evidenceRefs,
+            ...direction
+          }) => ({
+            ...direction,
+            evidenceRefs: [{ sampleRef, observationRef: null }],
+          }),
         ),
         internalGuidance: {
           summary: domainOutput.internalGuidance.summary,
           priorities: domainOutput.internalGuidance.priorities.map(
-            ({ guidanceId: _guidanceId, ...guidance }) => guidance,
+            ({
+              guidanceId: _guidanceId,
+              evidenceRefs: _evidenceRefs,
+              ...guidance
+            }) => ({
+              ...guidance,
+              evidenceRefs: [{ sampleRef, observationRef: null }],
+            }),
           ),
           writingAngles: domainOutput.internalGuidance.writingAngles.map(
-            ({ guidanceId: _guidanceId, ...guidance }) => guidance,
+            ({
+              guidanceId: _guidanceId,
+              evidenceRefs: _evidenceRefs,
+              ...guidance
+            }) => ({
+              ...guidance,
+              evidenceRefs: [{ sampleRef, observationRef }],
+            }),
           ),
           cautions: domainOutput.internalGuidance.cautions,
         },
@@ -109,7 +183,7 @@ describe("overall synthesis contract", () => {
         resolutionBasis: [
           {
             kind: "ANSWER_CONTEXT",
-            explanation: "该名称作为独立品牌保留，未与其他名称合并。",
+            explanation: "该候选经本次证据判断保持独立。",
             sourceUrl: null,
           },
         ],
