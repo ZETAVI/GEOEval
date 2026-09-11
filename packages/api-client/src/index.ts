@@ -1180,3 +1180,46 @@ export function cancelRecharge(
     { method: "POST", body: "{}", signal: signal ?? null },
   );
 }
+
+export type AdminRechargePage =
+  components["schemas"]["AdminRechargePageResponse"];
+export type AdminRechargeDetail =
+  components["schemas"]["AdminRechargeDetailResponse"];
+export type AdminRechargeSummary =
+  components["schemas"]["AdminRechargeSummaryResponse"];
+export type AdminRechargeFilter = {
+  accountId?: string;
+  orderId?: string;
+  status?: RechargeSummary["status"];
+  createdFrom?: string;
+  createdBefore?: string;
+};
+export function listAdminRecharges(
+  base: string,
+  actor: string,
+  options: AdminRechargeFilter & { cursor?: string; limit?: number } = {},
+  signal?: AbortSignal,
+): Promise<AdminRechargePage> {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(options))
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  return rechargeRequest(
+    base,
+    actor,
+    `/admin/recharges${query.size ? `?${query}` : ""}`,
+    { signal: signal ?? null },
+  );
+}
+export function getAdminRecharge(
+  base: string,
+  actor: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<AdminRechargeDetail> {
+  return rechargeRequest(
+    base,
+    actor,
+    `/admin/recharges/${encodeURIComponent(id)}`,
+    { signal: signal ?? null },
+  );
+}

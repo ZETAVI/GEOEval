@@ -8,8 +8,8 @@ The approved route stays account recharge → verified payment → funded credit
 
 | Package | Concrete acceptance | Actual dependency / current action |
 | --- | --- | --- |
-| R1 recovery/status | Transient failures recover under bounded scheduling; unsafe facts remain held; customer hints match persisted work | Implemented and locally verified in PR #87; required CI and review status live in the PR |
-| Management read-only | Find each order, payment evidence, credit and independent notification state | Reuse accepted records and R1 projection; role scope is not expanded by this plan |
+| R1 recovery/status | Transient failures recover under bounded scheduling; unsafe facts remain held; customer hints match persisted work | Merged through PR #87; implementation and CI evidence remain in that PR |
+| Management read-only | Find each order, payment confirmation, credit and independent notification state | Implemented and locally verified in PR #88; current CI/merge state belongs to the PR |
 | O1 reconciliation | Verify daily coverage, compare provider/order/ledger, query discrepancies and settle only through existing C1 | Official request metadata read; download/format details and synthetic samples still required before implementation |
 | H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
 | Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
@@ -31,6 +31,20 @@ Current planning: R1 transient-failure recovery and simple four-state customer c
 - [x] Verify 401/403, signature/amount/identity safeguards and ambiguous historical failures remain restricted. Existing unauthenticated receipt and C1 money guards are reused unchanged.
 - [x] Run 117 distinct targeted backend cases and 182 Web cases, workspace typecheck, format and full build. The initially skipped process cases were subsequently executed. Customer HTTP and rendered/controller tests are covered; no new browser/manual experience or real merchant run.
 - [x] Reconcile current specs, design and author review; retain the active Change and #77. PR #87 owns final required CI and review/merge state; local passes do not imply merge or activation.
+
+
+## O1a: Administrator read-only recharge lookup
+
+- [x] Owner accepted the read-only slice after R1; PR #87 is merged at main29d115d. No manual payment mutation or expanded account role is implied.
+- [x] Inspect Recharge order/attempt/observation/notification records, existing Commerce ledger relation, administrator account search, sidebar and role guards. Record the small read boundary in design14.4.
+- [x] Separate provider payment time, local credit time, latest query time and message-delivery time; no fabricated generic order updatedAt or new payment state.
+- [x] Refresh shared occupancy and execute the approved scope under the [O1a checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630711415); M4 confirmed no overlapping Recharge/API/generated/sidebar/schema writes.
+- [x] Implement administrator-only list/detail queries, explicit DTO projection and independent API module. Database transactions use a read-only repeatable snapshot; no provider runtime, ledger mutation or new business table.
+- [x] Connect admin navigation, account search, list and detail. Reuse four-state labels; currency, points, customer and order references are explicit. The actual small-fixture query plan was inspected; no new index or large-scale performance claim.
+- [x] Verify 6 new HTTP/PG cases: four-role access and actor fence, inactive-customer history, tied-time pagination/filter cursor binding, private projection and no payment writes, payment/credit/message separation, and concurrent settlement across one read-only snapshot.
+- [x] Verify 10 new Web cases for request generations, changed actor, timeout/unmount, pagination failure and terminal-state presentation; full Web suite 192 passed. Existing API/Identity/customer checks and the updated controller access inventory total 31 distinct backend passes.
+- [x] Complete browser login/navigation, inactive-account search, customer/status/date filtering, detail and return, pending message on successful credit, and API-offline local error with filter retention. Native date-picker interaction verified the date range; synthetic data only.
+- [x] Reconcile current Recharge spec, design, source/review/verification. Typecheck, formatting and full build pass; only two GET paths and three response schemas added, prior OpenAPI paths/schemas unchanged. PR #88 owns final required CI and submission status; #77 remains open.
 
 
 ## P0: Fixed inputs and reviewable contracts

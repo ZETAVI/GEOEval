@@ -4,6 +4,10 @@
 
 本文件只拥有协议证据、差异和待验证点；业务架构由 [架构候选方案](design.md)持有。当前使用官方现行 APIv3 的 RSA 路径和微信支付公钥验签作为研究基线；不是“所有最新能力必须引入”，也不意味着商户权限、SDK 和代码实现已经通过验证。
 
+## O1a 一致读取依据（2026-09-11）
+
+决策仅涉及已锁定 Prisma 7.9.1 / PostgreSQL 的读取事务，不升级依赖。[Prisma v7 事务参考](https://docs.prisma.io/docs/orm/v7/prisma-client/queries/transactions)支持交互事务的隔离级别与等待/执行时限；[PostgreSQL Repeatable Read](https://www.postgresql.org/docs/current/transaction-iso.html#XACT-REPEATABLE-READ)说明同事务查询保持快照。本片显式设置只读事务，验证订单/流水关系查询期间第二连接完成到账也不会拼接不同版本。原无版本Prisma网址已转向v8，不能用它的新版API替代项目v7接口；本轮通过官方v7页面、已安装生成类型和实际数据库测试核对。实现/驱动/数据库版本或关系查询方式变化时重新验证。
+
 ## R1 操作感知失败核查（2026-09-11）
 
 本轮读取[微信 Native 商户订单号查单](https://pay.wechatpay.cn/doc/v3/merchant/4012791880)错误说明：404 ORDER_NOT_EXIST 要求核对订单是否创建，429 表示频率限制，500 为系统错误。项目保留原有“发起未知后查单404仍核验原单”的恢复行为，避免丢失迟到付款；该选择由现有反例与有界调度支持，不把404解释为已关闭，也不声称官方承诺最终一致性。INITIATE/CLOSE 的不明404及其他未知组合仍受限；401/403不得按普通临时故障重试。精确可重试集合由 domain classifier 持有。

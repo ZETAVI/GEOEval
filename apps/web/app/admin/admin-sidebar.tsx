@@ -8,7 +8,13 @@ const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
 type AdminSection =
-  "overview" | "accounts" | "media" | "publishing" | "points" | "delivery";
+  | "overview"
+  | "accounts"
+  | "media"
+  | "publishing"
+  | "points"
+  | "delivery"
+  | "recharges";
 
 export function AdminSidebar({
   account,
@@ -89,6 +95,17 @@ export function AdminSidebar({
           <span>
             <b>客户积分</b>
             <small>赠送、调整与流水</small>
+          </span>
+        </a>
+        <a
+          className={active === "recharges" ? "side-link active" : "side-link"}
+          href="/admin/recharges"
+          aria-current={active === "recharges" ? "page" : undefined}
+        >
+          <i>充</i>
+          <span>
+            <b>充值记录</b>
+            <small>付款与到账查询</small>
           </span>
         </a>
       </nav>

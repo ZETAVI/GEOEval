@@ -307,3 +307,28 @@ Customer detail, history and checkout SHALL retain the four existing business st
 - **WHEN** the credit transaction is committed
 - **THEN** customer success and the existing ledger remain authoritative
 - **AND** message retries or later internal review do not turn it into unpaid or credit again.
+
+### Requirement: Administrator read-only recharge lookup (O1a)
+
+Administrators SHALL be able to list and inspect persisted recharge records without enabling a merchant or invoking payment work. This capability SHALL preserve the four order states and SHALL NOT grant manual payment, credit, close or retry commands.
+
+#### Scenario: Administrator inspects a successful recharge
+
+- **WHEN** an authorized administrator opens a recharge record
+- **THEN** order terms, adopted payment confirmation and its unique credit record are read consistently
+- **AND** provider payment time, local credit time and customer-message delivery are distinguished
+- **AND** pending message delivery does not downgrade successful credit.
+
+#### Scenario: Unconfirmed or restricted records are inspected
+
+- **WHEN** an order lacks adopted payment evidence or has a recorded conflict
+- **THEN** missing confirmation is not treated as proof of nonpayment
+- **AND** existing credit remains visible alongside a concise safe diagnostic
+- **AND** neither reading nor refreshing invokes a provider or changes orders, ledgers or scheduled work.
+
+#### Scenario: Access and pagination remain bounded
+
+- **WHEN** the administrator filters or pages through orders
+- **THEN** server-enforced role and expected-actor fencing apply before financial records are returned
+- **AND** customer filters do not select the caller identity, inactive-customer history remains available, and stale responses/cursors cannot cross the selected context
+- **AND** only the explicit management projection is returned, with no payment credentials, QR actions or raw protocol material.

@@ -2542,6 +2542,142 @@
         ]
       }
     },
+    "/admin/recharges": {
+      "get": {
+        "operationId": "AdminRechargeController_list",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected administrator identity; never the target customer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdBefore",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "PENDING_PAYMENT",
+                "CONFIRMING",
+                "SUCCESSFUL",
+                "CLOSED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "accountId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRechargePageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-recharges"
+        ]
+      }
+    },
+    "/admin/recharges/{id}": {
+      "get": {
+        "operationId": "AdminRechargeController_detail",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected administrator identity; never the target customer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRechargeDetailResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-recharges"
+        ]
+      }
+    },
     "/brands/{brandId}/evaluation-report": {
       "get": {
         "operationId": "EvaluationController_currentReport",
@@ -7983,6 +8119,213 @@
         },
         "required": [
           "accepted"
+        ]
+      },
+      "AdminRechargeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amountYuan": {
+            "type": "integer"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "WECHAT_NATIVE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_PAYMENT",
+              "CONFIRMING",
+              "SUCCESSFUL",
+              "CLOSED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paymentExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountMobile": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "amountYuan",
+          "points",
+          "method",
+          "status",
+          "createdAt",
+          "paymentExpiresAt",
+          "paidAt",
+          "closedAt",
+          "accountId",
+          "accountMobile"
+        ]
+      },
+      "AdminRechargePageResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminRechargeSummaryResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "AdminRechargeDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amountYuan": {
+            "type": "integer"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "WECHAT_NATIVE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_PAYMENT",
+              "CONFIRMING",
+              "SUCCESSFUL",
+              "CLOSED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paymentExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountMobile": {
+            "type": "string"
+          },
+          "merchantOrderNo": {
+            "type": "string"
+          },
+          "providerTransactionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ledgerId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creditedPoints": {
+            "type": "integer",
+            "nullable": true
+          },
+          "creditedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastQueriedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "diagnostic": {
+            "type": "string",
+            "nullable": true
+          },
+          "notificationState": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "DELIVERED"
+            ],
+            "nullable": true
+          },
+          "notificationDeliveredAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "amountYuan",
+          "points",
+          "method",
+          "status",
+          "createdAt",
+          "paymentExpiresAt",
+          "paidAt",
+          "closedAt",
+          "accountId",
+          "accountMobile",
+          "merchantOrderNo",
+          "providerTransactionId",
+          "ledgerId",
+          "creditedPoints",
+          "creditedAt",
+          "lastQueriedAt",
+          "diagnostic",
+          "notificationState",
+          "notificationDeliveredAt"
         ]
       },
       "EvaluationBrandSnapshotResponse": {

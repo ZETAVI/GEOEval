@@ -1,4 +1,5 @@
 import { Module, type DynamicModule } from "@nestjs/common";
+import { RechargeAdminModule } from "./recharge/recharge-admin.module.js";
 
 import {
   RechargeApiModule,
@@ -53,6 +54,7 @@ export class ApiModule {
         PublicationDeliveryModule,
         NotificationApiModule,
         RechargeApiModule.register(recharge),
+        RechargeAdminModule,
         ReadinessModule,
         FoundationModule,
       ],
