@@ -1,8 +1,8 @@
 # Change: 收束 M4 评测质量、效率与等待体验
 
-- Status: Parent contract and Partial PR #45 integrated; #40, #26 and #44 are
-  complete, while #32, #41, #42 and #43 continue under the 2026-09-04
-  simplified execution sequence
+- Status: Parent contract remains active; #26, #32 and #40–#44 are complete or
+  ready for integration, with #43 in Final PR #91 and the parent Integration
+  Gate still pending
 - Class: Architectural parent
 - Owning Issue: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owners: Product owner and architecture owner

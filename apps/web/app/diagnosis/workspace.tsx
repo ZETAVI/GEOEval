@@ -19,6 +19,7 @@ import {
 } from "@geoeval/api-client";
 import { useEffect, useState } from "react";
 import { CustomerSidebar } from "../customer-sidebar.js";
+import { EvaluationProgress } from "./evaluation-progress.js";
 import { EvaluationReportView } from "./report-view.js";
 
 const apiBaseUrl =
@@ -279,57 +280,28 @@ export function DiagnosisWorkspace() {
           </section>
         ) : definition ? (
           definition.run?.status === "PLEASE_RETRY" ? (
-            <section className="evaluation-running">
-              <p className="step-label">请重试</p>
-              <h2>本次有效采样不足</h2>
-              <p>
-                已处理 {definition.run.processedSampleCount} 个采样位置，其中
-                有效 {definition.run.validSampleCount} 个、暂不可用
-                {definition.run.unavailableSampleCount}{" "}
-                个。后续可按提示重新评测。
-              </p>
-              <div className="evaluation-actions">
-                <button
-                  className="primary-button"
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void retry()}
-                >
-                  {busy ? "正在重试…" : "重新评测"}
-                </button>
-                <a className="secondary-button" href="/brands">
-                  返回我的品牌
-                </a>
-              </div>
-            </section>
+            <EvaluationProgress
+              run={definition.run}
+              actions={
+                <div className="evaluation-actions">
+                  <button
+                    className="primary-button"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void retry()}
+                  >
+                    {busy ? "正在重试…" : "重新评测"}
+                  </button>
+                  <a className="secondary-button" href="/brands">
+                    返回我的品牌
+                  </a>
+                </div>
+              }
+            />
           ) : definition.run?.status === "COMPLETED" ? (
-            <section className="evaluation-running">
-              <span className="loading-orbit" aria-hidden="true" />
-              <p className="step-label">整理报告</p>
-              <h2>评测完成，正在加载结果</h2>
-              <p>报告即将呈现，请稍候片刻。</p>
-            </section>
+            <EvaluationProgress run={definition.run} />
           ) : definition.run ? (
-            <section className="evaluation-running">
-              <span className="loading-orbit" aria-hidden="true" />
-              <p className="step-label">评测中</p>
-              <h2>
-                {definition.run.processedSampleCount ===
-                definition.run.expectedSampleCount
-                  ? "采样完成，正在整理结果"
-                  : "正在进行五平台评测"}
-              </h2>
-              <p>
-                已处理 {definition.run.processedSampleCount} /{" "}
-                {definition.run.expectedSampleCount} 个采样位置，其中有效{" "}
-                {definition.run.validSampleCount} 个、暂不可用{" "}
-                {definition.run.unavailableSampleCount}
-                个。你可以离开页面，后续状态不会受影响。
-              </p>
-              <a className="secondary-button" href="/brands">
-                返回我的品牌
-              </a>
-            </section>
+            <EvaluationProgress run={definition.run} />
           ) : (
             <>
               <section className="definition-summary">
