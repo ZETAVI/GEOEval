@@ -3,9 +3,8 @@
 - Review base: `origin/main@1d347873ba8d42b68c45195cd896ae10cc10ef55`
 - Owning Issue: #42
 - Proposed runtime PR: #90
-- Result: `ready with remaining gates`; the bounded implementation, migration,
-  integration and API contract pass locally, while one formal real path and the
-  #41 semantic review remain before Issue closure
+- Result: `ready for integration reconciliation`; the bounded implementation,
+  migration, API contract, formal real path and #41 report semantics pass
 
 ## Intent
 
@@ -60,9 +59,13 @@ customer statistic changes.
 
 ## Verdict
 
-`ready with remaining gates`. The additive migration, current-owner integration,
+`ready for integration reconciliation`. The additive migration, current-owner integration,
 purpose-level idempotency and retry, historical parser readability,
 customer-safe progress contract, focused tests, all 679 enabled backend tests,
-workspace typecheck, build and project-framework validation pass locally. The PR
-remains Draft until one formal real Worker/report path and the #41 semantic gate
-are complete. #43 starts only after that public contract is merged.
+workspace typecheck, build and project-framework validation pass locally. A
+fixed-version fresh formal Worker path completed 42 real calls in `206.227s`
+with 20/20 accepted samples, one accepted resolution and one accepted report;
+the preceding failure/retry also proved accepted-answer reuse. The resulting
+report passed the #41 semantic gate for customer copy, deterministic statistics,
+name coverage and GEO content direction. #43 starts only after this public
+contract is merged.

@@ -1,10 +1,11 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Controlled candidate accepted; runtime integration in progress
+- Status: Formal runtime verified; ready for integration reconciliation
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
-- Pull request: [#62](https://github.com/ZETAVI/GEOEval/pull/62), Partial
+- Pull requests: [#62](https://github.com/ZETAVI/GEOEval/pull/62), accepted
+  Partial; [#90](https://github.com/ZETAVI/GEOEval/pull/90), formal runtime
 
 ## Why
 
@@ -34,8 +35,8 @@ The analysis path is:
 4. Compose overall performance, brand perception, positive/negative themes and
    one or two GEO article directions from parsed target content and statistics.
 
-The current Prompt versions are parser `1.4.0`, name resolution `2.1.0` and
-composition `1.6.0`.
+The formal runtime Prompt versions are parser common/open `3.0.0`, parser
+directed `3.1.0`, name resolution `2.2.0` and composition `1.7.0`.
 
 ## Accepted Partial
 
@@ -67,6 +68,12 @@ contained no internal IDs. Private Langfuse readback matched all actual inputs,
 outputs, settings and usage.
 
 See [validation-summary.md](research/validation-summary.md).
+
+The formal Worker subsequently completed a fixed-version fresh 4-by-5 path in
+`206.227s`: 20/20 acquisition, 20/20 parsing, one accepted name resolution and
+one accepted composition, with no retry or model fallback. A preceding rejected
+run also verified that customer retry reuses all 20 accepted platform answers
+and resumes only the five failed parses before aggregate analysis.
 
 ## Approved runtime integration
 

@@ -51,6 +51,20 @@ describe("sample parser semantic contract", () => {
       },
       additionalProperties: false,
     });
+    const directedTask = buildSampleParserTask({
+      companyName: context.companyName,
+      primaryIndustry: "餐饮",
+      secondaryIndustry: "咖啡",
+      region: "广州",
+      characteristicOne: "安静",
+      characteristicTwo: "适合外带",
+      questionKind: "BRAND_DIRECTED",
+      question: "青禾咖啡怎么样？",
+      originalAnswer: "青禾咖啡环境安静。",
+    });
+    expect(directedTask.systemInstruction).toContain(
+      "displayName填写品牌主体名，不使用name或其他字段名",
+    );
   });
 
   it("projects first-appearance order and source-grounded content points", () => {

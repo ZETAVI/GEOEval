@@ -1,4 +1,4 @@
-# Controlled Candidate Validation Summary
+# Candidate and Formal Runtime Validation Summary
 
 ## Selected configuration
 
@@ -7,9 +7,10 @@
 - Temperature: `0.6`
 - Maximum output tokens: `8192`
 - Shared concurrency: `5`
-- Parser Prompt: `1.4.0`
-- Name-resolution Prompt: `2.1.0`
-- Composition Prompt: `1.6.0`
+- Controlled Parser Prompt: `1.4.0`
+- Formal Parser Prompts: common/open `3.0.0`, directed `3.1.0`
+- Formal name-resolution Prompt: `2.2.0`
+- Formal composition Prompt: `1.7.0`
 - Automatic model fallback: disabled
 
 ## Name-resolution evidence
@@ -65,6 +66,44 @@ prose contained no internal IDs.
 Total provider-reported usage was `336,392` tokens: acquisition `257,718`,
 parsing `60,501`, resolution `8,675`, composition `9,498`.
 
+## Formal runtime acceptance
+
+PR #90 then exercised the formal PostgreSQL/Outbox/BullMQ/Worker path with
+Guangzhou Jinpeng Law Firm. A first run retained all 20 platform answers but
+exhausted the five directed-question parses. Every rejected DeepSeek output had
+correct brand meaning and content but used `name` because the directed Prompt
+did not name the required `displayName` field. The local contract correctly
+rejected these structurally incompatible results. Prompt `3.1.0` aligned that
+one field, and a customer retry reused all accepted answers, parsed only the five
+failed positions, then accepted one name resolution and one composition in
+`32.358s`. No platform acquisition was repeated.
+
+A second empty-database run fixed all current Prompts before starting and
+completed the formal path without retry or fallback:
+
+| Stage | Result | Provider latency |
+| --- | --- | --- |
+| Acquisition | 20/20 | mean `36.479s`, range `11.128–66.016s` |
+| First-layer parsing | 20/20 | mean `7.631s`, range `4.828–10.601s` |
+| Name resolution | 1/1 | `10.136s` |
+| Composition | 1/1 | `15.208s` |
+| Whole Worker path | complete | `206.227s` |
+
+The run made exactly `42` real calls and reported `282,399` total tokens:
+acquisition `221,975`, parsing `45,382`, resolution `8,838`, and composition
+`6,204`. All 20 samples persisted under Parser contract `2.0.0`; the accepted
+resolution accounted for all 56 observed names exactly once, produced 42
+commercial-brand groups and ignored three public mediation/workstation names.
+The completed report retained 20/20 coverage, deterministic 0/15 open mention,
+no internal IDs, a 124-character performance assessment, a 158-character brand
+perception, three positive themes, three negative themes and two GEO content
+directions.
+
+The local test receipt combined an official Haizhu district fact with the
+business-area label Zhujiang New Town. This fixture inconsistency does not alter
+the Worker, persistence, recovery, latency or report-expression evidence, but
+the run is not evidence for real-world locality generation accuracy.
+
 ## Evidence integrity and boundary
 
 Private Langfuse traces:
@@ -77,9 +116,9 @@ All actual model inputs, outputs, settings and usage matched local evidence afte
 normal JSON serialization handling. Raw inputs/outputs, credentials and private
 evidence files are not committed.
 
-This evidence accepts the controlled candidate and the three-to-five-minute
-budget. It does not verify formal Worker retry/resume, API/report persistence,
-frontend rendering, deployment or production behavior.
+This evidence accepts the controlled candidate, the formal Worker/report path,
+component reuse on retry and the three-to-five-minute budget. It does not verify
+frontend rendering, deployment, production capacity or production behavior.
 
 The clean PR revision also passes both Required Checks. Full project CI covers
 database generation/migration, formatting, typecheck, backend/Web tests, complete

@@ -30,6 +30,9 @@ describe("formal evaluation aggregate analysis", () => {
     });
     expect(task.outputContract.enforcement).toBe("JSON_OBJECT");
     expect(task.systemInstruction).not.toContain("recordId");
+    expect(task.systemInstruction).toContain(
+      "个人或未说明所属品牌的从业团队、政府或公共服务单位",
+    );
 
     expect(
       parseBrandNameResolution(
@@ -124,6 +127,9 @@ describe("formal evaluation aggregate analysis", () => {
     });
     expect(task.outputContract.enforcement).toBe("JSON_OBJECT");
     expect(task.userContext).not.toHaveProperty("rawAnswers");
+    expect(task.systemInstruction).toContain(
+      "不要先用稳健、良好或优秀等笼统正面词",
+    );
 
     const projected = parseAndProjectReportComposition({
       output: {
