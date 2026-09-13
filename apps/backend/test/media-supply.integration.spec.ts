@@ -100,13 +100,28 @@ describe("Media Supply persistence and projections", () => {
     });
 
     const customer = await service.customerPlatform(platform.id);
-    expect(customer.examples.map((item) => item.displayName)).toEqual([
-      "优先完整资源",
-      "六安新***",
-    ]);
-    expect(JSON.stringify(customer)).not.toContain("123");
-    expect(JSON.stringify(customer)).not.toContain("张先生");
-    expect(JSON.stringify(customer)).not.toContain("内部发文说明");
+    expect(customer).toEqual({
+      id: platform.id,
+      displayName: "腾讯新闻",
+      description: "腾讯旗下新闻内容平台",
+      logoUrl: "/media-logos/tencent-news.svg",
+      regionScope: "DOMESTIC",
+      categories: ["PORTAL_MEDIA", "CONTENT_PLATFORM"],
+      pointPrice: 300,
+      revision: 2,
+      examples: [
+        {
+          id: fullResource.id,
+          displayName: "优先完整资源",
+          publicationMode: "FIRST_PUBLISH",
+        },
+        {
+          id: expect.any(String),
+          displayName: "六安新***",
+          publicationMode: "FIRST_PUBLISH",
+        },
+      ],
+    });
 
     const candidates = await service.fulfillmentCandidates(platform.id);
     expect(candidates).toHaveLength(3);
