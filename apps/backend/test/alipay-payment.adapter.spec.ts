@@ -316,6 +316,84 @@ describe("v3 request signing and authenticated observations", () => {
 });
 
 describe("one-pass form verification and long-lived notification replay", () => {
+  it("shares V2 monetary identity across query, notification and final-state metadata", async () => {
+    const gateway = adapter();
+    http.mockResolvedValueOnce(signedResponse(successful));
+    const query = await gateway.query(order);
+    const initial = gateway.verifyNotification(notification());
+    const final = gateway.verifyNotification(
+      notification({
+        notify_id: "another-delivery",
+        notify_time: "2026-09-11 16:00:00",
+        trade_status: "TRADE_FINISHED",
+        buyer_pay_amount: "120.00",
+        gmt_payment: "2026-09-11 15:59:00",
+      }),
+    );
+    expect(query.ok && initial.ok && final.ok).toBe(true);
+    if (!query.ok || !initial.ok || !final.ok) return;
+    expect(initial.value.trade).toMatchObject({
+      factsVersion: 2,
+      // Fixed V2 vector: changing field order or membership requires a new version.
+      factsSha256:
+        "f9052386963a56e2e406aa317f238f1a6023d96eb343ee51ec5f71c07abe8716",
+    });
+    expect(query.value.trade.factsSha256).toBe(initial.value.trade.factsSha256);
+    expect(final.value.trade.factsSha256).toBe(initial.value.trade.factsSha256);
+    expect(final.value.proof.bodySha256).not.toBe(
+      initial.value.proof.bodySha256,
+    );
+    expect(final.value.trade).toMatchObject({
+      payerTotalFen: 12000,
+      paymentAt: "2026-09-11T07:59:00.000Z",
+      sellerTransferAt: null,
+    });
+    http.mockResolvedValueOnce(
+      signedResponse({ ...successful, send_pay_date: "2026-09-11 16:00:00" }),
+    );
+    const transferred = await gateway.query(order);
+    expect(transferred).toMatchObject({
+      ok: true,
+      value: {
+        trade: {
+          factsSha256: initial.value.trade.factsSha256,
+          paymentAt: null,
+          sellerTransferAt: "2026-09-11T08:00:00.000Z",
+        },
+      },
+    });
+  });
+  it.each([
+    { total_amount: "124.00" },
+    { trade_no: "20260911000000000002" },
+    { out_trade_no: "order_124" },
+  ])("keeps changed monetary identity distinct: %j", (changes) => {
+    const gateway = adapter();
+    const first = gateway.verifyNotification(notification());
+    const changed = gateway.verifyNotification(notification(changes));
+    expect(first.ok && changed.ok).toBe(true);
+    if (!first.ok || !changed.ok) return;
+    expect(changed.value.trade.factsSha256).not.toBe(
+      first.value.trade.factsSha256,
+    );
+  });
+  it.each(["WAIT_BUYER_PAY", "TRADE_CLOSED"])(
+    "never assigns paid-fact identity to %s in either ingress",
+    async (trade_status) => {
+      const gateway = adapter();
+      http.mockResolvedValueOnce(
+        signedResponse({ ...successful, trade_status }),
+      );
+      const query = await gateway.query(order);
+      const notify = gateway.verifyNotification(notification({ trade_status }));
+      expect(query.ok && notify.ok).toBe(true);
+      if (!query.ok || !notify.ok) return;
+      for (const trade of [query.value.trade, notify.value.trade]) {
+        expect(trade).not.toHaveProperty("factsVersion");
+        expect(trade).not.toHaveProperty("factsSha256");
+      }
+    },
+  );
   it("accepts a long notification ID, literal plus/percent, delayed duplicate and absent payment time", () => {
     const raw = notification();
     const gateway = adapter();

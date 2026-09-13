@@ -12,6 +12,7 @@ import {
   type KeyObject,
 } from "node:crypto";
 import type { PaymentOrder } from "../../application/payment-gateway.js";
+import { alipayPaymentFactsSha256 } from "../../application/payment-facts.js";
 import {
   AlipayProtocolError,
   amountFen,
@@ -57,7 +58,7 @@ export type AlipayResult<T> =
         httpStatus?: number;
       };
     };
-export type AlipayTrade = Readonly<{
+type AlipayTradeData = Readonly<{
   provider: "ALIPAY";
   merchantId: string;
   appId: string;
@@ -72,6 +73,18 @@ export type AlipayTrade = Readonly<{
   paymentAt: string | null;
   sellerTransferAt: string | null;
 }>;
+export type AlipayTrade =
+  | (AlipayTradeData & {
+      state: "SUCCESS";
+      transactionId: string;
+      factsVersion: 2;
+      factsSha256: string;
+    })
+  | (AlipayTradeData & {
+      state: "WAIT_BUYER_PAY" | "CLOSED_UNRESOLVED";
+      factsVersion?: never;
+      factsSha256?: never;
+    });
 export type AlipaySdkProof = Readonly<{
   kind: "ALIPAY_V3_SDK";
   sdkVersion: "4.14.0";
@@ -340,7 +353,7 @@ export class AlipayPaymentAdapter {
         ? null
         : amountFen(data.buyer_pay_amount);
     requireValue(payer === null || payer <= total, "AMOUNT_INVALID");
-    return {
+    const trade: AlipayTradeData = {
       provider: "ALIPAY",
       merchantId: this.#merchantId,
       appId: this.#appId,
@@ -364,6 +377,15 @@ export class AlipayPaymentAdapter {
         source === "NOTIFICATION" ? channelDate(data.gmt_payment) : null,
       sellerTransferAt:
         source === "QUERY" ? channelDate(data.send_pay_date) : null,
+    };
+    if (trade.state !== "SUCCESS") return { ...trade, state: trade.state };
+    // Only verified success with a real transaction identity receives paid facts.
+    const paid = { ...trade, transactionId: identifier(data.trade_no) };
+    return {
+      ...paid,
+      state: "SUCCESS",
+      factsVersion: 2,
+      factsSha256: alipayPaymentFactsSha256(paid),
     };
   }
   verifyNotification(rawBody: Buffer): AlipayResult<{

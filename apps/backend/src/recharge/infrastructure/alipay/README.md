@@ -26,6 +26,16 @@ truthfully represent this protocol. The common frozen `PaymentOrder` is reused.
   A closed trade is not a refund command or an unpaid-close proof. Optional buyer
   amounts and channel dates stay absent; notification payment time is not
   conflated with query seller-transfer time.
+- Only success includes `factsVersion: 2` and `factsSha256`. The existing
+  application `payment-facts` owner hashes provider, merchant, app, order,
+  transaction, order total and currency in a fixed V2 order. Query, notification
+  and `TRADE_FINISHED` share that monetary identity; optional buyer amounts,
+  the two distinct channel dates and delivery metadata remain in their original
+  trade/proof fields. The existing WeChat V1 digest is unchanged.
+  Digest equality alone is not receipt equality or permission to credit: the
+  future persistence consumer must match the frozen local order, preserve each
+  authenticated observation and detect explicitly conflicting optional values.
+  This adapter does not perform those database checks or discard metadata.
 - `query` and `close` use the SDK's v3 POST path and require the matching order
   number; success additionally needs transaction identity and exact amount.
   The SDK proof identifies validated parsed data and its JSON-serialization
