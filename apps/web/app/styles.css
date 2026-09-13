@@ -1948,6 +1948,220 @@ a {
   color: var(--muted);
   line-height: 1.75;
 }
+.evaluation-progress-shell {
+  min-height: 0;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 24px;
+  padding: clamp(24px, 4vw, 42px);
+  text-align: left;
+}
+.evaluation-progress-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: center;
+}
+.evaluation-progress-heading .loading-orbit {
+  width: 54px;
+  height: 54px;
+  margin: 0;
+}
+.evaluation-complete-mark,
+.evaluation-action-mark {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 50%;
+  background: #dcefe4;
+  color: #176141;
+  font-size: 1.5rem;
+  font-weight: 850;
+}
+.evaluation-action-mark {
+  background: #fff0d7;
+  color: #9a6520;
+}
+.evaluation-progress-heading h2 {
+  margin-top: 4px;
+  font-size: clamp(1.55rem, 3vw, 2.3rem);
+}
+.evaluation-progress-heading p:last-child {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.evaluation-progress-heading > strong {
+  color: var(--green);
+  font-size: clamp(1.6rem, 4vw, 2.5rem);
+  letter-spacing: -0.04em;
+}
+.evaluation-overall-progress {
+  display: grid;
+  gap: 14px;
+}
+.evaluation-progress-track,
+.platform-progress-track {
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e6ece8;
+}
+.evaluation-progress-track {
+  height: 10px;
+}
+.platform-progress-track {
+  height: 6px;
+}
+.evaluation-progress-track > span,
+.platform-progress-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1f7953, #54a97d);
+  transition: width 500ms ease;
+}
+.evaluation-overall-progress ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.evaluation-overall-progress li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #88958e;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.evaluation-overall-progress li > span {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: #edf1ee;
+  font-size: 0.62rem;
+}
+.evaluation-overall-progress li.is-active,
+.evaluation-overall-progress li.is-complete {
+  color: #245c44;
+}
+.evaluation-overall-progress li.is-active > span,
+.evaluation-overall-progress li.is-complete > span {
+  background: #dcefe4;
+  color: #18613f;
+}
+.evaluation-platform-progress {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+.evaluation-platform-progress article {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #dde6e0;
+  border-radius: 15px;
+  background: #fafcfa;
+}
+.evaluation-platform-progress header,
+.evaluation-platform-progress article > p {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.evaluation-platform-progress header {
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+.evaluation-platform-progress h3 {
+  overflow: hidden;
+  margin: 0;
+  color: #234537;
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.evaluation-platform-progress header b {
+  color: #488066;
+  font-size: 0.68rem;
+}
+.evaluation-platform-progress article > p {
+  margin: 11px 0 0;
+  color: #6d7d74;
+  font-size: 0.64rem;
+  line-height: 1.45;
+}
+.evaluation-platform-progress article > p span {
+  display: block;
+}
+.evaluation-platform-progress small {
+  display: block;
+  margin-top: 9px;
+  color: #9a6f2f;
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+.geo-waiting-card {
+  padding: clamp(20px, 3vw, 30px);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 96% 0%, rgba(236, 185, 82, 0.2), transparent 35%),
+    #173e2f;
+  color: white;
+}
+.geo-waiting-card h3 {
+  margin: 6px 0 8px;
+  font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+}
+.geo-waiting-card > div > p:last-child {
+  max-width: 760px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+.geo-waiting-card footer,
+.evaluation-progress-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.geo-waiting-card footer {
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.67rem;
+}
+.geo-waiting-card footer > div {
+  display: flex;
+  gap: 8px;
+}
+.geo-waiting-card button {
+  padding: 7px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  cursor: pointer;
+}
+.geo-waiting-card button:hover,
+.geo-waiting-card button:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+}
+.evaluation-progress-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.55;
+}
+.evaluation-progress-footer .secondary-button {
+  flex: none;
+}
 .diagnosis-prerequisite {
   min-height: 480px;
 }
@@ -5849,5 +6063,63 @@ a {
   .publishing-lines li {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 1000px) {
+  .evaluation-platform-progress {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .evaluation-progress-heading {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .evaluation-progress-heading > strong {
+    grid-column: 2;
+    font-size: 1.4rem;
+  }
+  .evaluation-overall-progress ol {
+    grid-template-columns: 1fr 1fr;
+  }
+  .evaluation-platform-progress {
+    grid-template-columns: 1fr 1fr;
+  }
+  .evaluation-progress-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .evaluation-progress-shell {
+    padding: 22px 16px;
+  }
+  .evaluation-progress-heading {
+    gap: 14px;
+  }
+  .evaluation-progress-heading .loading-orbit {
+    width: 42px;
+    height: 42px;
+  }
+  .evaluation-complete-mark,
+  .evaluation-action-mark {
+    width: 42px;
+    height: 42px;
+  }
+  .evaluation-platform-progress {
+    grid-template-columns: 1fr;
+  }
+  .geo-waiting-card footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evaluation-progress-track > span,
+  .platform-progress-track > span {
+    transition: none;
   }
 }

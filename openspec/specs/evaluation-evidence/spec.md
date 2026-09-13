@@ -254,6 +254,21 @@ the customer understand the current outcome.
 - **AND** the phase distinguishes acquiring answers, analyzing content,
   resolving brand names, composing the report, completion, and an
   action-required outcome
+- **AND** the Web presents these facts as natural customer stages and shows each
+  platform's acquired and analyzed counts separately
+- **AND** one overall progress value advances within the current durable stage,
+  never enters a later stage from elapsed time, and reaches 100 percent only
+  after the report is durably complete
+- **AND** any unavailable platform position is described without exposing its
+  internal failure, while other platform progress remains visible
+- **AND** an action-required outcome keeps the durable per-platform counts and
+  retry entry visible without inventing an overall percentage for an earlier
+  stage the public contract cannot prove
+- **AND** the waiting view may rotate concise GEO-awareness content that explains
+  the cost of brand absence or misunderstanding without fabricating statistics,
+  rankings, countdowns, or guaranteed outcomes
+- **AND** automatic waiting-content changes stop when the customer requests
+  reduced motion, while manual previous and next controls remain available
 - **AND** it does not expose attempt counts, prompts, routes, queue state,
   internal failures, source metadata, or trace identities
 - **AND** internal ready-for-synthesis is presented as sampling complete and

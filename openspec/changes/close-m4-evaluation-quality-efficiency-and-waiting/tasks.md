@@ -35,7 +35,7 @@
       customer semantics in the actual report path without a parallel build.
 - [x] #42 completes runtime orchestration and proves timing, concurrency, retry,
       accepted-component reuse, cost and customer-safe progress boundaries.
-- [ ] #43 starts only after #42 progress contract, then delivers truthful
+- [x] #43 starts only after #42 progress contract, then delivers truthful
       per-platform waiting behavior and responsive browser evidence.
 
 ## Stage 3 — Final Integration Gate and Reconciliation
