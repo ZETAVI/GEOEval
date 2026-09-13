@@ -14,12 +14,19 @@ import {
   ProviderTransportError,
 } from "./provider-http.transport.js";
 
-export type RealRoutePurpose = AiExecutionPurpose | "OVERALL_SYNTHESIS";
+export type RealRoutePurpose =
+  | AiExecutionPurpose
+  | "OVERALL_SYNTHESIS"
+  | "BRAND_NAME_RESOLUTION"
+  | "REPORT_COMPOSITION";
 
 export type ProviderRouteDefinition = ResolvedAiRoute & {
   routePolicyId: string;
   purpose: RealRoutePurpose;
   structuredReasoningEffort?: "low" | "medium" | "xhigh" | undefined;
+  structuredThinking?: boolean | undefined;
+  temperature?: number | undefined;
+  maxTokens?: number | undefined;
 };
 
 export interface ProviderRouteAdapter {

@@ -17,13 +17,14 @@ provider.
 GEO Intelligence SHALL accept at most one immutable report for an official run
 and SHALL keep partial synthesis from becoming an official customer result.
 
-#### Scenario: Overall synthesis succeeds
+#### Scenario: Staged report analysis succeeds
 
-- **WHEN** at least seventeen accepted sample interpretations and one valid
-  overall-synthesis result belong to the same eligible run and execution cycle
-- **THEN** one transaction accepts the synthesis, materializes the public report,
-  stores protected optimization guidance, completes the cycle, and changes the
-  run to `COMPLETED/REPORT_ACCEPTED`
+- **WHEN** at least seventeen accepted sample interpretations, one accepted
+  brand-name resolution and one valid report-composition result belong to the
+  same eligible run and execution cycle
+- **THEN** one transaction accepts the composed synthesis, materializes the
+  public report, stores protected optimization guidance, completes the cycle,
+  and changes the run to `COMPLETED/REPORT_ACCEPTED`
 - **AND** duplicate delivery returns the already accepted result rather than
   creating another report or guidance record
 
@@ -38,8 +39,9 @@ and SHALL keep partial synthesis from becoming an official customer result.
 
 - **WHEN** the account owner retries a run in
   `PLEASE_RETRY/SYNTHESIS_EXHAUSTED`
-- **THEN** one new execution cycle starts ready for synthesis and schedules only
-  synthesis attempt one
+- **THEN** one new execution cycle starts ready for analysis and reuses an
+  accepted brand-name resolution when one exists
+- **AND** it schedules only the earliest incomplete aggregate stage
 - **AND** every accepted answer and interpretation remains unchanged
 - **AND** no acquisition or per-sample interpretation work is repeated
 - **AND** concurrent or repeated retry commands return the same active retry
@@ -55,8 +57,8 @@ coverage value.
 - **THEN** program logic calculates mention rate, the five-star recommendation
   index, typical appearance position, valid coverage, platform comparisons,
   theme counts, and other-brand occurrence facts
-- **AND** overall synthesis may organize evidence and wording but cannot revise a
-  metric or count evidence
+- **AND** report composition may organize evidence and wording but cannot revise
+  a metric or count evidence
 - **AND** accepted report values can be reproduced from the linked immutable
   evidence, interpretation, and policy versions
 
@@ -74,22 +76,37 @@ after deterministic projection into its canonical semantic contracts.
 - **AND** the model never owns internal identifiers, foreign keys, aggregate
   counts, scores, positions already fixed by a sample parse, or final report
   metrics
-- **AND** invalid parser output uses the bounded Qwen3.8 primary retry and Hy3
-  fallback before the position becomes unavailable
-- **AND** invalid overall synthesis uses the same bounded route order before the
-  run becomes `PLEASE_RETRY/SYNTHESIS_EXHAUSTED`
+- **AND** parser, brand-resolution, and composition output each use their own
+  bounded purpose attempts before the owning stage becomes unavailable
+- **AND** the selected analysis route uses Model Studio
+  `deepseek-v4-flash-0731` with thinking disabled and no automatic model fallback
 
-#### Scenario: Overall synthesis groups names and summarizes impressions
+#### Scenario: Name resolution groups observed competitor subjects
 
-- **WHEN** accepted sample interpretations contain brand descriptions,
-  uncertain wording, or other-brand names
-- **THEN** overall synthesis summarizes only what the sampled answers expressed
-  and preserves material uncertainty rather than investigating or verifying
-  real-world brand facts
-- **AND** it may group obvious aliases, translations, store formats, or
-  subordinate brand lines from answer context while leaving an uncertain name
-  independent
-- **AND** default synthesis performs no external web-backed entity research
+- **WHEN** accepted open-question interpretations contain other-brand names
+- **THEN** one name-resolution result accounts for every observed name exactly
+  once in either one readable brand group or the ignored-name collection
+- **AND** it may group ordinary aliases, translations, abbreviations, branch
+  formats, or clear brand-subject variants from answer context while leaving an
+  uncertain name independent
+- **AND** the model receives no internal record identifiers and performs no
+  external web-backed entity research
+- **AND** program logic restores exact source records, removes ignored names from
+  competitor statistics, and rejects unknown, missing, repeated, or focus-brand
+  group members
+
+#### Scenario: Report composition expresses deterministic facts
+
+- **WHEN** an accepted name resolution and deterministic report metrics are
+  ready
+- **THEN** report composition receives only current-brand content points,
+  deterministic performance facts, and resolved leading-competitor statistics
+- **AND** it produces the overall assessment, brand-perception summary, positive
+  and negative themes, and no more than two GEO promotional-content directions
+- **AND** customer prose contains natural question or need descriptions rather
+  than internal question, sample, or content-point identifiers
+- **AND** it neither changes a metric nor infers verified real-world positioning
+  from differences among sampled answers
 
 ### Requirement: Explicit public and protected projections
 
@@ -210,11 +227,11 @@ guidance outside the Web API.
 
 ## Current environment boundary
 
-The report remains reproducible with deterministic parser and synthesis
-adapters. One complete fictional real 4-by-5 Worker journey produced and exposed
-an authenticated 20/20 report through the Qwen3.8-primary/Hy3-fallback semantic
-routes. Its first overall synthesis was semantically rejected, its second timed
-out, and Hy3 produced the accepted report; this verifies bounded recovery but
-does not establish production capacity, reconciled external cost, or commercial
-deployment readiness. Final visual-language refinement remains a separate
-frontend-design workstream over these accepted semantics.
+The report remains reproducible with deterministic parser, name-resolution and
+composition adapters. The selected DeepSeek candidate completed one authorized
+controlled 4-by-5 run with 20/20 valid samples, a complete report, no retry and
+238.644 seconds total elapsed time. Formal Worker persistence and recovery are
+verified locally; one formal real-route Worker/report run, production capacity,
+reconciled external cost, and commercial deployment readiness remain separate
+gates. Final visual-language refinement remains a separate frontend-design
+workstream over these accepted semantics.

@@ -4,6 +4,7 @@ import type {
   EvaluationQuestionKind,
 } from "./evaluation.types.js";
 import type { OverallSynthesisSampleContext } from "./overall-synthesis.contract.js";
+import type { BrandNameResolutionOutput } from "./brand-name-resolution.contract.js";
 
 export type EvaluationSynthesisContext = {
   runId: string;
@@ -20,9 +21,13 @@ export type EvaluationSynthesisContext = {
     OverallSynthesisSampleContext & {
       platformLabel: string;
       questionId: string;
+      question: string;
+      mentioned: boolean;
+      position: number | null;
     }
   >;
   metrics: EvaluationReportMetrics;
+  resolution: BrandNameResolutionOutput | null;
 };
 
 export type SynthesisFailureInput = {
@@ -30,6 +35,7 @@ export type SynthesisFailureInput = {
   cycleId: string;
   attemptId: string;
   attemptNumber: number;
+  purpose: "BRAND_NAME_RESOLUTION" | "REPORT_COMPOSITION";
   failureClass: string;
   reason: string;
   correlationId: string;

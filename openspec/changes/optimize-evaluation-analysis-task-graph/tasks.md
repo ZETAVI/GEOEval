@@ -33,18 +33,18 @@
 - [x] Record the approved evidence boundary: immutable original answers and
       source-grounded content points remain required; line/offset anchors and
       exact highlights are not a sample-success gate.
-- [ ] Move Parser 1.4 semantics and complete-text preparation into the current
+- [x] Move Parser 1.4 semantics and complete-text preparation into the current
       sample-parser owner with a new readable contract version.
-- [ ] Extend the existing aggregate-analysis attempt boundary for explicit name
+- [x] Extend the existing aggregate-analysis attempt boundary for explicit name
       resolution and report composition purposes; do not add another attempt
       store or lifecycle authority.
-- [ ] Persist one accepted name-resolution result and reuse accepted sample and
+- [x] Persist one accepted name-resolution result and reuse accepted sample and
       resolution components across bounded later-stage retries.
-- [ ] Replace one-shot synthesis with deterministic statistics plus Composition
+- [x] Replace one-shot synthesis with deterministic statistics plus Composition
       1.6 in the current synthesis/report owners.
-- [ ] Expose per-platform expected/acquired/analyzed/unavailable and one durable
+- [x] Expose per-platform expected/acquired/analyzed/unavailable and one durable
       customer-safe phase through the current Evaluation API contract.
-- [ ] Verify migration, idempotency, retry/resume, report history, API contract,
+- [x] Verify migration, idempotency, retry/resume, report history, API contract,
       current deterministic metrics and customer-copy boundaries.
 - [ ] Run one authorized formal 4x5 Worker/report path on the fixed revision and
       record timing, usage, persistence and recovery evidence.

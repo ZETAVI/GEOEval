@@ -23,7 +23,7 @@ import type {
 } from "../domain/evaluation-report.view.js";
 import { parseStoredOverallSynthesisGuidance } from "../domain/overall-synthesis.contract.js";
 import {
-  SAMPLE_PARSER_CONTRACT_VERSION,
+  isReadableSampleParserContractVersion,
   parseStoredSampleSemantic,
 } from "../domain/sample-parser.contract.js";
 
@@ -304,8 +304,9 @@ function mapSample(
   const originalAnswer = sample.evidence?.answerContent ?? null;
   if (
     !sample.interpretation ||
-    sample.interpretation.semanticContractVersion !==
-      SAMPLE_PARSER_CONTRACT_VERSION
+    !isReadableSampleParserContractVersion(
+      sample.interpretation.semanticContractVersion,
+    )
   ) {
     return {
       id: sample.id,

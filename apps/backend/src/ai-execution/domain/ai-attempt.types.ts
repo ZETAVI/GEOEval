@@ -33,6 +33,7 @@ export type StructuredOutputAttemptInput = {
   outputContract: {
     version: string;
     jsonSchema: Record<string, unknown>;
+    enforcement?: "JSON_SCHEMA" | "JSON_OBJECT";
   };
 };
 
@@ -51,6 +52,10 @@ export type AiAttemptRequest =
       purpose: "OVERALL_SYNTHESIS";
       input: StructuredOutputAttemptInput;
     })
+  | (EvaluationRunAttemptRequestBase & {
+      purpose: "BRAND_NAME_RESOLUTION" | "REPORT_COMPOSITION";
+      input: StructuredOutputAttemptInput;
+    })
   | (AiAttemptRequestBase & {
       preparationId: string;
       sequence: number;
@@ -65,7 +70,10 @@ export type SampleAiAttemptRequest = Extract<
 
 export type SynthesisAiAttemptRequest = Extract<
   AiAttemptRequest,
-  { purpose: "OVERALL_SYNTHESIS" }
+  {
+    purpose:
+      "OVERALL_SYNTHESIS" | "BRAND_NAME_RESOLUTION" | "REPORT_COMPOSITION";
+  }
 >;
 
 export type QuestionGenerationAiAttemptRequest = Extract<
@@ -89,7 +97,10 @@ export type ResolvedSampleAiAttemptRequest = Extract<
 
 export type ResolvedSynthesisAiAttemptRequest = Extract<
   ResolvedAiAttemptRequest,
-  { purpose: "OVERALL_SYNTHESIS" }
+  {
+    purpose:
+      "OVERALL_SYNTHESIS" | "BRAND_NAME_RESOLUTION" | "REPORT_COMPOSITION";
+  }
 >;
 
 export type ResolvedQuestionGenerationAiAttemptRequest = Extract<

@@ -63,19 +63,28 @@ function structuredChatBody(
       { role: "system", content: input.systemInstruction },
       { role: "user", content: JSON.stringify(input.userContext) },
     ],
-    enable_thinking: true,
+    enable_thinking: definition.structuredThinking ?? true,
+    ...(definition.temperature !== undefined
+      ? { temperature: definition.temperature }
+      : {}),
+    ...(definition.maxTokens !== undefined
+      ? { max_tokens: definition.maxTokens }
+      : {}),
     ...(definition.structuredReasoningEffort
       ? { reasoning_effort: definition.structuredReasoningEffort }
       : {}),
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: input.outputContract.version
-          .replaceAll(/[^a-zA-Z0-9_-]/g, "_")
-          .slice(0, 64),
-        strict: true,
-        schema: input.outputContract.jsonSchema,
-      },
-    },
+    response_format:
+      input.outputContract.enforcement === "JSON_OBJECT"
+        ? { type: "json_object" }
+        : {
+            type: "json_schema",
+            json_schema: {
+              name: input.outputContract.version
+                .replaceAll(/[^a-zA-Z0-9_-]/g, "_")
+                .slice(0, 64),
+              strict: true,
+              schema: input.outputContract.jsonSchema,
+            },
+          },
   };
 }

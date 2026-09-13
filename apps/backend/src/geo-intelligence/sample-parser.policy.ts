@@ -7,6 +7,7 @@ import {
   SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
   sampleParserModelJsonSchemaForQuestionKind,
 } from "./domain/sample-parser-model.contract.js";
+import { buildSampleReadingText } from "./sample-reading-text.js";
 
 const parserAssetSchema = z
   .object({
@@ -38,7 +39,11 @@ export function buildSampleParserTask(context: SampleParserUserContext) {
   return {
     taskKind: "STRUCTURED_OUTPUT" as const,
     systemInstruction: `${common.content}\n\n${profile.content}`,
-    userContext: { ...context },
+    userContext: {
+      focusBrand: context.companyName,
+      question: context.question,
+      content: buildSampleReadingText(context.originalAnswer),
+    },
     outputContract: {
       version: SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
       jsonSchema: sampleParserModelJsonSchemaForQuestionKind(

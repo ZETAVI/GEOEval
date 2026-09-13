@@ -74,6 +74,22 @@ export class DeterministicAiAttemptAdapter implements AiAttemptAdapter {
       };
     }
 
+    if (request.purpose === "BRAND_NAME_RESOLUTION") {
+      return {
+        kind: "SUCCEEDED",
+        output: deterministicBrandNameResolution(request.input.userContext),
+        usage: { inputTokens: 320, outputTokens: 120 },
+      };
+    }
+
+    if (request.purpose === "REPORT_COMPOSITION") {
+      return {
+        kind: "SUCCEEDED",
+        output: deterministicReportComposition(request.input.userContext),
+        usage: { inputTokens: 560, outputTokens: 240 },
+      };
+    }
+
     if (request.purpose === "EVALUATION_QUESTION_GENERATION") {
       return {
         kind: "SUCCEEDED",
@@ -82,173 +98,101 @@ export class DeterministicAiAttemptAdapter implements AiAttemptAdapter {
       };
     }
 
-    const userContext = request.input.userContext;
-    const companyName = requiredString(userContext, "companyName");
-    const answerContent = requiredString(userContext, "originalAnswer");
-    const questionKind = requiredString(userContext, "questionKind");
-    const mentioned = questionKind !== "INDUSTRY_RECOMMENDATION";
-    const targetLine = mentioned
-      ? findLineContaining(answerContent, companyName)
-      : undefined;
-    const conditionLine = mentioned
-      ? findLineContaining(answerContent, "需要结合实际需求判断")
-      : undefined;
-    const targetAnchor = targetLine
-      ? {
-          anchorId: "target-mention",
-          exactText: targetLine,
-          occurrence: 1,
-          purposes: [
-            "TARGET_MENTION",
-            ...(questionKind === "BRAND_DIRECTED" ? [] : ["TARGET_POSITION"]),
-            "DESCRIPTION",
-          ],
-        }
-      : undefined;
-    const conditionAnchor = conditionLine
-      ? {
-          anchorId: "target-condition",
-          exactText: conditionLine,
-          occurrence: 1,
-          purposes: ["CHARACTERISTIC", "LIMITATION"],
-        }
-      : undefined;
-    const otherBrandFixtures = [
-      { id: "morning-coffee", name: "晨光咖啡" },
-      { id: "city-coffee", name: "城市咖啡" },
-    ].flatMap((brand, index) => {
-      const line = findLineContaining(answerContent, brand.name);
-      if (!line) return [];
-      const relativePosition =
-        questionKind === "CHARACTERISTIC_TWO" ? index + 2 : index + 1;
-      return [
-        {
-          brand,
-          relativePosition,
-          anchor: {
-            anchorId: `other-${brand.id}`,
-            exactText: line,
-            occurrence: 1,
-            purposes: ["OTHER_BRAND"],
-          },
-        },
-      ];
-    });
-    const targetPosition =
-      questionKind === "CHARACTERISTIC_ONE"
-        ? 3
-        : questionKind === "CHARACTERISTIC_TWO"
-          ? 1
-          : null;
-    const shared = {
-      answerStructure:
-        questionKind === "CHARACTERISTIC_TWO"
-          ? "TABLE"
-          : questionKind === "BRAND_DIRECTED"
-            ? "MIXED"
-            : "ORDERED_LIST",
-      targetDisplayedForms: mentioned ? [companyName] : [],
-      targetObservations: targetAnchor
-        ? [
-            {
-              observationId: "target-visible",
-              label: "品牌信息可识别",
-              detail: `${companyName} 在回答中以候选对象出现。`,
-              polarity: "NEUTRAL",
-              evidenceAnchorIds: [targetAnchor.anchorId],
-            },
-          ]
-        : [],
-      otherBrands: otherBrandFixtures.map((fixture) => ({
-        brandMentionId: fixture.brand.id,
-        displayName: fixture.brand.name,
-        observedForms: [fixture.brand.name],
-        role: "RECOMMENDED",
-        relativePosition: fixture.relativePosition,
-        positionKind: "RECOMMENDATION",
-        evidenceAnchorIds: [fixture.anchor.anchorId],
-      })),
-      evidenceAnchors: [
-        targetAnchor,
-        conditionAnchor,
-        ...otherBrandFixtures.map((fixture) => fixture.anchor),
-      ].filter((anchor): anchor is NonNullable<typeof anchor> =>
-        Boolean(anchor),
-      ),
-      cardInterpretation: mentioned
-        ? "回答提及了当前品牌，同时保留了适用条件。"
-        : "回答有效，但没有明确提及当前品牌。",
-      limitations: conditionAnchor ? ["公开回答要求结合实际需求判断。"] : [],
-    };
-    const conditionObservation = conditionAnchor
-      ? [
-          {
-            observationId: "conditional-fit",
-            label: "适用性需要判断",
-            detail: "回答没有给出无条件肯定，需要结合实际需求判断。",
-            polarity: "UNCERTAIN",
-            evidenceAnchorIds: [conditionAnchor.anchorId],
-          },
-        ]
-      : [];
     return {
       kind: "SUCCEEDED",
-      output:
-        questionKind === "BRAND_DIRECTED"
-          ? {
-              family: "BRAND_DIRECTED",
-              mentioned,
-              position: null,
-              semantic: {
-                profile: "BRAND_DIRECTED",
-                ...shared,
-                statedIdentity: targetAnchor
-                  ? [
-                      {
-                        observationId: "stated-identity",
-                        label: "品牌身份",
-                        detail: "回答能够识别并介绍当前品牌。",
-                        polarity: "NEUTRAL",
-                        evidenceAnchorIds: [targetAnchor.anchorId],
-                      },
-                    ]
-                  : [],
-                positioning: [],
-                offerings: [],
-                audiences: [],
-                contextualTargetPosition: null,
-                contextualPositionEvidenceAnchorIds: [],
-              },
-            }
-          : {
-              family: "OPEN_DISCOVERY",
-              questionKind,
-              mentioned,
-              position: mentioned ? targetPosition : null,
-              semantic: {
-                profile: "OPEN_DISCOVERY",
-                ...shared,
-                targetRole: mentioned
-                  ? "CONDITIONALLY_RECOMMENDED"
-                  : "NOT_MENTIONED",
-                recommendationReasons: [],
-                conditions: conditionObservation,
-                queryFit: targetAnchor
-                  ? [
-                      {
-                        observationId: "query-fit",
-                        label: "进入候选范围",
-                        detail: "回答将当前品牌纳入了该问题的候选语境。",
-                        polarity: "NEUTRAL",
-                        evidenceAnchorIds: [targetAnchor.anchorId],
-                      },
-                    ]
-                  : [],
-              },
-            },
+      output: deterministicSampleParser(request.input.userContext),
       usage: { inputTokens: 220, outputTokens: 96 },
     };
   }
+}
+
+function deterministicSampleParser(userContext: Record<string, unknown>) {
+  const focusBrand = requiredString(userContext, "focusBrand");
+  const content = requiredString(userContext, "content");
+  const names = [focusBrand, "晨光咖啡", "城市咖啡"]
+    .filter((name) => content.includes(name))
+    .sort((left, right) => content.indexOf(left) - content.indexOf(right));
+  return {
+    brands: names.map((displayName) => ({
+      displayName,
+      isFocusBrand: displayName === focusBrand,
+      attitude: "POSITIVE",
+      mentionContext: [
+        {
+          text:
+            displayName === focusBrand
+              ? `${focusBrand}在回答中被作为相关选择介绍。`
+              : `${displayName}在回答中被列为相关选择。`,
+          polarity: "POSITIVE",
+        },
+      ],
+    })),
+    cardInterpretation: content.includes(focusBrand)
+      ? `该回答提及${focusBrand}，并将其作为相关选择介绍。`
+      : `该回答未提及${focusBrand}。`,
+  };
+}
+
+function deterministicBrandNameResolution(
+  userContext: Record<string, unknown>,
+) {
+  const brandNames = requiredArray(userContext, "brandNames").map((value) =>
+    requiredRecordValue(value, "brand name"),
+  );
+  return {
+    brandGroups: brandNames.map((brand) => ({
+      displayName: requiredString(brand, "observedName"),
+      observedNames: [requiredString(brand, "observedName")],
+    })),
+    ignoredNames: [],
+  };
+}
+
+function deterministicReportComposition(userContext: Record<string, unknown>) {
+  const samples = requiredArray(userContext, "samples").map((value) =>
+    requiredRecordValue(value, "composition sample"),
+  );
+  const targetSamples = samples.filter((sample) => sample.target !== null);
+  const pointRefs = targetSamples.flatMap((sample) => {
+    const target = requiredRecord(sample, "target");
+    return optionalArray(target, "mentionContext")
+      .slice(0, 1)
+      .map((value) => {
+        const point = requiredRecordValue(value, "composition point");
+        return {
+          sampleId: requiredString(sample, "sampleId"),
+          pointId: requiredString(point, "pointId"),
+        };
+      });
+  });
+  const sampleIds = (targetSamples.length > 0 ? targetSamples : samples)
+    .slice(0, 5)
+    .map((sample) => requiredString(sample, "sampleId"));
+  return {
+    recommendationAssessment:
+      "当前品牌在不同需求问题中的出现情况存在差异，可结合提及和首次出现顺序理解整体表现。",
+    brandPerception:
+      "现有回答主要将品牌理解为能够回应相关需求的具体选择，并保留了适用场景与体验方面的介绍。",
+    positiveThemes:
+      pointRefs.length > 0
+        ? [
+            {
+              label: "已有正向认知",
+              summary: "部分回答已经形成可用于后续内容强化的正向品牌印象。",
+              pointRefs,
+            },
+          ]
+        : [],
+    negativeThemes: [],
+    directions: [
+      {
+        currentProblem: "品牌在相关需求下的介绍还可以更加集中清楚。",
+        recommendedDirection: "强化核心场景内容",
+        intendedImprovement: "围绕已有优势和用户关心的问题补充清晰的品牌内容。",
+        sampleIds,
+      },
+    ],
+  };
 }
 
 function deterministicQuestionGeneration(

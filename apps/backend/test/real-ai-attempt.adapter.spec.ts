@@ -80,8 +80,12 @@ describe("real AI attempt adapters", () => {
     }
   });
 
-  it("uses strict structured output for Model Studio primary and Hy3 fallback", async () => {
+  it("uses the selected DeepSeek settings and preserves legacy structured routes", async () => {
     const routes = [
+      {
+        routePolicyId: "evaluation.interpretation.deepseek@1",
+        model: "deepseek-v4-flash-0731",
+      },
       {
         routePolicyId: "evaluation.interpretation.qwen-primary@2",
         model: "qwen3.8-flash",
@@ -100,6 +104,18 @@ describe("real AI attempt adapters", () => {
         model: "hy3",
         purpose: "OVERALL_SYNTHESIS" as const,
       },
+      {
+        routePolicyId: "evaluation.brand-name-resolution.deepseek@1",
+        model: "deepseek-v4-flash-0731",
+        purpose: "BRAND_NAME_RESOLUTION" as const,
+        enforcement: "JSON_OBJECT" as const,
+      },
+      {
+        routePolicyId: "evaluation.report-composition.deepseek@1",
+        model: "deepseek-v4-flash-0731",
+        purpose: "REPORT_COMPOSITION" as const,
+        enforcement: "JSON_OBJECT" as const,
+      },
     ];
     for (const route of routes) {
       const request = structuredRequest(route);
@@ -112,7 +128,7 @@ describe("real AI attempt adapters", () => {
         output: { accepted: true, route: route.routePolicyId },
       });
     }
-    const structured = fixture.requests.slice(-4);
+    const structured = fixture.requests.slice(-routes.length);
     for (const request of structured.filter((observed) =>
       observed.path.startsWith("/tokenhub"),
     )) {
@@ -129,10 +145,29 @@ describe("real AI attempt adapters", () => {
     const modelStudioRequests = structured.filter((observed) =>
       observed.path.startsWith("/model-studio"),
     );
+    const legacyThinking = modelStudioRequests.filter(
+      (request) => request.body.enable_thinking === true,
+    );
     expect(
-      modelStudioRequests.map((request) => request.body.reasoning_effort),
+      legacyThinking.map((request) => request.body.reasoning_effort),
     ).toEqual(["low", "medium"]);
-    for (const request of modelStudioRequests) {
+    const selectedDeepSeek = modelStudioRequests.filter(
+      (request) => request.body.model === "deepseek-v4-flash-0731",
+    );
+    expect(selectedDeepSeek).toHaveLength(3);
+    for (const request of selectedDeepSeek) {
+      expect(request.body).toMatchObject({
+        enable_thinking: false,
+        temperature: 0.6,
+        max_tokens: 8192,
+      });
+    }
+    expect(
+      selectedDeepSeek.map(
+        (request) => requiredResponseFormat(request.body).type,
+      ),
+    ).toEqual(["json_schema", "json_object", "json_object"]);
+    for (const request of legacyThinking) {
       expect(request.path).toBe("/model-studio/chat/completions");
       expect(request.body).toMatchObject({
         enable_thinking: true,
@@ -333,7 +368,9 @@ function acquisitionRequest(route: (typeof samplingRoutes)[number]) {
 function structuredRequest(route: {
   routePolicyId: string;
   model: string;
-  purpose?: "OVERALL_SYNTHESIS";
+  purpose?:
+    "OVERALL_SYNTHESIS" | "BRAND_NAME_RESOLUTION" | "REPORT_COMPOSITION";
+  enforcement?: "JSON_SCHEMA" | "JSON_OBJECT";
 }) {
   const input = {
     taskKind: "STRUCTURED_OUTPUT",
@@ -342,6 +379,7 @@ function structuredRequest(route: {
     outputContract: {
       version: "fixture@1",
       jsonSchema: { type: "object", additionalProperties: false },
+      ...(route.enforcement ? { enforcement: route.enforcement } : {}),
     },
   } satisfies StructuredOutputAttemptInput;
   const base = {
@@ -360,6 +398,14 @@ function structuredRequest(route: {
         ...base,
         sampleId: "00000000-0000-4000-8000-000000000003",
       } satisfies AiAttemptRequest);
+}
+
+function requiredResponseFormat(body: Record<string, unknown>) {
+  const value = body.response_format;
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error("Fixture request has no response_format");
+  }
+  return value as { type?: unknown };
 }
 
 type ObservedRequest = {

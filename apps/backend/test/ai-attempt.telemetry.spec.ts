@@ -153,6 +153,7 @@ describe("AI attempt telemetry isolation", () => {
         },
         outputContract: {
           version: "overall-synthesis-model@1",
+          enforcement: "JSON_SCHEMA",
           jsonSchema: {
             type: "object",
             properties: { summary: { type: "string" } },
@@ -160,6 +161,21 @@ describe("AI attempt telemetry isolation", () => {
         },
       },
     });
+    expect(diagnosticInputProjection(jsonObjectRequest)).toMatchObject({
+      task: {
+        outputContract: {
+          version: "brand-name-resolution-model@1",
+          enforcement: "JSON_OBJECT",
+        },
+      },
+    });
+    expect(
+      (
+        diagnosticInputProjection(jsonObjectRequest) as {
+          task: { outputContract: Record<string, unknown> };
+        }
+      ).task.outputContract,
+    ).not.toHaveProperty("jsonSchema");
   });
 });
 
@@ -217,6 +233,19 @@ const structuredRequest = {
         type: "object",
         properties: { summary: { type: "string" } },
       },
+    },
+  },
+} as const satisfies ResolvedAiAttemptRequest;
+
+const jsonObjectRequest = {
+  ...structuredRequest,
+  purpose: "BRAND_NAME_RESOLUTION",
+  input: {
+    ...structuredRequest.input,
+    outputContract: {
+      ...structuredRequest.input.outputContract,
+      version: "brand-name-resolution-model@1",
+      enforcement: "JSON_OBJECT",
     },
   },
 } as const satisfies ResolvedAiAttemptRequest;

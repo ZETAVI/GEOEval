@@ -5,7 +5,7 @@
 Define the accepted S3 behavior that turns the twenty immutable sample
 identities of one official evaluation into durable, format-preserving answers
 and accepted per-sample interpretations. This specification stops at internal
-readiness for overall synthesis or the public `PLEASE_RETRY` outcome; it does
+readiness for aggregate report analysis or the public `PLEASE_RETRY` outcome; it does
 not own report synthesis, scoring, optimization advice, synthesis-only retry,
 or notifications. S6 extends this owner with the accepted real execution and
 protected provider-evidence boundary.
@@ -136,17 +136,17 @@ telemetry exporter.
 - **AND** its versioned envelope retains the rejected normalized output,
   Provider Evidence, model-contract version, and domain-contract version
 - **AND** acquisition retries the same platform route
-- **AND** interpretation uses Model Studio Qwen3.8 Flash for attempts one and
-  two and TokenHub Hy3 for attempt three
-- **AND** Qwen interpretation uses low reasoning effort while independently
-  owned Query generation and overall synthesis retain medium reasoning effort
+- **AND** interpretation uses Model Studio `deepseek-v4-flash-0731` with
+  thinking disabled for both bounded attempts and has no automatic model
+  fallback
 - **AND** a structured response affects accepted interpretation only after GEO's
   deterministic projection and canonical semantic validation succeed
-- **AND** deterministic projection may remove unsupported optional observations
-  or other-brand records, deduplicate other brands, bound observation groups,
-  and normalize incomplete optional positions to no position
-- **BUT** it never invents target forms, fuzzy evidence, or an open-query
-  position, and missing metric-critical evidence still rejects the attempt
+- **AND** deterministic projection assigns internal identifiers, derives the
+  current-brand mention and position from the ordered brand records, and
+  validates the directed/open profile boundary
+- **BUT** it never invents a current-brand record, content point, or
+  open-question position, and missing metric-critical meaning still rejects the
+  attempt
 
 #### Scenario: A parser proposal contains unreadable customer card copy
 
@@ -154,13 +154,11 @@ telemetry exporter.
   customer-readable letter or numeral
 - **THEN** the versioned Parser Prompt and output description remain the primary
   controls for concise, formal, customer-readable prose
-- **AND** the deterministic model-to-domain projector replaces only that field
-  with a statement derived from the accepted mention and open-position facts
-- **AND** a non-mention becomes `该回答未提及当前品牌。`
-- **AND** readable model prose passes through unchanged without content scoring
-  or rewriting
-- **AND** no Critic Agent, human review, resampling, or extra Provider attempt is
-  added
+- **AND** the output is rejected before it can become an accepted
+  interpretation
+- **AND** the existing bounded interpretation attempt policy decides whether
+  the same accepted answer is parsed again
+- **AND** no Critic Agent, human review, or resampling is added
 - **AND** canonical evidence, persistence, readiness, and report-projection
   semantics remain unchanged.
 
@@ -250,8 +248,12 @@ the customer understand the current outcome.
 #### Scenario: A customer revisits an active evaluation
 
 - **WHEN** the run is evaluating
-- **THEN** the Web periodically reads and displays expected, processed, valid,
-  and unavailable sample counts without requiring a page refresh
+- **THEN** the Web periodically reads one durable customer-safe phase and each
+  platform's expected, acquired, analyzed, and unavailable sample counts without
+  requiring a page refresh
+- **AND** the phase distinguishes acquiring answers, analyzing content,
+  resolving brand names, composing the report, completion, and an
+  action-required outcome
 - **AND** it does not expose attempt counts, prompts, routes, queue state,
   internal failures, source metadata, or trace identities
 - **AND** internal ready-for-synthesis is presented as sampling complete and
@@ -259,16 +261,12 @@ the customer understand the current outcome.
 
 ## Current environment boundary
 
-The business contract remains reproducible with deterministic adapters. Two
-authorized local 4-by-5 runs acquired all forty platform answers and exposed
-recoverable optional-detail failures. An earlier protected-output replay showed
-that narrowing optional-detail rejection could materially reduce attempts, but
-its broader target-position recovery is not evidence for the final projector.
-The final boundary retains only literal target-mention recovery and still
-rejects an open rank without resolvable position evidence. Four Parser-only real
-calls using the shortened Prompt and low reasoning were accepted in one attempt
-each on the earlier model contract, with an average observed latency of about
-nineteen seconds. The latest contract is verified locally but its final 4-by-5
-Provider behavior remains an Issue #39 Gate. Provider-console cost
-reconciliation, production pacing and quota evidence, commercial data approval,
-and production Redis high availability remain later gates.
+The business contract remains reproducible with deterministic adapters. The
+selected parser, name-resolution, and composition candidate completed one
+authorized local 4-by-5 real run with 20/20 valid samples in 238.644 seconds and
+no retry. The formal runtime keeps the immutable original answer as canonical
+evidence, accepts source-grounded semantic content points without requiring
+line, occurrence, or character anchors, and treats exact highlighting as a
+non-blocking presentation enhancement. Provider-console cost reconciliation,
+production pacing and quota evidence, commercial data approval, and production
+Redis high availability remain later gates.

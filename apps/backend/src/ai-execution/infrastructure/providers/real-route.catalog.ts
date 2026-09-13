@@ -11,6 +11,8 @@ const routeSchema = z.object({
     "EVALUATION_INTERPRETATION",
     "EVALUATION_QUESTION_GENERATION",
     "OVERALL_SYNTHESIS",
+    "BRAND_NAME_RESOLUTION",
+    "REPORT_COMPOSITION",
   ]),
   providerKey: z.enum([
     "tencent-tokenhub",
@@ -22,11 +24,14 @@ const routeSchema = z.object({
   protocol: z.enum(["chat-completions", "responses"]),
   requestedModel: z.string().min(1),
   structuredReasoningEffort: z.enum(["low", "medium", "xhigh"]).optional(),
+  structuredThinking: z.boolean().optional(),
+  temperature: z.number().min(0).max(2).optional(),
+  maxTokens: z.number().int().positive().max(65_536).optional(),
 });
 
 const catalogSchema = z.object({
-  version: z.literal("evaluation-real-routes@3"),
-  routes: z.array(routeSchema).min(11),
+  version: z.literal("evaluation-real-routes@4"),
+  routes: z.array(routeSchema).min(14),
 });
 
 const catalog = catalogSchema.parse(

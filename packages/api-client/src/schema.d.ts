@@ -2681,6 +2681,14 @@ export interface components {
             key: string;
             label: string;
         };
+        EvaluationPlatformProgressResponse: {
+            platformKey: string;
+            platformLabel: string;
+            expectedSampleCount: number;
+            acquiredSampleCount: number;
+            analyzedSampleCount: number;
+            unavailableSampleCount: number;
+        };
         EvaluationRunResponse: {
             id: string;
             definitionId: string;
@@ -2691,6 +2699,9 @@ export interface components {
             processedSampleCount: number;
             validSampleCount: number;
             unavailableSampleCount: number;
+            /** @enum {string} */
+            phase: "ACQUIRING_ANSWERS" | "ANALYZING_CONTENT" | "RESOLVING_BRANDS" | "COMPOSING_REPORT" | "COMPLETED" | "ACTION_REQUIRED";
+            platformProgress: components["schemas"]["EvaluationPlatformProgressResponse"][];
             /** Format: date-time */
             startedAt: string;
             /** Format: date-time */
