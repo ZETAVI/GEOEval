@@ -2,12 +2,13 @@ import { z } from "zod";
 
 import type { EvaluationQuestionKind } from "./evaluation.types.js";
 
-export const SAMPLE_PARSER_CONTRACT_VERSION = "1.0.0";
+export const SAMPLE_PARSER_CONTRACT_VERSION = "2.0.0";
+export const LEGACY_SAMPLE_PARSER_CONTRACT_VERSION = "1.0.0";
 export const S3_COMPATIBILITY_CONTRACT_VERSION = "s3-compatibility@1";
 
 const boundedText = (maximum: number) => z.string().trim().min(1).max(maximum);
 const identifier = z.string().regex(/^[a-z][a-z0-9-]{0,63}$/);
-const evidenceReferenceIds = z.array(identifier).min(1).max(12);
+const evidenceReferenceIds = z.array(identifier).max(12);
 
 const semanticObservationSchema = z
   .object({
@@ -36,6 +37,7 @@ const otherBrandRecordSchema = z
     relativePosition: z.number().int().positive().max(100).nullable(),
     positionKind: z.enum(["RECOMMENDATION", "CONTEXTUAL"]).nullable(),
     evidenceAnchorIds: evidenceReferenceIds,
+    mentionContext: z.array(boundedText(1_200)).max(30).optional(),
   })
   .strict();
 
@@ -250,10 +252,8 @@ export function parseSampleParserOutput(
     if (output.semantic.targetDisplayedForms.length === 0) {
       issues.push("a mentioned target requires a displayed form");
     }
-    if (targetAnchors.length === 0) {
-      issues.push("a mentioned target requires a target-mention anchor");
-    }
     if (
+      targetAnchors.length > 0 &&
       !targetAnchors.some((anchor) =>
         output.semantic.targetDisplayedForms.some((form) =>
           anchor.exactText.includes(form),
@@ -295,6 +295,7 @@ export function parseSampleParserOutput(
       brand.evidenceAnchorIds.includes(anchor.anchorId),
     );
     if (
+      brandAnchors.length > 0 &&
       !brandAnchors.some((anchor) =>
         brand.observedForms.some((form) => anchor.exactText.includes(form)),
       )
@@ -336,9 +337,6 @@ export function parseSampleParserOutput(
     if (output.semantic.targetRole === "NOT_MENTIONED") {
       issues.push("a mentioned target cannot use NOT_MENTIONED role");
     }
-    if (positionAnchors.length === 0) {
-      issues.push("an open-question mention requires a target-position anchor");
-    }
   } else if (
     output.position !== null ||
     output.semantic.targetRole !== "NOT_MENTIONED"
@@ -359,7 +357,10 @@ export function parseStoredSampleSemantic(
   if (contractVersion === S3_COMPATIBILITY_CONTRACT_VERSION) {
     return s3CompatibilitySemanticSchema.parse(payload);
   }
-  if (contractVersion !== SAMPLE_PARSER_CONTRACT_VERSION) {
+  if (
+    contractVersion !== SAMPLE_PARSER_CONTRACT_VERSION &&
+    contractVersion !== LEGACY_SAMPLE_PARSER_CONTRACT_VERSION
+  ) {
     throw new Error(`Unsupported sample semantic contract ${contractVersion}`);
   }
   const semantic = z.discriminatedUnion("profile", [
@@ -367,6 +368,15 @@ export function parseStoredSampleSemantic(
     openDiscoveryOutputSchema.shape.semantic,
   ]);
   return semantic.parse(payload);
+}
+
+export function isReadableSampleParserContractVersion(
+  contractVersion: string,
+): boolean {
+  return (
+    contractVersion === SAMPLE_PARSER_CONTRACT_VERSION ||
+    contractVersion === LEGACY_SAMPLE_PARSER_CONTRACT_VERSION
+  );
 }
 
 export function collectSampleSemanticObservations(
@@ -438,5 +448,8 @@ function rejectGeneratedHtml(
 ): void {
   if (values.some((value) => /<\/?[a-z][^>]*>/iu.test(value))) {
     issues.push(`${owner} contains HTML`);
+  }
+  if (values.some((value) => !/[\p{L}\p{N}]/u.test(value))) {
+    issues.push(`${owner} contains no readable content`);
   }
 }

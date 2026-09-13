@@ -108,12 +108,12 @@ export const overallSynthesisOutputSchema = z
         negative: z.array(themeProposalSchema).max(5),
       })
       .strict(),
-    customerDirections: z.array(customerDirectionSchema).min(1).max(3),
+    customerDirections: z.array(customerDirectionSchema).max(3),
     internalGuidance: z
       .object({
         summary: boundedText(2_000),
-        priorities: z.array(evidenceLinkedGuidanceSchema).min(1).max(8),
-        writingAngles: z.array(evidenceLinkedGuidanceSchema).min(1).max(8),
+        priorities: z.array(evidenceLinkedGuidanceSchema).max(8),
+        writingAngles: z.array(evidenceLinkedGuidanceSchema).max(8),
         cautions: z.array(boundedText(500)).max(8),
       })
       .strict(),

@@ -1,5 +1,5 @@
 {
   "id": "evaluation.sample-parser.brand-directed",
-  "version": "2.2.0",
-  "content": "这是直接询问当前品牌的问题，family 和 semantic.profile 必须为 BRAND_DIRECTED。若原文出现当前品牌，mentioned 为 true，并复制原文中的品牌展示名。最多提取 8 条最有价值的观察，覆盖身份或定位、核心产品服务、适合人群以及明确的优点和局限；不拆成大量近义小点。cardInterpretation 用一至两句面向客户的正式中文，客观概括原回答如何呈现当前品牌；若原文未提及当前品牌，则写“该回答未提及当前品牌。”。顶层 position 必须为 null。只有原文明确进行有序多品牌比较时才填写 contextualTargetPosition，否则保持 null。otherBrands 通常应为空；仅在原文明确比较实际竞争品牌时记录，不记录广告平台、工具、客户、案例、产品、地点或商圈。"
+  "version": "3.1.0",
+  "content": "请围绕focusBrand整理content中的主要介绍和评价，并生成采样卡片小结。\n\n任务\n1. 找出实际围绕重点品牌展开的内容。结合上下文理解名称、简称和指代，不因为问题点名就将泛化行业介绍归到品牌名下。\n2. 按主要意思分点整理业务、定位、产品服务、适用需求和有信息的具体特点。合并重复，保留关键细节；不逐段复述，也不压缩成几个空泛标签。内容来自原文，不自行补写。\n3. 每项mentionContext的text表达一个可理解的主要意思，polarity标记POSITIVE优势、NEGATIVE不足或NEUTRAL一般介绍或中立取舍。能独立理解的优点和不足分别整理。attitude表示整体态度，总体认可同时带普通缺点仍可为POSITIVE。\n4. cardInterpretation用约40至80字的一小段自然中文概括该平台在这个问题下如何认识重点品牌，先写核心认识，再带出突出特点或评价。\n\n输出\nbrands只包含实际识别到的重点品牌一条记录。每条品牌记录固定填写displayName、isFocusBrand、attitude和mentionContext：displayName填写品牌主体名，不使用name或其他字段名；isFocusBrand固定为true。没有可归属于重点品牌的内容时brands为空，cardInterpretation如实说明未提及。"
 }

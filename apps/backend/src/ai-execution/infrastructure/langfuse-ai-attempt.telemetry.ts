@@ -134,7 +134,11 @@ export function diagnosticInputProjection(
             userContext: request.input.userContext,
             outputContract: {
               version: request.input.outputContract.version,
-              jsonSchema: request.input.outputContract.jsonSchema,
+              enforcement:
+                request.input.outputContract.enforcement ?? "JSON_SCHEMA",
+              ...(request.input.outputContract.enforcement === "JSON_OBJECT"
+                ? {}
+                : { jsonSchema: request.input.outputContract.jsonSchema }),
             },
           },
         };
@@ -198,6 +202,10 @@ function observationName(purpose: ResolvedAiAttemptRequest["purpose"]) {
       return "ai.evaluation.interpretation";
     case "OVERALL_SYNTHESIS":
       return "ai.evaluation.overall-synthesis";
+    case "BRAND_NAME_RESOLUTION":
+      return "ai.evaluation.brand-name-resolution";
+    case "REPORT_COMPOSITION":
+      return "ai.evaluation.report-composition";
     case "EVALUATION_QUESTION_GENERATION":
       return "ai.evaluation.question-generation";
   }

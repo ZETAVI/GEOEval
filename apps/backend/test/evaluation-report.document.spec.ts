@@ -85,10 +85,16 @@ describe("evaluation report document", () => {
       ],
     });
 
-    expect(() =>
+    expect(
       evaluationReportDocumentSchema.parse({
         ...document,
         directions: [],
+      }).directions,
+    ).toEqual([]);
+    expect(() =>
+      evaluationReportDocumentSchema.parse({
+        ...document,
+        directions: Array.from({ length: 4 }, () => document.directions[0]),
       }),
     ).toThrow();
     expect(() =>

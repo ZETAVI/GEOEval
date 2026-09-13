@@ -356,6 +356,7 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
               synthesisRequestedEvent({
                 runId,
                 cycleId,
+                purpose: "BRAND_NAME_RESOLUTION",
                 attemptNumber: 1,
                 correlationId: ready.run.correlationId,
               }),

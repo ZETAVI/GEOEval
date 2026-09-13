@@ -76,7 +76,11 @@ export type S6PublicControlledManifest = {
     fixtureProfile: string;
     instructionProfile: string;
     outputContractVersion: string | null;
-    purpose: AiExecutionPurpose | "OVERALL_SYNTHESIS";
+    purpose:
+      | AiExecutionPurpose
+      | "OVERALL_SYNTHESIS"
+      | "BRAND_NAME_RESOLUTION"
+      | "REPORT_COMPOSITION";
     routePolicyId: string;
     providerKey: string;
     serviceClass: string;

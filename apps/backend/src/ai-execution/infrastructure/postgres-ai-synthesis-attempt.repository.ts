@@ -29,6 +29,7 @@ export class PostgresAiSynthesisAttemptRepository implements AiSynthesisAttemptR
           runId: request.runId,
           cycleId: request.cycleId,
           attemptNumber: request.attemptNumber,
+          purpose: request.purpose,
           routePolicyId: request.routePolicyId,
           providerKey: request.providerKey,
           requestedModel: request.requestedModel,
@@ -41,8 +42,9 @@ export class PostgresAiSynthesisAttemptRepository implements AiSynthesisAttemptR
       if (!isUniqueViolation(error)) throw error;
       const attempt = await this.prisma.aiSynthesisAttempt.findUniqueOrThrow({
         where: {
-          cycleId_attemptNumber: {
+          cycleId_purpose_attemptNumber: {
             cycleId: request.cycleId,
+            purpose: request.purpose,
             attemptNumber: request.attemptNumber,
           },
         },

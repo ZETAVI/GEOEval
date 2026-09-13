@@ -129,7 +129,6 @@ export const evaluationReportDocumentSchema = z
           })
           .strict(),
       )
-      .min(1)
       .max(3),
     limitations: z.array(z.string().min(1)),
   })

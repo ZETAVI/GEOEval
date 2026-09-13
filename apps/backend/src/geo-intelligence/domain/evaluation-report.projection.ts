@@ -16,6 +16,7 @@ export function buildEvaluationHighlightProjection(
   originalAnswer: string,
   semantic: SampleParserSemantic,
 ): EvaluationHighlightProjection {
+  if (semantic.evidenceAnchors.length === 0) return unavailableProjection();
   const observationKinds = new Map<string, Set<EvaluationHighlightKind>>();
   for (const observation of collectSampleSemanticObservations(semantic)) {
     const kind = polarityKind(observation.polarity);

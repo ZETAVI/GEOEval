@@ -2,6 +2,13 @@ import { Inject, Injectable } from "@nestjs/common";
 import { z } from "zod";
 
 import { AiSynthesisExecutionService } from "../../ai-execution/application/ai-synthesis-execution.service.js";
+import { buildBrandNameResolutionTask } from "../brand-name-resolution.policy.js";
+import {
+  BRAND_NAME_RESOLUTION_CONTRACT_VERSION,
+  BRAND_NAME_RESOLUTION_MODEL_CONTRACT_VERSION,
+  BrandNameResolutionSemanticError,
+  parseBrandNameResolution,
+} from "../domain/brand-name-resolution.contract.js";
 import {
   EVALUATION_SYNTHESIS_REPOSITORY,
   type EvaluationSynthesisRepository,
@@ -11,35 +18,33 @@ import {
   EVALUATION_PROCESS_COMPLETED,
   type EvaluationProcessResult,
 } from "../domain/evaluation-process.result.js";
+import { OVERALL_SYNTHESIS_CONTRACT_VERSION } from "../domain/overall-synthesis.contract.js";
 import {
-  OVERALL_SYNTHESIS_CONTRACT_VERSION,
-  OverallSynthesisSemanticError,
-} from "../domain/overall-synthesis.contract.js";
-import {
-  OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION,
-  parseAndProjectOverallSynthesisModelOutput,
-} from "../domain/overall-synthesis-model.contract.js";
-import { buildOverallSynthesisTask } from "../overall-synthesis.policy.js";
+  REPORT_COMPOSITION_MODEL_CONTRACT_VERSION,
+  ReportCompositionSemanticError,
+  parseAndProjectReportComposition,
+} from "../domain/report-composition.contract.js";
+import { buildReportCompositionTask } from "../report-composition.policy.js";
 
-const SYNTHESIS_ROUTES = [
-  {
-    routePolicyId: "evaluation.overall-synthesis.qwen-primary@1",
-    requestedModel: "qwen3.8-flash",
+const ANALYSIS_ROUTES = {
+  BRAND_NAME_RESOLUTION: {
+    routePolicyId: "evaluation.brand-name-resolution.deepseek@1",
+    requestedModel: "deepseek-v4-flash-0731",
   },
-  {
-    routePolicyId: "evaluation.overall-synthesis.qwen-primary@1",
-    requestedModel: "qwen3.8-flash",
+  REPORT_COMPOSITION: {
+    routePolicyId: "evaluation.report-composition.deepseek@1",
+    requestedModel: "deepseek-v4-flash-0731",
   },
-  {
-    routePolicyId: "evaluation.overall-synthesis.hy3-fallback@1",
-    requestedModel: "hy3",
-  },
-] as const;
+} as const;
+const MAX_ANALYSIS_ATTEMPTS = 2;
 
 const synthesisWorkSchema = z.object({
   runId: z.string().uuid(),
   cycleId: z.string().uuid(),
-  attemptNumber: z.number().int().min(1).max(SYNTHESIS_ROUTES.length),
+  attemptNumber: z.number().int().min(1).max(MAX_ANALYSIS_ATTEMPTS),
+  purpose: z
+    .enum(["BRAND_NAME_RESOLUTION", "REPORT_COMPOSITION"])
+    .default("BRAND_NAME_RESOLUTION"),
 });
 
 @Injectable()
@@ -57,64 +62,100 @@ export class EvaluationSynthesisCoordinator {
     const work = synthesisWorkSchema.parse(payload);
     const context = await this.repository.getContext(work.runId, work.cycleId);
     if (!context) return EVALUATION_PROCESS_COMPLETED;
-    const route = SYNTHESIS_ROUTES[work.attemptNumber - 1]!;
+    if (work.purpose === "REPORT_COMPOSITION" && !context.resolution) {
+      return EVALUATION_PROCESS_COMPLETED;
+    }
+    const route = ANALYSIS_ROUTES[work.purpose];
     const outcome = await this.aiExecution.execute({
       runId: context.runId,
       cycleId: context.cycleId,
-      purpose: "OVERALL_SYNTHESIS",
+      purpose: work.purpose,
       attemptNumber: work.attemptNumber,
       routePolicyId: route.routePolicyId,
       requestedModel: route.requestedModel,
       correlationId: context.correlationId,
-      input: buildOverallSynthesisTask(context),
+      input:
+        work.purpose === "BRAND_NAME_RESOLUTION"
+          ? buildBrandNameResolutionTask(context.samples)
+          : buildReportCompositionTask({
+              brand: context.brand,
+              samples: context.samples,
+              metrics: context.metrics,
+              resolution: context.resolution!,
+            }),
     });
     if (outcome.kind === "DEFERRED") return outcome;
     if (outcome.kind === "FAILED") {
       await this.handleFailure({
         context,
+        purpose: work.purpose,
         attemptId: outcome.attemptId,
         attemptNumber: work.attemptNumber,
         failureClass: outcome.failureClass,
         retryable: outcome.retryable,
-        reason: "Overall analysis execution failed",
+        reason: `${work.purpose} execution failed`,
       });
       return EVALUATION_PROCESS_COMPLETED;
     }
-    let synthesis;
+
     try {
-      synthesis = parseAndProjectOverallSynthesisModelOutput(
-        outcome.output,
-        context.samples,
-        outcome.providerEvidence,
-      );
+      if (work.purpose === "BRAND_NAME_RESOLUTION") {
+        const resolution = parseBrandNameResolution(
+          outcome.output,
+          context.samples,
+          context.brand.companyName,
+        );
+        await this.repository.acceptResolution({
+          runId: context.runId,
+          cycleId: context.cycleId,
+          attemptId: outcome.attemptId,
+          resolution,
+        });
+      } else {
+        const projected = parseAndProjectReportComposition({
+          output: outcome.output,
+          focusBrand: context.brand.companyName,
+          samples: context.samples,
+          metrics: context.metrics,
+          resolution: context.resolution!,
+        });
+        await this.repository.acceptReport({
+          runId: context.runId,
+          cycleId: context.cycleId,
+          attemptId: outcome.attemptId,
+          synthesis: projected.synthesis,
+          metrics: projected.metrics,
+        });
+      }
     } catch (error) {
       if (
         !(error instanceof z.ZodError) &&
-        !(error instanceof OverallSynthesisSemanticError)
+        !(error instanceof BrandNameResolutionSemanticError) &&
+        !(error instanceof ReportCompositionSemanticError)
       ) {
         throw error;
       }
       await this.aiExecution.rejectSemantics(outcome.attemptId, {
         failureClass: "SEMANTIC_CONTRACT_REJECTED",
-        modelContractVersion: OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION,
-        domainContractVersion: OVERALL_SYNTHESIS_CONTRACT_VERSION,
+        modelContractVersion:
+          work.purpose === "BRAND_NAME_RESOLUTION"
+            ? BRAND_NAME_RESOLUTION_MODEL_CONTRACT_VERSION
+            : REPORT_COMPOSITION_MODEL_CONTRACT_VERSION,
+        domainContractVersion:
+          work.purpose === "BRAND_NAME_RESOLUTION"
+            ? BRAND_NAME_RESOLUTION_CONTRACT_VERSION
+            : OVERALL_SYNTHESIS_CONTRACT_VERSION,
       });
       await this.handleFailure({
         context,
+        purpose: work.purpose,
         attemptId: outcome.attemptId,
         attemptNumber: work.attemptNumber,
         failureClass: "SEMANTIC_CONTRACT_REJECTED",
         retryable: true,
-        reason: "Overall analysis output failed the accepted semantic contract",
+        reason: `${work.purpose} output failed its semantic contract`,
       });
-      return EVALUATION_PROCESS_COMPLETED;
     }
-    await this.repository.acceptReport({
-      runId: context.runId,
-      cycleId: context.cycleId,
-      attemptId: outcome.attemptId,
-      synthesis,
-    });
     return EVALUATION_PROCESS_COMPLETED;
   }
 
@@ -124,6 +165,7 @@ export class EvaluationSynthesisCoordinator {
 
   private async handleFailure(input: {
     context: EvaluationSynthesisContext;
+    purpose: "BRAND_NAME_RESOLUTION" | "REPORT_COMPOSITION";
     attemptId: string;
     attemptNumber: number;
     failureClass: string;
@@ -133,13 +175,14 @@ export class EvaluationSynthesisCoordinator {
     const failure = {
       runId: input.context.runId,
       cycleId: input.context.cycleId,
+      purpose: input.purpose,
       attemptId: input.attemptId,
       attemptNumber: input.attemptNumber,
       failureClass: input.failureClass,
       reason: input.reason,
       correlationId: input.context.correlationId,
     };
-    if (input.retryable && input.attemptNumber < SYNTHESIS_ROUTES.length) {
+    if (input.retryable && input.attemptNumber < MAX_ANALYSIS_ATTEMPTS) {
       await this.repository.scheduleRetry(failure);
       return;
     }

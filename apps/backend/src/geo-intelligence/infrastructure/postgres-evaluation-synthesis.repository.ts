@@ -8,6 +8,11 @@ import {
   parseEvaluationBrandSnapshot,
 } from "../domain/evaluation-brand-snapshot.js";
 import {
+  BRAND_NAME_RESOLUTION_CONTRACT_VERSION,
+  brandNameResolutionOutputSchema,
+  type BrandNameResolutionOutput,
+} from "../domain/brand-name-resolution.contract.js";
+import {
   EVALUATION_REPORT_DOCUMENT_VERSION,
   buildEvaluationReportDocument,
 } from "../domain/evaluation-report.document.js";
@@ -24,7 +29,7 @@ import type {
   SynthesisFailureInput,
 } from "../domain/evaluation-synthesis.types.js";
 import {
-  SAMPLE_PARSER_CONTRACT_VERSION,
+  isReadableSampleParserContractVersion,
   parseStoredSampleSemantic,
   type SampleParserSemantic,
 } from "../domain/sample-parser.contract.js";
@@ -42,7 +47,7 @@ const platformPolicySchema = z.array(
   }),
 );
 
-const MAX_SYNTHESIS_ATTEMPTS = 3;
+const MAX_SYNTHESIS_ATTEMPTS = 2;
 
 @Injectable()
 export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesisRepository {
@@ -57,11 +62,64 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
     );
   }
 
+  async acceptResolution(input: {
+    runId: string;
+    cycleId: string;
+    attemptId: string;
+    resolution: BrandNameResolutionOutput;
+  }): Promise<void> {
+    try {
+      await this.prisma.$transaction(async (transaction) => {
+        const existing = await transaction.evaluationBrandResolution.findUnique(
+          {
+            where: { runId: input.runId },
+            select: { id: true },
+          },
+        );
+        if (existing) return;
+        const context = await loadContext(
+          transaction,
+          input.runId,
+          input.cycleId,
+        );
+        if (!context || context.resolution) return;
+        const resolution = brandNameResolutionOutputSchema.parse(
+          input.resolution,
+        );
+        await transaction.evaluationBrandResolution.create({
+          data: {
+            runId: input.runId,
+            acceptedAttemptId: input.attemptId,
+            semanticContractVersion: BRAND_NAME_RESOLUTION_CONTRACT_VERSION,
+            semanticPayload: resolution as Prisma.InputJsonValue,
+          },
+        });
+        await transaction.productOutboxEvent.create({
+          data: synthesisRequestedEvent({
+            runId: input.runId,
+            cycleId: input.cycleId,
+            purpose: "REPORT_COMPOSITION",
+            attemptNumber: 1,
+            correlationId: context.correlationId,
+          }),
+        });
+      });
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error;
+      const existing = await this.prisma.evaluationBrandResolution.findUnique({
+        where: { runId: input.runId },
+        select: { id: true },
+      });
+      if (!existing) throw error;
+    }
+  }
+
   async acceptReport(input: {
     runId: string;
     cycleId: string;
     attemptId: string;
     synthesis: OverallSynthesisOutput;
+    metrics: EvaluationSynthesisContext["metrics"];
   }): Promise<void> {
     try {
       await this.prisma.$transaction(async (transaction) => {
@@ -75,7 +133,7 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
           input.runId,
           input.cycleId,
         );
-        if (!context) return;
+        if (!context || !context.resolution) return;
         const runOwner = await transaction.evaluationRun.findUniqueOrThrow({
           where: { id: input.runId },
           select: { accountId: true, brandId: true, correlationId: true },
@@ -86,7 +144,7 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
         );
         const { semantic, guidance } = splitOverallSynthesis(accepted);
         const document = buildEvaluationReportDocument({
-          metrics: context.metrics,
+          metrics: input.metrics,
           synthesis: semantic,
           samples: context.samples,
         });
@@ -189,6 +247,7 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
           synthesisRequestedEvent({
             runId: input.runId,
             cycleId: input.cycleId,
+            purpose: input.purpose,
             attemptNumber: nextAttemptNumber,
             correlationId: input.correlationId,
           }),
@@ -231,6 +290,7 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
             id: input.attemptId,
             runId: input.runId,
             cycleId: input.cycleId,
+            purpose: input.purpose,
           },
           select: { id: true },
         });
@@ -239,6 +299,7 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
             runId: input.runId,
             cycleId: input.cycleId,
             lastAttemptId: input.attemptId,
+            purpose: input.purpose,
             failureClass: input.failureClass,
             reason: input.reason,
           },
@@ -310,6 +371,7 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
         run: {
           select: {
             correlationId: true,
+            brandResolution: { select: { id: true } },
             samples: {
               select: {
                 interpretation: { select: { semanticContractVersion: true } },
@@ -319,7 +381,6 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
         },
         synthesisAttempts: {
           orderBy: { attemptNumber: "desc" },
-          take: 1,
         },
       },
     });
@@ -327,16 +388,24 @@ export class PostgresEvaluationSynthesisRepository implements EvaluationSynthesi
     for (const cycle of cycles) {
       const currentValid = cycle.run.samples.filter(
         (sample) =>
-          sample.interpretation?.semanticContractVersion ===
-          SAMPLE_PARSER_CONTRACT_VERSION,
+          sample.interpretation !== null &&
+          isReadableSampleParserContractVersion(
+            sample.interpretation.semanticContractVersion,
+          ),
       ).length;
       if (currentValid < 17) continue;
-      const attemptNumber = cycle.synthesisAttempts[0]?.attemptNumber ?? 1;
+      const purpose = cycle.run.brandResolution
+        ? "REPORT_COMPOSITION"
+        : "BRAND_NAME_RESOLUTION";
+      const attemptNumber =
+        cycle.synthesisAttempts.find((attempt) => attempt.purpose === purpose)
+          ?.attemptNumber ?? 1;
       const result = await this.prisma.productOutboxEvent.createMany({
         data: [
           synthesisRequestedEvent({
             runId: cycle.runId,
             cycleId: cycle.id,
+            purpose,
             attemptNumber,
             correlationId: cycle.run.correlationId,
           }),
@@ -378,6 +447,7 @@ async function loadContext(
           interpretation: true,
         },
       },
+      brandResolution: true,
     },
   });
   if (!run) return undefined;
@@ -391,8 +461,9 @@ async function loadContext(
     let interpretation: EvaluationReportMetricInput["interpretation"];
     if (sample.interpretation) {
       if (
-        sample.interpretation.semanticContractVersion !==
-        SAMPLE_PARSER_CONTRACT_VERSION
+        !isReadableSampleParserContractVersion(
+          sample.interpretation.semanticContractVersion,
+        )
       ) {
         return undefined;
       }
@@ -429,9 +500,14 @@ async function loadContext(
             questionId: run.samples.find(
               (stored) => stored.id === sample.sampleId,
             )!.questionId,
+            question: run.samples.find(
+              (stored) => stored.id === sample.sampleId,
+            )!.question.content,
             questionKind: sample.questionKind,
             platformKey: sample.platformKey,
             platformLabel: sample.platformLabel,
+            mentioned: sample.interpretation.mentioned,
+            position: sample.interpretation.position,
             semantic: sample.interpretation.semantic,
           },
         ]
@@ -450,7 +526,23 @@ async function loadContext(
     })),
     samples,
     metrics,
+    resolution: run.brandResolution
+      ? parseStoredBrandNameResolution(
+          run.brandResolution.semanticContractVersion,
+          run.brandResolution.semanticPayload,
+        )
+      : null,
   };
+}
+
+function parseStoredBrandNameResolution(
+  contractVersion: string,
+  payload: unknown,
+): BrandNameResolutionOutput {
+  if (contractVersion !== BRAND_NAME_RESOLUTION_CONTRACT_VERSION) {
+    throw new Error(`Unsupported brand resolution contract ${contractVersion}`);
+  }
+  return brandNameResolutionOutputSchema.parse(payload);
 }
 
 function isUniqueViolation(error: unknown): boolean {

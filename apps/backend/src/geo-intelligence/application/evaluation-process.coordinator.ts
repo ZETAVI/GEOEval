@@ -30,16 +30,12 @@ const MAX_ACQUISITION_ATTEMPTS = 2;
 
 const INTERPRETATION_ROUTES = [
   {
-    routePolicyId: "evaluation.interpretation.qwen-primary@2",
-    requestedModel: "qwen3.8-flash",
+    routePolicyId: "evaluation.interpretation.deepseek@1",
+    requestedModel: "deepseek-v4-flash-0731",
   },
   {
-    routePolicyId: "evaluation.interpretation.qwen-primary@2",
-    requestedModel: "qwen3.8-flash",
-  },
-  {
-    routePolicyId: "evaluation.interpretation.hy3-fallback@1",
-    requestedModel: "hy3",
+    routePolicyId: "evaluation.interpretation.deepseek@1",
+    requestedModel: "deepseek-v4-flash-0731",
   },
 ] as const;
 

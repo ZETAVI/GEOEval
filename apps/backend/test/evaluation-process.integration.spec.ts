@@ -28,7 +28,8 @@ import { EvaluationOptimizationGuidanceService } from "../src/geo-intelligence/a
 import { EvaluationReportService } from "../src/geo-intelligence/application/evaluation-report.service.js";
 import { EvaluationSynthesisCoordinator } from "../src/geo-intelligence/application/evaluation-synthesis.coordinator.js";
 import { EvaluationService } from "../src/geo-intelligence/application/evaluation.service.js";
-import { OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/overall-synthesis-model.contract.js";
+import { BRAND_NAME_RESOLUTION_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/brand-name-resolution.contract.js";
+import { REPORT_COMPOSITION_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/report-composition.contract.js";
 import { parseStoredSampleSemantic } from "../src/geo-intelligence/domain/sample-parser.contract.js";
 import { SAMPLE_PARSER_MODEL_CONTRACT_VERSION } from "../src/geo-intelligence/domain/sample-parser-model.contract.js";
 import { PostgresEvaluationProcessRepository } from "../src/geo-intelligence/infrastructure/postgres-evaluation-process.repository.js";
@@ -116,7 +117,7 @@ describe("resumable evaluation evidence", () => {
     ).toBe(20);
     const currentInterpretations =
       await prisma.evaluationSampleInterpretation.findMany({
-        where: { semanticContractVersion: "1.0.0" },
+        where: { semanticContractVersion: "2.0.0" },
         select: {
           relevantDescription: true,
           characteristics: true,
@@ -294,19 +295,26 @@ describe("resumable evaluation evidence", () => {
     await expect(
       optimizationGuidance.latest(otherAccount.id, brandId),
     ).rejects.toThrow("未找到该品牌");
-    const synthesisAttempt = await prisma.aiSynthesisAttempt.findFirstOrThrow({
+    const synthesisAttempts = await prisma.aiSynthesisAttempt.findMany({
       where: { runId },
+      orderBy: { startedAt: "asc" },
     });
-    expect(synthesisAttempt.requestPayload).toMatchObject({
+    expect(synthesisAttempts.map((attempt) => attempt.purpose)).toEqual([
+      "BRAND_NAME_RESOLUTION",
+      "REPORT_COMPOSITION",
+    ]);
+    expect(synthesisAttempts[0]?.requestPayload).toMatchObject({
       taskKind: "STRUCTURED_OUTPUT",
-      outputContract: { version: OVERALL_SYNTHESIS_MODEL_CONTRACT_VERSION },
+      outputContract: { version: BRAND_NAME_RESOLUTION_MODEL_CONTRACT_VERSION },
     });
-    expect(synthesisAttempt.requestPayload).not.toHaveProperty(
-      "synthesisInputHash",
-    );
-    expect(JSON.stringify(synthesisAttempt.requestPayload)).not.toContain(
-      "originalAnswer",
-    );
+    expect(synthesisAttempts[1]?.requestPayload).toMatchObject({
+      taskKind: "STRUCTURED_OUTPUT",
+      outputContract: { version: REPORT_COMPOSITION_MODEL_CONTRACT_VERSION },
+    });
+    expect(JSON.stringify(synthesisAttempts)).not.toContain("originalAnswer");
+    expect(
+      await prisma.evaluationBrandResolution.count({ where: { runId } }),
+    ).toBe(1);
     await expect(
       prisma.evaluationSampleInterpretation.update({
         where: { id: constrainedInterpretation.id },
@@ -328,13 +336,85 @@ describe("resumable evaluation evidence", () => {
     ).rejects.toThrow();
   });
 
-  it("normalizes an unreadable parser card before persistence and report projection", async () => {
+  it("projects truthful per-platform progress through resolution and composition", async () => {
+    const { runId, brandId, processor, outbox } = await startScenario();
+    const started = await evaluations.observeDefinition(accountId, brandId);
+    expect(started?.definition?.run).toMatchObject({
+      id: runId,
+      phase: "ACQUIRING_ANSWERS",
+      platformProgress: expect.arrayContaining([
+        expect.objectContaining({
+          platformLabel: "DeepSeek",
+          expectedSampleCount: 4,
+          acquiredSampleCount: 0,
+          analyzedSampleCount: 0,
+          unavailableSampleCount: 0,
+        }),
+      ]),
+    });
+
+    const [runStarted] = await outbox.findDeliverable(1);
+    await processor.apply(runStarted!.id);
+    const acquisition = await prisma.productOutboxEvent.findFirstOrThrow({
+      where: {
+        eventType: "evaluation.sample.acquire.requested",
+        status: { not: "COMPLETED" },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+    await processor.apply(acquisition.id);
+    const acquired = await evaluations.observeDefinition(accountId, brandId);
+    expect(
+      acquired?.definition?.run?.platformProgress.reduce(
+        (total, platform) => total + platform.acquiredSampleCount,
+        0,
+      ),
+    ).toBe(1);
+    expect(
+      acquired?.definition?.run?.platformProgress.reduce(
+        (total, platform) => total + platform.analyzedSampleCount,
+        0,
+      ),
+    ).toBe(0);
+
+    const interpretation = await prisma.productOutboxEvent.findFirstOrThrow({
+      where: {
+        eventType: "evaluation.sample.interpret.requested",
+        status: { not: "COMPLETED" },
+      },
+    });
+    await processor.apply(interpretation.id);
+    const analyzed = await evaluations.observeDefinition(accountId, brandId);
+    expect(
+      analyzed?.definition?.run?.platformProgress.reduce(
+        (total, platform) => total + platform.analyzedSampleCount,
+        0,
+      ),
+    ).toBe(1);
+
+    const resolutionEvent = await advanceToSynthesisEvent(processor, outbox);
+    expect(
+      (await evaluations.observeDefinition(accountId, brandId))?.definition
+        ?.run,
+    ).toMatchObject({ phase: "RESOLVING_BRANDS" });
+    await processor.apply(resolutionEvent.id);
+    expect(
+      (await evaluations.observeDefinition(accountId, brandId))?.definition
+        ?.run,
+    ).toMatchObject({ phase: "COMPOSING_REPORT" });
+    await drain(processor, outbox);
+    expect(
+      (await evaluations.observeDefinition(accountId, brandId))?.definition
+        ?.run,
+    ).toMatchObject({ phase: "COMPLETED", status: "COMPLETED" });
+  });
+
+  it("retries an unreadable parser card without resampling", async () => {
     let protectedSampleId: string | undefined;
     const structuralCardFragment: DeterministicAttemptScenario = (request) => {
       if (
         request.purpose !== "EVALUATION_INTERPRETATION" ||
-        protectedSampleId !== undefined ||
-        request.input.userContext.questionKind !== "INDUSTRY_RECOMMENDATION"
+        protectedSampleId !== undefined
       ) {
         return undefined;
       }
@@ -342,22 +422,8 @@ describe("resumable evaluation evidence", () => {
       return {
         kind: "SUCCEEDED",
         output: {
-          family: "OPEN_DISCOVERY",
-          questionKind: "INDUSTRY_RECOMMENDATION",
-          mentioned: false,
-          position: null,
-          semantic: {
-            profile: "OPEN_DISCOVERY",
-            answerStructure: "UNORDERED_LIST",
-            targetDisplayedForms: [],
-            targetMentionEvidence: [],
-            targetPositionEvidence: [],
-            targetRole: "NOT_MENTIONED",
-            targetObservations: [],
-            otherBrands: [],
-            cardInterpretation: "}}}",
-            limitations: ["结果仅反映本次回答。"],
-          },
+          brands: [],
+          cardInterpretation: "}}}",
         },
       };
     };
@@ -377,12 +443,8 @@ describe("resumable evaluation evidence", () => {
       parseStoredSampleSemantic(
         interpretation.semanticContractVersion,
         interpretation.semanticPayload,
-      ),
-    ).toMatchObject({
-      profile: "OPEN_DISCOVERY",
-      cardInterpretation: "该回答未提及当前品牌。",
-      targetRole: "NOT_MENTIONED",
-    });
+      ).cardInterpretation,
+    ).not.toBe("}}}");
     expect(
       await prisma.aiExecutionAttempt.count({
         where: {
@@ -390,7 +452,7 @@ describe("resumable evaluation evidence", () => {
           purpose: "EVALUATION_INTERPRETATION",
         },
       }),
-    ).toBe(1);
+    ).toBe(2);
     expect(
       await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
     ).toMatchObject({ status: "COMPLETED", stage: "REPORT_ACCEPTED" });
@@ -401,9 +463,7 @@ describe("resumable evaluation evidence", () => {
       .find((sample) => sample.id === protectedSampleId);
     expect(replaySample).toMatchObject({
       availability: "INCLUDED",
-      mentioned: false,
-      position: null,
-      cardInterpretation: "该回答未提及当前品牌。",
+      cardInterpretation: expect.not.stringContaining("}}}"),
     });
   });
 
@@ -567,7 +627,7 @@ describe("resumable evaluation evidence", () => {
   it("retries exhausted synthesis without resampling and materializes durable notices", async () => {
     let firstSynthesisCycle: string | undefined;
     const rejectFirstCycle: DeterministicAttemptScenario = (request) => {
-      if (request.purpose !== "OVERALL_SYNTHESIS") return undefined;
+      if (request.purpose !== "REPORT_COMPOSITION") return undefined;
       firstSynthesisCycle ??= request.cycleId;
       return request.cycleId === firstSynthesisCycle
         ? { kind: "SUCCEEDED", output: { unexpected: true } }
@@ -769,8 +829,8 @@ describe("resumable evaluation evidence", () => {
         semanticDisposition: {
           kind: "REJECTED",
           failureClass: "SEMANTIC_CONTRACT_REJECTED",
-          modelContractVersion: "evaluation.sample-parser-model@5",
-          domainContractVersion: "1.0.0",
+          modelContractVersion: SAMPLE_PARSER_MODEL_CONTRACT_VERSION,
+          domainContractVersion: "2.0.0",
         },
       },
     });
@@ -785,7 +845,7 @@ describe("resumable evaluation evidence", () => {
     ).toMatchObject({ stage: "REPORT_ACCEPTED" });
   });
 
-  it("uses Model Studio Qwen primary retry and TokenHub Hy3 fallback only for parsing", async () => {
+  it("uses the selected DeepSeek route for both parser attempts", async () => {
     let controlledSampleId: string | undefined;
     const failPrimaryParser: DeterministicAttemptScenario = (request) => {
       if (
@@ -797,7 +857,7 @@ describe("resumable evaluation evidence", () => {
       if (
         request.purpose === "EVALUATION_INTERPRETATION" &&
         request.sampleId === controlledSampleId &&
-        request.attemptNumber < 3
+        request.attemptNumber <= 2
       ) {
         return {
           kind: "FAILED",
@@ -829,22 +889,16 @@ describe("resumable evaluation evidence", () => {
       ),
     ).toEqual([
       {
-        routePolicyId: "evaluation.interpretation.qwen-primary@2",
+        routePolicyId: "evaluation.interpretation.deepseek@1",
         providerKey: "deterministic-parser",
-        requestedModel: "qwen3.8-flash",
+        requestedModel: "deepseek-v4-flash-0731",
         attemptNumber: 1,
       },
       {
-        routePolicyId: "evaluation.interpretation.qwen-primary@2",
+        routePolicyId: "evaluation.interpretation.deepseek@1",
         providerKey: "deterministic-parser",
-        requestedModel: "qwen3.8-flash",
+        requestedModel: "deepseek-v4-flash-0731",
         attemptNumber: 2,
-      },
-      {
-        routePolicyId: "evaluation.interpretation.hy3-fallback@1",
-        providerKey: "deterministic-parser-fallback",
-        requestedModel: "hy3",
-        attemptNumber: 3,
       },
     ]);
     expect(
@@ -980,9 +1034,9 @@ describe("resumable evaluation evidence", () => {
     ).toMatchObject({ stage: "REPORT_ACCEPTED" });
   });
 
-  it("uses the primary retry and fallback slots before accepting a report", async () => {
+  it("retries report composition on the selected route before accepting a report", async () => {
     const failPrimaryRoutes: DeterministicAttemptScenario = (request) =>
-      request.purpose === "OVERALL_SYNTHESIS" && request.attemptNumber < 3
+      request.purpose === "REPORT_COMPOSITION" && request.attemptNumber < 2
         ? {
             kind: "FAILED",
             failureClass: "CONTROLLED_SYNTHESIS_TRANSIENT",
@@ -997,15 +1051,15 @@ describe("resumable evaluation evidence", () => {
       orderBy: { attemptNumber: "asc" },
     });
     expect(attempts).toHaveLength(3);
-    expect(attempts.map((attempt) => attempt.providerKey)).toEqual([
-      "deterministic-synthesis-primary",
-      "deterministic-synthesis-primary",
-      "deterministic-synthesis-fallback",
+    expect(attempts.map((attempt) => attempt.purpose)).toEqual([
+      "BRAND_NAME_RESOLUTION",
+      "REPORT_COMPOSITION",
+      "REPORT_COMPOSITION",
     ]);
     expect(attempts.map((attempt) => attempt.routePolicyId)).toEqual([
-      "evaluation.overall-synthesis.qwen-primary@1",
-      "evaluation.overall-synthesis.qwen-primary@1",
-      "evaluation.overall-synthesis.hy3-fallback@1",
+      "evaluation.brand-name-resolution.deepseek@1",
+      "evaluation.report-composition.deepseek@1",
+      "evaluation.report-composition.deepseek@1",
     ]);
     expect(
       await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
@@ -1015,7 +1069,7 @@ describe("resumable evaluation evidence", () => {
 
   it("exhausts invalid overall analysis without issuing a partial report", async () => {
     const rejectEverySynthesis: DeterministicAttemptScenario = (request) =>
-      request.purpose === "OVERALL_SYNTHESIS"
+      request.purpose === "REPORT_COMPOSITION"
         ? { kind: "SUCCEEDED", output: { unexpected: true } }
         : undefined;
     const { runId, brandId, processor, outbox } =
@@ -1024,7 +1078,7 @@ describe("resumable evaluation evidence", () => {
 
     expect(await prisma.aiSynthesisAttempt.count({ where: { runId } })).toBe(3);
     const rejectedAttempts = await prisma.aiSynthesisAttempt.findMany({
-      where: { runId },
+      where: { runId, purpose: "REPORT_COMPOSITION" },
       orderBy: { attemptNumber: "asc" },
     });
     expect(
@@ -1041,14 +1095,14 @@ describe("resumable evaluation evidence", () => {
             : undefined,
       })),
     ).toEqual(
-      Array.from({ length: 3 }, () => ({
+      Array.from({ length: 2 }, () => ({
         status: "FAILED",
         failureClass: "SEMANTIC_CONTRACT_REJECTED",
         retryable: true,
         semanticDisposition: {
           kind: "REJECTED",
           failureClass: "SEMANTIC_CONTRACT_REJECTED",
-          modelContractVersion: "evaluation.overall-synthesis-model@2",
+          modelContractVersion: REPORT_COMPOSITION_MODEL_CONTRACT_VERSION,
           domainContractVersion: "evaluation.overall-synthesis@1",
         },
       })),
@@ -1089,7 +1143,17 @@ describe("resumable evaluation evidence", () => {
     ]);
     await drain(processor, outbox);
 
-    expect(await prisma.aiSynthesisAttempt.count({ where: { runId } })).toBe(1);
+    expect(await prisma.aiSynthesisAttempt.count({ where: { runId } })).toBe(2);
+    expect(
+      await prisma.aiSynthesisAttempt.count({
+        where: { runId, purpose: "BRAND_NAME_RESOLUTION" },
+      }),
+    ).toBe(1);
+    expect(
+      await prisma.aiSynthesisAttempt.count({
+        where: { runId, purpose: "REPORT_COMPOSITION" },
+      }),
+    ).toBe(1);
     expect(await prisma.evaluationSynthesis.count({ where: { runId } })).toBe(
       1,
     );
@@ -1331,10 +1395,14 @@ function positionKey(request: AiAttemptRequest): string {
   if (request.purpose === "EVALUATION_ACQUISITION") {
     return `${String(request.input.questionOrdinal)}:${String(request.input.platformLabel)}`;
   }
-  if (request.purpose === "OVERALL_SYNTHESIS") {
-    return `synthesis:${request.attemptNumber}`;
+  if (
+    request.purpose === "OVERALL_SYNTHESIS" ||
+    request.purpose === "BRAND_NAME_RESOLUTION" ||
+    request.purpose === "REPORT_COMPOSITION"
+  ) {
+    return `${request.purpose}:${request.attemptNumber}`;
   }
-  return `${String(request.input.userContext.questionKind)}:${request.sampleId}`;
+  return `${String(request.input.userContext.question)}:${request.sampleId}`;
 }
 
 async function drain(

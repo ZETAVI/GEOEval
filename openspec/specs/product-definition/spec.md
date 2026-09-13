@@ -546,12 +546,12 @@ definition retains only their customer meaning and product constraints.
 - **AND** it interprets ordered lists, tables, headings, paragraph structure, and
   other semantic recommendation forms rather than relying on ordinal-word,
   character-position, or paragraph-splitting rules alone
-- **AND** it returns structured brand mention, recommendation position, positive
-  and negative associated characteristics, and evidence supporting its
-  interpretation
+- **AND** it returns one ordered record per concrete brand with the brand
+  subject, whether it is the current brand, overall attitude, source-grounded
+  content points, and one concise sample-card interpretation
 - **AND** it identifies the distinct brands explicitly present in the answer,
   their displayed names, reasonable relative positions when the answer implies
-  an order, and the exact answer evidence supporting those interpretations
+  an order, and the meaningful answer content supporting those interpretations
 - **AND** it distinguishes the current brand from other mentioned brands so
   deterministic report logic can later calculate customer mention, position,
   and competitor occurrence without asking the parser to perform cross-sample
@@ -585,9 +585,10 @@ definition retains only their customer meaning and product constraints.
   customer mention or position and important positive or negative evidence in
   significant headings or longer text blocks without modifying the stored
   original
-- **AND** semantic parsing supplies evidence anchors and highlight intent while
-  deterministic presentation logic sanitizes, formats, and annotates a separate
-  display projection; generated markup never replaces the retained original
+- **AND** semantic parsing may supply reliably mappable evidence anchors for
+  deterministic presentation, but line, occurrence, and character anchors are
+  not required for an otherwise valid interpretation; generated markup never
+  replaces the retained original
 - **AND** it preserves an unannotated complex format rather than applying a
   misleading highlight when reliable evidence mapping is unavailable
 - **AND** only the approved mention and normalized-position fields affect the AI
@@ -615,40 +616,39 @@ definition retains only their customer meaning and product constraints.
   relative position derived by deterministic application logic
 - **AND** brand-directed-question occurrences do not contribute to this
   competitive summary
-- **AND** the overall synthesizer may use all retained mention context and,
-  when needed, public web search to map names that ordinary customers would
+- **AND** one name-resolution stage may use the observed names and their
+  necessary mention context to map names that ordinary customers would
   reasonably understand as the same consumer brand into one reporting group
 - **AND** that grouping may include aliases, translations, abbreviations,
   store formats, or an obvious subordinate brand line such as **Starbucks
   Reserve** under **Starbucks**, while a distinctly and independently
   positioned sub-brand remains a separate reporting group
-- **AND** each accepted mapping identifies the original mention records and
-  retains whether it was supported by answer context or public-search evidence,
-  including source references when search was used, without exposing that
-  metadata in the customer report
-- **AND** uncertain identities remain separate, and unavailable or inconclusive
-  alias resolution does not prevent the rest of an otherwise valid report from
-  completing
+- **AND** the model uses readable observed names rather than internal mention or
+  group identifiers, and program logic restores the original mention records
+- **AND** every observed name is assigned exactly once to one group or the
+  ignored-name collection, with uncertain identities left separate and no
+  external web-backed entity research
 - **AND** the report does not assign competitors a five-star index, claim a
   complete market ranking, or expand the first evaluation into professional
   competitor intelligence
 
-#### Scenario: The product synthesizes overall performance
+#### Scenario: The product composes overall performance
 
 - **GIVEN** enough positions have a successful platform answer and valid sample
   parse
 - **WHEN** the product forms the overall assessment
-- **THEN** one overall evaluation synthesizer receives the current brand context,
-  all successful structured sample results, and their relevant brand descriptions
-- **AND** it may propose evidence-linked reporting groups for other-brand
-  mentions that represent the same consumer brand or an obvious subordinate
-  brand line, while preserving the original displayed names and keeping a
-  distinctly independent sub-brand separate
+- **THEN** deterministic logic first applies the accepted name resolution and
+  calculates all report metrics and leading competitor facts
+- **AND** one report composer receives the current-brand content points,
+  deterministic performance facts, and resolved leading-competitor statistics
+- **AND** it does not receive complete raw answers, competitor descriptions,
+  content hashes, Prompt versions, or internal execution metadata
 - **AND** it does not calculate grouped occurrence counts, platform counts, or
   ranks
-- **AND** it produces the report-opening overall assessment, the combined broad
-  positive-versus-negative characteristic section, and the final optimization
-  direction
+- **AND** it produces the report-opening overall assessment, a natural overview
+  of how the sampled AI answers understand the brand, the combined broad
+  positive-versus-negative characteristic section, and final GEO promotional-
+  content directions
 - **AND** it does not calculate or revise the recommendation index or overwrite
   any sample-level mention, position, interpretation, or original-answer evidence
 - **AND** the characteristic section contains no more than five positive and five
@@ -667,7 +667,7 @@ definition retains only their customer meaning and product constraints.
 
 - **GIVEN** the overall evaluation synthesis succeeds
 - **WHEN** the report presents optimization direction
-- **THEN** the customer sees no more than three direction cards, with the actual
+- **THEN** the customer sees no more than two direction cards, with the actual
   number determined by the evaluation evidence
 - **AND** each card contains a current problem, recommended direction, concise
   supporting evidence such as platforms or sample count, and a non-guaranteed

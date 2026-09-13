@@ -20,7 +20,14 @@ import type {
 
 const definitionInclude = {
   questions: { orderBy: { ordinal: "asc" as const } },
-  run: { include: { samples: { select: { status: true } } } },
+  run: {
+    include: {
+      brandResolution: { select: { id: true } },
+      samples: {
+        select: { status: true, platformKey: true, platformLabel: true },
+      },
+    },
+  },
 } as const;
 
 @Injectable()
@@ -84,7 +91,18 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
           where: { id: input.definitionId, accountId: input.accountId },
           include: {
             questions: { orderBy: { ordinal: "asc" } },
-            run: { include: { samples: { select: { status: true } } } },
+            run: {
+              include: {
+                brandResolution: { select: { id: true } },
+                samples: {
+                  select: {
+                    status: true,
+                    platformKey: true,
+                    platformLabel: true,
+                  },
+                },
+              },
+            },
             brand: {
               select: { evaluationFingerprint: true, status: true },
             },
@@ -158,7 +176,16 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
         });
         const started = await transaction.evaluationRun.findUniqueOrThrow({
           where: { id: run.id },
-          include: { samples: { select: { status: true } } },
+          include: {
+            brandResolution: { select: { id: true } },
+            samples: {
+              select: {
+                status: true,
+                platformKey: true,
+                platformLabel: true,
+              },
+            },
+          },
         });
         return { kind: "STARTED", run: mapRun(started) };
       });
@@ -166,7 +193,16 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
       if (!isUniqueViolation(error)) throw error;
       const existing = await this.prisma.evaluationRun.findUnique({
         where: { definitionId: input.definitionId },
-        include: { samples: { select: { status: true } } },
+        include: {
+          brandResolution: { select: { id: true } },
+          samples: {
+            select: {
+              status: true,
+              platformKey: true,
+              platformLabel: true,
+            },
+          },
+        },
       });
       if (existing?.accountId === input.accountId) {
         return existing.status === "EVALUATING"
@@ -193,6 +229,7 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
             samples: {
               include: { evidence: { select: { id: true } } },
             },
+            brandResolution: { select: { id: true } },
             executionCycles: { orderBy: { sequence: "desc" } },
           },
         });
@@ -228,7 +265,14 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
           const concurrent = await transaction.evaluationRun.findFirst({
             where: { id: input.runId, accountId: input.accountId },
             include: {
-              samples: { select: { status: true } },
+              brandResolution: { select: { id: true } },
+              samples: {
+                select: {
+                  status: true,
+                  platformKey: true,
+                  platformLabel: true,
+                },
+              },
               executionCycles: { orderBy: { sequence: "desc" } },
             },
           });
@@ -254,6 +298,9 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
             data: synthesisRequestedEvent({
               runId: run.id,
               cycleId,
+              purpose: run.brandResolution
+                ? "REPORT_COMPOSITION"
+                : "BRAND_NAME_RESOLUTION",
               attemptNumber: 1,
               correlationId: run.correlationId,
             }),
@@ -320,7 +367,16 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
 
         const retried = await transaction.evaluationRun.findUniqueOrThrow({
           where: { id: run.id },
-          include: { samples: { select: { status: true } } },
+          include: {
+            brandResolution: { select: { id: true } },
+            samples: {
+              select: {
+                status: true,
+                platformKey: true,
+                platformLabel: true,
+              },
+            },
+          },
         });
         return { kind: "STARTED", run: mapRun(retried) };
       });
@@ -329,7 +385,14 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
       const concurrent = await this.prisma.evaluationRun.findFirst({
         where: { id: input.runId, accountId: input.accountId },
         include: {
-          samples: { select: { status: true } },
+          brandResolution: { select: { id: true } },
+          samples: {
+            select: {
+              status: true,
+              platformKey: true,
+              platformLabel: true,
+            },
+          },
           executionCycles: { orderBy: { sequence: "desc" } },
         },
       });
@@ -392,7 +455,16 @@ function mapDefinition(definition: {
     correlationId: string;
     startedAt: Date;
     updatedAt: Date;
+    brandResolution: { id: string } | null;
+    stage:
+      | "QUEUED"
+      | "PROCESSING_EVIDENCE"
+      | "READY_FOR_SYNTHESIS"
+      | "REPORT_ACCEPTED"
+      | "SYNTHESIS_EXHAUSTED";
     samples: Array<{
+      platformKey: string;
+      platformLabel: string;
       status:
         | "PENDING"
         | "EVIDENCE_ACCEPTED"
@@ -434,7 +506,16 @@ function mapRun(run: {
   correlationId: string;
   startedAt: Date;
   updatedAt: Date;
+  brandResolution?: { id: string } | null;
+  stage:
+    | "QUEUED"
+    | "PROCESSING_EVIDENCE"
+    | "READY_FOR_SYNTHESIS"
+    | "REPORT_ACCEPTED"
+    | "SYNTHESIS_EXHAUSTED";
   samples: Array<{
+    platformKey: string;
+    platformLabel: string;
     status:
       | "PENDING"
       | "EVIDENCE_ACCEPTED"
@@ -451,6 +532,41 @@ function mapRun(run: {
       sample.status,
     ),
   ).length;
+  const progressByPlatform = new Map<
+    string,
+    EvaluationRunView["platformProgress"][number]
+  >();
+  for (const sample of run.samples) {
+    const progress = progressByPlatform.get(sample.platformKey) ?? {
+      platformKey: sample.platformKey,
+      platformLabel: sample.platformLabel,
+      expectedSampleCount: 0,
+      acquiredSampleCount: 0,
+      analyzedSampleCount: 0,
+      unavailableSampleCount: 0,
+    };
+    progress.expectedSampleCount += 1;
+    if (
+      [
+        "EVIDENCE_ACCEPTED",
+        "INTERPRETATION_ACCEPTED",
+        "INTERPRETATION_EXHAUSTED",
+      ].includes(sample.status)
+    ) {
+      progress.acquiredSampleCount += 1;
+    }
+    if (sample.status === "INTERPRETATION_ACCEPTED") {
+      progress.analyzedSampleCount += 1;
+    }
+    if (
+      ["ACQUISITION_EXHAUSTED", "INTERPRETATION_EXHAUSTED"].includes(
+        sample.status,
+      )
+    ) {
+      progress.unavailableSampleCount += 1;
+    }
+    progressByPlatform.set(sample.platformKey, progress);
+  }
   return {
     id: run.id,
     definitionId: run.definitionId,
@@ -460,10 +576,38 @@ function mapRun(run: {
     processedSampleCount: validSampleCount + unavailableSampleCount,
     validSampleCount,
     unavailableSampleCount,
+    phase: progressPhase(
+      run,
+      run.samples.every((sample) => sample.status !== "PENDING"),
+    ),
+    platformProgress: [...progressByPlatform.values()].sort((left, right) =>
+      left.platformKey.localeCompare(right.platformKey),
+    ),
     correlationId: run.correlationId,
     startedAt: run.startedAt,
     updatedAt: run.updatedAt,
   };
+}
+
+function progressPhase(
+  run: {
+    status: "EVALUATING" | "COMPLETED" | "PLEASE_RETRY";
+    stage:
+      | "QUEUED"
+      | "PROCESSING_EVIDENCE"
+      | "READY_FOR_SYNTHESIS"
+      | "REPORT_ACCEPTED"
+      | "SYNTHESIS_EXHAUSTED";
+    brandResolution?: { id: string } | null;
+  },
+  acquisitionTerminal: boolean,
+): EvaluationRunView["phase"] {
+  if (run.status === "COMPLETED") return "COMPLETED";
+  if (run.status === "PLEASE_RETRY") return "ACTION_REQUIRED";
+  if (run.stage === "READY_FOR_SYNTHESIS") {
+    return run.brandResolution ? "COMPOSING_REPORT" : "RESOLVING_BRANDS";
+  }
+  return acquisitionTerminal ? "ANALYZING_CONTENT" : "ACQUIRING_ANSWERS";
 }
 
 function isActiveRetry(run: {

@@ -38,6 +38,21 @@ export type EvaluationRunView = {
   processedSampleCount: number;
   validSampleCount: number;
   unavailableSampleCount: number;
+  phase:
+    | "ACQUIRING_ANSWERS"
+    | "ANALYZING_CONTENT"
+    | "RESOLVING_BRANDS"
+    | "COMPOSING_REPORT"
+    | "COMPLETED"
+    | "ACTION_REQUIRED";
+  platformProgress: Array<{
+    platformKey: string;
+    platformLabel: string;
+    expectedSampleCount: number;
+    acquiredSampleCount: number;
+    analyzedSampleCount: number;
+    unavailableSampleCount: number;
+  }>;
   correlationId: string;
   startedAt: Date;
   updatedAt: Date;

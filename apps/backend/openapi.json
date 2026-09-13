@@ -8411,6 +8411,37 @@
           "label"
         ]
       },
+      "EvaluationPlatformProgressResponse": {
+        "type": "object",
+        "properties": {
+          "platformKey": {
+            "type": "string"
+          },
+          "platformLabel": {
+            "type": "string"
+          },
+          "expectedSampleCount": {
+            "type": "number"
+          },
+          "acquiredSampleCount": {
+            "type": "number"
+          },
+          "analyzedSampleCount": {
+            "type": "number"
+          },
+          "unavailableSampleCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "platformKey",
+          "platformLabel",
+          "expectedSampleCount",
+          "acquiredSampleCount",
+          "analyzedSampleCount",
+          "unavailableSampleCount"
+        ]
+      },
       "EvaluationRunResponse": {
         "type": "object",
         "properties": {
@@ -8443,6 +8474,23 @@
           "unavailableSampleCount": {
             "type": "number"
           },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "ACQUIRING_ANSWERS",
+              "ANALYZING_CONTENT",
+              "RESOLVING_BRANDS",
+              "COMPOSING_REPORT",
+              "COMPLETED",
+              "ACTION_REQUIRED"
+            ]
+          },
+          "platformProgress": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvaluationPlatformProgressResponse"
+            }
+          },
           "startedAt": {
             "type": "string",
             "format": "date-time"
@@ -8461,6 +8509,8 @@
           "processedSampleCount",
           "validSampleCount",
           "unavailableSampleCount",
+          "phase",
+          "platformProgress",
           "startedAt",
           "updatedAt"
         ]

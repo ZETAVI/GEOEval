@@ -65,10 +65,39 @@ export class EvaluationRunResponse {
   validSampleCount!: number;
   @ApiProperty({ type: Number })
   unavailableSampleCount!: number;
+  @ApiProperty({
+    type: String,
+    enum: [
+      "ACQUIRING_ANSWERS",
+      "ANALYZING_CONTENT",
+      "RESOLVING_BRANDS",
+      "COMPOSING_REPORT",
+      "COMPLETED",
+      "ACTION_REQUIRED",
+    ],
+  })
+  phase!: string;
+  @ApiProperty({ type: () => [EvaluationPlatformProgressResponse] })
+  platformProgress!: EvaluationPlatformProgressResponse[];
   @ApiProperty({ type: String, format: "date-time" })
   startedAt!: Date;
   @ApiProperty({ type: String, format: "date-time" })
   updatedAt!: Date;
+}
+
+export class EvaluationPlatformProgressResponse {
+  @ApiProperty({ type: String })
+  platformKey!: string;
+  @ApiProperty({ type: String })
+  platformLabel!: string;
+  @ApiProperty({ type: Number })
+  expectedSampleCount!: number;
+  @ApiProperty({ type: Number })
+  acquiredSampleCount!: number;
+  @ApiProperty({ type: Number })
+  analyzedSampleCount!: number;
+  @ApiProperty({ type: Number })
+  unavailableSampleCount!: number;
 }
 
 export class EvaluationDefinitionResponse {

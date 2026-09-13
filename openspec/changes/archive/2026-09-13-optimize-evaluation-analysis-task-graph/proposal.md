@@ -1,10 +1,11 @@
 # Change: Optimize Evaluation Analysis Task Graph
 
-- Status: Controlled candidate accepted; runtime integration pending
+- Status: Accepted and reconciled for integration
 - Class: Architectural
 - Owning Issue: [#42](https://github.com/ZETAVI/GEOEval/issues/42)
 - Parent: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
-- Pull request: [#62](https://github.com/ZETAVI/GEOEval/pull/62), Partial
+- Pull requests: [#62](https://github.com/ZETAVI/GEOEval/pull/62), accepted
+  Partial; [#90](https://github.com/ZETAVI/GEOEval/pull/90), formal runtime
 
 ## Why
 
@@ -34,10 +35,10 @@ The analysis path is:
 4. Compose overall performance, brand perception, positive/negative themes and
    one or two GEO article directions from parsed target content and statistics.
 
-The current Prompt versions are parser `1.4.0`, name resolution `2.1.0` and
-composition `1.6.0`.
+The formal runtime Prompt versions are parser common/open `3.0.0`, parser
+directed `3.1.0`, name resolution `2.2.0` and composition `1.7.0`.
 
-## This Partial delivers
+## Accepted Partial
 
 - the current controlled Prompt and model configuration;
 - complete-text Markdown emphasis cleanup without changing canonical answers;
@@ -68,6 +69,35 @@ outputs, settings and usage.
 
 See [validation-summary.md](research/validation-summary.md).
 
+The formal Worker subsequently completed a fixed-version fresh 4-by-5 path in
+`206.227s`: 20/20 acquisition, 20/20 parsing, one accepted name resolution and
+one accepted composition, with no retry or model fallback. A preceding rejected
+run also verified that customer retry reuses all 20 accepted platform answers
+and resumes only the five failed parses before aggregate analysis.
+
+## Approved runtime integration
+
+The next #42 slice replaces the current formal analysis path in place. It does
+not import the controlled-validation module as a second runtime. The existing
+GEO Intelligence owners will adopt the accepted parser, name-resolution,
+deterministic-statistics and composition semantics while AI Execution continues
+to own immutable model attempts and Background Work continues to own delivery
+and resumption only.
+
+The runtime slice also establishes the durable facts needed by #43:
+
+- per-platform expected, acquired, analyzed and unavailable counts;
+- one customer-safe phase derived from persisted evaluation state;
+- accepted parser and name-resolution results that later-stage recovery can
+  reuse without repeating platform acquisition;
+- report acceptance as the only condition for terminal completion and 100%.
+
+The complete original platform answer remains immutable and customer-readable.
+Parser content points are source-grounded semantic extracts, not line-number or
+character-offset records. Exact highlight mapping is a best-effort presentation
+enhancement: inability to map one extract must not reject an otherwise valid
+sample or cause another Provider call.
+
 ## Non-goals
 
 This Partial does not activate the formal Worker, replace the current sample or
@@ -76,10 +106,10 @@ orchestration, modify the frontend, deploy to production or close Issue #42.
 It does not introduce a Critic Agent, brand master, workflow platform or model
 matrix.
 
-## Next decision
+## Remaining decisions
 
-Issue #42 remains open for formal runtime, recovery and progress integration.
-Before that implementation, reconcile the accepted candidate with the current
-sample-parser, overall-synthesis and evaluation-report owners. The relationship
-between a parent brand and separately named premium line, such as 点都德 and
-毕德寮, remains a product counting decision and does not block this Partial.
+The relationship between a parent brand and separately named premium line, such
+as 点都德 and 毕德寮, remains a product counting decision. It does not block the
+runtime slice unless a reachable report changes because of that ambiguity.
+Production activation, customer-data transfer and deployment remain separate
+release gates.
