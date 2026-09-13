@@ -60,3 +60,45 @@ when rerun with loopback permission. No Provider request was made.
 - The isolated test database, temporary Redis, Web/API/Worker processes,
   browser tab and temporary state were removed. Existing OrbStack foundation
   and unrelated worktree containers were left unchanged.
+
+## Post-close current-truth correction and fresh browser proof
+
+The original closeout was reopened on 2026-09-13 because the executable M4
+contracts had been accepted while several canonical descriptions still stated
+the superseded Qwen/Hy3 Parser and one-shot synthesis path. The correction
+updates only those current-truth descriptions; it does not change the accepted
+Prompt, Schema, metric policy or runtime behavior.
+
+A fresh isolated real-Provider journey then started from a newly registered
+account and an empty brand profile in the actual Web application. The user-facing
+form supplied the Guangzhou Tower name, industry, flagship service, two brand
+characteristics and contact. Because this local browser runtime had no AMap
+JavaScript key, the verified store location was added through the same
+authenticated isolated API with a deterministic Guangzhou Tower fixture; this
+is the only profile step that was not completed through the browser control.
+The Web then generated and displayed four real questions, and the evaluation
+was started with the customer-visible `确认并开始评测` action.
+
+The same browser observed per-platform acquisition and analysis counters,
+left the evaluation page and returned without losing the active run, and then
+received the completion notification and final report. The database recorded:
+
+- run `92c7aa47-c45f-4d25-a5e2-81c3342f31a6` completed from
+  `2026-09-13 13:48:03.488Z` to report acceptance at
+  `2026-09-13 13:51:01.449Z`, or `177.961s`;
+- 20/20 acquisition attempts succeeded on their first attempts across the five
+  platform routes;
+- 20/20 interpretation attempts succeeded on their first
+  `deepseek-v4-flash-0731` attempts;
+- brand-name resolution and report composition each succeeded on their first
+  `deepseek-v4-flash-0731` attempt;
+- no sample-stage or synthesis-stage exhaustion was recorded; and
+- the accepted report showed 20/20 valid samples, 15/15 open-question mentions,
+  a typical position of 1 and recommendation index 5.0.
+
+This proves the integrated local customer journey and the accepted three-to-five
+minute latency target with real Providers. It does not claim production
+activation or capacity. The report-closing phrase `绝对主导地位，是当之无愧的首选推荐`
+is stronger than necessary for a sampled result and remains a bounded editorial
+observation rather than a blocker or a reason to change the accepted Prompt from
+one run. Prompt mirroring in Issue #49 remains a separate later discussion.

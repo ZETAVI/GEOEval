@@ -10,9 +10,10 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
 
 ## Current status
 
-- Phase: S1-S6 customer entry, AI-generated question preparation,
-  real-provider evaluation, semantic recovery, report, retry, history, and
-  notification behavior are integrated on `main`
+- Phase: S1-S6 and the M4 evaluation-quality closeout are integrated on `main`:
+  customer entry, AI-generated question preparation, real-provider evaluation,
+  staged semantic analysis, truthful progress, report, retry, history, and
+  notification behavior are accepted
 - Project control: GitHub Issues and pull requests are live; `main` requires a
   pull request, the `AI Native 项目框架 CI` and `完整项目 CI` status checks,
   linear history, and resolved review conversations. Planning Status/Priority
@@ -20,10 +21,10 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
   the initial governance migration closed through
   [Issue #21](https://github.com/ZETAVI/GEOEval/issues/21).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
-- Active product changes: deterministic S1-S5 and real-provider S6 are retired
-  as completed Changes; AI question generation is undergoing real-chain
-  revalidation under Issue #26; M4 quality convergence remains coordinated by
-  Issue #39, while frontend presentation remains Issue #13
+- Active product changes: completed S1-S6 and M4 Changes are archived. The only
+  active Change is the separately owned recharge work; Prompt mirroring in
+  Issue #49 is `Ready`, while further report visual refinement in Issue #13 is
+  `Backlog` and does not block the accepted evaluation journey
 - Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,
   Redis/BullMQ, Prisma, and generated OpenAPI client
 - Runtime code: deterministic and real-provider evaluation modes are

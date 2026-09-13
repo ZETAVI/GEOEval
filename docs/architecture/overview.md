@@ -219,37 +219,35 @@ S6 adds explicit deterministic versus real Worker composition, one-call durable
 attempt ownership, provider-specific transport adapters, truthful search and
 source evidence, optional masked Langfuse telemetry, and ambiguity recovery
 without another workflow engine or attempt store. Sampling keeps its five
-accepted platform routes. Per-sample interpretation uses Model Studio Qwen3.8
-Flash for attempts one and two with `low` reasoning effort, then TokenHub Hy3 as
-the third-attempt fallback. Query generation and overall synthesis keep Qwen3.8
-Flash at `medium` because they own broader generative judgment.
+accepted platform routes. Query generation retains its independently bounded
+Qwen3.8 primary/retry and TokenHub Hy3 fallback. Per-sample interpretation,
+brand-name resolution and report composition use Model Studio
+`deepseek-v4-flash-0731` with thinking disabled, two same-route attempts and no
+automatic model fallback.
 
-Semantic provider contracts are deliberately smaller than the canonical GEO
-contracts: models return evidence-linked semantic facts, while deterministic
-projectors assign internal IDs, retain only literal answer anchors, remove
-unsupported optional observations or other brands, normalize incomplete
-optional positions to no position, retain ungrouped brand mentions, and run the
-existing strict domain validation before acceptance. Target mention and
-open-query position remain hard evidence boundaries; the projector does not
-fuzzy-match or invent either. Parser instructions and their provider-facing
-schema require concise formal customer card prose. The same projector replaces
-only a card value with no letter or numeral, using already accepted mention and
-open-position facts; readable prose passes through, and the report projection
-does not maintain a second hiding rule. Default parser and synthesis calls do
-not use web search. Overall
-synthesis summarizes sampled platform perception rather than investigating
-real-world brand facts; it groups only obvious name relations from answer
-context and leaves uncertain names separate. Add a web-backed resolver only if
-repeated real evidence later shows that ambiguity materially harms reports.
+Semantic provider contracts are deliberately smaller than canonical GEO
+contracts. The parser identifies ordered brand subjects and source-grounded
+content points from a complete lightly normalized answer; the focus name is a
+matching reference rather than a required output. The resolver receives unique
+observed names and content context without internal record IDs, then groups
+ordinary name variants or ignores non-brand outliers. Deterministic projectors
+assign internal IDs, restore exact source records, derive focus mention and
+position, and calculate every metric before acceptance. Report composition sees
+only focus content, deterministic performance facts and resolved leading-brand
+statistics. It cannot change counts or infer externally verified brand truth.
+These analysis calls do not use web search.
 
-The first complete real run accepted all twenty acquisition samples on their
-first platform attempt. Ten interpretations passed the first Qwen3.8 attempt,
-eight passed its same-route retry, and two used the Hy3 fallback. Overall
-synthesis required the same fallback after one semantic rejection and one
-timeout. This proves the recovery path, not production capacity. It also fixes
-the next semantic-quality frontier: improve evidence extraction, other-brand
-classification, and synthesis-reference discipline from retained real evidence
-before adding retries or weakening the canonical contracts.
+The accepted M4 evidence includes one fresh Taotaoju 4-by-5 path completed in
+238.644 seconds and one formal PostgreSQL/Outbox/BullMQ/Worker Jinpeng path
+completed in 206.227 seconds. Both completed 20/20 acquisition and parsing, one
+name resolution and one composition without retry or fallback. A failed earlier
+Jinpeng parser field contract also proved that retry reuses all accepted answers
+and restarts only the unfinished analysis stage. This establishes the selected
+local release-candidate path. A later browser-started Guangzhou Tower run also
+completed 20/20 acquisition and interpretation plus both aggregate stages on
+their first attempts in 177.961 seconds, while preserving progress across
+leave-and-return. Together these runs establish the three-to-five-minute local
+baseline, not production capacity or deployment readiness.
 
 The Query-only quality review then accepted one shared Prompt across an
 advertising service company, a law firm, and a restaurant. The real browser
@@ -259,16 +257,13 @@ Qwen3.8 Flash for all three types and Hy3 for the restaurant fallback. Together
 with the earlier recovered timeout, this supports the existing recovery order
 and Prompt semantics, not production latency or capacity.
 
-Direct-question parser projection tolerance is owned by
-[#32](https://github.com/ZETAVI/GEOEval/issues/32). Its projector may discard
-unsupported optional observations, other-brand records and optional positions,
-but an open rank without resolvable position evidence remains rejected. Earlier
-protected-output replay demonstrated the value of optional-detail cleanup but
-used a broader target-position recovery path and is not reused as an exact
-acceptance count for the final projector. Four low-reasoning Parser-only real
-calls on the earlier model contract were accepted on their first attempt at
-about nineteen seconds average latency; the latest contract and final integrated
-4-by-5 remain separately unverified. The 17/20 report boundary is unchanged.
+Sample interpretation is owned by the current evaluation-evidence and
+evaluation-report contracts. Complete original answers remain the primary
+customer-visible evidence. Content points are source-grounded but do not require
+line numbers, character positions or exact quotations; optional highlight
+mapping may fall back to the complete unannotated answer. Missing focus identity
+or open-question ordering still rejects unsupported metric meaning. The 17/20
+report boundary is unchanged.
 
 Publishing Commerce begins with administrator-maintained random packages and
 customer-safe offer visibility. Package configuration, explicit platform scope
