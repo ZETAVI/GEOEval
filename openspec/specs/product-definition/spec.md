@@ -672,7 +672,7 @@ definition retains only their customer meaning and product constraints.
 - **AND** each card contains a current problem, recommended direction, concise
   supporting evidence such as platforms or sample count, and a non-guaranteed
   intended improvement
-- **AND** the overall synthesizer retains a more comprehensive internal guidance
+- **AND** the report composer retains a more comprehensive internal guidance
   from the same brand context and evaluation evidence
 - **AND** that guidance is objective and explicit about evidence, priority,
   desired positioning, strengths to reinforce, weaknesses to address, and

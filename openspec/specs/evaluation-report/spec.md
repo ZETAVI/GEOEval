@@ -230,8 +230,12 @@ guidance outside the Web API.
 The report remains reproducible with deterministic parser, name-resolution and
 composition adapters. The selected DeepSeek candidate completed one authorized
 controlled 4-by-5 run with 20/20 valid samples, a complete report, no retry and
-238.644 seconds total elapsed time. Formal Worker persistence and recovery are
-verified locally; one formal real-route Worker/report run, production capacity,
-reconciled external cost, and commercial deployment readiness remain separate
-gates. Final visual-language refinement remains a separate frontend-design
-workstream over these accepted semantics.
+238.644 seconds total elapsed time. A separate formal real-route Worker/report
+run completed 20/20 acquisition and parsing, name resolution and composition in
+206.227 seconds without retry or fallback; an earlier rejected parser field also
+proved accepted-answer reuse and analysis-only recovery. A fresh browser-started
+real-Provider run then completed the same 20/20 and both aggregate stages on
+their first attempts in 177.961 seconds while preserving progress across
+leave-and-return. Production capacity, reconciled external cost, commercial
+deployment readiness and final visual-language refinement remain separate gates
+over these accepted semantics.

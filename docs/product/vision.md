@@ -468,12 +468,12 @@ rather than provide a deep professional report. It includes:
    for improvement and can later inform promotional-content generation.
 
 The customer-facing optimization section is deliberately concise. It shows no
-more than three evidence-sized direction cards, with the actual count determined
+more than two evidence-sized direction cards, with the actual count determined
 by the evaluation. Each card contains the current problem, a recommended
 direction, concise supporting evidence such as involved platforms or sample
 count, and the intended improvement expressed without a guaranteed outcome.
 
-The overall synthesizer also produces a more comprehensive internal optimization
+The report composer also produces a more comprehensive internal optimization
 guidance from the same brand context and evaluation evidence. That guidance is
 objective, explicit enough to direct content work, and preserves the evidence,
 priority, desired positioning, strengths to reinforce, weaknesses to address,
@@ -553,36 +553,25 @@ five-star graphic rounded to the nearest half star. A zero-mention evaluation
 shows `0.0` and five empty stars, without another verbal grade.
 
 Appearance position is not derived by matching ordinal words, character offsets,
-or blindly splitting paragraphs. Evaluation interpretation has two stages. A
-sample parser processes every answer from all four question types, including the
-brand-directed question and the three open questions. It interprets ordered
-lists, tables, headings, paragraph structure, and other recommendation forms;
-extracts the complete description related to the current brand; and returns
-structured mention, position, associated characteristics, evidence, and an
-objective sample interpretation without changing the original answer. When a
-customer is mentioned, it must assign a reasonable relative position from the
-complete recommendation structure, including implicit ordering rather than only
-explicit ordinal words.
+or blindly splitting paragraphs. Evaluation interpretation is staged. A sample
+parser reads one lightly normalized but complete answer from any of the four
+question types, identifies concrete brand subjects in first-appearance order,
+and organizes each subject's source-grounded content points, overall attitude,
+focus-brand relation, and a concise card interpretation. The brand named by the
+customer is a matching reference, not evidence that the answer mentioned it.
+Program logic then restores internal references and derives focus mention and
+open-question position from the accepted ordered brand records.
 
-After the report has enough successfully parsed samples, one overall evaluation
-synthesizer uses the current brand context and all sample-level structured
-results and relevant descriptions. It owns the report-opening overall assessment,
-the combined positive-versus-negative characteristic section, and the final
-optimization direction. It groups characteristics into a small number of broad,
-customer-understandable themes such as professional service rather than exposing
-fragmented near-synonyms. The combined section may use evidence from both the
-brand-directed and open questions. Each broad characteristic counts at most once
-per independent sample, may accumulate across samples and platforms, and can
-show its total count and involved platforms. The synthesizer cannot rewrite
-sample-level mention, position, interpretation, or original-answer evidence and
-does not calculate or revise the recommendation index. Only open-question mention
-and position contribute to that index.
-
-The parser uses the current brand's known company or store name for entity
-matching. A same-name occurrence within the specific open query is treated as the
-customer. An unfamiliar alias that is not part of the known brand information is
-not treated as the customer and therefore counts as not mentioned. The initial
-product does not add a separate ambiguous-identity workflow for these rare cases.
+After enough samples are accepted, a separate name-resolution stage groups
+ordinary aliases, translations, abbreviations and branch formats using only the
+observed names and their content context. It receives no internal record IDs and
+does not perform external entity research. Program logic restores exact source
+records and calculates every count, rate, position and recommendation index.
+Finally, report composition receives only focus-brand content points,
+deterministic performance facts and resolved leading-brand statistics. It owns
+the report-opening assessment, brand-perception summary, combined positive and
+negative themes, and no more than two GEO promotional-content directions; it
+cannot revise sample facts or metrics.
 
 The product retains the complete original answer in its returned structure and
 format, including lists, tables, headings, and paragraph layout where provided.
@@ -616,27 +605,22 @@ format cannot be annotated reliably, the product preserves and shows the origina
 without forcing a misleading highlight. Annotations are a separate presentation
 layer and never rewrite the stored answer.
 
-The sample parser runs automatically. Its primary candidate is Hunyuan Hy3 through
-Tencent Cloud TokenHub. A failed call or structurally invalid result is retried
-within a bounded system policy. If that route remains unavailable or invalid,
-the product switches to the separately configured Alibaba Cloud Model Studio
-DeepSeek V4 Flash fallback and tries again. Once one valid structured result is
-obtained, that single result is used for the report. If both routes fail, the raw
-platform answer remains stored and visible with a simple not-included message,
-but contributes no mention, position, characteristic, or index data. The report
+The sample parser runs automatically on Alibaba Cloud Model Studio
+`deepseek-v4-flash-0731` with thinking disabled. It has two bounded attempts on
+the same selected route and no automatic model fallback. A structurally or
+semantically invalid result cannot enter accepted evidence. If parsing remains
+unavailable, the complete platform answer and attempt history remain stored but
+that position contributes no mention, position, theme or index data. The report
 still requires at least seventeen successfully sampled and parsed positions;
 otherwise the evaluation becomes **Please retry**. The initial product has no
-routine human review, manual correction, or automatic historical reprocessing
-when a newer parser becomes available.
+routine human review, manual correction or automatic historical reprocessing.
 
-The overall synthesizer uses the same bounded primary-retry and cross-provider
-fallback policy. If both routes fail, all completed platform samples and valid
-sample parses remain retained, but the product does not issue an incomplete
-official report: the evaluation becomes **Please retry** and still does not
-use the current input revision's official-evaluation opportunity.
-Retrying resumes only the failed overall synthesis from the retained evidence
-and does not request the five platforms or repeat successful sample parsing
-again.
+Name resolution and report composition use the same selected DeepSeek model,
+thinking posture and two-attempt bound as separate purposes. If either stage is
+exhausted, every accepted answer, interpretation and earlier aggregate result
+remains retained, but the product does not issue a partial official report.
+Retry resumes only the earliest unfinished stage and never repeats accepted
+platform acquisition or sample parsing.
 
 Customer-visible sampling uses one shared, versioned
 [evaluation-objectivity profile](../../apps/backend/geo-intelligence/evaluation-objectivity.json).
