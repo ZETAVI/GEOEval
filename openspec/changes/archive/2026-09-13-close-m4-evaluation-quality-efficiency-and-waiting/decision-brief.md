@@ -10,9 +10,9 @@
 - Confirmed-decision source: owning Issue
   [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Research inputs:
-  [part 1](../../../docs/product/research/meeting-transcripts/GEO-Eval-M4-评测系统优化与功能迭代-part1.txt)
+  [part 1](../../../../docs/product/research/meeting-transcripts/GEO-Eval-M4-评测系统优化与功能迭代-part1.txt)
   and
-  [part 2](../../../docs/product/research/meeting-transcripts/GEO-Eval-M4-评测系统优化与功能迭代-part2.txt)
+  [part 2](../../../../docs/product/research/meeting-transcripts/GEO-Eval-M4-评测系统优化与功能迭代-part2.txt)
 - Source rule: transcripts are verbatim research records, not approved
   requirements. Their speaker-to-owner mapping is not confirmed.
 
@@ -56,10 +56,10 @@ remain change-local rather than becoming new parent requirements:
 | #26      | Completed in PR #28: versioned Prompt/model contract, durable preparation and product-reviewed four-question projection over Snapshot v3                                                                       |
 | #32      | Completed in PR #35. Its exact-anchor runtime is historical input; #42 replaces it with immutable original answers, source-grounded content points and non-blocking highlight fallback.                       |
 | #41      | Accepted on PR #90's formal report path: customer copy, deterministic-statistic fidelity, name coverage and GEO content directions pass; PR #48 remains rejected historical work.                             |
-| #42      | Ready for integration in PR #90: formal DeepSeek no-thinking Parser → name resolution → deterministic statistics → composition, recovery, measured 206.227s path and customer-safe progress contract.          |
-| #43      | Exact stage labels, easing intervals, long-wait content, responsive interaction and accessibility details within the truthful progress contract                                                                |
+| #42      | Completed in PR #90: formal DeepSeek no-thinking Parser → name resolution → deterministic statistics → composition, recovery, measured 206.227s path and customer-safe progress contract.                     |
+| #43      | Completed in PR #91: exact customer-language stages, per-platform durable counts, bounded easing, GEO waiting content, responsive interaction and accessibility within the truthful progress contract.          |
 | #44      | Completed in PR #47: local/test diagnostic allowlist and failure isolation; production content capture remains a separate security/privacy approval                                                            |
-| #39 Gate | Representative store, Provider-call authorization, evidence retention locator, and final integration revision                                                                                                  |
+| #39 Gate | Passed for `main@1269b69`: authorized real 4×5 evidence remained valid for the unchanged backend path; the Web/API/PostgreSQL/Redis/Worker/notification journey passed on `befd0c0`, followed only by a test-only CI repair. |
 
 No exact three-minute or five-minute customer SLA is confirmed. The transcript
 contains both numbers as discussion, while #42 must establish a measured baseline,
@@ -77,6 +77,9 @@ separate implementation predecessor. #42 produces the stable server progress
 contract and #43 consumes it afterward. This keeps one implementation owner and
 does not create opposing blockers or another performance Issue.
 
-The approval does not authorize implementation outside a child Issue, any real
-Provider call, production deployment, API purchase, customer-data migration or
-production content telemetry.
+The original parent approval did not itself authorize implementation outside a
+child Issue, real Provider calls, production deployment, API purchase,
+customer-data migration or production content telemetry. Later explicit
+authorization covered only the controlled Provider validations recorded by
+#42. Production deployment, capacity, customer migration and production content
+telemetry remain outside this completed parent outcome.

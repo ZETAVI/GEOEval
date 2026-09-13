@@ -40,19 +40,20 @@
 
 ## Stage 3 — Final Integration Gate and Reconciliation
 
-- [ ] Re-read live Issues, dependencies, requested reviews, PR heads, Required
+- [x] Re-read live Issues, dependencies, requested reviews, PR heads, Required
       Checks and current `main`; no child is integrated from stale evidence.
-- [ ] Obtain explicit authorization before any representative-store Provider
+- [x] Obtain explicit authorization before any representative-store Provider
       call and record protected evidence purpose, locator, hash, permissions,
       retention reason and exit trigger.
-- [ ] Execute the final Integration Gate matrix on one fixed integrated revision
+- [x] Execute the final Integration Gate matrix on one fixed integrated revision
       and resolve every material finding.
-- [ ] Reconcile accepted behavior into owner-local current specs, executable
+- [x] Reconcile accepted behavior into owner-local current specs, executable
       contracts, architecture overview and any touched Evolution marker.
-- [ ] After every Gate row passes, make only the final acceptance PR use bare
+- [x] After every Gate row passes, make only the final acceptance PR use bare
       `Closes #39`; keep earlier Partial PRs as ordinary cross-references.
-- [ ] Archive this parent Change only after the #39 acceptance boundary is met;
+- [x] Archive this parent Change only after the #39 acceptance boundary is met;
       move independent residual work to an owned follow-up rather than retaining
       an open-ended parent backlog.
-- [ ] Record PR, final revision, Project state, dependencies and branch/worktree
-      exit in Issue #39.
+- [x] Prepare the final PR and Issue #39 record for the merge revision, Project
+      state, dependencies and branch/worktree exit; confirm those mutable facts
+      immediately after integration.
