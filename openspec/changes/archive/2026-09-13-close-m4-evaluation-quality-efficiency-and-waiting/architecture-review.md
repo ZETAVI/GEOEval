@@ -163,3 +163,45 @@ The smallest correction is `ready`:
 This changes coordination only. It does not approve a specific task graph,
 Provider call, production action or customer-data boundary. Runtime architecture
 still requires its own fixed design and owner approval in #42.
+
+## 2026-09-13 final Integration Gate review
+
+- Fixed integrated revision: `main@1269b692b432f996d4f80b49ec45783422134a60`
+- Result: `ready`
+- Scope: accepted M4 producer/consumer boundaries, real Provider evidence,
+  current runtime contracts, customer progress/report journey and final
+  control-plane reconciliation
+
+### Intent
+
+`ready`. The integrated outcome keeps four questions over five platforms,
+deterministic metrics, 17/20 readiness, immutable history and complete original
+answers. Precision line/character anchors are not a sample-success requirement;
+optional visual highlighting remains a non-blocking enhancement. The report and
+waiting experience use customer language and do not expose internal IDs,
+models, retries, queues or traces.
+
+### Architecture and engineering
+
+`ready`. Brand, Definition, evidence, AI Attempt, background delivery,
+deterministic statistic, report, notification and Web presentation authority
+remain in their existing owners. The selected Parser → name resolution →
+deterministic restoration → report composition flow does not create another
+runtime owner. PR #89 is the only concurrent open PR and has no M4 file overlap.
+
+### Evidence and continuity
+
+`ready`. PRs #90, #91 and test-only repair #94 passed both Required Checks. The authorized real 4×5
+evidence proves the selected backend path, recovery and 3–5 minute budget. A
+fresh isolated browser run on `befd0c0` proved five platform rows, refresh,
+leave-and-return, durable completion notification and a 20/20 final report. The
+only subsequent `main` change is #94's Media Supply test assertion. Focused
+Parser, analysis, document, provider-adapter and Web progress tests pass. The
+framework validator also passes; final PR CI remains the last mechanical check
+before integration.
+
+No unresolved `must-fix` or `should-fix` finding remains. A `pg@8` concurrent-
+query deprecation warning appeared during local API/Worker execution but caused
+no failed work or customer-visible behavior; it is a non-blocking dependency
+maintenance observation, not an M4 acceptance exception. Production deployment,
+capacity and production content telemetry remain separately authorized work.

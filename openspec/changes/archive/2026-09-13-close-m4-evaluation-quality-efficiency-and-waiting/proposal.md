@@ -1,8 +1,7 @@
 # Change: 收束 M4 评测质量、效率与等待体验
 
-- Status: Parent contract remains active; #26, #32 and #40–#44 are complete or
-  ready for integration, with #43 in Final PR #91 and the parent Integration
-  Gate still pending
+- Status: Final Integration Gate passed on `main@1269b69`; ready for the final
+  acceptance PR and archival
 - Class: Architectural parent
 - Owning Issue: [#39](https://github.com/ZETAVI/GEOEval/issues/39)
 - Decision owners: Product owner and architecture owner
@@ -75,12 +74,19 @@ Notification、架构概览和可执行契约分别拥有。
 1. [decision brief](decision-brief.md) 中 D1–D9 的产品含义；
 2. [design](design.md) 中七个 producer/consumer 契约与依赖顺序；
 3. 未确认项继续留在对应子 Issue，不被本 Change 默认为已批准；
-4. 最终真实 4×5 仍需独立 Provider 调用授权，生产遥测内容仍需独立数据与保留审批。
+4. 最终真实 4×5 需要独立 Provider 调用授权，生产遥测内容仍需独立数据与保留审批。
 
 2026-09-04 的执行对账保留全部产品决定和子任务 owner，但不再用一个原生
 Issue blocker 表达 #41 与 #42 之间的阶段级往返。#42 在同一 Issue 内先以 Partial
 PR 固定最小任务边界，#41 再完成综合语义验收，随后 #42 完成运行时、耗时和进度
 投影；不新增只为表达该顺序的子 Issue。
 
-该批准允许按更新后的顺序继续子任务协调，但不授权扩大任何子 Issue、调用真实
-Provider、部署、迁移客户数据、采购 API 或启用生产内容遥测。
+后续产品负责人已单独授权受控真实调用。该调用的范围、结果与保留边界记录在
+[#42 验证摘要](../2026-09-13-optimize-evaluation-analysis-task-graph/research/validation-summary.md)
+中；它不扩展为生产部署、客户数据迁移、API 采购或生产内容遥测授权。
+
+2026-09-13，所有子 Issue 均已关闭并进入 Project `Done`。最终 Gate 在
+`main@1269b69` 复用了未发生后端语义漂移的真实 Provider 证据和
+`main@befd0c0` 的前后端、数据库、Worker、通知、刷新及离开返回隔离集成验收；
+两者之间只有一个无运行时变化的随机测试修复。结果为 `ready`；生产容量与部署
+验证仍属于后续独立边界，不阻塞本 Change 收口。

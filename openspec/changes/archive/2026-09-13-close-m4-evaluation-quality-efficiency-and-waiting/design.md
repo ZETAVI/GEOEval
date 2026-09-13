@@ -109,10 +109,13 @@ safe rollback or compatible forward path.
    contract is stable, then verifies the same generated contract across desktop,
    narrow viewport, refresh, leave/return, multi-brand and partial-unavailable
    states.
-7. **Final parent Gate:** every child PR is rebased/merged through current
-   protected `main`; one separately authorized representative-store run proves
-   the integrated customer and operational outcome. Parent current-spec
-   reconciliation and archive happen only after this Gate.
+7. **Final parent Gate:** every child PR is merged through protected `main`.
+   Separately authorized representative-store runs prove the Provider,
+   interpretation, grouping, deterministic metric, composition, recovery and
+   timing path. The fixed current revision then proves the integrated waiting,
+   notification and report journey without spending another equivalent
+   Provider run. Parent reconciliation and archival follow only after both
+   evidence sets agree.
 
 PR #45 remains a session-scoped Partial PR with the ordinary reference
 `Part of #39 — does not close`; it is not the native closing link for the parent.
@@ -137,9 +140,21 @@ axes below.
 | Local diagnostics work without production content capture             | Unit/integration evidence for metadata-only default, explicit local diagnostic, credential mask and exporter failure                                  | Production mode exports content by default, secrets leak, or telemetry affects business outcome              |
 | Coordination and current truth are reconciled                         | All child Issues/PRs, native dependencies, Required Checks, fixed-diff reviews, owner-local specs and evolution markers agree on the final revision   | Stale base, unresolved review, accepted design only in a Change/PR, or unowned residual work                 |
 
-The controlled real 4×5 row remains `not run` until the product owner separately
-authorizes Provider calls and supplies the evidence-retention boundary. Local
-tests, a Draft PR or this proposal cannot satisfy that row.
+The controlled real 4×5 row passed under separate product-owner authorization.
+The retained evidence is summarized in
+[#42's validation summary](../2026-09-13-optimize-evaluation-analysis-task-graph/research/validation-summary.md):
+the fresh Taotaoju path completed in `238.644s`, and the formal fresh Jinpeng
+Worker path completed in `206.227s` with 20/20 acquisition, 20/20 parsing, one
+accepted resolution and one accepted composition. Raw inputs and outputs remain
+in the approved private diagnostic boundary rather than this repository.
+
+The final Gate did not repeat those paid calls because the backend runtime,
+model routes and Prompt owners did not change between PR #90's accepted revision
+and `main@1269b69`; PR #91 changed only the Web progress consumer and reconciled
+specification, while PR #94 corrected an unrelated test assertion without
+runtime changes. The Gate instead ran the API, Web and deterministic Worker from
+`befd0c0` over an isolated database and verified active five-platform progress,
+refresh, leave-and-return, completion notification and final report projection.
 
 ## Current design impact and stopping condition
 
@@ -147,11 +162,8 @@ tests, a Draft PR or this proposal cannot satisfy that row.
   source inventory; current specs remain unchanged.
 - Child acceptance impact: each child reconciles its owner-local current spec,
   executable contract and architecture overview as applicable.
-- Parent stopping condition for this session: documents and hashes verify, fixed
-  diff review has no unresolved material finding, product approval is recorded,
-  PR #45 remains scoped to this session, and its Partial PR association with
-  Issue #39 is verified without a closing relationship.
-- Parent completion condition: every Integration Gate row passes or has explicit
-  owner-approved risk disposition, current truth is reconciled, the Change is
-  archived, the final PR has the native `Closes #39` relationship, and
-  branch/worktree exit is recorded.
+- Parent completion result: every Integration Gate row passed for
+  `main@1269b69`; current specifications already own the accepted behavior; this
+  Change is ready to archive in the only final PR that uses bare `Closes #39`.
+  PR merge, Project `Done`, branch removal and worktree exit are post-integration
+  control-plane facts recorded on Issue #39 rather than predicted in this file.
