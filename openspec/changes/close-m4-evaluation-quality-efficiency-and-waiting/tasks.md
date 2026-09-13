@@ -30,10 +30,10 @@
 - [x] After #32 reaches a stable main revision, #42 publishes one independently
       reviewable Partial architecture checkpoint selecting the smallest task
       boundary, model responsibilities and deterministic assembly seam.
-- [ ] #42 integrates the accepted Parser, name-resolution, deterministic metric
+- [x] #42 integrates the accepted Parser, name-resolution, deterministic metric
       and composition path in the existing runtime owners; #41 reviews its
       customer semantics in the actual report path without a parallel build.
-- [ ] #42 completes runtime orchestration and proves timing, concurrency, retry,
+- [x] #42 completes runtime orchestration and proves timing, concurrency, retry,
       accepted-component reuse, cost and customer-safe progress boundaries.
 - [ ] #43 starts only after #42 progress contract, then delivers truthful
       per-platform waiting behavior and responsive browser evidence.

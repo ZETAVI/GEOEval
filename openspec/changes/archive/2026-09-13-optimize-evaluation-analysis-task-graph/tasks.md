@@ -48,7 +48,7 @@
       current deterministic metrics and customer-copy boundaries.
 - [x] Run one authorized formal 4x5 Worker/report path on the fixed revision and
       record timing, usage, persistence and recovery evidence.
-- [ ] Reconcile accepted runtime truth and #41 semantics, then close #42 only
+- [x] Reconcile accepted runtime truth and #41 semantics, then close #42 only
       after the backend progress contract and workspace exit are verified.
 
 ## Subsequent consumer
