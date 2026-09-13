@@ -4,8 +4,10 @@
 
 GEO Intelligence owns accepted evaluation facts, deterministic metrics and
 report assembly. AI Execution owns model attempts and immutable request/result
-evidence. This change supplies an owner-local controlled candidate; application
-startup and formal runtime contracts do not import it yet.
+evidence. Background Work owns reliable delivery and resumption but never the
+business lifecycle. The controlled candidate is migration input: formal runtime
+code adopts its semantics in the existing owners and never imports it as a
+parallel implementation.
 
 ## Flow
 
@@ -37,6 +39,32 @@ derived model-reading string by parsing Markdown and removing only recognized
 strong/emphasis delimiters. It preserves headings, list order, table syntax,
 links, code, line endings and all business content. The parser never receives
 artificial line numbers or a JSON decomposition of the answer.
+
+## Evidence and presentation boundary
+
+The immutable original answer is the canonical customer evidence. Parser
+content points retain the answer's meaning and useful details for cards, themes
+and writing directions, but they are not required to repeat the source byte for
+byte or carry line numbers, occurrences or character offsets.
+
+The former exact-anchor contract served two purposes: rejecting unsupported
+mention/position claims and locating visual highlights in the original answer.
+It also coupled semantic acceptance to Markdown presentation and made harmless
+punctuation, emphasis or summarization differences fail an entire sample. The
+runtime replacement separates those concerns:
+
+- the parser owns source-grounded subject, order, attitude and content meaning;
+- the program owns accepted-output shape, focus leakage, reference completeness
+  and deterministic statistics;
+- the report always retains the complete original answer;
+- presentation may map a content point back to source text when reliable, but
+  otherwise returns the existing unannotated-answer fallback without changing
+  sample validity.
+
+Consequently a missing exact highlight never triggers resampling or parser
+retry. Unsupported focus attribution, contradictory brand records, invalid
+references or an incomplete name-resolution partition still reject the owning
+analysis stage.
 
 ## First-layer parsing
 
@@ -143,9 +171,44 @@ one acquisition attempt and two analysis attempts, but the accepted full-chain
 evidence used no retry. Formal retry, resumability, progress and component
 persistence remain runtime work under Issue #42.
 
-If only a later analysis stage fails in the future runtime, accepted acquisition
-and parser evidence should remain reusable. This design does not yet prescribe
-the persistence schema or Worker transition needed to implement that behavior.
+Formal runtime persists one accepted result at each business boundary: original
+sample evidence, sample interpretation, name resolution and report composition.
+Each accepted result is immutable for the run. A later-stage retry starts from
+the nearest accepted predecessor: name-resolution failure reuses all accepted
+sample interpretations; composition failure reuses the accepted resolution;
+neither repeats platform acquisition.
+
+The existing run and execution cycle remain the lifecycle authority. The
+aggregate-analysis attempt store is extended with an explicit purpose rather
+than creating another attempt store. Name-resolution and composition events use
+purpose-qualified idempotency keys, so repeated delivery cannot send concurrent
+duplicates or accept two results for the same stage.
+
+## Customer-safe progress
+
+The public projection is derived from the current run, samples and accepted
+aggregate results. For each fixed platform it exposes:
+
+- `expected`: the four logical sample positions;
+- `acquired`: positions with an accepted original platform answer;
+- `analyzed`: positions with an accepted parser result;
+- `unavailable`: positions whose acquisition or parsing ended without a usable
+  result after internal policy was exhausted.
+
+One public phase is derived monotonically from those facts:
+
+1. `PREPARING_QUESTIONS` before a startable Definition exists;
+2. `ACQUIRING_ANSWERS` while any non-unavailable position lacks evidence;
+3. `ANALYZING_CONTENT` after acquisition is terminal and parsing is unfinished;
+4. `RESOLVING_BRANDS` while accepted parses await name resolution;
+5. `COMPOSING_REPORT` after resolution and before report acceptance;
+6. `COMPLETED` only after the report is durably accepted;
+7. `ACTION_REQUIRED` only for the existing terminal please-retry outcome.
+
+Internal retry, route, Provider, model, queue and failure details are not part of
+this interface. #43 may ease a visual percentage only inside the interval for
+the current phase; persisted facts, not elapsed time, select the interval and
+100% is reserved for `COMPLETED`.
 
 ## Known boundary
 
@@ -161,10 +224,8 @@ runtime activation if this distinction affects customer statistics.
 
 ## Rollout and rollback
 
-This Partial adds only controlled-validation code and assets. No application
-module imports the candidate, so merge rollback is removal of these files and
-dependencies; there is no data migration or production state to recover.
-
-Runtime adoption requires a later reviewed slice that maps these semantics onto
-current parser, synthesis, report, Worker and progress owners, plus integration
-and browser evidence. Experimental success alone does not authorize activation.
+PR #62 added only controlled-validation code and assets. The runtime slice uses
+an additive migration and new contract versions so completed historical reports
+remain readable and immutable. Rollback stops creating new-version attempts and
+returns routing to the former runtime; it does not rewrite accepted historical
+answers or reports. Deployment and production activation remain outside #42.

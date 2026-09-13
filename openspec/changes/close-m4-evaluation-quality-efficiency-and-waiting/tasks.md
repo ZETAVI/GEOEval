@@ -21,21 +21,20 @@
       Snapshot v3, fingerprint, migration and v1/v2 compatibility.
 - [x] #26 rebases after #40, consumes only the stable Brand projection, and
       delivers the approved four questions with Query-only product evidence.
-- [ ] #32 delivers one coherent parser boundary: metric-critical mention and
+- [x] #32 delivers one coherent parser boundary: metric-critical mention and
       open-position evidence stays strict, recoverable optional detail is
       discarded rather than failing the sample, and accepted card copy is
       customer-readable without another Provider attempt.
 - [x] #44 delivers explicit local/test diagnostic telemetry while proving
       metadata-only production default and non-blocking failure.
-- [ ] After #32 reaches a stable main revision, #42 publishes one independently
+- [x] After #32 reaches a stable main revision, #42 publishes one independently
       reviewable Partial architecture checkpoint selecting the smallest task
       boundary, model responsibilities and deterministic assembly seam.
-- [ ] #41 consumes that accepted #42 checkpoint and delivers customer-safe
-      synthesis narratives, compact evidence and evidence-linked obvious brand
-      grouping without taking metric or orchestration ownership.
-- [ ] #42 then completes runtime orchestration and proves timing, concurrency,
-      retry, cost and customer-safe progress boundaries on the accepted #41
-      contract.
+- [ ] #42 integrates the accepted Parser, name-resolution, deterministic metric
+      and composition path in the existing runtime owners; #41 reviews its
+      customer semantics in the actual report path without a parallel build.
+- [ ] #42 completes runtime orchestration and proves timing, concurrency, retry,
+      accepted-component reuse, cost and customer-safe progress boundaries.
 - [ ] #43 starts only after #42 progress contract, then delivers truthful
       per-platform waiting behavior and responsive browser evidence.
 
