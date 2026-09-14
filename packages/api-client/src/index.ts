@@ -1223,3 +1223,29 @@ export function getAdminRecharge(
     { signal: signal ?? null },
   );
 }
+
+export function issueAgencyEntry(
+  apiBaseUrl: string,
+  agentAccountId: string,
+): Promise<{ entryKey: string | null }> {
+  return apiRequest(
+    apiBaseUrl,
+    `/agency/agents/${encodeURIComponent(agentAccountId)}/entry`,
+    { method: "POST", body: "{}" },
+  );
+}
+export function getOwnAgencyEntry(
+  apiBaseUrl: string,
+): Promise<{ entryKey: string | null }> {
+  return apiRequest(apiBaseUrl, "/agency/entry");
+}
+
+export function requestExistingAccountChallenge(
+  apiBaseUrl: string,
+  mobile: string,
+): Promise<Challenge> {
+  return apiRequest(apiBaseUrl, "/identity/challenges", {
+    method: "POST",
+    body: JSON.stringify({ mobile, existingAccountOnly: true }),
+  });
+}

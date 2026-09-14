@@ -1094,6 +1094,79 @@
         ]
       }
     },
+    "/agency/entry/resolve": {
+      "post": {
+        "operationId": "AcquisitionController_resolve",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveEntryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResolveEntryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency"
+        ]
+      }
+    },
+    "/agency/agents/{accountId}/entry": {
+      "post": {
+        "operationId": "AcquisitionController_issue",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyLinkResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency"
+        ]
+      }
+    },
+    "/agency/entry": {
+      "get": {
+        "operationId": "AcquisitionController_own",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyLinkResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency"
+        ]
+      }
+    },
     "/geo-optimization/workspace": {
       "get": {
         "operationId": "GeoOptimizationController_workspace",
@@ -4856,6 +4929,14 @@
       "RequestChallengeRequest": {
         "type": "object",
         "properties": {
+          "existingAccountOnly": {
+            "type": "boolean",
+            "description": "Restricts this challenge to an already registered account"
+          },
+          "acquisitionVisitToken": {
+            "type": "string",
+            "description": "Opaque acquisition visit credential; not account authority"
+          },
           "mobile": {
             "type": "string",
             "example": "13800138000"
@@ -4887,6 +4968,14 @@
       "CompleteSessionRequest": {
         "type": "object",
         "properties": {
+          "existingAccountOnly": {
+            "type": "boolean",
+            "description": "Restricts this challenge to an already registered account"
+          },
+          "acquisitionVisitToken": {
+            "type": "string",
+            "description": "Opaque acquisition visit credential; not account authority"
+          },
           "mobile": {
             "type": "string",
             "example": "13800138000"
@@ -5174,6 +5263,50 @@
         },
         "required": [
           "items"
+        ]
+      },
+      "ResolveEntryRequest": {
+        "type": "object",
+        "properties": {
+          "entryKey": {
+            "type": "string"
+          },
+          "visitToken": {
+            "type": "string"
+          }
+        }
+      },
+      "ResolveEntryResponse": {
+        "type": "object",
+        "properties": {
+          "entryKey": {
+            "type": "string"
+          },
+          "visitToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "entryKey",
+          "visitToken",
+          "expiresAt"
+        ]
+      },
+      "AgencyLinkResponse": {
+        "type": "object",
+        "properties": {
+          "entryKey": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "entryKey"
         ]
       },
       "BrandCharacteristicResponse": {

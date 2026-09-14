@@ -195,6 +195,13 @@ enum MediaQualityTier {
 }
 
 model Account {
+  agencyLinks               AgencyEntryLink[]               @relation("AgencyLinkAgent")
+  agencyCustomerSource      AgencyCustomerAttribution?      @relation("AgencyCustomerAccount")
+  agencyCustomers           AgencyCustomerAttribution[]     @relation("AgencyCustomerAgent")
+  agencyChallenges          AgencyChallengeAttribution[]    @relation("AgencyChallengeAgent")
+  agencyAuditsActed         AgencyAudit[]                   @relation("AgencyAuditActor")
+  agencyAuditsTargeted      AgencyAudit[]                   @relation("AgencyAuditTarget")
+  agencyAuditsAgent         AgencyAudit[]                   @relation("AgencyAuditAgent")
   recharges                 RechargeOrder[]
   id                        String                          @id @default(uuid()) @db.Uuid
   mobile                    String                          @unique @db.VarChar(20)
@@ -226,14 +233,16 @@ model Account {
 }
 
 model MobileChallenge {
-  id             String    @id @db.Uuid
-  mobile         String    @db.VarChar(20)
-  codeDigest     String    @map("code_digest") @db.Char(64)
-  failedAttempts Int       @default(0) @map("failed_attempts")
-  expiresAt      DateTime  @map("expires_at")
-  consumedAt     DateTime? @map("consumed_at")
-  supersededAt   DateTime? @map("superseded_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
+  existingAccountOnly Boolean                     @default(false) @map("existing_account_only")
+  agencySource        AgencyChallengeAttribution?
+  id                  String                      @id @db.Uuid
+  mobile              String                      @db.VarChar(20)
+  codeDigest          String                      @map("code_digest") @db.Char(64)
+  failedAttempts      Int                         @default(0) @map("failed_attempts")
+  expiresAt           DateTime                    @map("expires_at")
+  consumedAt          DateTime?                   @map("consumed_at")
+  supersededAt        DateTime?                   @map("superseded_at")
+  createdAt           DateTime                    @default(now()) @map("created_at")
 
   @@index([mobile, createdAt])
   @@map("mobile_challenges")
@@ -1441,4 +1450,72 @@ model RechargeNotificationDelivery {
 
   @@index([nextAttemptAt, orderId], map: "recharge_notification_due_idx")
   @@map("recharge_notification_deliveries")
+}
+
+model AgencyEntryLink {
+  key            String                       @id @db.VarChar(32)
+  scope          String                       @unique @db.VarChar(36)
+  agentAccountId String?                      @map("agent_account_id") @db.Uuid
+  active         Boolean                      @default(true)
+  createdAt      DateTime                     @default(now()) @map("created_at")
+  agent          Account?                     @relation("AgencyLinkAgent", fields: [agentAccountId], references: [id], onDelete: Restrict)
+  visits         AgencyEntryVisit[]
+  challenges     AgencyChallengeAttribution[]
+  customers      AgencyCustomerAttribution[]
+  audits         AgencyAudit[]
+
+  @@map("agency_entry_links")
+}
+
+model AgencyEntryVisit {
+  tokenDigest String          @id @map("token_digest") @db.VarChar(64)
+  entryKey    String          @map("entry_key") @db.VarChar(32)
+  expiresAt   DateTime        @map("expires_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  link        AgencyEntryLink @relation(fields: [entryKey], references: [key], onDelete: Restrict)
+
+  @@index([expiresAt, tokenDigest])
+  @@map("agency_entry_visits")
+}
+
+model AgencyChallengeAttribution {
+  challengeId    String          @id @map("challenge_id") @db.Uuid
+  entryKey       String          @map("entry_key") @db.VarChar(32)
+  agentAccountId String?         @map("agent_account_id") @db.Uuid
+  capturedAt     DateTime        @default(now()) @map("captured_at")
+  challenge      MobileChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  link           AgencyEntryLink @relation(fields: [entryKey], references: [key], onDelete: Restrict)
+  agent          Account?        @relation("AgencyChallengeAgent", fields: [agentAccountId], references: [id], onDelete: Restrict)
+
+  @@map("agency_challenge_attributions")
+}
+
+model AgencyCustomerAttribution {
+  accountId      String          @id @map("account_id") @db.Uuid
+  agentAccountId String?         @map("agent_account_id") @db.Uuid
+  entryKey       String          @map("entry_key") @db.VarChar(32)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  customer       Account         @relation("AgencyCustomerAccount", fields: [accountId], references: [id], onDelete: Restrict)
+  agent          Account?        @relation("AgencyCustomerAgent", fields: [agentAccountId], references: [id], onDelete: Restrict)
+  link           AgencyEntryLink @relation(fields: [entryKey], references: [key], onDelete: Restrict)
+
+  @@index([agentAccountId, accountId])
+  @@map("agency_customer_attributions")
+}
+
+model AgencyAudit {
+  id              String          @id @default(uuid()) @db.Uuid
+  action          String          @db.VarChar(16)
+  actorAccountId  String          @map("actor_account_id") @db.Uuid
+  targetAccountId String          @map("target_account_id") @db.Uuid
+  agentAccountId  String?         @map("agent_account_id") @db.Uuid
+  entryKey        String          @map("entry_key") @db.VarChar(32)
+  createdAt       DateTime        @default(now()) @map("created_at")
+  actor           Account         @relation("AgencyAuditActor", fields: [actorAccountId], references: [id], onDelete: Restrict)
+  target          Account         @relation("AgencyAuditTarget", fields: [targetAccountId], references: [id], onDelete: Restrict)
+  agent           Account?        @relation("AgencyAuditAgent", fields: [agentAccountId], references: [id], onDelete: Restrict)
+  link            AgencyEntryLink @relation(fields: [entryKey], references: [key], onDelete: Restrict)
+
+  @@index([targetAccountId, createdAt, id])
+  @@map("agency_audits")
 }

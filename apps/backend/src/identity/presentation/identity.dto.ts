@@ -6,6 +6,16 @@ import type {
 } from "../domain/identity.types.js";
 
 export class RequestChallengeRequest {
+  @ApiPropertyOptional({
+    type: Boolean,
+    description: "Restricts this challenge to an already registered account",
+  })
+  existingAccountOnly?: boolean;
+  @ApiPropertyOptional({
+    type: String,
+    description: "Opaque acquisition visit credential; not account authority",
+  })
+  acquisitionVisitToken?: string;
   @ApiProperty({ type: String, example: "13800138000" })
   mobile!: string;
 }

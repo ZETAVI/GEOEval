@@ -1,3 +1,4 @@
+import { AgencyModule } from "./agency/agency.module.js";
 import { Module, type DynamicModule } from "@nestjs/common";
 import { RechargeAdminModule } from "./recharge/recharge-admin.module.js";
 
@@ -35,6 +36,11 @@ export class ApiModule {
     config: ApiConfig,
     recharge: RechargeApiConfiguration | null = null,
   ): DynamicModule {
+    if (
+      config.runtimeEnvironment === "production" &&
+      config.agencyAcquisitionEnabled
+    )
+      throw new Error("AGENCY_ACQUISITION_NOT_READY_FOR_PRODUCTION");
     if (config.runtimeEnvironment === "production" && recharge?.controlled)
       throw new Error("CONTROLLED_RECHARGE_IN_PRODUCTION");
     const optimization = GeoOptimizationModule.register({
@@ -48,6 +54,7 @@ export class ApiModule {
         PersistenceModule.register(config.databaseUrl),
         TelemetryModule.register(config.telemetryShouldFail),
         IdentityModule.register(config),
+        AgencyModule.register(config.agencyAcquisitionEnabled),
         optimization,
         MediaSupplyModule,
         PublishingCommerceModule.register(optimization),

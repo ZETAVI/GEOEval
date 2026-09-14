@@ -118,6 +118,18 @@ Bootstrap execution, second-administrator readiness, monitoring, deployment,
 and activation remain separate release gates documented by the
 [Identity operations runbook](../operations/identity-and-access.md).
 
+Agency Entry now owns opaque public links, expiring anonymous visit credentials,
+challenge-bound source snapshots and atomic initial customer attribution.
+Identity keeps authentication and calls Agency's same-transaction registration
+adapter only for an account newly created by that transaction. The adapter reads
+agent eligibility through an Identity-owned leaf reader, without importing the
+Identity Nest module. Web keeps a separate host-only acquisition cookie and a
+narrow same-origin challenge bridge; the existing login cookie is unchanged.
+[Agency Entry](../../openspec/specs/agency-entry/spec.md) owns current behavior.
+Acquisition defaults off and cannot activate in production before order agent
+and rate snapshots are ready; this slice does not introduce a second wallet or
+attribution from historical timestamps.
+
 GEO Intelligence turns the narrow frozen Query handoff into one durable
 `EvaluationQuestionPreparation` per Brand fingerprint. One repository-owned,
 versioned no-search Prompt asks a single Agent for a natural target-brand name

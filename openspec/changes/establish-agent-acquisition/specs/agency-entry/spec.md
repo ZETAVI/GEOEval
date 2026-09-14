@@ -56,6 +56,13 @@ The product SHALL establish initial agency attribution only for a newly created 
 - **THEN** 保留已有账号及其归属，不重复绑定或凭当前链接改变归属
 - **AND** 不使用时间相等或非事务预查猜测账号是否首次创建
 
+#### Scenario: 入口失效时已有账号继续登录
+
+- **WHEN** 获客入口无效或当前来源不可用
+- **THEN** 页面提供统一手机号登录，保留原来源而不替换成公共注册
+- **AND** Identity 将“仅登录已有账号”冻结到验证码记录，新手机号不能通过该流程创建账号
+- **AND** 完成请求不能改写已冻结的登录限制，旧账号归属保持不变
+
 ### Requirement: 有限来源与隔离
 
 The product SHALL distinguish public entry keys, anonymous visit credentials and authenticated account sessions, and prevent cross-visitor entry-context leakage.

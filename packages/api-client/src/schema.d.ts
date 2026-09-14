@@ -468,6 +468,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/agency/entry/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcquisitionController_resolve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/agents/{accountId}/entry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcquisitionController_issue"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/entry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AcquisitionController_own"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/geo-optimization/workspace": {
         parameters: {
             query?: never;
@@ -1762,6 +1810,10 @@ export interface components {
             items: components["schemas"]["CustomerPublicationItemResponse"][];
         };
         RequestChallengeRequest: {
+            /** @description Restricts this challenge to an already registered account */
+            existingAccountOnly?: boolean;
+            /** @description Opaque acquisition visit credential; not account authority */
+            acquisitionVisitToken?: string;
             /** @example 13800138000 */
             mobile: string;
         };
@@ -1772,6 +1824,10 @@ export interface components {
             developmentCode?: string;
         };
         CompleteSessionRequest: {
+            /** @description Restricts this challenge to an already registered account */
+            existingAccountOnly?: boolean;
+            /** @description Opaque acquisition visit credential; not account authority */
+            acquisitionVisitToken?: string;
             /** @example 13800138000 */
             mobile: string;
             challengeId: string;
@@ -1848,6 +1904,18 @@ export interface components {
         IdentityGovernanceAuditListResponse: {
             items: components["schemas"]["IdentityGovernanceAuditResponse"][];
             nextCursor?: string | null;
+        };
+        ResolveEntryRequest: {
+            entryKey?: string;
+            visitToken?: string;
+        };
+        ResolveEntryResponse: {
+            entryKey: string;
+            visitToken: string | null;
+            expiresAt: string | null;
+        };
+        AgencyLinkResponse: {
+            entryKey: string | null;
         };
         BrandCharacteristicResponse: {
             /** Format: uuid */
@@ -3735,6 +3803,67 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IdentityGovernanceAuditListResponse"];
+                };
+            };
+        };
+    };
+    AcquisitionController_resolve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveEntryRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResolveEntryResponse"];
+                };
+            };
+        };
+    };
+    AcquisitionController_issue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyLinkResponse"];
+                };
+            };
+        };
+    };
+    AcquisitionController_own: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyLinkResponse"];
                 };
             };
         };

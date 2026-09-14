@@ -59,7 +59,11 @@ export class IdentityController {
   requestChallenge(
     @Body() input: RequestChallengeRequest,
   ): Promise<ChallengeResponse> {
-    return this.authentication.requestChallenge(input.mobile);
+    return this.authentication.requestChallenge(
+      input.mobile,
+      input.acquisitionVisitToken,
+      input.existingAccountOnly ?? false,
+    );
   }
 
   @PublicAccess()

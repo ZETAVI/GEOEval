@@ -45,8 +45,27 @@ const statusLabels: Record<
   FUTURE_CAPABILITY: "业务模块待接入",
 };
 
-export function SupportingRoleWorkspace({ role }: { role: SupportingRole }) {
+export function SupportingRoleWorkspace({
+  role,
+  acquisitionEnabled = false,
+}: {
+  role: SupportingRole;
+  acquisitionEnabled?: boolean;
+}) {
   const config = supportingRoleConfig(role);
+  if (role === "AGENT" && acquisitionEnabled)
+    config.navigation?.splice(1, 0, {
+      label: "获客入口",
+      description: "分享客户注册入口",
+      mark: "邀",
+      href: "/agent/acquisition",
+    });
+  if (role === "AGENT" && acquisitionEnabled) {
+    config.introduction =
+      "分享专属入口邀请新客户，客户服务与收益功能将陆续开放。";
+    const customerCard = config.cards.find((card) => card.title === "客户管理");
+    if (customerCard) customerCard.description = "客户列表与报告查看尚未开放。";
+  }
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
 
   async function load() {

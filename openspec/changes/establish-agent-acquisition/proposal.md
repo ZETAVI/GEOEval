@@ -1,6 +1,6 @@
 # Change: 建立一致的代理商入口与首次注册归属
 
-- Status: Proposed; approved product direction, implementation not started
+- Status: A0 implemented in the Issue branch; bounded verification and PR review in progress; no merge or production activation
 - Issue: [#100](https://github.com/ZETAVI/GEOEval/issues/100)
 - Owner: ZETAVI
 - Lane/class: feature / architectural, identity and customer-attribution boundary
@@ -25,7 +25,7 @@ In: 普通/代理入口解析，匿名来源保留，主页及注册页一致性
 
 Out: 多级代理、贴牌/独立域名、真实短信开通、代客户操作、公共客户跟进人、迁移界面、佣金账本、提现、现金退款、72 小时退积分规则的实现、支付或 Writer 改动。
 
-本 PR 先交付提案与行为 delta。未来首片运行时默认不启用真实获客；启用真实代理获客前，必须完成后续购买归属/费率快照和对应商业验收，避免有新归属却没有历史订单依据。不得按当前归属回填旧订单或把未实现费率默认为零。
+本 PR 已承接 A0 入口和首次归属实现。运行时默认不启用真实获客；启用真实代理获客前，必须完成后续购买归属/费率快照和对应商业验收，避免有新归属却没有历史订单依据。不得按当前归属回填旧订单或把未实现费率默认为零。
 
 ## Current owners and impact
 
@@ -36,7 +36,7 @@ Out: 多级代理、贴牌/独立域名、真实短信开通、代客户操作�
 
 ## Control state
 
-- Documentation: add 本 change 的 proposal/design/tasks 和 agency-entry delta；仅更新 README 的提案索引。当前行为 specs/ADR 不提前改写；新增设计结论先留本目录，实施并验收后再归入当前 owner。README 无待处置 Evolution marker。
-- Workspace: `codex/issue-100-agent-acquisition`，base `fc1a8ca`，main-direct；当前只写本目录和 README 索引。精确路径与实时状态由 Issue 持有。
+- Documentation: add 本 change 的 proposal/design/tasks 和 agency-entry delta；仅更新 README 的提案索引。已将 A0 行为归入 agency-entry spec、Identity/Customer Entry 索引与架构概览；Product Definition 对首次入口执行局部提取，其余代理业务显式保留 Evolution marker。README 无该 marker。
+- Workspace: `codex/issue-100-agent-acquisition`，base `fc1a8ca`，main-direct；当前 A0 写入范围由 Issue Decision checkpoint 固定，包含入口模块、Identity 接缝、schema/生成接口和 Web 入口。精确路径与实时状态由 Issue 持有。
 - Exit: 提案 Draft PR 可独立评审或撤回，保留此 Issue 工作树接续；不合并、不部署、不执行迁移。
-- Review: 设计中的来源期限、失效策略和后续启用条件须完成对齐；见 [design](design.md)。
+- Review: 固定 30 天及整体方向已获用户认可；实现与证据见 [verification](verification.md)，后续业务不扩入本片。

@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   UnauthorizedException,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import { randomBytes, randomUUID } from "node:crypto";
 
@@ -18,7 +19,10 @@ import {
   digestsMatch,
   sessionDigest,
 } from "../domain/identity.crypto.js";
-import { ChallengeRateLimitError } from "../domain/identity.errors.js";
+import {
+  ChallengeRateLimitError,
+  ExistingAccountRequiredError,
+} from "../domain/identity.errors.js";
 import {
   IDENTITY_REPOSITORY,
   type IdentityRepository,
@@ -49,7 +53,18 @@ export class AuthenticationService {
     private readonly delivery: ChallengeDeliveryPort,
   ) {}
 
-  async requestChallenge(rawMobile: string): Promise<ChallengeDelivery> {
+  async requestChallenge(
+    rawMobile: string,
+    acquisitionVisitToken?: string,
+    existingAccountOnly = false,
+  ): Promise<ChallengeDelivery> {
+    if (typeof existingAccountOnly !== "boolean")
+      throw new BadRequestException("登录请求格式不正确");
+    if (
+      acquisitionVisitToken !== undefined &&
+      !this.config.agencyAcquisitionEnabled
+    )
+      throw new ServiceUnavailableException("入口服务尚未开放");
     const mobile = normalizeMobileForHttp(rawMobile);
     const id = randomUUID();
     const now = new Date();
@@ -59,6 +74,10 @@ export class AuthenticationService {
     const code = this.config.authDeterministicCode;
     try {
       await this.repository.issueChallenge({
+        existingAccountOnly,
+        ...(acquisitionVisitToken !== undefined
+          ? { acquisitionVisitToken }
+          : {}),
         id,
         mobile,
         codeDigest: challengeDigest(
@@ -145,18 +164,27 @@ export class AuthenticationService {
     }
 
     const token = randomBytes(32).toString("base64url");
-    const completed = await this.repository.completeChallenge({
-      challengeId: challenge.id,
-      mobile,
-      sessionDigest: sessionDigest(token),
-      customerAbsoluteMs: this.config.authSessionPolicy.customerAbsoluteMs,
-      customerIdleMs: this.config.authSessionPolicy.customerIdleMs,
-      internalAbsoluteMs: this.config.authSessionPolicy.internalAbsoluteMs,
-      internalIdleMs: this.config.authSessionPolicy.internalIdleMs,
-      maximumFailedAttempts:
-        this.config.authChallengePolicy.maximumFailedAttempts,
-      now,
-    });
+    const completed = await this.repository
+      .completeChallenge({
+        challengeId: challenge.id,
+        mobile,
+        sessionDigest: sessionDigest(token),
+        customerAbsoluteMs: this.config.authSessionPolicy.customerAbsoluteMs,
+        customerIdleMs: this.config.authSessionPolicy.customerIdleMs,
+        internalAbsoluteMs: this.config.authSessionPolicy.internalAbsoluteMs,
+        internalIdleMs: this.config.authSessionPolicy.internalIdleMs,
+        maximumFailedAttempts:
+          this.config.authChallengePolicy.maximumFailedAttempts,
+        now,
+      })
+      .catch((error: unknown) => {
+        if (error instanceof ExistingAccountRequiredError)
+          throw new BadRequestException({
+            code: "ACCOUNT_NOT_REGISTERED",
+            message: error.message,
+          });
+        throw error;
+      });
     if (!completed) {
       throw new UnauthorizedException("验证码无效或账号不可用，请重新获取");
     }

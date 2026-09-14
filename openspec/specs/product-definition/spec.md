@@ -10,6 +10,10 @@
   here; never maintain both copies.
 - Reconciler: the lead agent for each activating standard or architectural
   change must execute or explicitly retain this marker at close.
+- Agency extraction: initial acquisition entries and source-bearing registration
+  are owned by [Agency Entry](../agency-entry/spec.md). Retain this marker for
+  later administrator reattribution, report access, commission and withdrawal
+  activation under their respective owners.
 - Completed extraction: S6 provider execution, protected provider evidence,
   semantic route recovery, and public report projection are owned by the
   [evaluation-evidence](../evaluation-evidence/spec.md) and
@@ -1143,43 +1147,19 @@ confirmation, and paid-order decisions.
 
 ### Requirement: Account-level agent attribution
 
-Agent attribution SHALL belong to the terminal-user account and SHALL preserve
-the agent recorded on historical orders and commission when the current
-relationship later changes.
+Initial acquisition entries and source-bearing registration are now owned by
+[Agency Entry](../agency-entry/spec.md), with account activation and ordinary
+registration owned by [Identity and Access](../identity-and-access/spec.md) and
+[Customer Entry](../customer-entry/spec.md). The remaining administrator/history
+requirements below are approved product scope, not A0 implementation claims.
 
-#### Scenario: The company activates an agent account
+#### Scenario: An administrator corrects a customer relationship
 
-- **WHEN** the company confirms an agent relationship
-- **THEN** an administrator creates or activates a dedicated account whose sole
-  role is agent
-- **AND** public registration cannot self-activate the agent role
-- **AND** an existing terminal-customer account does not gain agent as a second
-  role
-- **AND** the agent receives an approved acquisition entry for future customers
-
-#### Scenario: A direct customer registers
-
-- **WHEN** a customer enters through the public product channel
-- **THEN** the ordinary customer registration produces an unattributed terminal-
-  user account
-- **AND** the customer may save the offered first diagnosis-ready current brand
-  or skip that step and enter My brands without a current brand
-
-#### Scenario: A customer relationship is attributed
-
-- **WHEN** a customer registers through an agent's acquisition channel
-- **THEN** the terminal-user account is attributed to that agent
-- **AND** the customer completes the same ordinary registration without entering
-  a visible invitation code
-- **AND** every brand under the account uses the same agent relationship
-- **AND** an administrator can bind a previously unattributed account or correct
-  the current relationship
-- **AND** a later change affects new orders only
-- **AND** historical orders, performance, and commission retain the agent
-  recorded when those orders were submitted
-- **AND** the agent cannot claim an existing account
-- **AND** customer-facing pages do not expose agent commission or internal
-  attribution calculations
+- **WHEN** an administrator binds a previously unattributed customer, moves a customer to another agent, or returns a customer to the public pool
+- **THEN** the relationship belongs to the terminal-customer account and applies across its brands
+- **AND** agents cannot claim existing accounts themselves
+- **AND** a later change affects new orders only; historical orders, performance and commission retain the agent recorded at submission
+- **AND** customers do not see internal attribution or commission calculations
 
 ### Requirement: Customer-confirmed optimization and publishing service
 

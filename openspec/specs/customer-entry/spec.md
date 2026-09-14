@@ -87,5 +87,7 @@ without fabricating diagnosis, optimization, or publishing data.
 
 The checked-in challenge-delivery adapter is deterministic and restricted to
 local/test environments. Runtime configuration rejects it in production. A
-real SMS provider, agent attribution, brand archive/delete, and evaluation
-execution remain separately gated behavior.
+real SMS provider, brand archive/delete, and evaluation execution retain their
+separate gates. Controlled acquisition and atomic initial attribution are owned
+by [Agency Entry](../agency-entry/spec.md); they default off and are not enabled
+for real production acquisition.

@@ -44,6 +44,7 @@ const apiSchema = commonSchema.extend({
     .string()
     .min(1)
     .default("http://127.0.0.1:3100,http://127.0.0.1:3200"),
+  AGENCY_ACQUISITION_ENABLED: z.enum(["0", "1"]).default("0"),
   AUTH_CHALLENGE_MODE: z.literal("deterministic").default("deterministic"),
   AUTH_HASH_PEPPER: z.string().min(32),
   AUTH_DETERMINISTIC_CODE: z.string().regex(/^\d{6}$/),
@@ -195,6 +196,7 @@ export type ApiConfig = {
   corsOrigins: string[];
   telemetryShouldFail: boolean;
   runtimeEnvironment: "development" | "test" | "production";
+  agencyAcquisitionEnabled: boolean;
   authChallengeMode: "deterministic";
   authHashPepper: string;
   authDeterministicCode: string;
@@ -331,6 +333,7 @@ export function loadApiConfig(
     corsOrigins: parsed.CORS_ORIGINS.split(",").map((origin) => origin.trim()),
     telemetryShouldFail: parsed.GEOEVAL_TELEMETRY_FAIL === "1",
     runtimeEnvironment: parsed.NODE_ENV,
+    agencyAcquisitionEnabled: parsed.AGENCY_ACQUISITION_ENABLED === "1",
     authChallengeMode: parsed.AUTH_CHALLENGE_MODE,
     authHashPepper: parsed.AUTH_HASH_PEPPER,
     authDeterministicCode: parsed.AUTH_DETERMINISTIC_CODE,
