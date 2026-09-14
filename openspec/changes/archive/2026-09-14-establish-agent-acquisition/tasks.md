@@ -7,7 +7,7 @@
 - [x] 建立 proposal、行为 delta、模块设计、来源说明与故障/恢复检查。
 - [x] 用户确认来源保留固定 30 天，普通浏览不续期；已纳入同一设计。
 - [x] 验证框架、Markdown 链接与提案中实现声明的一致性；2026-09-14 本地框架检查通过，运行时/数据库/浏览器尚未实施。
-- [x] 创建 [Draft PR #101](https://github.com/ZETAVI/GEOEval/pull/101)，回写 Issue/Project 为 Review / Decision；工作树 retain，无运行时变更。
+- [x] 提案阶段创建 [Draft PR #101](https://github.com/ZETAVI/GEOEval/pull/101)，回写 Issue/Project 为 Review / Decision；工作树 retain，无运行时变更。
 
 ## A0 — 入口与初始归属（已固定共享窗口）
 
@@ -24,6 +24,6 @@
 
 - #100 后续购买归属/费率快照、迁移序列化与商业验收就绪前，不激活真实代理获客。佣金、72 小时退积分和提现分别回到各自决策前沿；本片不提前将父 Issue 关闭。
 
-## 远端同步
+## Integration
 
-- [ ] 推送 A0 实现、更新 #100/#101/Project 并核对新 head 的 CI；本轮 GitHub 连接超时，接续见 [handoff](handoff.md)。
+用户已授权 review 与 required CI 通过后合并。当前 A0 已归入正式 owner，本 change 按独立完成边界归档；准确 head、远端 Checks、合并与工作树退出由 PR #101 持有。父 Issue #100 保持开放，后续需求不堆积到本归档。

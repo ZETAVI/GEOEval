@@ -15,8 +15,8 @@
 | --- | --- | --- |
 | 类型与接口一致 | `pnpm typecheck`、`pnpm openapi:generate` 通过 | 三个 workspace；增加代理接口及验证码可选来源/仅登录输入 |
 | 首次来源与原子绑定 | `agency-acquisition.integration.spec.ts` 14 项通过 | 真实 PostgreSQL；30 天、不续期、公共升级、A/B 竞争、旧账号、challenge 冻结、资格失败整笔回滚、重复完成、停新入口后完成既有 challenge；失效来源老客户登录、新手机号不能绕过仅登录限制 |
-| HTTP 权限与激活 | `agency-http.integration.spec.ts` 3 项通过 | 四角色与缺失会话、来源/header、公开响应投影、默认关闭、禁止生产启用 |
-| 维护兼容 | 代理核心/HTTP/Identity maintenance 聚焦组合 18 项通过 | 过期匿名数据清理不删除真实归属；既有维护行为保留 |
+| HTTP 权限与激活 | `agency-http.integration.spec.ts` 4 项通过 | 四角色与缺失会话、来源/header、公开响应投影、默认关闭、禁止生产启用 |
+| 维护兼容 | 代理核心/HTTP/Identity maintenance 聚焦组合 19 项通过 | 过期匿名数据清理不删除真实归属；既有维护行为保留 |
 | Web 接缝 | `acquisition-web.spec.ts` 7 项通过；全量 Web 209 项通过 | host-only/HttpOnly、固定后端、跨源拒绝、预取不改变来源、失败不换公共入口、禁用保持原路径 |
 | 后端回归 | 全量后端 696 通过、13 跳过 | 13 项是现有 Delivery recovery、Recharge worker、Recharge notice 专属环境门槛；未计作通过。最终完整 CI 以 PR Checks 为准 |
 | 构建 | `pnpm build` 通过；最终 Web 生产构建通过 | Next 16.3.2；动态主页、注册页、Route Handlers 和受控管理入口可打包 |
@@ -44,3 +44,10 @@ Web 设置 `AGENCY_ACQUISITION_ENABLED=1`、`GEOEVAL_WEB_ORIGIN=http://127.0.0.1
 ## 保留与未执行
 
 本机 HTTP验收进程已停止；构建与独立测试资源保留供后续同 Issue 接续。开发验收的临时构建缓存清理，不进入提交。未执行真实短信、真实客户、生产部署、跨副本发布、商户或资金验收。没有自动合并 PR、关闭 #100 或归档整个代理商主线。
+
+## 2026-09-14 合并前 review
+
+- Intent：一致入口、首次有效代理来源、固定 30 天、原子新账号绑定与旧账号不改绑均有明确实现和针对性证据；未将后续佣金/迁移当作本片完成。
+- Engineering：复核 Web/API Cookie、权限、同步事务、来源与资格锁顺序、迁移默认值、清理生命周期及模块依赖。发现来源数组可被正则隐式转成字符串并触发 hash TypeError；真实 HTTP 先复现 500，再加入类型校验，null/数组/对象均明确 409 且验证码事务无残留。
+- Evidence/continuity：该修复后代理核心/HTTP/维护 19 项及类型检查通过。此前 Web、构建、旧数据迁移与浏览器证据的相关边界未变，继续适用；最终全量 CI 以 PR 新 head 为准。清理仅文档阶段的过期说明，临时网络交接由 PR 取代，A0 change 归档；父 #100 的客户迁移、购买快照、佣金/提现保留独立后续边界。
+- Verdict：ready for required-CI-gated integration；未发现其余阻塞问题。生产和真实获客仍未执行。

@@ -1,13 +1,13 @@
-# Change: 建立一致的代理商入口与首次注册归属
+# Archived change: 建立一致的代理商入口与首次注册归属
 
-- Status: A0 implemented in the Issue branch; bounded verification and PR review in progress; no merge or production activation
+- Status: Accepted bounded A0 outcome; archived for user-authorized PR #101 integration. PR owns live CI and post-integration evidence; production remains disabled.
 - Issue: [#100](https://github.com/ZETAVI/GEOEval/issues/100)
 - Owner: ZETAVI
 - Lane/class: feature / architectural, identity and customer-attribution boundary
 
 ## Why
 
-代理商获客客户应完成与公共客户相同的注册流程。客户从代理链接进入后先浏览主页，注册按钮仍须复用原入口地址，来源不能被公共导航覆盖。当前 Web 首页固定指向 `/enter`，Identity 共用验证码登录/注册，但没有获客上下文或账号归属。
+代理商获客客户应完成与公共客户相同的注册流程。客户从代理链接进入后先浏览主页，注册按钮仍须复用原入口地址，来源不能被公共导航覆盖。变更前 Web 首页固定指向 `/enter`，Identity 共用验证码登录/注册，但没有获客上下文或账号归属。
 
 本片先建立可验证的入口与首次归属基础；佣金、提现、客户迁移及完整客户协助由 #100 后续有界切片接续，不复制它们的设计。
 
@@ -29,14 +29,14 @@ Out: 多级代理、贴牌/独立域名、真实短信开通、代客户操作�
 
 ## Current owners and impact
 
-- [Identity](../../specs/identity-and-access/spec.md) 保留账号、验证码、角色与会话；[Customer Entry](../../specs/customer-entry/spec.md) 保留注册体验。
+- [Identity](../../../specs/identity-and-access/spec.md) 保留账号、验证码、角色与会话；[Customer Entry](../../../specs/customer-entry/spec.md) 保留注册体验。
 - Agency 增量拥有渠道入口、匿名来源和首次账号归属；未来查询和迁移复用此事实。
-- [Commerce](../../specs/publishing-commerce/spec.md) 保留购买事务和账务；订单快照接缝按 [ADR 0005](../../../docs/architecture/adr/0005-atomic-publishing-purchase.md) 单独接续。
-- 后续 schema、Identity 装配、API client、Web 入口及公共配置须固定共享写入窗口；当前 #77 / #89 文件未与本提案目录重叠。
+- [Commerce](../../../specs/publishing-commerce/spec.md) 保留购买事务和账务；订单快照接缝按 [ADR 0005](../../../../docs/architecture/adr/0005-atomic-publishing-purchase.md) 单独接续。
+- A0 的 schema、Identity 装配、API client、Web 入口及公共配置已在 #100 固定共享写入窗口；未修改 #77 / #89 的 Recharge 或 Writer 代码。
 
 ## Control state
 
-- Documentation: add 本 change 的 proposal/design/tasks 和 agency-entry delta；仅更新 README 的提案索引。已将 A0 行为归入 agency-entry spec、Identity/Customer Entry 索引与架构概览；Product Definition 对首次入口执行局部提取，其余代理业务显式保留 Evolution marker。README 无该 marker。
+- Documentation: 本 change 的 proposal/design/tasks 与 delta 已归档。已将 A0 行为归入 agency-entry spec、Identity/Customer Entry 索引与架构概览；Product Definition 对首次入口执行局部提取，其余代理业务显式保留 Evolution marker。README 无该 marker。
 - Workspace: `codex/issue-100-agent-acquisition`，base `fc1a8ca`，main-direct；当前 A0 写入范围由 Issue Decision checkpoint 固定，包含入口模块、Identity 接缝、schema/生成接口和 Web 入口。精确路径与实时状态由 Issue 持有。
-- Exit: 提案 Draft PR 可独立评审或撤回，保留此 Issue 工作树接续；不合并、不部署、不执行迁移。
+- Exit: 用户已授权通过 review/CI 后合并；保留同 Issue 工作树用于合并后对账与下一片设计，清理触发条件由 PR 记录。未授权生产激活。
 - Review: 固定 30 天及整体方向已获用户认可；实现与证据见 [verification](verification.md)，后续业务不扩入本片。

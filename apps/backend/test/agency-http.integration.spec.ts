@@ -113,6 +113,23 @@ describe("agency HTTP authority and default activation", () => {
       }),
     ).toMatchObject({ agentAccountId: null });
   });
+  it("rejects non-string source credentials without issuing a challenge", async () => {
+    for (const acquisitionVisitToken of [
+      null,
+      ["T".repeat(43)],
+      { token: "T".repeat(43) },
+    ]) {
+      const response = await post("/identity/challenges", {
+        mobile: "13900010206",
+        acquisitionVisitToken,
+      });
+      expect(response.status).toBe(409);
+      expect(await response.json()).toMatchObject({
+        code: "ENTRY_UNAVAILABLE",
+      });
+    }
+    expect(await db.mobileChallenge.count()).toBe(0);
+  });
   it("defaults closed and forbids production acquisition before commercial activation", async () => {
     expect(base.agencyAcquisitionEnabled).toBe(false);
     expect(() =>

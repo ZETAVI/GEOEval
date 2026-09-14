@@ -10,7 +10,7 @@ import {
 export function bindAgencyRegistration(tx: Prisma.TransactionClient) {
   return {
     capture: async (challengeId: string, token: string, now: Date) => {
-      if (!VISIT_TOKEN.test(token)) unavailable();
+      if (typeof token !== "string" || !VISIT_TOKEN.test(token)) unavailable();
       const digest = visitDigest(token);
       await tx.$queryRaw`SELECT token_digest FROM agency_entry_visits
         WHERE token_digest=${digest} FOR UPDATE`;
