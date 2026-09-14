@@ -7,7 +7,7 @@
 - [x] 建立 proposal、行为 delta、模块设计、来源说明与故障/恢复检查。
 - [ ] 将用户选择的来源保留期限纳入同一设计；其余候选不伪装成确认。
 - [x] 验证框架、Markdown 链接与提案中实现声明的一致性；2026-09-14 本地框架检查通过，运行时/数据库/浏览器尚未实施。
-- [ ] 创建只含提案的 Draft PR，回写 Issue/Project 与工作树退出状态。
+- [x] 创建 [Draft PR #101](https://github.com/ZETAVI/GEOEval/pull/101)，回写 Issue/Project 为 Review / Decision；工作树 retain，无运行时变更。
 
 ## A0 — 入口与初始归属（后续实施前固定共享窗口）
 
