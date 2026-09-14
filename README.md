@@ -21,10 +21,12 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
   the initial governance migration closed through
   [Issue #21](https://github.com/ZETAVI/GEOEval/issues/21).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
-- Active product changes: completed S1-S6 and M4 Changes are archived. The only
-  active Change is the separately owned recharge work; Prompt mirroring in
-  Issue #49 is `Ready`, while further report visual refinement in Issue #13 is
-  `Backlog` and does not block the accepted evaluation journey
+- Active product changes: completed S1-S6 and M4 Changes are archived. Recharge
+  remains separately owned. [Agency Entry](openspec/specs/agency-entry/spec.md)
+  adds opt-in acquisition and initial registration attribution under Issue #100;
+  production acquisition, migration between agents, commission and withdrawal
+  remain gated. Prompt mirroring in Issue #49 is `Ready`, while report visual
+  refinement in Issue #13 is `Backlog` and does not block accepted evaluation.
 - Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,
   Redis/BullMQ, Prisma, and generated OpenAPI client
 - Runtime code: deterministic and real-provider evaluation modes are

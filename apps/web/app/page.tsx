@@ -1,4 +1,7 @@
-export default function Page() {
+export const dynamic = "force-dynamic";
+import { registrationHref } from "./acquisition/server.js";
+export default async function Page() {
+  const entryHref = await registrationHref();
   return (
     <main className="public-page">
       <nav className="public-nav" aria-label="主导航">
@@ -6,10 +9,20 @@ export default function Page() {
           <span aria-hidden="true">G</span>
           <strong>GEO 优化</strong>
         </a>
-        <a className="nav-enter" href="/enter">
+        <a
+          className="nav-enter"
+          href={entryHref ?? undefined}
+          aria-disabled={!entryHref}
+        >
           进入平台
         </a>
       </nav>
+      {!entryHref && (
+        <p role="status">
+          注册入口暂不可用，请稍后刷新重试。
+          <a href="/enter?loginOnly=1">已有账号登录</a>
+        </p>
+      )}
       <section className="public-hero" aria-labelledby="public-title">
         <div className="hero-copy">
           <p className="eyebrow">让 AI 更容易提到你的品牌</p>
@@ -21,7 +34,11 @@ export default function Page() {
             平台的真实评测出发，生成优化内容，并衔接专业媒体发布。
           </p>
           <div className="hero-actions">
-            <a className="primary-link" href="/enter">
+            <a
+              className="primary-link"
+              href={entryHref ?? undefined}
+              aria-disabled={!entryHref}
+            >
               免费开始诊断 <span aria-hidden="true">→</span>
             </a>
             <span className="quiet-note">基础评测免费 · 无需专业知识</span>

@@ -1,6 +1,24 @@
+export const dynamic = "force-dynamic";
+import { redirect } from "next/navigation.js";
+import { entryEnabled, resolveEntry } from "../acquisition/server.js";
 import { EntryFlow } from "./entry-flow.js";
 
-export default function EntryPage() {
+export default async function EntryPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ loginOnly?: string }>;
+}) {
+  const acquisition = entryEnabled();
+  let existingOnly = (await searchParams)?.loginOnly === "1";
+  if (acquisition && !existingOnly) {
+    let source;
+    try {
+      source = await resolveEntry();
+    } catch {
+      existingOnly = true;
+    }
+    if (source && !source.visitToken) redirect(`/e/${source.entryKey}`);
+  }
   return (
     <main className="entry-page">
       <a className="brand-mark entry-brand" href="/">
@@ -26,7 +44,15 @@ export default function EntryPage() {
             </li>
           </ul>
         </div>
-        <EntryFlow />
+        <div>
+          {existingOnly && (
+            <p role="status">当前注册入口暂不可用，已有账号可以继续登录。</p>
+          )}
+          <EntryFlow
+            acquisitionEnabled={acquisition && !existingOnly}
+            existingAccountOnly={existingOnly}
+          />
+        </div>
       </section>
     </main>
   );

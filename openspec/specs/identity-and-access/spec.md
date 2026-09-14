@@ -352,7 +352,9 @@ shell and SHALL keep authorization on the backend.
 - **AND** administrators reach account governance and Media Supply as distinct
   modules inside the administrator shell
 - **AND** operations and agent roles receive real role shells and bounded empty
-  states until their business modules activate
+  states until their business modules activate; the opt-in
+  [Agency Entry](../agency-entry/spec.md) adds the agent's own acquisition link
+  and an administrator action on the selected active agent
 - **AND** no shell provides a role switcher.
 
 #### Scenario: A role opens another role's route

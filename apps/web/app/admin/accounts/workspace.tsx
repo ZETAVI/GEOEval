@@ -21,6 +21,7 @@ import {
   sessionFailureState,
   WorkspaceAccessPanel,
 } from "../../session-access.js";
+import { AgencyLinkCard } from "../../acquisition/link-card.js";
 import { AdminSidebar } from "../admin-sidebar.js";
 import {
   accountRoleLabels,
@@ -60,7 +61,11 @@ const emptyAuditPage: IdentityGovernanceAuditList = {
   nextCursor: null,
 };
 
-export function AdminAccountsWorkspace() {
+export function AdminAccountsWorkspace({
+  acquisitionEnabled = false,
+}: {
+  acquisitionEnabled?: boolean;
+}) {
   const [authenticationState, setAuthenticationState] =
     useState<AuthenticationState>("loading");
   const [account, setAccount] = useState<Account>();
@@ -573,6 +578,14 @@ export function AdminAccountsWorkspace() {
                     <dd>{accountTimestamp(selectedAccount.createdAt)}</dd>
                   </div>
                 </dl>
+                {acquisitionEnabled &&
+                  selectedAccount?.role === "AGENT" &&
+                  selectedAccount.status === "ACTIVE" && (
+                    <AgencyLinkCard
+                      key={selectedAccount.id}
+                      agentAccountId={selectedAccount.id}
+                    />
+                  )}
                 <section className="account-governance-panel">
                   <header>
                     <div>

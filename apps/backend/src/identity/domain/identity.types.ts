@@ -39,6 +39,7 @@ export type MobileChallengeView = {
 };
 
 export type IdentityLifecycleCleanupResult = {
+  deletedAcquisitionVisits: number;
   deletedSessions: number;
   deletedChallenges: number;
   deletedChallengeRateLimits: number;

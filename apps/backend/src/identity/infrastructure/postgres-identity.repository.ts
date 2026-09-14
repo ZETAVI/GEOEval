@@ -1,3 +1,5 @@
+import { cleanupAgencyVisits } from "../../agency/infrastructure/agency-maintenance-access.js";
+import { bindAgencyRegistration } from "../../agency/infrastructure/agency-registration-access.js";
 import { Inject, Injectable } from "@nestjs/common";
 
 import {
@@ -8,6 +10,7 @@ import {
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import {
   ChallengeRateLimitError,
+  ExistingAccountRequiredError,
   IdentityBootstrapError,
   IdentityGovernanceError,
 } from "../domain/identity.errors.js";
@@ -149,6 +152,8 @@ export class PostgresIdentityRepository implements IdentityRepository {
   }
 
   async issueChallenge(input: {
+    acquisitionVisitToken?: string;
+    existingAccountOnly?: boolean;
     id: string;
     mobile: string;
     codeDigest: string;
@@ -222,6 +227,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
       });
       await transaction.mobileChallenge.create({
         data: {
+          existingAccountOnly: input.existingAccountOnly ?? false,
           id: input.id,
           mobile: input.mobile,
           codeDigest: input.codeDigest,
@@ -229,6 +235,12 @@ export class PostgresIdentityRepository implements IdentityRepository {
           createdAt: input.now,
         },
       });
+      if (input.acquisitionVisitToken !== undefined)
+        await bindAgencyRegistration(transaction).capture(
+          input.id,
+          input.acquisitionVisitToken,
+          input.now,
+        );
       await transaction.mobileChallengeRateLimit.update({
         where: { mobile: input.mobile },
         data: {
@@ -321,7 +333,13 @@ export class PostgresIdentityRepository implements IdentityRepository {
           })
         : { count: 0 };
 
+      const acquisition = await cleanupAgencyVisits(
+        transaction,
+        input.now,
+        input.batchSize,
+      );
       return {
+        deletedAcquisitionVisits: acquisition.count,
         deletedSessions: sessions.count,
         deletedChallenges: challenges.count,
         deletedChallengeRateLimits: deletedRateLimits.count,
@@ -356,16 +374,36 @@ export class PostgresIdentityRepository implements IdentityRepository {
       });
       if (consumed.count !== 1) return undefined;
 
-      const candidate = await transaction.account.upsert({
+      const challenge = await transaction.mobileChallenge.findUniqueOrThrow({
+        where: { id: input.challengeId },
+        select: { existingAccountOnly: true },
+      });
+      if (
+        challenge.existingAccountOnly &&
+        !(await transaction.account.findUnique({
+          where: { mobile: input.mobile },
+          select: { id: true },
+        }))
+      )
+        throw new ExistingAccountRequiredError();
+      const created = await transaction.account.createMany({
+        data: [{ mobile: input.mobile, lastAuthenticatedAt: input.now }],
+        skipDuplicates: true,
+      });
+      const candidate = await transaction.account.findUniqueOrThrow({
         where: { mobile: input.mobile },
-        create: { mobile: input.mobile, lastAuthenticatedAt: input.now },
-        update: {},
       });
       await lockAccount(transaction, candidate.id);
       const account = await transaction.account.findUniqueOrThrow({
         where: { id: candidate.id },
       });
       if (account.status !== "ACTIVE") return undefined;
+      if (created.count === 1)
+        await bindAgencyRegistration(transaction).admit(
+          input.challengeId,
+          account.id,
+          input.now,
+        );
 
       const isCustomer = account.role === "TERMINAL_CUSTOMER";
       const expiresAt = new Date(

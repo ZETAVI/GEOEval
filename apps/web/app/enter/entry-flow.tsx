@@ -5,18 +5,26 @@ import {
   createBrand,
   listBrands,
   requestLoginChallenge,
+  requestExistingAccountChallenge,
   type BrandMutation,
 } from "@geoeval/api-client";
 import { useState } from "react";
 import { BrandProfileFields } from "../brands/brand-profile-fields.js";
 import { brandMutationForSave } from "../brands/brand-mutation.js";
 import { prewarmEvaluationQuestions } from "../brands/evaluation-question-prewarm.js";
+import { requestEntryChallenge } from "../acquisition/challenge-client.js";
 import { postLoginRoute } from "./post-login-route.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
-export function EntryFlow() {
+export function EntryFlow({
+  acquisitionEnabled = false,
+  existingAccountOnly = false,
+}: {
+  acquisitionEnabled?: boolean;
+  existingAccountOnly?: boolean;
+}) {
   const [step, setStep] = useState<"mobile" | "code" | "brand">("mobile");
   const [mobile, setMobile] = useState("");
   const [code, setCode] = useState("");
@@ -32,7 +40,11 @@ export function EntryFlow() {
     setBusy(true);
     setMessage("");
     try {
-      const challenge = await requestLoginChallenge(apiBaseUrl, mobile);
+      const challenge = existingAccountOnly
+        ? await requestExistingAccountChallenge(apiBaseUrl, mobile)
+        : acquisitionEnabled
+          ? await requestEntryChallenge(mobile)
+          : await requestLoginChallenge(apiBaseUrl, mobile);
       setChallengeId(challenge.challengeId);
       setDevelopmentCode(challenge.developmentCode);
       if (challenge.developmentCode) setCode(challenge.developmentCode);
@@ -98,7 +110,9 @@ export function EntryFlow() {
     <section className={`entry-card entry-card-${step}`} aria-live="polite">
       {step === "mobile" && (
         <>
-          <p className="step-label">手机号登录 / 注册</p>
+          <p className="step-label">
+            {existingAccountOnly ? "手机号登录" : "手机号登录 / 注册"}
+          </p>
           <h2>欢迎进入 GEO 优化平台</h2>
           <label>
             手机号

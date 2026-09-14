@@ -64,7 +64,11 @@ describe("complete controller access-policy inventory", () => {
         .filter((route) => !route.csrfExempt)
         .map((route) => `${route.method} ${route.path}`)
         .sort(),
-    ).toEqual(["POST /identity/challenges", "POST /identity/sessions"]);
+    ).toEqual([
+      "POST /agency/entry/resolve",
+      "POST /identity/challenges",
+      "POST /identity/sessions",
+    ]);
     expect(
       publicMutations
         .filter((route) => route.csrfExempt)
@@ -82,6 +86,14 @@ const expectedControllerPolicies: Record<
     handler: string,
   ) => Pick<RoutePolicy, "publicAccess" | "csrfExempt" | "roles">
 > = {
+  AcquisitionController: (handler) =>
+    handler === "resolve"
+      ? { publicAccess: true, csrfExempt: false }
+      : {
+          publicAccess: false,
+          csrfExempt: false,
+          roles: handler === "issue" ? ["ADMINISTRATOR"] : ["AGENT"],
+        },
   DeliveryResolutionController: (handler) => ({
     publicAccess: false,
     csrfExempt: false,

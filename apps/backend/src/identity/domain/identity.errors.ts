@@ -47,3 +47,9 @@ export class IdentityBootstrapError extends Error {
     this.name = "IdentityBootstrapError";
   }
 }
+
+export class ExistingAccountRequiredError extends Error {
+  constructor() {
+    super("该手机号尚未注册，请通过有效入口注册");
+  }
+}
