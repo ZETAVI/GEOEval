@@ -19,7 +19,10 @@ export type GeoOptimizationRuntimeConfig = {
 
 @Module({})
 export class GeoOptimizationModule {
-  static register(config: GeoOptimizationRuntimeConfig): DynamicModule {
+  static register(
+    config: GeoOptimizationRuntimeConfig,
+    intelligence = GeoIntelligenceModule.register(config.storeLocation),
+  ): DynamicModule {
     if (
       !(["disabled", "deterministic"] as unknown[]).includes(config.writerMode)
     ) {
@@ -37,7 +40,7 @@ export class GeoOptimizationModule {
     }
     return {
       module: GeoOptimizationModule,
-      imports: [GeoIntelligenceModule.register(config.storeLocation)],
+      imports: [intelligence],
       providers: [
         PostgresArticlePurchaseReaderFactory,
         PostgresGeoOptimizationRepository,

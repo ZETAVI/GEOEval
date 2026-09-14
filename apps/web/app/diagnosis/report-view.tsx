@@ -13,9 +13,11 @@ const questionLabels: Record<string, string> = {
 export function EvaluationReportView({
   report,
   onStartNewEvaluation,
+  readOnly = false,
 }: {
   report: EvaluationReport;
   onStartNewEvaluation?: () => void;
+  readOnly?: boolean;
 }) {
   const { overview } = report.document;
   return (
@@ -28,7 +30,7 @@ export function EvaluationReportView({
               本报告仍基于评测开始时的资料。新资料将在下一次正式评测时生效。
             </span>
           </div>
-          {onStartNewEvaluation && (
+          {!readOnly && onStartNewEvaluation && (
             <button
               className="secondary-button"
               type="button"
@@ -183,12 +185,14 @@ export function EvaluationReportView({
             </article>
           ))}
         </div>
-        <a
-          className="primary-button"
-          href={`/optimization?brandId=${encodeURIComponent(report.brandId)}`}
-        >
-          进入搜索优化
-        </a>
+        {!readOnly && (
+          <a
+            className="primary-button"
+            href={`/optimization?brandId=${encodeURIComponent(report.brandId)}`}
+          >
+            进入搜索优化
+          </a>
+        )}
       </section>
 
       <section className="report-section sample-results">

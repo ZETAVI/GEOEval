@@ -40,7 +40,11 @@ export class GeoIntelligenceModule {
         EvaluationService,
         EvaluationReportService,
       ],
-      exports: [BrandModule, EvaluationOptimizationGuidanceService],
+      exports: [
+        BrandModule,
+        EvaluationOptimizationGuidanceService,
+        EvaluationReportService,
+      ],
     };
   }
 }

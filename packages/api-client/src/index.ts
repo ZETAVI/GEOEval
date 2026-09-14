@@ -1249,3 +1249,89 @@ export function requestExistingAccountChallenge(
     body: JSON.stringify({ mobile, existingAccountOnly: true }),
   });
 }
+
+export type AgencyCustomerList =
+  components["schemas"]["AgencyCustomerListResponse"];
+export type AgencyCustomerDetail =
+  components["schemas"]["AgencyCustomerDetailResponse"];
+export type AgencyAdminCustomer =
+  components["schemas"]["AgencyAdminCustomerResponse"];
+export type AgencyTransfer = components["schemas"]["AgencyTransferRequest"];
+export type AgencyTransferResult =
+  components["schemas"]["AgencyTransferResponse"];
+export function listAgencyCustomers(
+  base: string,
+  cursor?: string,
+): Promise<AgencyCustomerList> {
+  return apiRequest(
+    base,
+    `/agency/customers${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`,
+    { cache: "no-store" },
+  );
+}
+export function getAgencyCustomer(
+  base: string,
+  id: string,
+): Promise<AgencyCustomerDetail> {
+  return apiRequest(
+    base,
+    `/agency/customers/${encodeURIComponent(id)}/brands`,
+    { cache: "no-store" },
+  );
+}
+export function getAgencyCurrentReport(
+  base: string,
+  customer: string,
+  brand: string,
+): Promise<{ report: EvaluationReport | null }> {
+  return apiRequest(
+    base,
+    `/agency/customers/${encodeURIComponent(customer)}/brands/${encodeURIComponent(brand)}/report`,
+    { cache: "no-store" },
+  );
+}
+export function getAgencyReportHistory(
+  base: string,
+  customer: string,
+  brand: string,
+  cursor?: string,
+): Promise<EvaluationReportHistory> {
+  return apiRequest(
+    base,
+    `/agency/customers/${encodeURIComponent(customer)}/brands/${encodeURIComponent(brand)}/reports${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`,
+    { cache: "no-store" },
+  );
+}
+export function getAgencyReport(
+  base: string,
+  customer: string,
+  brand: string,
+  report: string,
+): Promise<EvaluationReport> {
+  return apiRequest(
+    base,
+    `/agency/customers/${encodeURIComponent(customer)}/brands/${encodeURIComponent(brand)}/reports/${encodeURIComponent(report)}`,
+    { cache: "no-store" },
+  );
+}
+export function getAdminAgencyCustomer(
+  base: string,
+  customer: string,
+): Promise<AgencyAdminCustomer> {
+  return apiRequest(
+    base,
+    `/agency/admin/customers/${encodeURIComponent(customer)}`,
+    { cache: "no-store" },
+  );
+}
+export function transferAgencyCustomer(
+  base: string,
+  customer: string,
+  input: AgencyTransfer,
+): Promise<AgencyTransferResult> {
+  return apiRequest(
+    base,
+    `/agency/admin/customers/${encodeURIComponent(customer)}/reassign`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}

@@ -11,9 +11,10 @@
 - Reconciler: the lead agent for each activating standard or architectural
   change must execute or explicitly retain this marker at close.
 - Agency extraction: initial acquisition entries and source-bearing registration
-  are owned by [Agency Entry](../agency-entry/spec.md). Retain this marker for
-  later administrator reattribution, report access, commission and withdrawal
-  activation under their respective owners.
+  are owned by [Agency Entry](../agency-entry/spec.md). Current service
+  relationships, administrator reassignment and customer/brand/report access
+  are owned by [Agency Customer Service](../agency-customer-service/spec.md).
+  Retain this marker for later purchase snapshots, commission and withdrawal activation.
 - Completed extraction: S6 provider execution, protected provider evidence,
   semantic route recovery, and public report projection are owned by the
   [evaluation-evidence](../evaluation-evidence/spec.md) and
@@ -1119,47 +1120,24 @@ confirmation, and paid-order decisions.
 
 #### Scenario: An agent assists an attributed customer
 
-- **GIVEN** a customer is attributed to an agent or reseller
-- **WHEN** that agent provides acquisition or assisted service
-- **THEN** the agent can follow the relevant customer and business progress and
-  help the customer understand evaluation, complete information, and choose a
-  service within the data scope approved for that role
-- **AND** while the attribution is current, the agent can open every brand under
-  that account and read complete current and historical customer-visible
-  evaluation reports, including index, mention and position findings, platform
-  results, broad optimization directions, and original sampled answers
-- **AND** agent report access excludes internal search-source evidence, prompts,
-  model traces, logs, customer point balances, and unrelated sensitive account
-  or financial information
-- **BUT** attribution alone does not allow the agent to edit brand information,
-  edit or refresh questions, start or retry an evaluation, generate or confirm
-  an article, spend customer points, choose media, submit a paid order, alter a
-  report, or export a customer report
-- **AND** the customer remains the owner of brand data and commercial decisions
-- **AND** when the customer is reattributed, the former agent loses customer and
-  report access but retains that agent's historical performance-order and
-  commission records
-- **AND** any later delegated-operation authority requires explicit customer
-  authorization, an auditable responsibility boundary, and a separate product
-  decision
-- **AND** the initial product includes agent performance and commission
-  calculation under the approved rates, settlement, and withdrawal rules
+Current read-only assistance and full-contact visibility are owned by
+[Agency Customer Service](../agency-customer-service/spec.md). This includes
+all customer brands and current/historical customer-visible reports, with
+current-relationship checks and revoked old-link access after migration.
+It does not confer customer write, purchase or report-export authority.
+
+Historical performance/commission remains a separate commercial entitlement;
+retaining it never restores customer-service or contact access after migration.
+Delegated operation would require a separate customer authorization decision.
 
 ### Requirement: Account-level agent attribution
 
-Initial acquisition entries and source-bearing registration are now owned by
-[Agency Entry](../agency-entry/spec.md), with account activation and ordinary
-registration owned by [Identity and Access](../identity-and-access/spec.md) and
-[Customer Entry](../customer-entry/spec.md). The remaining administrator/history
-requirements below are approved product scope, not A0 implementation claims.
-
-#### Scenario: An administrator corrects a customer relationship
-
-- **WHEN** an administrator binds a previously unattributed customer, moves a customer to another agent, or returns a customer to the public pool
-- **THEN** the relationship belongs to the terminal-customer account and applies across its brands
-- **AND** agents cannot claim existing accounts themselves
-- **AND** a later change affects new orders only; historical orders, performance and commission retain the agent recorded at submission
-- **AND** customers do not see internal attribution or commission calculations
+[Agency Entry](../agency-entry/spec.md) owns initial source capture and atomic
+first registration; [Agency Customer Service](../agency-customer-service/spec.md)
+owns administrator reassignment to another agent or the public pool. Both operate
+at the terminal-customer account boundary without changing the account's role.
+Later commercial ownership must be frozen at order submission; no order or
+commission is recalculated from the customer's current relationship.
 
 ### Requirement: Customer-confirmed optimization and publishing service
 
