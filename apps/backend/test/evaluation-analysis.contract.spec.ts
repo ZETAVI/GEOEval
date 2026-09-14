@@ -127,6 +127,15 @@ describe("formal evaluation aggregate analysis", () => {
     });
     expect(task.outputContract.enforcement).toBe("JSON_OBJECT");
     expect(task.userContext).not.toHaveProperty("rawAnswers");
+    expect(JSON.stringify(task)).not.toContain(firstId);
+    expect(JSON.stringify(task)).not.toContain(secondId);
+    expect(JSON.stringify(task.outputContract.jsonSchema)).not.toContain(
+      "uuid",
+    );
+    expect(task.userContext.samples).toEqual([
+      expect.objectContaining({ sampleRef: "s1" }),
+      expect.objectContaining({ sampleRef: "s2" }),
+    ]);
     expect(task.systemInstruction).toContain(
       "不要先用稳健、良好或优秀等笼统正面词",
     );
@@ -140,7 +149,7 @@ describe("formal evaluation aggregate analysis", () => {
           {
             label: "企业服务",
             summary: "回答强调了企业综合法律需求下的服务能力。",
-            pointRefs: [{ sampleId: firstId, pointId: "p1" }],
+            pointRefs: [{ sampleRef: "s1", pointRef: "p1" }],
           },
         ],
         negativeThemes: [],
@@ -149,7 +158,7 @@ describe("formal evaluation aggregate analysis", () => {
             currentProblem: "企业服务特点还可以介绍得更集中。",
             recommendedDirection: "强化企业法律服务场景",
             intendedImprovement: "讲清团队能力和适用的企业需求。",
-            sampleIds: [firstId],
+            sampleRefs: ["s1"],
           },
         ],
       },
@@ -186,7 +195,7 @@ describe("formal evaluation aggregate analysis", () => {
             {
               label: "服务",
               summary: "具备企业服务能力。",
-              pointRefs: [{ sampleId: firstId, pointId: "missing" }],
+              pointRefs: [{ sampleRef: "s1", pointRef: "missing" }],
             },
           ],
           negativeThemes: [],
@@ -198,6 +207,29 @@ describe("formal evaluation aggregate analysis", () => {
         resolution,
       }),
     ).toThrow("internal reference");
+
+    expect(() =>
+      parseAndProjectReportComposition({
+        output: {
+          recommendationAssessment: "开放问题中的主动提及仍然有限。",
+          brandPerception: "回答形成了基础品牌认识。",
+          positiveThemes: [],
+          negativeThemes: [],
+          directions: [
+            {
+              currentProblem: "品牌介绍还可以更加集中。",
+              recommendedDirection: "强化企业服务场景",
+              intendedImprovement: "讲清适用需求。",
+              sampleRefs: ["s9"],
+            },
+          ],
+        },
+        focusBrand: "金鹏律师事务所",
+        samples,
+        metrics,
+        resolution,
+      }),
+    ).toThrow("direction references missing sample s9");
   });
 });
 

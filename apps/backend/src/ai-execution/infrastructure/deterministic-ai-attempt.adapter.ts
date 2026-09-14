@@ -160,14 +160,14 @@ function deterministicReportComposition(userContext: Record<string, unknown>) {
       .map((value) => {
         const point = requiredRecordValue(value, "composition point");
         return {
-          sampleId: requiredString(sample, "sampleId"),
-          pointId: requiredString(point, "pointId"),
+          sampleRef: requiredString(sample, "sampleRef"),
+          pointRef: requiredString(point, "pointRef"),
         };
       });
   });
-  const sampleIds = (targetSamples.length > 0 ? targetSamples : samples)
+  const sampleRefs = (targetSamples.length > 0 ? targetSamples : samples)
     .slice(0, 5)
-    .map((sample) => requiredString(sample, "sampleId"));
+    .map((sample) => requiredString(sample, "sampleRef"));
   return {
     recommendationAssessment:
       "当前品牌在不同需求问题中的出现情况存在差异，可结合提及和首次出现顺序理解整体表现。",
@@ -189,7 +189,7 @@ function deterministicReportComposition(userContext: Record<string, unknown>) {
         currentProblem: "品牌在相关需求下的介绍还可以更加集中清楚。",
         recommendedDirection: "强化核心场景内容",
         intendedImprovement: "围绕已有优势和用户关心的问题补充清晰的品牌内容。",
-        sampleIds,
+        sampleRefs,
       },
     ],
   };
