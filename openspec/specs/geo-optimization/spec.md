@@ -329,5 +329,8 @@ journey without auto-saving customer input.
 The GEO Optimization backend, terminal-customer REST/OpenAPI/client contract and
 responsive Web workspace are active for local/test use. Deterministic Writer
 mode remains local/test-only and production defaults to disabled; real Writer,
-materials, Publishing Commerce, deployment and production activation remain
-unavailable.
+materials, deployment and production activation remain unavailable.
+Purchasing and fulfilment are implemented by their respective owners,
+[Publishing Commerce](../publishing-commerce/spec.md) and
+[Publication Delivery](../publication-delivery/spec.md); their activation does
+not activate a real Writer or material preparation.

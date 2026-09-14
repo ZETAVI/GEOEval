@@ -1253,8 +1253,9 @@ service journey.
   [GEO Optimization specification](../geo-optimization/spec.md), and saved
   choices, explicit buying, spending and pending orders follow
   [Publishing Commerce](../publishing-commerce/spec.md)
-- **AND** operational acceptance, fulfilment and result return below remain
-  future capabilities, not implied by a successfully paid pending order.
+- **AND** paid-order admission, operations fulfilment and result return follow
+  [Publication Delivery](../publication-delivery/spec.md); a successful purchase
+  alone does not mean that publication has been completed.
 
 #### Scenario: A customer edits around publishing-service selection
 
@@ -1262,8 +1263,9 @@ service journey.
 - **THEN** the owner-local Commerce specification governs article revision
   reconfirmation and the immutable purchased snapshot, without freezing the
   separately mutable current article forever
-- **AND** future operations retains only the separately disclosed authority to
-  adjust publication variants during fulfilment.
+- **AND** operations retains only the authority to adjust publication variants
+  during fulfilment defined by
+  [Publication Delivery](../publication-delivery/spec.md).
 
 ### Requirement: Variants and operational content adjustment
 
