@@ -22,8 +22,11 @@ Repository: [ZETAVI/GEOEval](https://github.com/ZETAVI/GEOEval) (private).
   [Issue #21](https://github.com/ZETAVI/GEOEval/issues/21).
 - Approved product specification: [`product-definition`](openspec/specs/product-definition/spec.md)
 - Active product changes: completed S1-S6 and M4 Changes are archived. The only
-  active Change is the separately owned recharge work; Prompt mirroring in
-  Issue #49 is `Ready`, while further report visual refinement in Issue #13 is
+  runtime Change is the separately owned recharge work. The proposed
+  [agent acquisition Change](openspec/changes/establish-agent-acquisition/proposal.md)
+  under Issue #100 defines entry and initial attribution; it is not implemented.
+  Prompt mirroring in Issue #49 is `Ready`, while further report visual
+  refinement in Issue #13 is
   `Backlog` and does not block the accepted evaluation journey
 - Application stack: Next.js Web plus NestJS API/Worker, PostgreSQL,
   Redis/BullMQ, Prisma, and generated OpenAPI client
