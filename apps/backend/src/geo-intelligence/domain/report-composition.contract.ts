@@ -10,12 +10,13 @@ import type { BrandNameResolutionOutput } from "./brand-name-resolution.contract
 import { applyBrandNameResolution } from "./brand-name-resolution.contract.js";
 
 export const REPORT_COMPOSITION_MODEL_CONTRACT_VERSION =
-  "evaluation.report-composition-model@1";
+  "evaluation.report-composition-model@2";
 
 const text = (maximum: number) => z.string().trim().min(1).max(maximum);
 const localId = z.string().regex(/^[a-z][a-z0-9-]{0,63}$/);
+const sampleReference = z.string().regex(/^s[1-9][0-9]*$/);
 const pointReferenceSchema = z
-  .object({ sampleId: z.string().uuid(), pointId: localId })
+  .object({ sampleRef: sampleReference, pointRef: localId })
   .strict();
 const themeSchema = z
   .object({
@@ -37,7 +38,7 @@ export const reportCompositionOutputSchema = z
             currentProblem: text(400),
             recommendedDirection: text(600),
             intendedImprovement: text(300),
-            sampleIds: z.array(z.string().uuid()).min(1),
+            sampleRefs: z.array(sampleReference).min(1),
           })
           .strict(),
       )
@@ -70,20 +71,25 @@ export function parseAndProjectReportComposition(input: {
   resolution: BrandNameResolutionOutput;
 }): { synthesis: OverallSynthesisOutput; metrics: EvaluationReportMetrics } {
   const output = reportCompositionOutputSchema.parse(input.output);
-  const sampleIds = new Set(input.samples.map((sample) => sample.sampleId));
+  const sampleByRef = new Map(
+    input.samples.map(
+      (sample, index) => [reportCompositionSampleRef(index), sample] as const,
+    ),
+  );
   const pointKeys = new Set(
-    input.samples.flatMap((sample) =>
+    input.samples.flatMap((sample, index) =>
       sample.semantic.targetObservations.map(
-        (point) => `${sample.sampleId}:${point.observationId}`,
+        (point) =>
+          `${reportCompositionSampleRef(index)}:${point.observationId}`,
       ),
     ),
   );
   const issues: string[] = [];
   const validateTheme = (theme: (typeof output.positiveThemes)[number]) => {
     for (const ref of theme.pointRefs) {
-      if (!pointKeys.has(`${ref.sampleId}:${ref.pointId}`)) {
+      if (!pointKeys.has(`${ref.sampleRef}:${ref.pointRef}`)) {
         issues.push(
-          `theme references missing point ${ref.sampleId}:${ref.pointId}`,
+          `theme references missing point ${ref.sampleRef}:${ref.pointRef}`,
         );
       }
     }
@@ -91,9 +97,9 @@ export function parseAndProjectReportComposition(input: {
   output.positiveThemes.forEach(validateTheme);
   output.negativeThemes.forEach(validateTheme);
   for (const direction of output.directions) {
-    for (const sampleId of direction.sampleIds) {
-      if (!sampleIds.has(sampleId)) {
-        issues.push(`direction references missing sample ${sampleId}`);
+    for (const reference of direction.sampleRefs) {
+      if (!sampleByRef.has(reference)) {
+        issues.push(`direction references missing sample ${reference}`);
       }
     }
   }
@@ -121,8 +127,8 @@ export function parseAndProjectReportComposition(input: {
     label: theme.label,
     summary: theme.summary,
     evidenceRefs: uniquePointRefs(theme.pointRefs).map((ref) => ({
-      sampleId: ref.sampleId,
-      observationId: ref.pointId,
+      sampleId: sampleByRef.get(ref.sampleRef)!.sampleId,
+      observationId: ref.pointRef,
     })),
   });
   const customerDirections = output.directions.map((direction, index) => ({
@@ -130,8 +136,8 @@ export function parseAndProjectReportComposition(input: {
     currentProblem: direction.currentProblem,
     recommendedDirection: direction.recommendedDirection,
     intendedImprovement: direction.intendedImprovement,
-    evidenceRefs: [...new Set(direction.sampleIds)].map((sampleId) => ({
-      sampleId,
+    evidenceRefs: [...new Set(direction.sampleRefs)].map((reference) => ({
+      sampleId: sampleByRef.get(reference)!.sampleId,
       observationId: null,
     })),
   }));
@@ -158,8 +164,8 @@ export function parseAndProjectReportComposition(input: {
           label: theme.label,
           detail: theme.summary,
           evidenceRefs: uniquePointRefs(theme.pointRefs).map((ref) => ({
-            sampleId: ref.sampleId,
-            observationId: ref.pointId,
+            sampleId: sampleByRef.get(ref.sampleRef)!.sampleId,
+            observationId: ref.pointRef,
           })),
         }),
       ),
@@ -186,10 +192,10 @@ export class ReportCompositionSemanticError extends Error {
   }
 }
 
-function uniquePointRefs(refs: Array<{ sampleId: string; pointId: string }>) {
+function uniquePointRefs(refs: Array<{ sampleRef: string; pointRef: string }>) {
   const seen = new Set<string>();
   return refs.filter((ref) => {
-    const key = `${ref.sampleId}:${ref.pointId}`;
+    const key = `${ref.sampleRef}:${ref.pointRef}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -213,9 +219,15 @@ function rejectInternalReferences(
   ];
   if (
     prose.some((value) =>
-      /\b(?:q\d+|sampleId|pointId|observationId)\b/iu.test(value),
+      /\b(?:q\d+|sampleId|pointId|observationId|sampleRef|pointRef)\b/iu.test(
+        value,
+      ),
     )
   ) {
     issues.push("customer prose contains an internal reference");
   }
+}
+
+export function reportCompositionSampleRef(index: number): string {
+  return `s${index + 1}`;
 }

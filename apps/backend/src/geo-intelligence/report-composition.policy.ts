@@ -8,6 +8,7 @@ import { applyBrandNameResolution } from "./domain/brand-name-resolution.contrac
 import {
   REPORT_COMPOSITION_MODEL_CONTRACT_VERSION,
   reportCompositionJsonSchema,
+  reportCompositionSampleRef,
   type ReportCompositionSample,
 } from "./domain/report-composition.contract.js";
 
@@ -44,8 +45,8 @@ export function buildReportCompositionTask(input: {
       focusBrand: input.brand.companyName,
       performance: performanceProjection(input.metrics),
       competitors: resolved.competitors,
-      samples: input.samples.map((sample) => ({
-        sampleId: sample.sampleId,
+      samples: input.samples.map((sample, index) => ({
+        sampleRef: reportCompositionSampleRef(index),
         question: sample.question,
         questionKind: sample.questionKind,
         platformLabel: sample.platformLabel,
@@ -65,7 +66,7 @@ export function buildReportCompositionTask(input: {
                 position: sample.position,
                 mentionContext: sample.semantic.targetObservations.map(
                   (point) => ({
-                    pointId: point.observationId,
+                    pointRef: point.observationId,
                     text: point.detail,
                     polarity: point.polarity,
                   }),
@@ -103,5 +104,5 @@ function performanceProjection(metrics: EvaluationReportMetrics) {
 }
 
 function compactOutputGuide() {
-  return "输出字段为recommendationAssessment、brandPerception、positiveThemes、negativeThemes和directions。每个theme包含label、summary、pointRefs；pointRefs每项包含sampleId与pointId。每个direction包含currentProblem、recommendedDirection、intendedImprovement和sampleIds。保留全部字段，没有适用内容的数组填写空数组。仅输出填写实际内容后的JSON对象。";
+  return "输出字段为recommendationAssessment、brandPerception、positiveThemes、negativeThemes和directions。每个theme包含label、summary、pointRefs；pointRefs每项从输入复制sampleRef与pointRef。每个direction包含currentProblem、recommendedDirection、intendedImprovement和sampleRefs。保留全部字段，没有适用内容的数组填写空数组。仅输出填写实际内容后的JSON对象。";
 }
