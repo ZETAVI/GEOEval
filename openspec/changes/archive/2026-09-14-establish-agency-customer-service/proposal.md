@@ -1,8 +1,8 @@
-# Change: 接通代理商客户迁移与只读服务视图
+# Archived change: 接通代理商客户迁移与只读服务视图
 
 - Issue: [#102](https://github.com/ZETAVI/GEOEval/issues/102)，parent [#100](https://github.com/ZETAVI/GEOEval/issues/100)
 - Owner: ZETAVI；feature / architectural
-- Status: Proposed implementation design; business direction and full contact visibility confirmed. 本 PR 仅设计，不启用读取权限或修改数据。
+- Status: Approved and implemented controlled A1; archived for independently complete A1 integration; verification and integration evidence belongs to PR #103. No production activation.
 - Baseline: main `90e0aa5`，A0 由 PR #101 合并；main-direct，复用原独立工作树。
 
 ## Outcome
@@ -34,6 +34,6 @@ Out: 客户写操作、评测/文章/订单代办、报告导出、余额和账�
 
 ## Documentation and exit
 
-当前 [Product Definition](../../specs/product-definition/spec.md) 已明确 agent assistance 与管理员迁移；本轮不提前把运行态写入 current specs。实施后将该稳定切片局部提取到 Agency Customer Service，保留初始入口在 [Agency Entry](../../specs/agency-entry/spec.md)；更新 Product Definition 的 Evolution marker 及相应 Identity/Brand/报告索引，不复制商业结算规则。
+当前 [Product Definition](../../../specs/product-definition/spec.md) 已明确 agent assistance 与管理员迁移；本片已将稳定行为局部提取到 Agency Customer Service current spec，保留初始入口在 [Agency Entry](../../../specs/agency-entry/spec.md)；更新 Product Definition 的 Evolution marker 及相应 Identity/Brand/报告索引，不复制商业结算规则。
 
-设计 PR 可独立评审。保留工作树用于 #102 实施，准确路径/PR/退出由 Issue 持有；不将 A0 归档变成新需求清单，不改 #77/#89 或 Writer 工作树。
+本片实现由同一 PR 承接。保留工作树用于 #102 实施，准确路径/PR/退出由 Issue 持有；不将 A0 归档变成新需求清单，不改 #77/#89 或 Writer 工作树。

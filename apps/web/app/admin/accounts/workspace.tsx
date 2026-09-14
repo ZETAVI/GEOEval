@@ -1,4 +1,5 @@
 "use client";
+import { AgencyTransferCard } from "../../agency/transfer-card.js";
 
 import {
   ApiRequestError,
@@ -584,6 +585,13 @@ export function AdminAccountsWorkspace({
                     <AgencyLinkCard
                       key={selectedAccount.id}
                       agentAccountId={selectedAccount.id}
+                    />
+                  )}
+                {acquisitionEnabled &&
+                  selectedAccount.role === "TERMINAL_CUSTOMER" && (
+                    <AgencyTransferCard
+                      key={selectedAccount.id}
+                      customerId={selectedAccount.id}
                     />
                   )}
                 <section className="account-governance-panel">

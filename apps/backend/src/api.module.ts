@@ -1,3 +1,4 @@
+import { GeoIntelligenceModule } from "./geo-intelligence/geo-intelligence.module.js";
 import { AgencyModule } from "./agency/agency.module.js";
 import { Module, type DynamicModule } from "@nestjs/common";
 import { RechargeAdminModule } from "./recharge/recharge-admin.module.js";
@@ -43,18 +44,22 @@ export class ApiModule {
       throw new Error("AGENCY_ACQUISITION_NOT_READY_FOR_PRODUCTION");
     if (config.runtimeEnvironment === "production" && recharge?.controlled)
       throw new Error("CONTROLLED_RECHARGE_IN_PRODUCTION");
-    const optimization = GeoOptimizationModule.register({
-      writerMode: config.geoOptimizationWriterMode,
-      runtimeEnvironment: config.runtimeEnvironment,
-      storeLocation: config.storeLocation,
-    });
+    const intelligence = GeoIntelligenceModule.register(config.storeLocation);
+    const optimization = GeoOptimizationModule.register(
+      {
+        writerMode: config.geoOptimizationWriterMode,
+        runtimeEnvironment: config.runtimeEnvironment,
+        storeLocation: config.storeLocation,
+      },
+      intelligence,
+    );
     return {
       module: ApiModule,
       imports: [
         PersistenceModule.register(config.databaseUrl),
         TelemetryModule.register(config.telemetryShouldFail),
         IdentityModule.register(config),
-        AgencyModule.register(config.agencyAcquisitionEnabled),
+        AgencyModule.register(config.agencyAcquisitionEnabled, intelligence),
         optimization,
         MediaSupplyModule,
         PublishingCommerceModule.register(optimization),

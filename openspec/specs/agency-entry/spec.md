@@ -125,4 +125,6 @@ Administrators SHALL issue one stable acquisition link for an active AGENT accou
 
 ## Implementation boundary
 
-A0 adds source entry management and initial binding only. Customer lists/report access, administrator reattribution, purchase agent/rate snapshots, commissions, the 72-hour point-return claim window and withdrawals are not activated here. Existing customer data and orders are not retroactively attributed. Web and API configuration must refer to the same controlled deployment; source-enabled pages cannot be rolled out against an older API that ignores source input.
+A0 owns source entry management and initial binding. Current customer/brand/report reads and administrator reassignment are owned by [Agency Customer Service](../agency-customer-service/spec.md). Purchase agent/rate snapshots, commissions, the 72-hour point-return claim window and withdrawals remain separate activation outcomes. Existing orders are not retroactively attributed. Web and API configuration must refer to the same controlled deployment; source-enabled pages cannot run against an older API that ignores source input.
+
+An agent's public acquisition link has no expiry time and repeated issuance returns the same address. Current account/entry eligibility still controls usability. The 30-day lifetime applies to each anonymous first-agent source, not to the public link. Reassigning one customer does not invalidate the agent's acquisition link or authorize that agent to read the migrated customer.

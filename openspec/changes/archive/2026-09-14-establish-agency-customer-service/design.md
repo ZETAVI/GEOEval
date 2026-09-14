@@ -1,6 +1,6 @@
 # 客户迁移与代理商只读服务设计
 
-Status: Proposed for #102 implementation；以下为可评审方案，当前运行时尚未提供这些接口。
+Status: Implemented for controlled #102 A1; runtime evidence is recorded in verification.md and PR #103.
 
 ## 1. 具体场景
 
@@ -38,7 +38,7 @@ Status: Proposed for #102 implementation；以下为可评审方案，当前运�
 
 ## 4. 只读接口与数据投影
 
-建议新增专用 /agency/customers 及客户品牌/报告只读路由；管理员迁移路由属于 Agency，界面挂到既有账号详情。保留所有现有 TERMINAL_CUSTOMER 控制器的角色限制，不给整组客户 API 放行 AGENT，也不构造客户登录会话。
+已新增专用 /agency/customers 及客户品牌/报告只读路由；管理员迁移路由属于 Agency，界面挂到既有账号详情。保留所有现有 TERMINAL_CUSTOMER 控制器的角色限制，不给整组客户 API 放行 AGENT，也不构造客户登录会话。
 
 | 信息 | 当前归属代理商 | 原代理商迁出后 |
 | --- | --- | --- |
@@ -50,7 +50,7 @@ Status: Proposed for #102 implementation；以下为可评审方案，当前运�
 
 列表和每条品牌/报告请求都检查当前 AGENT 资格与客户归属。客户账号可访问状态遵守 Identity 当前治理边界；本片不借代理服务恢复已被停用的客户能力。品牌 ID、报告 ID 必须同时属于该客户，非归属数据使用统一不可访问结果，不泄露是否存在。
 
-优先复用 BrandService 的只读方法和 EvaluationReportService 的 current/history/detail；客户报告序列化目前位于 EvaluationController 的 presentReport，可在原 GeoIntelligence owner 内提取为共同使用的投影。Agency 不能直接查询报告底表或重新生成报告。根模块显式复用同一配置下的模块实例，避免复制 provider 或引入 Identity↔Agency Nest 循环。
+优先复用 BrandService 的只读方法和 EvaluationReportService 的 current/history/detail；客户报告序列化目前位于 EvaluationController 的 presentReport，已在原 GeoIntelligence application owner 内提取为共同使用的投影。Agency 不能直接查询报告底表或重新生成报告。根模块显式复用同一配置下的模块实例，避免复制 provider 或引入 Identity↔Agency Nest 循环。
 
 先获得服务端关系版本，再读取原 owner 的资料；返回前复核关系版本和代理资格，若期间发生迁移则不返回旧结果。该方法复用现有只读服务，避免为跨 owner 读取建立新事务框架。验收必须通过屏障式测试固定“读取期间迁移”的顺序，不能只测两个静态账号。
 
@@ -60,7 +60,7 @@ Status: Proposed for #102 implementation；以下为可评审方案，当前运�
 
 管理员在已有客户账号详情里管理归属，不新增独立账号体系；代理商使用现有工作区导航，依次进入客户、品牌、报告。完整登录手机号与业务电话明确标注用途，避免误认为同一个字段。
 
-复用 EvaluationReportView 的完整报告展示，不传 onStartNewEvaluation；客户控制器仍拒绝代理商写请求。旧客户页面在授权失效后显示“该客户当前不可访问”，不显示对方转给谁或其代理层级。不开放导出、代操作或新的运营全量客户目录。
+复用 EvaluationReportView 的完整报告展示，使用明确 readOnly 模式移除客户操作按钮/链接；客户控制器仍拒绝代理商写请求。旧客户页面在授权失效后显示“该客户当前不可访问”，不显示对方转给谁或其代理层级。不开放导出、代操作或新的运营全量客户目录。
 
 ## 6. 迁移、回退、并行边界
 
@@ -68,10 +68,10 @@ Status: Proposed for #102 implementation；以下为可评审方案，当前运�
 
 运行时继续使用受控激活边界，不放开 A0 的生产获客禁用。购买代理/费率快照仍是独立商业激活依赖；未来购买与迁移须序列化同一客户关系边界，本片不偷偷改购买锁序或定价。
 
-本轮仅拥有本 change 文档。实施窗口预计涉及 Agency、Identity 最小事实读取、Brand/GeoIntelligence 只读 exports/投影、Web 只读界面、schema/生成接口及测试；开始前重新核对支付/写作活跃修改，shared schema 等仍为单一 writer。复用 OrbStack 服务，独立逻辑测试数据；不新增全局依赖、容器或外部服务。
+本片拥有的实施窗口涉及 Agency、Identity 最小事实读取、Brand/GeoIntelligence 只读 exports/投影、Web 只读界面、schema/生成接口及测试；开始前重新核对支付/写作活跃修改，shared schema 等仍为单一 writer。复用 OrbStack 服务，独立逻辑测试数据；不新增全局依赖、容器或外部服务。
 
 ## 7. 架构评审与决策前沿
 
-设计阶段 review 结论：ready for implementation planning；尚未证明运行时权限或并发已经成立。职责、复用与历史边界已固定，用户已确认完整手机号可见。当前最关键实现不确定性是读取与迁移并发时的响应撤销，以及首次公共关系的并发创建；这两项必须由有顺序控制的 PostgreSQL/HTTP 测试先证明，再接页面。
+实现 review 结论：ready for verification-gated integration。迁移与读取并发、陈旧操作、审计回滚、旧 URL 撤权和原投影复用均已有对应测试。职责、复用与历史边界已固定，用户已确认完整手机号可见。当前最关键实现不确定性是读取与迁移并发时的响应撤销，以及首次公共关系的并发创建；这两项已由有顺序控制的 PostgreSQL/HTTP 测试证明，并接通最小页面。
 
 不需要新的 ADR 或通用权限框架。实施验收后将稳定读取/迁移语义归入 Agency Customer Service，并从 Product Definition 执行局部提取；佣金、提现和通知仍由各自 owner 激活。本片不再改已归档 A0 的需求。

@@ -62,9 +62,17 @@ export function SupportingRoleWorkspace({
     });
   if (role === "AGENT" && acquisitionEnabled) {
     config.introduction =
-      "分享专属入口邀请新客户，客户服务与收益功能将陆续开放。";
+      "分享入口邀请新客户，查看当前客户的品牌与报告并跟进服务。";
     const customerCard = config.cards.find((card) => card.title === "客户管理");
-    if (customerCard) customerCard.description = "客户列表与报告查看尚未开放。";
+    if (customerCard) {
+      customerCard.description = "查看当前客户的联系方式、品牌和评测报告。";
+      customerCard.status = "AVAILABLE";
+      customerCard.href = "/agent/customers";
+    }
+    const customerNav = config.navigation?.find(
+      (item) => item.label === "客户管理",
+    );
+    if (customerNav) customerNav.href = "/agent/customers";
   }
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
 

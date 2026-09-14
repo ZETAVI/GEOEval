@@ -376,3 +376,18 @@ When architecture work begins, it must preserve:
    before a commercial deployment.
 
 Do not use this document as a list of imagined future services.
+
+### Agency customer service
+
+[Agency Customer Service](../../openspec/specs/agency-customer-service/spec.md)
+owns relationship revision, atomic administrator reassignment/audit, and the
+current-customer service read boundary. Before returning owner-provided data it
+rechecks current agent/customer eligibility and relationship revision under
+ordered Identity-owned account locks. It never grants a customer session.
+Brand and GeoIntelligence expose one shared customer projection each; Agency
+reuses their existing read services. The root supplies the same intelligence
+module instance to Optimization and Agency. Existing customer controllers keep
+their role restrictions, and the report renderer has a read-only mode that
+removes customer operation links without removing report/sample content.
+Purchase, wallet, delivery, commission and withdrawal facts stay with their
+respective owners; no historical commercial attribution is inferred here.

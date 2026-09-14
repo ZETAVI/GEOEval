@@ -1,3 +1,4 @@
+import { presentReport } from "../application/evaluation-customer-report-view.js";
 import {
   Controller,
   Get,
@@ -22,7 +23,6 @@ import { CurrentPrincipal } from "../../identity/access/current-principal.js";
 import type { AuthenticatedPrincipal } from "../../identity/domain/identity.types.js";
 import { EvaluationService } from "../application/evaluation.service.js";
 import { EvaluationReportService } from "../application/evaluation-report.service.js";
-import type { EvaluationReportView } from "../domain/evaluation-report.view.js";
 import { publicEvaluationBrandSnapshot } from "../domain/evaluation-brand-snapshot.js";
 import type { EvaluationDefinitionPreparationView } from "../domain/evaluation-question-preparation.types.js";
 import type {
@@ -207,21 +207,6 @@ export class EvaluationController {
       .retryRun(principal.accountId, runId)
       .then(presentRun);
   }
-}
-
-function presentReport(report: EvaluationReportView): EvaluationReportResponse {
-  return {
-    id: report.id,
-    runId: report.runId,
-    definitionId: report.definitionId,
-    brandId: report.brandId,
-    brandSnapshot: publicEvaluationBrandSnapshot(report.brandSnapshot),
-    brandInformationChanged: report.brandInformationChanged,
-    startedAt: report.startedAt,
-    acceptedAt: report.acceptedAt,
-    document: report.document,
-    questions: report.questions,
-  };
 }
 
 function presentDefinition(

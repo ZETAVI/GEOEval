@@ -390,3 +390,7 @@ Challenge delivery and an isolated migration/rollback rehearsal. Production
 still requires separate authorization for real SMS, configuration, migration,
 Bootstrap, second-administrator readiness, monitoring, post-activation rollback,
 deployment, and activation.
+
+## Agency service integration
+
+[Agency Customer Service](../agency-customer-service/spec.md) consumes Identity-owned minimal contact and eligibility facts. An AGENT can read the full login mobile only for a currently attributed eligible customer; this does not grant the administrator account directory, session/security details, a customer session, or customer actions. Governance and final service reads use ordered account locks. Identity account revision and Agency relationship revision remain distinct.

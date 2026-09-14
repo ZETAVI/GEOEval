@@ -516,6 +516,118 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/agency/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyCustomerController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/customers/{customerId}/brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyCustomerController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/customers/{customerId}/brands/{brandId}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyCustomerController_current"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/customers/{customerId}/brands/{brandId}/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyCustomerController_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/customers/{customerId}/brands/{brandId}/reports/{reportId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyCustomerController_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/admin/customers/{customerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyCustomerController_adminState"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/admin/customers/{customerId}/reassign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AgencyCustomerController_transfer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/geo-optimization/workspace": {
         parameters: {
             query?: never;
@@ -1917,6 +2029,16 @@ export interface components {
         AgencyLinkResponse: {
             entryKey: string | null;
         };
+        AgencyCustomerContactResponse: {
+            id: string;
+            mobile: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AgencyCustomerListResponse: {
+            items: components["schemas"]["AgencyCustomerContactResponse"][];
+            nextCursor: string | null;
+        };
         BrandCharacteristicResponse: {
             /** Format: uuid */
             id: string;
@@ -1982,6 +2104,219 @@ export interface components {
             /** Format: date-time */
             verifiedAt: string;
         };
+        BrandResponse: {
+            id: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "ARCHIVED";
+            companyName: string;
+            primaryIndustryId?: string | null;
+            secondaryIndustryId?: string | null;
+            otherProductOrService?: string | null;
+            flagshipProductOrService?: string | null;
+            characteristics: components["schemas"]["BrandCharacteristicResponse"][];
+            articleInformation: components["schemas"]["BrandArticleInformationRequest"];
+            revision: number;
+            contactName?: string | null;
+            contactMobile?: string | null;
+            primaryIndustryLabel?: string | null;
+            secondaryIndustryLabel?: string | null;
+            storeLocation?: components["schemas"]["BrandStoreLocationResponse"] | null;
+            readyForEvaluation: boolean;
+            missingFields: string[];
+            readyForArticleGeneration: boolean;
+            articleInformationMissingFields: string[];
+            isCurrent: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        AgencyCustomerDetailResponse: {
+            customer: components["schemas"]["AgencyCustomerContactResponse"];
+            brands: components["schemas"]["BrandResponse"][];
+        };
+        EvaluationBrandSnapshotResponse: {
+            companyName: string;
+            primaryIndustry: string;
+            secondaryIndustry: string;
+            characteristicOne: string;
+            characteristicTwo: string;
+            province: string;
+            city: string;
+            district: string;
+        };
+        EvaluationRecommendationIndexResponse: {
+            score: number;
+            stars: number;
+            mentionRate: number;
+            mentionCount: number;
+            validOpenSampleCount: number;
+        };
+        EvaluationTypicalPositionResponse: {
+            /** @enum {string} */
+            kind: "NONE" | "SINGLE" | "RANGE";
+            position?: number | null;
+            first?: number | null;
+            second?: number | null;
+        };
+        EvaluationCoverageResponse: {
+            validSampleCount: number;
+            totalSampleCount: number;
+            missingSampleCount: number;
+        };
+        EvaluationReportOverviewResponse: {
+            recommendationAssessment: string;
+            brandPerception: string;
+            recommendationIndex: components["schemas"]["EvaluationRecommendationIndexResponse"];
+            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+            coverage: components["schemas"]["EvaluationCoverageResponse"];
+        };
+        EvaluationPlatformReportResponse: {
+            platformKey: string;
+            platformLabel: string;
+            validSampleCount: number;
+            totalSampleCount: number;
+            validOpenSampleCount: number;
+            mentionCount: number;
+            mentionRate: number;
+            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+        };
+        EvaluationEvidenceSummaryResponse: {
+            sampleCount: number;
+            platforms: string[];
+        };
+        EvaluationThemeResponse: {
+            themeId: string;
+            label: string;
+            summary: string;
+            evidence: components["schemas"]["EvaluationEvidenceSummaryResponse"];
+        };
+        EvaluationThemesResponse: {
+            positive: components["schemas"]["EvaluationThemeResponse"][];
+            negative: components["schemas"]["EvaluationThemeResponse"][];
+        };
+        EvaluationCompetitorResponse: {
+            groupId: string;
+            displayName: string;
+            occurrenceCount: number;
+            platforms: string[];
+            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
+        };
+        EvaluationDirectionResponse: {
+            directionId: string;
+            currentProblem: string;
+            recommendedDirection: string;
+            intendedImprovement: string;
+            evidence: components["schemas"]["EvaluationEvidenceSummaryResponse"];
+        };
+        EvaluationReportDocumentResponse: {
+            overview: components["schemas"]["EvaluationReportOverviewResponse"];
+            platforms: components["schemas"]["EvaluationPlatformReportResponse"][];
+            themes: components["schemas"]["EvaluationThemesResponse"];
+            competitors: components["schemas"]["EvaluationCompetitorResponse"][];
+            directions: components["schemas"]["EvaluationDirectionResponse"][];
+            limitations: string[];
+        };
+        EvaluationHighlightRangeResponse: {
+            start: number;
+            end: number;
+            exactText: string;
+            /** @enum {string} */
+            kind: "TARGET" | "POSITIVE" | "NEGATIVE" | "MIXED";
+        };
+        EvaluationReportSampleResponse: {
+            id: string;
+            platformKey: string;
+            platformLabel: string;
+            /** @enum {string} */
+            availability: "INCLUDED" | "NOT_INCLUDED";
+            mentioned: boolean | null;
+            position: number | null;
+            cardInterpretation: string | null;
+            originalAnswer: string | null;
+            highlightUnavailable: boolean;
+            highlights: components["schemas"]["EvaluationHighlightRangeResponse"][];
+        };
+        EvaluationReportQuestionResponse: {
+            id: string;
+            /** @enum {string} */
+            kind: "BRAND_DIRECTED" | "INDUSTRY_RECOMMENDATION" | "CHARACTERISTIC_ONE" | "CHARACTERISTIC_TWO";
+            ordinal: number;
+            content: string;
+            samples: components["schemas"]["EvaluationReportSampleResponse"][];
+        };
+        EvaluationReportResponse: {
+            id: string;
+            runId: string;
+            definitionId: string;
+            brandId: string;
+            brandSnapshot: components["schemas"]["EvaluationBrandSnapshotResponse"];
+            brandInformationChanged: boolean;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            acceptedAt: string;
+            document: components["schemas"]["EvaluationReportDocumentResponse"];
+            questions: components["schemas"]["EvaluationReportQuestionResponse"][];
+        };
+        CurrentEvaluationReportResponse: {
+            report: components["schemas"]["EvaluationReportResponse"] | null;
+        };
+        EvaluationReportSummaryResponse: {
+            id: string;
+            runId: string;
+            brandId: string;
+            brandName: string;
+            brandInformationChanged: boolean;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            acceptedAt: string;
+            recommendationIndex: number;
+            mentionRate: number;
+            validSampleCount: number;
+            totalSampleCount: number;
+        };
+        EvaluationReportHistoryResponse: {
+            items: components["schemas"]["EvaluationReportSummaryResponse"][];
+            nextCursor: string | null;
+        };
+        AgencyTransferAuditResponse: {
+            actorMobile: string | null;
+            agentMobile: string | null;
+            beforeAgentMobile: string | null;
+            id: string;
+            actorAccountId: string;
+            beforeAgentAccountId: string | null;
+            agentAccountId: string | null;
+            reason: string | null;
+            resultRevision: number | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AgencyAdminCustomerResponse: {
+            customerId: string;
+            agentAccountId: string | null;
+            revision: number;
+            updatedAt: string | null;
+            agentMobile: string | null;
+            events: components["schemas"]["AgencyTransferAuditResponse"][];
+        };
+        AgencyTransferRequest: {
+            agentAccountId: string | null;
+            expectedRevision: number;
+            reason: string;
+            /** Format: uuid */
+            requestId: string;
+        };
+        AgencyTransferResponse: {
+            customerId: string;
+            agentAccountId: string | null;
+            revision: number;
+            updatedAt: string | null;
+            /** @enum {string} */
+            outcome: "CHANGED" | "UNCHANGED" | "REPLAYED";
+        };
         GeoOptimizationBrandResponse: {
             /** Format: uuid */
             id: string;
@@ -2000,17 +2335,6 @@ export interface components {
             missingFields: string[];
             readyForArticleGeneration: boolean;
             articleInformationMissingFields: string[];
-        };
-        EvaluationEvidenceSummaryResponse: {
-            sampleCount: number;
-            platforms: string[];
-        };
-        EvaluationDirectionResponse: {
-            directionId: string;
-            currentProblem: string;
-            recommendedDirection: string;
-            intendedImprovement: string;
-            evidence: components["schemas"]["EvaluationEvidenceSummaryResponse"];
         };
         GeoOptimizationGuidanceResponse: {
             /** Format: uuid */
@@ -2728,16 +3052,6 @@ export interface components {
             /** Format: date-time */
             notificationDeliveredAt: string | null;
         };
-        EvaluationBrandSnapshotResponse: {
-            companyName: string;
-            primaryIndustry: string;
-            secondaryIndustry: string;
-            characteristicOne: string;
-            characteristicTwo: string;
-            province: string;
-            city: string;
-            district: string;
-        };
         EvaluationQuestionResponse: {
             id: string;
             /** @enum {string} */
@@ -2793,158 +3107,6 @@ export interface components {
         };
         CurrentEvaluationDefinitionPreparationResponse: {
             preparation: components["schemas"]["EvaluationDefinitionPreparationResponse"] | null;
-        };
-        EvaluationRecommendationIndexResponse: {
-            score: number;
-            stars: number;
-            mentionRate: number;
-            mentionCount: number;
-            validOpenSampleCount: number;
-        };
-        EvaluationTypicalPositionResponse: {
-            /** @enum {string} */
-            kind: "NONE" | "SINGLE" | "RANGE";
-            position?: number | null;
-            first?: number | null;
-            second?: number | null;
-        };
-        EvaluationCoverageResponse: {
-            validSampleCount: number;
-            totalSampleCount: number;
-            missingSampleCount: number;
-        };
-        EvaluationReportOverviewResponse: {
-            recommendationAssessment: string;
-            brandPerception: string;
-            recommendationIndex: components["schemas"]["EvaluationRecommendationIndexResponse"];
-            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
-            coverage: components["schemas"]["EvaluationCoverageResponse"];
-        };
-        EvaluationPlatformReportResponse: {
-            platformKey: string;
-            platformLabel: string;
-            validSampleCount: number;
-            totalSampleCount: number;
-            validOpenSampleCount: number;
-            mentionCount: number;
-            mentionRate: number;
-            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
-        };
-        EvaluationThemeResponse: {
-            themeId: string;
-            label: string;
-            summary: string;
-            evidence: components["schemas"]["EvaluationEvidenceSummaryResponse"];
-        };
-        EvaluationThemesResponse: {
-            positive: components["schemas"]["EvaluationThemeResponse"][];
-            negative: components["schemas"]["EvaluationThemeResponse"][];
-        };
-        EvaluationCompetitorResponse: {
-            groupId: string;
-            displayName: string;
-            occurrenceCount: number;
-            platforms: string[];
-            typicalPosition: components["schemas"]["EvaluationTypicalPositionResponse"];
-        };
-        EvaluationReportDocumentResponse: {
-            overview: components["schemas"]["EvaluationReportOverviewResponse"];
-            platforms: components["schemas"]["EvaluationPlatformReportResponse"][];
-            themes: components["schemas"]["EvaluationThemesResponse"];
-            competitors: components["schemas"]["EvaluationCompetitorResponse"][];
-            directions: components["schemas"]["EvaluationDirectionResponse"][];
-            limitations: string[];
-        };
-        EvaluationHighlightRangeResponse: {
-            start: number;
-            end: number;
-            exactText: string;
-            /** @enum {string} */
-            kind: "TARGET" | "POSITIVE" | "NEGATIVE" | "MIXED";
-        };
-        EvaluationReportSampleResponse: {
-            id: string;
-            platformKey: string;
-            platformLabel: string;
-            /** @enum {string} */
-            availability: "INCLUDED" | "NOT_INCLUDED";
-            mentioned: boolean | null;
-            position: number | null;
-            cardInterpretation: string | null;
-            originalAnswer: string | null;
-            highlightUnavailable: boolean;
-            highlights: components["schemas"]["EvaluationHighlightRangeResponse"][];
-        };
-        EvaluationReportQuestionResponse: {
-            id: string;
-            /** @enum {string} */
-            kind: "BRAND_DIRECTED" | "INDUSTRY_RECOMMENDATION" | "CHARACTERISTIC_ONE" | "CHARACTERISTIC_TWO";
-            ordinal: number;
-            content: string;
-            samples: components["schemas"]["EvaluationReportSampleResponse"][];
-        };
-        EvaluationReportResponse: {
-            id: string;
-            runId: string;
-            definitionId: string;
-            brandId: string;
-            brandSnapshot: components["schemas"]["EvaluationBrandSnapshotResponse"];
-            brandInformationChanged: boolean;
-            /** Format: date-time */
-            startedAt: string;
-            /** Format: date-time */
-            acceptedAt: string;
-            document: components["schemas"]["EvaluationReportDocumentResponse"];
-            questions: components["schemas"]["EvaluationReportQuestionResponse"][];
-        };
-        CurrentEvaluationReportResponse: {
-            report: components["schemas"]["EvaluationReportResponse"] | null;
-        };
-        EvaluationReportSummaryResponse: {
-            id: string;
-            runId: string;
-            brandId: string;
-            brandName: string;
-            brandInformationChanged: boolean;
-            /** Format: date-time */
-            startedAt: string;
-            /** Format: date-time */
-            acceptedAt: string;
-            recommendationIndex: number;
-            mentionRate: number;
-            validSampleCount: number;
-            totalSampleCount: number;
-        };
-        EvaluationReportHistoryResponse: {
-            items: components["schemas"]["EvaluationReportSummaryResponse"][];
-            nextCursor: string | null;
-        };
-        BrandResponse: {
-            id: string;
-            /** @enum {string} */
-            status: "ACTIVE" | "ARCHIVED";
-            companyName: string;
-            primaryIndustryId?: string | null;
-            secondaryIndustryId?: string | null;
-            otherProductOrService?: string | null;
-            flagshipProductOrService?: string | null;
-            characteristics: components["schemas"]["BrandCharacteristicResponse"][];
-            articleInformation: components["schemas"]["BrandArticleInformationRequest"];
-            revision: number;
-            contactName?: string | null;
-            contactMobile?: string | null;
-            primaryIndustryLabel?: string | null;
-            secondaryIndustryLabel?: string | null;
-            storeLocation?: components["schemas"]["BrandStoreLocationResponse"] | null;
-            readyForEvaluation: boolean;
-            missingFields: string[];
-            readyForArticleGeneration: boolean;
-            articleInformationMissingFields: string[];
-            isCurrent: boolean;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
         };
         BrandCharacteristicMutationRequest: {
             /** Format: uuid */
@@ -3864,6 +4026,164 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AgencyLinkResponse"];
+                };
+            };
+        };
+    };
+    AgencyCustomerController_list: {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyCustomerListResponse"];
+                };
+            };
+        };
+    };
+    AgencyCustomerController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyCustomerDetailResponse"];
+                };
+            };
+        };
+    };
+    AgencyCustomerController_current: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brandId: string;
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentEvaluationReportResponse"];
+                };
+            };
+        };
+    };
+    AgencyCustomerController_history: {
+        parameters: {
+            query?: {
+                limit?: string;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                brandId: string;
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationReportHistoryResponse"];
+                };
+            };
+        };
+    };
+    AgencyCustomerController_report: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reportId: string;
+                brandId: string;
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationReportResponse"];
+                };
+            };
+        };
+    };
+    AgencyCustomerController_adminState: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyAdminCustomerResponse"];
+                };
+            };
+        };
+    };
+    AgencyCustomerController_transfer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgencyTransferRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyTransferResponse"];
                 };
             };
         };

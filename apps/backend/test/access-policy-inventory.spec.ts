@@ -86,6 +86,15 @@ const expectedControllerPolicies: Record<
     handler: string,
   ) => Pick<RoutePolicy, "publicAccess" | "csrfExempt" | "roles">
 > = {
+  AgencyCustomerController: (handler) => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: [
+      handler === "adminState" || handler === "transfer"
+        ? "ADMINISTRATOR"
+        : "AGENT",
+    ],
+  }),
   AcquisitionController: (handler) =>
     handler === "resolve"
       ? { publicAccess: true, csrfExempt: false }
