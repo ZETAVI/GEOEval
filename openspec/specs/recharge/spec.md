@@ -52,6 +52,11 @@ and converge on the same settlement transaction.
   An uncertain result SHALL preserve that request across reloads; recovery uses
   the same content and key. A known committed request remains recoverable when
   new creation is disabled or the host has no merchant configuration.
+- Only host-advertised methods SHALL be selectable for a new order. During the
+  Alipay-primary rollout, the customer UI MAY keep WeChat visible as unavailable,
+  but SHALL disable it and SHALL NOT submit it. A previously committed request
+  keeps its original method visible and recoverable even when new creation for
+  that method is unavailable.
 - Creation SHALL commit the order, reserved capacity and first durable work
   together before any provider dispatch. Browser failure cannot create authority
   to release capacity, mint a replacement payment or report success.

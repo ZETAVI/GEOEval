@@ -39,9 +39,22 @@
   border-radius: 10px;
   padding: 14px;
 }
+.methods label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+}
 .methods input {
   accent-color: #176043;
   margin-right: 8px;
+}
+.methodUnavailable {
+  color: #82938b;
+}
+.methodStatus {
+  margin-left: auto;
+  color: #82938b;
 }
 .total {
   display: flex;

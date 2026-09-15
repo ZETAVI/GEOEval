@@ -1,6 +1,6 @@
 # Tasks
 
-Owner #77. A0/B0/C1 and publication return are accepted on main; N1–N4 implementation and controlled verification are complete. The owner authorized the four Partial PRs in the [integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476). [#83](https://github.com/ZETAVI/GEOEval/pull/83), [#84](https://github.com/ZETAVI/GEOEval/pull/84), [#85](https://github.com/ZETAVI/GEOEval/pull/85) and [#86](https://github.com/ZETAVI/GEOEval/pull/86) own their merge/head/check evidence. A1 PC implementation is now on the current #77 branch: app/product/key readiness and a signed production-gateway no-funds query are confirmed; local database, HTTP, Worker and Web acceptance are recorded in verification. Real payment, public callback delivery, closed/refund lifecycle acceptance, H5 and production activation remain unfinished.
+Owner #77. A0/B0/C1, publication return, N1–N4, R1 and O1a are accepted on main. Alipay PC implementation merged through [PR #89](https://github.com/ZETAVI/GEOEval/pull/89) at `main@d795002`; app/product/key readiness and a signed production-gateway no-funds query are confirmed, with local database, HTTP, Worker and Web acceptance recorded in verification. The current owner decision makes Alipay the only selectable new-payment method and pauses WeChat qualification work; the UI keeps WeChat visible but disabled. Real payment, public callback delivery, closed/refund lifecycle acceptance, H5, dual-provider composition and production activation remain unfinished.
 
 ## Remaining work and actual dependencies
 
@@ -10,12 +10,12 @@ The approved route stays account recharge → verified payment → funded credit
 | --- | --- | --- |
 | R1 recovery/status | Transient failures recover under bounded scheduling; unsafe facts remain held; customer hints match persisted work | Merged through PR #87; implementation and CI evidence remain in that PR |
 | Management read-only | Find each order, payment confirmation, credit and independent notification state | Merged in PR #88 at mainadb0df9; merge and CI evidence belong to that PR |
-| A1 Alipay website payment | PC official cashier, authenticated receipt/query and once-only credit, then mobile website payment | PC code and real signed no-funds query complete on current branch; real small payment/public callback and closed/refund acceptance remain gated; design15A |
+| A1 Alipay website payment | PC official cashier, authenticated receipt/query and once-only credit, then mobile website payment | PC code merged at `main@d795002` and real signed no-funds query complete; Alipay is the only selectable new-payment method; real small payment/public callback and closed/refund acceptance remain gated; design15A |
 | O1 reconciliation | Verify daily coverage, compare provider/order/ledger, query discrepancies and settle only through existing C1 | Official request metadata read; download/format details and synthetic samples still required before implementation |
 | H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
 | Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
 
-Current planning: R1 and O1a are merged. Alipay enterprise certification, PC product, app binding, RSA2 keys and app上线 are confirmed. The current branch completes the PC hosted-cashier code path and safe host assembly. The next action-time gate is a public callback plus minimum real payment and the named closed/refund lifecycle scenarios; mobile website payment follows PC acceptance. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. Reconciliation and WeChat H1 remain later bounded acceptance.
+Current planning: R1, O1a and Alipay PC code are merged. Alipay enterprise certification, PC product, app binding, RSA2 keys and app上线 are confirmed. The next action-time gate is a public callback plus minimum real payment and the named closed/refund lifecycle scenarios; mobile website payment follows PC acceptance. WeChat is displayed as unavailable and cannot create a new order. Finance qualification, dual-provider runtime composition and the application-layer Native naming cleanup resume together when WeChat becomes active. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. Reconciliation remains later bounded acceptance.
 
 ## R1: Transient recovery and truthful status
 
@@ -50,6 +50,8 @@ Current planning: R1 and O1a are merged. Alipay enterprise certification, PC pro
 
 ## A1: Alipay PC first, then mobile website payment
 
+- [x] Record the owner decision to use Alipay as the primary selectable method, pause WeChat integration and render WeChat visibly unavailable without permitting selection or submission.
+- [ ] When WeChat work resumes, compose both providers explicitly in API/callback/Worker hosts and then narrow the legacy `PaymentGateway`/`Native*` application naming debt. Do not rename persistent columns merely for style or make this a blocker for Alipay-only acceptance.
 - [x] Record owner priority change and confirmed enterprise certification; distinguish product opening, app上线/APPID binding and technical configuration from merchant registration.
 - [x] Read current official PC/H5 introductions, self-development preparation, app creation/binding/keys/product opening, PC payment/notification and sandbox documents; keep the scope/contradictions in source-brief.
 - [x] Prepare a finance/technical handoff checklist with official product links and a status-only receipt; no private merchant login, application submission, credential generation or provider/funds call performed.
