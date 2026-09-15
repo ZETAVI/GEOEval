@@ -347,6 +347,13 @@ describe("support API and PostgreSQL responsibility", () => {
       }),
     ).rejects.toThrow();
   });
+  it("rejects out-of-range database cursors as input errors", async () => {
+    const { ticketId } = await create();
+    expect((await get("/support/tickets?before=2147483648")).status).toBe(400);
+    expect(
+      (await get(`/support/tickets/${ticketId}?after=2147483648`)).status,
+    ).toBe(400);
+  });
   it("paginates lists and messages without changing responsibility or duplicating entries", async () => {
     const first = await create();
     await create();

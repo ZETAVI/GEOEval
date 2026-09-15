@@ -38,12 +38,12 @@ export const supportListSchema = z
   .object({
     scope: z.enum(["mine", "pool", "all"]).default("mine"),
     status: z.enum(["PROCESSING", "RESOLVED"]).optional(),
-    before: z.coerce.number().int().min(1).optional(),
+    before: z.coerce.number().int().min(1).max(2147483647).optional(),
     limit: z.coerce.number().int().min(1).max(50).default(20),
   })
   .strict();
 export const supportMessagesSchema = z
-  .object({ after: z.coerce.number().int().min(0).default(0) })
+  .object({ after: z.coerce.number().int().min(0).max(2147483647).default(0) })
   .strict();
 export function parseSupport<T>(schema: z.ZodType<T>, raw: unknown): T {
   const p = schema.safeParse(raw);
