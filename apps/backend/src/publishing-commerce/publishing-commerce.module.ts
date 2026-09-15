@@ -1,3 +1,4 @@
+import { PostgresAgencyPurchaseReader } from "../agency/infrastructure/postgres-agency-purchase-reader.js";
 import { Module, type DynamicModule } from "@nestjs/common";
 import { PublicationDeliveryModule } from "../publication-delivery/publication-delivery.module.js";
 import { PublishingOrderController } from "./presentation/publishing-order.controller.js";
@@ -29,6 +30,7 @@ import {
     PublishingSelectionController,
   ],
   providers: [
+    PostgresAgencyPurchaseReader,
     PostgresOrderReturnAccess,
     PublishingOrderService,
     PostgresPublishingOrderRepository,

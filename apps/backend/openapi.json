@@ -1445,6 +1445,76 @@
         ]
       }
     },
+    "/agency/admin/agents/{agentId}/commission": {
+      "get": {
+        "operationId": "CommissionTermsController_read",
+        "parameters": [
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommissionTermsDetailResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-commission-settings"
+        ]
+      },
+      "post": {
+        "operationId": "CommissionTermsController_update",
+        "parameters": [
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommissionTermsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommissionTermsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-commission-settings"
+        ]
+      }
+    },
     "/geo-optimization/workspace": {
       "get": {
         "operationId": "GeoOptimizationController_workspace",
@@ -6800,6 +6870,135 @@
           "revision",
           "updatedAt",
           "outcome"
+        ]
+      },
+      "CommissionTermsResponse": {
+        "type": "object",
+        "properties": {
+          "agentAccountId": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "rateBps": {
+            "type": "number",
+            "nullable": true
+          },
+          "revision": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "agentAccountId",
+          "enabled",
+          "rateBps",
+          "revision",
+          "updatedAt"
+        ]
+      },
+      "CommissionTermsAuditResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actorAccountId": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "before": {
+            "$ref": "#/components/schemas/CommissionTermsResponse"
+          },
+          "after": {
+            "$ref": "#/components/schemas/CommissionTermsResponse"
+          }
+        },
+        "required": [
+          "id",
+          "actorAccountId",
+          "reason",
+          "createdAt",
+          "before",
+          "after"
+        ]
+      },
+      "CommissionTermsDetailResponse": {
+        "type": "object",
+        "properties": {
+          "agentAccountId": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "rateBps": {
+            "type": "number",
+            "nullable": true
+          },
+          "revision": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "audits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommissionTermsAuditResponse"
+            }
+          }
+        },
+        "required": [
+          "agentAccountId",
+          "enabled",
+          "rateBps",
+          "revision",
+          "updatedAt",
+          "audits"
+        ]
+      },
+      "CommissionTermsRequest": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "rateBps": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 320
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "enabled",
+          "rateBps",
+          "expectedRevision",
+          "reason",
+          "requestId"
         ]
       },
       "GeoOptimizationBrandResponse": {

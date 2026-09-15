@@ -1,4 +1,6 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { AgencyPurchaseChanged } from "../../agency/domain/commission-terms.js";
+import { PostgresAgencyPurchaseReader } from "../../agency/infrastructure/postgres-agency-purchase-reader.js";
+import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import {
   Prisma,
   type PublishingOrder as StoredOrder,
@@ -36,6 +38,8 @@ import type { DeliveryStatus } from "../../publication-delivery/domain/delivery-
 export class PostgresPublishingOrderRepository implements PublishingOrderRepository {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(PostgresAgencyPurchaseReader)
+    private readonly agency: PostgresAgencyPurchaseReader,
     @Inject(PostgresArticlePurchaseReaderFactory)
     private readonly articleReaders: PostgresArticlePurchaseReaderFactory,
     @Inject(PostgresMediaPurchaseReaderFactory)
@@ -44,10 +48,21 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
     private readonly delivery: PostgresDeliveryPurchaseAccess,
   ) {}
 
-  runPurchase(accountId: string, input: SubmitPurchase) {
+  async runPurchase(accountId: string, input: SubmitPurchase) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        return await this.purchaseAttempt(accountId, input);
+      } catch (error) {
+        if (!(error instanceof AgencyPurchaseChanged)) throw error;
+      }
+    }
+    throw new ConflictException(
+      "购买信息正在更新，请使用原请求重试，未重复扣分",
+    );
+  }
+  private purchaseAttempt(accountId: string, input: SubmitPurchase) {
     return this.prisma.$transaction(
       async (tx) => {
-        const wallet = await lockPointAccount(tx, accountId);
         const key = { accountId, idempotencyKey: input.idempotencyKey };
         const prior = await tx.publishingOrder.findUnique({
           where: { accountId_idempotencyKey: key },
@@ -60,6 +75,23 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
             );
           const statuses = await this.delivery.bind(tx).statuses([prior.id]);
           return orderView(prior, statuses.get(prior.id)!);
+        }
+        const agencyTerms = await this.agency.bind(tx).capture(accountId);
+        const wallet = await lockPointAccount(tx, accountId);
+        // Recover a concurrent success after waiting for the wallet.
+        const concurrent = await tx.publishingOrder.findUnique({
+          where: { accountId_idempotencyKey: key },
+        });
+        if (concurrent) {
+          if (!samePurchaseValue(concurrent.submissionRequest, input))
+            throw new PurchaseError(
+              "IDEMPOTENCY_CONFLICT",
+              "该请求标识已对应另一笔购买，请核对原订单",
+            );
+          const statuses = await this.delivery
+            .bind(tx)
+            .statuses([concurrent.id]);
+          return orderView(concurrent, statuses.get(concurrent.id)!);
         }
         if (
           await tx.pointChange.findUnique({
@@ -146,6 +178,7 @@ export class PostgresPublishingOrderRepository implements PublishingOrderReposit
         const order = await tx.publishingOrder.create({
           data: {
             accountId,
+            agencyTerms: { create: agencyTerms },
             brandId: input.brandId,
             articleId: article.id,
             articleRevision: article.revision,

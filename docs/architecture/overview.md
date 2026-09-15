@@ -391,3 +391,7 @@ their role restrictions, and the report renderer has a read-only mode that
 removes customer operation links without removing report/sample content.
 Purchase, wallet, delivery, commission and withdrawal facts stay with their
 respective owners; no historical commercial attribution is inferred here.
+
+### Agency purchase terms
+
+[Agency Order Terms](../../openspec/specs/agency-order-terms/spec.md) owns administrator commission configuration and its purchase-time meaning. Commerce persists immutable order terms through the Agency-owned transaction reader described by [ADR 0005](adr/0005-atomic-publishing-purchase.md). Suspension keeps service relationships but excludes new orders from commission; old orders retain captured eligibility. This activates neither commission settlement nor withdrawals. Customer wallets, fulfilment facts and public order projections retain their existing owners.

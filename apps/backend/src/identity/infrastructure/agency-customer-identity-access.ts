@@ -20,12 +20,26 @@ export class AgencyCustomerIdentityReader {
   }
 }
 
-/** Shared ordering with account governance; caller never locks a wallet. */
-export function lockAgencyTransferActors(
+/** Lock one account-owned change without blocking foreign-key KEY SHARE checks.
+ * All accounts use UUID order; only the changed subject needs NO KEY UPDATE.
+ * Call before wallet work. Other actors only need stable role/status reads.
+ */
+export async function lockAgencyChangeActors(
   tx: Prisma.TransactionClient,
   ids: string[],
+  subjectId: string,
 ) {
-  return tx.$queryRaw<Array<{ id: string; role: string; status: string }>>`
-    SELECT id,role,status FROM accounts WHERE id=ANY(CAST(${[...new Set(ids)].sort()} AS UUID[])) ORDER BY id FOR UPDATE
-  `;
+  const actors: Array<{ id: string; role: string; status: string }> = [];
+  for (const id of [...new Set(ids)].sort()) {
+    const rows =
+      id === subjectId
+        ? await tx.$queryRaw<
+            Array<{ id: string; role: string; status: string }>
+          >`SELECT id,role,status FROM accounts WHERE id=CAST(${id} AS UUID) FOR NO KEY UPDATE`
+        : await tx.$queryRaw<
+            Array<{ id: string; role: string; status: string }>
+          >`SELECT id,role,status FROM accounts WHERE id=CAST(${id} AS UUID) FOR SHARE`;
+    actors.push(...rows);
+  }
+  return actors;
 }

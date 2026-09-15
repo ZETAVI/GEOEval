@@ -85,3 +85,17 @@ The feature SHALL share the existing controlled Agency activation boundary. It S
 [Agency Entry](../agency-entry/spec.md) owns the stable acquisition link and 30-day anonymous source. Reassignment preserves the customer's original entry evidence and does not revoke the old agent's general acquisition link. That link can still acquire new customers; an existing customer opening it is never reclaimed.
 
 Manual assignment of a pre-existing public customer creates no fictitious entry evidence. Account, brand, report, wallet and order data remain under their owners. This capability does not supply purchase-time agent/rate snapshots, commission, 72-hour point-return claims or withdrawal behavior; those remain future commercial activation outcomes under #100. A customer's historical commercial ownership is never inferred from the current service relationship.
+
+### Requirement: Suspension retains attribution
+
+An inactive agent SHALL lose acquisition and customer-service access while retaining its existing customer relationships. The customer continues ordinary purchase and fulfilment with public service support; this does not assign administrators as daily service staff or grant broader customer access. Reactivation resumes only relationships not subsequently reassigned. No duplicate public-pool relationship is persisted.
+
+#### Scenario: Inactive destination
+- **WHEN** an administrator attempts to move a customer into an inactive agent
+- **THEN** the transfer is rejected, including a concurrent suspension
+
+#### Scenario: Resume after suspension
+- **WHEN** an agent is reactivated
+- **THEN** currently retained customer relationships become available again
+- **AND** customers moved elsewhere are not reclaimed
+- **AND** commercial history remains governed by [agency order terms](../agency-order-terms/spec.md)

@@ -195,6 +195,11 @@ enum MediaQualityTier {
 }
 
 model Account {
+  commissionTerms       AgencyCommissionTerms?
+  commissionAudits      AgencyCommissionAudit[] @relation("CommissionAgent")
+  commissionAuditsActed AgencyCommissionAudit[] @relation("CommissionActor")
+  agencyOrderTerms      PublishingOrderAgency[]
+
   agencyAuditsBefore        AgencyAudit[]                   @relation("AgencyAuditBefore")
   agencyLinks               AgencyEntryLink[]               @relation("AgencyLinkAgent")
   agencyCustomerSource      AgencyCustomerAttribution?      @relation("AgencyCustomerAccount")
@@ -982,6 +987,8 @@ enum PointChangeKind {
 }
 
 model PublishingOrder {
+  agencyTerms PublishingOrderAgency?
+
   id                String                    @id @default(uuid()) @db.Uuid
   number            Int                       @unique @default(autoincrement())
   accountId         String                    @map("account_id") @db.Uuid
@@ -1528,4 +1535,48 @@ model AgencyAudit {
   @@unique([actorAccountId, requestId])
   @@index([targetAccountId, createdAt, id])
   @@map("agency_audits")
+}
+
+model AgencyCommissionTerms {
+  agentAccountId String   @id @map("agent_account_id") @db.Uuid
+  enabled        Boolean  @default(false)
+  rateBps        Int?     @map("rate_bps")
+  revision       Int      @default(1)
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  agent          Account  @relation(fields: [agentAccountId], references: [id], onDelete: Restrict)
+
+  @@map("agency_commission_terms")
+}
+
+model AgencyCommissionAudit {
+  id             String   @id @default(uuid()) @db.Uuid
+  agentAccountId String   @map("agent_account_id") @db.Uuid
+  actorAccountId String   @map("actor_account_id") @db.Uuid
+  requestId      String   @map("request_id") @db.Uuid
+  request        Json
+  beforeState    Json     @map("before_state")
+  afterState     Json     @map("after_state")
+  reason         String   @db.VarChar(320)
+  createdAt      DateTime @default(now()) @map("created_at")
+  agent          Account  @relation("CommissionAgent", fields: [agentAccountId], references: [id], onDelete: Restrict)
+  actor          Account  @relation("CommissionActor", fields: [actorAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([actorAccountId, requestId])
+  @@index([agentAccountId, createdAt, id])
+  @@map("agency_commission_audits")
+}
+
+model PublishingOrderAgency {
+  orderId             String          @id @map("order_id") @db.Uuid
+  agentAccountId      String?         @map("agent_account_id") @db.Uuid
+  attributionRevision Int             @map("attribution_revision")
+  agentActive         Boolean         @map("agent_active")
+  commissionEnabled   Boolean         @map("commission_enabled")
+  rateBps             Int?            @map("rate_bps")
+  termsRevision       Int             @map("terms_revision")
+  order               PublishingOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  agent               Account?        @relation(fields: [agentAccountId], references: [id], onDelete: Restrict)
+
+  @@index([agentAccountId, orderId])
+  @@map("publishing_order_agency")
 }

@@ -1,3 +1,7 @@
+import { PostgresAgencyPurchaseReader } from "../src/agency/infrastructure/postgres-agency-purchase-reader.js";
+import { PostgresCommissionTermsRepository } from "../src/agency/infrastructure/postgres-commission-terms.repository.js";
+import { PostgresCustomerServiceRepository } from "../src/agency/infrastructure/postgres-customer-service.repository.js";
+import { AgencyPurchaseChanged } from "../src/agency/domain/commission-terms.js";
 import { randomUUID } from "node:crypto";
 import type { INestApplication } from "@nestjs/common";
 import {
@@ -31,7 +35,10 @@ import { browserMutationHeaders } from "./http-test-headers.js";
 import { loginWithDevelopmentChallenge } from "./identity-http-fixtures.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
-const config = loadIntegrationApiConfig();
+const config = {
+  ...loadIntegrationApiConfig(),
+  agencyAcquisitionEnabled: true,
+};
 describe("publishing purchase atomicity and owned pending orders", () => {
   const prisma = new PrismaService(config.databaseUrl);
   let app: INestApplication,
@@ -154,6 +161,383 @@ describe("publishing purchase atomicity and owned pending orders", () => {
       paymentWindowSeconds: 600,
     });
   }
+
+  async function agency(rateBps: number | null = 2000) {
+    const agent = await prisma.account.create({
+      data: { mobile: "+8613900010401", role: "AGENT" },
+    });
+    await app
+      .get(PostgresCustomerServiceRepository)
+      .transfer(adminId, customerId, {
+        agentAccountId: agent.id,
+        expectedRevision: 0,
+        reason: "订单归属验收",
+        requestId: randomUUID(),
+      });
+    if (rateBps !== null) await configure(agent.id, true, rateBps, 0);
+    return agent;
+  }
+  function configure(
+    agent: string,
+    enabled: boolean,
+    rateBps: number | null,
+    expectedRevision: number,
+    requestId = randomUUID(),
+  ) {
+    return app.get(PostgresCommissionTermsRepository).update(adminId, agent, {
+      enabled,
+      rateBps,
+      expectedRevision,
+      requestId,
+      reason: "佣金设置验收",
+    });
+  }
+  function snapshot(orderId: string) {
+    return prisma.publishingOrderAgency.findUniqueOrThrow({
+      where: { orderId },
+    });
+  }
+  async function newPurchase() {
+    context = await publishingContextFixture(app, prisma, customerId);
+    return select();
+  }
+  it("captures public purchase without exposing agency fields in customer responses", async () => {
+    await grant();
+    const response = await purchase(await select());
+    expect(response.status).toBe(200);
+    const order = await response.json();
+    expect(await snapshot(order.id)).toMatchObject({
+      agentAccountId: null,
+      agentActive: false,
+      commissionEnabled: false,
+      rateBps: null,
+      termsRevision: 0,
+    });
+    expect(JSON.stringify(order)).not.toMatch(
+      /agentAccountId|commissionEnabled|rateBps|agencyTerms/,
+    );
+  });
+  it("distinguishes unconfigured, enabled zero and disabled retained rate", async () => {
+    await grant(5000);
+    const a = await agency(null);
+    const first = await (await purchase(await select())).json();
+    expect(await snapshot(first.id)).toMatchObject({
+      agentAccountId: a.id,
+      agentActive: true,
+      commissionEnabled: false,
+      rateBps: null,
+    });
+    await configure(a.id, true, 0, 0);
+    const zero = await (await purchase(await newPurchase())).json();
+    expect(await snapshot(zero.id)).toMatchObject({
+      commissionEnabled: true,
+      rateBps: 0,
+    });
+    await configure(a.id, false, 9999, 1);
+    const off = await (await purchase(await newPurchase())).json();
+    expect(await snapshot(off.id)).toMatchObject({
+      commissionEnabled: false,
+      rateBps: 0,
+    });
+    expect(await snapshot(first.id)).toMatchObject({
+      commissionEnabled: false,
+      rateBps: null,
+    });
+  });
+  it("preserves pre-suspension terms, captures inactive purchases and only resumes future purchases", async () => {
+    await grant(5000);
+    const a = await agency();
+    const request = await select();
+    const old = await (await purchase(request)).json();
+    await prisma.account.update({
+      where: { id: a.id },
+      data: { status: "INACTIVE" },
+    });
+    const inactive = await (await purchase(await newPurchase())).json();
+    expect(await snapshot(inactive.id)).toMatchObject({
+      agentAccountId: a.id,
+      agentActive: false,
+      commissionEnabled: true,
+      rateBps: 2000,
+    });
+    await configure(a.id, true, 2500, 1);
+    const retry = await purchase(request);
+    expect(retry.status).toBe(200);
+    expect((await retry.json()).id).toBe(old.id);
+    expect(await snapshot(old.id)).toMatchObject({
+      agentActive: true,
+      rateBps: 2000,
+    });
+    await prisma.account.update({
+      where: { id: a.id },
+      data: { status: "ACTIVE" },
+    });
+    const resumed = await (await purchase(await newPurchase())).json();
+    expect(await snapshot(resumed.id)).toMatchObject({
+      agentActive: true,
+      rateBps: 2500,
+    });
+    expect(await snapshot(inactive.id)).toMatchObject({
+      agentActive: false,
+      rateBps: 2000,
+    });
+    expect(
+      await prisma.pointChange.count({ where: { kind: "PUBLISHING_ORDER" } }),
+    ).toBe(3);
+    await expect(
+      prisma.publishingOrderAgency.update({
+        where: { orderId: old.id },
+        data: { rateBps: 1 },
+      }),
+    ).rejects.toThrow(/immutable/);
+  });
+  it("changes only new order attribution after a real migration", async () => {
+    await grant(5000);
+    const a = await agency();
+    const old = await (await purchase(await select())).json();
+    const b = await prisma.account.create({
+      data: { mobile: "+8613900010402", role: "AGENT" },
+    });
+    await configure(b.id, true, 1500, 0);
+    await app
+      .get(PostgresCustomerServiceRepository)
+      .transfer(adminId, customerId, {
+        agentAccountId: b.id,
+        expectedRevision: 1,
+        reason: "交接",
+        requestId: randomUUID(),
+      });
+    const next = await (await purchase(await newPurchase())).json();
+    expect(await snapshot(old.id)).toMatchObject({
+      agentAccountId: a.id,
+      rateBps: 2000,
+    });
+    expect(await snapshot(next.id)).toMatchObject({
+      agentAccountId: b.id,
+      rateBps: 1500,
+      attributionRevision: 2,
+    });
+  });
+  it("recovers settings requests, rejects stale/changed intent, and enforces API role and validation", async () => {
+    const a = await agency(null),
+      id = randomUUID();
+    const first = await configure(a.id, true, 0, 0, id);
+    await configure(a.id, true, 2000, 1);
+    expect(await configure(a.id, true, 0, 0, id)).toEqual(first);
+    await expect(configure(a.id, true, 1, 0, id)).rejects.toThrow(/请求标识/);
+    await expect(configure(a.id, true, 1, 0)).rejects.toThrow(/已变化/);
+    const path = `/agency/admin/agents/${a.id}/commission`;
+    expect((await http(path)).status).toBe(403);
+    expect(
+      (
+        await http(path, adminCookie, "POST", {
+          enabled: true,
+          rateBps: null,
+          expectedRevision: 2,
+          reason: "无效",
+          requestId: randomUUID(),
+        })
+      ).status,
+    ).toBe(400);
+    const response = await http(path, adminCookie);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    expect(await response.json()).toMatchObject({
+      enabled: true,
+      rateBps: 2000,
+      revision: 2,
+      audits: expect.any(Array),
+    });
+    expect(await prisma.agencyCommissionAudit.count()).toBe(2);
+  });
+  it("aborts changed discovery and retries the whole purchase without extra spend", async () => {
+    await grant();
+    await agency();
+    const reader = app.get(PostgresAgencyPurchaseReader);
+    const bind = reader.bind.bind(reader);
+    let attempts = 0;
+    const spy = vi.spyOn(reader, "bind").mockImplementation((tx) => {
+      const access = bind(tx);
+      return {
+        capture: async (id) => {
+          const result = await access.capture(id);
+          if (attempts++ === 0) throw new AgencyPurchaseChanged();
+          return result;
+        },
+      };
+    });
+    try {
+      expect((await purchase(await select())).status).toBe(200);
+      expect(attempts).toBe(2);
+      expect(await prisma.publishingOrderAgency.count()).toBe(1);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+  it("rolls back the agency snapshot together with a failure after order creation", async () => {
+    await grant();
+    await agency();
+    const reader = app.get(PostgresAgencyPurchaseReader),
+      bind = reader.bind.bind(reader);
+    const spy = vi.spyOn(reader, "bind").mockImplementation((tx) => {
+      const access = bind(tx);
+      return {
+        capture: async (id) => {
+          const result = await access.capture(id);
+          // Failure is injected at the existing ledger write, after nested order/snapshot and delivery admission.
+          vi.spyOn(tx.pointChange, "create").mockRejectedValue(
+            new Error("controlled ledger failure"),
+          );
+          return result;
+        },
+      };
+    });
+    try {
+      expect((await purchase(await select())).status).toBe(500);
+      expect(await prisma.publishingOrderAgency.count()).toBe(0);
+      expect(await prisma.publishingOrder.count()).toBe(0);
+      expect(await prisma.publicationDelivery.count()).toBe(0);
+      expect(
+        (
+          await prisma.pointAccount.findUniqueOrThrow({
+            where: { accountId: customerId },
+          })
+        ).grantedBalance,
+      ).toBe(2000);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+  it.each(["first configuration", "suspension", "migration"])(
+    "serializes purchase before %s while permitting parallel shared readers",
+    async (kind) => {
+      await grant();
+      const a = await agency(null),
+        reader = app.get(PostgresAgencyPurchaseReader),
+        bind = reader.bind.bind(reader);
+      let release!: () => void, ready!: () => void;
+      const held = new Promise<void>((r) => {
+          release = r;
+        }),
+        captured = new Promise<void>((r) => {
+          ready = r;
+        });
+      const spy = vi.spyOn(reader, "bind").mockImplementation((tx) => {
+        const access = bind(tx);
+        return {
+          capture: async (id) => {
+            const value = await access.capture(id);
+            ready();
+            await held;
+            return value;
+          },
+        };
+      });
+      const request = await select();
+      const buying = purchase(request);
+      await captured;
+      let writing: Promise<unknown> | undefined;
+      try {
+        // Direct original reader avoids the deliberate purchase test barrier.
+        await prisma.$transaction((tx) => bind(tx).capture(customerId), {
+          timeout: 2000,
+        });
+        writing =
+          kind === "first configuration"
+            ? configure(a.id, true, 2000, 0)
+            : kind === "suspension"
+              ? prisma.account.update({
+                  where: { id: a.id },
+                  data: { status: "INACTIVE" },
+                })
+              : app
+                  .get(PostgresCustomerServiceRepository)
+                  .transfer(adminId, customerId, {
+                    agentAccountId: null,
+                    expectedRevision: 1,
+                    reason: "迁回公共",
+                    requestId: randomUUID(),
+                  });
+        // Start lazy PrismaPromise as well as native promises.
+        writing = Promise.resolve(writing);
+        await vi.waitFor(
+          async () => {
+            const rows = await prisma.$queryRaw<
+              Array<{ n: number }>
+            >`SELECT count(*)::int AS n FROM pg_stat_activity WHERE datname=current_database() AND cardinality(pg_blocking_pids(pid))>0`;
+            expect(rows[0]?.n).toBeGreaterThan(0);
+          },
+          { timeout: 2000, interval: 20 },
+        );
+      } finally {
+        release();
+        spy.mockRestore();
+      }
+      const response = await buying;
+      expect(response.status).toBe(200);
+      await writing;
+      expect(await snapshot((await response.json()).id)).toMatchObject({
+        agentAccountId: a.id,
+        agentActive: true,
+        commissionEnabled: false,
+        rateBps: null,
+      });
+    },
+  );
+
+  it("does not block wallet-owner foreign-key checks behind agency changes", async () => {
+    await agency();
+    const { lockAgencyChangeActors } =
+      await import("../src/identity/infrastructure/agency-customer-identity-access.js");
+    const a = await prisma.agencyCustomerAttribution.findUniqueOrThrow({
+      where: { accountId: customerId },
+    });
+    let release!: () => void, ready!: () => void;
+    const held = new Promise<void>((r) => {
+        release = r;
+      }),
+      locked = new Promise<void>((r) => {
+        ready = r;
+      });
+    const changing = prisma.$transaction(async (tx) => {
+      await lockAgencyChangeActors(
+        tx,
+        [adminId, customerId, a.agentAccountId!],
+        customerId,
+      );
+      ready();
+      await held;
+    });
+    try {
+      await locked;
+      await prisma.$transaction(async (tx) => {
+        await tx.$executeRawUnsafe("SET LOCAL lock_timeout='1000ms'");
+        await tx.$queryRaw`SELECT id FROM accounts WHERE id=ANY(CAST(${[adminId, customerId, a.agentAccountId!]} AS UUID[])) FOR KEY SHARE`;
+      });
+    } finally {
+      release();
+      await changing;
+    }
+  });
+
+  it("rejects concurrent reuse of a settings request across two agents without partial configuration", async () => {
+    const a = await agency(null),
+      b = await prisma.account.create({
+        data: { mobile: "+8613900010410", role: "AGENT" },
+      }),
+      key = randomUUID();
+    const outcomes = await Promise.allSettled([
+      configure(a.id, true, 2000, 0, key),
+      configure(b.id, true, 1000, 0, key),
+    ]);
+    expect(outcomes.filter((x) => x.status === "fulfilled")).toHaveLength(1);
+    const failure = outcomes.find((x) => x.status === "rejected");
+    expect(
+      failure && failure.status === "rejected" && failure.reason.getStatus(),
+    ).toBe(409);
+    expect(await prisma.agencyCommissionTerms.count()).toBe(1);
+    expect(await prisma.agencyCommissionAudit.count()).toBe(1);
+  });
   it("buys with existing spendable points while retaining unrelated recharge capacity", async () => {
     await grant();
     await rechargeCore().create(customerId, {

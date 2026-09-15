@@ -1,3 +1,5 @@
+import { CommissionTermsController } from "./presentation/commission-terms.controller.js";
+import { PostgresCommissionTermsRepository } from "./infrastructure/postgres-commission-terms.repository.js";
 import { AgencyCustomerController } from "./presentation/customer-service.controller.js";
 import { AgencyCustomerService } from "./application/customer-service.js";
 import { PostgresCustomerServiceRepository } from "./infrastructure/postgres-customer-service.repository.js";
@@ -18,8 +20,13 @@ export class AgencyModule {
     return {
       module: AgencyModule,
       imports: [intelligence],
-      controllers: [AcquisitionController, AgencyCustomerController],
+      controllers: [
+        AcquisitionController,
+        AgencyCustomerController,
+        CommissionTermsController,
+      ],
       providers: [
+        PostgresCommissionTermsRepository,
         PostgresAcquisitionRepository,
         PostgresCustomerServiceRepository,
         AgencyCustomerService,
