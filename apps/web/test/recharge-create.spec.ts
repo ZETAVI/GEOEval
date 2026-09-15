@@ -141,6 +141,18 @@ describe("recoverable customer recharge creation", () => {
     );
     expect(c.getSnapshot().created?.id).toBe(order);
   });
+  it("cannot select or submit an unavailable WeChat method during Alipay rollout", async () => {
+    const f = setup(async () => response(10, "ALIPAY_PC")),
+      c = f.create(true, ["ALIPAY_PC"]);
+    c.setMethod("WECHAT_NATIVE");
+    expect(c.getSnapshot().method).toBe("ALIPAY_PC");
+    c.setDraft("10");
+    await c.submit();
+    expect(f.source).toHaveBeenCalledWith(
+      expect.objectContaining({ method: "ALIPAY_PC" }),
+      expect.any(AbortSignal),
+    );
+  });
   it("blocks dispatch when browser recovery storage fails", async () => {
     const f = setup();
     f.memory.setItem = () => {

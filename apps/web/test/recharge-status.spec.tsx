@@ -1,5 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import type { RechargeOptions } from "@geoeval/api-client";
+import { RechargeCreateForm } from "../app/recharges/recharge-create-form.js";
 import { NativeCheckoutPanel } from "../app/recharges/native-checkout.js";
 import type { NativeCheckoutState } from "../app/recharges/native-checkout-controller.js";
 import {
@@ -86,5 +88,34 @@ describe("simple recharge presentation preserves business state", () => {
     expect(html).toContain("支付宝充值");
     expect(html).toContain("前往支付宝官方收银台");
     expect(html).not.toContain("微信扫一扫");
+  });
+  it("keeps Alipay active while showing the deferred WeChat method disabled", () => {
+    const options: RechargeOptions = {
+      available: true,
+      controlled: false,
+      minAmountYuan: 1,
+      maxAmountYuan: 100,
+      shortcutAmounts: [10, 50, 100],
+      pointsPerYuan: 10,
+      methods: ["ALIPAY_PC"],
+      supportMessage: "请保留充值单号并稍后刷新状态。",
+    };
+    const html = renderToStaticMarkup(
+      <RechargeCreateForm
+        accountId="77000000-0000-4000-8000-000000000101"
+        options={options}
+        base="http://127.0.0.1:3100"
+      />,
+    );
+    expect(html.indexOf("支付宝 · 官方收银台")).toBeLessThan(
+      html.indexOf("微信支付 · 电脑扫码"),
+    );
+    const alipay = html.match(/<input[^>]*value="ALIPAY_PC"[^>]*>/)?.[0],
+      wechat = html.match(/<input[^>]*value="WECHAT_NATIVE"[^>]*>/)?.[0];
+    expect(alipay).toBeDefined();
+    expect(wechat).toBeDefined();
+    expect(alipay).not.toContain("disabled");
+    expect(wechat).toContain('disabled=""');
+    expect(html).toContain("暂未开放");
   });
 });

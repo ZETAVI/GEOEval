@@ -14,6 +14,10 @@ const memory = {
   setItem: (k: string, v: string) => localStorage.setItem(k, v),
   removeItem: (k: string) => localStorage.removeItem(k),
 };
+const paymentMethods = [
+  { method: "ALIPAY_PC", label: "支付宝 · 官方收银台" },
+  { method: "WECHAT_NATIVE", label: "微信支付 · 电脑扫码" },
+] as const;
 export function RechargeCreateForm({
   accountId,
   options,
@@ -142,23 +146,37 @@ export function RechargeCreateForm({
       {(state.pending || options.methods.length > 0) && (
         <fieldset className={styles.methods}>
           <legend>支付方式</legend>
-          {(state.pending ? [state.pending.method] : options.methods).map(
-            (method) => (
-              <label key={method}>
+          {(state.pending
+            ? paymentMethods.filter(
+                ({ method }) => method === state.pending?.method,
+              )
+            : paymentMethods
+          ).map(({ method, label }) => {
+            const availableForCreation =
+              !!state.pending ||
+              (options.available && options.methods.includes(method));
+            return (
+              <label
+                key={method}
+                className={
+                  availableForCreation ? undefined : styles.methodUnavailable
+                }
+              >
                 <input
                   type="radio"
                   name="recharge-method"
                   value={method}
                   checked={(state.pending?.method ?? state.method) === method}
-                  disabled={locked || !options.available}
+                  disabled={locked || !availableForCreation}
                   onChange={() => controller.setMethod(method)}
                 />{" "}
-                {method === "WECHAT_NATIVE"
-                  ? "微信支付 · 电脑扫码"
-                  : "支付宝 · 官方收银台"}
+                <span>{label}</span>
+                {!availableForCreation && (
+                  <small className={styles.methodStatus}>暂未开放</small>
+                )}
               </label>
-            ),
-          )}
+            );
+          })}
         </fieldset>
       )}
       <div className={styles.total}>
