@@ -86,6 +86,14 @@ const expectedControllerPolicies: Record<
     handler: string,
   ) => Pick<RoutePolicy, "publicAccess" | "csrfExempt" | "roles">
 > = {
+  SupportController: (handler) => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles:
+      handler === "create"
+        ? ["TERMINAL_CUSTOMER"]
+        : ["TERMINAL_CUSTOMER", "OPERATIONS", "ADMINISTRATOR"],
+  }),
   CommissionTermsController: () => ({
     publicAccess: false,
     csrfExempt: false,

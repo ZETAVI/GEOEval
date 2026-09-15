@@ -14,6 +14,7 @@ const navigation = [
   ["发布方案", "套餐与媒体选择", "/publishing"],
   ["发布管理", "查看购买订单", "/orders"],
   ["账户中心", "积分与流水", "/account"],
+  ["联系客服", "问题与处理结果", "/support"],
 ] as const;
 
 export function CustomerSidebar({
@@ -27,7 +28,8 @@ export function CustomerSidebar({
     | "/optimization"
     | "/publishing"
     | "/orders"
-    | "/account";
+    | "/account"
+    | "/support";
 }) {
   return (
     <aside className="sidebar">

@@ -14,7 +14,8 @@ type AdminSection =
   | "publishing"
   | "points"
   | "delivery"
-  | "recharges";
+  | "recharges"
+  | "support";
 
 export function AdminSidebar({
   account,
@@ -31,6 +32,17 @@ export function AdminSidebar({
       </a>
       <div className="admin-area-label">管理员工作区</div>
       <nav aria-label="管理员功能">
+        <a
+          className={active === "support" ? "side-link active" : "side-link"}
+          href="/admin/support"
+          aria-current={active === "support" ? "page" : undefined}
+        >
+          <i>客</i>
+          <span>
+            <b>客服工单</b>
+            <small>沟通与处理记录</small>
+          </span>
+        </a>
         <a
           className={active === "delivery" ? "side-link active" : "side-link"}
           href="/admin/delivery"

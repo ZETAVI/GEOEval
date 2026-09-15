@@ -1,3 +1,4 @@
+import { SupportModule } from "./support/support.module.js";
 import { GeoIntelligenceModule } from "./geo-intelligence/geo-intelligence.module.js";
 import { AgencyModule } from "./agency/agency.module.js";
 import { Module, type DynamicModule } from "@nestjs/common";
@@ -65,6 +66,7 @@ export class ApiModule {
         PublishingCommerceModule.register(optimization),
         PublicationDeliveryModule,
         NotificationApiModule,
+        SupportModule,
         RechargeApiModule.register(recharge),
         RechargeAdminModule,
         ReadinessModule,

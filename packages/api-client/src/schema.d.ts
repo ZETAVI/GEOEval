@@ -1124,6 +1124,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/support/tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SupportController_list"];
+        put?: never;
+        post: operations["SupportController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/support/tickets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SupportController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/support/tickets/{id}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SupportController_command"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/recharges/options": {
         parameters: {
             query?: never;
@@ -2977,6 +3025,73 @@ export interface components {
         };
         NotificationReadAllResponse: {
             unreadCount: number;
+        };
+        SupportCreateRequest: {
+            subject: string;
+            message: string;
+            /** Format: uuid */
+            rechargeOrderId?: string;
+            /** Format: uuid */
+            requestId: string;
+        };
+        SupportReceiptResponse: {
+            /** Format: uuid */
+            ticketId: string;
+            /** Format: uuid */
+            eventId: string;
+            revision: number;
+        };
+        SupportSummaryResponse: {
+            id: string;
+            sequence: number;
+            subject: string;
+            /** @enum {string} */
+            kind: "GENERAL" | "RECHARGE";
+            /** @enum {string} */
+            status: "PROCESSING" | "RESOLVED";
+            revision: number;
+            assigned: boolean;
+            mine: boolean;
+            createdAt: string;
+            updatedAt: string;
+        };
+        SupportPageResponse: {
+            items: components["schemas"]["SupportSummaryResponse"][];
+            nextBefore: number | null;
+        };
+        SupportEventResponse: {
+            id: string;
+            action: string;
+            author: string;
+            message: string | null;
+            revision: number;
+            createdAt: string;
+        };
+        SupportDetailResponse: {
+            id: string;
+            sequence: number;
+            subject: string;
+            /** @enum {string} */
+            kind: "GENERAL" | "RECHARGE";
+            /** @enum {string} */
+            status: "PROCESSING" | "RESOLVED";
+            revision: number;
+            assigned: boolean;
+            mine: boolean;
+            createdAt: string;
+            updatedAt: string;
+            rechargeOrderId: string | null;
+            events: components["schemas"]["SupportEventResponse"][];
+            nextAfter: number | null;
+        };
+        SupportCommandRequest: {
+            /** @enum {string} */
+            action: "CLAIM" | "REPLY" | "RESOLVE" | "RELEASE";
+            /** @description Required except when claiming */
+            message?: string;
+            expectedRevision: number;
+            /** Format: uuid */
+            requestId: string;
         };
         RechargeOptionsResponse: {
             available: boolean;
@@ -5150,6 +5265,113 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    SupportController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                before?: number;
+                status?: "PROCESSING" | "RESOLVED";
+                scope?: "mine" | "pool" | "all";
+            };
+            header: {
+                /** @description Expected signed-in account */
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportPageResponse"];
+                };
+            };
+        };
+    };
+    SupportController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account */
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupportCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportReceiptResponse"];
+                };
+            };
+        };
+    };
+    SupportController_detail: {
+        parameters: {
+            query?: {
+                after?: number;
+            };
+            header: {
+                /** @description Expected signed-in account */
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportDetailResponse"];
+                };
+            };
+        };
+    };
+    SupportController_command: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account */
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupportCommandRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportReceiptResponse"];
+                };
             };
         };
     };

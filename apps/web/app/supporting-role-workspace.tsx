@@ -276,6 +276,12 @@ export function supportingRoleConfig(
           mark: "待",
           href: "/operations/orders",
         },
+        {
+          label: "客服工单",
+          description: "领取并处理客户问题",
+          mark: "客",
+          href: "/operations/support",
+        },
         { label: "发票处理", description: "已分配的开票工作", mark: "票" },
       ],
       cards: [

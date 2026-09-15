@@ -1376,3 +1376,72 @@ export function updateAgencyCommissionSettings(
     { method: "POST", body: JSON.stringify(input) },
   );
 }
+
+export type SupportPage = components["schemas"]["SupportPageResponse"];
+export type SupportDetail = components["schemas"]["SupportDetailResponse"];
+export type SupportCreate = components["schemas"]["SupportCreateRequest"];
+export type SupportCommand = components["schemas"]["SupportCommandRequest"];
+export type SupportReceipt = components["schemas"]["SupportReceiptResponse"];
+export function listSupportTickets(
+  base: string,
+  accountId: string,
+  query: {
+    scope: string;
+    status?: string | undefined;
+    before?: number | undefined;
+  },
+  signal?: AbortSignal,
+): Promise<SupportPage> {
+  const params = new URLSearchParams({ scope: query.scope });
+  if (query.status) params.set("status", query.status);
+  if (query.before) params.set("before", String(query.before));
+  return apiRequest(base, `/support/tickets?${params}`, {
+    cache: "no-store",
+    headers: { "x-geoeval-account": accountId },
+    signal: signal ?? null,
+  });
+}
+export function getSupportTicket(
+  base: string,
+  accountId: string,
+  id: string,
+  after = 0,
+  signal?: AbortSignal,
+): Promise<SupportDetail> {
+  return apiRequest(
+    base,
+    `/support/tickets/${encodeURIComponent(id)}?after=${after}`,
+    {
+      cache: "no-store",
+      headers: { "x-geoeval-account": accountId },
+      signal: signal ?? null,
+    },
+  );
+}
+export function createSupportTicket(
+  base: string,
+  accountId: string,
+  body: SupportCreate,
+): Promise<SupportReceipt> {
+  return apiRequest(base, "/support/tickets", {
+    method: "POST",
+    headers: { "x-geoeval-account": accountId },
+    body: JSON.stringify(body),
+  });
+}
+export function commandSupportTicket(
+  base: string,
+  accountId: string,
+  id: string,
+  body: SupportCommand,
+): Promise<SupportReceipt> {
+  return apiRequest(
+    base,
+    `/support/tickets/${encodeURIComponent(id)}/actions`,
+    {
+      method: "POST",
+      headers: { "x-geoeval-account": accountId },
+      body: JSON.stringify(body),
+    },
+  );
+}
