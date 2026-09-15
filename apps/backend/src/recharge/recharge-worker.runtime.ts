@@ -54,6 +54,7 @@ export type RechargeWorkerEvent = Readonly<{
 }>;
 type Work = Pick<NativeRecoveryService, "runOrders" | "runSettlements"> & {
   runNotifications?: (limit: number, stop?: AbortSignal) => Promise<Result>;
+  dispose?: () => Promise<void> | void;
 };
 
 /** Scheduling only. Durable ownership, deadlines and settlement stay in Native/C1. */
@@ -126,11 +127,16 @@ export class RechargeWorkerRuntime
         this.emit({ kind: "DRAIN_PENDING" });
       }
     }, this.policy.drainWarningMs);
-    this.drain = Promise.all([...this.pending.values()]).then(() => {
-      clearInterval(warning);
-      this.phase = "stopped";
-      this.emit({ kind: "STOPPED" });
-    });
+    this.drain = (async () => {
+      try {
+        await Promise.all([...this.pending.values()]);
+        await this.work.dispose?.();
+      } finally {
+        clearInterval(warning);
+        this.phase = "stopped";
+        this.emit({ kind: "STOPPED" });
+      }
+    })();
     return this.drain;
   }
   private schedule(lane: Lane, delay: number) {

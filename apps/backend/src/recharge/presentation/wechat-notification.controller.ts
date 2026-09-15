@@ -46,7 +46,7 @@ export class WechatNotificationController {
       throw new ServiceUnavailableException("NOTIFICATION_RAW_BODY_REQUIRED");
     if (request.rawBody.length > 2 * 1024 * 1024)
       throw new PayloadTooLargeException("NOTIFICATION_SIZE");
-    const result = await this.receive.receive({
+    const result = await this.receive.receive("WECHAT", {
       headers,
       rawBody: request.rawBody,
     });

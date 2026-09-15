@@ -6,6 +6,10 @@ export const rechargeLabels: Record<RechargeSummary["status"], string> = {
   SUCCESSFUL: "充值成功",
   CLOSED: "已关闭",
 };
+export const rechargeMethodLabels: Record<RechargeSummary["method"], string> = {
+  WECHAT_NATIVE: "微信扫码支付",
+  ALIPAY_PC: "支付宝电脑网站支付",
+};
 export const rechargeMessages: Record<RechargeSummary["status"], string> = {
   PENDING_PAYMENT: "请在有效期内完成支付",
   CONFIRMING: "正在确认支付结果，请勿重复支付",

@@ -290,6 +290,23 @@ describe("Native checkout local lifecycle", () => {
     await c.command("verify");
     expect(f.source.verify).toHaveBeenCalledTimes(1);
   });
+  it("opens only an authenticated Alipay cashier grant and does not claim payment", async () => {
+    const f = fixture();
+    f.set({ method: "ALIPAY_PC", qr: null });
+    f.source.cashier = vi.fn(async () => ({
+      kind: "accepted" as const,
+      url: "http://local.invalid/recharges/order-one/cashier-page",
+    }));
+    const c = f.make();
+    c.start();
+    await flush();
+    await expect(c.cashier()).resolves.toBe(
+      "http://local.invalid/recharges/order-one/cashier-page",
+    );
+    expect(f.source.cashier).toHaveBeenCalledTimes(1);
+    expect(c.getSnapshot().order?.status).toBe("PENDING_PAYMENT");
+    expect(c.getSnapshot().notice).toContain("跳转支付宝收银台");
+  });
   it("access loss clears sensitive order/actions and stops automatic work", async () => {
     const f = fixture(),
       c = f.make();

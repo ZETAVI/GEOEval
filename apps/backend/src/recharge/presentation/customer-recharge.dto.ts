@@ -2,8 +2,8 @@ import { ApiProperty } from "@nestjs/swagger";
 export class RechargeCreateRequest {
   @ApiProperty({ type: "integer", minimum: 1 }) amountYuan!: number;
   @ApiProperty({ type: String, format: "uuid" }) idempotencyKey!: string;
-  @ApiProperty({ type: String, enum: ["WECHAT_NATIVE"] })
-  method!: "WECHAT_NATIVE";
+  @ApiProperty({ type: String, enum: ["WECHAT_NATIVE", "ALIPAY_PC"] })
+  method!: "WECHAT_NATIVE" | "ALIPAY_PC";
 }
 export class RechargeOptionsResponse {
   @ApiProperty({ type: Boolean }) available!: boolean;
@@ -13,8 +13,8 @@ export class RechargeOptionsResponse {
   @ApiProperty({ type: "integer", nullable: true }) maxAmountYuan!:
     number | null;
   @ApiProperty({ type: [Number] }) shortcutAmounts!: number[];
-  @ApiProperty({ type: [String], enum: ["WECHAT_NATIVE"] })
-  methods!: "WECHAT_NATIVE"[];
+  @ApiProperty({ type: [String], enum: ["WECHAT_NATIVE", "ALIPAY_PC"] })
+  methods!: ("WECHAT_NATIVE" | "ALIPAY_PC")[];
   @ApiProperty({ type: "integer" }) pointsPerYuan!: number;
   @ApiProperty({ type: String, nullable: true }) supportMessage!: string | null;
 }
@@ -22,8 +22,8 @@ export class RechargeSummaryResponse {
   @ApiProperty({ type: String, format: "uuid" }) id!: string;
   @ApiProperty({ type: "integer" }) amountYuan!: number;
   @ApiProperty({ type: "integer" }) points!: number;
-  @ApiProperty({ type: String, enum: ["WECHAT_NATIVE"] })
-  method!: "WECHAT_NATIVE";
+  @ApiProperty({ type: String, enum: ["WECHAT_NATIVE", "ALIPAY_PC"] })
+  method!: "WECHAT_NATIVE" | "ALIPAY_PC";
   @ApiProperty({
     type: String,
     enum: ["PENDING_PAYMENT", "CONFIRMING", "SUCCESSFUL", "CLOSED"],
@@ -40,6 +40,10 @@ export class RechargeQrResponse {
   @ApiProperty({ type: String }) value!: string;
   @ApiProperty({ type: String, format: "date-time" }) expiresAt!: string;
 }
+export class RechargeCashierResponse {
+  @ApiProperty({ type: String }) path!: string;
+  @ApiProperty({ type: String, format: "date-time" }) expiresAt!: string;
+}
 export class RechargeDetailResponse extends RechargeSummaryResponse {
   @ApiProperty({ type: Boolean }) cancelRequested!: boolean;
   @ApiProperty({ type: Boolean }) canVerify!: boolean;
@@ -47,6 +51,12 @@ export class RechargeDetailResponse extends RechargeSummaryResponse {
   @ApiProperty({ type: Boolean }) supportRequired!: boolean;
   @ApiProperty({ type: RechargeQrResponse, nullable: true })
   qr!: RechargeQrResponse | null;
+  @ApiProperty({
+    type: RechargeCashierResponse,
+    nullable: true,
+    required: false,
+  })
+  cashier?: RechargeCashierResponse | null;
 }
 export class RechargeReadResponse {
   @ApiProperty({ type: RechargeDetailResponse }) order!: RechargeDetailResponse;
@@ -61,3 +71,4 @@ export class RechargeCommandRequest {}
 export class RechargeAcceptedResponse {
   @ApiProperty({ type: Boolean, enum: [true] }) accepted!: true;
 }
+export class RechargeCashierGrantResponse extends RechargeCashierResponse {}

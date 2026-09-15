@@ -184,6 +184,32 @@ describe("administrator recharge presentation", () => {
     expect(html).toContain("ledger");
     expect(html).toContain("付款信息存在冲突");
   });
+  it("shows the actual Alipay method in list and detail", () => {
+    const alipay = {
+      ...detail,
+      method: "ALIPAY_PC" as const,
+      paidAt: null,
+    };
+    const detailHtml = renderToStaticMarkup(
+      <RechargeAdminDetail order={alipay} />,
+    );
+    expect(detailHtml).toContain("支付宝电脑网站支付");
+    expect(detailHtml).toContain("渠道未返回");
+    const c = new AdminRechargeController(source(), () => {});
+    const listHtml = renderToStaticMarkup(
+      <RechargeAdminList
+        state={{
+          ...c.state,
+          page: { items: [alipay], nextCursor: null },
+        }}
+        onSearch={() => {}}
+        onFilter={() => {}}
+        onNext={() => {}}
+      />,
+    );
+    expect(listHtml).toContain("支付宝电脑网站支付");
+    c.destroy();
+  });
   it("does not turn absent payment confirmation into proof of nonpayment", () => {
     const html = renderToStaticMarkup(
       <RechargeAdminDetail

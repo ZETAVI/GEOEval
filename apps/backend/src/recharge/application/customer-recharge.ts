@@ -34,7 +34,7 @@ export type RechargeCustomerOptions = Readonly<{
   minAmountYuan: number | null;
   maxAmountYuan: number | null;
   shortcutAmounts: readonly number[];
-  methods: readonly "WECHAT_NATIVE"[];
+  methods: readonly ("WECHAT_NATIVE" | "ALIPAY_PC")[];
   pointsPerYuan: number;
   supportMessage: string | null;
 }>;

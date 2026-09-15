@@ -16,7 +16,14 @@ export async function createApiApp(
     ApiModule.register(config, recharge),
     { logger, rawBody: recharge !== null },
   );
-  if (recharge) app.useBodyParser("json", { limit: "2mb", inflate: false });
+  if (recharge) {
+    app.useBodyParser("json", { limit: "2mb", inflate: false });
+    app.useBodyParser("urlencoded", {
+      limit: "64kb",
+      inflate: false,
+      extended: false,
+    });
+  }
   app.enableCors({ origin: config.corsOrigins, credentials: true });
   app.enableShutdownHooks();
 

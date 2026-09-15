@@ -2,21 +2,30 @@
 
 ## Current boundary
 
-Recharge owns recharge orders, payment observations and Native recovery. Commerce
+Recharge owns recharge orders, payment observations and payment recovery. Commerce
 owns account balance and point history; Recharge uses its existing transaction
 binding for reservations and credit. Customer commands and safe reads are owned by
 [CustomerRechargeService](../../../apps/backend/src/recharge/application/customer-recharge.service.ts);
 the [Native runtime](../../../apps/backend/src/recharge/native-recovery.runtime.ts)
 and its repositories own dispatch and settlement. Payment adapter contracts remain
-in [PaymentGateway](../../../apps/backend/src/recharge/application/payment-gateway.ts).
+in the provider-neutral [RechargePaymentGateway](../../../apps/backend/src/recharge/application/provider-payment.ts),
+with the released WeChat port retained behind a compatibility adapter.
 The explicitly configured [resident worker](../../../apps/backend/src/recharge/recharge-worker.module.ts)
 drives that runtime independently of customer API, Identity, evaluation and Redis.
 
 The ordinary API exposes authenticated history and recovery of committed creation
-requests, with new payment creation disabled. A configured test host can exercise
-the same customer API, signed notifications and durable recovery. This boundary
-does not activate a real merchant, production Worker, H5 or invoices. Customer success notifications require a separately
-configured delivery lane.
+requests. Alipay remains disabled unless the host supplies an explicit activation
+profile and protected key files. The separate Recharge worker entry point uses the
+same configuration and durable recovery; the general evaluation worker does not
+load payment keys. This boundary does not activate production payment, H5 or
+invoices. Customer success notifications require the configured Recharge delivery
+lane.
+
+The [Alipay adapter](../../../apps/backend/src/recharge/infrastructure/alipay/README.md)
+provides SDK-level page/notification/query/close handling and is assembled through
+an Alipay gateway only when configured. Its presence and installed SDK do not
+enable payments. Alipay V2 observations coexist with unchanged WeChat V1 records
+and converge on the same settlement transaction.
 
 ## Requirements
 
@@ -66,6 +75,36 @@ configured delivery lane.
 - A notification ACK SHALL follow durable receipt acceptance and SHALL not wait
   for the settlement lane. Retries and concurrent query/notification delivery
   SHALL converge on one credit. This is separate from customer notification UI.
+
+### Requirement: Alipay PC official cashier and authenticated evidence
+
+- `ALIPAY_PC` creation SHALL freeze the same merchant, application, amount,
+  description and absolute payment deadline as the local order. Before any signed
+  cashier form becomes visible, an authenticated POST SHALL durably mark the order
+  `MAY_EXIST` and link one immutable cashier attempt. Reopening SHALL retain the
+  same order and deadline.
+- The private cashier GET SHALL require the owning customer session, return a
+  no-store/no-referrer document, and restrict form submission to the configured
+  official production or sandbox Alipay gateway. The browser SHALL not supply
+  signed HTML, gateway URLs, merchant identity, amount or payment outcome.
+- Alipay form notifications SHALL be read as bounded raw form bytes, require RSA2
+  verification and the configured app/seller identity, and be committed before a
+  plain-text `success` response. Authenticated waiting/closed observations SHALL
+  be retained without credit; only authenticated success with matching local
+  order, transaction and total amount may enter settlement.
+- Query and close SHALL use the official v3 POST interfaces through the pinned
+  SDK. Query success and notification success SHALL share one monetary identity.
+  Optional payer amounts or channel times MAY be absent from one source; absence
+  alone SHALL not create a conflict or block credit. When both sources provide a
+  field with different values, the order SHALL remain protected for review.
+- Provider payment time MAY remain null when a successful query omits it.
+  `creditConfirmedAt` and the unique RECHARGE ledger record SHALL establish local
+  credit completion. A later matching notification MAY supplement evidence and
+  SHALL neither duplicate points nor downgrade the successful order.
+- `TRADE_CLOSED`, a missing trade, local expiry, return navigation and a lost close
+  response SHALL not be treated as proof of an unpaid terminal outcome. A matched
+  authenticated close response may close the order; ambiguous closed/refund
+  outcomes remain held until the named channel lifecycle is accepted.
 
 ### Requirement: Bounded transient recovery
 
@@ -160,7 +199,7 @@ configured delivery lane.
   not be exposed. A reporting failure SHALL not change payment results.
 - Configuration SHALL be explicit. The dedicated module SHALL import no
   customer controllers, Identity, AI or Redis; the existing ordinary entry
-  points SHALL not activate it implicitly. Signal-hook ownership and an external
+  points SHALL not activate it without the Alipay activation profile. Signal-hook ownership and an external
   supervisor's forced-stop policy remain the deploying host's responsibility.
 
 ### Requirement: Explicit activation and compatible rollback
@@ -170,6 +209,13 @@ configured delivery lane.
   Explicit controlled configuration SHALL be labelled and rejected in production.
 - Operational merchant configuration, maintained amount policy/support, Worker
   budgets and real-money acceptance remain separately gated.
+- Alipay activation SHALL default to `disabled`. `verify` SHALL load authenticated
+  callback/query recovery without opening new payment creation and SHALL remain
+  usable as the production stop-new-payments mode; `sandbox` and `live` SHALL
+  require their matching gateway environments. Sandbox activation SHALL be
+  rejected in production, and `live` is the only profile that may expose a
+  production cashier. Private/public PEM paths SHALL be absolute protected files
+  outside Git, never inline environment secrets.
 - The history-index migration SHALL preserve existing money and order facts.
   Disabling new creation or reverting presentation SHALL not delete facts,
   reservations or the processing capability needed for existing obligations.

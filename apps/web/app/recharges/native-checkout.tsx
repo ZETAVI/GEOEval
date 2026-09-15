@@ -62,6 +62,11 @@ export function NativeCheckout({
       onRefresh={() => void controller.refresh()}
       onVerify={() => void controller.command("verify")}
       onCancel={() => void controller.command("cancel")}
+      onCashier={() =>
+        void controller.cashier().then((url) => {
+          if (url) window.location.assign(url);
+        })
+      }
       onLeave={onLeave}
       onSupport={onSupport}
     />
@@ -73,6 +78,7 @@ export function NativeCheckoutPanel({
   onRefresh,
   onVerify,
   onCancel,
+  onCashier = () => {},
   onLeave,
   onSupport,
 }: {
@@ -80,6 +86,7 @@ export function NativeCheckoutPanel({
   onRefresh: () => void;
   onVerify: () => void;
   onCancel: () => void;
+  onCashier?: () => void;
   onLeave: () => void;
   onSupport: () => void;
 }) {
@@ -89,12 +96,17 @@ export function NativeCheckoutPanel({
   const active =
     !!order && !success && !closed && state.phase !== "access-denied";
   const working =
-    state.busy === "verify" || state.busy === "cancel" || !state.commandReady;
+    state.busy === "verify" ||
+    state.busy === "cancel" ||
+    state.busy === "cashier" ||
+    !state.commandReady;
   const heading = success
     ? "积分已到账"
     : closed
       ? "这笔充值已关闭"
-      : "微信扫码充值";
+      : order?.method === "ALIPAY_PC"
+        ? "支付宝充值"
+        : "微信扫码充值";
   const message = order
     ? rechargeMessages[order.status]
     : state.phase === "loading"
@@ -109,7 +121,10 @@ export function NativeCheckoutPanel({
   const countdown = `${Math.floor(state.remainingSeconds / 60)}:${String(state.remainingSeconds % 60).padStart(2, "0")}`;
   return (
     <div className={styles.frame}>
-      <section className={styles.checkout} aria-label="微信充值">
+      <section
+        className={styles.checkout}
+        aria-label={order?.method === "ALIPAY_PC" ? "支付宝充值" : "微信充值"}
+      >
         <header className={styles.heading}>
           <div>
             <p className={styles.eyebrow}>账户充值</p>
@@ -186,6 +201,19 @@ export function NativeCheckoutPanel({
         )}
         {active && (
           <div className={styles.actions}>
+            {!state.cancelPending &&
+              !state.recoveryBlocked &&
+              order.method === "ALIPAY_PC" && (
+                <button
+                  className={styles.primary}
+                  disabled={working}
+                  onClick={onCashier}
+                >
+                  {state.busy === "cashier"
+                    ? "正在打开支付宝…"
+                    : "前往支付宝官方收银台"}
+                </button>
+              )}
             {!state.cancelPending &&
               !state.recoveryBlocked &&
               order.canVerify !== false && (

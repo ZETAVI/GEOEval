@@ -27,12 +27,15 @@ const options: RechargeOptions = {
   methods: ["WECHAT_NATIVE"],
   supportMessage: "测试",
 };
-const response = (amount = 1): RechargeRead => ({
+const response = (
+  amount = 1,
+  method: "WECHAT_NATIVE" | "ALIPAY_PC" = "WECHAT_NATIVE",
+): RechargeRead => ({
   serverTime: new Date().toISOString(),
   order: {
     id: order,
     amountYuan: amount,
-    method: "WECHAT_NATIVE",
+    method,
     points: amount * 10,
     status: "PENDING_PAYMENT",
     createdAt: new Date().toISOString(),
@@ -60,10 +63,13 @@ function setup(handler: Source = async () => response()) {
       storage.delete(k);
     },
   };
-  const create = (enabled = true) => {
+  const create = (
+    enabled = true,
+    methods: RechargeOptions["methods"] = options.methods,
+  ) => {
     const c = new RechargeCreateController(
       account,
-      { ...options, available: enabled },
+      { ...options, available: enabled, methods },
       source,
       memory,
       brand,
@@ -122,6 +128,18 @@ describe("recoverable customer recharge creation", () => {
       returnBrandId: brand,
     });
     expect(f.storage.size).toBe(0);
+  });
+  it("selects Alipay explicitly and preserves the method through create recovery", async () => {
+    const f = setup(async () => response(10, "ALIPAY_PC")),
+      c = f.create(true, ["WECHAT_NATIVE", "ALIPAY_PC"]);
+    c.setMethod("ALIPAY_PC");
+    c.setDraft("10");
+    await c.submit();
+    expect(f.source).toHaveBeenCalledWith(
+      expect.objectContaining({ amountYuan: 10, method: "ALIPAY_PC" }),
+      expect.any(AbortSignal),
+    );
+    expect(c.getSnapshot().created?.id).toBe(order);
   });
   it("blocks dispatch when browser recovery storage fails", async () => {
     const f = setup();
@@ -229,6 +247,24 @@ describe("recoverable customer recharge creation", () => {
     expect(() =>
       decodeRechargeIntent(
         JSON.stringify({ accountId: "someone-else" }),
+        account,
+      ),
+    ).toThrow();
+  });
+  it("restores either supported payment method and rejects unknown methods", () => {
+    const intent = {
+      accountId: account,
+      amountYuan: 10,
+      method: "ALIPAY_PC",
+      idempotencyKey: "77000000-0000-4000-8000-000000000104",
+      returnBrandId: null,
+    };
+    expect(decodeRechargeIntent(JSON.stringify(intent), account)?.method).toBe(
+      "ALIPAY_PC",
+    );
+    expect(() =>
+      decodeRechargeIntent(
+        JSON.stringify({ ...intent, method: "UNSUPPORTED" }),
         account,
       ),
     ).toThrow();

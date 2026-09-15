@@ -344,3 +344,55 @@ Final frontend review corrected one reachable retry gap: a failed notice could m
 The full browser journey above passed before this narrow final retry change. Two initial final-patch browser attempts were stopped by automatic approval review timeouts. After the user requested a retry, the same head87ac9b7 passed the [final browser recheck](https://github.com/ZETAVI/GEOEval/pull/86#issuecomment-5612813968): the first mark-read returned a controlled503, a real SSE arrival moved the original notice off the first page, and retry still authorized the original ID and opened its successful recharge order. The server recorded2 read requests, the original readAt stayed unchanged, funded balance remained10, reserved capacity0, balance revision1 and publishing purchases0. No browser verification blocker remains; this synthetic journey does not prove real merchant or funds readiness.
 
 Final local validation: `pnpm typecheck`, `pnpm format:check`, `python3 scripts/validate_project_framework.py`, `git diff --check` and `pnpm build` passed. The controlled API/Worker and Web ports33577/32577 were stopped; Worker reported STOPPING then STOPPED. Dedicated databases and existing local artifacts are retained, and no other task environment was stopped. Exact PR/CI evidence is recorded on the N4 Delivery checkpoint.
+
+## A1 协议方案核查（2026-09-11）
+
+本轮是研究/设计，无支付实现或依赖安装。源码基线8eb5759；官方SDK发布元数据、包源码和官方PC/v3动态正文已核对，具体来源由source-brief的A1段持有。
+
+| 主张 | 本轮证据/结论 |
+| --- | --- |
+| 页面仍pageExecute，查询/关闭支持v3 POST | 官方v3三份接口正文与SDK4.14.0 README/source，已核对 |
+| 现有格式存在实际兼容工作 | 当前payment-gateway、stored-payment-observation、inbox、recharge repository及迁移CHECK逐项核对；发现长notify_id、可选时间、原始proof、非成功通知和关闭语义差异 |
+| 不需要新钱包或重复恢复系统 | 现有Commerce绑定和due/lease/attempt/settlement接口可继续复用；具体改动列入design15A |
+| 官方包身份 | tarball摘要与npm发布元数据比较，结果由本轮执行输出持有；没有执行包脚本 |
+| SDK与数据库真实行为已通过 | **未执行**。后续A1a临时密钥/受控HTTP，A1b隔离PG迁移和并发测试，不以源码审阅替代 |
+| 自然过期、丢关单响应可自动安全收尾 | **尚未证明**；必须按design15A专项取得字段/生命周期证据后再验收自动收尾 |
+| 沙箱、正式商户、公网回调及真实资金 | **未执行**；等待各自条件，官网登录暂停不阻塞协议层开发 |
+
+文档型变更验证使用diff检查、项目框架/本地链接校验；不重复运行未变更的支付测试。本段不宣称整体支付宝已完成。
+
+## A1a 协议片执行证据
+
+- 新增Alipay专项54项通过：官方SDK请求独立验签、响应验签、POST表单、证书/公钥模式、重复/长ID/延迟通知、非法编码/重复键、错误身份/金额/状态、HTTP400分类、丢响应和冻结输入。
+- 原微信gateway80项通过；原实际本机HTTPS20项在允许本机监听后通过（首次受限环境EPERM未算通过），合计154项。
+- 后端TypeScript检查通过。包版本固定4.14.0，锁文件保留原有依赖快照；新依赖闭包与包元数据对应。
+- Alipay测试替代SDK ESM传输，不声称真实HTTPS联调；初版错误拦截已修正。未接线API/Worker，未修改schema/账务，未发起真实商户支付。
+- 后续真实传输限制、数据库迁移、客户页面与渠道关闭专项各按tasks推进。框架/格式及最终提交状态由本片执行输出/PR持有。
+
+## A1a 真实 SDK / 本机 HTTPS 验证
+
+- Alipay协议测试55项通过，含新增沙箱15小时期限；实际HTTPS测试22项通过。组合77项通过，使用真实SDK/urllib/Undici与本机HTTPS服务器。
+- 覆盖签名请求和响应、证书模式、缺失/错配证书序列号、跨域/同域跳转无第二次请求、声明长度/流式大小、编码、慢头/慢体、TLS握手停滞、提前/在途取消、并发隔离、断链不重试与重复dispose。
+- 初版生命周期与测试同步问题已修复；TLS握手场景最后使用Undici内建连接器，只覆盖测试DNS/端口/CA，避免自制连接器掩盖SDK行为。未关闭TLS校验。
+- 前片微信100项证据在其代码和依赖版本不变的范围内复用；这100项不计作本轮新执行。
+- 官方沙箱登录页已打开，仍无应用/商家/签名配置回执。官方沙箱调用、公网通知、数据库到账、真实资金：未执行。
+- TypeScript、相关格式、文档框架/链接、diff检查通过；冻结安装及686项供应链检查通过。锁文件只增加既有Undici版本的直接依赖声明。当前改动没有新数据库/API/Worker装配。
+
+## A1b 付款事实接缝验证（2026-09-13）
+
+- Alipay协议61项通过（新增6项）：真实SDK已认证的查询/通知共享V2金额身份，可选元数据及FINISHED状态不创建另一个金额身份，金额/订单/交易变化保持区分，未付/关闭没有成功付款摘要。
+- 本机Alipay HTTPS 22项与微信协议80项组合102项通过；本轮共163项，未把前轮结果重复计入。后端TypeScript检查通过。
+- 原微信V1序列化函数在diff中未变；新增V2不进入旧存储路径。没有数据库迁移、持久收据兼容或并发到账测试通过的声明。
+- 本轮官方文档在线读取失败，使用09-11已核验并保存的官方参数文档与既有设计；未据此增加新的渠道能力假设。可选字段、付款时间与卖家转账时间保持来源区分。
+- 官网HTTP发布证据由#75的Delivery checkpoint持有。HTTPS连通性短暂返回200，但随后Certbot及root连接再次超时；未签发证书、未启用HTTPS。财务尚不能协助登录，官方沙箱、正式商户和资金测试均未执行。
+
+## A1b/A1c PC接线验证（2026-09-15）
+
+- 应用/产品/密钥状态已刷新：企业主体、电脑网站支付、应用上线、同主体商家绑定和RSA2公钥模式均有后台回执；密钥文件在仓库外且权限为0600。根域名静态HTTPS已完成，业务应用与公网回调尚未部署。
+- 正式网关执行一次随机不存在订单的签名`alipay.trade.query`，输出仅含安全分类，结果为`TRADE_NOT_FOUND`且进程成功退出。没有调用page.pay、创建交易或产生资金；此项只证明APPID/密钥/支付宝公钥/SDK/HTTPS/查询权限。
+- 新Alipay端到端测试覆盖：cashier grant先提交MAY_EXIST、本人表单页/CSP、通知提交后纯`success`、重复通知一次到账、等待通知不加点、查单→关单、错seller拒绝，以及查单先到账后通知补付款时间不冲突/不重复加点。
+- 运行配置测试覆盖默认disabled、verify不开放新建、sandbox/live网关匹配、生产sandbox拒绝、生产verify保留旧单恢复、受保护绝对密钥路径、HTTPS URL、金额/快捷金额和独立Worker配置。Worker关闭在排空后只释放网关一次。
+- 47条迁移在全新临时数据库从零执行成功；Alipay端到端测试随后在新库通过，临时库已删除。既有本地库只为验证修改后的延迟函数同步了同一迁移定义，不把手工状态当迁移证据。
+- 最终支付组合10个文件119项全部通过，包含具名Recharge子进程/SIGTERM/SIGKILL、旧微信、Alipay、通知ACK预算和管理查询。Web全量29个文件219项通过。隔离PostgreSQL/Redis上的后端全量为815项通过、13项按具名数据库/外部条件门禁跳过；这些Recharge门禁项已由前述119项覆盖。
+- 默认本地数据库上的首次后端全量为822项通过、4项失败、2项跳过：3项是旧单验证器构造兼容缺口，已修复并进入最终119项；另1项评测Worker重启超时。只读核查发现默认Redis有运行约3.8小时的既有Product Worker并发消费相同数据库Outbox；未停止该外部任务，改用隔离数据库/Redis后该未改动用例1/1通过，证明不是本分支评测回归。
+- `pnpm format:check`、后端/Web类型检查、OpenAPI客户端重新生成、项目框架/本地链接验证、`git diff --check`和完整`pnpm build`通过。真实付款、公网通知、浏览器回跳和关闭/退款专项未执行。

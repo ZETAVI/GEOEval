@@ -3,6 +3,7 @@ export type NativeCheckoutOrder = Readonly<{
   id: string;
   amountYuan: number;
   points: number;
+  method?: "WECHAT_NATIVE" | "ALIPAY_PC";
   status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
   paymentExpiresAt: string;
   canCancel: boolean;
@@ -10,6 +11,7 @@ export type NativeCheckoutOrder = Readonly<{
   cancelRequested?: boolean;
   supportRequired?: boolean;
   qr: Readonly<{ value: string; expiresAt: string }> | null;
+  cashier?: Readonly<{ path: string; expiresAt: string }> | null;
 }>;
 export type NativeCheckoutRead =
   | { kind: "ok"; order: NativeCheckoutOrder; serverTime: string }
@@ -25,6 +27,13 @@ export interface NativeCheckoutSource {
     orderId: string,
     signal: AbortSignal,
   ): Promise<"accepted" | "unavailable" | "access-denied">;
+  cashier?(
+    orderId: string,
+    signal: AbortSignal,
+  ): Promise<
+    | { kind: "accepted"; url: string }
+    | { kind: "unavailable" | "access-denied" }
+  >;
 }
 export interface CancellationMemory {
   read(key: string): boolean;
@@ -36,7 +45,7 @@ export const cancellationKey = (accountId: string, orderId: string) =>
 export type NativeCheckoutState = Readonly<{
   order: NativeCheckoutOrder | null;
   phase: "loading" | "ready" | "unavailable" | "access-denied";
-  busy: "read" | "verify" | "cancel" | null;
+  busy: "read" | "verify" | "cancel" | "cashier" | null;
   cancelPending: boolean;
   recoveryBlocked: boolean;
   pollingEnded: boolean;
@@ -354,5 +363,35 @@ export class NativeCheckoutController {
             : "暂时无法核验，请稍后重试",
     });
     await this.refresh();
+  }
+  async cashier(): Promise<string | null> {
+    if (
+      !this.running ||
+      !this.state.order ||
+      this.state.order.method !== "ALIPAY_PC" ||
+      terminal(this.state.order) ||
+      this.state.phase === "access-denied" ||
+      this.state.busy ||
+      this.state.cancelPending ||
+      this.state.recoveryBlocked ||
+      !this.source.cashier
+    )
+      return null;
+    this.publish({ busy: "cashier", notice: "正在打开支付宝收银台…" });
+    const { token, value } = await this.call((signal) =>
+      this.source.cashier!(this.orderId, signal),
+    );
+    if (!this.current(token)) return null;
+    if (!value || value.kind === "unavailable") {
+      this.publish({ busy: null, notice: "支付宝收银台暂不可用，请稍后重试" });
+      return null;
+    }
+    if (value.kind === "access-denied") {
+      this.denyAccess();
+      return null;
+    }
+    if (value.kind !== "accepted") return null;
+    this.publish({ busy: null, notice: "正在跳转支付宝收银台…" });
+    return value.url;
   }
 }

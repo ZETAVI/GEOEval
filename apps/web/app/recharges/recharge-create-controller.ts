@@ -12,6 +12,7 @@ import {
 } from "./recharge-intent.js";
 export type RechargeCreateState = Readonly<{
   draft: string;
+  method: RechargeIntent["method"] | null;
   pending: RechargeIntent | null;
   busy: boolean;
   blocked: boolean;
@@ -20,6 +21,7 @@ export type RechargeCreateState = Readonly<{
 }>;
 const initial: RechargeCreateState = {
   draft: "",
+  method: null,
   pending: null,
   busy: false,
   blocked: false,
@@ -74,6 +76,11 @@ export class RechargeCreateController {
       this.publish({
         pending,
         draft: pending ? String(pending.amountYuan) : this.state.draft,
+        method:
+          pending?.method ??
+          this.state.method ??
+          this.options.methods[0] ??
+          null,
         busy: false,
         blocked: false,
       });
@@ -95,6 +102,15 @@ export class RechargeCreateController {
   setDraft(draft: string) {
     if (!this.state.pending && !this.state.busy && !this.state.blocked)
       this.publish({ draft, message: "" });
+  }
+  setMethod(method: RechargeIntent["method"]) {
+    if (
+      !this.state.pending &&
+      !this.state.busy &&
+      !this.state.blocked &&
+      this.options.methods.includes(method)
+    )
+      this.publish({ method, message: "" });
   }
   async submit() {
     if (
@@ -120,7 +136,7 @@ export class RechargeCreateController {
       }
     }
     if (!intent) {
-      if (!this.options.available) {
+      if (!this.options.available || !this.state.method) {
         this.publish({
           message: "在线充值暂未开放，已有订单可从充值记录查看。",
         });
@@ -134,7 +150,7 @@ export class RechargeCreateController {
       intent = {
         accountId: this.accountId,
         amountYuan: parsed.amount,
-        method: "WECHAT_NATIVE",
+        method: this.state.method,
         idempotencyKey: crypto.randomUUID(),
         returnBrandId: this.returnBrandId,
       };

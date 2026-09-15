@@ -45,7 +45,7 @@ export function decodeRechargeIntent(
     value.accountId !== accountId ||
     !uuid(value.accountId) ||
     !uuid(value.idempotencyKey) ||
-    value.method !== "WECHAT_NATIVE" ||
+    !["WECHAT_NATIVE", "ALIPAY_PC"].includes(value.method) ||
     !Number.isSafeInteger(value.amountYuan) ||
     value.amountYuan < 1 ||
     value.amountYuan > 214748364 ||

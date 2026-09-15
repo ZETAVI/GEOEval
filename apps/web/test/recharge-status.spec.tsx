@@ -74,4 +74,17 @@ describe("simple recharge presentation preserves business state", () => {
     expect(html).toContain(rechargeMessages.CONFIRMING);
     expect(html).not.toContain("后台停止");
   });
+  it("shows the official Alipay handoff without WeChat QR instructions", () => {
+    const value = {
+      ...state("PENDING_PAYMENT"),
+      order: {
+        ...state("PENDING_PAYMENT").order!,
+        method: "ALIPAY_PC" as const,
+      },
+    };
+    const html = render(value);
+    expect(html).toContain("支付宝充值");
+    expect(html).toContain("前往支付宝官方收银台");
+    expect(html).not.toContain("微信扫一扫");
+  });
 });

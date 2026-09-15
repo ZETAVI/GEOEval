@@ -1204,6 +1204,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/recharges/{id}/cashier": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerRechargeController_cashier"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/recharges": {
         parameters: {
             query?: never;
@@ -2968,7 +2984,7 @@ export interface components {
             minAmountYuan: number | null;
             maxAmountYuan: number | null;
             shortcutAmounts: number[];
-            methods: "WECHAT_NATIVE"[];
+            methods: ("WECHAT_NATIVE" | "ALIPAY_PC")[];
             pointsPerYuan: number;
             supportMessage: string | null;
         };
@@ -2977,10 +2993,15 @@ export interface components {
             /** Format: uuid */
             idempotencyKey: string;
             /** @enum {string} */
-            method: "WECHAT_NATIVE";
+            method: "WECHAT_NATIVE" | "ALIPAY_PC";
         };
         RechargeQrResponse: {
             value: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        RechargeCashierResponse: {
+            path: string;
             /** Format: date-time */
             expiresAt: string;
         };
@@ -2990,7 +3011,7 @@ export interface components {
             amountYuan: number;
             points: number;
             /** @enum {string} */
-            method: "WECHAT_NATIVE";
+            method: "WECHAT_NATIVE" | "ALIPAY_PC";
             /** @enum {string} */
             status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
             /** Format: date-time */
@@ -3006,6 +3027,7 @@ export interface components {
             canCancel: boolean;
             supportRequired: boolean;
             qr: components["schemas"]["RechargeQrResponse"] | null;
+            cashier?: components["schemas"]["RechargeCashierResponse"] | null;
         };
         RechargeReadResponse: {
             order: components["schemas"]["RechargeDetailResponse"];
@@ -3018,7 +3040,7 @@ export interface components {
             amountYuan: number;
             points: number;
             /** @enum {string} */
-            method: "WECHAT_NATIVE";
+            method: "WECHAT_NATIVE" | "ALIPAY_PC";
             /** @enum {string} */
             status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
             /** Format: date-time */
@@ -3039,13 +3061,18 @@ export interface components {
             /** @enum {boolean} */
             accepted: true;
         };
+        RechargeCashierGrantResponse: {
+            path: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
         AdminRechargeSummaryResponse: {
             /** Format: uuid */
             id: string;
             amountYuan: number;
             points: number;
             /** @enum {string} */
-            method: "WECHAT_NATIVE";
+            method: "WECHAT_NATIVE" | "ALIPAY_PC";
             /** @enum {string} */
             status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
             /** Format: date-time */
@@ -3070,7 +3097,7 @@ export interface components {
             amountYuan: number;
             points: number;
             /** @enum {string} */
-            method: "WECHAT_NATIVE";
+            method: "WECHAT_NATIVE" | "ALIPAY_PC";
             /** @enum {string} */
             status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
             /** Format: date-time */
@@ -5276,6 +5303,34 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RechargeAcceptedResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeController_cashier: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account; never overrides the authenticated owner */
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RechargeCommandRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeCashierGrantResponse"];
                 };
             };
         };

@@ -1,18 +1,22 @@
 import type { AuthenticatedPaymentNotification } from "./payment-gateway.js";
+import type {
+  ProviderNotification,
+  RechargeProvider,
+} from "./provider-payment.js";
 
 export const NOTIFICATION_INBOX = Symbol("RECHARGE_NOTIFICATION_INBOX");
 export const PAYMENT_NOTIFICATION_VERIFIER = Symbol(
-  "PAYMENT_NOTIFICATION_VERIFIER",
+  "PAYMENT_NOTIFICATION_VERIFIERS",
 );
 
 export type NotificationIdentity = Readonly<{
-  provider: "WECHAT";
+  provider: RechargeProvider;
   merchantId: string;
   notificationId: string;
 }>;
 
 export type NotificationReceipt = NotificationIdentity & {
-  canonical: AuthenticatedPaymentNotification;
+  canonical: AuthenticatedPaymentNotification | ProviderNotification;
   hasConflict: boolean;
   processedAt: string | null;
   reviewReason: string | null;
@@ -25,7 +29,7 @@ export type NotificationAcceptance =
 /** Durable acceptance, not local order validation or permission to credit. */
 export interface NotificationInbox {
   accept(
-    notification: AuthenticatedPaymentNotification,
+    notification: AuthenticatedPaymentNotification | ProviderNotification,
   ): Promise<NotificationAcceptance>;
   getReceipt(
     identity: NotificationIdentity,

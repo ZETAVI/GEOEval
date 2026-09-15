@@ -111,6 +111,26 @@ describe("resident Recharge scheduling and drain", () => {
     expect(f.events.at(-1)?.kind).toBe("STOPPED");
     expect(vi.getTimerCount()).toBe(0);
   });
+  it("disposes provider resources once after in-flight work drains", async () => {
+    vi.useFakeTimers();
+    const dispose = vi.fn(async () => {});
+    const w = new RechargeWorkerRuntime(
+      {
+        runOrders: async () => ({ claimed: 0, failed: 0 }),
+        runSettlements: async () => ({ applied: 0, reviewed: 0, failed: 0 }),
+        dispose,
+      },
+      policy,
+      () => {},
+    );
+    workers.push(w);
+    w.onApplicationBootstrap();
+    await vi.advanceTimersByTimeAsync(0);
+    await w.stop();
+    await w.stop();
+    expect(dispose).toHaveBeenCalledTimes(1);
+    expect(w.snapshot().phase).toBe("stopped");
+  });
   it("reports review work separately and a broken diagnostic sink does not stop scheduling", async () => {
     const f = fixture();
     f.settlements.mockResolvedValueOnce({ applied: 0, reviewed: 1, failed: 0 });

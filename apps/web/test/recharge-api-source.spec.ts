@@ -78,6 +78,40 @@ describe("customer Native API boundary", () => {
     }
     expect(observed).not.toHaveBeenCalled();
   });
+  it("requests a private cashier grant and returns only the same-origin handoff URL", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+      Response.json({
+        path: `/recharges/${order}/cashier-page`,
+        expiresAt: "2026-09-09T00:10:00.000Z",
+      }),
+    );
+    vi.stubGlobal("fetch", fetcher);
+    const signal = new AbortController().signal;
+    expect(
+      await nativeApiSource("http://local.invalid/", account).cashier?.(
+        order,
+        signal,
+      ),
+    ).toEqual({
+      kind: "accepted",
+      url: `http://local.invalid/recharges/${order}/cashier-page`,
+    });
+    expect(fetcher).toHaveBeenCalledWith(
+      `http://local.invalid/recharges/${order}/cashier`,
+      {
+        method: "POST",
+        body: "{}",
+        cache: "no-store",
+        credentials: "include",
+        signal,
+        headers: {
+          "content-type": "application/json",
+          "x-geoeval-request": "1",
+          "x-geoeval-account": account,
+        },
+      },
+    );
+  });
   it.each([
     [401, undefined],
     [403, undefined],

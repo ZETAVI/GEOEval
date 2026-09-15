@@ -1,8 +1,60 @@
-# 微信 APIv3 网页支付接口证据与合同准备
+# 网页支付接口证据与合同准备
 
-访问日期：2026-09-08。Owner：[Issue #77](https://github.com/ZETAVI/GEOEval/issues/77)。范围：境内普通商户直连，Native PC 后 H5 手机外部浏览器；不将服务商、合单或指定身份支付的附加要求混进基础支付。
+首次核查：2026-09-08；支付宝协议更新核查：2026-09-11。Owner：[Issue #77](https://github.com/ZETAVI/GEOEval/issues/77)。范围：境内普通商户直连；当前优先支付宝PC，再手机网站支付，保留既有微信Native；不将服务商、合单或指定身份支付的附加要求混进基础支付。
 
-本文件只拥有协议证据、差异和待验证点；业务架构由 [架构候选方案](design.md)持有。当前使用官方现行 APIv3 的 RSA 路径和微信支付公钥验签作为研究基线；不是“所有最新能力必须引入”，也不意味着商户权限、SDK 和代码实现已经通过验证。
+本文件只拥有协议证据、差异和待验证点；业务架构由 [架构候选方案](design.md)持有。微信段使用其官方 APIv3 RSA 路径与微信支付公钥验签；支付宝段使用其页面接口及REST v3，分别核对；不是“所有最新能力必须引入”，也不意味着商户权限、SDK 和代码实现已经通过验证。
+
+## A1 支付宝接入准备（2026-09-11，当前新增优先项）
+
+最初确认企业支付宝注册和认证已完成、产品尚未核实开通；先PC官网收银台，再手机网站支付。已读以下当前原始官方正文（动态页面或其官方llms索引给出的.md），不是从第三方教程推定账号权限：
+
+| 主题 | 官方来源与关键事实 |
+| --- | --- |
+| PC/H5产品及申请 | [PC](https://opendocs.alipay.com/open/270/105898)、[H5](https://opendocs.alipay.com/open/00f7nf)：签约后仍需技术集成；网站可访问且经营/商品信息完整，ICP备案主体一致，不一致时按要求授权。对应开通链接[PC](https://b.alipay.com/page/product-mall/product-detail/I1080300001000041203)、[H5](https://b.alipay.com/page/product-mall/product-detail/I1080300001000041949)；各自状态以[商家产品记录](https://mrchportalweb.alipay.com/dynlink/productSign/signManage.htm)为准 |
+| 应用与绑定 | [自研准备](https://opendocs.alipay.com/open/270/01didh)、[创建应用](https://opendocs.alipay.com/open/009yp4)、[绑定](https://opendocs.alipay.com/open/0128wr)、[开通产品](https://opendocs.alipay.com/open/009ypa)：网页/移动应用、APPID、上线及同主体商家PID绑定；自研产品开通按应用上线后流程办理 |
+| 加签配置 | [密钥配置](https://opendocs.alipay.com/open/02nlga)、[官方Node SDK](https://github.com/alipay/alipay-sdk-nodejs-all)：RSA2，SDK推荐公钥证书模式，提供私钥及三种证书；公钥模式也有正式支持。工具默认PKCS8与SDK默认PKCS1应通过keyType/格式转换明确匹配。npm latest 与发布包均为4.14.0；研究时下载源码审阅，A1a已精确安装并锁定完整性；执行证据见verification |
+| PC执行和事实 | [快速接入](https://opendocs.alipay.com/open/00dn7k)、[异步通知](https://opendocs.alipay.com/open/00dn7l)：pageExecute生成网页动作，并不代表服务器已创建远端交易；通知与主动查单共同确认。通知以success应答且不能重定向，验签之外必须核对商家/应用/订单/金额，保留幂等处理 |
+| 沙箱边界 | [PC沙箱](https://opendocs.alipay.com/open/00dn7o)、[手机沙箱](https://opendocs.alipay.com/open/00f7np)：可在产品签约前并行开发，身份/数据/网关与正式隔离；仅余额等受限场景，账单是模板，不能证明正式对账。尚未实际调用 |
+
+协议准备中特别保留：TRADE_CLOSED可指未付款关闭，也可指付款后全额退款；TRADE_SUCCESS/TRADE_FINISHED与已采用付款事实相结合。不能复制微信的状态解释、body解析或通知ACK；SDK的checkNotifySignV2避免已解析form的重复decode。商家净结算收入、买家实付和订单总额不可混用，积分继续按本地冻结订单与匹配的交易总额结算。
+
+官方资料存在局部不一致：通用创建应用页将应用网关标为选填，PC准备页标为必填；支付通知正文明确使用支付API传入的notify_url。实施需区分应用网关、支付notify_url、return_url和OAuth回调，按目标产品检测核对。PC准备页含“已开通当面付无需再次开通”和另一产品编号的立即开通链接，不能据此推断网站支付权限；采用PC/H5产品介绍中的各自链接。H5沙箱正文同时写不支持浏览器内支付与iOS可模拟H5登录，移动验收前需再核对实际支持；当前先PC。
+
+公开费率/新商家结算规则只作申请预期，公司额度、费率、有效期、结算安排必须看自己的协议/后台。09-11研究阶段未登录私有后台或处理密钥；后续账户级状态由管理员回执和仓库外交接档案持有，协议与实现由#77持有。资料/产品政策、SDK版本、商家/应用或选定接口变化时重新核对。
+
+### A1 正式账户接入回执（2026-09-15）
+
+- 企业主体、电脑网站支付、应用上线及同主体商家绑定已由后台回执确认；当前应用使用RSA2公钥模式。应用私钥和支付宝公钥只保存在仓库外的受保护文件，不在本文件记录内容。
+- 官方SDK4.14.0通过正式网关执行随机不存在商户订单的签名查询，返回预期`TRADE_NOT_FOUND`。这确认当前APPID、私钥、公钥、HTTPS传输和查询权限可配合工作，没有创建交易或发生资金。
+- 该结果不证明公网`notify_url`、浏览器`return_url`、付款/到账、关单或退款语义。正式小额和关闭专项仍按design15A的独立准入边界执行。
+
+### A1 协议定稿依据（2026-09-11）
+
+本次问题：选择真实支持的最新接口，同时证明现有微信记录格式/恢复语义可以怎样兼容；不把文档示例当作已运行结果。基线为项目8eb5759，当前代码和SQL仍仅接受微信。
+
+| 决策关键点 | 原始依据与结论 |
+| --- | --- |
+| 网页下单 | [v3目录的page.pay](https://opendocs.alipay.com/open-v3/2423fad5_alipay.trade.page.pay?scene=22)正文更新2026-08-16：仍是pageExecute页面接口，不是JSON REST下单；推荐POST，FAST_INSTANT_TRADE_PAY，qr_pay_mode=2为官方跳转模式。time_expire是绝对期限，范围1m–15d；重开不能重置期限 |
+| 查单 | [v3 query](https://opendocs.alipay.com/open-v3/e9ce4f59_alipay.trade.query?scene=23)：POST /v3/alipay/trade/query，body含out_trade_no；返回trade_status、total_amount、交易号，send_pay_date为特殊可选的打款给卖家时间。schema的“必选”交易号另注未生成真实交易时可能不返回，必须按状态验证 |
+| 关单 | [v3 close](https://opendocs.alipay.com/open-v3/429ffb46_alipay.trade.close?scene=common)：POST /v3/alipay/trade/close，仅用于未付款交易；身份响应字段标为特殊可选。ACQ.SYSTEM_ERROR、ACQ.TRADE_NOT_EXIST、状态错误均可能是HTTP400，不能把所有400归永久失败，也不能把HTTP200当作付款成功 |
+| 官方Node SDK | [仓库](https://github.com/alipay/alipay-sdk-nodejs-all)、[4.14.0发布元数据](https://registry.npmjs.org/alipay-sdk/4.14.0)：MIT；发布包engines>=18，README要求>=18.20，项目24.12兼容。pageExecute保留；exec为deprecated，curl为v3推荐路径。下载包SHA-1 5993155c1e11bc730c293169c52dd593353da76d，SHA-512完整性保留本地研究记录；未执行包脚本 |
+| SDK验签限制 | 发布包src/alipay.ts的curl：成功响应先验签再JSON.parse；HTTP>=400先抛业务异常，没有经过该成功验签分支。curl只返回data/status/traceId，不返回成功响应原始字节或验签头；不得将错误码或重新序列化data冒充已认证原报文。SDK错误对象/debug可能含报文，应用日志只能写分类 |
+| 响应认证 | [v3验签规则](https://opendocs.alipay.com/open-v3/054d0z)：timestamp、nonce和原始响应体参与验签；证书模式匹配alipay-sn。SDK封装与我们证据格式是两层责任，不能补造微信签名头或时间 |
+| 通知 | [PC异步通知](https://opendocs.alipay.com/open/00dn7l)：form POST，notify_id最长128；同条重试ID不变。所有返回参数参与验签（排除sign/sign_type），一次解码后用checkNotifySignV2；强制RSA2，验签后核对app_id/seller_id/out_trade_no/total_amount；成功应答纯success。gmt_payment及买家实付标为可选，不把缺值当0 |
+| 关闭/不存在 | query的TRADE_CLOSED同时涵盖未付关闭和全额退款；ACQ.TRADE_NOT_EXIST只描述本次查询。SDK错误响应未认证、旧页面可稍后提交、关单响应丢失都使“查询不存在/已关闭→直接释放”不成立。文档未证明自然超时后的统一无歧义关闭依据，列为激活前专项验证，不能靠缺少付款时间字段推断 |
+| 退款核验边界 | [退款查询](https://opendocs.alipay.com/open/028sma)要求对应退款请求号；它不是可无条件查遍任意交易全部退款的接口。不能凭空增加该API就宣称消除了TRADE_CLOSED歧义。后续[交易对账](https://opendocs.alipay.com/open/03axlt)是独立事实来源，缺一条账单记录不自动证明未付 |
+
+取证方式：open/llms索引的官方Markdown用于v2字段和通知；从官方query页“查看V3版本”进入v3目录，直接读取page/query/close与验签规则正文；查询和关闭均在电脑网站支付目录，不能因为内页沿用“当面付”场景标签就推断PC不支持。v3的llms地址没有得到有效索引，未把HTML壳或搜索摘要当证据。Node公开发布包比示例代码优先：旧API页可能写pageExec，当前SDK明确提供pageExecute；示例中的加号、旧时间、其他产品码与多余参数不复制。
+
+下一步使用临时测试密钥、受控HTTP响应和隔离数据库验证；协议定稿阶段只有源码/文档研究；后续A1a已使用临时密钥验证真实SDK，仍没有生成商户密钥或调用沙箱/正式支付，具体执行证据见verification。SDK升级、目标接口变化、通知字段变化、商户绑定/签名模式变更时才重新核对受影响部分。
+
+### A1a 实际传输依据与验证
+
+固定运行版本为SDK4.14.0、urllib4.9.0、Undici7.29.1。Context7检索指向[Undici公开Dispatcher文档](https://github.com/nodejs/undici/blob/main/docs/docs/api/Dispatcher.md)和[interceptor文档](https://github.com/nodejs/undici/blob/main/docs/docs/api/Interceptors.md)；当前文档含v8说明，因此实际实现再对照已锁定7.29.1的types/dispatcher、dispatcher.compose与connector源码，并以真实SDK/HTTPS验证，未升级依赖。
+
+源码证明：SDK curl传入agent到urllib dispatcher；urllib默认允许10次重定向，SDK没有覆写；Undici handler的请求开始回调在连接建立后才可获得活动请求controller，单靠该钩子不足以取消TLS握手。实施选择每次调用的私有Agent、连接器AbortSignal和现代compose回调，避免全局拦截或强杀共享池。代价是调用间不复用TLS连接；后续优化不能降低隔离和完整期限保证。128KiB响应上限、identity编码和16KiB默认头上限是本地约束，不冒充支付宝标准。
+
+PC沙箱[当前说明](https://opendocs.alipay.com/open/00dn7o)明确time_expire最多当前时间15小时，已与正式协议15天上限区分。电脑沙箱可用专用买家账号登录付款、支持query/close；它不替代正式银行卡/花呗或真实账单验收。沙箱控制台已打开，但仍需用户登录；未取得沙箱应用/签名配置，不声称已调用官方沙箱。
 
 ## O1a 一致读取依据（2026-09-11）
 
@@ -77,7 +129,7 @@ GEOEval 的推导实现：验真后先持久保存安全观察及待处理标记
 
 ## 6. 对现有 HTTP 框架的具体影响
 
-项目 `api-app.ts` 尚未保留 raw body；Nest 官方用 `rawBody: true` 与 `RawBodyRequest` 提供 Buffer，要求保持内置 parser 启用。默认解析过程可能发生在验签前，但不得依据解析结果执行业务，验签始终使用原始 Buffer。[Nest raw body](https://docs.nestjs.com/faq/raw-body)
+项目 `api-app.ts` 已在支付配置存在时启用 `rawBody: true`，并分别限制JSON与form parser；Nest以 `RawBodyRequest` 提供 Buffer。默认解析过程可能发生在验签前，但不得依据解析结果执行业务，验签始终使用原始 Buffer。[Nest raw body](https://docs.nestjs.com/faq/raw-body)
 
 现有 Identity 的 AccessGuard/CsrfGuard 在客户写接口强制 session、Origin、JSON 和应用 header。回调 handler 应精确使用现有 PublicAccess/CsrfExempt，而不是关掉全局 Guard；同时强制 Provider 验签、原始 body 存在、受限 body size、时限和安全响应。客户充值 create/cancel/verify 继续使用原认证和 CSRF。
 

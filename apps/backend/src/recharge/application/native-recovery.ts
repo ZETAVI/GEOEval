@@ -1,11 +1,12 @@
+import type { PaymentOrder } from "./payment-gateway.js";
 import type {
-  GatewayResult,
-  NativePaymentAction,
-  PaymentGateway,
-  PaymentOrder,
-  PaymentProof,
-  TradeObservation,
-} from "./payment-gateway.js";
+  ProviderCheckoutAction,
+  ProviderResult,
+  ProviderTradeObservation,
+  RechargeMethod,
+  RechargePaymentGateway,
+  RechargeProvider,
+} from "./provider-payment.js";
 import type { NotificationIdentity } from "./notification-inbox.js";
 import type {
   RechargeOrder,
@@ -17,6 +18,7 @@ export type NativePreparation = Readonly<{
   description: string;
   notifyUrl: string;
   createEnabled: boolean;
+  actionKind?: "QR_CODE" | "CASHIER_PAGE";
 }>;
 
 /** Explicit operator policy; never defaults to merchant activation. */
@@ -33,10 +35,12 @@ export type NativeRecoveryPolicy = Readonly<{
 
 /** Safe routing metadata must be assembled with this gateway, never supplied by a browser. */
 export type NativeChannel = Readonly<{
+  provider?: RechargeProvider;
+  method?: RechargeMethod;
   merchantId: string;
   appId: string;
   notifyUrl: string;
-  gateway: PaymentGateway;
+  gateway: RechargePaymentGateway;
 }>;
 
 export type NativeClaim = Readonly<{
@@ -52,14 +56,20 @@ export type NativeClaim = Readonly<{
 }>;
 
 export type NativeOperationResult =
-  | { kind: "INITIATE"; response: GatewayResult<NativePaymentAction> }
-  | { kind: "QUERY"; response: GatewayResult<TradeObservation> }
+  | {
+      kind: "INITIATE";
+      response: ProviderResult<
+        Extract<ProviderCheckoutAction, { kind: "QR_CODE" }>
+      >;
+    }
+  | { kind: "QUERY"; response: ProviderResult<ProviderTradeObservation> }
   | {
       kind: "CLOSE";
-      response: GatewayResult<{
+      response: ProviderResult<{
         kind: "CLOSE_ACKNOWLEDGED";
         identity: PaymentOrder;
-        proof: PaymentProof;
+        transactionId: string | null;
+        proof: import("./provider-payment.js").ProviderProof;
       }>;
     };
 
@@ -68,13 +78,18 @@ export type NativeCheckoutSnapshot = Readonly<{
   cancelRequested: boolean;
   canCancel: boolean;
   qr: { value: string; expiresAt: string } | null;
+  cashier: { path: string; expiresAt: string } | null;
   nextActionAt: string | null;
   reviewRequired: boolean;
 }>;
 
 /** Persistence owns claims/result commit and trusted closure; the caller only runs I/O. */
 export interface NativeRecoveryRepository {
-  dueOrderIds(now: Date, limit: number): Promise<string[]>;
+  dueOrderIds(
+    now: Date,
+    limit: number,
+    channel: Omit<NativeChannel, "gateway">,
+  ): Promise<string[]>;
   claim(
     orderId: string,
     channel: Omit<NativeChannel, "gateway">,
@@ -100,6 +115,23 @@ export interface NativeRecoveryRepository {
     now: Date,
     minimumIntervalMs: number,
   ): Promise<void>;
+  grantCashierOwned(
+    accountId: string,
+    orderId: string,
+    channel: Omit<NativeChannel, "gateway">,
+    policy: NativeRecoveryPolicy,
+    now: Date,
+  ): Promise<{ path: string; expiresAt: string }>;
+  readCashierGrantOwned(
+    accountId: string,
+    orderId: string,
+    channel: Omit<NativeChannel, "gateway">,
+    now: Date,
+  ): Promise<{
+    order: PaymentOrder;
+    description: string;
+    expiresAt: string;
+  }>;
   dueSettlements(
     now: Date,
     limit: number,

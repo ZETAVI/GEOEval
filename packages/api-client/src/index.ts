@@ -1087,6 +1087,8 @@ export type RechargeCreate = components["schemas"]["RechargeCreateRequest"];
 export type RechargeRead = components["schemas"]["RechargeReadResponse"];
 export type RechargePage = components["schemas"]["RechargePageResponse"];
 export type RechargeSummary = components["schemas"]["RechargeSummaryResponse"];
+export type RechargeCashierGrant =
+  components["schemas"]["RechargeCashierGrantResponse"];
 function rechargeRequest<T>(
   base: string,
   accountId: string,
@@ -1177,6 +1179,19 @@ export function cancelRecharge(
     base,
     accountId,
     `/recharges/${encodeURIComponent(id)}/cancel`,
+    { method: "POST", body: "{}", signal: signal ?? null },
+  );
+}
+export function grantRechargeCashier(
+  base: string,
+  accountId: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<RechargeCashierGrant> {
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharges/${encodeURIComponent(id)}/cashier`,
     { method: "POST", body: "{}", signal: signal ?? null },
   );
 }
