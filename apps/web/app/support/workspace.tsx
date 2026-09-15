@@ -43,9 +43,11 @@ const message = (error: unknown) =>
 export function SupportWorkspace({
   role,
   ticketId,
+  publishingOrderId,
 }: {
   role: Role;
   ticketId?: string | undefined;
+  publishingOrderId?: string | undefined;
 }) {
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
   const [epoch, setEpoch] = useState(0);
@@ -162,11 +164,12 @@ export function SupportWorkspace({
             {ticketId && <a href={home(role)}>返回工单列表</a>}
           </header>
           <SupportContent
-            key={`${account.id}:${ticketId ?? "list"}`}
+            key={`${account.id}:${ticketId ?? "list"}:${publishingOrderId ?? "all"}`}
             refreshEpoch={epoch}
             account={account}
             role={role}
             ticketId={ticketId}
+            publishingOrderId={publishingOrderId}
           />
         </main>
       </div>
@@ -178,15 +181,21 @@ function SupportContent({
   account,
   role,
   ticketId,
+  publishingOrderId,
   refreshEpoch,
 }: {
   account: Account;
   role: Role;
   ticketId?: string | undefined;
   refreshEpoch: number;
+  publishingOrderId?: string | undefined;
 }) {
   const [scope, setScope] = useState(
-    role === "OPERATIONS" ? "pool" : role === "ADMINISTRATOR" ? "all" : "mine",
+    role === "OPERATIONS" && !publishingOrderId
+      ? "pool"
+      : role === "ADMINISTRATOR"
+        ? "all"
+        : "mine",
   );
   const [status, setStatus] = useState("");
   const [pageState, setPage] = useState<SupportPage>();
@@ -198,7 +207,7 @@ function SupportContent({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [subject, setSubject] = useState("");
+  const [subject, setSubject] = useState(publishingOrderId ? "订单问题" : "");
   const [body, setBody] = useState("");
   const [recharge, setRecharge] = useState("");
   const [reply, setReply] = useState("");
@@ -232,6 +241,7 @@ function SupportContent({
         } else {
           const result = await listSupportTickets(base, account.id, {
             scope,
+            publishingOrderId,
             status: status || undefined,
             before,
           });
@@ -255,7 +265,7 @@ function SupportContent({
           setLoading(false);
       }
     },
-    [account.id, ticketId, scope, status, refreshEpoch],
+    [account.id, ticketId, publishingOrderId, scope, status, refreshEpoch],
   );
   useEffect(() => {
     mounted.current = true;
@@ -279,7 +289,11 @@ function SupportContent({
     const fields = {
       subject: subject.trim(),
       message: body.trim(),
-      ...(recharge.trim() ? { rechargeOrderId: recharge.trim() } : {}),
+      ...(publishingOrderId
+        ? { publishingOrderId }
+        : recharge.trim()
+          ? { rechargeOrderId: recharge.trim() }
+          : {}),
     };
     try {
       const result = await createSupportTicket(base, account.id, {
@@ -345,54 +359,87 @@ function SupportContent({
           </button>
         </div>
       )}
-      {!ticketId && role === "TERMINAL_CUSTOMER" && (
+      {!ticketId && page?.order && (
         <section className={styles.card}>
-          <h2>提交问题</h2>
-          <form onSubmit={create} className={styles.form}>
-            <label>
-              问题概述
-              <input
-                required
-                maxLength={100}
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                disabled={busy}
-              />
-            </label>
-            <label>
-              具体说明
-              <textarea
-                required
-                maxLength={4000}
-                rows={4}
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                disabled={busy}
-              />
-            </label>
-            <label>
-              充值 ID（充值问题时填写）
-              <input
-                value={recharge}
-                onChange={(e) => setRecharge(e.target.value)}
-                placeholder="复制并粘贴本人充值记录中的 ID"
-                disabled={busy}
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={busy || !subject.trim() || !body.trim()}
-            >
-              {busy ? "正在提交…" : "提交问题"}
-            </button>
-          </form>
+          <h2>
+            订单 #{page.order.number} · {page.order.title}
+          </h2>
+          <a
+            href={`${role === "TERMINAL_CUSTOMER" ? "/orders" : role === "OPERATIONS" ? "/operations/orders" : "/admin/delivery"}/${page.order.id}`}
+          >
+            查看原订单
+          </a>
+          {page.order.appealUntil && (
+            <p>
+              售后受理截至 {date(page.order.appealUntil)}
+              ，已受理的问题会继续处理。
+            </p>
+          )}
+          {page.order.reason && <p>{page.order.reason}</p>}
+          {page.order.openTicketId && (
+            <p>
+              <a href={`${home(role)}/${page.order.openTicketId}`}>
+                继续已有工单的沟通
+              </a>
+            </p>
+          )}
         </section>
       )}
+      {!ticketId &&
+        (role === "TERMINAL_CUSTOMER" ||
+          (role === "OPERATIONS" && publishingOrderId)) &&
+        (!publishingOrderId || page?.order?.canCreate) && (
+          <section className={styles.card}>
+            <h2>提交问题</h2>
+            <form onSubmit={create} className={styles.form}>
+              <label>
+                问题概述
+                <input
+                  required
+                  maxLength={100}
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  disabled={busy}
+                />
+              </label>
+              <label>
+                具体说明
+                <textarea
+                  required
+                  maxLength={4000}
+                  rows={4}
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  disabled={busy}
+                />
+              </label>
+              {!publishingOrderId && (
+                <>
+                  <label>
+                    充值 ID（充值问题时填写）
+                    <input
+                      value={recharge}
+                      onChange={(e) => setRecharge(e.target.value)}
+                      placeholder="复制并粘贴本人充值记录中的 ID"
+                      disabled={busy}
+                    />
+                  </label>
+                </>
+              )}
+              <button
+                type="submit"
+                disabled={busy || !subject.trim() || !body.trim()}
+              >
+                {busy ? "正在提交…" : "提交问题"}
+              </button>
+            </form>
+          </section>
+        )}
       {!ticketId && (
         <section className={styles.card}>
           <div className={styles.toolbar}>
             <h2>{role === "TERMINAL_CUSTOMER" ? "我的工单" : "工单列表"}</h2>
-            {role !== "TERMINAL_CUSTOMER" && (
+            {role !== "TERMINAL_CUSTOMER" && !publishingOrderId && (
               <label>
                 范围
                 <select
@@ -441,8 +488,12 @@ function SupportContent({
                 <div>
                   <p className={styles.meta}>
                     工单 #{row.sequence} ·{" "}
-                    {row.kind === "RECHARGE" ? "充值问题" : "一般咨询"} ·{" "}
-                    {date(row.createdAt)}
+                    {row.kind === "ORDER"
+                      ? "订单问题"
+                      : row.kind === "RECHARGE"
+                        ? "充值问题"
+                        : "一般咨询"}{" "}
+                    · {date(row.createdAt)}
                   </p>
                   {role === "OPERATIONS" && !row.mine ? (
                     <h3>{row.subject}</h3>
@@ -485,6 +536,15 @@ function SupportContent({
             </p>
             <h2>{detail.subject}</h2>
             <p className={styles.meta}>工单 ID：{detail.id}</p>
+            {detail.publishingOrderId && (
+              <p>
+                <a
+                  href={`${role === "TERMINAL_CUSTOMER" ? "/orders" : role === "OPERATIONS" ? "/operations/orders" : "/admin/delivery"}/${detail.publishingOrderId}`}
+                >
+                  查看原发布订单
+                </a>
+              </p>
+            )}
             {detail.rechargeOrderId && (
               <p>
                 关联充值：
@@ -532,7 +592,9 @@ function SupportContent({
           </section>
           {detail.status === "PROCESSING" && (
             <section className={styles.card}>
-              {role === "ADMINISTRATOR" ? (
+              {role === "ADMINISTRATOR" && detail.publishingOrderId ? (
+                <p>此工单随订单责任人处理，请从原订单安排改派。</p>
+              ) : role === "ADMINISTRATOR" ? (
                 <>
                   <h2>处理安排</h2>
                   <p>责任人无法继续跟进时，可退回工单池重新领取。</p>

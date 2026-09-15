@@ -2787,6 +2787,15 @@
               ],
               "type": "string"
             }
+          },
+          {
+            "name": "publishingOrderId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -9600,6 +9609,10 @@
       "SupportCreateRequest": {
         "type": "object",
         "properties": {
+          "publishingOrderId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "subject": {
             "type": "string",
             "maxLength": 100
@@ -9644,9 +9657,56 @@
           "revision"
         ]
       },
+      "SupportOrderContextResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "number": {
+            "type": "number"
+          },
+          "endedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealUntil": {
+            "type": "string",
+            "nullable": true
+          },
+          "openTicketId": {
+            "type": "string",
+            "nullable": true
+          },
+          "canCreate": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "number",
+          "endedAt",
+          "appealUntil",
+          "openTicketId",
+          "canCreate",
+          "reason"
+        ]
+      },
       "SupportSummaryResponse": {
         "type": "object",
         "properties": {
+          "publishingOrderId": {
+            "type": "string",
+            "nullable": true
+          },
           "id": {
             "type": "string"
           },
@@ -9660,7 +9720,8 @@
             "type": "string",
             "enum": [
               "GENERAL",
-              "RECHARGE"
+              "RECHARGE",
+              "ORDER"
             ]
           },
           "status": {
@@ -9687,6 +9748,7 @@
           }
         },
         "required": [
+          "publishingOrderId",
           "id",
           "sequence",
           "subject",
@@ -9702,6 +9764,15 @@
       "SupportPageResponse": {
         "type": "object",
         "properties": {
+          "order": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SupportOrderContextResponse"
+              }
+            ]
+          },
           "items": {
             "type": "array",
             "items": {
@@ -9714,6 +9785,7 @@
           }
         },
         "required": [
+          "order",
           "items",
           "nextBefore"
         ]
@@ -9753,6 +9825,10 @@
       "SupportDetailResponse": {
         "type": "object",
         "properties": {
+          "publishingOrderId": {
+            "type": "string",
+            "nullable": true
+          },
           "id": {
             "type": "string"
           },
@@ -9766,7 +9842,8 @@
             "type": "string",
             "enum": [
               "GENERAL",
-              "RECHARGE"
+              "RECHARGE",
+              "ORDER"
             ]
           },
           "status": {
@@ -9807,6 +9884,7 @@
           }
         },
         "required": [
+          "publishingOrderId",
           "id",
           "sequence",
           "subject",

@@ -1387,12 +1387,15 @@ export function listSupportTickets(
   accountId: string,
   query: {
     scope: string;
+    publishingOrderId?: string | undefined;
     status?: string | undefined;
     before?: number | undefined;
   },
   signal?: AbortSignal,
 ): Promise<SupportPage> {
   const params = new URLSearchParams({ scope: query.scope });
+  if (query.publishingOrderId)
+    params.set("publishingOrderId", query.publishingOrderId);
   if (query.status) params.set("status", query.status);
   if (query.before) params.set("before", String(query.before));
   return apiRequest(base, `/support/tickets?${params}`, {

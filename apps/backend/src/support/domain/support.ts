@@ -14,9 +14,11 @@ export const supportCreateSchema = z
     subject: z.string().trim().min(1).max(100),
     message,
     rechargeOrderId: uuid.optional(),
+    publishingOrderId: uuid.optional(),
     requestId: uuid,
   })
-  .strict();
+  .strict()
+  .refine((v) => !(v.rechargeOrderId && v.publishingOrderId));
 export const supportCommandSchema = z.discriminatedUnion("action", [
   z
     .object({
@@ -36,6 +38,7 @@ export const supportCommandSchema = z.discriminatedUnion("action", [
 ]);
 export const supportListSchema = z
   .object({
+    publishingOrderId: uuid.optional(),
     scope: z.enum(["mine", "pool", "all"]).default("mine"),
     status: z.enum(["PROCESSING", "RESOLVED"]).optional(),
     before: z.coerce.number().int().min(1).max(2147483647).optional(),

@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 export class SupportCreateRequest {
+  @ApiPropertyOptional({ type: String, format: "uuid" })
+  publishingOrderId?: string;
   @ApiProperty({ type: String, maxLength: 100 }) subject!: string;
   @ApiProperty({ type: String, maxLength: 4000 }) message!: string;
   @ApiPropertyOptional({ type: String, format: "uuid" })
@@ -24,10 +26,13 @@ export class SupportReceiptResponse {
   @ApiProperty({ type: Number }) revision!: number;
 }
 export class SupportSummaryResponse {
+  @ApiProperty({ type: String, nullable: true }) publishingOrderId!:
+    string | null;
   @ApiProperty({ type: String }) id!: string;
   @ApiProperty({ type: Number }) sequence!: number;
   @ApiProperty({ type: String }) subject!: string;
-  @ApiProperty({ type: String, enum: ["GENERAL", "RECHARGE"] }) kind!: string;
+  @ApiProperty({ type: String, enum: ["GENERAL", "RECHARGE", "ORDER"] })
+  kind!: string;
   @ApiProperty({ type: String, enum: ["PROCESSING", "RESOLVED"] })
   status!: string;
   @ApiProperty({ type: Number }) revision!: number;
@@ -51,7 +56,19 @@ export class SupportDetailResponse extends SupportSummaryResponse {
   events!: SupportEventResponse[];
   @ApiProperty({ type: Number, nullable: true }) nextAfter!: number | null;
 }
+export class SupportOrderContextResponse {
+  @ApiProperty({ type: String }) id!: string;
+  @ApiProperty({ type: String }) title!: string;
+  @ApiProperty({ type: Number }) number!: number;
+  @ApiProperty({ type: String, nullable: true }) endedAt!: string | null;
+  @ApiProperty({ type: String, nullable: true }) appealUntil!: string | null;
+  @ApiProperty({ type: String, nullable: true }) openTicketId!: string | null;
+  @ApiProperty({ type: Boolean }) canCreate!: boolean;
+  @ApiProperty({ type: String, nullable: true }) reason!: string | null;
+}
 export class SupportPageResponse {
+  @ApiProperty({ type: SupportOrderContextResponse, nullable: true })
+  order!: SupportOrderContextResponse | null;
   @ApiProperty({ type: [SupportSummaryResponse] })
   items!: SupportSummaryResponse[];
   @ApiProperty({ type: Number, nullable: true }) nextBefore!: number | null;

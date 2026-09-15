@@ -3027,6 +3027,8 @@ export interface components {
             unreadCount: number;
         };
         SupportCreateRequest: {
+            /** Format: uuid */
+            publishingOrderId?: string;
             subject: string;
             message: string;
             /** Format: uuid */
@@ -3041,12 +3043,23 @@ export interface components {
             eventId: string;
             revision: number;
         };
+        SupportOrderContextResponse: {
+            id: string;
+            title: string;
+            number: number;
+            endedAt: string | null;
+            appealUntil: string | null;
+            openTicketId: string | null;
+            canCreate: boolean;
+            reason: string | null;
+        };
         SupportSummaryResponse: {
+            publishingOrderId: string | null;
             id: string;
             sequence: number;
             subject: string;
             /** @enum {string} */
-            kind: "GENERAL" | "RECHARGE";
+            kind: "GENERAL" | "RECHARGE" | "ORDER";
             /** @enum {string} */
             status: "PROCESSING" | "RESOLVED";
             revision: number;
@@ -3056,6 +3069,7 @@ export interface components {
             updatedAt: string;
         };
         SupportPageResponse: {
+            order: components["schemas"]["SupportOrderContextResponse"] | null;
             items: components["schemas"]["SupportSummaryResponse"][];
             nextBefore: number | null;
         };
@@ -3068,11 +3082,12 @@ export interface components {
             createdAt: string;
         };
         SupportDetailResponse: {
+            publishingOrderId: string | null;
             id: string;
             sequence: number;
             subject: string;
             /** @enum {string} */
-            kind: "GENERAL" | "RECHARGE";
+            kind: "GENERAL" | "RECHARGE" | "ORDER";
             /** @enum {string} */
             status: "PROCESSING" | "RESOLVED";
             revision: number;
@@ -5275,6 +5290,7 @@ export interface operations {
                 before?: number;
                 status?: "PROCESSING" | "RESOLVED";
                 scope?: "mine" | "pool" | "all";
+                publishingOrderId?: string;
             };
             header: {
                 /** @description Expected signed-in account */

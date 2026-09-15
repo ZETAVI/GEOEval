@@ -91,7 +91,7 @@ const expectedControllerPolicies: Record<
     csrfExempt: false,
     roles:
       handler === "create"
-        ? ["TERMINAL_CUSTOMER"]
+        ? ["TERMINAL_CUSTOMER", "OPERATIONS"]
         : ["TERMINAL_CUSTOMER", "OPERATIONS", "ADMINISTRATOR"],
   }),
   CommissionTermsController: () => ({

@@ -1,3 +1,5 @@
+import { DeliverySupportAccess } from "../publication-delivery/infrastructure/delivery-support-access.js";
+import { OrderSupportReader } from "../publishing-commerce/infrastructure/order-support-reader.js";
 import { Module } from "@nestjs/common";
 import { PostgresOperationsIdentityReader } from "../identity/infrastructure/postgres-operations-identity-reader.js";
 import { RechargeSupportReader } from "../recharge/infrastructure/recharge-support-reader.js";
@@ -7,6 +9,8 @@ import { SupportController } from "./presentation/support.controller.js";
   controllers: [SupportController],
   providers: [
     PostgresSupportRepository,
+    DeliverySupportAccess,
+    OrderSupportReader,
     PostgresOperationsIdentityReader,
     RechargeSupportReader,
   ],

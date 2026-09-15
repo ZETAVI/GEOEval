@@ -1,4 +1,9 @@
 import { SupportWorkspace } from "../../support/workspace.js";
-export default function Page() {
-  return <SupportWorkspace role="OPERATIONS" />;
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ orderId?: string }>;
+}) {
+  const { orderId } = await searchParams;
+  return <SupportWorkspace role="OPERATIONS" publishingOrderId={orderId} />;
 }

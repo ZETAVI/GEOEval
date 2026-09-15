@@ -991,6 +991,8 @@ enum PointChangeKind {
 }
 
 model PublishingOrder {
+  supportTickets SupportTicket[]
+
   agencyTerms PublishingOrderAgency?
 
   id                String                    @id @default(uuid()) @db.Uuid
@@ -1029,6 +1031,8 @@ enum PublicationDeliveryStatus {
 }
 
 model PublicationDelivery {
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(3)
+
   orderId            String                     @id @map("order_id") @db.Uuid
   sequence           Int                        @unique @default(autoincrement())
   status             PublicationDeliveryStatus  @default(PENDING_HANDLING)
@@ -1603,6 +1607,10 @@ model PublishingOrderAgency {
 }
 
 model SupportTicket {
+  publishingOrderId String? @map("publishing_order_id") @db.Uuid
+  postEndAppeal Boolean @default(false) @map("post_end_appeal")
+  publishingOrder PublishingOrder? @relation(fields: [publishingOrderId, customerAccountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict)
+
   id String @id @default(uuid()) @db.Uuid
   sequence Int @unique @default(autoincrement())
   customerAccountId String @map("customer_account_id") @db.Uuid

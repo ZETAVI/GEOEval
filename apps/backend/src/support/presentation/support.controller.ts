@@ -60,7 +60,7 @@ export class SupportController {
     return p.accountId;
   }
   @Post()
-  @RequireAccountRoles("TERMINAL_CUSTOMER")
+  @RequireAccountRoles("TERMINAL_CUSTOMER", "OPERATIONS")
   @Header("Cache-Control", "private, no-store")
   @ApiBody({ type: SupportCreateRequest })
   @ApiCreatedResponse({ type: SupportReceiptResponse })
@@ -76,6 +76,12 @@ export class SupportController {
   }
   @Get()
   @Header("Cache-Control", "private, no-store")
+  @ApiQuery({
+    name: "publishingOrderId",
+    required: false,
+    type: String,
+    format: "uuid",
+  })
   @ApiQuery({ name: "scope", required: false, enum: ["mine", "pool", "all"] })
   @ApiQuery({
     name: "status",

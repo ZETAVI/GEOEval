@@ -644,6 +644,15 @@ export function DeliveryWorkspace({
                 <p>订单尚未认领，请由运营从订单池领取。</p>
               )}
             </section>
+            {(admin ||
+              order.delivery.assigneeAccountId === session.account.id) && (
+              <a
+                className="secondary-button"
+                href={`${admin ? "/admin" : "/operations"}/support?orderId=${order.id}`}
+              >
+                订单问题与沟通
+              </a>
+            )}
             <DeliveryResolutionPanel
               key={`${order.id}:${session.account.id}`}
               order={order}
