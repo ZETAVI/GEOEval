@@ -78,7 +78,7 @@ export function AgencyCommissionCard({
       revision.current = undefined;
       await refresh();
       if (alive.current)
-        setMessage("设置已保存，已读取当前配置；仅影响之后的新订单。");
+        setMessage("修改已完成。");
     } catch (e) {
       if (!alive.current) return;
       const unknown = !(e instanceof ApiRequestError) || e.status >= 500;
