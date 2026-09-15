@@ -77,8 +77,7 @@ export function AgencyCommissionCard({
       setUncertain(false);
       revision.current = undefined;
       await refresh();
-      if (alive.current)
-        setMessage("修改已完成。");
+      if (alive.current) setMessage("修改已完成。");
     } catch (e) {
       if (!alive.current) return;
       const unknown = !(e instanceof ApiRequestError) || e.status >= 500;
