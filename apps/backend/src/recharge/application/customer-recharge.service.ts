@@ -55,6 +55,7 @@ const messages: Record<string, string> = {
   IDEMPOTENCY_CONFLICT: "该请求已有不同的充值内容，请恢复原充值，勿重复支付。",
   POINT_LIMIT_EXCEEDED: "当前积分容量不足，暂时无法新建充值，请联系客服核查。",
   CREATION_DISABLED: "暂时无法新建充值；已有订单仍可继续查询。",
+  CASHIER_UNAVAILABLE: "支付宝收银台暂不可用，请保留原订单并稍后重试。",
 };
 
 @Injectable()
@@ -112,6 +113,16 @@ export class CustomerRechargeService {
           this.runtime && found.qr && new Date(found.qr.expiresAt) > responseAt
             ? found.qr
             : null,
+        ...(found.order.method === "ALIPAY_PC"
+          ? {
+              cashier:
+                this.runtime &&
+                found.cashier &&
+                new Date(found.cashier.expiresAt) > responseAt
+                  ? found.cashier
+                  : null,
+            }
+          : {}),
         canVerify:
           !!this.runtime &&
           !found.reviewRequired &&
@@ -184,6 +195,27 @@ export class CustomerRechargeService {
       throw publicError(error);
     }
   }
+  async grantCashier(accountId: string, id: string, raw: unknown) {
+    if (!z.object({}).strict().safeParse(raw).success)
+      throw new BadRequestException("操作请求不接受支付结果、金额或账号覆盖。");
+    await this.detail(accountId, id);
+    if (!this.runtime)
+      throw new ServiceUnavailableException(messages.CASHIER_UNAVAILABLE);
+    try {
+      return await this.runtime.grantCashier(accountId, id);
+    } catch (error) {
+      throw publicError(error);
+    }
+  }
+  async cashierPage(accountId: string, id: string) {
+    if (!this.runtime)
+      throw new ServiceUnavailableException(messages.CASHIER_UNAVAILABLE);
+    try {
+      return await this.runtime.cashierPage(accountId, id);
+    } catch (error) {
+      throw publicError(error);
+    }
+  }
 }
 function summary(o: RechargeOrder) {
   return {
@@ -208,6 +240,8 @@ function publicError(error: unknown) {
   };
   if (error.code === "INVALID_INPUT") return new BadRequestException(body);
   if (error.code === "CREATION_DISABLED")
+    return new ServiceUnavailableException(body);
+  if (error.code === "CASHIER_UNAVAILABLE")
     return new ServiceUnavailableException(body);
   return new ConflictException(body);
 }

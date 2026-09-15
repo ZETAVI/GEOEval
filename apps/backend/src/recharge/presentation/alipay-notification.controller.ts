@@ -7,6 +7,7 @@ import {
   PayloadTooLargeException,
   Post,
   Req,
+  Res,
   ServiceUnavailableException,
   UnauthorizedException,
   UnsupportedMediaTypeException,
@@ -18,8 +19,15 @@ import {
 } from "../../identity/access/access.metadata.js";
 import { ReceivePaymentNotificationService } from "../application/receive-payment-notification.service.js";
 
-@Controller("recharges/providers/wechat")
-export class WechatNotificationController {
+type AckResponse = {
+  status(code: number): AckResponse;
+  type(value: string): AckResponse;
+  set(name: string, value: string): AckResponse;
+  send(value: string): void;
+};
+
+@Controller("recharges/providers/alipay")
+export class AlipayNotificationController {
   constructor(
     @Inject(ReceivePaymentNotificationService)
     private readonly receive: ReceivePaymentNotificationService,
@@ -28,10 +36,13 @@ export class WechatNotificationController {
   @Post("notify")
   @PublicAccess()
   @CsrfExempt()
-  @HttpCode(204)
-  async notify(@Req() request: RawBodyRequest<IncomingMessage>): Promise<void> {
-    const headers = request.headersDistinct;
-    const encoding = headers["content-encoding"];
+  @HttpCode(200)
+  async notify(
+    @Req() request: RawBodyRequest<IncomingMessage>,
+    @Res() response: AckResponse,
+  ): Promise<void> {
+    const headers = request.headersDistinct,
+      encoding = headers["content-encoding"];
     if (
       encoding &&
       (encoding.length !== 1 || encoding[0]?.toLowerCase() !== "identity")
@@ -39,14 +50,16 @@ export class WechatNotificationController {
       throw new UnsupportedMediaTypeException("NOTIFICATION_ENCODING");
     if (
       headers["content-type"]?.length !== 1 ||
-      !/^application\/json(?:\s*;|$)/i.test(headers["content-type"][0]!)
+      !/^application\/x-www-form-urlencoded(?:\s*;|$)/i.test(
+        headers["content-type"][0]!,
+      )
     )
       throw new UnsupportedMediaTypeException("NOTIFICATION_CONTENT_TYPE");
     if (!Buffer.isBuffer(request.rawBody))
       throw new ServiceUnavailableException("NOTIFICATION_RAW_BODY_REQUIRED");
-    if (request.rawBody.length > 2 * 1024 * 1024)
+    if (request.rawBody.length > 64 * 1024)
       throw new PayloadTooLargeException("NOTIFICATION_SIZE");
-    const result = await this.receive.receive("WECHAT", {
+    const result = await this.receive.receive("ALIPAY", {
       headers,
       rawBody: request.rawBody,
     });
@@ -56,5 +69,10 @@ export class WechatNotificationController {
       throw new BadRequestException("NOTIFICATION_INVALID");
     if (result === "RETRY")
       throw new ServiceUnavailableException("NOTIFICATION_RETRY");
+    response
+      .status(200)
+      .type("text/plain")
+      .set("Cache-Control", "no-store")
+      .send("success");
   }
 }

@@ -1,6 +1,10 @@
 import { z } from "zod";
 import type { NotificationIdentity } from "./notification-inbox.js";
 import type { PaymentFacts, PaymentProof } from "./payment-gateway.js";
+import type {
+  ProviderPaymentFacts,
+  ProviderProof,
+} from "./provider-payment.js";
 import {
   createRechargeSchema,
   rechargeConfigSchema,
@@ -39,8 +43,8 @@ export class RechargeCoreService {
   /** Internal use after A0 authentication; never map a client body to this method. */
   applyAuthenticatedQuery(
     orderId: string,
-    facts: PaymentFacts,
-    proof: PaymentProof,
+    facts: PaymentFacts | ProviderPaymentFacts,
+    proof: PaymentProof | ProviderProof,
   ) {
     this.identifiers(orderId);
     return this.repository.applyAuthenticatedQuery(orderId, facts, proof);

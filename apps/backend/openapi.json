@@ -2963,6 +2963,55 @@
         ]
       }
     },
+    "/recharges/{id}/cashier": {
+      "post": {
+        "operationId": "CustomerRechargeController_cashier",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "description": "Expected signed-in account; never overrides the authenticated owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RechargeCommandRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RechargeCashierGrantResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "recharges"
+        ]
+      }
+    },
     "/admin/recharges": {
       "get": {
         "operationId": "AdminRechargeController_list",
@@ -9369,7 +9418,8 @@
             "items": {
               "type": "string",
               "enum": [
-                "WECHAT_NATIVE"
+                "WECHAT_NATIVE",
+                "ALIPAY_PC"
               ]
             }
           },
@@ -9406,7 +9456,8 @@
           "method": {
             "type": "string",
             "enum": [
-              "WECHAT_NATIVE"
+              "WECHAT_NATIVE",
+              "ALIPAY_PC"
             ]
           }
         },
@@ -9432,6 +9483,22 @@
           "expiresAt"
         ]
       },
+      "RechargeCashierResponse": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "path",
+          "expiresAt"
+        ]
+      },
       "RechargeDetailResponse": {
         "type": "object",
         "properties": {
@@ -9448,7 +9515,8 @@
           "method": {
             "type": "string",
             "enum": [
-              "WECHAT_NATIVE"
+              "WECHAT_NATIVE",
+              "ALIPAY_PC"
             ]
           },
           "status": {
@@ -9496,6 +9564,15 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/RechargeQrResponse"
+              }
+            ]
+          },
+          "cashier": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RechargeCashierResponse"
               }
             ]
           }
@@ -9549,7 +9626,8 @@
           "method": {
             "type": "string",
             "enum": [
-              "WECHAT_NATIVE"
+              "WECHAT_NATIVE",
+              "ALIPAY_PC"
             ]
           },
           "status": {
@@ -9629,6 +9707,22 @@
           "accepted"
         ]
       },
+      "RechargeCashierGrantResponse": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "path",
+          "expiresAt"
+        ]
+      },
       "AdminRechargeSummaryResponse": {
         "type": "object",
         "properties": {
@@ -9645,7 +9739,8 @@
           "method": {
             "type": "string",
             "enum": [
-              "WECHAT_NATIVE"
+              "WECHAT_NATIVE",
+              "ALIPAY_PC"
             ]
           },
           "status": {
@@ -9732,7 +9827,8 @@
           "method": {
             "type": "string",
             "enum": [
-              "WECHAT_NATIVE"
+              "WECHAT_NATIVE",
+              "ALIPAY_PC"
             ]
           },
           "status": {

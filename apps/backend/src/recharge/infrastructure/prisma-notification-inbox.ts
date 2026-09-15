@@ -5,11 +5,11 @@ import {
 } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import {
-  canonicalDate,
-  paymentObservationData,
+  notificationObservationData,
   storedNotification,
 } from "./stored-payment-observation.js";
 import type { AuthenticatedPaymentNotification } from "../application/payment-gateway.js";
+import type { ProviderNotification } from "../application/provider-payment.js";
 import type {
   NotificationAcceptance,
   NotificationIdentity,
@@ -22,10 +22,15 @@ export class PrismaNotificationInbox implements NotificationInbox {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async accept(
-    notification: AuthenticatedPaymentNotification,
+    notification: AuthenticatedPaymentNotification | ProviderNotification,
   ): Promise<NotificationAcceptance> {
     // Snapshot before the first await, and reject inconsistent internal callers.
-    const data = observationData(notification);
+    let data: ReturnType<typeof notificationObservationData>;
+    try {
+      data = notificationObservationData(notification);
+    } catch {
+      throw new Error("RECHARGE_NOTIFICATION_INVARIANT");
+    }
     const identity = {
       provider: data.provider,
       merchantId: data.merchantId,
@@ -54,6 +59,11 @@ export class PrismaNotificationInbox implements NotificationInbox {
           });
           return "CONFLICT_RECORDED";
         }
+        if (data.observationState !== "SUCCESS" && !receipt.processedAt)
+          await tx.rechargeNotificationReceipt.update({
+            where: { provider_merchantId_notificationId: identity },
+            data: { processedAt: new Date() },
+          });
         return inserted.count === 1 ? "RECORDED" : "DUPLICATE";
       },
       {
@@ -82,7 +92,12 @@ export class PrismaNotificationInbox implements NotificationInbox {
 
   async listPending(limit: number): Promise<NotificationReceipt[]> {
     return this.scan(
-      { hasConflict: false, processedAt: null, reviewReason: null },
+      {
+        hasConflict: false,
+        processedAt: null,
+        reviewReason: null,
+        canonical: { observationState: "SUCCESS" },
+      },
       limit,
     );
   }
@@ -119,28 +134,6 @@ export class PrismaNotificationInbox implements NotificationInbox {
   }
 }
 
-function observationData(n: AuthenticatedPaymentNotification) {
-  try {
-    const data = paymentObservationData(n.facts, n.proof);
-    if (
-      n.factsVersion !== 1 ||
-      data.factsSha256 !== n.factsSha256 ||
-      n.facts.tradeType !== "NATIVE" ||
-      n.facts.payerCurrency !== "CNY" ||
-      n.facts.payerTotalFen === null
-    )
-      throw new Error("invalid");
-    return {
-      ...data,
-      sourceKind: "NOTIFICATION",
-      notificationId: n.notificationId,
-      notificationCreatedAt: canonicalDate(n.createdAt),
-    };
-  } catch {
-    throw new Error("RECHARGE_NOTIFICATION_INVARIANT");
-  }
-}
-
 function receiptView(row: {
   provider: string;
   merchantId: string;
@@ -152,7 +145,7 @@ function receiptView(row: {
   canonical: RechargePaymentObservation;
 }): NotificationReceipt {
   return {
-    provider: "WECHAT",
+    provider: row.provider as NotificationReceipt["provider"],
     merchantId: row.merchantId,
     notificationId: row.notificationId,
     hasConflict: row.hasConflict,

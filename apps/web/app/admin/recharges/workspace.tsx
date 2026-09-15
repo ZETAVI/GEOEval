@@ -11,7 +11,10 @@ import {
 } from "@geoeval/api-client";
 import { AdminSidebar } from "../admin-sidebar.js";
 import { loadRoleSession, WorkspaceAccessPanel } from "../../session-access.js";
-import { rechargeLabels } from "../../recharges/recharge-status.js";
+import {
+  rechargeLabels,
+  rechargeMethodLabels,
+} from "../../recharges/recharge-status.js";
 import {
   AdminRechargeController,
   type AdminRechargeState,
@@ -124,14 +127,21 @@ export function RechargeAdminDetail({ order }: { order: AdminRechargeDetail }) {
     ["客户账号", order.accountMobile],
     ["充值金额", `¥${order.amountYuan.toFixed(2)}`],
     ["对应积分", String(order.points)],
-    ["支付方式", "微信扫码支付"],
+    ["支付方式", rechargeMethodLabels[order.method]],
     ["订单状态", rechargeLabels[order.status]],
     ["创建时间", time(order.createdAt)],
     ["付款截止时间", time(order.paymentExpiresAt)],
     ["关闭时间", time(order.closedAt)],
     ["商户订单号", order.merchantOrderNo],
     ["渠道交易号", order.providerTransactionId ?? "尚未确认"],
-    ["付款时间", order.paidAt ? time(order.paidAt) : "尚未确认"],
+    [
+      "付款时间",
+      order.paidAt
+        ? time(order.paidAt)
+        : order.status === "SUCCESSFUL"
+          ? "渠道未返回"
+          : "尚未确认",
+    ],
     [
       "到账积分",
       order.creditedPoints === null ? "尚未到账" : String(order.creditedPoints),
@@ -321,7 +331,7 @@ export function RechargeAdminList({
                       <td>{o.accountMobile}</td>
                       <td>¥{o.amountYuan.toFixed(2)}</td>
                       <td>{o.points}</td>
-                      <td>微信扫码支付</td>
+                      <td>{rechargeMethodLabels[o.method]}</td>
                       <td>{rechargeLabels[o.status]}</td>
                       <td>{time(o.createdAt)}</td>
                       <td>

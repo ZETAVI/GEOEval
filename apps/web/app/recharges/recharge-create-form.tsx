@@ -139,12 +139,26 @@ export function RechargeCreateForm({
               ? `支持 ${options.minAmountYuan}–${options.maxAmountYuan} 整数元。`
               : "开放后可选择或填写充值金额。"}
       </p>
-      {(state.pending || options.methods.includes("WECHAT_NATIVE")) && (
+      {(state.pending || options.methods.length > 0) && (
         <fieldset className={styles.methods}>
           <legend>支付方式</legend>
-          <label>
-            <input type="radio" checked readOnly /> 微信支付 · 电脑扫码
-          </label>
+          {(state.pending ? [state.pending.method] : options.methods).map(
+            (method) => (
+              <label key={method}>
+                <input
+                  type="radio"
+                  name="recharge-method"
+                  value={method}
+                  checked={(state.pending?.method ?? state.method) === method}
+                  disabled={locked || !options.available}
+                  onChange={() => controller.setMethod(method)}
+                />{" "}
+                {method === "WECHAT_NATIVE"
+                  ? "微信支付 · 电脑扫码"
+                  : "支付宝 · 官方收银台"}
+              </label>
+            ),
+          )}
         </fieldset>
       )}
       <div className={styles.total}>
@@ -169,7 +183,8 @@ export function RechargeCreateForm({
         disabled={
           state.busy ||
           state.blocked ||
-          (!state.pending && (!options.available || parsed.amount === null))
+          (!state.pending && (!options.available || parsed.amount === null)) ||
+          (!state.pending && !state.method)
         }
         onClick={() => void controller.submit()}
       >
@@ -182,7 +197,7 @@ export function RechargeCreateForm({
               : "确认充值"}
       </button>
       <p className="commerce-muted">
-        创建后进入独立扫码页。关闭页面不会自动取消订单，支付结果以充值记录为准。
+        创建后进入订单支付页。关闭页面不会自动取消订单，支付结果以充值记录为准。
       </p>
     </section>
   );

@@ -5,6 +5,12 @@ import type {
   PaymentFacts,
   PaymentProof,
 } from "../application/payment-gateway.js";
+import type {
+  ProviderPaymentFacts,
+  ProviderProof,
+  RechargeMethod,
+  RechargeProvider,
+} from "../application/provider-payment.js";
 
 export const POINTS_PER_YUAN = 10;
 export const createRechargeSchema = z
@@ -18,7 +24,7 @@ export const createRechargeSchema = z
       .int()
       .min(1)
       .max(Math.floor(MAX_POINTS / POINTS_PER_YUAN)),
-    method: z.literal("WECHAT_NATIVE"),
+    method: z.enum(["WECHAT_NATIVE", "ALIPAY_PC"]),
   })
   .strict();
 export type CreateRecharge = z.infer<typeof createRechargeSchema>;
@@ -28,6 +34,7 @@ export const rechargeConfigSchema = z
   .object({
     merchantId: z.string().regex(/^\d{1,32}$/),
     appId: z.string().regex(/^[A-Za-z0-9_-]{1,32}$/),
+    method: z.enum(["WECHAT_NATIVE", "ALIPAY_PC"]).default("WECHAT_NATIVE"),
     minAmountYuan: z.number().int().positive(),
     maxAmountYuan: z
       .number()
@@ -47,16 +54,17 @@ export type RechargeOrder = Readonly<{
   amountYuan: number;
   amountFen: number;
   fundedPoints: number;
-  provider: "WECHAT";
+  provider: RechargeProvider;
   merchantId: string;
   appId: string;
   merchantOrderNo: string;
-  method: "WECHAT_NATIVE";
+  method: RechargeMethod;
   status: "PENDING_PAYMENT" | "CONFIRMING" | "SUCCESSFUL" | "CLOSED";
   dispatchState: "UNSENT" | "MAY_EXIST";
   expiresAt: string;
   createdAt: string;
   paidAt: string | null;
+  creditConfirmedAt: string | null;
   closedAt: string | null;
   ledgerId: string | null;
   reviewReason: RechargeReviewReason | null;
@@ -85,6 +93,7 @@ export class RechargeError extends Error {
       | "ACTIVE_ORDER_LIMIT"
       | "IDEMPOTENCY_CONFLICT"
       | "NOT_FOUND"
+      | "CASHIER_UNAVAILABLE"
       | "CANCELLATION_REQUIRES_VERIFICATION",
     message: string = code,
   ) {
@@ -105,7 +114,7 @@ export interface RechargeRepository {
   /** Only internal orchestration supplies an A0-authenticated SUCCESS observation. */
   applyAuthenticatedQuery(
     orderId: string,
-    facts: PaymentFacts,
-    proof: PaymentProof,
+    facts: PaymentFacts | ProviderPaymentFacts,
+    proof: PaymentProof | ProviderProof,
   ): Promise<SettlementResult>;
 }

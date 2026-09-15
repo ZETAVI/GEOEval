@@ -3,9 +3,9 @@
 `AlipayPaymentAdapter` owns the official SDK 4.14.0 boundary: local POST-form
 generation, RSA2 form-notification verification, and authenticated v3 query/close
 interpretation. It has no module registration, database, retry loop, environment
-lookup or ledger access. It deliberately does not implement the current
-WeChat-only `PaymentGateway`: that port's V1 proof and QR-only result cannot
-truthfully represent this protocol. The common frozen `PaymentOrder` is reused.
+lookup or ledger access. `AlipayRechargePaymentGateway` maps it to the shared
+Recharge provider port; the host-owned runtime configuration then composes API and
+dedicated Worker entry points. The common frozen `PaymentOrder` is reused.
 
 - Configuration pins the merchant, app, environment, key and HTTPS notify/return
   URLs. Public-key and certificate modes both use the real SDK; certificate mode
@@ -67,6 +67,25 @@ truthfully represent this protocol. The common frozen `PaymentOrder` is reused.
   workload. A future pooling change must retain pre-connect cancellation and
   prove that cancelling one order cannot interrupt another.
 
+## Runtime assembly and activation
+
+`alipay-recharge.runtime-config.ts` is the only environment/key-file loader. It
+requires absolute protected PEM files and complete merchant, app, HTTPS URL and
+amount policy configuration. `RECHARGE_ALIPAY_ACTIVATION` defaults to `disabled`:
+
+- `verify` loads callback verification plus query/close recovery but does not
+  allow new orders or cashier grants; it is also the production rollback mode;
+- `sandbox` requires the sandbox gateway and allows a controlled cashier;
+- `live` requires the production gateway and is the only production cashier
+  activation.
+
+The API process loads this optional configuration. The separate
+`recharge-worker-main` uses the same values for query, close, settlement and
+customer-notification delivery; the general AI/evaluation Worker remains separate.
+Stopping the API or Recharge Worker drains started gateway work and disposes the
+adapter. Disabling creation does not remove callback/recovery support for existing
+orders.
+
 ## Evidence and remaining activation work
 
 `test/alipay-payment.adapter.spec.ts` runs the real published SDK with temporary
@@ -81,17 +100,24 @@ DNS/port/CA are redirected to the local service. It covers signed query/close,
 certificate serial checks, both redirect kinds, response limits, stalled TLS,
 stalled headers, trickling bodies, cancellation, concurrency and disposal.
 
-Before runtime assembly, complete the versioned observation/receipt migration,
-durable form issue/restore, authenticated customer/notification HTTP wiring and
-same-transaction credit. Local HTTPS is not official sandbox or real-merchant
-acceptance. Keep SDK debug payload logging disabled in the eventual payment host.
+The versioned observation/receipt migration, durable cashier grant, authenticated
+customer and notification HTTP paths, same-transaction credit and Worker recovery
+are implemented. A clean database accepted all migrations and the integrated
+Alipay suite proves persisted form issuance, callback-before-ACK, query/close,
+duplicate convergence, optional-time convergence, wrong identity rejection and
+one Commerce credit. Existing WeChat recovery tests remain green.
+
+A production-gateway signed query with the approved app/key returned the expected
+nonexistent-trade result. It created no transaction and proves only key, gateway,
+SDK and query permission compatibility. Keep SDK debug payload logging disabled.
 
 Per-channel recovery follows authenticated evidence. Routine transient cases
 should recover automatically; genuinely ambiguous financial outcomes retain
 restricted review. Natural expiry, late form submission, lost close ACK and
 fully refunded `TRADE_CLOSED` need separate channel evidence before automatic
-closure is enabled. Do not force every ambiguity into automation or send every
-ordinary expiry to an operator.
+closure is enabled. Public callback delivery, browser return, a bounded real
+payment and finance review remain action-time acceptance gates. Do not force every
+ambiguity into automation or send every ordinary expiry to an operator.
 
 Official sources and the current integration design remain in the owning change's
 [source brief](../../../../../../openspec/changes/establish-recharge-payments/source-brief.md)

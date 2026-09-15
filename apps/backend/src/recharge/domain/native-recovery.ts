@@ -2,6 +2,10 @@ import type {
   GatewayResult,
   TradeObservation,
 } from "../application/payment-gateway.js";
+import type {
+  ProviderFailure,
+  ProviderTradeObservation,
+} from "../application/provider-payment.js";
 
 export type NativeOperationKind = "INITIATE" | "QUERY" | "CLOSE";
 
@@ -27,7 +31,7 @@ export function canDispatchNative(input: {
 }
 
 export function planNativeQuery(
-  state: TradeObservation["state"],
+  state: TradeObservation["state"] | ProviderTradeObservation["state"],
   input: { stopPayment: boolean; mayInitiate: boolean; usableQr: boolean },
 ): NativeQueryDecision {
   if (state === "SUCCESS") return "SETTLE";
@@ -61,7 +65,8 @@ export type NativeFailureClass = "TEMPORARY" | "REJECTED" | "UNKNOWN";
 /** Diagnostics control retry only; an HTTP error never proves payment or closure. */
 export function nativeFailure(
   operation: NativeOperationKind,
-  error: Extract<GatewayResult<never>, { ok: false }>["error"],
+  error:
+    Extract<GatewayResult<never>, { ok: false }>["error"] | ProviderFailure,
 ): {
   failureClass: NativeFailureClass;
   errorHttpStatus: number | null;
@@ -74,6 +79,14 @@ export function nativeFailure(
       : null;
   let failureClass: NativeFailureClass = "UNKNOWN";
   if (error.kind !== "UNRESOLVED") failureClass = "REJECTED";
+  else if ("recovery" in error && error.recovery === "RETRY")
+    failureClass = "TEMPORARY";
+  else if (
+    "recovery" in error &&
+    error.recovery === "VERIFY" &&
+    operation === "QUERY"
+  )
+    failureClass = "TEMPORARY";
   else if (error.code === "HTTP_ERROR") {
     if (
       status === 429 ||

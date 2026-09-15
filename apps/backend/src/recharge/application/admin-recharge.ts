@@ -1,4 +1,5 @@
 import type { RechargeStatus } from "./customer-recharge.js";
+import type { RechargeMethod } from "./provider-payment.js";
 export const ADMIN_RECHARGE_QUERIES = Symbol("ADMIN_RECHARGE_QUERIES");
 export type AdminRechargeFilter = {
   accountId?: string | undefined;
@@ -13,7 +14,7 @@ export type AdminRechargeSummary = {
   accountMobile: string;
   amountYuan: number;
   points: number;
-  method: "WECHAT_NATIVE";
+  method: RechargeMethod;
   status: RechargeStatus;
   createdAt: string;
   paymentExpiresAt: string;

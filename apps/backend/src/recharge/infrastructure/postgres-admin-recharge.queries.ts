@@ -18,6 +18,10 @@ const base = {
   closedAt: true,
 } satisfies Prisma.RechargeOrderSelect;
 type Row = Prisma.RechargeOrderGetPayload<{ select: typeof base }>;
+function method(value: string): AdminRechargeSummary["method"] {
+  if (value === "WECHAT_NATIVE" || value === "ALIPAY_PC") return value;
+  throw new Error("RECHARGE_METHOD_INVARIANT");
+}
 function summary(o: Row): AdminRechargeSummary {
   return {
     id: o.id,
@@ -25,7 +29,7 @@ function summary(o: Row): AdminRechargeSummary {
     accountMobile: o.account.mobile,
     amountYuan: o.amountYuan,
     points: o.fundedPoints,
-    method: o.method as "WECHAT_NATIVE",
+    method: method(o.method),
     status: o.status as AdminRechargeSummary["status"],
     createdAt: o.createdAt.toISOString(),
     paymentExpiresAt: o.expiresAt.toISOString(),

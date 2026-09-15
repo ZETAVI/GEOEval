@@ -8,6 +8,11 @@ import type {
   NativeRecoveryPolicy,
   NativeRecoveryRepository,
 } from "./native-recovery.js";
+import {
+  providerForMethod,
+  type RechargeMethod,
+  type RechargeProvider,
+} from "./provider-payment.js";
 
 const policySchema = z
   .object({
@@ -25,7 +30,10 @@ const policySchema = z
 /** Explicitly driven worker lanes; no environment lookup, timer or public HTTP route. */
 export class NativeRecoveryService {
   private readonly policy: NativeRecoveryPolicy;
-  private readonly channel: NativeChannel;
+  private readonly channel: NativeChannel & {
+    provider: RechargeProvider;
+    method: RechargeMethod;
+  };
   constructor(
     private readonly core: RechargeCoreService,
     private readonly repository: NativeRecoveryRepository,
@@ -33,10 +41,26 @@ export class NativeRecoveryService {
     policy: NativeRecoveryPolicy,
     private readonly clock: () => Date = () => new Date(),
   ) {
-    this.channel = Object.freeze({ ...channel });
+    const method = channel.method ?? "WECHAT_NATIVE";
+    const provider = channel.provider ?? providerForMethod(method);
+    if (
+      provider !== providerForMethod(method) ||
+      (channel.gateway?.provider !== undefined &&
+        channel.gateway.provider !== provider) ||
+      (channel.gateway?.method !== undefined &&
+        channel.gateway.method !== method)
+    )
+      throw new Error("PAYMENT_CHANNEL_CONFIGURATION");
+    this.channel = Object.freeze({ ...channel, provider, method });
     this.policy = Object.freeze(policySchema.parse(policy));
   }
   create(accountId: string, input: unknown) {
+    if (
+      !input ||
+      typeof input !== "object" ||
+      (input as { method?: unknown }).method !== this.channel.method
+    )
+      throw new RechargeError("INVALID_INPUT");
     return this.core.create(accountId, input);
   }
   read(accountId: string, orderId: string) {
@@ -58,10 +82,44 @@ export class NativeRecoveryService {
     );
     return this.read(accountId, orderId);
   }
+  async grantCashier(accountId: string, orderId: string) {
+    this.identifiers(accountId, orderId);
+    if (this.channel.gateway.actionKind !== "CASHIER_PAGE")
+      throw new RechargeError("INVALID_INPUT");
+    return this.repository.grantCashierOwned(
+      accountId,
+      orderId,
+      this.channel,
+      this.policy,
+      this.clock(),
+    );
+  }
+  async cashierPage(accountId: string, orderId: string) {
+    this.identifiers(accountId, orderId);
+    const prepare = this.channel.gateway.prepareCashier;
+    if (this.channel.gateway.actionKind !== "CASHIER_PAGE" || !prepare)
+      throw new RechargeError("INVALID_INPUT");
+    const grant = await this.repository.readCashierGrantOwned(
+      accountId,
+      orderId,
+      this.channel,
+      this.clock(),
+    );
+    const result = prepare.call(this.channel.gateway, grant.order, {
+      description: grant.description,
+      expiresAt: grant.expiresAt,
+    });
+    if (!result.ok) throw new RechargeError("CASHIER_UNAVAILABLE");
+    return result.value.html;
+  }
   async runOrders(limit: number, stop?: AbortSignal) {
     this.limit(limit);
     if (stop?.aborted) return { claimed: 0, failed: 0 };
-    const ids = await this.repository.dueOrderIds(this.clock(), limit);
+    const ids = await this.repository.dueOrderIds(
+      this.clock(),
+      limit,
+      this.channel,
+    );
     let claimed = 0,
       failed = 0;
     for (const orderId of ids) {
@@ -134,11 +192,16 @@ export class NativeRecoveryService {
     }
     return { applied, reviewed, failed };
   }
+  onApplicationShutdown() {
+    return this.channel.gateway.dispose?.();
+  }
   private async perform(claim: NativeClaim): Promise<NativeOperationResult> {
     try {
       if (claim.kind === "INITIATE") {
         if (!claim.description || !claim.notifyUrl)
           throw new Error("NATIVE_SNAPSHOT_MISSING");
+        if (!this.channel.gateway.initiate)
+          throw new Error("PAYMENT_INITIATION_UNAVAILABLE");
         return {
           kind: "INITIATE",
           response: await this.channel.gateway.initiate(claim.order, {

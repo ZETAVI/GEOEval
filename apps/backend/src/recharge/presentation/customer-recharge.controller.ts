@@ -14,6 +14,7 @@ import {
 import {
   ApiAcceptedResponse,
   ApiBody,
+  ApiExcludeEndpoint,
   ApiHeader,
   ApiOkResponse,
   ApiParam,
@@ -26,6 +27,7 @@ import type { AuthenticatedPrincipal } from "../../identity/domain/identity.type
 import { CustomerRechargeService } from "../application/customer-recharge.service.js";
 import {
   RechargeAcceptedResponse,
+  RechargeCashierGrantResponse,
   RechargeCommandRequest,
   RechargeCreateRequest,
   RechargeOptionsResponse,
@@ -129,5 +131,37 @@ export class CustomerRechargeController {
   ) {
     this.service.assertAccount(p.accountId, expected);
     return this.service.command(p.accountId, id, "cancel", raw);
+  }
+  @Post(":id/cashier")
+  @HttpCode(200)
+  @Header("Cache-Control", "no-store")
+  @ApiParam({ name: "id", format: "uuid" })
+  @ApiBody({ type: RechargeCommandRequest })
+  @ApiOkResponse({ type: RechargeCashierGrantResponse })
+  cashier(
+    @CurrentPrincipal() p: AuthenticatedPrincipal,
+    @Headers("x-geoeval-account") expected: string | undefined,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() raw: unknown,
+  ) {
+    this.service.assertAccount(p.accountId, expected);
+    return this.service.grantCashier(p.accountId, id, raw);
+  }
+  @Get(":id/cashier-page")
+  @ApiExcludeEndpoint()
+  @Header("Cache-Control", "no-store")
+  @Header("Referrer-Policy", "no-referrer")
+  @Header("X-Content-Type-Options", "nosniff")
+  @Header("Content-Type", "text/html; charset=utf-8")
+  @Header(
+    "Content-Security-Policy",
+    "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action https://openapi.alipay.com https://openapi-sandbox.dl.alipaydev.com; script-src 'unsafe-inline'; style-src 'unsafe-inline'",
+  )
+  @ApiParam({ name: "id", format: "uuid" })
+  cashierPage(
+    @CurrentPrincipal() p: AuthenticatedPrincipal,
+    @Param("id", ParseUUIDPipe) id: string,
+  ) {
+    return this.service.cashierPage(p.accountId, id);
   }
 }

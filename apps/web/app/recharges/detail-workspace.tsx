@@ -161,7 +161,7 @@ export function RechargeDetailWorkspace({ orderId }: { orderId: string }) {
           </a>
         </nav>
         {options.controlled && (
-          <p className={styles.controlled}>受控测试环境 · 二维码不能真实付款</p>
+          <p className={styles.controlled}>受控测试环境 · 不会发生真实付款</p>
         )}
         <NativeCheckout
           accountId={session.account.id}

@@ -20,7 +20,11 @@ import {
 import { RechargeCreateForm } from "./recharge-create-form.js";
 import { rechargeApiBase } from "./native-api-source.js";
 import styles from "./recharge.module.css";
-import { rechargeLabels, rechargeMessages } from "./recharge-status.js";
+import {
+  rechargeLabels,
+  rechargeMessages,
+  rechargeMethodLabels,
+} from "./recharge-status.js";
 export { rechargeLabels };
 const empty: RechargePage = { items: [], nextCursor: null };
 export function RechargeWorkspace() {
@@ -248,7 +252,10 @@ export function RechargeWorkspace() {
                       ¥{o.amountYuan.toLocaleString()} ·{" "}
                       {o.points.toLocaleString()} 积分
                     </strong>
-                    <p>{new Date(o.createdAt).toLocaleString()}</p>
+                    <p>
+                      {rechargeMethodLabels[o.method]} ·{" "}
+                      {new Date(o.createdAt).toLocaleString()}
+                    </p>
                     <small>充值单号 {o.id}</small>
                   </div>
                   <span title={rechargeMessages[o.status]}>

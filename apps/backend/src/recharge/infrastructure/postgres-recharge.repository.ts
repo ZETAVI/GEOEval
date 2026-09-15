@@ -14,6 +14,11 @@ import type {
   PaymentProof,
 } from "../application/payment-gateway.js";
 import {
+  providerForMethod,
+  type ProviderPaymentFacts,
+  type ProviderProof,
+} from "../application/provider-payment.js";
+import {
   POINTS_PER_YUAN,
   RechargeError,
   type CreateRecharge,
@@ -91,7 +96,8 @@ export class PostgresRechargeRepository implements RechargeRepository {
           throw new RechargeError("ACCOUNT_NOT_ACTIVE");
         if (
           request.amountYuan < policy.minAmountYuan ||
-          request.amountYuan > policy.maxAmountYuan
+          request.amountYuan > policy.maxAmountYuan ||
+          request.method !== policy.method
         )
           throw new RechargeError("AMOUNT_NOT_ALLOWED");
         if (
@@ -113,14 +119,18 @@ export class PostgresRechargeRepository implements RechargeRepository {
               ? {
                   nativeDescription: this.native.description,
                   nativeNotifyUrl: this.native.notifyUrl,
-                  nativeNextOperation: "INITIATE",
-                  nativeNextActionAt: now,
+                  ...(this.native.actionKind === "CASHIER_PAGE"
+                    ? {}
+                    : {
+                        nativeNextOperation: "INITIATE",
+                        nativeNextActionAt: now,
+                      }),
                 }
               : {}),
             ...request,
             amountFen: BigInt(request.amountYuan) * 100n,
             fundedPoints: request.amountYuan * POINTS_PER_YUAN,
-            provider: "WECHAT",
+            provider: providerForMethod(policy.method),
             merchantId: policy.merchantId,
             appId: policy.appId,
             merchantOrderNo: id.replaceAll("-", ""),
@@ -207,8 +217,8 @@ export class PostgresRechargeRepository implements RechargeRepository {
 
   async applyAuthenticatedQuery(
     orderId: string,
-    facts: PaymentFacts,
-    proof: PaymentProof,
+    facts: PaymentFacts | ProviderPaymentFacts,
+    proof: PaymentProof | ProviderProof,
   ): Promise<SettlementResult> {
     const data = paymentObservationData(facts, proof);
     const queryKey = queryObservationKey(orderId, data.factsSha256);
@@ -278,7 +288,9 @@ export class PostgresRechargeRepository implements RechargeRepository {
             });
           if (
             order.providerTransactionId !== f.transactionId ||
-            order.paidAt?.toISOString() !== f.successAt ||
+            (order.paidAt !== null &&
+              f.successAt !== null &&
+              order.paidAt.toISOString() !== f.successAt) ||
             (original.payerTotalFen !== null &&
               f.payerTotalFen !== null &&
               original.payerTotalFen !== BigInt(f.payerTotalFen))
@@ -313,7 +325,8 @@ export class PostgresRechargeRepository implements RechargeRepository {
           data: {
             status: "SUCCESSFUL",
             providerTransactionId: f.transactionId,
-            paidAt: new Date(f.successAt),
+            paidAt: f.successAt ? new Date(f.successAt) : null,
+            creditConfirmedAt: new Date(),
             paidObservationId: observation.id,
             ledgerId: ledger.id,
           },
@@ -413,7 +426,7 @@ async function markReview(
     });
   return { kind: "REVIEW_REQUIRED", reason };
 }
-function matchesOrder(o: StoredOrder, f: PaymentFacts) {
+function matchesOrder(o: StoredOrder, f: PaymentFacts | ProviderPaymentFacts) {
   return (
     o.provider === f.provider &&
     o.merchantId === f.merchantId &&
@@ -421,7 +434,9 @@ function matchesOrder(o: StoredOrder, f: PaymentFacts) {
     o.merchantOrderNo === f.merchantOrderNo &&
     o.amountFen === BigInt(f.orderTotalFen) &&
     o.currency === f.currency &&
-    (f.tradeType === null || f.tradeType === "NATIVE")
+    ((o.method === "WECHAT_NATIVE" &&
+      (f.tradeType === null || f.tradeType === "NATIVE")) ||
+      (o.method === "ALIPAY_PC" && f.tradeType === "ALIPAY_PC"))
   );
 }
 export function orderView(o: StoredOrder): RechargeOrder {
@@ -432,16 +447,17 @@ export function orderView(o: StoredOrder): RechargeOrder {
     amountYuan: o.amountYuan,
     amountFen: Number(o.amountFen),
     fundedPoints: o.fundedPoints,
-    provider: "WECHAT",
+    provider: o.provider as RechargeOrder["provider"],
     merchantId: o.merchantId,
     appId: o.appId,
     merchantOrderNo: o.merchantOrderNo,
-    method: "WECHAT_NATIVE",
+    method: o.method as RechargeOrder["method"],
     status: o.status as RechargeOrder["status"],
     dispatchState: o.dispatchState as RechargeOrder["dispatchState"],
     expiresAt: o.expiresAt.toISOString(),
     createdAt: o.createdAt.toISOString(),
     paidAt: o.paidAt?.toISOString() ?? null,
+    creditConfirmedAt: o.creditConfirmedAt?.toISOString() ?? null,
     closedAt: o.closedAt?.toISOString() ?? null,
     ledgerId: o.ledgerId,
     reviewReason: o.reviewReason as RechargeReviewReason | null,

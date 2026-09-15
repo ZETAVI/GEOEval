@@ -12,10 +12,8 @@ import type {
   NativeRecoveryPolicy,
   NativeRecoveryRepository,
 } from "../application/native-recovery.js";
-import type {
-  PaymentOrder,
-  PaymentProof,
-} from "../application/payment-gateway.js";
+import type { PaymentOrder } from "../application/payment-gateway.js";
+import type { ProviderProof } from "../application/provider-payment.js";
 import type { RechargeCustomerQueries } from "../application/customer-recharge.js";
 import { RechargeError } from "../domain/recharge-order.js";
 import {
@@ -33,6 +31,7 @@ import {
   canonicalDate,
   paymentObservationData,
   queryObservationKey,
+  storedProviderProof,
   storedPaymentFacts,
 } from "./stored-payment-observation.js";
 
@@ -65,12 +64,20 @@ export class PostgresNativeRecoveryRepository
     private readonly core: PostgresRechargeRepository,
   ) {}
 
-  async dueOrderIds(now: Date, limit: number) {
+  async dueOrderIds(
+    now: Date,
+    limit: number,
+    channel: Omit<NativeChannel, "gateway">,
+  ) {
     return (
       await this.prisma.rechargeOrder.findMany({
         where: {
           status: { in: active },
           reviewReason: null,
+          provider: channel.provider ?? "WECHAT",
+          method: channel.method ?? "WECHAT_NATIVE",
+          merchantId: channel.merchantId,
+          appId: channel.appId,
           ...runnableReview,
           nativeNextActionAt: { lte: now },
         },
@@ -117,7 +124,12 @@ export class PostgresNativeRecoveryRepository
           });
           return null;
         }
-        if (o.merchantId !== channel.merchantId || o.appId !== channel.appId) {
+        if (
+          o.provider !== (channel.provider ?? "WECHAT") ||
+          o.method !== (channel.method ?? "WECHAT_NATIVE") ||
+          o.merchantId !== channel.merchantId ||
+          o.appId !== channel.appId
+        ) {
           await this.review(tx, o.id, "CHANNEL_MISMATCH");
           return null;
         }
@@ -301,6 +313,7 @@ export class PostgresNativeRecoveryRepository
           const data = paymentObservationData(
             observation.facts,
             observation.proof,
+            observation.providerState,
           );
           const queryKey = queryObservationKey(o.id, data.factsSha256);
           await tx.rechargePaymentObservation.createMany({
@@ -508,12 +521,139 @@ export class PostgresNativeRecoveryRepository
               expiresAt: o.nativeQrExpiresAt!.toISOString(),
             }
           : null,
+      cashier:
+        o.method === "ALIPAY_PC" &&
+        o.cashierAttemptId &&
+        !o.reviewReason &&
+        !o.nativeReviewReason &&
+        !stopped(o, now) &&
+        isActive(o)
+          ? {
+              path: `/recharges/${encodeURIComponent(o.id)}/cashier-page`,
+              expiresAt: o.expiresAt.toISOString(),
+            }
+          : null,
       nextActionAt: isActive(o)
         ? (o.nativeNextActionAt?.toISOString() ?? null)
         : null,
       reviewRequired:
         o.reviewReason !== null ||
         (o.nativeReviewReason !== null && o.nativeReviewReason !== slowRetry),
+    };
+  }
+
+  async grantCashierOwned(
+    accountId: string,
+    orderId: string,
+    channel: Omit<NativeChannel, "gateway">,
+    policy: NativeRecoveryPolicy,
+    now: Date,
+  ) {
+    return this.withOrder(orderId, accountId, async (tx, o) => {
+      if (
+        o.provider !== "ALIPAY" ||
+        o.method !== "ALIPAY_PC" ||
+        (channel.provider ?? "WECHAT") !== "ALIPAY" ||
+        (channel.method ?? "WECHAT_NATIVE") !== "ALIPAY_PC" ||
+        o.merchantId !== channel.merchantId ||
+        o.appId !== channel.appId ||
+        o.nativeNotifyUrl !== channel.notifyUrl ||
+        !o.nativeDescription
+      )
+        throw new RechargeError("NOT_FOUND");
+      if (
+        !isActive(o) ||
+        o.reviewReason ||
+        blocked(o) ||
+        stopped(o, now) ||
+        o.expiresAt.getTime() - now.getTime() < policy.minimumDispatchWindowMs
+      )
+        throw new RechargeError("CASHIER_UNAVAILABLE");
+      if (!o.cashierAttemptId) {
+        if (o.dispatchState !== "UNSENT")
+          throw new RechargeError("CASHIER_UNAVAILABLE");
+        const id = randomUUID(),
+          generation = o.nativeGeneration + 1,
+          request = {
+            kind: "INITIATE" as const,
+            order: paymentOrder(o),
+            description: o.nativeDescription,
+            notifyUrl: o.nativeNotifyUrl,
+            expiresAt: o.expiresAt.toISOString(),
+            action: "CASHIER_PAGE" as const,
+          },
+          completed = {
+            kind: "CASHIER" as const,
+            orderId: o.id,
+            generation,
+            expiresAt: o.expiresAt.toISOString(),
+          };
+        await tx.rechargeOperationAttempt.create({
+          data: {
+            id,
+            orderId: o.id,
+            generation,
+            kind: "INITIATE",
+            requestSha256: hash(request),
+            startedAt: now,
+            finishedAt: now,
+            resultKind: "CASHIER",
+            resultSha256: hash(completed),
+          },
+        });
+        await tx.rechargeOrder.update({
+          where: { id: o.id },
+          data: {
+            cashierAttemptId: id,
+            nativeGeneration: generation,
+            dispatchState: "MAY_EXIST",
+            status: "PENDING_PAYMENT",
+            nativeNextOperation: "QUERY",
+            nativeNextActionAt: new Date(
+              now.getTime() + policy.queryIntervalMs,
+            ),
+          },
+        });
+      }
+      return {
+        path: `/recharges/${encodeURIComponent(o.id)}/cashier-page`,
+        expiresAt: o.expiresAt.toISOString(),
+      };
+    });
+  }
+
+  async readCashierGrantOwned(
+    accountId: string,
+    orderId: string,
+    channel: Omit<NativeChannel, "gateway">,
+    now: Date,
+  ) {
+    const o = await this.prisma.rechargeOrder.findFirst({
+      where: { id: orderId, accountId },
+    });
+    if (
+      !o ||
+      o.provider !== "ALIPAY" ||
+      o.method !== "ALIPAY_PC" ||
+      (channel.provider ?? "WECHAT") !== "ALIPAY" ||
+      (channel.method ?? "WECHAT_NATIVE") !== "ALIPAY_PC" ||
+      o.merchantId !== channel.merchantId ||
+      o.appId !== channel.appId ||
+      o.nativeNotifyUrl !== channel.notifyUrl ||
+      !o.nativeDescription ||
+      !o.cashierAttemptId ||
+      o.dispatchState !== "MAY_EXIST" ||
+      !isActive(o) ||
+      o.reviewReason ||
+      blocked(o) ||
+      stopped(o, now) ||
+      o.expiresAt.getTime() - now.getTime() < 60_000
+    )
+      throw new RechargeError("CASHIER_UNAVAILABLE");
+    return {
+      order: paymentOrder(o),
+      description: o.nativeDescription,
+      expiresAt: o.expiresAt.toISOString(),
     };
   }
 
@@ -611,7 +751,8 @@ export class PostgresNativeRecoveryRepository
         item: {
           kind: "NOTIFICATION" as const,
           identity: {
-            provider: "WECHAT" as const,
+            provider:
+              n.provider as import("../application/provider-payment.js").RechargeProvider,
             merchantId: n.merchantId,
             notificationId: n.notificationId,
           },
@@ -643,12 +784,7 @@ export class PostgresNativeRecoveryRepository
     const result = await this.core.applyAuthenticatedQuery(
       attempt.orderId,
       storedPaymentFacts(o),
-      {
-        verificationKeyId: o.verificationKeyId,
-        signedAtSeconds: Number(o.signedAtSeconds),
-        receivedAt: o.receivedAt.toISOString(),
-        bodySha256: o.bodySha256,
-      },
+      storedProviderProof(o),
     );
     if (result.kind !== "NOT_FOUND")
       await this.prisma.rechargeOperationAttempt.updateMany({
@@ -722,6 +858,7 @@ function usableQr(o: StoredOrder, now: Date) {
 }
 function canInitiate(o: StoredOrder, policy: NativeRecoveryPolicy, now: Date) {
   return (
+    o.method === "WECHAT_NATIVE" &&
     !!o.nativeDescription &&
     !!o.nativeNotifyUrl &&
     canDispatchNative({
@@ -764,19 +901,49 @@ function requestHash(claim: NativeClaim) {
       : {}),
   });
 }
-function proofData(p: PaymentProof) {
+function proofData(
+  input:
+    ProviderProof | import("../application/payment-gateway.js").PaymentProof,
+) {
+  const p: ProviderProof =
+    "kind" in input ? input : { kind: "WECHAT_V3", ...input };
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(p.verificationKeyId))
+    throw new Error("PAYMENT_PROOF_INVARIANT");
+  const receivedAt = canonicalDate(p.receivedAt);
+  if (p.kind === "WECHAT_V3") {
+    if (
+      !/^[a-f0-9]{64}$/.test(p.bodySha256) ||
+      !Number.isSafeInteger(p.signedAtSeconds) ||
+      p.signedAtSeconds < 0
+    )
+      throw new Error("PAYMENT_PROOF_INVARIANT");
+    return {
+      proofKind: p.kind,
+      verificationKeyId: p.verificationKeyId,
+      signedAtSeconds: BigInt(p.signedAtSeconds),
+      receivedAt,
+      bodySha256: p.bodySha256,
+      sdkVersion: null,
+      requestProofSha256: null,
+      responseDataSha256: null,
+    };
+  }
+  if (p.kind !== "ALIPAY_V3_SDK") throw new Error("PAYMENT_PROOF_INVARIANT");
   if (
-    !/^[a-f0-9]{64}$/.test(p.bodySha256) ||
-    !/^[A-Za-z0-9_-]{1,128}$/.test(p.verificationKeyId) ||
-    !Number.isSafeInteger(p.signedAtSeconds) ||
-    p.signedAtSeconds < 0
+    p.sdkVersion !== "4.14.0" ||
+    !/^[a-f0-9]{64}$/.test(p.requestSha256) ||
+    !/^[a-f0-9]{64}$/.test(p.responseDataSha256)
   )
-    throw new Error("NATIVE_PROOF_INVARIANT");
+    throw new Error("PAYMENT_PROOF_INVARIANT");
   return {
+    proofKind: p.kind,
     verificationKeyId: p.verificationKeyId,
-    signedAtSeconds: BigInt(p.signedAtSeconds),
-    receivedAt: canonicalDate(p.receivedAt),
-    bodySha256: p.bodySha256,
+    signedAtSeconds: null,
+    receivedAt,
+    bodySha256: null,
+    sdkVersion: p.sdkVersion,
+    requestProofSha256: p.requestSha256,
+    responseDataSha256: p.responseDataSha256,
   };
 }
 

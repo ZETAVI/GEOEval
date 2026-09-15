@@ -75,6 +75,7 @@ export class RechargeWorkerModule {
                 runOrders: (limit, stop) => recovery.runOrders(limit, stop),
                 runSettlements: (limit, stop) =>
                   recovery.runSettlements(limit, stop),
+                dispose: () => recovery.onApplicationShutdown(),
                 ...(delivery
                   ? {
                       runNotifications: (limit: number, stop?: AbortSignal) =>

@@ -1,6 +1,7 @@
 import {
   ApiRequestError,
   cancelRecharge,
+  grantRechargeCashier,
   getRecharge,
   requestRechargeVerification,
   type RechargeRead,
@@ -19,10 +20,11 @@ export function nativeApiSource(
   accountId: string,
   onRead?: (read: RechargeRead) => void,
 ): NativeCheckoutSource {
+  const origin = base.replace(/\/$/, "");
   return {
     async read(id, signal) {
       try {
-        const value = await getRecharge(base, accountId, id, signal);
+        const value = await getRecharge(origin, accountId, id, signal);
         if (!signal.aborted) onRead?.(value);
         return { kind: "ok", order: value.order, serverTime: value.serverTime };
       } catch (e) {
@@ -31,7 +33,7 @@ export function nativeApiSource(
     },
     async verify(id, signal) {
       try {
-        await requestRechargeVerification(base, accountId, id, signal);
+        await requestRechargeVerification(origin, accountId, id, signal);
         return "accepted";
       } catch (e) {
         return failure(e);
@@ -39,10 +41,21 @@ export function nativeApiSource(
     },
     async cancel(id, signal) {
       try {
-        await cancelRecharge(base, accountId, id, signal);
+        await cancelRecharge(origin, accountId, id, signal);
         return "accepted";
       } catch (e) {
         return failure(e);
+      }
+    },
+    async cashier(id, signal) {
+      try {
+        const value = await grantRechargeCashier(origin, accountId, id, signal);
+        return {
+          kind: "accepted" as const,
+          url: `${origin}${value.path}`,
+        };
+      } catch (e) {
+        return { kind: failure(e) };
       }
     },
   };
