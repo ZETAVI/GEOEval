@@ -102,3 +102,32 @@
     padding: 16px;
   }
 }
+
+.commissionFields {
+  display: grid;
+  gap: 16px;
+  border: 0;
+  margin: 18px 0;
+  padding: 0;
+}
+.commissionFields label {
+  display: grid;
+  gap: 8px;
+}
+.commissionFields label:first-child {
+  display: flex;
+  align-items: center;
+}
+.commissionFields input[type="number"],
+.commissionFields textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #bacbc0;
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+}
+.commissionFields textarea {
+  min-height: 78px;
+  resize: vertical;
+}

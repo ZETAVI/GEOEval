@@ -48,3 +48,13 @@ not run inside this transaction. Future external payment credit receives its own
 verified business event and idempotent account-entry boundary. Revisit this
 decision if an owner actually moves to a separate datastore or external effect;
 do not assume a database transaction spans that new boundary.
+
+## Agency purchase terms extension (Issue #104)
+
+Agency participates through a transaction-bound infrastructure reader, not its full service/report module. Commerce owns a one-to-one immutable order terms record; missing records on older orders are not backfilled from current relationships. Settings defaults are disabled, and enabled zero rate is valid. Agent eligibility and configured terms are captured separately; only their active/enabled conjunction permits future commission participation. No ledger or payout is activated here.
+
+Before taking the wallet lock, new purchases discover attribution, acquire customer/agent account SHARE locks in stable UUID order through Identity, and recheck attribution. A changed discovery rolls back and retries the whole transaction, bounded to three attempts. Settings edits acquire agent NO KEY UPDATE and administrator SHARE locks in the same UUID order, covering absent settings rows; transfer acquires customer NO KEY UPDATE plus actor/destination SHARE in that account order. Account status updates conflict with purchase SHARE locks. Compatible purchase readers do not serialize all customers of one agent.
+
+Existing success is recovered before mutable reads; another success is recovered again after acquiring the wallet lock. This preserves recovery while closing races between concurrent requests. No asynchronous snapshot filling, exclusive agent-wide purchase mutex or duplicate wallet is introduced.
+
+Lock review correction: broad account UPDATE locks were rejected because an account foreign-key check from a wallet-owning adjustment can complete a wait cycle with a purchase and a concurrent settings/transfer mutation. NO KEY UPDATE protects the mutable subject against purchase SHARE while remaining compatible with foreign-key KEY SHARE. Only actual key changes/deletion require stronger exclusion. This is a local Identity leaf refinement, not a new global lock framework.

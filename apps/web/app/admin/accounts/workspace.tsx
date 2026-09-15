@@ -1,4 +1,5 @@
 "use client";
+import { AgencyCommissionCard } from "../../agency/commission-card.js";
 import { AgencyTransferCard } from "../../agency/transfer-card.js";
 
 import {
@@ -579,6 +580,13 @@ export function AdminAccountsWorkspace({
                     <dd>{accountTimestamp(selectedAccount.createdAt)}</dd>
                   </div>
                 </dl>
+                {acquisitionEnabled && selectedAccount.role === "AGENT" && (
+                  <AgencyCommissionCard
+                    key={selectedAccount.id}
+                    agentAccountId={selectedAccount.id}
+                    inactive={selectedAccount.status !== "ACTIVE"}
+                  />
+                )}
                 {acquisitionEnabled &&
                   selectedAccount?.role === "AGENT" &&
                   selectedAccount.status === "ACTIVE" && (

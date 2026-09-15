@@ -103,6 +103,10 @@ function issueStoreLocationReceipt(input: {
 }
 
 export async function clearCustomerData(prisma: PrismaService): Promise<void> {
+  // Test-only reset: production snapshots reject UPDATE/DELETE by design.
+  await prisma.$executeRawUnsafe(
+    "TRUNCATE publishing_order_agency, agency_commission_audits, agency_commission_terms",
+  );
   await prisma.agencyAudit.deleteMany();
   await prisma.agencyCustomerAttribution.deleteMany();
   await prisma.agencyChallengeAttribution.deleteMany();

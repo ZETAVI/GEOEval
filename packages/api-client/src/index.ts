@@ -1335,3 +1335,29 @@ export function transferAgencyCustomer(
     { method: "POST", body: JSON.stringify(input) },
   );
 }
+
+export type AgencyCommissionSettings =
+  components["schemas"]["CommissionTermsDetailResponse"];
+export type AgencyCommissionUpdate =
+  components["schemas"]["CommissionTermsRequest"];
+export function getAgencyCommissionSettings(
+  base: string,
+  agentId: string,
+): Promise<AgencyCommissionSettings> {
+  return apiRequest(
+    base,
+    `/agency/admin/agents/${encodeURIComponent(agentId)}/commission`,
+    { cache: "no-store" },
+  );
+}
+export function updateAgencyCommissionSettings(
+  base: string,
+  agentId: string,
+  input: AgencyCommissionUpdate,
+): Promise<components["schemas"]["CommissionTermsResponse"]> {
+  return apiRequest(
+    base,
+    `/agency/admin/agents/${encodeURIComponent(agentId)}/commission`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}

@@ -628,6 +628,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/agency/admin/agents/{agentId}/commission": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CommissionTermsController_read"];
+        put?: never;
+        post: operations["CommissionTermsController_update"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/geo-optimization/workspace": {
         parameters: {
             query?: never;
@@ -2316,6 +2332,37 @@ export interface components {
             updatedAt: string | null;
             /** @enum {string} */
             outcome: "CHANGED" | "UNCHANGED" | "REPLAYED";
+        };
+        CommissionTermsResponse: {
+            agentAccountId: string;
+            enabled: boolean;
+            rateBps: number | null;
+            revision: number;
+            updatedAt: string | null;
+        };
+        CommissionTermsAuditResponse: {
+            id: string;
+            actorAccountId: string;
+            reason: string;
+            createdAt: string;
+            before: components["schemas"]["CommissionTermsResponse"];
+            after: components["schemas"]["CommissionTermsResponse"];
+        };
+        CommissionTermsDetailResponse: {
+            agentAccountId: string;
+            enabled: boolean;
+            rateBps: number | null;
+            revision: number;
+            updatedAt: string | null;
+            audits: components["schemas"]["CommissionTermsAuditResponse"][];
+        };
+        CommissionTermsRequest: {
+            enabled: boolean;
+            rateBps: number | null;
+            expectedRevision: number;
+            reason: string;
+            /** Format: uuid */
+            requestId: string;
         };
         GeoOptimizationBrandResponse: {
             /** Format: uuid */
@@ -4184,6 +4231,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AgencyTransferResponse"];
+                };
+            };
+        };
+    };
+    CommissionTermsController_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommissionTermsDetailResponse"];
+                };
+            };
+        };
+    };
+    CommissionTermsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                agentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommissionTermsRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommissionTermsResponse"];
                 };
             };
         };

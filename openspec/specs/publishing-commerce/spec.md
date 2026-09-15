@@ -313,3 +313,12 @@ and fulfilment outcome; the application composes both on one transaction.
 - **AND** wallet, ledger, Delivery settlement and audit failures roll back together
 - **AND** inactivity of the original customer does not discard the obligation or
   reactivate their access; no funded recharge or external refund is synthesized.
+
+### Requirement: Preserve purchase-time agency terms
+
+New publishing orders SHALL capture [agency order terms](../agency-order-terms/spec.md) atomically with order, debit and delivery admission. Success recovery precedes mutable checks, with an additional recovery check after wallet serialization. The snapshot SHALL remain internal and immutable; existing customer order projections and granted-first spending remain unchanged.
+
+#### Scenario: Later settings cannot rewrite an order
+- **WHEN** customer attribution, agent eligibility or commission configuration changes
+- **THEN** existing successful orders retain their captured commercial facts
+- **AND** a replay returns the same order without repeated debit or snapshot creation
