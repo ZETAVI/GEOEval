@@ -26,6 +26,10 @@ const receipt = (row: PointChange) => ({
 export class PostgresOrderReturnAccess {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
+  finalized(orderId: string) {
+    return this.prisma.orderSettlement.findUnique({ where: { orderId } });
+  }
+
   async returned(orderId: string) {
     const row = await this.prisma.pointChange.findUnique({
       where: { returnedOrderId: orderId },
@@ -77,7 +81,7 @@ export class PostgresOrderReturnAccess {
         return null;
       },
       async credit(
-        actorAccountId: string,
+        actorAccountId: string | null,
         request: OrderReturnRequest,
         points: number,
       ) {
@@ -95,9 +99,10 @@ export class PostgresOrderReturnAccess {
             accountId: order.accountId,
             sequence: next.balance.revision,
             kind: "ORDER_RETURN",
-            actorKind: "ACCOUNT",
+            actorKind: actorAccountId === null ? "SYSTEM" : "ACCOUNT",
             actorAccountId,
-            idempotencyKey: request.idempotencyKey,
+            idempotencyKey:
+              actorAccountId === null ? null : request.idempotencyKey,
             returnedOrderId: orderId,
             originalConsumptionId: original.id,
             returnRequest: request,

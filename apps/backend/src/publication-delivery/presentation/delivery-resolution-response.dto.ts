@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 
 export class DeliveryResolutionResponse {
+  @ApiProperty({ type: Boolean }) finalized!: boolean;
   @ApiProperty({
     type: String,
     enum: ["CONTINUE", "TERMINATE"],

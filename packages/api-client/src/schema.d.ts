@@ -1610,6 +1610,7 @@ export interface components {
             dispatched: number;
         };
         DeliveryResolutionResponse: {
+            finalized: boolean;
             /** @enum {string|null} */
             mode: "CONTINUE" | "TERMINATE" | null;
             points: number;
@@ -1791,6 +1792,11 @@ export interface components {
             expectedRevision: number;
             /** Format: uuid */
             idempotencyKey: string;
+            /** Format: uuid */
+            ticketId?: string;
+            expectedTicketRevision?: number;
+            /** @default false */
+            resolveTicket: boolean;
             /** @enum {string} */
             mode: "CONTINUE" | "TERMINATE";
             points: number;

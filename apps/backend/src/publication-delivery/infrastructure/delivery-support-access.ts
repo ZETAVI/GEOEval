@@ -6,6 +6,19 @@ export class DeliverySupportAccess {
   projection() {
     return Prisma.sql`SELECT order_id, assignee_account_id FROM publication_deliveries`;
   }
+  settlementCandidates() {
+    return Prisma.sql`SELECT order_id, LEAST(completed_at,closed_at AT TIME ZONE 'UTC') AS ended_at FROM publication_deliveries WHERE status IN ('COMPLETED','CLOSED')`;
+  }
+  markSettled(
+    tx: Prisma.TransactionClient,
+    orderId: string,
+    ledgerId: string | null,
+  ) {
+    return tx.publicationDelivery.update({
+      where: { orderId },
+      data: { settledLedgerId: ledgerId, revision: { increment: 1 } },
+    });
+  }
   async lock(tx: Prisma.TransactionClient, orderId: string) {
     await tx.$queryRaw`SELECT order_id FROM publication_deliveries WHERE order_id=${orderId}::uuid FOR NO KEY UPDATE`;
     const delivery = await tx.publicationDelivery.findUnique({

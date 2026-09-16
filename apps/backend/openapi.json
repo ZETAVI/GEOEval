@@ -4069,6 +4069,9 @@
       "DeliveryResolutionResponse": {
         "type": "object",
         "properties": {
+          "finalized": {
+            "type": "boolean"
+          },
           "mode": {
             "type": "string",
             "enum": [
@@ -4103,6 +4106,7 @@
           }
         },
         "required": [
+          "finalized",
           "mode",
           "points",
           "agreementRevision",
@@ -4732,6 +4736,17 @@
           "idempotencyKey": {
             "type": "string",
             "format": "uuid"
+          },
+          "ticketId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedTicketRevision": {
+            "type": "number"
+          },
+          "resolveTicket": {
+            "type": "boolean",
+            "default": false
           },
           "mode": {
             "type": "string",

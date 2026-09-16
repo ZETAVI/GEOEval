@@ -1,3 +1,7 @@
+import { OrderSettlementModule } from "./application/order-settlement.module.js";
+import { OrderSettlementAccess } from "./publishing-commerce/infrastructure/order-settlement-access.js";
+import { OrderSupportReader } from "./publishing-commerce/infrastructure/order-support-reader.js";
+import { OrderHandlingAccess } from "./support/infrastructure/order-handling-access.js";
 import { SupportModule } from "./support/support.module.js";
 import { GeoIntelligenceModule } from "./geo-intelligence/geo-intelligence.module.js";
 import { AgencyModule } from "./agency/agency.module.js";
@@ -67,6 +71,7 @@ export class ApiModule {
         PublicationDeliveryModule,
         NotificationApiModule,
         SupportModule,
+        OrderSettlementModule,
         RechargeApiModule.register(recharge),
         RechargeAdminModule,
         ReadinessModule,
@@ -83,6 +88,9 @@ export class ApiModule {
       providers: [
         PublicationDeliveryWorkflowService,
         PublicationResolutionWorkflowService,
+        OrderSettlementAccess,
+        OrderSupportReader,
+        OrderHandlingAccess,
         {
           provide: VARIANT_PREPARER,
           useFactory: () =>

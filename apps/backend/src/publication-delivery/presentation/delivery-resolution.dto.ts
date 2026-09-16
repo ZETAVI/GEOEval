@@ -3,6 +3,12 @@ import { AssignmentRequest } from "./delivery-assignment.dto.js";
 import { PublicationTargetResponse } from "./publication-work.dto.js";
 
 export class SaveDeliveryResolutionRequest extends AssignmentRequest {
+  @ApiProperty({ type: String, required: false, format: "uuid" })
+  ticketId?: string;
+  @ApiProperty({ type: Number, required: false })
+  expectedTicketRevision?: number;
+  @ApiProperty({ type: Boolean, required: false, default: false })
+  resolveTicket?: boolean;
   @ApiProperty({ enum: ["CONTINUE", "TERMINATE"] }) mode!:
     "CONTINUE" | "TERMINATE";
   @ApiProperty({ type: "integer", minimum: 0, maximum: 2147483647 })

@@ -59,7 +59,7 @@ describe("supporting role homes", () => {
     ).not.toContain("尚未接入");
   });
 
-  it("exposes operations negotiation while retaining administrator-only positive credit", () => {
+  it("explains operator handling and final automatic settlement", () => {
     const pending = supportingRoleConfig("OPERATIONS").cards.find(
       (card) => card.title === "待领取订单",
     );
@@ -75,8 +75,9 @@ describe("supporting role homes", () => {
       status: "AVAILABLE",
       href: "/operations/orders",
     });
-    expect(resolution?.description).toContain("零额终止直接关闭");
-    expect(resolution?.description).toContain("正额退点由管理员执行");
+    expect(resolution?.description).toContain("订单工单");
+    expect(resolution?.description).toContain("系统自动结算");
+    expect(resolution?.description).not.toContain("管理员执行");
   });
 
   it.each(["ADMINISTRATOR", "OPERATIONS", "AGENT"] as const)(

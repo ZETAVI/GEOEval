@@ -11,6 +11,8 @@ import {
   createSupportTicket,
   commandSupportTicket,
   getSupportTicket,
+  getDeliveryOrder,
+  type OperationalOrder,
   listSupportTickets,
   type Account,
   type SupportPage,
@@ -25,6 +27,7 @@ import {
   WorkspaceAccessPanel,
   type RoleSessionState,
 } from "../session-access.js";
+import { DeliveryResolutionPanel } from "../operations/orders/delivery-resolution.js";
 import styles from "./support.module.css";
 const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 type Role = "TERMINAL_CUSTOMER" | "OPERATIONS" | "ADMINISTRATOR";
@@ -617,6 +620,14 @@ function SupportContent({
                     退回工单池
                   </button>
                 </>
+              ) : role === "OPERATIONS" &&
+                detail.mine &&
+                detail.publishingOrderId ? (
+                <OrderTicketHandling
+                  accountId={account.id}
+                  detail={detail}
+                  onChanged={load}
+                />
               ) : (
                 <>
                   <h2>
@@ -659,5 +670,57 @@ function SupportContent({
         </>
       )}
     </>
+  );
+}
+
+function OrderTicketHandling({
+  accountId,
+  detail,
+  onChanged,
+}: {
+  accountId: string;
+  detail: SupportDetail;
+  onChanged: () => Promise<void>;
+}) {
+  const [order, setOrder] = useState<OperationalOrder>();
+  const [error, setError] = useState("");
+  const load = useCallback(async () => {
+    try {
+      setOrder(await getDeliveryOrder(base, detail.publishingOrderId!));
+      setError("");
+    } catch (e) {
+      setOrder(undefined);
+      setError(message(e));
+    }
+  }, [detail.publishingOrderId]);
+  useEffect(() => {
+    let live = true;
+    void getDeliveryOrder(base, detail.publishingOrderId!)
+      .then((value) => {
+        if (live) setOrder(value);
+      })
+      .catch((e) => {
+        if (live) setError(message(e));
+      });
+    return () => {
+      live = false;
+    };
+  }, [detail.publishingOrderId, detail.revision]);
+  return error ? (
+    <p role="alert">{error}</p>
+  ) : order ? (
+    <DeliveryResolutionPanel
+      order={order}
+      actorAccountId={accountId}
+      admin={false}
+      canWrite={detail.mine}
+      ticket={{ id: detail.id, revision: detail.revision }}
+      onChanged={async () => {
+        await load();
+        await onChanged();
+      }}
+    />
+  ) : (
+    <p role="status">正在读取订单处理信息…</p>
   );
 }

@@ -1,16 +1,12 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  ApiRequestError,
   type CustomerPublicationPage,
   type OperationalOrder,
 } from "@geoeval/api-client";
 import {
-  decodeDeliveryReturn,
-  deliveryReturnStorageKey,
   DeliveryResolutionPanel,
   DeliveryResolutionSummary,
-  executeDeliveryReturn,
   resolutionForm,
   resolutionRequest,
 } from "../app/operations/orders/delivery-resolution.js";
@@ -36,6 +32,7 @@ const baseResolution: OperationalOrder["resolution"] = {
   stopped: false,
   returnedPoints: null,
   eligible: false,
+  finalized: false,
 };
 function order(
   resolution: Partial<OperationalOrder["resolution"]> = {},
@@ -89,18 +86,6 @@ const positive = () =>
     },
     "COMPLETED",
   );
-function storage() {
-  const values = new Map<string, string>();
-  return {
-    getItem: vi.fn((key: string) => values.get(key) ?? null),
-    setItem: vi.fn((key: string, value: string) => {
-      values.set(key, value);
-    }),
-    removeItem: vi.fn((key: string) => {
-      values.delete(key);
-    }),
-  };
-}
 function customerPage(
   overrides: Partial<CustomerPublicationPage> = {},
 ): CustomerPublicationPage {
@@ -132,7 +117,7 @@ describe("explicit negotiated resolution", () => {
     expect(resolutionForm(positive().resolution)).toEqual({
       mode: "CONTINUE",
       points: "90",
-      reason: "已协商补偿",
+      reason: "",
     });
     const html = renderToStaticMarkup(
       <DeliveryResolutionPanel
@@ -145,7 +130,7 @@ describe("explicit negotiated resolution", () => {
     );
     expect(html).toContain('value="90"');
     expect(html).toContain("已协商补偿");
-    expect(html).toContain("保存协商处理");
+    expect(html).toContain("保存并继续跟进");
   });
   it("keeps zero explicit, versioned and reasoned, rejecting invalid money inputs", () => {
     expect(
@@ -159,6 +144,7 @@ describe("explicit negotiated resolution", () => {
       mode: "TERMINATE",
       points: 0,
       reason: "客户同意停止",
+      resolveTicket: false,
       expectedRevision: 4,
       idempotencyKey: key,
     });
@@ -201,110 +187,12 @@ describe("explicit negotiated resolution", () => {
     const waiting = { ...positive().resolution, eligible: false };
     expect(
       renderToStaticMarkup(<DeliveryResolutionSummary resolution={waiting} />),
-    ).toContain("等待剩余发布完成或停止，暂不可执行");
+    ).toContain("已约定退回 90 积分，待订单结束结算");
     const html = renderToStaticMarkup(
       <DeliveryResolutionSummary resolution={positive().resolution} />,
     );
-    expect(html).toContain("待退还 90 积分");
-    expect(html).toContain("可由管理员执行");
-  });
-});
-
-describe("return request recovery", () => {
-  it("persists before sending and recovers the same actor/order/revision/key after an uncertain response and reload", async () => {
-    const browserStorage = storage();
-    let firstRequest: unknown;
-    const send = vi.fn(async (id, request) => {
-      const saved = decodeDeliveryReturn(
-        browserStorage.getItem(deliveryReturnStorageKey(actor, id)),
-        actor,
-        id,
-      );
-      expect(saved?.request).toEqual(request);
-      firstRequest = request;
-      throw new TypeError("network disconnected after commit");
-    });
-    await expect(
-      executeDeliveryReturn(browserStorage, actor, positive(), send),
-    ).rejects.toThrow("network disconnected");
-    const recovered = decodeDeliveryReturn(
-      browserStorage.getItem(deliveryReturnStorageKey(actor, orderId)),
-      actor,
-      orderId,
-    );
-    expect(recovered?.request).toEqual(firstRequest);
-    const receipt = {
-      orderId,
-      ledgerId: "ledger",
-      agreementRevision: 2,
-      points: 90,
-    };
-    const replay = vi.fn(async (_id, request) => {
-      expect(request).toEqual(firstRequest);
-      return receipt;
-    });
-    // The refreshed order may already be paid. The original request still recovers its receipt.
-    await expect(
-      executeDeliveryReturn(
-        browserStorage,
-        actor,
-        order(
-          { ...positive().resolution, returnedPoints: 90, eligible: false },
-          "COMPLETED",
-        ),
-        replay,
-      ),
-    ).resolves.toEqual(receipt);
-    expect(browserStorage.setItem).toHaveBeenCalledTimes(1);
-    expect(
-      browserStorage.getItem(deliveryReturnStorageKey(actor, orderId)),
-    ).toBeNull();
-  });
-  it("never sends if persistence fails or the unpaid agreement is zero/ineligible", async () => {
-    const send = vi.fn();
-    const unavailable = storage();
-    unavailable.setItem.mockImplementation(() => {
-      throw new Error("quota");
-    });
-    await expect(
-      executeDeliveryReturn(unavailable, actor, positive(), send),
-    ).rejects.toThrow("quota");
-    await expect(
-      executeDeliveryReturn(storage(), actor, order(), send),
-    ).rejects.toThrow("尚不可退点");
-    await expect(
-      executeDeliveryReturn(
-        storage(),
-        actor,
-        order({ ...positive().resolution, eligible: false }),
-        send,
-      ),
-    ).rejects.toThrow("尚不可退点");
-    expect(send).not.toHaveBeenCalled();
-  });
-  it("rejects corrupt, wrong-actor and wrong-order recovery records without replacing them", () => {
-    const raw = JSON.stringify({
-      actorAccountId: actor,
-      orderId,
-      points: 90,
-      request: { expectedAgreementRevision: 2, idempotencyKey: key },
-    });
-    expect(() =>
-      decodeDeliveryReturn(raw, "different-actor", orderId),
-    ).toThrow();
-    expect(() => decodeDeliveryReturn(raw, actor, "different-order")).toThrow();
-    expect(() => decodeDeliveryReturn("{", actor, orderId)).toThrow();
-  });
-  it("retains the original request on permission or stale-agreement errors for explicit reconciliation", async () => {
-    const browserStorage = storage();
-    await expect(
-      executeDeliveryReturn(browserStorage, actor, positive(), async () => {
-        throw new ApiRequestError("版本变化", 409);
-      }),
-    ).rejects.toThrow();
-    expect(
-      browserStorage.getItem(deliveryReturnStorageKey(actor, orderId)),
-    ).not.toBeNull();
+    expect(html).toContain("已约定退回 90 积分，待订单结束结算");
+    expect(html).not.toContain("可由管理员执行");
   });
 });
 
@@ -380,7 +268,7 @@ describe("stopped publication and customer meaning", () => {
       <PublicationProgressView page={page} fallbackStatus="PUBLISHING" />,
     );
     expect(html).toContain("已购发布已全部完成");
-    expect(html).toContain("已约定退还 90 积分，待平台处理");
+    expect(html).toContain("已约定退回 90 积分，待订单结束结算");
     expect(html).not.toContain("已关闭");
   });
 });

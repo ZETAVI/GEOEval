@@ -6,6 +6,9 @@ const MAX = 2_147_483_647;
 // Explicit amount on save: zero is a NEW-form default, never a missing-field
 // replacement for the positive amount of an existing agreement.
 export const negotiatedResolutionInputSchema = assignmentInputSchema.extend({
+  ticketId: z.string().uuid().optional(),
+  expectedTicketRevision: z.number().int().min(1).max(MAX).optional(),
+  resolveTicket: z.boolean().default(false),
   mode: z.enum(["CONTINUE", "TERMINATE"]),
   points: z.number().int().min(0).max(MAX),
   reason: z
@@ -103,10 +106,10 @@ export function resolveNegotiatedAgreement(
       "STALE_REVISION",
       "订单已变化，请刷新核对",
     );
-  if (order.status === "CLOSED" || order.returnRecorded)
+  if (order.returnRecorded)
     throw new NegotiatedResolutionError(
       "RESOLUTION_ENDED",
-      "订单已关闭或已返还积分，不能重新协商或追加返还",
+      "订单已结算，不能再修改约定金额",
     );
   assertProgress(order);
   if (
@@ -135,9 +138,7 @@ export function resolveNegotiatedAgreement(
     );
   const terminate = command.mode === "TERMINATE";
   const status: ResolutionOrder["status"] = terminate
-    ? command.points === 0
-      ? "CLOSED"
-      : "EXCEPTION_HANDLING"
+    ? "CLOSED"
     : order.publishedQuantity === order.quantity
       ? "COMPLETED"
       : "PUBLISHING";
@@ -150,44 +151,5 @@ export function resolveNegotiatedAgreement(
       points: command.points,
       reason: command.reason,
     } satisfies NegotiatedAgreement,
-  };
-}
-
-/** This permits a positive return, not credit itself. Commerce must commit it with Delivery. */
-export function requireReturnSettlement(
-  order: ResolutionOrder,
-  actor: ResolutionActor,
-  expectedAgreementRevision: number,
-) {
-  if (actor.status !== "ACTIVE" || actor.role !== "ADMINISTRATOR")
-    throw new NegotiatedResolutionError("FORBIDDEN", "仅管理员可实际执行退点");
-  const agreement = order.agreement;
-  if (!agreement || agreement.revision !== expectedAgreementRevision)
-    throw new NegotiatedResolutionError(
-      "STALE_REVISION",
-      "协商已变化，请重新核对",
-    );
-  if (order.returnRecorded || order.status === "CLOSED")
-    throw new NegotiatedResolutionError("RESOLUTION_ENDED", "订单已结束结算");
-  assertProgress(order);
-  if (
-    !Number.isSafeInteger(agreement.points) ||
-    agreement.points <= 0 ||
-    agreement.points > MAX ||
-    (agreement.mode === "TERMINATE"
-      ? !order.stopped || order.publishedQuantity === order.quantity
-      : order.stopped || order.publishedQuantity !== order.quantity)
-  )
-    throw new NegotiatedResolutionError(
-      "RETURN_NOT_ELIGIBLE",
-      "零额无需退点；正额须等待保留工作完成或剩余工作停止",
-    );
-  return {
-    agreementRevision: agreement.revision,
-    points: agreement.points,
-    status:
-      agreement.mode === "TERMINATE"
-        ? ("CLOSED" as const)
-        : ("COMPLETED" as const),
   };
 }

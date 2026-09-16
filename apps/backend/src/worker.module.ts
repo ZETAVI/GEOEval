@@ -1,3 +1,4 @@
+import { OrderSettlementModule } from "./application/order-settlement.module.js";
 import { Module, type DynamicModule } from "@nestjs/common";
 
 import type { WorkerConfig } from "./config/runtime-config.js";
@@ -20,6 +21,7 @@ export class WorkerModule {
         PersistenceModule.register(config.databaseUrl),
         TelemetryModule.register(config.telemetryShouldFail),
         FoundationModule,
+        OrderSettlementModule.register(config.orderSettlementEnabled ?? false),
         BackgroundWorkModule.register(config.aiExecution),
       ],
       providers: [

@@ -300,7 +300,7 @@ export function supportingRoleConfig(
         {
           title: "协商异常与退点",
           description:
-            "进入“我的订单”处理协商替换或停止剩余发布；零额终止直接关闭，正额退点由管理员执行。",
+            "在订单工单中记录处理结果与约定退回总额；订单结束满 72 小时且问题处理完后，系统自动结算。",
           status: "AVAILABLE",
           href: "/operations/orders",
         },

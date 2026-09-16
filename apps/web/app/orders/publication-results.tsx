@@ -124,8 +124,8 @@ export function PublicationProgressView({
               {page.resolution.agreedPoints === 0
                 ? "无需退还积分。"
                 : page.resolution.returnedPoints !== null
-                  ? `已退还 ${page.resolution.returnedPoints} 积分。`
-                  : `已约定退还 ${page.resolution.agreedPoints} 积分，待平台处理。`}
+                  ? `已退回 ${page.resolution.returnedPoints} 积分`
+                  : `已约定退回 ${page.resolution.agreedPoints} 积分，待订单结束结算`}
             </p>
           )}
         </>

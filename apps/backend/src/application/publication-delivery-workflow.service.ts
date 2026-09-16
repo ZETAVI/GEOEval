@@ -82,7 +82,11 @@ export class PublicationDeliveryWorkflowService {
     return result.points;
   }
   private async resolution(row: PublicationDelivery) {
+    const final = await this.returns.finalized(row.orderId);
     return {
+      finalized: Boolean(
+        final && final.agreementRevision === row.agreementRevision,
+      ),
       mode: row.resolutionMode,
       points: row.agreedReturnPoints,
       agreementRevision: row.agreementRevision,
@@ -90,13 +94,7 @@ export class PublicationDeliveryWorkflowService {
       exceptionReason: row.exceptionReason,
       stopped: row.stoppedAt !== null,
       returnedPoints: await this.returnedPoints(row),
-      eligible:
-        row.agreedReturnPoints > 0 &&
-        !row.settledLedgerId &&
-        ((row.resolutionMode === "CONTINUE" && row.status === "COMPLETED") ||
-          (row.resolutionMode === "TERMINATE" &&
-            row.stoppedAt !== null &&
-            row.status !== "CLOSED")),
+      eligible: false,
     };
   }
   async replacementTargets(

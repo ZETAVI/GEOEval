@@ -991,6 +991,8 @@ enum PointChangeKind {
 }
 
 model PublishingOrder {
+  finalSettlement OrderSettlement?
+
   supportTickets SupportTicket[]
 
   agencyTerms PublishingOrderAgency?
@@ -1159,6 +1161,8 @@ model PointAccount {
 }
 
 model PointChange {
+  finalOrderSettlements OrderSettlement[] @relation("FinalOrderSettlementLedger")
+
   actorKind               String                @default("ACCOUNT") @map("actor_kind") @db.VarChar(16)
   rechargeOrderId         String?               @unique @map("recharge_order_id") @db.Uuid
   rechargeOrder           RechargeOrder?        @relation("RechargeLedger", fields: [rechargeOrderId, accountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict, map: "point_changes_recharge_owner_fkey")
@@ -1646,4 +1650,15 @@ model SupportEvent {
   @@unique([actorAccountId, requestId])
   @@unique([ticketId, ticketRevision])
   @@map("support_events")
+}
+
+model OrderSettlement {
+ orderId String @id @map("order_id") @db.Uuid
+ points Int
+ agreementRevision Int @map("agreement_revision")
+ ledgerId String? @unique @map("ledger_id") @db.Uuid
+ settledAt DateTime @default(now()) @map("settled_at") @db.Timestamptz(3)
+ order PublishingOrder @relation(fields:[orderId],references:[id],onDelete:Restrict,onUpdate:Restrict)
+ ledger PointChange? @relation("FinalOrderSettlementLedger",fields:[ledgerId,orderId],references:[id,returnedOrderId],onDelete:Restrict,onUpdate:Restrict)
+ @@map("order_settlements")
 }

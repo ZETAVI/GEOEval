@@ -317,6 +317,7 @@ describe("order support admission and inherited responsibility", () => {
           mode: "TERMINATE",
           points: 0,
           reason: "停止剩余发布",
+          resolveTicket: true,
           expectedRevision: (await current()).revision,
           idempotencyKey: randomUUID(),
         })
