@@ -96,6 +96,11 @@ const expectedControllerPolicies: Record<
     csrfExempt: false,
     roles: ["ADMINISTRATOR"],
   }),
+  CommissionController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["AGENT", "ADMINISTRATOR"],
+  }),
   SupportController: (handler) => ({
     publicAccess: false,
     csrfExempt: false,

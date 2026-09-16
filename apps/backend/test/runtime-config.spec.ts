@@ -28,6 +28,13 @@ describe("process-scoped configuration", () => {
     const worker = loadWorkerConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" });
     expect(worker.redisUrl).toBe("redis://127.0.0.1:56379");
     expect(worker.orderSettlementEnabled).toBe(false);
+    expect(worker.agencyCommissionEnabled).toBe(false);
+    expect(
+      loadWorkerConfig({
+        GEOEVAL_LOCAL_DEFAULTS: "1",
+        AGENCY_COMMISSION_ENABLED: "true",
+      }).agencyCommissionEnabled,
+    ).toBe(true);
     expect(
       loadWorkerConfig({
         GEOEVAL_LOCAL_DEFAULTS: "1",

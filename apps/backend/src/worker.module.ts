@@ -1,3 +1,4 @@
+import { AgencyCommissionModule } from "./application/agency-commission.module.js";
 import { OrderSettlementModule } from "./application/order-settlement.module.js";
 import { Module, type DynamicModule } from "@nestjs/common";
 
@@ -21,6 +22,9 @@ export class WorkerModule {
         PersistenceModule.register(config.databaseUrl),
         TelemetryModule.register(config.telemetryShouldFail),
         FoundationModule,
+        AgencyCommissionModule.register(
+          config.agencyCommissionEnabled ?? false,
+        ),
         OrderSettlementModule.register(config.orderSettlementEnabled ?? false),
         BackgroundWorkModule.register(config.aiExecution),
       ],

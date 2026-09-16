@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Own administrator commission configuration and the immutable commercial facts captured by new purchases. Commission ledger, 72-hour settlement and withdrawals remain future activation.
+Own administrator commission configuration and the immutable commercial facts captured by new purchases. Final commission entries use [Agency Commission](../agency-commission/spec.md), and final 72-hour settlement uses [Publishing Commerce](../publishing-commerce/spec.md). Withdrawals remain future activation.
 
 ## Requirements
 

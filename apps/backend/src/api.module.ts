@@ -1,3 +1,5 @@
+import { CommissionController } from "./agency/presentation/commission.controller.js";
+import { AgencyCommissionModule } from "./application/agency-commission.module.js";
 import { AdminOrderSettlementController } from "./publication-delivery/presentation/admin-order-settlement.controller.js";
 import { OrderSettlementModule } from "./application/order-settlement.module.js";
 import { OrderSettlementAccess } from "./publishing-commerce/infrastructure/order-settlement-access.js";
@@ -73,12 +75,14 @@ export class ApiModule {
         NotificationApiModule,
         SupportModule,
         OrderSettlementModule,
+        AgencyCommissionModule,
         RechargeApiModule.register(recharge),
         RechargeAdminModule,
         ReadinessModule,
         FoundationModule,
       ],
       controllers: [
+        CommissionController,
         AdminOrderSettlementController,
         HealthController,
         FoundationController,

@@ -1478,3 +1478,40 @@ export function getAdminOrderSettlement(
     },
   );
 }
+
+export type Commission = components["schemas"]["CommissionResponse"];
+export type CommissionPage = components["schemas"]["CommissionPageResponse"];
+export type CommissionFilter = {
+  agentId?: string;
+  orderId?: string;
+  state?: "PENDING" | "BOOKED";
+  cursor?: string;
+  limit?: number;
+};
+export function listCommissions(
+  base: string,
+  actor: string,
+  filter: CommissionFilter = {},
+  signal?: AbortSignal,
+): Promise<CommissionPage> {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(filter))
+    if (v !== undefined && v !== "") q.set(k, String(v));
+  return apiRequest(base, `/agency/commissions?${q}`, {
+    headers: { "x-geoeval-account": actor },
+    cache: "no-store",
+    signal: signal ?? null,
+  });
+}
+export function getCommission(
+  base: string,
+  actor: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<Commission> {
+  return apiRequest(base, `/agency/commissions/${encodeURIComponent(id)}`, {
+    headers: { "x-geoeval-account": actor },
+    cache: "no-store",
+    signal: signal ?? null,
+  });
+}
