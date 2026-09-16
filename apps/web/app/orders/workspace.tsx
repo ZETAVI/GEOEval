@@ -127,7 +127,15 @@ export function OrderWorkspace({ orderId }: { orderId?: string }) {
           </a>
         </header>
         {order ? (
-          <OrderDetail order={order} />
+          <>
+            <a
+              className="secondary-button"
+              href={`/support?orderId=${order.id}`}
+            >
+              订单问题与沟通
+            </a>
+            <OrderDetail order={order} />
+          </>
         ) : (
           <>
             {!page.items.length && (

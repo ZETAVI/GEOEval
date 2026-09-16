@@ -4,12 +4,9 @@ import {
   ApiRequestError,
   recordDeliveryException,
   saveDeliveryResolution,
-  settleDeliveryReturn,
   type DeliveryException,
-  type DeliveryReturnReceipt,
   type OperationalOrder,
   type SaveDeliveryResolution,
-  type SettleDeliveryReturn,
 } from "@geoeval/api-client";
 
 const apiBaseUrl =
@@ -24,7 +21,7 @@ export function resolutionForm(resolution: Resolution): ResolutionForm {
   return {
     mode: resolution.mode ?? "CONTINUE",
     points: String(resolution.points),
-    reason: resolution.reason ?? "",
+    reason: "", // Never copy a historical internal note into a customer-visible reply.
   };
 }
 export function resolutionRequest(
@@ -42,94 +39,13 @@ export function resolutionRequest(
     throw new Error("退还积分须为不超过原订单消费积分的非负整数");
   if (!form.reason.trim()) throw new Error("请填写协商原因与处理约定");
   return {
+    resolveTicket: false,
     mode: form.mode,
     points,
     reason: form.reason.trim(),
     expectedRevision: revision,
     idempotencyKey: key,
   };
-}
-
-export type PendingDeliveryReturn = {
-  actorAccountId: string;
-  orderId: string;
-  points: number;
-  request: SettleDeliveryReturn;
-};
-export const deliveryReturnStorageKey = (actor: string, order: string) =>
-  `geoeval.pending-delivery-return.${actor}.${order}`;
-export function decodeDeliveryReturn(
-  raw: string | null,
-  actor: string,
-  orderId: string,
-): PendingDeliveryReturn | null {
-  if (raw === null) return null;
-  const value = JSON.parse(raw) as PendingDeliveryReturn;
-  if (
-    value?.actorAccountId !== actor ||
-    value?.orderId !== orderId ||
-    !Number.isSafeInteger(value?.points) ||
-    value.points <= 0 ||
-    !Number.isSafeInteger(value?.request?.expectedAgreementRevision) ||
-    value.request.expectedAgreementRevision < 1 ||
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-      value.request.idempotencyKey,
-    )
-  )
-    throw new Error(
-      "上次退点凭据无法读取，请保留记录并核查本订单，勿另行调整积分。",
-    );
-  return value;
-}
-
-// Keep the actor, order, agreement and key together before making any money request.
-export async function executeDeliveryReturn(
-  storage: Pick<Storage, "getItem" | "setItem" | "removeItem">,
-  actor: string,
-  order: Pick<OperationalOrder, "id" | "resolution">,
-  send: (
-    orderId: string,
-    request: SettleDeliveryReturn,
-  ) => Promise<DeliveryReturnReceipt>,
-  onPending: (pending: PendingDeliveryReturn) => void = () => {},
-): Promise<DeliveryReturnReceipt> {
-  const storageKey = deliveryReturnStorageKey(actor, order.id);
-  let intent = decodeDeliveryReturn(
-    storage.getItem(storageKey),
-    actor,
-    order.id,
-  );
-  if (!intent) {
-    if (
-      !order.resolution.eligible ||
-      order.resolution.points <= 0 ||
-      order.resolution.returnedPoints !== null
-    )
-      throw new Error("当前协商尚不可退点，请刷新订单核对。");
-    intent = {
-      actorAccountId: actor,
-      orderId: order.id,
-      points: order.resolution.points,
-      request: {
-        expectedAgreementRevision: order.resolution.agreementRevision,
-        idempotencyKey: crypto.randomUUID(),
-      },
-    };
-    storage.setItem(storageKey, JSON.stringify(intent));
-  }
-  onPending(intent);
-  try {
-    const receipt = await send(intent.orderId, intent.request);
-    storage.removeItem(storageKey);
-    return receipt;
-  } catch (error) {
-    if (
-      error instanceof ApiRequestError &&
-      [400, 404, 422].includes(error.status)
-    )
-      storage.removeItem(storageKey);
-    throw error;
-  }
 }
 
 export function DeliveryResolutionSummary({
@@ -153,14 +69,9 @@ export function DeliveryResolutionSummary({
           {resolution.points === 0 ? (
             <p>无需退还积分。</p>
           ) : resolution.returnedPoints !== null ? (
-            <p>已退还 {resolution.returnedPoints} 积分。</p>
+            <p>已退回 {resolution.returnedPoints} 积分</p>
           ) : (
-            <p>
-              待退还 {resolution.points} 积分 ·{" "}
-              {resolution.eligible
-                ? "可由管理员执行"
-                : "等待剩余发布完成或停止，暂不可执行"}
-            </p>
+            <p>已约定退回 {resolution.points} 积分，待订单结束结算</p>
           )}
         </>
       )}
@@ -173,11 +84,12 @@ export function DeliveryResolutionSummary({
 
 export function DeliveryResolutionPanel({
   order,
-  actorAccountId,
-  admin,
   canWrite,
   onChanged,
+  admin,
+  ticket,
 }: {
+  ticket?: { id: string; revision: number } | undefined;
   order: OperationalOrder;
   actorAccountId: string;
   admin: boolean;
@@ -189,10 +101,6 @@ export function DeliveryResolutionPanel({
   const [exceptionReason, setExceptionReason] = useState(
     resolution.exceptionReason ?? "",
   );
-  const [pendingReturn, setPendingReturn] =
-    useState<PendingDeliveryReturn | null>(null);
-  const [confirmedReturn, setConfirmedReturn] = useState<number | null>(null);
-  const [storageReady, setStorageReady] = useState(false);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState("");
@@ -209,38 +117,18 @@ export function DeliveryResolutionPanel({
   useEffect(() => {
     setExceptionReason(resolution.exceptionReason ?? "");
   }, [order.id, resolution.exceptionReason]);
-  function recoverReturn() {
-    setStorageReady(false);
-    try {
-      setPendingReturn(
-        decodeDeliveryReturn(
-          sessionStorage.getItem(
-            deliveryReturnStorageKey(actorAccountId, order.id),
-          ),
-          actorAccountId,
-          order.id,
-        ),
-      );
-      setStorageReady(true);
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "浏览器无法读取退点凭据，本次未提交。",
-      );
-    }
-  }
-  useEffect(() => {
-    if (admin) recoverReturn();
-  }, [admin, actorAccountId, order.id]);
   const canEdit =
-    canWrite && order.status !== "CLOSED" && resolution.returnedPoints === null;
+    canWrite && !resolution.finalized && resolution.returnedPoints === null;
   const canHandleException =
     canWrite &&
     !resolution.stopped &&
     order.status !== "CLOSED" &&
     order.status !== "COMPLETED";
-  async function save(kind: "resolution" | "exception", clear = false) {
+  async function save(
+    kind: "resolution" | "exception",
+    clear = false,
+    resolveTicket = false,
+  ) {
     if (
       lock.current ||
       (kind === "resolution" ? !canEdit : !canHandleException)
@@ -254,12 +142,21 @@ export function DeliveryResolutionPanel({
         (kind === "resolution"
           ? {
               kind,
-              input: resolutionRequest(
-                form,
-                order.delivery.revision,
-                crypto.randomUUID(),
-                order.agreement.totalPoints,
-              ),
+              input: {
+                ...resolutionRequest(
+                  form,
+                  order.delivery.revision,
+                  crypto.randomUUID(),
+                  order.agreement.totalPoints,
+                ),
+                resolveTicket,
+                ...(ticket
+                  ? {
+                      ticketId: ticket.id,
+                      expectedTicketRevision: ticket.revision,
+                    }
+                  : {}),
+              },
             }
           : {
               kind,
@@ -279,7 +176,11 @@ export function DeliveryResolutionPanel({
       else await recordDeliveryException(apiBaseUrl, order.id, request.input);
       pending.current = null;
       setUncertain(false);
-      setNotice("处理约定已保存。");
+      setNotice(
+        request.kind === "resolution"
+          ? "处理结果已保存，约定退点将在订单结束后满足结算条件时自动退回。"
+          : "异常记录已保存。",
+      );
       await onChanged();
     } catch (error) {
       if (
@@ -299,42 +200,6 @@ export function DeliveryResolutionPanel({
       setBusy(false);
     }
   }
-  async function settle() {
-    if (
-      lock.current ||
-      !admin ||
-      !storageReady ||
-      (confirmedReturn !== null && !pendingReturn)
-    )
-      return;
-    lock.current = true;
-    setBusy(true);
-    setError("");
-    setNotice("");
-    try {
-      const receipt = await executeDeliveryReturn(
-        sessionStorage,
-        actorAccountId,
-        order,
-        (id, request) => settleDeliveryReturn(apiBaseUrl, id, request),
-        setPendingReturn,
-      );
-      setPendingReturn(null);
-      setConfirmedReturn(receipt.points);
-      setNotice(`已退还 ${receipt.points} 积分；重复核对不会再次记账。`);
-      await onChanged();
-    } catch (error) {
-      recoverReturn();
-      setError(
-        error instanceof Error
-          ? error.message
-          : "退点结果尚未确认，请核对同一次退点。",
-      );
-    } finally {
-      lock.current = false;
-      setBusy(false);
-    }
-  }
   const disabled = busy || uncertain;
   return (
     <section
@@ -342,7 +207,7 @@ export function DeliveryResolutionPanel({
       aria-label="异常与协商处理"
       aria-busy={busy}
     >
-      <h2>异常与协商处理</h2>
+      <h2>订单处理</h2>
       <DeliveryResolutionSummary resolution={resolution} />
       {error && (
         <p className="form-error" role="alert">
@@ -405,8 +270,8 @@ export function DeliveryResolutionPanel({
             void save("resolution");
           }}
         >
-          <h3>保存已协商的处理约定</h3>
-          <p>先与客户确认处理方式，再明确保存。退还金额不由系统自动计算。</p>
+          <h3>与客户确认处理结果</h3>
+          <p>填写本单累计约定退回的积分总额；本次保存不会立即退积分。</p>
           <label>
             后续发布
             <select
@@ -428,7 +293,7 @@ export function DeliveryResolutionPanel({
             </select>
           </label>
           <label>
-            协商退还积分
+            约定退回积分总额
             <input
               type="number"
               min={0}
@@ -443,7 +308,7 @@ export function DeliveryResolutionPanel({
             />
           </label>
           <label>
-            协商原因与处理约定（内部记录）
+            处理说明（客户可见）
             <textarea
               required
               maxLength={320}
@@ -455,97 +320,28 @@ export function DeliveryResolutionPanel({
             />
           </label>
           <p className="purchase-context">
-            {form.mode === "TERMINATE"
-              ? Number(form.points) === 0
-                ? "保存后立即停止剩余发布并关闭订单；无需退点，不产生积分流水，也无需管理员操作。"
-                : "保存后立即停止剩余发布，等待管理员退点成功后关闭订单。"
-              : "继续完成已购发布；约定退点不阻塞发布。若有退点，发布完成后由管理员执行。"}
+            订单完成或关闭满 72 小时、相关问题处理完后，系统自动一次性退回。
           </p>
           <button className="primary-button" disabled={disabled}>
-            保存协商处理
+            保存并继续跟进
+          </button>
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={disabled}
+            onClick={() => void save("resolution", false, true)}
+          >
+            确认处理完成
           </button>
         </form>
       )}
-      {admin && (
-        <>
-          {pendingReturn && (
-            <div className="commerce-notice">
-              <p>
-                本订单有一笔待核对退点：{pendingReturn.points}{" "}
-                积分。刷新后仍沿用原请求核对，避免重复记账。
-              </p>
-              <button
-                className="primary-button"
-                disabled={busy || !storageReady}
-                onClick={() => void settle()}
-              >
-                核对或重试同一次退点
-              </button>
-              {resolution.returnedPoints === null &&
-                pendingReturn.request.expectedAgreementRevision !==
-                  resolution.agreementRevision && (
-                  <button
-                    className="secondary-button"
-                    disabled={busy}
-                    onClick={() => {
-                      try {
-                        sessionStorage.removeItem(
-                          deliveryReturnStorageKey(actorAccountId, order.id),
-                        );
-                        setPendingReturn(null);
-                        setNotice(
-                          "协商已变更且尚未退点，请核对当前约定后执行。",
-                        );
-                      } catch {
-                        setError("无法清理旧凭据，请保留并核查。");
-                      }
-                    }}
-                  >
-                    按已更新的协商重新核对
-                  </button>
-                )}
-            </div>
-          )}
-          {!pendingReturn &&
-            resolution.points > 0 &&
-            resolution.returnedPoints === null && (
-              <button
-                className="primary-button"
-                disabled={
-                  busy ||
-                  !storageReady ||
-                  !resolution.eligible ||
-                  confirmedReturn !== null
-                }
-                onClick={() => void settle()}
-              >
-                确认退还 {resolution.points} 积分
-              </button>
-            )}
-          {!storageReady && (
-            <button
-              className="secondary-button"
-              disabled={busy}
-              onClick={recoverReturn}
-            >
-              重新读取退点凭据
-            </button>
-          )}
-          <button
-            className="secondary-button"
-            disabled={busy}
-            onClick={() =>
-              void onChanged().catch((error: unknown) =>
-                setError(
-                  error instanceof Error ? error.message : "订单刷新失败",
-                ),
-              )
-            }
-          >
-            刷新协商与退点状态
-          </button>
-        </>
-      )}
+      <p>
+        <a
+          href={`${admin ? "/admin" : "/operations"}/support?orderId=${order.id}`}
+        >
+          查看订单工单与沟通记录
+        </a>
+      </p>
     </section>
   );
 }

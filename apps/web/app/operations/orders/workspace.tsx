@@ -1,4 +1,5 @@
 "use client";
+import { BusinessRecordsNavigation } from "../../admin/records/navigation.js";
 import { useEffect, useRef, useState } from "react";
 import {
   actOnDeliveryOrder,
@@ -12,6 +13,7 @@ import {
   type DeliveryOrderState,
   type OperationalOrder,
 } from "@geoeval/api-client";
+import { AdminOrderSettlementPanel } from "../../admin/records/order-settlement.js";
 import { AdminSidebar } from "../../admin/admin-sidebar.js";
 import { SafeMarkdown } from "../../diagnosis/safe-markdown.js";
 import { AgreementSummary } from "../../publishing/agreement-summary.js";
@@ -39,7 +41,6 @@ const actionLabels: Record<string, string> = {
   REPORT_EXCEPTION: "记录异常",
   CLEAR_EXCEPTION: "解除异常",
   SAVE_RESOLUTION: "保存协商处理",
-  RETURN_POINTS: "执行协商退点",
 };
 
 export function appendDeliveryPage(
@@ -101,7 +102,9 @@ export function DeliveryWorkspace({
   const [scope, setScope] = useState<"POOL" | "MINE" | "ALL">(
     admin ? "ALL" : "POOL",
   );
-  const [state, setState] = useState<DeliveryOrderState>("ACTIVE");
+  const [state, setState] = useState<DeliveryOrderState>(
+    admin ? "ALL" : "ACTIVE",
+  );
   const [page, setPage] = useState<DeliveryOrderPage>({
     items: [],
     nextCursor: null,
@@ -332,6 +335,7 @@ export function DeliveryWorkspace({
             </button>
           </div>
         </header>
+        {admin && <BusinessRecordsNavigation active="orders" />}
         {error && (
           <p className="form-error" role="alert">
             {error}
@@ -388,7 +392,9 @@ export function DeliveryWorkspace({
                     "ACTIVE",
                     "COMPLETED",
                     "CLOSED",
-                    ...(admin ? ["PENDING_RETURN" as const] : []),
+                    ...(admin
+                      ? ["ALL" as const, "PENDING_RETURN" as const]
+                      : []),
                   ] as const
                 ).map((value) => (
                   <button
@@ -407,6 +413,7 @@ export function DeliveryWorkspace({
                   >
                     {
                       {
+                        ALL: "全部状态",
                         ACTIVE: "待处理与进行中",
                         COMPLETED: "已完成",
                         CLOSED: "已关闭",
@@ -421,7 +428,7 @@ export function DeliveryWorkspace({
               {state === "ACTIVE"
                 ? "按预计完成时间由近到远排列；延期和临期订单优先。预计 7 天仅作进度提示，不自动结束订单。"
                 : state === "PENDING_RETURN"
-                  ? "所有已约定但尚未退还的积分均保留在此，包含仍在发布、暂不可执行的订单。"
+                  ? "保留所有已约定但尚未退回的积分；订单结束满 72 小时且相关问题处理完后由系统结算。"
                   : "保留原购买约定与实际发布结果，按下单时间由新到旧排列。"}
             </p>
             {!loading && !page.items.length && !error && (
@@ -644,6 +651,22 @@ export function DeliveryWorkspace({
                 <p>订单尚未认领，请由运营从订单池领取。</p>
               )}
             </section>
+            {(admin ||
+              order.delivery.assigneeAccountId === session.account.id) && (
+              <a
+                className="secondary-button"
+                href={`${admin ? "/admin" : "/operations"}/support?orderId=${order.id}`}
+              >
+                订单问题与沟通
+              </a>
+            )}
+            {admin && session.kind === "ready" && (
+              <AdminOrderSettlementPanel
+                orderId={order.id}
+                actorId={session.account.id}
+                revision={order.delivery.revision}
+              />
+            )}
             <DeliveryResolutionPanel
               key={`${order.id}:${session.account.id}`}
               order={order}

@@ -1,3 +1,9 @@
+import { AdminOrderSettlementController } from "./publication-delivery/presentation/admin-order-settlement.controller.js";
+import { OrderSettlementModule } from "./application/order-settlement.module.js";
+import { OrderSettlementAccess } from "./publishing-commerce/infrastructure/order-settlement-access.js";
+import { OrderSupportReader } from "./publishing-commerce/infrastructure/order-support-reader.js";
+import { OrderHandlingAccess } from "./support/infrastructure/order-handling-access.js";
+import { SupportModule } from "./support/support.module.js";
 import { GeoIntelligenceModule } from "./geo-intelligence/geo-intelligence.module.js";
 import { AgencyModule } from "./agency/agency.module.js";
 import { Module, type DynamicModule } from "@nestjs/common";
@@ -65,12 +71,15 @@ export class ApiModule {
         PublishingCommerceModule.register(optimization),
         PublicationDeliveryModule,
         NotificationApiModule,
+        SupportModule,
+        OrderSettlementModule,
         RechargeApiModule.register(recharge),
         RechargeAdminModule,
         ReadinessModule,
         FoundationModule,
       ],
       controllers: [
+        AdminOrderSettlementController,
         HealthController,
         FoundationController,
         DeliveryAssignmentController,
@@ -81,6 +90,9 @@ export class ApiModule {
       providers: [
         PublicationDeliveryWorkflowService,
         PublicationResolutionWorkflowService,
+        OrderSettlementAccess,
+        OrderSupportReader,
+        OrderHandlingAccess,
         {
           provide: VARIANT_PREPARER,
           useFactory: () =>

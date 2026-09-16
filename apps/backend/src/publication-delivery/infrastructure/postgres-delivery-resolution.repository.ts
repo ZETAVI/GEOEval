@@ -19,10 +19,8 @@ import { assignmentInputSchema } from "../domain/delivery-assignment.js";
 import {
   NegotiatedResolutionError,
   negotiatedResolutionInputSchema,
-  requireReturnSettlement,
   resolveNegotiatedAgreement,
   type ResolutionOrder,
-  type ResolutionActor,
 } from "../domain/negotiated-resolution.js";
 
 const exceptionInputSchema = assignmentInputSchema.extend({
@@ -154,6 +152,19 @@ export class PostgresDeliveryResolutionRepository {
     orderId: string,
     raw: unknown,
     facts: { quantity: number; originalConsumedPoints: number },
+    compose: {
+      finalized: (tx: Prisma.TransactionClient, id: string) => Promise<boolean>;
+      record: (
+        tx: Prisma.TransactionClient,
+        row: PublicationDelivery,
+        now: Date,
+        input: ReturnType<typeof negotiatedResolutionInputSchema.parse>,
+      ) => Promise<string>;
+      replay: (
+        tx: Prisma.TransactionClient,
+        key: string,
+      ) => Promise<string | undefined>;
+    },
   ) {
     const parsed = negotiatedResolutionInputSchema.safeParse(raw);
     if (!parsed.success)
@@ -167,7 +178,15 @@ export class PostgresDeliveryResolutionRepository {
         throw new ForbiddenException("仅当前有效运营责任人可保存协商处理");
       const row = await this.lockDelivery(tx, orderId);
       const prior = await this.replay(tx, actor, orderId, request);
-      if (prior) return prior;
+      if (row.assigneeAccountId !== current.id)
+        throw new ForbiddenException("你不是当前订单责任人");
+      if (prior)
+        return {
+          ...prior,
+          ticketId: await compose.replay(tx, parsed.data.idempotencyKey),
+        };
+      if (await compose.finalized(tx, orderId))
+        throw new ConflictException("订单已最终结算，不能修改约定");
       const nextState = decision(() =>
         resolveNegotiatedAgreement(
           resolutionOrder(row, facts.quantity),
@@ -176,27 +195,29 @@ export class PostgresDeliveryResolutionRepository {
           facts.originalConsumedPoints,
         ),
       );
-      const now = new Date();
+      const [clock] = await tx.$queryRaw<
+        Array<{ now: Date }>
+      >`SELECT clock_timestamp() AS now`;
+      const now = clock!.now;
       const next = await tx.publicationDelivery.update({
         where: { orderId },
         data: {
           revision: { increment: 1 },
           status: nextState.status,
           startedAt: row.startedAt ?? now,
-          exceptionReason:
-            nextState.status === "EXCEPTION_HANDLING"
-              ? parsed.data.reason
-              : null,
+          exceptionReason: null,
           agreementRevision: nextState.agreement.revision,
           resolutionMode: nextState.agreement.mode,
           agreedReturnPoints: nextState.agreement.points,
           resolutionReason: nextState.agreement.reason,
           stoppedAt: nextState.stopped ? (row.stoppedAt ?? now) : null,
-          closedAt: nextState.status === "CLOSED" ? now : null,
+          closedAt:
+            nextState.status === "CLOSED" ? (row.closedAt ?? now) : null,
         },
       });
+      const ticketId = await compose.record(tx, next, now, parsed.data);
       await this.audit(tx, actor, row, next, request);
-      return { orderId, revision: next.revision };
+      return { orderId, revision: next.revision, ticketId };
     });
   }
 
@@ -246,54 +267,5 @@ export class PostgresDeliveryResolutionRepository {
       await this.audit(tx, actor, row, next, request);
       return { orderId, revision: next.revision };
     });
-  }
-
-  /** Commerce has already locked Identity/account; Delivery never locks Commerce here. */
-  async prepareSettlement(
-    tx: Prisma.TransactionClient,
-    actor: ResolutionActor,
-    orderId: string,
-    quantity: number,
-    expectedAgreementRevision: number,
-  ) {
-    // The application passes the Identity owner's locked facts, not session claims.
-    if (actor.role !== "ADMINISTRATOR" || actor.status !== "ACTIVE")
-      throw new ForbiddenException("仅当前有效管理员可实际执行退点");
-    const row = await this.lockDelivery(tx, orderId);
-    const settlement = decision(() =>
-      requireReturnSettlement(
-        resolutionOrder(row, quantity),
-        actor,
-        expectedAgreementRevision,
-      ),
-    );
-    if (row.revision >= 2_147_483_647)
-      throw new ConflictException(
-        "订单版本已达支持上限，请保留待退点义务后核查",
-      );
-    return {
-      points: settlement.points,
-      agreementRevision: settlement.agreementRevision,
-      complete: async (
-        ledgerId: string,
-        request: { idempotencyKey: string; expectedAgreementRevision: number },
-      ) => {
-        if (request.expectedAgreementRevision !== settlement.agreementRevision)
-          throw new ConflictException("退点请求与已锁定协商版本不一致");
-        const next = await tx.publicationDelivery.update({
-          where: { orderId },
-          data: {
-            revision: { increment: 1 },
-            status: settlement.status,
-            settledLedgerId: ledgerId,
-            closedAt: settlement.status === "CLOSED" ? new Date() : null,
-          },
-        });
-        await this.audit(tx, actor, row, next, {
-          ...request,
-          action: "RETURN_POINTS",
-        });
-      },
-    };
   }
 }

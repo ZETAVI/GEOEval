@@ -42,14 +42,26 @@ export function PointHistoryList({
             {new Date(item.createdAt).toLocaleString()} · 记账后余额{" "}
             {item.balanceAfter.toLocaleString()} · 流水 {item.sequence}
           </p>
-          {!showInternal && item.publishingOrderId && (
-            <a href={`/orders/${item.publishingOrderId}`}>查看对应订单 →</a>
+          {item.publishingOrderId && (
+            <a
+              href={`${showInternal ? "/admin/delivery" : "/orders"}/${item.publishingOrderId}`}
+            >
+              查看对应订单 →
+            </a>
           )}
-          {!showInternal && item.rechargeOrderId && (
-            <a href={`/recharges/${item.rechargeOrderId}`}>查看充值订单 →</a>
+          {item.rechargeOrderId && (
+            <a
+              href={`${showInternal ? "/admin/recharges" : "/recharges"}/${item.rechargeOrderId}`}
+            >
+              查看充值订单 →
+            </a>
           )}
-          {!showInternal && item.returnedOrderId && (
-            <a href={`/orders/${item.returnedOrderId}`}>查看退点订单 →</a>
+          {item.returnedOrderId && (
+            <a
+              href={`${showInternal ? "/admin/delivery" : "/orders"}/${item.returnedOrderId}`}
+            >
+              查看退点订单 →
+            </a>
           )}
           {showInternal && "actorAccountId" in item && (
             <details>

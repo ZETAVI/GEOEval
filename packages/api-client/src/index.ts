@@ -51,14 +51,11 @@ export type SaveDeliveryResolution =
   components["schemas"]["SaveDeliveryResolutionRequest"];
 export type DeliveryException =
   components["schemas"]["DeliveryExceptionRequest"];
-export type SettleDeliveryReturn =
-  components["schemas"]["SettleDeliveryReturnRequest"];
-export type DeliveryReturnReceipt =
-  components["schemas"]["DeliveryReturnReceipt"];
+
 export type DeliveryReplacementTargets =
   components["schemas"]["DeliveryReplacementTargetsResponse"];
 export type DeliveryOrderState =
-  "ACTIVE" | "COMPLETED" | "CLOSED" | "PENDING_RETURN";
+  "ALL" | "ACTIVE" | "COMPLETED" | "CLOSED" | "PENDING_RETURN";
 export type DeliveryActionRequest =
   components["schemas"]["AssignmentRequest"] & {
     reason?: string;
@@ -384,20 +381,7 @@ export function recordDeliveryException(
     },
   );
 }
-export function settleDeliveryReturn(
-  baseUrl: string,
-  orderId: string,
-  input: SettleDeliveryReturn,
-): Promise<DeliveryReturnReceipt> {
-  return apiRequest(
-    baseUrl,
-    `/delivery/orders/${encodeURIComponent(orderId)}/settlement`,
-    {
-      method: "POST",
-      body: JSON.stringify(input),
-    },
-  );
-}
+
 export function listDeliveryReplacementTargets(
   baseUrl: string,
   orderId: string,
@@ -1374,5 +1358,123 @@ export function updateAgencyCommissionSettings(
     base,
     `/agency/admin/agents/${encodeURIComponent(agentId)}/commission`,
     { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export type SupportPage = components["schemas"]["SupportPageResponse"];
+export type SupportDetail = components["schemas"]["SupportDetailResponse"];
+export type SupportCreate = components["schemas"]["SupportCreateRequest"];
+export type SupportCommand = components["schemas"]["SupportCommandRequest"];
+export type SupportReceipt = components["schemas"]["SupportReceiptResponse"];
+export function listSupportTickets(
+  base: string,
+  accountId: string,
+  query: {
+    scope: string;
+    publishingOrderId?: string | undefined;
+    status?: string | undefined;
+    before?: number | undefined;
+  },
+  signal?: AbortSignal,
+): Promise<SupportPage> {
+  const params = new URLSearchParams({ scope: query.scope });
+  if (query.publishingOrderId)
+    params.set("publishingOrderId", query.publishingOrderId);
+  if (query.status) params.set("status", query.status);
+  if (query.before) params.set("before", String(query.before));
+  return apiRequest(base, `/support/tickets?${params}`, {
+    cache: "no-store",
+    headers: { "x-geoeval-account": accountId },
+    signal: signal ?? null,
+  });
+}
+export function getSupportTicket(
+  base: string,
+  accountId: string,
+  id: string,
+  after = 0,
+  signal?: AbortSignal,
+): Promise<SupportDetail> {
+  return apiRequest(
+    base,
+    `/support/tickets/${encodeURIComponent(id)}?after=${after}`,
+    {
+      cache: "no-store",
+      headers: { "x-geoeval-account": accountId },
+      signal: signal ?? null,
+    },
+  );
+}
+export function createSupportTicket(
+  base: string,
+  accountId: string,
+  body: SupportCreate,
+): Promise<SupportReceipt> {
+  return apiRequest(base, "/support/tickets", {
+    method: "POST",
+    headers: { "x-geoeval-account": accountId },
+    body: JSON.stringify(body),
+  });
+}
+export function commandSupportTicket(
+  base: string,
+  accountId: string,
+  id: string,
+  body: SupportCommand,
+): Promise<SupportReceipt> {
+  return apiRequest(
+    base,
+    `/support/tickets/${encodeURIComponent(id)}/actions`,
+    {
+      method: "POST",
+      headers: { "x-geoeval-account": accountId },
+      body: JSON.stringify(body),
+    },
+  );
+}
+
+export type AdminPointRecords =
+  components["schemas"]["AdminPointRecordsResponse"];
+export type AdminOrderSettlement =
+  components["schemas"]["AdminOrderSettlementResponse"];
+export type AdminPointRecordFilter = {
+  accountId?: string;
+  mobile?: string;
+  referenceId?: string;
+  kind?: PointChange["kind"];
+  createdFrom?: string;
+  createdBefore?: string;
+  cursor?: string;
+  limit?: number;
+};
+export function listAdminPointRecords(
+  base: string,
+  actor: string,
+  filter: AdminPointRecordFilter = {},
+  signal?: AbortSignal,
+): Promise<AdminPointRecords> {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(filter))
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  return apiRequest(base, `/admin/points/records?${query}`, {
+    headers: { "x-geoeval-account": actor },
+    cache: "no-store",
+    signal: signal ?? null,
+  });
+}
+export function getAdminOrderSettlement(
+  base: string,
+  actor: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<AdminOrderSettlement> {
+  return apiRequest(
+    base,
+    `/admin/orders/${encodeURIComponent(id)}/settlement`,
+    {
+      headers: { "x-geoeval-account": actor },
+      cache: "no-store",
+      signal: signal ?? null,
+    },
   );
 }

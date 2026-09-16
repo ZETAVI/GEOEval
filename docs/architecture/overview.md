@@ -331,24 +331,13 @@ effective-result count, normal completion and auditable correction. Preparation
 runs outside transactions through an async-capable port, with Identity and
 revision fences rechecked before save; no real provider or new background-work
 engine is introduced. Customer result subroutes reuse Commerce ownership and
-return only public projections. Delivery also owns manually saved agreements,
-effective precise replacements, irreversible remaining-work stops and their
-before/after audit. An operator's zero-point termination closes without touching
-the wallet. Positive agreements stay in a separate administrator queue even when
-publication is Completed; settlement eligibility follows finished or stopped work.
+return only public projections. Delivery owns the revisable whole-order agreed return total, irreversible stop and first end time. Positive and zero termination both close publishing immediately. Support owns customer-visible dialogue, one post-end appeal and ordinary ticket claiming; order tickets derive current responsibility from Delivery rather than copying an assignee.
 
-For positive returns, the root composition binds Identity → Commerce wallet →
-Delivery locks on one connection. Commerce's narrow order-return adapter restores
-the original consumption sources under reservation-aware capacity, then Delivery
-records the same settled-ledger reference and, only for termination, Closed.
-Actor-bound exact requests recover successful writes; ledger, wallet, fulfilment
-and audit commit together. Composite references and deferred final-graph checks
-enforce the cross-owner stored relationship without letting either owner write
-the other's private tables. A return ledger/request is immutable. This extends
-the existing explicit transaction seam, not an approval engine, second wallet,
-generic refund framework or payment-channel action. Current behavior is owned by
-[Publication Delivery](../../openspec/specs/publication-delivery/spec.md) and
-[Publishing Commerce](../../openspec/specs/publishing-commerce/spec.md).
+The application composes agreement/audit/conversation on one short transaction. The system finalizer checks the first end plus 72 hours and unresolved admitted issues under the Delivery lock, after locking Commerce's wallet. Commerce restores original consumption sources under reservation-aware capacity and stores the immutable final receipt; positive receipts reference the actual return and zero receipts create no ledger entry. A repeat recovers the receipt, and failure rolls back the complete transaction. The Worker uses bounded persisted-fact scans, skips blocked candidates fairly, and is disabled by default. No administrator/manual credit API remains.
+
+The administrator business-record entry reuses existing recharge, delivery and Support views. Commerce owns all-customer point history and its scoped cursor. Read-only settlement context composes owner-provided facts on one consistent snapshot. Links are based on existing identities, never a guessed recharge-to-consumption mapping; no new payment permissions are granted to operations.
+
+Current behavior is owned by [Support](../../openspec/specs/support/spec.md), [Publication Delivery](../../openspec/specs/publication-delivery/spec.md), and [Publishing Commerce](../../openspec/specs/publishing-commerce/spec.md). Development data requires no historical compatibility path; normal once-only settlement and crash recovery remain mandatory.
 
 ## Architecture qualities
 

@@ -46,7 +46,7 @@ function deliveryPage(first: number, last: number): DeliveryOrderPage {
           exceptionReason: null,
           stopped: false,
           returnedPoints: null,
-          eligible: false,
+          finalized: false,
         },
         agreement: {
           mode: "RANDOM",

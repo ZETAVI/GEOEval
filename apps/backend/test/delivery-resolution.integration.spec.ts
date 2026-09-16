@@ -1,3 +1,5 @@
+import { spawn } from "node:child_process";
+import { setTimeout as delay } from "node:timers/promises";
 import { randomUUID } from "node:crypto";
 import type { INestApplication } from "@nestjs/common";
 import {
@@ -17,7 +19,10 @@ import { PostgresDeliveryAssignmentRepository } from "../src/publication-deliver
 import { PointAccountService } from "../src/publishing-commerce/application/point-account.service.js";
 import { MediaSupplyService } from "../src/media-supply/application/media-supply.service.js";
 import { PostgresOrderReturnAccess } from "../src/publishing-commerce/infrastructure/postgres-order-return-access.js";
-import { PostgresDeliveryResolutionRepository } from "../src/publication-delivery/infrastructure/postgres-delivery-resolution.repository.js";
+import { FinalOrderSettlementService } from "../src/application/final-order-settlement.service.js";
+import { OrderSettlementAccess } from "../src/publishing-commerce/infrastructure/order-settlement-access.js";
+import { DeliverySupportAccess } from "../src/publication-delivery/infrastructure/delivery-support-access.js";
+import { OrderSettlementRuntime } from "../src/application/order-settlement.runtime.js";
 import { commercialTerms } from "../src/publishing-commerce/domain/publishing-order.js";
 import { RechargeCoreService } from "../src/recharge/application/recharge-core.service.js";
 import { PostgresRechargeRepository } from "../src/recharge/infrastructure/postgres-recharge.repository.js";
@@ -28,7 +33,13 @@ import { browserMutationHeaders } from "./http-test-headers.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
 const config = loadIntegrationApiConfig();
-describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners", () => {
+const processTarget = new URL(config.databaseUrl);
+const processPermitted =
+  processTarget.hostname === "127.0.0.1" &&
+  processTarget.port === "55432" &&
+  (processTarget.pathname === "/geoeval_issue100" ||
+    (process.env.CI === "true" && processTarget.pathname === "/geoeval"));
+describe("unified order handling and final system settlement with real PostgreSQL owners", () => {
   const prisma = new PrismaService(config.databaseUrl);
   let app: INestApplication, origin: string;
   let ids: string[], cookies: string[], orderId: string, platformId: string;
@@ -122,7 +133,11 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
   function http(path: string, actor: number, method = "GET", body?: unknown) {
     return fetch(origin + path, {
       method,
-      headers: { ...browserMutationHeaders(), cookie: cookies[actor]! },
+      headers: {
+        ...browserMutationHeaders(),
+        cookie: cookies[actor]!,
+        "x-geoeval-account": ids[actor]!,
+      },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
   }
@@ -141,7 +156,7 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
       idempotencyKey: randomUUID(),
       mode,
       points,
-      reason: "内部协商原因不应泄露",
+      reason: "客户可见的协商处理",
     };
     return { request, response: await action("resolution", actor, request) };
   }
@@ -339,41 +354,62 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
       ).status,
     ).toBe(200);
     expect((await current()).status).toBe("CLOSED");
-    expect(await (await action("resolution", 2, request)).json()).toEqual(
-      receipt,
-    );
+    expect((await action("resolution", 2, request)).status).toBe(403);
   });
 
-  it("Completed compensation remains visible and credits once, including an inactive original customer", async () => {
-    expect((await agree(100, "CONTINUE")).response.status).toBe(200);
-    const waiting = await (
-      await http("/delivery/orders?scope=ALL&state=PENDING_RETURN", 0)
-    ).json();
-    expect(waiting.items[0].resolution.eligible).toBe(false);
-    expect((await action("settlement", 0, settlement())).status).toBe(409);
-    for (let slot = 1; slot <= 3; slot++)
-      expect((await publish(slot)).status).toBe(200);
-    const ready = await (
-      await http("/delivery/orders?scope=ALL&state=PENDING_RETURN", 0)
-    ).json();
-    expect(ready.items[0].status).toBe("COMPLETED");
-    expect(ready.items[0].resolution.eligible).toBe(true);
+  async function mature(points = 100, open = false) {
+    expect((await agree(points, "CONTINUE")).response.status).toBe(200);
+    const ticket = await prisma.supportTicket.findFirstOrThrow({
+      where: { publishingOrderId: orderId },
+    });
+    if (!open)
+      expect(
+        (
+          await http(`/support/tickets/${ticket.id}/actions`, 2, "POST", {
+            action: "RESOLVE",
+            expectedRevision: ticket.revision,
+            requestId: randomUUID(),
+            message: "协商已确认",
+          })
+        ).status,
+      ).toBe(201);
+    const ended = new Date(Date.now() - 73 * 3600000);
+    await prisma.publicationDelivery.update({
+      where: { orderId },
+      data: {
+        status: "COMPLETED",
+        publishedQuantity: 3,
+        startedAt: new Date(ended.getTime() - 1000),
+        completedAt: ended,
+      },
+    });
+    return ticket;
+  }
+  const settle = () => app.get(FinalOrderSettlementService).settle(orderId);
+  it("waits for the 72 hour window and retires all manual money actions", async () => {
+    expect((await agree(100)).response.status).toBe(200);
+    expect((await current()).status).toBe("CLOSED");
+    expect(await settle()).toEqual({ kind: "waiting" });
+    expect((await action("settlement", 0, settlement())).status).toBe(404);
+    expect(await returned()).toHaveLength(0);
+  });
+  it("credits once for an inactive original customer and preserves original sources and immutable ledger", async () => {
+    await mature();
     await prisma.account.update({
-      where: { id: ids[1]! },
+      where: { id: ids[1] },
       data: { status: "INACTIVE" },
     });
-    const request = settlement();
-    const response = await action("settlement", 0, request);
-    expect(response.status).toBe(200);
-    const receipt = await response.json();
-    expect((await current()).status).toBe("COMPLETED");
-    expect(await (await action("settlement", 0, request)).json()).toEqual(
-      receipt,
-    );
-    expect((await action("settlement", 0, settlement())).status).toBe(409);
-    expect((await action("settlement", 4, request)).status).toBe(409);
+    const results = await Promise.all([settle(), settle()]);
+    expect(results[0]).toEqual(results[1]);
+    expect(results[0].kind).toBe("settled");
     expect(await returned()).toMatchObject([
-      { grantedDelta: 33, fundedDelta: 67, actorAccountId: ids[0] },
+      {
+        grantedDelta: 33,
+        fundedDelta: 67,
+        actorKind: "SYSTEM",
+        actorAccountId: null,
+        idempotencyKey: null,
+      },
     ]);
     const ledger = (await returned())[0]!;
     await expect(
@@ -390,27 +426,91 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
         where: { accountId: ids[1]! },
       }),
     ).toMatchObject({ grantedBalance: 33, fundedBalance: 67 });
+    expect(await prisma.orderSettlement.count()).toBe(1);
+    expect((await current()).status).toBe("COMPLETED");
+  });
+  it("blocks on an admitted open issue after deadline, atomically confirms revised total and then settles", async () => {
+    const ticket = await mature(100, true);
+    expect(await settle()).toEqual({ kind: "waiting" });
+    const response = await action("resolution", 2, {
+      expectedRevision: (await current()).revision,
+      idempotencyKey: randomUUID(),
+      mode: "CONTINUE",
+      points: 150,
+      reason: "最终约定总额为150积分",
+      ticketId: ticket.id,
+      expectedTicketRevision: ticket.revision,
+      resolveTicket: true,
+    });
+    expect(response.status).toBe(200);
+    expect(await returned()).toHaveLength(0);
+    expect(await settle()).toMatchObject({
+      kind: "settled",
+      receipt: { points: 150, agreementRevision: 2 },
+    });
+    expect(
+      await prisma.supportTicket.findUniqueOrThrow({
+        where: { id: ticket.id },
+      }),
+    ).toMatchObject({ status: "RESOLVED" });
+  });
+  it("stale ticket confirmation rolls back the agreement and preserves newer customer feedback", async () => {
+    const ticket = await mature(100, true);
+    const before = await current();
     expect(
       (
-        await (
-          await http("/delivery/orders?scope=ALL&state=PENDING_RETURN", 0)
-        ).json()
-      ).items,
-    ).toHaveLength(0);
+        await http(`/support/tickets/${ticket.id}/actions`, 1, "POST", {
+          action: "REPLY",
+          expectedRevision: ticket.revision,
+          requestId: randomUUID(),
+          message: "还有未解决的问题",
+        })
+      ).status,
+    ).toBe(201);
+    expect(
+      (
+        await action("resolution", 2, {
+          expectedRevision: before.revision,
+          idempotencyKey: randomUUID(),
+          mode: "CONTINUE",
+          points: 0,
+          reason: "说明",
+          ticketId: ticket.id,
+          expectedTicketRevision: ticket.revision,
+          resolveTicket: true,
+        })
+      ).status,
+    ).toBe(409);
+    expect(await current()).toEqual(before);
+    expect(await settle()).toEqual({ kind: "waiting" });
   });
-
-  it("rolls back balance, ledger and terminal/audit writes after either owner fails", async () => {
-    expect((await agree(100)).response.status).toBe(200);
+  it("records zero finality without a zero ledger and prevents late agreement changes", async () => {
+    await mature(0);
+    expect(await settle()).toMatchObject({
+      kind: "settled",
+      receipt: { points: 0, ledgerId: null },
+    });
+    expect(await returned()).toHaveLength(0);
+    expect((await agree(100, "CONTINUE")).response.status).toBe(409);
+    await expect(
+      prisma.orderSettlement.update({
+        where: { orderId },
+        data: { points: 1 },
+      }),
+    ).rejects.toThrow();
+  });
+  it("rolls back wallet, ledger, delivery and receipt if credit or final receipt persistence fails", async () => {
+    await mature();
     const baseline = await current();
     const wallet = await prisma.pointAccount.findUniqueOrThrow({
       where: { accountId: ids[1]! },
     });
     const commerce = app.get(PostgresOrderReturnAccess),
-      originalBind = commerce.bind.bind(commerce);
+      bind = commerce.bind.bind(commerce);
     const first = vi
       .spyOn(commerce, "bind")
       .mockImplementation(async (...args) => {
-        const bound = await originalBind(...args);
+        const bound = await bind(...args);
         return {
           ...bound,
           credit: async (...creditArgs) => {
@@ -419,8 +519,7 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
           },
         };
       });
-    const request = settlement();
-    expect((await action("settlement", 0, request)).status).toBe(500);
+    await expect(settle()).rejects.toThrow("injected after ledger");
     first.mockRestore();
     expect(await current()).toEqual(baseline);
     expect(await returned()).toHaveLength(0);
@@ -429,83 +528,199 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
         where: { accountId: ids[1]! },
       }),
     ).toEqual(wallet);
-    const delivery = app.get(PostgresDeliveryResolutionRepository),
-      originalPrepare = delivery.prepareSettlement.bind(delivery);
+    const receipts = app.get(OrderSettlementAccess),
+      record = receipts.record.bind(receipts);
     const second = vi
-      .spyOn(delivery, "prepareSettlement")
+      .spyOn(receipts, "record")
       .mockImplementation(async (...args) => {
-        const bound = await originalPrepare(...args);
-        return {
-          ...bound,
-          complete: async (...completeArgs) => {
-            await bound.complete(...completeArgs);
-            throw new Error("injected after delivery audit");
-          },
-        };
+        await record(...args);
+        throw new Error("injected after receipt");
       });
-    expect((await action("settlement", 0, request)).status).toBe(500);
+    await expect(settle()).rejects.toThrow("injected after receipt");
     second.mockRestore();
     expect(await current()).toEqual(baseline);
     expect(await returned()).toHaveLength(0);
-    expect((await action("settlement", 0, request)).status).toBe(200);
-    expect((await current()).status).toBe("CLOSED");
-  });
-
-  it("serializes administrator settlement against an operator changing the agreement to zero", async () => {
-    expect((await agree(100)).response.status).toBe(200);
-    const before = await current();
-    const delivery = app.get(PostgresDeliveryResolutionRepository),
-      prepare = delivery.prepareSettlement.bind(delivery);
-    let signal!: () => void, release!: () => void;
-    const locked = new Promise<void>((r) => {
-        signal = r;
+    expect(await prisma.orderSettlement.count()).toBe(0);
+    expect(
+      await prisma.pointAccount.findUniqueOrThrow({
+        where: { accountId: ids[1]! },
       }),
-      proceed = new Promise<void>((r) => {
-        release = r;
-      });
-    const spy = vi
-      .spyOn(delivery, "prepareSettlement")
-      .mockImplementation(async (...args) => {
-        const bound = await prepare(...args);
-        signal();
-        await proceed;
-        return bound;
-      });
-    const paying = action("settlement", 0, settlement());
-    await locked;
-    const closing = action("resolution", 2, {
-      expectedRevision: before.revision,
-      idempotencyKey: randomUUID(),
-      mode: "TERMINATE",
-      points: 0,
-      reason: "新协商改零",
+    ).toEqual(wallet);
+    expect(await settle()).toMatchObject({ kind: "settled" });
+  });
+  it("serializes finality against a stale agreement writer", async () => {
+    await mature();
+    const before = await current();
+    const access = app.get(DeliverySupportAccess),
+      lock = access.lock.bind(access);
+    const entered = Promise.withResolvers<void>(),
+      release = Promise.withResolvers<void>();
+    const spy = vi.spyOn(access, "lock").mockImplementation(async (...args) => {
+      const locked = await lock(...args);
+      entered.resolve();
+      await release.promise;
+      return locked;
     });
-    release();
-    const [paid, closed] = await Promise.all([paying, closing]);
-    spy.mockRestore();
-    expect(paid.status).toBe(200);
-    expect(closed.status).toBe(409);
+    const pending = settle();
+    await entered.promise;
+    const changing = agree(0, "CONTINUE");
+    release.resolve();
+    try {
+      expect(await pending).toMatchObject({ kind: "settled" });
+      expect((await changing).response.status).toBe(409);
+    } finally {
+      release.resolve();
+      spy.mockRestore();
+    }
+    expect((await current()).agreementRevision).toBe(before.agreementRevision);
     expect(await returned()).toHaveLength(1);
-    expect((await current()).agreedReturnPoints).toBe(100);
+  });
+  it("a restarted runtime rediscovers a failed eligible order from persisted facts", async () => {
+    await mature();
+    const service = app.get(FinalOrderSettlementService);
+    const fail = vi
+      .spyOn(service, "settle")
+      .mockRejectedValueOnce(new Error("temporary failure"));
+    const first = new OrderSettlementRuntime(service, false);
+    await first.batch();
+    await first.onApplicationShutdown();
+    expect(await returned()).toHaveLength(0);
+    fail.mockRestore();
+    const restarted = new OrderSettlementRuntime(service, false);
+    await restarted.batch();
+    await restarted.onApplicationShutdown();
+    expect(await returned()).toHaveLength(1);
+    expect(await prisma.orderSettlement.count()).toBe(1);
   });
 
-  it("an explicit zero revision wins before stale administrator settlement without erasing history", async () => {
-    expect((await agree(100)).response.status).toBe(200);
-    const old = settlement();
-    expect((await agree(0)).response.status).toBe(200);
-    expect((await action("settlement", 0, old)).status).toBe(409);
+  it.skipIf(!processPermitted)(
+    "recovers after a real worker process dies before commit and never repeats a committed return",
+    async () => {
+      await mature();
+      async function start(hold = false) {
+        const child = spawn(
+          process.execPath,
+          ["--import", "tsx", "test/fixtures/order-settlement-process.ts"],
+          {
+            cwd: process.cwd(),
+            env: {
+              PATH: process.env.PATH!,
+              DATABASE_URL: config.databaseUrl,
+              CI: process.env.CI ?? "",
+              ORDER_SETTLEMENT_PROCESS_TEST: "1",
+              ORDER_SETTLEMENT_TEST_HOLD: hold ? "1" : "0",
+            },
+            stdio: ["ignore", "pipe", "pipe", "ipc"],
+          },
+        );
+        const events: string[] = [];
+        let ended = false;
+        let logs = "";
+        child.on("message", (m) => events.push((m as { event: string }).event));
+        child.stdout.on("data", (d) => (logs += d));
+        child.stderr.on("data", (d) => (logs += d));
+        const exit = new Promise<void>((resolve, reject) => {
+          child.once("exit", () => {
+            ended = true;
+            resolve();
+          });
+          child.once("error", reject);
+        });
+        return {
+          child,
+          events,
+          exit,
+          get ended() {
+            return ended;
+          },
+          get logs() {
+            return logs;
+          },
+        };
+      }
+      async function until(check: () => Promise<boolean> | boolean) {
+        for (let i = 0; i < 240; i++) {
+          if (await check()) return;
+          await delay(25);
+        }
+        throw new Error("settlement process timeout");
+      }
+      const first = await start(true);
+      try {
+        await until(() => first.events.includes("uncommitted") || first.ended);
+        expect(first.ended, first.logs).toBe(false);
+        expect(await returned()).toHaveLength(0);
+      } finally {
+        first.child.kill("SIGKILL");
+        await first.exit;
+      }
+      expect(await prisma.orderSettlement.count()).toBe(0);
+      for (let i = 0; i < 2; i++) {
+        const next = await start();
+        try {
+          await until(() => next.events.includes("ready") || next.ended);
+          expect(next.ended, next.logs).toBe(false);
+          await until(async () => (await prisma.orderSettlement.count()) === 1);
+        } finally {
+          next.child.kill("SIGTERM");
+          await next.exit;
+        }
+      }
+      expect(await returned()).toHaveLength(1);
+    },
+    20000,
+  );
+
+  it("shows settlement evidence and order ledgers to administrators without changing money", async () => {
+    const ticket = await mature(100, true);
+    const path = `/admin/orders/${orderId}/settlement`;
+    expect((await http(path, 2)).status).toBe(403);
+    expect((await http(path, 1)).status).toBe(403);
+    const before = await current();
+    const waiting = await (await http(path, 0)).json();
+    expect(waiting).toMatchObject({
+      orderId,
+      accountId: ids[1],
+      agreedPoints: 100,
+      hasOpenIssue: true,
+      windowElapsed: true,
+      settledAt: null,
+      returnedPoints: null,
+    });
+    expect(waiting.consumptionLedgerId).toBeTruthy();
+    expect(await current()).toEqual(before);
     expect(await returned()).toHaveLength(0);
-    const history = await prisma.publicationDeliveryAudit.findMany({
-      where: { orderId },
-      orderBy: { revision: "desc" },
+    expect(
+      (
+        await http(`/support/tickets/${ticket.id}/actions`, 2, "POST", {
+          action: "RESOLVE",
+          message: "确认处理完毕",
+          expectedRevision: ticket.revision,
+          requestId: randomUUID(),
+        })
+      ).status,
+    ).toBe(201);
+    await settle();
+    const after = await (await http(path, 0)).json();
+    expect(after).toMatchObject({
+      hasOpenIssue: false,
+      returnedPoints: 100,
+      returnLedgerId: (await returned())[0]!.id,
     });
-    expect(history[0]?.beforeResolution).toMatchObject({
-      agreedReturnPoints: 100,
-    });
-    expect(history[0]?.afterResolution).toMatchObject({
-      agreedReturnPoints: 0,
-      status: "CLOSED",
-    });
+    expect(after.settledAt).toBeTruthy();
+    const ledger = await (
+      await http(`/admin/points/records?referenceId=${orderId}`, 0)
+    ).json();
+    expect(ledger.items.map((v: { kind: string }) => v.kind).sort()).toEqual([
+      "ORDER_RETURN",
+      "PUBLISHING_ORDER",
+    ]);
+    expect((await http("/delivery/orders?scope=ALL&state=ALL", 0)).status).toBe(
+      200,
+    );
+    expect(
+      (await http("/delivery/orders?scope=MINE&state=ALL", 2)).status,
+    ).toBe(403);
   });
 
   it("precise replacement keeps the original purchase and recovers an old successful target request", async () => {
@@ -606,7 +821,7 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
     await expect(
       prisma.$transaction(async (tx) => {
         const port = await app.get(PostgresOrderReturnAccess).bind(tx, orderId);
-        await port.credit(ids[0]!, settlement(), 100);
+        await port.credit(settlement(), 100);
       }),
     ).rejects.toThrow();
     expect(await returned()).toHaveLength(0);
@@ -618,7 +833,7 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
   });
 
   it("uses the locked C1 reservation snapshot and can recover after unsent reservation release", async () => {
-    expect((await agree(100)).response.status).toBe(200);
+    await mature();
     await prisma.pointAccount.update({
       where: { accountId: ids[1]! },
       data: { revision: 2_147_483_646 },
@@ -640,10 +855,10 @@ describe("manual delivery resolution with real HTTP and atomic PostgreSQL owners
       idempotencyKey: randomUUID(),
     });
     const request = settlement();
-    expect((await action("settlement", 0, request)).status).toBe(409);
+    await expect(settle()).rejects.toThrow();
     expect(await returned()).toHaveLength(0);
-    expect((await current()).status).toBe("EXCEPTION_HANDLING");
+    expect((await current()).status).toBe("COMPLETED");
     await core.cancelUnsent(ids[1]!, recharge.id);
-    expect((await action("settlement", 0, request)).status).toBe(200);
+    expect(await settle()).toMatchObject({ kind: "settled" });
   });
 });

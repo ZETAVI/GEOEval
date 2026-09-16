@@ -91,6 +91,70 @@ describe("point account atomic adjustments and safe read models", () => {
     );
   }
 
+  const records = (query = "", cookie = adminCookie, expected = adminId) =>
+    fetch(`${baseUrl}/admin/points/records${query ? "?" + query : ""}`, {
+      headers: { cookie, "x-geoeval-account": expected },
+    });
+  it("lists all customers' actual ledger with scoped filters and deterministic pagination", async () => {
+    await points.adjust(customerId, adminId, input(100));
+    await points.adjust(otherId, adminId, input(200));
+    await points.adjust(customerId, adminId, input(-10));
+    const response = await records("limit=1");
+    expect(response.headers.get("cache-control")).toContain("no-store");
+    const first = await response.json();
+    expect(first.items).toHaveLength(1);
+    expect(first.items[0].accountMobile).toBe("+8613900006512");
+    const second = await (
+      await records(`limit=1&cursor=${first.nextCursor}`)
+    ).json();
+    const third = await (
+      await records(`limit=1&cursor=${second.nextCursor}`)
+    ).json();
+    expect(
+      new Set(
+        [...first.items, ...second.items, ...third.items].map((v) => v.id),
+      ).size,
+    ).toBe(3);
+    expect(third.nextCursor).toBeNull();
+    expect(
+      (await (await records(`accountId=${otherId}`)).json()).items,
+    ).toHaveLength(1);
+    expect(
+      (await (await records("mobile=6513&kind=ADMIN_ADJUSTMENT")).json())
+        .items[0].amount,
+    ).toBe(200);
+    expect(
+      (await (await records(`referenceId=${first.items[0].id}`)).json()).items,
+    ).toHaveLength(1);
+    expect(
+      (await records(`accountId=${otherId}&cursor=${first.nextCursor}`)).status,
+    ).toBe(400);
+    expect(
+      (
+        await records(
+          "createdFrom=2026-09-20T00:00:00Z&createdBefore=2026-09-19T00:00:00Z",
+        )
+      ).status,
+    ).toBe(400);
+    expect((await (await records("kind=RECHARGE")).json()).items).toHaveLength(
+      0,
+    );
+    expect(await prisma.pointChange.count()).toBe(3);
+  });
+  it("protects global records against other roles, switched accounts and malformed cursors", async () => {
+    await points.adjust(customerId, adminId, input());
+    for (const cookie of [customerCookie, otherCookie, operationsCookie])
+      expect((await records("", cookie)).status).toBe(403);
+    expect((await records("", adminCookie, otherId)).status).toBe(409);
+    expect((await records("cursor=bad")).status).toBe(400);
+    expect((await records("limit=2147483648")).status).toBe(400);
+    await prisma.account.update({
+      where: { id: adminId },
+      data: { status: "INACTIVE" },
+    });
+    expect((await records()).status).toBe(401);
+  });
+
   it("returns zero without registering a wallet and exposes only each customer's own balance", async () => {
     expect(await (await http("/points", customerCookie)).json()).toEqual({
       balance: 0,

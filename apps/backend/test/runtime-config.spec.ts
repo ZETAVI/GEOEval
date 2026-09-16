@@ -27,6 +27,13 @@ describe("process-scoped configuration", () => {
   it("provides explicit local-only defaults only when opted in", () => {
     const worker = loadWorkerConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" });
     expect(worker.redisUrl).toBe("redis://127.0.0.1:56379");
+    expect(worker.orderSettlementEnabled).toBe(false);
+    expect(
+      loadWorkerConfig({
+        GEOEVAL_LOCAL_DEFAULTS: "1",
+        ORDER_SETTLEMENT_ENABLED: "true",
+      }).orderSettlementEnabled,
+    ).toBe(true);
     expect(worker.aiExecution).toMatchObject({
       mode: "deterministic",
       requestTimeoutMs: 180_000,

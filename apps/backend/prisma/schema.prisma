@@ -195,6 +195,10 @@ enum MediaQualityTier {
 }
 
 model Account {
+  supportTickets SupportTicket[] @relation("SupportCustomer")
+  supportAssignments SupportTicket[] @relation("SupportAssignee")
+  supportEvents SupportEvent[]
+
   commissionTerms       AgencyCommissionTerms?
   commissionAudits      AgencyCommissionAudit[] @relation("CommissionAgent")
   commissionAuditsActed AgencyCommissionAudit[] @relation("CommissionActor")
@@ -987,6 +991,10 @@ enum PointChangeKind {
 }
 
 model PublishingOrder {
+  finalSettlement OrderSettlement?
+
+  supportTickets SupportTicket[]
+
   agencyTerms PublishingOrderAgency?
 
   id                String                    @id @default(uuid()) @db.Uuid
@@ -1025,6 +1033,8 @@ enum PublicationDeliveryStatus {
 }
 
 model PublicationDelivery {
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(3)
+
   orderId            String                     @id @map("order_id") @db.Uuid
   sequence           Int                        @unique @default(autoincrement())
   status             PublicationDeliveryStatus  @default(PENDING_HANDLING)
@@ -1151,6 +1161,8 @@ model PointAccount {
 }
 
 model PointChange {
+  finalOrderSettlements OrderSettlement[] @relation("FinalOrderSettlementLedger")
+
   actorKind               String                @default("ACCOUNT") @map("actor_kind") @db.VarChar(16)
   rechargeOrderId         String?               @unique @map("recharge_order_id") @db.Uuid
   rechargeOrder           RechargeOrder?        @relation("RechargeLedger", fields: [rechargeOrderId, accountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict, map: "point_changes_recharge_owner_fkey")
@@ -1188,6 +1200,7 @@ model PointChange {
   @@unique([id, rechargeOrderId, accountId], map: "point_change_recharge_identity_key")
   @@unique([id, publishingOrderId, accountId], map: "point_change_consumption_identity_key")
   @@unique([id, returnedOrderId], map: "point_change_return_identity_key")
+  @@index([createdAt, id])
   @@map("point_changes")
 }
 
@@ -1346,6 +1359,8 @@ model RechargeNotificationReceipt {
 }
 
 model RechargeOrder {
+  supportTickets SupportTicket[]
+
   nativeDescription       String?                    @map("native_description") @db.VarChar(127)
   nativeNotifyUrl         String?                    @map("native_notify_url") @db.VarChar(256)
   nativeGeneration        Int                        @default(0) @map("native_generation")
@@ -1594,4 +1609,57 @@ model PublishingOrderAgency {
 
   @@index([agentAccountId, orderId])
   @@map("publishing_order_agency")
+}
+
+model SupportTicket {
+  publishingOrderId String? @map("publishing_order_id") @db.Uuid
+  postEndAppeal Boolean @default(false) @map("post_end_appeal")
+  publishingOrder PublishingOrder? @relation(fields: [publishingOrderId, customerAccountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict)
+
+  id String @id @default(uuid()) @db.Uuid
+  sequence Int @unique @default(autoincrement())
+  customerAccountId String @map("customer_account_id") @db.Uuid
+  rechargeOrderId String? @map("recharge_order_id") @db.Uuid
+  assigneeAccountId String? @map("assignee_account_id") @db.Uuid
+  subject String @db.VarChar(100)
+  status String @default("PROCESSING") @db.VarChar(16)
+  revision Int @default(1)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  customer Account @relation("SupportCustomer", fields: [customerAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  assignee Account? @relation("SupportAssignee", fields: [assigneeAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  recharge RechargeOrder? @relation(fields: [rechargeOrderId, customerAccountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict)
+  events SupportEvent[]
+  @@index([customerAccountId, sequence])
+  @@index([assigneeAccountId, status, sequence])
+  @@map("support_tickets")
+}
+
+model SupportEvent {
+  id String @id @default(uuid()) @db.Uuid
+  ticketId String @map("ticket_id") @db.Uuid
+  actorAccountId String @map("actor_account_id") @db.Uuid
+  actorRole String @map("actor_role") @db.VarChar(24)
+  requestId String @map("request_id") @db.Uuid
+  requestDigest String @map("request_digest") @db.Char(64)
+  action String @db.VarChar(16)
+  message String? @db.VarChar(4000)
+  ticketRevision Int @map("ticket_revision")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  actor Account @relation(fields: [actorAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  @@unique([actorAccountId, requestId])
+  @@unique([ticketId, ticketRevision])
+  @@map("support_events")
+}
+
+model OrderSettlement {
+ orderId String @id @map("order_id") @db.Uuid
+ points Int
+ agreementRevision Int @map("agreement_revision")
+ ledgerId String? @unique @map("ledger_id") @db.Uuid
+ settledAt DateTime @default(now()) @map("settled_at") @db.Timestamptz(3)
+ order PublishingOrder @relation(fields:[orderId],references:[id],onDelete:Restrict,onUpdate:Restrict)
+ ledger PointChange? @relation("FinalOrderSettlementLedger",fields:[ledgerId,orderId],references:[id,returnedOrderId],onDelete:Restrict,onUpdate:Restrict)
+ @@map("order_settlements")
 }

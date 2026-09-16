@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/admin/orders/{id}/settlement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminOrderSettlementController_inspect"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -222,22 +238,6 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["DeliveryResolutionController_exception"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/delivery/orders/{orderId}/settlement": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["DeliveryResolutionController_settle"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1124,6 +1124,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/support/tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SupportController_list"];
+        put?: never;
+        post: operations["SupportController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/support/tickets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SupportController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/support/tickets/{id}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SupportController_command"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/recharges/options": {
         parameters: {
             query?: never;
@@ -1460,6 +1508,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/points/records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminPointRecordsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/points/accounts/{accountId}": {
         parameters: {
             query?: never;
@@ -1544,6 +1608,22 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AdminOrderSettlementResponse: {
+            orderId: string;
+            accountId: string;
+            consumptionLedgerId: string | null;
+            returnLedgerId: string | null;
+            returnedPoints: number | null;
+            agreedPoints: number;
+            /** Format: date-time */
+            endedAt: string | null;
+            /** Format: date-time */
+            appealUntil: string | null;
+            /** Format: date-time */
+            settledAt: string | null;
+            windowElapsed: boolean;
+            hasOpenIssue: boolean;
+        };
         FoundationEffectResponse: {
             id: string;
             businessKey: string;
@@ -1562,6 +1642,7 @@ export interface components {
             dispatched: number;
         };
         DeliveryResolutionResponse: {
+            finalized: boolean;
             /** @enum {string|null} */
             mode: "CONTINUE" | "TERMINATE" | null;
             points: number;
@@ -1570,7 +1651,6 @@ export interface components {
             exceptionReason: string | null;
             stopped: boolean;
             returnedPoints: number | null;
-            eligible: boolean;
         };
         DeliveryScheduleResponse: {
             /** Format: date-time */
@@ -1743,6 +1823,11 @@ export interface components {
             expectedRevision: number;
             /** Format: uuid */
             idempotencyKey: string;
+            /** Format: uuid */
+            ticketId?: string;
+            expectedTicketRevision?: number;
+            /** @default false */
+            resolveTicket: boolean;
             /** @enum {string} */
             mode: "CONTINUE" | "TERMINATE";
             points: number;
@@ -1753,19 +1838,6 @@ export interface components {
             /** Format: uuid */
             idempotencyKey: string;
             reason: string | null;
-        };
-        SettleDeliveryReturnRequest: {
-            expectedAgreementRevision: number;
-            /** Format: uuid */
-            idempotencyKey: string;
-        };
-        DeliveryReturnReceipt: {
-            /** Format: uuid */
-            orderId: string;
-            /** Format: uuid */
-            ledgerId: string;
-            agreementRevision: number;
-            points: number;
         };
         PublicationTargetResponse: {
             /** Format: uuid */
@@ -2978,6 +3050,88 @@ export interface components {
         NotificationReadAllResponse: {
             unreadCount: number;
         };
+        SupportCreateRequest: {
+            /** Format: uuid */
+            publishingOrderId?: string;
+            subject: string;
+            message: string;
+            /** Format: uuid */
+            rechargeOrderId?: string;
+            /** Format: uuid */
+            requestId: string;
+        };
+        SupportReceiptResponse: {
+            /** Format: uuid */
+            ticketId: string;
+            /** Format: uuid */
+            eventId: string;
+            revision: number;
+        };
+        SupportOrderContextResponse: {
+            id: string;
+            title: string;
+            number: number;
+            endedAt: string | null;
+            appealUntil: string | null;
+            openTicketId: string | null;
+            canCreate: boolean;
+            reason: string | null;
+        };
+        SupportSummaryResponse: {
+            publishingOrderId: string | null;
+            id: string;
+            sequence: number;
+            subject: string;
+            /** @enum {string} */
+            kind: "GENERAL" | "RECHARGE" | "ORDER";
+            /** @enum {string} */
+            status: "PROCESSING" | "RESOLVED";
+            revision: number;
+            assigned: boolean;
+            mine: boolean;
+            createdAt: string;
+            updatedAt: string;
+        };
+        SupportPageResponse: {
+            order: components["schemas"]["SupportOrderContextResponse"] | null;
+            items: components["schemas"]["SupportSummaryResponse"][];
+            nextBefore: number | null;
+        };
+        SupportEventResponse: {
+            id: string;
+            action: string;
+            author: string;
+            message: string | null;
+            revision: number;
+            createdAt: string;
+        };
+        SupportDetailResponse: {
+            publishingOrderId: string | null;
+            id: string;
+            sequence: number;
+            subject: string;
+            /** @enum {string} */
+            kind: "GENERAL" | "RECHARGE" | "ORDER";
+            /** @enum {string} */
+            status: "PROCESSING" | "RESOLVED";
+            revision: number;
+            assigned: boolean;
+            mine: boolean;
+            createdAt: string;
+            updatedAt: string;
+            rechargeOrderId: string | null;
+            events: components["schemas"]["SupportEventResponse"][];
+            nextAfter: number | null;
+        };
+        SupportCommandRequest: {
+            /** @enum {string} */
+            action: "CLAIM" | "REPLY" | "RESOLVE" | "RELEASE";
+            /** @description Required except when claiming */
+            message?: string;
+            expectedRevision: number;
+            /** Format: uuid */
+            requestId: string;
+        };
         RechargeOptionsResponse: {
             available: boolean;
             controlled: boolean;
@@ -3253,6 +3407,41 @@ export interface components {
             locationPreview: components["schemas"]["StoreLocationPreviewResponse"];
             queryLocality: components["schemas"]["QueryLocalityResponse"];
         };
+        AdminPointRecordResponse: {
+            /** Format: uuid */
+            id: string;
+            sequence: number;
+            /** @enum {string} */
+            kind: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE" | "ORDER_RETURN";
+            /** Format: uuid */
+            returnedOrderId?: string | null;
+            /** Format: uuid */
+            publishingOrderId: string | null;
+            /** Format: uuid */
+            rechargeOrderId?: string | null;
+            amount: number;
+            balanceAfter: number;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            accountId: string;
+            /** Format: uuid */
+            actorAccountId: string | null;
+            /** Format: uuid */
+            idempotencyKey: string | null;
+            /** @enum {string} */
+            actorKind?: "ACCOUNT" | "SYSTEM";
+            grantedDelta: number;
+            fundedDelta: number;
+            internalNote: string | null;
+            businessReference: string | null;
+            accountMobile: string;
+        };
+        AdminPointRecordsResponse: {
+            items: components["schemas"]["AdminPointRecordResponse"][];
+            nextCursor: string | null;
+        };
         PointCustomerIdentityResponse: {
             /** Format: uuid */
             id: string;
@@ -3344,6 +3533,27 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    AdminOrderSettlementController_inspect: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminOrderSettlementResponse"];
+                };
+            };
+        };
+    };
     HealthController_live: {
         parameters: {
             query?: never;
@@ -3461,7 +3671,7 @@ export interface operations {
             query?: {
                 cursorSequence?: number;
                 cursorCreatedAt?: string;
-                state?: "ACTIVE" | "COMPLETED" | "CLOSED" | "PENDING_RETURN";
+                state?: "ALL" | "ACTIVE" | "COMPLETED" | "CLOSED" | "PENDING_RETURN";
                 limit?: number;
                 scope?: "POOL" | "MINE" | "ALL";
             };
@@ -3648,31 +3858,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AssignmentResult"];
-                };
-            };
-        };
-    };
-    DeliveryResolutionController_settle: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orderId: unknown;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SettleDeliveryReturnRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeliveryReturnReceipt"];
                 };
             };
         };
@@ -5153,6 +5338,114 @@ export interface operations {
             };
         };
     };
+    SupportController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                before?: number;
+                status?: "PROCESSING" | "RESOLVED";
+                scope?: "mine" | "pool" | "all";
+                publishingOrderId?: string;
+            };
+            header: {
+                /** @description Expected signed-in account */
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportPageResponse"];
+                };
+            };
+        };
+    };
+    SupportController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account */
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupportCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportReceiptResponse"];
+                };
+            };
+        };
+    };
+    SupportController_detail: {
+        parameters: {
+            query?: {
+                after?: number;
+            };
+            header: {
+                /** @description Expected signed-in account */
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportDetailResponse"];
+                };
+            };
+        };
+    };
+    SupportController_command: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Expected signed-in account */
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupportCommandRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportReceiptResponse"];
+                };
+            };
+        };
+    };
     CustomerRechargeController_options: {
         parameters: {
             query?: never;
@@ -5700,6 +5993,36 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StoreLocationVerificationResponse"];
+                };
+            };
+        };
+    };
+    AdminPointRecordsController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+                createdBefore?: string;
+                createdFrom?: string;
+                kind?: "ADMIN_ADJUSTMENT" | "PUBLISHING_ORDER" | "RECHARGE" | "ORDER_RETURN";
+                referenceId?: string;
+                mobile?: string;
+                accountId?: string;
+            };
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPointRecordsResponse"];
                 };
             };
         };

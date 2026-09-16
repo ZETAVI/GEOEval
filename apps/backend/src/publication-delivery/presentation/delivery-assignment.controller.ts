@@ -43,7 +43,7 @@ export class DeliveryAssignmentController {
   @ApiQuery({
     name: "state",
     required: false,
-    enum: ["ACTIVE", "COMPLETED", "CLOSED", "PENDING_RETURN"],
+    enum: ["ALL", "ACTIVE", "COMPLETED", "CLOSED", "PENDING_RETURN"],
   })
   @ApiQuery({ name: "cursorCreatedAt", required: false, type: String })
   @ApiQuery({ name: "cursorSequence", required: false, type: Number })

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   negotiatedResolutionInputSchema,
   resolveNegotiatedAgreement,
-  requireReturnSettlement,
   type ResolutionOrder,
 } from "../src/publication-delivery/domain/negotiated-resolution.js";
 
@@ -66,7 +65,7 @@ describe("negotiated fulfilment and settlement decisions (no persistence)", () =
     const current = order({
       agreement: agreement(),
       stopped: true,
-      status: "EXCEPTION_HANDLING",
+      status: "CLOSED",
     });
     expect(
       resolveNegotiatedAgreement(current, operator, input(), 300),
@@ -115,7 +114,7 @@ describe("negotiated fulfilment and settlement decisions (no persistence)", () =
       ),
     ).toThrow();
   });
-  it("normalizes a required reason and records a positive stop without closing", () => {
+  it("normalizes a required reason and closes publishing before a positive final return", () => {
     expect(
       resolveNegotiatedAgreement(
         order(),
@@ -124,7 +123,7 @@ describe("negotiated fulfilment and settlement decisions (no persistence)", () =
         300,
       ),
     ).toMatchObject({
-      status: "EXCEPTION_HANDLING",
+      status: "CLOSED",
       stopped: true,
       agreement: { reason: "协商结果", points: 100 },
     });
@@ -157,7 +156,6 @@ describe("negotiated fulfilment and settlement decisions (no persistence)", () =
   });
   it.each([
     order({ status: "COMPLETED", publishedQuantity: 3 }),
-    order({ status: "CLOSED", stopped: true }),
     order({ returnRecorded: true }),
   ])("cannot terminate or renegotiate an ended order: %o", (current) => {
     expect(() =>
@@ -184,45 +182,17 @@ describe("negotiated fulfilment and settlement decisions (no persistence)", () =
       ),
     ).toMatchObject({ stopped: true, status: "CLOSED" });
   });
-  it("permits only an exact eligible positive administrator settlement", () => {
-    const stopped = order({
-      stopped: true,
-      status: "EXCEPTION_HANDLING",
-      agreement: agreement(),
-    });
-    expect(requireReturnSettlement(stopped, admin, 1)).toEqual({
-      agreementRevision: 1,
-      points: 100,
+  it("can revise an ended but unsettled agreement without reopening publishing", () => {
+    expect(
+      resolveNegotiatedAgreement(
+        order({ status: "CLOSED", stopped: true, agreement: agreement() }),
+        operator,
+        input(150),
+        300,
+      ),
+    ).toMatchObject({
       status: "CLOSED",
+      agreement: { points: 150, revision: 2 },
     });
-    expect(() => requireReturnSettlement(stopped, admin, 2)).toThrow(
-      /协商已变化/,
-    );
-    expect(() => requireReturnSettlement(stopped, operator, 1)).toThrow(
-      /管理员/,
-    );
-    expect(() =>
-      requireReturnSettlement(stopped, { ...admin, status: "INACTIVE" }, 1),
-    ).toThrow(/管理员/);
   });
-  it("completed compensation settles without turning Completed into Closed", () => {
-    const current = order({
-      status: "COMPLETED",
-      publishedQuantity: 3,
-      agreement: agreement(100, "CONTINUE"),
-    });
-    expect(requireReturnSettlement(current, admin, 1).status).toBe("COMPLETED");
-  });
-  it.each([
-    order({ agreement: agreement(0), stopped: true }),
-    order({ agreement: agreement(), stopped: false }),
-    order({ agreement: agreement(100, "CONTINUE") }),
-    order({ agreement: agreement(), stopped: true, returnRecorded: true }),
-    order({ agreement: agreement(), stopped: true, status: "CLOSED" }),
-  ])(
-    "does not authorize money for zero, unfinished, or already ended settlement: %o",
-    (current) => {
-      expect(() => requireReturnSettlement(current, admin, 1)).toThrow();
-    },
-  );
 });

@@ -5,7 +5,7 @@ export const deliveryListQuerySchema = z
   .object({
     scope: z.enum(["POOL", "MINE", "ALL"]).default("POOL"),
     state: z
-      .enum(["ACTIVE", "COMPLETED", "CLOSED", "PENDING_RETURN"])
+      .enum(["ALL", "ACTIVE", "COMPLETED", "CLOSED", "PENDING_RETURN"])
       .default("ACTIVE"),
     limit: z.coerce.number().int().min(1).max(50).default(20),
     cursorCreatedAt: z.string().datetime().optional(),

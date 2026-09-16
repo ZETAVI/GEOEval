@@ -50,7 +50,7 @@
   customer-safe progress, normal automatic completion and deadline-priority
   workbench presentation also use that owner. Manual negotiation, precise
   replacement, remaining-work termination and eligibility use Delivery; actual
-  original-order returns and linked point history use Commerce. Their detailed
+  original-order returns and linked point history use Commerce. Support conversation, order appeal admission and responsibility now use [Support](../support/spec.md); final automatic settlement and all-customer ledger reads use Commerce. Their detailed
   scenarios are extracted below. The marker is explicitly retained for the other
   unactivated capabilities, not a second owner of implemented fulfilment or returns.
 
@@ -1335,7 +1335,7 @@ recharge alone, and returned points SHALL never become effective commission.
 
 - **WHEN** an order problem cannot be resolved through replacement and customer
   service agrees to terminate remaining work with a positive full or partial point return
-- **THEN** an administrator returns the agreed points and the order closes
+- **THEN** publishing closes immediately and the system returns agreed points after the final settlement conditions owned by Commerce are met
 - **AND** the returned amount is excluded from effective commission
 - **AND** a full return leaves no effective commission for the order
 - **AND** when a partially returned order closes, successfully delivered and
@@ -1629,7 +1629,7 @@ than internal operations detail.
   precise media, manually accept delivery, or close the order
 - **AND** when consultation is required, the page states that customer service
   will contact the customer and retains the support entry
-- **AND** replacement and point return continue through the approved manual path
+- **AND** replacement is negotiated by operations; point return follows the automatic final settlement rules owned by Commerce
 
 Normal result recording/correction, immediate customer visibility, completion
 from actual purchased quantity, delay/priority presentation, manual negotiation,
@@ -1637,9 +1637,7 @@ replacement and termination are owned by
 [Publication Delivery](../publication-delivery/spec.md). Its customer-safe view
 distinguishes completed publication from Closed partial service and promised
 compensation from actual credit. The narrow once-only original-order return is
-owned by [Publishing Commerce](../publishing-commerce/spec.md). There is no
-customer application/acceptance step, automatic refund or return-as-publication
-shortcut. These are activated owner-local rules, not future scenarios here.
+owned by [Publishing Commerce](../publishing-commerce/spec.md). Customers can submit issues through [Support](../support/spec.md), without automatically crediting points or accepting delivery. The current operator confirms the agreement; the system executes final settlement. These are activated owner-local rules, not future scenarios here.
 
 ### Requirement: Bounded publication-link availability
 
