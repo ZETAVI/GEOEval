@@ -1,3 +1,4 @@
+import { AdminOrderSettlementController } from "./publication-delivery/presentation/admin-order-settlement.controller.js";
 import { OrderSettlementModule } from "./application/order-settlement.module.js";
 import { OrderSettlementAccess } from "./publishing-commerce/infrastructure/order-settlement-access.js";
 import { OrderSupportReader } from "./publishing-commerce/infrastructure/order-support-reader.js";
@@ -78,6 +79,7 @@ export class ApiModule {
         FoundationModule,
       ],
       controllers: [
+        AdminOrderSettlementController,
         HealthController,
         FoundationController,
         DeliveryAssignmentController,

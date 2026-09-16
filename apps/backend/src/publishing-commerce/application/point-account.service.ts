@@ -131,7 +131,7 @@ function customerChange(row: PointChangeRecord) {
     createdAt: row.createdAt,
   };
 }
-function adminChange(row: PointChangeRecord) {
+export function adminChange(row: PointChangeRecord) {
   return {
     ...customerChange(row),
     accountId: row.accountId,

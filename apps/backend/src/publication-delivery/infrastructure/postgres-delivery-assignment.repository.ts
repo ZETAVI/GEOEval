@@ -24,25 +24,32 @@ export class PostgresDeliveryAssignmentRepository {
     if (actor.role !== "OPERATIONS" && actor.role !== "ADMINISTRATOR")
       throw new ForbiddenException();
     if (
-      (query.scope === "ALL" || query.state === "PENDING_RETURN") &&
+      (query.scope === "ALL" ||
+        query.state === "ALL" ||
+        query.state === "PENDING_RETURN") &&
       actor.role !== "ADMINISTRATOR"
     )
       throw new ForbiddenException();
-    const terminal = query.state === "COMPLETED" || query.state === "CLOSED";
+    const terminal =
+      query.state === "ALL" ||
+      query.state === "COMPLETED" ||
+      query.state === "CLOSED";
     const comparison = terminal ? "lt" : "gt";
     return this.prisma.publicationDelivery.findMany({
       where: {
-        ...(query.state === "PENDING_RETURN"
-          ? { agreedReturnPoints: { gt: 0 }, settledLedgerId: null }
-          : {
-              status: terminal
-                ? (query.state as "COMPLETED" | "CLOSED")
-                : {
-                    notIn: ["COMPLETED", "CLOSED"] as (
-                      "COMPLETED" | "CLOSED"
-                    )[],
-                  },
-            }),
+        ...(query.state === "ALL"
+          ? {}
+          : query.state === "PENDING_RETURN"
+            ? { agreedReturnPoints: { gt: 0 }, settledLedgerId: null }
+            : {
+                status: terminal
+                  ? (query.state as "COMPLETED" | "CLOSED")
+                  : {
+                      notIn: ["COMPLETED", "CLOSED"] as (
+                        "COMPLETED" | "CLOSED"
+                      )[],
+                    },
+              }),
         ...(query.state !== "PENDING_RETURN" && query.scope === "POOL"
           ? { assigneeAccountId: null }
           : {}),

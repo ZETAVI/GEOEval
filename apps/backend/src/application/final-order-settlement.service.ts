@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, ConflictException } from "@nestjs/common";
 import { PrismaService } from "../infrastructure/prisma.service.js";
 import { Prisma } from "../generated/prisma/client.js";
 import { PostgresOrderReturnAccess } from "../publishing-commerce/infrastructure/postgres-order-return-access.js";
@@ -26,6 +26,34 @@ export class FinalOrderSettlementService {
     LEFT JOIN order_settlements s ON s.order_id=d.order_id WHERE s.order_id IS NULL AND d.ended_at + INTERVAL '72 hours'<=clock_timestamp()
     ${after ? Prisma.sql`AND d.order_id>${after}::uuid` : Prisma.empty} ORDER BY d.order_id LIMIT ${limit}`);
   }
+  async inspect(orderId: string) {
+    return this.db.$transaction(
+      async (tx) => {
+        await tx.$executeRaw`SET TRANSACTION READ ONLY`;
+        const delivery = await this.deliveries.read(tx, orderId);
+        const window = orderSupportWindow(delivery);
+        const final = await this.settlements.read(tx, orderId);
+        const facts = await this.settlements.context(tx, orderId);
+        const hasOpenIssue = await this.support.hasOpen(tx, orderId);
+        const [clock] = await tx.$queryRaw<
+          Array<{ now: Date }>
+        >`SELECT clock_timestamp() AS now`;
+        return {
+          orderId,
+          ...facts,
+          endedAt: window.endedAt,
+          appealUntil: window.deadline,
+          hasOpenIssue,
+          agreedPoints: delivery.agreedReturnPoints,
+          settledAt: final?.settledAt ?? null,
+          windowElapsed: Boolean(
+            window.deadline && clock!.now >= window.deadline,
+          ),
+        };
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
+    );
+  }
   async settle(orderId: string) {
     return this.db.$transaction(async (tx) => {
       const old = await this.settlements.read(tx, orderId);
@@ -40,10 +68,11 @@ export class FinalOrderSettlementService {
         return { kind: "waiting" as const };
       if (await this.support.hasOpen(tx, orderId))
         return { kind: "waiting" as const };
-      let ledgerId = delivery.settledLedgerId;
-      if (delivery.agreedReturnPoints > 0 && !ledgerId) {
+      if (delivery.settledLedgerId)
+        throw new ConflictException("订单结算记录不完整，请核查");
+      let ledgerId: string | null = null;
+      if (delivery.agreedReturnPoints > 0) {
         const receipt = await commerce.credit(
-          null,
           {
             idempotencyKey: orderId,
             expectedAgreementRevision: delivery.agreementRevision,

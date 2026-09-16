@@ -16,7 +16,6 @@ export class DeliveryResolutionResponse {
   @ApiProperty({ type: Boolean }) stopped!: boolean;
   @ApiProperty({ type: "integer", nullable: true }) returnedPoints!:
     number | null;
-  @ApiProperty({ type: Boolean }) eligible!: boolean;
 }
 export class CustomerResolutionResponse {
   @ApiProperty({

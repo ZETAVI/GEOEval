@@ -94,7 +94,6 @@ export class PublicationDeliveryWorkflowService {
       exceptionReason: row.exceptionReason,
       stopped: row.stoppedAt !== null,
       returnedPoints: await this.returnedPoints(row),
-      eligible: false,
     };
   }
   async replacementTargets(

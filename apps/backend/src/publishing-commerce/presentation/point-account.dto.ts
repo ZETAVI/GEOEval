@@ -70,3 +70,12 @@ export class PointAdminHistoryResponse {
   @ApiProperty({ type: "integer", nullable: true }) nextBeforeSequence!:
     number | null;
 }
+
+export class AdminPointRecordResponse extends PointAdminChangeResponse {
+  @ApiProperty({ type: String }) accountMobile!: string;
+}
+export class AdminPointRecordsResponse {
+  @ApiProperty({ type: [AdminPointRecordResponse] })
+  items!: AdminPointRecordResponse[];
+  @ApiProperty({ type: String, nullable: true }) nextCursor!: string | null;
+}

@@ -1,4 +1,5 @@
 "use client";
+import { BusinessRecordsNavigation } from "../records/navigation.js";
 import { useEffect, useRef, useState } from "react";
 import {
   ApiRequestError,
@@ -94,6 +95,7 @@ export function AdminRechargeWorkspace({ orderId }: { orderId?: string }) {
             刷新
           </button>
         </header>
+        <BusinessRecordsNavigation active="recharges" />
         {state.error && (
           <p role="alert" className={styles.error}>
             {state.error}
@@ -161,6 +163,9 @@ export function RechargeAdminDetail({ order }: { order: AdminRechargeDetail }) {
   ];
   return (
     <section className={styles.panel}>
+      <p>
+        <a href={`/admin/records?referenceId=${order.id}`}>查看到账积分流水</a>
+      </p>
       <div className={styles.detailTitle}>
         <h2>订单与到账</h2>
         <span>{rechargeLabels[order.status]}</span>

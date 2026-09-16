@@ -23,4 +23,4 @@ Operations SHALL maintain one whole-point total on the original order, with reas
 - **WHEN** the new order settlement capability is active
 - **THEN** order and ticket handling use one agreed-total path
 - **AND** the old separate administrator credit action cannot bypass final settlement eligibility
-- **AND** historical unpaid obligations remain discoverable and recoverable
+- **AND** no second legacy credit or historical backfill path is retained for development data

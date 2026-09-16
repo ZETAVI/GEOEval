@@ -8,6 +8,7 @@ const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 
 type AdminSection =
+  | "records"
   | "overview"
   | "accounts"
   | "media"
@@ -32,6 +33,17 @@ export function AdminSidebar({
       </a>
       <div className="admin-area-label">管理员工作区</div>
       <nav aria-label="管理员功能">
+        <a
+          className={active === "records" ? "side-link active" : "side-link"}
+          href="/admin/records"
+          aria-current={active === "records" ? "page" : undefined}
+        >
+          <i>录</i>
+          <span>
+            <b>业务记录</b>
+            <small>积分、充值、订单与工单</small>
+          </span>
+        </a>
         <a
           className={active === "support" ? "side-link active" : "side-link"}
           href="/admin/support"

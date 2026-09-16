@@ -1,3 +1,5 @@
+import { AdminPointRecordsController } from "./presentation/admin-point-records.controller.js";
+import { AdminPointRecordsService } from "./application/admin-point-records.service.js";
 import { Module } from "@nestjs/common";
 import { PointAccountService } from "./application/point-account.service.js";
 import { POINT_ACCOUNT_REPOSITORY } from "./domain/point-account.js";
@@ -11,8 +13,13 @@ import {
  * The application root supplies the existing global Identity and Persistence.
  */
 @Module({
-  controllers: [PointAdminController, PointCustomerController],
+  controllers: [
+    AdminPointRecordsController,
+    PointAdminController,
+    PointCustomerController,
+  ],
   providers: [
+    AdminPointRecordsService,
     PostgresPointAccountRepository,
     {
       provide: POINT_ACCOUNT_REPOSITORY,

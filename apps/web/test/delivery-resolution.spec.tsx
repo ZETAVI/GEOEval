@@ -31,7 +31,6 @@ const baseResolution: OperationalOrder["resolution"] = {
   exceptionReason: null,
   stopped: false,
   returnedPoints: null,
-  eligible: false,
   finalized: false,
 };
 function order(
@@ -82,7 +81,6 @@ const positive = () =>
       points: 90,
       reason: "已协商补偿",
       agreementRevision: 2,
-      eligible: true,
     },
     "COMPLETED",
   );
@@ -184,7 +182,7 @@ describe("explicit negotiated resolution", () => {
     expect(html).not.toContain("已退还 0");
   });
   it("shows pending positive obligations while work is incomplete and after completion", () => {
-    const waiting = { ...positive().resolution, eligible: false };
+    const waiting = positive().resolution;
     expect(
       renderToStaticMarkup(<DeliveryResolutionSummary resolution={waiting} />),
     ).toContain("已约定退回 90 积分，待订单结束结算");

@@ -25,8 +25,6 @@ import { AssignmentResult } from "./delivery-assignment.dto.js";
 import {
   SaveDeliveryResolutionRequest,
   DeliveryExceptionRequest,
-  SettleDeliveryReturnRequest,
-  DeliveryReturnReceipt,
   DeliveryReplacementTargetsResponse,
 } from "./delivery-resolution.dto.js";
 
@@ -65,19 +63,6 @@ export class DeliveryResolutionController {
     @Body() raw: unknown,
   ) {
     return this.workflow.exception(actor, id, raw);
-  }
-  @Post(":orderId/settlement")
-  @HttpCode(200)
-  @RequireAccountRoles("ADMINISTRATOR")
-  @ApiParam({ name: "orderId", format: "uuid" })
-  @ApiBody({ type: SettleDeliveryReturnRequest })
-  @ApiOkResponse({ type: DeliveryReturnReceipt })
-  settle(
-    @CurrentPrincipal() actor: AuthenticatedPrincipal,
-    @Param("orderId", ParseUUIDPipe) id: string,
-    @Body() raw: unknown,
-  ) {
-    return this.workflow.settle(actor, id, raw);
   }
   @Get(":orderId/replacement-targets")
   @ApiParam({ name: "orderId", format: "uuid" })

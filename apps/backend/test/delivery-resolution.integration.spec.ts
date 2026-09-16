@@ -390,7 +390,7 @@ describe("unified order handling and final system settlement with real PostgreSQ
     expect((await agree(100)).response.status).toBe(200);
     expect((await current()).status).toBe("CLOSED");
     expect(await settle()).toEqual({ kind: "waiting" });
-    expect((await action("settlement", 0, settlement())).status).toBe(410);
+    expect((await action("settlement", 0, settlement())).status).toBe(404);
     expect(await returned()).toHaveLength(0);
   });
   it("credits once for an inactive original customer and preserves original sources and immutable ledger", async () => {
@@ -671,30 +671,56 @@ describe("unified order handling and final system settlement with real PostgreSQ
     20000,
   );
 
-  it("retains a legacy actual return and adds only finality, without crediting twice", async () => {
-    await mature();
-    await prisma.$transaction(async (tx) => {
-      const port = await app.get(PostgresOrderReturnAccess).bind(tx, orderId);
-      const receipt = await port.credit(ids[0]!, settlement(), 100);
-      await tx.publicationDelivery.update({
-        where: { orderId },
-        data: { settledLedgerId: receipt.ledgerId },
-      });
+  it("shows settlement evidence and order ledgers to administrators without changing money", async () => {
+    const ticket = await mature(100, true);
+    const path = `/admin/orders/${orderId}/settlement`;
+    expect((await http(path, 2)).status).toBe(403);
+    expect((await http(path, 1)).status).toBe(403);
+    const before = await current();
+    const waiting = await (await http(path, 0)).json();
+    expect(waiting).toMatchObject({
+      orderId,
+      accountId: ids[1],
+      agreedPoints: 100,
+      hasOpenIssue: true,
+      windowElapsed: true,
+      settledAt: null,
+      returnedPoints: null,
     });
-    const wallet = await prisma.pointAccount.findUniqueOrThrow({
-      where: { accountId: ids[1]! },
-    });
-    const original = (await returned())[0]!;
-    expect(await settle()).toMatchObject({
-      kind: "settled",
-      receipt: { ledgerId: original.id, points: 100 },
-    });
-    expect(await returned()).toEqual([original]);
+    expect(waiting.consumptionLedgerId).toBeTruthy();
+    expect(await current()).toEqual(before);
+    expect(await returned()).toHaveLength(0);
     expect(
-      await prisma.pointAccount.findUniqueOrThrow({
-        where: { accountId: ids[1]! },
-      }),
-    ).toEqual(wallet);
+      (
+        await http(`/support/tickets/${ticket.id}/actions`, 2, "POST", {
+          action: "RESOLVE",
+          message: "确认处理完毕",
+          expectedRevision: ticket.revision,
+          requestId: randomUUID(),
+        })
+      ).status,
+    ).toBe(201);
+    await settle();
+    const after = await (await http(path, 0)).json();
+    expect(after).toMatchObject({
+      hasOpenIssue: false,
+      returnedPoints: 100,
+      returnLedgerId: (await returned())[0]!.id,
+    });
+    expect(after.settledAt).toBeTruthy();
+    const ledger = await (
+      await http(`/admin/points/records?referenceId=${orderId}`, 0)
+    ).json();
+    expect(ledger.items.map((v: { kind: string }) => v.kind).sort()).toEqual([
+      "ORDER_RETURN",
+      "PUBLISHING_ORDER",
+    ]);
+    expect((await http("/delivery/orders?scope=ALL&state=ALL", 0)).status).toBe(
+      200,
+    );
+    expect(
+      (await http("/delivery/orders?scope=MINE&state=ALL", 2)).status,
+    ).toBe(403);
   });
 
   it("precise replacement keeps the original purchase and recovers an old successful target request", async () => {
@@ -795,7 +821,7 @@ describe("unified order handling and final system settlement with real PostgreSQ
     await expect(
       prisma.$transaction(async (tx) => {
         const port = await app.get(PostgresOrderReturnAccess).bind(tx, orderId);
-        await port.credit(null, settlement(), 100);
+        await port.credit(settlement(), 100);
       }),
     ).rejects.toThrow();
     expect(await returned()).toHaveLength(0);

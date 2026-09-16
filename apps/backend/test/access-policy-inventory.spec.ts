@@ -86,6 +86,16 @@ const expectedControllerPolicies: Record<
     handler: string,
   ) => Pick<RoutePolicy, "publicAccess" | "csrfExempt" | "roles">
 > = {
+  AdminPointRecordsController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["ADMINISTRATOR"],
+  }),
+  AdminOrderSettlementController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["ADMINISTRATOR"],
+  }),
   SupportController: (handler) => ({
     publicAccess: false,
     csrfExempt: false,
@@ -120,11 +130,7 @@ const expectedControllerPolicies: Record<
     publicAccess: false,
     csrfExempt: false,
     roles:
-      handler === "settle"
-        ? ["ADMINISTRATOR"]
-        : handler === "targets"
-          ? ["OPERATIONS", "ADMINISTRATOR"]
-          : ["OPERATIONS"],
+      handler === "targets" ? ["OPERATIONS", "ADMINISTRATOR"] : ["OPERATIONS"],
   }),
   DeliveryAssignmentController: (handler) => ({
     publicAccess: false,

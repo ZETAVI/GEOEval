@@ -1,4 +1,5 @@
 "use client";
+import { BusinessRecordsNavigation } from "../../admin/records/navigation.js";
 import { useEffect, useRef, useState } from "react";
 import {
   actOnDeliveryOrder,
@@ -12,6 +13,7 @@ import {
   type DeliveryOrderState,
   type OperationalOrder,
 } from "@geoeval/api-client";
+import { AdminOrderSettlementPanel } from "../../admin/records/order-settlement.js";
 import { AdminSidebar } from "../../admin/admin-sidebar.js";
 import { SafeMarkdown } from "../../diagnosis/safe-markdown.js";
 import { AgreementSummary } from "../../publishing/agreement-summary.js";
@@ -39,7 +41,6 @@ const actionLabels: Record<string, string> = {
   REPORT_EXCEPTION: "记录异常",
   CLEAR_EXCEPTION: "解除异常",
   SAVE_RESOLUTION: "保存协商处理",
-  RETURN_POINTS: "执行协商退点",
 };
 
 export function appendDeliveryPage(
@@ -101,7 +102,9 @@ export function DeliveryWorkspace({
   const [scope, setScope] = useState<"POOL" | "MINE" | "ALL">(
     admin ? "ALL" : "POOL",
   );
-  const [state, setState] = useState<DeliveryOrderState>("ACTIVE");
+  const [state, setState] = useState<DeliveryOrderState>(
+    admin ? "ALL" : "ACTIVE",
+  );
   const [page, setPage] = useState<DeliveryOrderPage>({
     items: [],
     nextCursor: null,
@@ -332,6 +335,7 @@ export function DeliveryWorkspace({
             </button>
           </div>
         </header>
+        {admin && <BusinessRecordsNavigation active="orders" />}
         {error && (
           <p className="form-error" role="alert">
             {error}
@@ -388,7 +392,9 @@ export function DeliveryWorkspace({
                     "ACTIVE",
                     "COMPLETED",
                     "CLOSED",
-                    ...(admin ? ["PENDING_RETURN" as const] : []),
+                    ...(admin
+                      ? ["ALL" as const, "PENDING_RETURN" as const]
+                      : []),
                   ] as const
                 ).map((value) => (
                   <button
@@ -407,6 +413,7 @@ export function DeliveryWorkspace({
                   >
                     {
                       {
+                        ALL: "全部状态",
                         ACTIVE: "待处理与进行中",
                         COMPLETED: "已完成",
                         CLOSED: "已关闭",
@@ -652,6 +659,13 @@ export function DeliveryWorkspace({
               >
                 订单问题与沟通
               </a>
+            )}
+            {admin && session.kind === "ready" && (
+              <AdminOrderSettlementPanel
+                orderId={order.id}
+                actorId={session.account.id}
+                revision={order.delivery.revision}
+              />
             )}
             <DeliveryResolutionPanel
               key={`${order.id}:${session.account.id}`}

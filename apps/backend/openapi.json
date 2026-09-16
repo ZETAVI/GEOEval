@@ -1,6 +1,36 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/admin/orders/{id}/settlement": {
+      "get": {
+        "operationId": "AdminOrderSettlementController_inspect",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrderSettlementResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-orders"
+        ]
+      }
+    },
     "/health/live": {
       "get": {
         "operationId": "HealthController_live",
@@ -150,6 +180,7 @@
             "in": "query",
             "schema": {
               "enum": [
+                "ALL",
                 "ACTIVE",
                 "COMPLETED",
                 "CLOSED",
@@ -457,46 +488,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AssignmentResult"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "publication-delivery"
-        ]
-      }
-    },
-    "/delivery/orders/{orderId}/settlement": {
-      "post": {
-        "operationId": "DeliveryResolutionController_settle",
-        "parameters": [
-          {
-            "name": "orderId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SettleDeliveryReturnRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DeliveryReturnReceipt"
                 }
               }
             }
@@ -3802,6 +3793,106 @@
         ]
       }
     },
+    "/admin/points/records": {
+      "get": {
+        "operationId": "AdminPointRecordsController_list",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdBefore",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "ADMIN_ADJUSTMENT",
+                "PUBLISHING_ORDER",
+                "RECHARGE",
+                "ORDER_RETURN"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "referenceId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mobile",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accountId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPointRecordsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-points"
+        ]
+      }
+    },
     "/admin/points/accounts/{accountId}": {
       "get": {
         "operationId": "PointAdminController_balance",
@@ -3998,6 +4089,66 @@
   "servers": [],
   "components": {
     "schemas": {
+      "AdminOrderSettlementResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "consumptionLedgerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "returnLedgerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "returnedPoints": {
+            "type": "number",
+            "nullable": true
+          },
+          "agreedPoints": {
+            "type": "number"
+          },
+          "endedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "appealUntil": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "settledAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "windowElapsed": {
+            "type": "boolean"
+          },
+          "hasOpenIssue": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "orderId",
+          "accountId",
+          "consumptionLedgerId",
+          "returnLedgerId",
+          "returnedPoints",
+          "agreedPoints",
+          "endedAt",
+          "appealUntil",
+          "settledAt",
+          "windowElapsed",
+          "hasOpenIssue"
+        ]
+      },
       "FoundationEffectResponse": {
         "type": "object",
         "properties": {
@@ -4100,9 +4251,6 @@
           "returnedPoints": {
             "type": "integer",
             "nullable": true
-          },
-          "eligible": {
-            "type": "boolean"
           }
         },
         "required": [
@@ -4113,8 +4261,7 @@
           "reason",
           "exceptionReason",
           "stopped",
-          "returnedPoints",
-          "eligible"
+          "returnedPoints"
         ]
       },
       "DeliveryScheduleResponse": {
@@ -4796,48 +4943,6 @@
           "expectedRevision",
           "idempotencyKey",
           "reason"
-        ]
-      },
-      "SettleDeliveryReturnRequest": {
-        "type": "object",
-        "properties": {
-          "expectedAgreementRevision": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "idempotencyKey": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "expectedAgreementRevision",
-          "idempotencyKey"
-        ]
-      },
-      "DeliveryReturnReceipt": {
-        "type": "object",
-        "properties": {
-          "orderId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "ledgerId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "agreementRevision": {
-            "type": "integer"
-          },
-          "points": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "orderId",
-          "ledgerId",
-          "agreementRevision",
-          "points"
         ]
       },
       "PublicationTargetResponse": {
@@ -11014,6 +11119,130 @@
           "expiresAt",
           "locationPreview",
           "queryLocality"
+        ]
+      },
+      "AdminPointRecordResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sequence": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ADMIN_ADJUSTMENT",
+              "PUBLISHING_ORDER",
+              "RECHARGE",
+              "ORDER_RETURN"
+            ]
+          },
+          "returnedOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "publishingOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "rechargeOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "balanceAfter": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorAccountId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "actorKind": {
+            "type": "string",
+            "enum": [
+              "ACCOUNT",
+              "SYSTEM"
+            ]
+          },
+          "grantedDelta": {
+            "type": "integer"
+          },
+          "fundedDelta": {
+            "type": "integer"
+          },
+          "internalNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "businessReference": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountMobile": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sequence",
+          "kind",
+          "publishingOrderId",
+          "amount",
+          "balanceAfter",
+          "reason",
+          "createdAt",
+          "accountId",
+          "actorAccountId",
+          "idempotencyKey",
+          "grantedDelta",
+          "fundedDelta",
+          "internalNote",
+          "businessReference",
+          "accountMobile"
+        ]
+      },
+      "AdminPointRecordsResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminPointRecordResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
         ]
       },
       "PointCustomerIdentityResponse": {

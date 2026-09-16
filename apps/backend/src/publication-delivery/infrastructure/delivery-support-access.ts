@@ -19,12 +19,14 @@ export class DeliverySupportAccess {
       data: { settledLedgerId: ledgerId, revision: { increment: 1 } },
     });
   }
+  async read(tx: Prisma.TransactionClient, orderId: string) {
+    const row = await tx.publicationDelivery.findUnique({ where: { orderId } });
+    if (!row) throw new NotFoundException("未找到发布订单");
+    return row;
+  }
   async lock(tx: Prisma.TransactionClient, orderId: string) {
     await tx.$queryRaw`SELECT order_id FROM publication_deliveries WHERE order_id=${orderId}::uuid FOR NO KEY UPDATE`;
-    const delivery = await tx.publicationDelivery.findUnique({
-      where: { orderId },
-    });
-    if (!delivery) throw new NotFoundException("未找到可访问的发布订单");
+    const delivery = await this.read(tx, orderId);
     const [clock] = await tx.$queryRaw<
       Array<{ now: Date }>
     >`SELECT clock_timestamp() AS now`;

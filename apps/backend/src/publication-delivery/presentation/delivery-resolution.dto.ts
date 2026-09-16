@@ -19,17 +19,6 @@ export class DeliveryExceptionRequest extends AssignmentRequest {
   @ApiProperty({ type: String, maxLength: 320, nullable: true }) reason!:
     string | null;
 }
-export class SettleDeliveryReturnRequest {
-  @ApiProperty({ type: "integer", minimum: 1 })
-  expectedAgreementRevision!: number;
-  @ApiProperty({ type: String, format: "uuid" }) idempotencyKey!: string;
-}
-export class DeliveryReturnReceipt {
-  @ApiProperty({ type: String, format: "uuid" }) orderId!: string;
-  @ApiProperty({ type: String, format: "uuid" }) ledgerId!: string;
-  @ApiProperty({ type: "integer" }) agreementRevision!: number;
-  @ApiProperty({ type: "integer" }) points!: number;
-}
 export class DeliveryReplacementTargetsResponse {
   @ApiProperty({ type: [PublicationTargetResponse] })
   items!: PublicationTargetResponse[];

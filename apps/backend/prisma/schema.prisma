@@ -1200,6 +1200,7 @@ model PointChange {
   @@unique([id, rechargeOrderId, accountId], map: "point_change_recharge_identity_key")
   @@unique([id, publishingOrderId, accountId], map: "point_change_consumption_identity_key")
   @@unique([id, returnedOrderId], map: "point_change_return_identity_key")
+  @@index([createdAt, id])
   @@map("point_changes")
 }
 

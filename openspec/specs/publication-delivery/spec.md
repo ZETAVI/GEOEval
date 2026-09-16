@@ -5,7 +5,7 @@
 This owner implements admission, whole-order responsibility, sparse publication
 work, explicitly Mock/manual content preparation, result recording/correction,
 customer-safe progress, deadline-priority work lists, automatic normal completion,
-manually negotiated replacement/termination and atomic order-point settlement
+operator-negotiated replacement/termination and automatic final order-point settlement
 through the Commerce owner. Real publishing providers, customer self-service
 refunds and payment-channel refunds are outside this capability.
 Local/branch verification is not integration or production enablement.
@@ -187,75 +187,55 @@ public result fields and progress, never preparation, channels, notes or audit.
 - **THEN** a delay marker accompanies its actual state
 - **AND** elapsed time alone never publishes, completes, closes or refunds it.
 
-### Requirement: Explicit manual negotiation without a second approval workflow
+### Requirement: Unified operator handling
 
-The current responsible operator SHALL save an order-level agreement with a
-reason, continuation/termination mode and whole-point total between zero and the
-original consumption. Exceptions and agreements SHALL retain exact actor-bound
-requests, revisions and before/after audit in their owning transaction.
+The current responsible operator SHALL save one explicit whole-point return total between zero and the original consumption, a continuation/termination mode and a customer-visible explanation. A revision replaces the total rather than adding another refund. The order update, Support conversation, optional issue resolution and audit SHALL commit together. Existing internal notes SHALL NOT be copied automatically into a public explanation.
 
-#### Scenario: Operations records or revises the offline agreement
+#### Scenario: Operator confirms an issue
+- **WHEN** the current operator saves an agreement or confirms handling from the order or its open ticket
+- **THEN** current account, order responsibility and expected order/ticket revisions are checked
+- **AND** stale or changed requests cannot overwrite newer customer feedback
+- **AND** a same-request replay recovers success only while the caller retains current authority
+- **AND** handling itself does not credit points; outstanding follow-up stays open.
 
-- **WHEN** the operator explicitly saves the agreed outcome
-- **THEN** the new form may default to zero, but editing preloads the actual saved
-  amount; the request must explicitly include the amount
-- **AND** stale revisions and changed contents under a used request key conflict
-- **AND** exact same-actor successful retries recover the original receipt without
-  reverting newer responsibility, agreement or status
-- **AND** reporting/clearing an exception does not itself grant points or undo a
-  stop; no customer application, extra finalization step or automatic refund exists.
+#### Scenario: Precise replacement or termination
+- **WHEN** operations replaces an unpublished precise target
+- **THEN** effective Media Supply eligibility and replacement history remain required, and the original purchased quantity/target stay immutable
+- **WHEN** operations terminates remaining service with either zero or positive agreed points
+- **THEN** remaining ordinary publishing stops and the order immediately becomes Closed, without waiting for points
+- **AND** published results stay available and stopped work cannot reopen through an agreement edit.
 
-#### Scenario: A precise placement is replaced by agreement
+### Requirement: Stable fulfilment end and one customer appeal
 
-- **WHEN** the responsible operator explicitly replaces an unpublished precise slot
-- **THEN** the current Media Supply port validates the effective target in the
-  save transaction and the reason/old/new targets remain in work history
-- **AND** the frozen purchased target and quantity are unchanged; customer results
-  distinguish the purchased target from the actual publishing target
-- **AND** incompatible preparation is cleared, a published platform cannot be
-  replaced, and ordinary random allocation remains within purchased scope
-- **AND** continuing work does not wait for administrator compensation, and no
-  surcharge, per-item return calculation or additional publication count is created.
+Delivery SHALL record the first transition to Completed, or the first closure after stopping remaining publishing. The original end time SHALL survive later result corrections, replies and financial settlement. A customer SHALL have at most one successfully admitted new appeal during the continuous 72 hours after that end; ongoing admitted tickets may continue beyond it.
 
-#### Scenario: Continue service with a positive agreed compensation
+#### Scenario: End and appeal race
+- **WHEN** completion/closure and appeal submission overlap
+- **THEN** the locked order and actual server admission time determine one consistent stage and deadline
+- **AND** a duplicate accepted request recovers its ticket without consuming another opportunity
+- **AND** admission at or after the deadline cannot create new order-appeal eligibility
 
-- **WHEN** saved mode is Continue
-- **THEN** work may continue and publication completion is based only on actual
-  results against the original quantity
-- **AND** the positive unpaid obligation remains visible, but settlement becomes
-  eligible only when publishing has completed
-- **AND** administrator payment leaves Completed unchanged; promised and actually
-  returned points remain distinct customer-visible facts.
+### Requirement: One revisable agreed return total
 
-#### Scenario: Stop the whole remaining service
+Operations SHALL maintain one whole-point total on the original order, with reason and history. Changing it SHALL replace the total, not accumulate separate refunds. It SHALL not cause immediate point credit. A positive termination SHALL end publishing before the eventual financial settlement instead of waiting for credit to permit closure.
 
-- **WHEN** the current operator explicitly saves Terminate with zero points
-- **THEN** remaining ordinary work stops and the order becomes Closed immediately
-  with history, no ledger entry and no administrator task
-- **WHEN** the operator saves Terminate with a positive amount
-- **THEN** remaining ordinary work stops in Exception handling until the exact
-  agreement is credited and Closed in the same transaction
-- **AND** a later explicitly saved zero revision may close without credit only if
-  it wins against the administrator settlement; neither race can silently erase a return
-- **AND** all actual results and original quantity remain; stopping is irreversible
-  in this slice, and return never counts as successful publication.
+#### Scenario: Several negotiations
+- **WHEN** the agreed total changes from 100 to 150 points before settlement
+- **THEN** the eventual return uses the final confirmed 150 points once
+- **AND** the customer-facing pending text remains "已约定退回 150 积分，待订单结束结算"
 
-### Requirement: One composed settlement, not a second wallet owner
+#### Scenario: Existing agreement/admin-credit flow is retired
+- **WHEN** the new order settlement capability is active
+- **THEN** order and ticket handling use one agreed-total path
+- **AND** the old separate administrator credit action cannot bypass final settlement eligibility
+- **AND** no second legacy credit or historical backfill path is retained for development data
 
-Administrator settlement SHALL bind locked Identity, Commerce wallet/original
-consumption and Delivery agreement/eligibility in that order, then commit the
-credit, return ledger, settled reference, terminal outcome and audit together.
+### Requirement: Administrator settlement context
 
-#### Scenario: Administrator confirms the exact positive agreement
+Administrators SHALL view all orders and read the first end, appeal deadline, relevant unresolved issues, agreed total, actual return and final receipt from a consistent read-only snapshot. Links to order point entries and Support SHALL use real business identities and recheck authorization.
 
-- **WHEN** an active administrator submits the agreement revision and request key
-- **THEN** the amount/customer come from owner records rather than browser overrides
-- **AND** Commerce enforces source restoration, reservation-aware capacity and
-  actor-bound once-only recovery under its [specification](../publishing-commerce/spec.md)
-- **AND** audit/ledger failure rolls everything back; concurrent zero closure or a
-  changed agreement cannot leave a credit for an obsolete outcome
-- **AND** customer inactivity does not hide or prevent the original-order obligation,
-  and settling it does not restore customer access
-- **AND** the browser retains the exact actor/order/revision/key in tab storage
-  before sending, preserves uncertain retries and does not generate a new key
-  merely because refreshing the successful result failed.
+#### Scenario: No final receipt exists
+- **WHEN** an order has ended but its window or admitted issue remains outstanding
+- **THEN** the relevant business facts explain the wait
+- **WHEN** these conditions are satisfied but no receipt exists
+- **THEN** the view indicates that execution needs checking rather than asserting payment failure or exposing a forced credit action.

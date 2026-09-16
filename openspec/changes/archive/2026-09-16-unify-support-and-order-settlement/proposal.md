@@ -1,5 +1,7 @@
 # 统一客服与订单最终自动退点
 
+归档说明：本文件保留当时提案与批准范围；现行行为以 Support、Delivery、Commerce 的 current specs 为准，最终集成证据由 PR #108 持有。
+
 Owner: [Issue #107](https://github.com/ZETAVI/GEOEval/issues/107)，父 [Issue #100](https://github.com/ZETAVI/GEOEval/issues/100)。Class: architectural。
 
 ## 交付结果
@@ -16,12 +18,14 @@ Owner: [Issue #107](https://github.com/ZETAVI/GEOEval/issues/107)，父 [Issue #
 
 ## 范围
 
-包含独立 Support 模块、统一入口与对话、普通工单领取、订单/工单双向链接、订单约定总额与售后资格、首次完成/关闭时间、可靠自动退点、必要管理查询、旧入口和存量义务过渡。
+包含独立 Support 模块、统一入口与对话、普通工单领取、订单/工单双向链接、订单约定总额与售后资格、首次完成/关闭时间、可靠自动退点、统一业务记录及必要管理查询、旧入口收敛。
+
+本轮用户明确：现有数据均为开发测试数据，不建设新旧双套逻辑，不以保全旧测试数据或历史回填为交付门槛；充值工单暂不增加关联充值摘要。保留最新流程的原子记账、一次退点与进程恢复验证。
 
 不包含佣金余额与提现、现金退款、新支付方式、真实电话/短信集成、通用工作流或复杂派单、生产启用。佣金片读取本片结果，继续沿用已合并的购买归属/费率快照。
 
 ## 当前事实与文档影响
 
-当前 main@f37f9e0 已有原单退点、协商审计、当前订单责任、系统后台进程和支付核验；没有本片工单及自动最终结算。当前权威见 [Publication Delivery](../../specs/publication-delivery/spec.md)、[Publishing Commerce](../../specs/publishing-commerce/spec.md)、[Agency Order Terms](../../specs/agency-order-terms/spec.md)、[Recharge](../../specs/recharge/spec.md)。
+当前 main@f37f9e0 已有原单退点、协商审计、当前订单责任、系统后台进程和支付核验；没有本片工单及自动最终结算。当前权威见 [Publication Delivery](../../../specs/publication-delivery/spec.md)、[Publishing Commerce](../../../specs/publishing-commerce/spec.md)、[Agency Order Terms](../../../specs/agency-order-terms/spec.md)、[Recharge](../../../specs/recharge/spec.md)。
 
 文档影响：add Support spec；update Delivery/Commerce/产品术语与架构当前 owner；generate OpenAPI；retire 旧双步骤入口说明。稳定行为经实现验证后对账，不把本提案写成当前运行能力。产品演进标记继续保留给佣金入账和提现。

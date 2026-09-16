@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { isDeepStrictEqual } from "node:util";
 import type { Prisma, PointChange } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import { lockPointAccount } from "./point-account-lock.js";
@@ -53,38 +52,7 @@ export class PostgresOrderReturnAccess {
     )
       throw new ConflictException("原消费记录不完整，请保留订单后核查");
     return {
-      async replay(actorAccountId: string, request: OrderReturnRequest) {
-        const prior = await tx.pointChange.findUnique({
-          where: {
-            accountId_idempotencyKey: {
-              accountId: order.accountId,
-              idempotencyKey: request.idempotencyKey,
-            },
-          },
-        });
-        if (prior) {
-          if (
-            prior.kind !== "ORDER_RETURN" ||
-            prior.returnedOrderId !== orderId ||
-            prior.actorAccountId !== actorAccountId ||
-            !isDeepStrictEqual(prior.returnRequest, request)
-          )
-            throw new ConflictException("该操作标识已用于其他积分操作");
-          return receipt(prior);
-        }
-        if (
-          await tx.pointChange.findUnique({
-            where: { returnedOrderId: orderId },
-          })
-        )
-          throw new ConflictException("该订单已经执行退点，请核对原记录");
-        return null;
-      },
-      async credit(
-        actorAccountId: string | null,
-        request: OrderReturnRequest,
-        points: number,
-      ) {
+      async credit(request: OrderReturnRequest, points: number) {
         const next = computeOrderPointReturn(
           { granted: -original.grantedDelta, funded: -original.fundedDelta },
           points,
@@ -99,10 +67,9 @@ export class PostgresOrderReturnAccess {
             accountId: order.accountId,
             sequence: next.balance.revision,
             kind: "ORDER_RETURN",
-            actorKind: actorAccountId === null ? "SYSTEM" : "ACCOUNT",
-            actorAccountId,
-            idempotencyKey:
-              actorAccountId === null ? null : request.idempotencyKey,
+            actorKind: "SYSTEM",
+            actorAccountId: null,
+            idempotencyKey: null,
             returnedOrderId: orderId,
             originalConsumptionId: original.id,
             returnRequest: request,

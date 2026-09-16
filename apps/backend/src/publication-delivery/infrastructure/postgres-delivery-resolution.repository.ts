@@ -119,15 +119,7 @@ export class PostgresDeliveryResolutionRepository {
     if (!prior) return null;
     if (
       prior.actorAccountId !== actor.accountId ||
-      !isDeepStrictEqual(
-        request.action === "SAVE_RESOLUTION"
-          ? {
-              resolveTicket: false,
-              ...(prior.request as Prisma.InputJsonObject),
-            }
-          : prior.request,
-        request,
-      )
+      !isDeepStrictEqual(prior.request, request)
     )
       throw new ConflictException("该操作标识已对应其他请求");
     return { orderId, revision: prior.revision };

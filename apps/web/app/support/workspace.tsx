@@ -1,4 +1,5 @@
 "use client";
+import { BusinessRecordsNavigation } from "../admin/records/navigation.js";
 import {
   useCallback,
   useEffect,
@@ -166,6 +167,9 @@ export function SupportWorkspace({
             </div>
             {ticketId && <a href={home(role)}>返回工单列表</a>}
           </header>
+          {role === "ADMINISTRATOR" && (
+            <BusinessRecordsNavigation active="support" />
+          )}
           <SupportContent
             key={`${account.id}:${ticketId ?? "list"}:${publishingOrderId ?? "all"}`}
             refreshEpoch={epoch}

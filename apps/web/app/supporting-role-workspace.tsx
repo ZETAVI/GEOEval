@@ -215,6 +215,12 @@ export function supportingRoleConfig(
         "管理员治理账号、角色与平台级资料，不代替运营履约，也不拥有客户品牌内容。",
       cards: [
         {
+          title: "业务记录",
+          description: "从积分流水、充值、发布订单和客服工单查看全量业务记录。",
+          status: "AVAILABLE",
+          href: "/admin/records",
+        },
+        {
           title: "账号与访问",
           description:
             "查看账号、固定角色、状态、活跃会话与治理审计，并执行受控账号治理。",
@@ -248,7 +254,7 @@ export function supportingRoleConfig(
         {
           title: "履约订单",
           description:
-            "查看履约与协商记录、按需改派，并在“待退点”中确认执行已约定退点。",
+            "查看履约与协商记录、按需改派，并核查“待退点”订单的自动结算依据。",
           status: "AVAILABLE",
           href: "/admin/delivery",
         },

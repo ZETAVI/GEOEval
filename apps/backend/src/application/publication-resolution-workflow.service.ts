@@ -1,9 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  GoneException,
-} from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { AuthenticatedPrincipal } from "../identity/domain/identity.types.js";
 import { PublishingOrderService } from "../publishing-commerce/application/publishing-order.service.js";
 import { PostgresDeliveryResolutionRepository } from "../publication-delivery/infrastructure/postgres-delivery-resolution.repository.js";
@@ -53,8 +48,5 @@ export class PublicationResolutionWorkflowService {
   }
   exception(actor: AuthenticatedPrincipal, id: string, input: unknown) {
     return this.resolutions.exception(actor, id, input);
-  }
-  settle(_actor: AuthenticatedPrincipal, _id: string, _raw: unknown): never {
-    throw new GoneException("订单退点已改为系统最终结算，请查看订单和积分流水");
   }
 }
