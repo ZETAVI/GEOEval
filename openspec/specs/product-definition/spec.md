@@ -14,7 +14,7 @@
   are owned by [Agency Entry](../agency-entry/spec.md). Current service
   relationships, administrator reassignment and customer/brand/report access
   are owned by [Agency Customer Service](../agency-customer-service/spec.md).
-  Retain this marker for later commission settlement and withdrawal activation; purchase snapshots are owned by [Agency Order Terms](../agency-order-terms/spec.md).
+  Commission estimates and final entries now belong to [Agency Commission](../agency-commission/spec.md). Retain this marker for withdrawal activation; purchase snapshots are owned by [Agency Order Terms](../agency-order-terms/spec.md).
 - Completed extraction: S6 provider execution, protected provider evidence,
   semantic route recovery, and public report projection are owned by the
   [evaluation-evidence](../evaluation-evidence/spec.md) and
@@ -43,7 +43,7 @@
   Customer recharge API/history, controlled Native checkout and saved publishing
   continuation now follow [Recharge](../recharge/spec.md). This marker is explicitly
   retained for real-merchant/operational activation, maintained amount policy,
-  recharge invoices and commission; controlled testing does not activate them.
+  recharge invoices and withdrawals; controlled testing does not activate them.
   Order admission, exclusive whole-order responsibility, explicit start/return
   and administrator reassignment now use [Publication Delivery](../publication-delivery/spec.md).
   Sparse work items, Mock/manual preparation, effective results/corrections,
@@ -1312,59 +1312,7 @@ ineligible for the future commission capability below.
 - **AND** the initial product does not require a general point-history rollback
   feature
 
-Current purchase attribution, commission switch/rate configuration and suspension behavior are owned by [agency order terms](../agency-order-terms/spec.md). Missing configuration means disabled; enabled zero rate remains commission participation. Historical purchase terms do not change on later suspension or migration. The following ledger/settlement/withdrawal requirements remain future activation.
-
-### Requirement: Commission follows fulfilled order consumption
-
-Agent performance and commission SHALL be based on real commission-eligible
-consumption in attributed customers' paid publishing orders rather than on
-recharge alone, and returned points SHALL never become effective commission.
-
-#### Scenario: An attributed customer submits and completes an order
-
-- **WHEN** the attributed customer successfully submits a paid publishing order with commission enabled for an active agent at purchase time
-- **THEN** its commission-eligible consumption creates pending performance and
-  commission for the agent recorded on that order
-- **AND** the commission does not become effective merely because the customer
-  recharged or submitted the order
-- **BUT WHEN** the publishing order completes successfully and the continuous 72-hour point-return appeal window has elapsed
-- **AND** all appeals initiated within that window and agreed point returns have been resolved
-- **THEN** the eligible commission becomes effective
-
-#### Scenario: Customer service agrees a point return
-
-- **WHEN** an order problem cannot be resolved through replacement and customer
-  service agrees to terminate remaining work with a positive full or partial point return
-- **THEN** publishing closes immediately and the system returns agreed points after the final settlement conditions owned by Commerce are met
-- **AND** the returned amount is excluded from effective commission
-- **AND** a full return leaves no effective commission for the order
-- **AND** when a partially returned order closes, successfully delivered and
-  non-returned customer-funded consumption becomes effective commission
-
-#### Scenario: An agent reviews commission composition
-
-- **WHEN** an attributed order creates pending or effective commission
-- **THEN** the agent can open a commission detail linked to that order
-- **AND** the detail shows the order number, customer and brand, order-submission
-  and resolution times, total point consumption, granted-point consumption,
-  customer-funded-point consumption, returned points split by origin, final
-  commission-eligible points, captured commission rate, estimated or effective
-  commission amount, and commission status
-- **AND** the customer still sees only the unified point balance and ordinary
-  order or return totals
-
-#### Scenario: The product calculates commission money
-
-- **WHEN** an attributed order records pending commission
-- **THEN** calculation uses the immutable eligibility and rate captured under
-  [agency order terms](../agency-order-terms/spec.md)
-- **AND** estimated or effective commission equals final commission-eligible
-  points divided by ten and multiplied by the captured rate
-- **AND** commission is recorded and shown in renminbi rather than customer
-  points
-- **AND** the amount is rounded to the nearest fen, with a half-fen rounded up
-- **AND** the initial product does not require package-specific, media-specific,
-  or performance-tier rate rules
+Current purchase attribution, commission switch/rate configuration and suspension behavior are owned by [Agency Order Terms](../agency-order-terms/spec.md). Estimates, final retained-funded-consumption commission, immutable entries and scoped earnings queries are owned by [Agency Commission](../agency-commission/spec.md). Closed orders participate regardless of publication count. The following withdrawal requirements remain future activation.
 
 ### Requirement: Manually reviewed agent withdrawals
 

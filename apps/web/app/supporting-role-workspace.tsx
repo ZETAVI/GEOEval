@@ -316,8 +316,7 @@ export function supportingRoleConfig(
   return {
     eyebrow: "代理商工作区",
     title: "客户与收益总览",
-    introduction:
-      "代理商身份已经可独立登录；客户归因、业绩订单、佣金与提现仍由后续业务模块提供。",
+    introduction: "代理商身份已经可独立登录；可查看属于自己的订单佣金明细。",
     boundary:
       "代理商只查看归因客户与自身收益，不获得客户账号角色，也不能管理平台或履约订单。",
     navigation: [
@@ -328,7 +327,12 @@ export function supportingRoleConfig(
         href: "/agent",
       },
       { label: "客户管理", description: "已归因客户与品牌", mark: "客" },
-      { label: "佣金明细", description: "已确认与待结算收益", mark: "佣" },
+      {
+        label: "佣金明细",
+        description: "预计与已入账收益",
+        mark: "佣",
+        href: "/agent/commissions",
+      },
       { label: "提现记录", description: "申请与处理状态", mark: "提" },
     ],
     cards: [
@@ -339,8 +343,9 @@ export function supportingRoleConfig(
       },
       {
         title: "业绩与佣金",
-        description: "未来只从真实的佣金资格、订单消费和结算记录形成摘要。",
-        status: "FUTURE_CAPABILITY",
+        description: "查看订单预计佣金、已入账收益和计算明细。",
+        status: "AVAILABLE",
+        href: "/agent/commissions",
       },
       {
         title: "提现状态",

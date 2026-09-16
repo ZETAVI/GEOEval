@@ -4,6 +4,38 @@
  */
 
 export interface paths {
+    "/agency/commissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CommissionController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/commissions/{orderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CommissionController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/orders/{id}/settlement": {
         parameters: {
             query?: never;
@@ -1608,6 +1640,43 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        CommissionResponse: {
+            orderId: string;
+            number: number;
+            title: string;
+            agentId: string;
+            customerId: string;
+            brandId: string;
+            /** Format: date-time */
+            createdAt: string;
+            status: string;
+            rateBps: number;
+            originalFundedPoints: number;
+            originalGrantedPoints: number;
+            returnFundedPoints: number;
+            returnGrantedPoints: number;
+            eligibleFundedPoints: number;
+            returnConfirmed: boolean;
+            /** Format: date-time */
+            settledAt: string | null;
+            /** Format: date-time */
+            bookedAt: string | null;
+            /** @enum {string} */
+            state: "PENDING" | "BOOKED";
+            /** @description Integer renminbi fen, never a floating-point point balance */
+            amountFen: string;
+        };
+        CommissionSummaryResponse: {
+            pendingFen: string;
+            bookedFen: string;
+            pendingCount: number;
+            bookedCount: number;
+        };
+        CommissionPageResponse: {
+            items: components["schemas"]["CommissionResponse"][];
+            summary: components["schemas"]["CommissionSummaryResponse"];
+            nextCursor: string | null;
+        };
         AdminOrderSettlementResponse: {
             orderId: string;
             accountId: string;
@@ -3533,6 +3602,54 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    CommissionController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+                state?: "PENDING" | "BOOKED";
+                orderId?: string;
+                agentId?: string;
+            };
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommissionPageResponse"];
+                };
+            };
+        };
+    };
+    CommissionController_detail: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommissionResponse"];
+                };
+            };
+        };
+    };
     AdminOrderSettlementController_inspect: {
         parameters: {
             query?: never;

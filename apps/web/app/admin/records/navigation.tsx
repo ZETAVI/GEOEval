@@ -1,7 +1,7 @@
 export function BusinessRecordsNavigation({
   active,
 }: {
-  active: "points" | "recharges" | "orders" | "support";
+  active: "points" | "recharges" | "orders" | "support" | "commissions";
 }) {
   return (
     <nav className="commerce-actions" aria-label="业务记录视图">
@@ -10,6 +10,7 @@ export function BusinessRecordsNavigation({
         ["recharges", "充值记录", "/admin/recharges"],
         ["orders", "发布订单", "/admin/delivery"],
         ["support", "客服工单", "/admin/support"],
+        ["commissions", "佣金明细", "/admin/commissions"],
       ].map(([key, label, href]) => (
         <a
           key={key}

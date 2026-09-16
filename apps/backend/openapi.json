@@ -1,6 +1,110 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/agency/commissions": {
+      "get": {
+        "operationId": "CommissionController_list",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "PENDING",
+                "BOOKED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "agentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommissionPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-commission"
+        ]
+      }
+    },
+    "/agency/commissions/{orderId}": {
+      "get": {
+        "operationId": "CommissionController_detail",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommissionResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-commission"
+        ]
+      }
+    },
     "/admin/orders/{id}/settlement": {
       "get": {
         "operationId": "AdminOrderSettlementController_inspect",
@@ -4089,6 +4193,145 @@
   "servers": [],
   "components": {
     "schemas": {
+      "CommissionResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "number": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "agentId": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "brandId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "rateBps": {
+            "type": "number"
+          },
+          "originalFundedPoints": {
+            "type": "number"
+          },
+          "originalGrantedPoints": {
+            "type": "number"
+          },
+          "returnFundedPoints": {
+            "type": "number"
+          },
+          "returnGrantedPoints": {
+            "type": "number"
+          },
+          "eligibleFundedPoints": {
+            "type": "number"
+          },
+          "returnConfirmed": {
+            "type": "boolean"
+          },
+          "settledAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "bookedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "BOOKED"
+            ]
+          },
+          "amountFen": {
+            "type": "string",
+            "description": "Integer renminbi fen, never a floating-point point balance"
+          }
+        },
+        "required": [
+          "orderId",
+          "number",
+          "title",
+          "agentId",
+          "customerId",
+          "brandId",
+          "createdAt",
+          "status",
+          "rateBps",
+          "originalFundedPoints",
+          "originalGrantedPoints",
+          "returnFundedPoints",
+          "returnGrantedPoints",
+          "eligibleFundedPoints",
+          "returnConfirmed",
+          "settledAt",
+          "bookedAt",
+          "state",
+          "amountFen"
+        ]
+      },
+      "CommissionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "pendingFen": {
+            "type": "string"
+          },
+          "bookedFen": {
+            "type": "string"
+          },
+          "pendingCount": {
+            "type": "number"
+          },
+          "bookedCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "pendingFen",
+          "bookedFen",
+          "pendingCount",
+          "bookedCount"
+        ]
+      },
+      "CommissionPageResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommissionResponse"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/CommissionSummaryResponse"
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "summary",
+          "nextCursor"
+        ]
+      },
       "AdminOrderSettlementResponse": {
         "type": "object",
         "properties": {

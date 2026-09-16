@@ -135,6 +135,7 @@ const apiSchema = commonSchema.extend({
 });
 
 const workerSchema = commonSchema.extend({
+  AGENCY_COMMISSION_ENABLED: z.enum(["true", "false"]).default("false"),
   ORDER_SETTLEMENT_ENABLED: z.enum(["true", "false"]).default("false"),
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -239,6 +240,7 @@ export type IdentityBootstrapConfig = {
 
 export type WorkerConfig = {
   orderSettlementEnabled?: boolean;
+  agencyCommissionEnabled?: boolean;
   databaseUrl: string;
   redisUrl: string;
   telemetryShouldFail: boolean;
@@ -436,6 +438,7 @@ export function loadWorkerConfig(
   }
   return {
     orderSettlementEnabled: parsed.ORDER_SETTLEMENT_ENABLED === "true",
+    agencyCommissionEnabled: parsed.AGENCY_COMMISSION_ENABLED === "true",
     databaseUrl: parsed.DATABASE_URL,
     redisUrl: parsed.REDIS_URL,
     telemetryShouldFail: parsed.GEOEVAL_TELEMETRY_FAIL === "1",

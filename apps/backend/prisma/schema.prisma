@@ -195,6 +195,8 @@ enum MediaQualityTier {
 }
 
 model Account {
+  commissionEntries AgencyCommission[]
+
   supportTickets SupportTicket[] @relation("SupportCustomer")
   supportAssignments SupportTicket[] @relation("SupportAssignee")
   supportEvents SupportEvent[]
@@ -1654,6 +1656,8 @@ model SupportEvent {
 }
 
 model OrderSettlement {
+  commission AgencyCommission?
+
  orderId String @id @map("order_id") @db.Uuid
  points Int
  agreementRevision Int @map("agreement_revision")
@@ -1662,4 +1666,17 @@ model OrderSettlement {
  order PublishingOrder @relation(fields:[orderId],references:[id],onDelete:Restrict,onUpdate:Restrict)
  ledger PointChange? @relation("FinalOrderSettlementLedger",fields:[ledgerId,orderId],references:[id,returnedOrderId],onDelete:Restrict,onUpdate:Restrict)
  @@map("order_settlements")
+}
+
+model AgencyCommission {
+  orderId String @id @map("order_id") @db.Uuid
+  agentAccountId String @map("agent_account_id") @db.Uuid
+  rateBps Int @map("rate_bps")
+  fundedPoints Int @map("funded_points")
+  amountFen BigInt @map("amount_fen")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  settlement OrderSettlement @relation(fields:[orderId],references:[orderId],onDelete:Restrict,onUpdate:Restrict)
+  agent Account @relation(fields:[agentAccountId],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  @@index([agentAccountId,createdAt,orderId])
+  @@map("agency_commissions")
 }
