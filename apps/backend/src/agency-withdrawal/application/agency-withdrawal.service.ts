@@ -356,7 +356,7 @@ export class AgencyWithdrawalService {
         where: { id: withdrawalId },
         data,
       });
-      const result = presentWithdrawal(row);
+      const result = presentWithdrawal(row, adminAction);
       await this.audit(tx, {
         agentId: row.agentAccountId,
         actorId: actor.accountId,
@@ -365,7 +365,7 @@ export class AgencyWithdrawalService {
         target: "REQUEST",
         action: actionName(input.action),
         withdrawalId,
-        before: presentWithdrawal(before),
+        before: presentWithdrawal(before, true),
         after: result,
         ...("reason" in input
           ? { reason: input.reason }
@@ -461,7 +461,10 @@ export class AgencyWithdrawalService {
         orderBy: { number: "desc" },
         take: query.limit + 1,
       });
-      const items = rows.slice(0, query.limit).map(presentWithdrawal);
+      const includeInternalPaymentFacts = actor.role === "ADMINISTRATOR";
+      const items = rows
+        .slice(0, query.limit)
+        .map((row) => presentWithdrawal(row, includeInternalPaymentFacts));
       return {
         items,
         nextCursor:
@@ -491,7 +494,7 @@ export class AgencyWithdrawalService {
         (actor.role === "AGENT" && row.agentAccountId !== actor.accountId)
       )
         throw new NotFoundException("未找到提现申请");
-      return presentWithdrawal(row);
+      return presentWithdrawal(row, actor.role === "ADMINISTRATOR");
     });
   }
 
@@ -687,27 +690,30 @@ function presentPolicy(
     : null;
 }
 
-function presentWithdrawal(row: {
-  id: string;
-  number: number;
-  agentAccountId: string;
-  amountFen: bigint;
-  status: AgencyWithdrawalStatus;
-  revision: number;
-  payoutRecipientType: "INDIVIDUAL" | "ENTERPRISE";
-  payoutAccountName: string;
-  payoutAccountNumberLast4: string;
-  payoutBankName: string;
-  payoutOpeningBranch: string;
-  payoutContactMobile: string;
-  submittedAt: Date;
-  approvedAt: Date | null;
-  resolvedAt: Date | null;
-  resultReason: string | null;
-  bankTransactionReference: string | null;
-  externalPaidAt: Date | null;
-  updatedAt: Date;
-}) {
+function presentWithdrawal(
+  row: {
+    id: string;
+    number: number;
+    agentAccountId: string;
+    amountFen: bigint;
+    status: AgencyWithdrawalStatus;
+    revision: number;
+    payoutRecipientType: "INDIVIDUAL" | "ENTERPRISE";
+    payoutAccountName: string;
+    payoutAccountNumberLast4: string;
+    payoutBankName: string;
+    payoutOpeningBranch: string;
+    payoutContactMobile: string;
+    submittedAt: Date;
+    approvedAt: Date | null;
+    resolvedAt: Date | null;
+    resultReason: string | null;
+    bankTransactionReference: string | null;
+    externalPaidAt: Date | null;
+    updatedAt: Date;
+  },
+  includeInternalPaymentFacts = false,
+) {
   return {
     id: row.id,
     number: row.number,
@@ -728,7 +734,9 @@ function presentWithdrawal(row: {
     resolvedAt: row.resolvedAt?.toISOString() ?? null,
     resultReason: row.resultReason,
     bankTransactionReference: row.bankTransactionReference,
-    externalPaidAt: row.externalPaidAt?.toISOString() ?? null,
+    externalPaidAt: includeInternalPaymentFacts
+      ? (row.externalPaidAt?.toISOString() ?? null)
+      : null,
     updatedAt: row.updatedAt.toISOString(),
   };
 }
