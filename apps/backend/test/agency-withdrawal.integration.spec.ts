@@ -338,7 +338,7 @@ describe("agency withdrawal from immutable booked commission", () => {
     ).toBe(1);
   });
 
-  it("keeps unknown payment reserved, completes exact amount and emits a safe result event", async () => {
+  it("keeps unknown payment reserved, keeps bank time internal, and emits a safe result event", async () => {
     await configure();
     const created = await submit();
     const paying = await command(created.body.id, 0, {
@@ -361,13 +361,30 @@ describe("agency withdrawal from immutable booked commission", () => {
       expectedRevision: 2,
       requestId: randomUUID(),
       bankTransactionReference: "BANK-20260916-001",
+      externalPaidAt: "2026-09-16T02:00:00.000Z",
       note: "线下转账已核对",
     });
     expect(completed.body).toMatchObject({
       status: "COMPLETED",
       amountFen: "600",
       bankTransactionReference: "BANK-20260916-001",
+      externalPaidAt: "2026-09-16T02:00:00.000Z",
     });
+    const agentDetail = await (
+      await http(`/agency/withdrawals/${created.body.id}`, 3)
+    ).json();
+    expect(agentDetail).toMatchObject({
+      bankTransactionReference: "BANK-20260916-001",
+      externalPaidAt: null,
+    });
+    const agentPage = await (await http("/agency/withdrawals", 3)).json();
+    expect(agentPage.items[0]).toMatchObject({ externalPaidAt: null });
+    const adminDetail = await (
+      await http(`/admin/agency-withdrawals/${created.body.id}`, 0)
+    ).json();
+    expect(adminDetail.externalPaidAt).toBe("2026-09-16T02:00:00.000Z");
+    const adminPage = await (await http("/admin/agency-withdrawals", 0)).json();
+    expect(adminPage.items[0].externalPaidAt).toBe("2026-09-16T02:00:00.000Z");
     expect(
       await (await http("/agency/withdrawals/summary", 3)).json(),
     ).toMatchObject({
