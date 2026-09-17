@@ -26,7 +26,7 @@ describe("sample parser semantic contract", () => {
   it("uses the readable brand-record model contract", () => {
     expect(SAMPLE_PARSER_CONTRACT_VERSION).toBe("2.0.0");
     expect(SAMPLE_PARSER_MODEL_CONTRACT_VERSION).toBe(
-      "evaluation.sample-parser-model@6",
+      "evaluation.sample-parser-model@7",
     );
     const task = buildSampleParserTask({
       companyName: context.companyName,
@@ -74,12 +74,14 @@ describe("sample parser semantic contract", () => {
           {
             displayName: "山岚咖啡",
             isFocusBrand: false,
+            queryRole: "CANDIDATE",
             attitude: "POSITIVE",
             mentionContext: [{ text: "适合外带。", polarity: "POSITIVE" }],
           },
           {
             displayName: "青禾咖啡",
             isFocusBrand: true,
+            queryRole: null,
             attitude: "POSITIVE",
             mentionContext: [
               {
@@ -109,6 +111,7 @@ describe("sample parser semantic contract", () => {
       expect.objectContaining({
         brandMentionId: "b1",
         displayName: "山岚咖啡",
+        role: "RECOMMENDED",
         relativePosition: 1,
         mentionContext: ["适合外带。"],
       }),
@@ -123,6 +126,7 @@ describe("sample parser semantic contract", () => {
           {
             displayName: "山岚咖啡",
             isFocusBrand: false,
+            queryRole: "CANDIDATE",
             attitude: "POSITIVE",
             mentionContext: [{ text: "适合外带。", polarity: "POSITIVE" }],
           },
@@ -156,6 +160,142 @@ describe("sample parser semantic contract", () => {
         context,
       ),
     ).toThrow(SampleParserSemanticError);
+
+    expect(() =>
+      parseAndProjectSampleParserModelOutput(
+        {
+          brands: [
+            {
+              ...brand("青禾咖啡", true),
+              queryRole: "CANDIDATE",
+            },
+          ],
+          cardInterpretation: "回答提及青禾咖啡。",
+        },
+        context,
+      ),
+    ).toThrow("cannot have query role");
+  });
+
+  it("keeps query use separate from sentiment and candidate order", () => {
+    const output = parseAndProjectSampleParserModelOutput(
+      {
+        brands: [
+          {
+            displayName: "全聚德",
+            isFocusBrand: false,
+            queryRole: "NOT_APPLICABLE",
+            attitude: "NEUTRAL",
+            mentionContext: [
+              {
+                text: "没有显示在附近设有分店。",
+                polarity: "NEUTRAL",
+              },
+            ],
+          },
+          {
+            displayName: "青禾咖啡",
+            isFocusBrand: true,
+            queryRole: null,
+            attitude: "POSITIVE",
+            mentionContext: [{ text: "仍值得考虑。", polarity: "POSITIVE" }],
+          },
+          {
+            displayName: "背景品牌",
+            isFocusBrand: false,
+            queryRole: "REFERENCE",
+            attitude: "POSITIVE",
+            mentionContext: [{ text: "只用于环境比较。", polarity: "NEUTRAL" }],
+          },
+          {
+            displayName: "山岚咖啡",
+            isFocusBrand: false,
+            queryRole: "CANDIDATE",
+            attitude: "NEGATIVE",
+            mentionContext: [
+              { text: "可作为备选但价格偏高。", polarity: "NEGATIVE" },
+            ],
+          },
+        ],
+        cardInterpretation: "回答将青禾咖啡作为相关选择。",
+      },
+      context,
+    );
+
+    expect(output.position).toBe(2);
+    expect(output.semantic.otherBrands).toEqual([
+      expect.objectContaining({
+        displayName: "全聚德",
+        role: "EXCLUDED",
+        relativePosition: null,
+        positionKind: null,
+      }),
+      expect.objectContaining({
+        displayName: "背景品牌",
+        role: "MENTIONED_ONLY",
+        relativePosition: null,
+        positionKind: null,
+      }),
+      expect.objectContaining({
+        displayName: "山岚咖啡",
+        role: "CONDITIONALLY_RECOMMENDED",
+        relativePosition: 2,
+        positionKind: "RECOMMENDATION",
+      }),
+    ]);
+  });
+
+  it("normalizes provider enum casing and a mixed overall attitude", () => {
+    const output = parseAndProjectSampleParserModelOutput(
+      {
+        brands: [
+          {
+            displayName: "青禾咖啡",
+            isFocusBrand: true,
+            queryRole: null,
+            attitude: "positive",
+            mentionContext: [{ text: "环境安静。", polarity: "positive" }],
+          },
+          {
+            displayName: "山岚咖啡",
+            isFocusBrand: false,
+            queryRole: "candidate",
+            attitude: "mixed",
+            mentionContext: [
+              { text: "适合外带但价格略高。", polarity: "neutral" },
+            ],
+          },
+        ],
+        cardInterpretation: "回答将青禾咖啡作为相关选择。",
+      },
+      context,
+    );
+
+    expect(output.semantic.targetObservations[0]?.polarity).toBe("POSITIVE");
+    expect(output.semantic.otherBrands).toEqual([
+      expect.objectContaining({
+        displayName: "山岚咖啡",
+        role: "CONDITIONALLY_RECOMMENDED",
+        relativePosition: 2,
+      }),
+    ]);
+  });
+
+  it("still rejects unknown provider enum values", () => {
+    expect(() =>
+      parseAndProjectSampleParserModelOutput(
+        {
+          brands: [
+            {
+              ...brand("青禾咖啡", true),
+              attitude: "mostly-positive",
+            },
+          ],
+          cardInterpretation: "回答提及青禾咖啡。",
+        },
+        context,
+      ),
+    ).toThrow();
   });
 
   it("allows no exact anchor and falls back to the unannotated answer", () => {
@@ -215,6 +355,7 @@ function brand(displayName: string, isFocusBrand: boolean) {
   return {
     displayName,
     isFocusBrand,
+    queryRole: isFocusBrand ? null : ("CANDIDATE" as const),
     attitude: "POSITIVE" as const,
     mentionContext: [
       {

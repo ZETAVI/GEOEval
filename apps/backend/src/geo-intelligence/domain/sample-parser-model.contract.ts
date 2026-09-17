@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import type { EvaluationQuestionKind } from "./evaluation.types.js";
 import {
+  SampleParserSemanticError,
   parseSampleParserOutput,
   sampleParserOutputSchema,
   type SampleParserAcceptanceContext,
@@ -9,36 +10,49 @@ import {
 } from "./sample-parser.contract.js";
 
 export const SAMPLE_PARSER_MODEL_CONTRACT_VERSION =
-  "evaluation.sample-parser-model@6";
+  "evaluation.sample-parser-model@7";
 
 const boundedText = (maximum: number) => z.string().trim().min(1).max(maximum);
 const polaritySchema = z.enum(["POSITIVE", "NEUTRAL", "NEGATIVE"]);
 const contentPointSchema = z
   .object({ text: boundedText(1_200), polarity: polaritySchema })
   .strict();
-const brandSchema = z
+const brandContentShape = {
+  displayName: boundedText(120),
+  attitude: polaritySchema,
+  mentionContext: z.array(contentPointSchema).max(30),
+};
+const directedBrandSchema = z
   .object({
-    displayName: boundedText(120),
-    isFocusBrand: z.boolean(),
-    attitude: polaritySchema,
-    mentionContext: z.array(contentPointSchema).max(30),
+    ...brandContentShape,
+    isFocusBrand: z.literal(true),
   })
   .strict();
-const sharedOutputShape = {
-  brands: z.array(brandSchema).max(100),
-  cardInterpretation: boundedText(600),
-};
+const queryRoleSchema = z.enum(["CANDIDATE", "REFERENCE", "NOT_APPLICABLE"]);
+const openBrandSchema = z
+  .object({
+    ...brandContentShape,
+    isFocusBrand: z.boolean(),
+    queryRole: queryRoleSchema.nullable(),
+  })
+  .strict();
 const directedModelOutputSchema = z
   .object({
-    ...sharedOutputShape,
-    brands: z
-      .array(brandSchema.extend({ isFocusBrand: z.literal(true) }))
-      .max(1),
+    brands: z.array(directedBrandSchema).max(1),
+    cardInterpretation: boundedText(600),
   })
   .strict();
-const openModelOutputSchema = z.object(sharedOutputShape).strict();
+const openModelOutputSchema = z
+  .object({
+    brands: z.array(openBrandSchema).max(100),
+    cardInterpretation: boundedText(600),
+  })
+  .strict();
 
 export type SampleParserModelOutput = z.infer<typeof openModelOutputSchema>;
+type DirectedSampleParserModelOutput = z.infer<
+  typeof directedModelOutputSchema
+>;
 
 const directedModelJsonSchema = z.toJSONSchema(directedModelOutputSchema, {
   target: "draft-2020-12",
@@ -65,16 +79,58 @@ export function parseAndProjectSampleParserModelOutput(
   }
   const modelOutput =
     context.questionKind === "BRAND_DIRECTED"
-      ? directedModelOutputSchema.parse(input)
-      : openModelOutputSchema.parse(input);
+      ? directedModelOutputSchema.parse(normalizeModelEnums(input))
+      : openModelOutputSchema.parse(normalizeModelEnums(input));
   return parseSampleParserOutput(
     projectModelOutput(modelOutput, context),
     context,
   );
 }
 
+function normalizeModelEnums(input: unknown): unknown {
+  if (!isRecord(input) || !Array.isArray(input.brands)) return input;
+  return {
+    ...input,
+    brands: input.brands.map((brand) => {
+      if (!isRecord(brand)) return brand;
+      return {
+        ...brand,
+        attitude: normalizeAttitude(brand.attitude),
+        ...(Object.hasOwn(brand, "queryRole")
+          ? { queryRole: normalizeEnumCase(brand.queryRole) }
+          : {}),
+        ...(Array.isArray(brand.mentionContext)
+          ? {
+              mentionContext: brand.mentionContext.map((point) =>
+                isRecord(point)
+                  ? {
+                      ...point,
+                      polarity: normalizeEnumCase(point.polarity),
+                    }
+                  : point,
+              ),
+            }
+          : {}),
+      };
+    }),
+  };
+}
+
+function normalizeAttitude(value: unknown): unknown {
+  const normalized = normalizeEnumCase(value);
+  return normalized === "MIXED" ? "NEUTRAL" : normalized;
+}
+
+function normalizeEnumCase(value: unknown): unknown {
+  return typeof value === "string" ? value.trim().toUpperCase() : value;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 function projectModelOutput(
-  input: SampleParserModelOutput,
+  input: SampleParserModelOutput | DirectedSampleParserModelOutput,
   context: SampleParserAcceptanceContext,
 ): SampleParserOutput {
   const focusRows = input.brands.filter((brand) => brand.isFocusBrand);
@@ -92,7 +148,13 @@ function projectModelOutput(
     normalizedNames.add(normalized);
   }
 
+  const focusIndex = input.brands.findIndex((brand) => brand.isFocusBrand);
   const focus = focusRows[0];
+  if (focus && "queryRole" in focus && focus.queryRole !== null) {
+    throw new SampleParserSemanticError([
+      `focus brand ${focus.displayName} cannot have query role`,
+    ]);
+  }
   const mentioned = focus !== undefined;
   const targetObservations =
     focus?.mentionContext.map((point, index) => ({
@@ -102,26 +164,41 @@ function projectModelOutput(
       polarity: point.polarity,
       evidenceAnchorIds: [],
     })) ?? [];
-  const otherBrands = input.brands.flatMap((brand, index) =>
-    brand.isFocusBrand
-      ? []
-      : [
-          {
-            brandMentionId: `b${index + 1}`,
-            displayName: brand.displayName,
-            observedForms: [brand.displayName],
-            role: roleForAttitude(brand.attitude),
-            relativePosition:
-              context.questionKind === "BRAND_DIRECTED" ? null : index + 1,
-            positionKind:
-              context.questionKind === "BRAND_DIRECTED"
-                ? null
-                : ("RECOMMENDATION" as const),
-            evidenceAnchorIds: [],
-            mentionContext: brand.mentionContext.map((point) => point.text),
-          },
-        ],
-  );
+  const candidatePositions = new Map<number, number>();
+  if (context.questionKind !== "BRAND_DIRECTED") {
+    let position = 0;
+    input.brands.forEach((brand, index) => {
+      if (
+        brand.isFocusBrand ||
+        ("queryRole" in brand && brand.queryRole === "CANDIDATE")
+      ) {
+        candidatePositions.set(index, ++position);
+      }
+    });
+  }
+  const otherBrands = input.brands.flatMap((brand, index) => {
+    if (brand.isFocusBrand) return [];
+    if (!("queryRole" in brand) || brand.queryRole === null) {
+      throw new SampleParserSemanticError([
+        `other brand ${brand.displayName} requires query role`,
+      ]);
+    }
+    const eligible = brand.queryRole === "CANDIDATE";
+    return [
+      {
+        brandMentionId: `b${index + 1}`,
+        displayName: brand.displayName,
+        observedForms: [brand.displayName],
+        role: roleForQueryUse(brand.queryRole, brand.attitude),
+        relativePosition: eligible
+          ? (candidatePositions.get(index) ?? null)
+          : null,
+        positionKind: eligible ? ("RECOMMENDATION" as const) : null,
+        evidenceAnchorIds: [],
+        mentionContext: brand.mentionContext.map((point) => point.text),
+      },
+    ];
+  });
   const common = {
     answerStructure: "MIXED" as const,
     targetDisplayedForms: focus ? [focus.displayName] : [],
@@ -154,7 +231,7 @@ function projectModelOutput(
     family: "OPEN_DISCOVERY",
     questionKind: context.questionKind,
     mentioned,
-    position: focus ? input.brands.indexOf(focus) + 1 : null,
+    position: focus ? focusIndex + 1 : null,
     semantic: {
       profile: "OPEN_DISCOVERY",
       ...common,
@@ -168,10 +245,15 @@ function projectModelOutput(
   };
 }
 
-function roleForAttitude(attitude: z.infer<typeof polaritySchema>) {
-  if (attitude === "POSITIVE") return "RECOMMENDED" as const;
-  if (attitude === "NEUTRAL") return "CONDITIONALLY_RECOMMENDED" as const;
-  return "EXCLUDED" as const;
+function roleForQueryUse(
+  queryRole: z.infer<typeof queryRoleSchema>,
+  attitude: z.infer<typeof polaritySchema>,
+) {
+  if (queryRole === "REFERENCE") return "MENTIONED_ONLY" as const;
+  if (queryRole === "NOT_APPLICABLE") return "EXCLUDED" as const;
+  return attitude === "POSITIVE"
+    ? ("RECOMMENDED" as const)
+    : ("CONDITIONALLY_RECOMMENDED" as const);
 }
 
 function roleForFocusAttitude(attitude: z.infer<typeof polaritySchema>) {

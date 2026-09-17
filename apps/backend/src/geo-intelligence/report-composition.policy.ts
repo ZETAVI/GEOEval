@@ -66,7 +66,6 @@ export function buildReportCompositionTask(input: {
                 position: sample.position,
                 mentionContext: sample.semantic.targetObservations.map(
                   (point) => ({
-                    pointRef: point.observationId,
                     text: point.detail,
                     polarity: point.polarity,
                   }),
@@ -104,5 +103,5 @@ function performanceProjection(metrics: EvaluationReportMetrics) {
 }
 
 function compactOutputGuide() {
-  return "输出字段为recommendationAssessment、brandPerception、positiveThemes、negativeThemes和directions。每个theme包含label、summary、pointRefs；pointRefs每项从输入复制sampleRef与pointRef。每个direction包含currentProblem、recommendedDirection、intendedImprovement和sampleRefs。保留全部字段，没有适用内容的数组填写空数组。仅输出填写实际内容后的JSON对象。";
+  return "输出字段为recommendationAssessment、brandPerception、positiveThemes、negativeThemes和directions。每个theme包含label、summary和sampleRefs；每个direction包含currentProblem、recommendedDirection、intendedImprovement和sampleRefs。sampleRefs只从输入samples复制有相应重点品牌内容的sampleRef；积极主题对应POSITIVE内容，负面主题对应NEGATIVE内容，同一引用不重复。保留全部字段，没有适用内容的数组填写空数组。仅输出填写实际内容后的JSON对象。";
 }

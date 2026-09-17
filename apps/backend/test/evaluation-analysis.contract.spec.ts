@@ -132,6 +132,10 @@ describe("formal evaluation aggregate analysis", () => {
     expect(JSON.stringify(task.outputContract.jsonSchema)).not.toContain(
       "uuid",
     );
+    expect(JSON.stringify(task.userContext)).not.toContain("pointRef");
+    expect(JSON.stringify(task.outputContract.jsonSchema)).not.toContain(
+      "pointRefs",
+    );
     expect(task.userContext.samples).toEqual([
       expect.objectContaining({ sampleRef: "s1" }),
       expect.objectContaining({ sampleRef: "s2" }),
@@ -149,7 +153,7 @@ describe("formal evaluation aggregate analysis", () => {
           {
             label: "企业服务",
             summary: "回答强调了企业综合法律需求下的服务能力。",
-            pointRefs: [{ sampleRef: "s1", pointRef: "p1" }],
+            sampleRefs: ["s1"],
           },
         ],
         negativeThemes: [],
@@ -195,7 +199,7 @@ describe("formal evaluation aggregate analysis", () => {
             {
               label: "服务",
               summary: "具备企业服务能力。",
-              pointRefs: [{ sampleRef: "s1", pointRef: "missing" }],
+              sampleRefs: ["s9"],
             },
           ],
           negativeThemes: [],

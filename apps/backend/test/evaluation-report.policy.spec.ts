@@ -67,7 +67,53 @@ describe("evaluation report metric policy", () => {
       position: 2,
     });
   });
+
+  it("counts only answer-presented candidates as competitor occurrences", () => {
+    const sample = metricSample(
+      "INDUSTRY_RECOMMENDATION",
+      false,
+      null,
+      "deepseek",
+      1,
+    );
+    const semantic = sample.interpretation?.semantic;
+    if (!semantic || semantic.profile !== "OPEN_DISCOVERY") {
+      throw new Error("Expected an open interpretation");
+    }
+    semantic.otherBrands = [
+      otherBrand("候选品牌", "RECOMMENDED", 1),
+      otherBrand("比较品牌", "MENTIONED_ONLY", null),
+      otherBrand("不适用品牌", "EXCLUDED", null),
+      otherBrand("条件候选", "CONDITIONALLY_RECOMMENDED", 2),
+    ];
+
+    expect(
+      calculateEvaluationReportMetrics([sample]).eligibleCompetitorOccurrences,
+    ).toEqual([
+      expect.objectContaining({ displayName: "候选品牌", relativePosition: 1 }),
+      expect.objectContaining({ displayName: "条件候选", relativePosition: 2 }),
+    ]);
+  });
 });
+
+function otherBrand(
+  displayName: string,
+  role:
+    "RECOMMENDED" | "CONDITIONALLY_RECOMMENDED" | "MENTIONED_ONLY" | "EXCLUDED",
+  relativePosition: number | null,
+) {
+  return {
+    brandMentionId: displayName,
+    displayName,
+    observedForms: [displayName],
+    role,
+    relativePosition,
+    positionKind:
+      relativePosition === null ? null : ("RECOMMENDATION" as const),
+    evidenceAnchorIds: [],
+    mentionContext: ["相关介绍。"],
+  };
+}
 
 function metricSample(
   questionKind: EvaluationReportMetricInput["questionKind"],
