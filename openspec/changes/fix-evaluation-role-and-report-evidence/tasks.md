@@ -32,5 +32,5 @@
       calls, 20/20 accepted samples, one resolution and one report.
 - [x] Review the fixed diff and architecture boundary.
 - [x] Reconcile the evaluation-report spec, product glossary and active Change.
-- [ ] Open a final PR with `Closes #112`, evidence and explicit follow-ups for
-      corrective retry and Worker lock renewal.
+- [x] Open final PR #115 with `Closes #112`, evidence and explicit Follow-up
+      Issues #113 and #114 for corrective retry and Worker lock renewal.
