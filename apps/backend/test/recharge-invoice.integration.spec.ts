@@ -251,6 +251,13 @@ describe("recharge invoice customer and operations lifecycle", () => {
       submission: { revision: 2, title: "互动派科技股份有限公司（修正）" },
     });
     expect(await db.rechargeInvoiceRequest.count()).toBe(1);
+    const adminDetail = await http(`/admin/recharge-invoices/${invoice.id}`, 4);
+    expect(adminDetail.status).toBe(200);
+    expect(
+      (await adminDetail.json()).audit.find(
+        (item: { action: string }) => item.action === "CORRECTION_REQUESTED",
+      ),
+    ).toMatchObject({ reason: "请按营业执照核对" });
     expect(
       await db.rechargeInvoiceSubmission.findMany({
         where: { requestId: invoice.id },
@@ -274,6 +281,25 @@ describe("recharge invoice customer and operations lifecycle", () => {
   it("allows one atomic claim and materializes bounded correction and issued notifications", async () => {
     const order = await successfulOrder();
     const invoice = await (await apply(order.id)).json();
+    const pool = await http("/operations/recharge-invoices", 2);
+    expect(pool.status).toBe(200);
+    const poolBody = await pool.json();
+    expect(poolBody.items[0]).toMatchObject({
+      id: invoice.id,
+      buyerType: "ENTERPRISE",
+      customerReference: "****0900",
+      assignee: null,
+    });
+    expect(JSON.stringify(poolBody)).not.toContain("91440101773316648W");
+    expect(JSON.stringify(poolBody)).not.toContain("3892016@qq.com");
+    expect(JSON.stringify(poolBody)).not.toContain("互动派科技股份有限公司");
+    expect(JSON.stringify(poolBody)).not.toContain("+8613900110900");
+    expect(
+      (await http(`/operations/recharge-invoices/${invoice.id}`, 2)).status,
+    ).toBe(404);
+    expect(
+      (await http(`/admin/recharge-invoices/${invoice.id}`, 4)).status,
+    ).toBe(200);
     const claim = (actor: number) =>
       http(
         `/operations/recharge-invoices/${invoice.id}/actions`,
@@ -293,6 +319,27 @@ describe("recharge invoice customer and operations lifecycle", () => {
       where: { id: invoice.id },
     });
     const assignee = current.assigneeAccountId === ids[2] ? 2 : 3;
+    const otherOperations = assignee === 2 ? 3 : 2;
+    const assignedDetail = await http(
+      `/operations/recharge-invoices/${invoice.id}`,
+      assignee,
+    );
+    expect(assignedDetail.status).toBe(200);
+    expect(await assignedDetail.json()).toMatchObject({
+      submission: {
+        title: "互动派科技股份有限公司",
+        taxNumber: "91440101773316648W",
+        email: "3892016@qq.com",
+      },
+    });
+    expect(
+      (
+        await http(
+          `/operations/recharge-invoices/${invoice.id}`,
+          otherOperations,
+        )
+      ).status,
+    ).toBe(404);
     const correctionKey = randomUUID();
     expect(
       (
@@ -362,6 +409,57 @@ describe("recharge invoice customer and operations lifecycle", () => {
     expect(
       await db.notification.count({ where: { sourceEventId: issuedEvent.id } }),
     ).toBe(1);
+  });
+
+  it("revokes full-detail access even when a former assignee replays an old claim", async () => {
+    const order = await successfulOrder();
+    const invoice = await (await apply(order.id)).json();
+    const claimRequestId = randomUUID();
+    expect(
+      (
+        await http(
+          `/operations/recharge-invoices/${invoice.id}/actions`,
+          2,
+          "POST",
+          {
+            action: "CLAIM",
+            requestId: claimRequestId,
+            expectedRevision: 1,
+          },
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await http(
+          `/admin/recharge-invoices/${invoice.id}/actions`,
+          4,
+          "POST",
+          {
+            action: "TAKE_OVER",
+            requestId: randomUUID(),
+            expectedRevision: 2,
+          },
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await http(
+          `/operations/recharge-invoices/${invoice.id}/actions`,
+          2,
+          "POST",
+          {
+            action: "CLAIM",
+            requestId: claimRequestId,
+            expectedRevision: 1,
+          },
+        )
+      ).status,
+    ).toBe(403);
+    expect(
+      (await http(`/operations/recharge-invoices/${invoice.id}`, 2)).status,
+    ).toBe(404);
   });
 
   it("gives administrators explicit assignment and takeover power without agent access", async () => {

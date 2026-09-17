@@ -3,6 +3,7 @@
 import {
   listRechargeInvoices,
   listRecharges,
+  getRechargeInvoice,
   getRechargeInvoiceDefaults,
   getRechargeInvoiceOrderSummaries,
   type RechargeInvoice,
@@ -46,7 +47,9 @@ export function RechargeRecords({
   const [invoiceBusy, setInvoiceBusy] = useState(true);
   const [rechargeError, setRechargeError] = useState("");
   const [invoiceError, setInvoiceError] = useState("");
-  const [summaryError, setSummaryError] = useState("");
+  const [summaryUnavailableOrderIds, setSummaryUnavailableOrderIds] = useState<
+    ReadonlySet<string>
+  >(new Set());
   const [dialog, setDialog] = useState<DialogState>();
   const generation = useRef(0);
 
@@ -73,29 +76,28 @@ export function RechargeRecords({
       }));
       if (!cursor) setInvoiceSummaries([]);
       if (result.items.length) {
+        const orderIds = result.items.map((item) => item.id);
+        setSummaryUnavailableOrderIds((old) =>
+          updateUnavailableOrderIds(cursor ? old : new Set(), orderIds, true),
+        );
         try {
           const summaries = await getRechargeInvoiceOrderSummaries(
             base,
             accountId,
-            result.items.map((item) => item.id),
+            orderIds,
             signal,
           );
           setInvoiceSummaries((old) => [
             ...(cursor ? old : []),
             ...summaries.items,
           ]);
-          setSummaryError("");
-        } catch (cause) {
-          if (!signal?.aborted)
-            setSummaryError(
-              cause instanceof Error
-                ? cause.message
-                : "发票状态读取失败，请刷新后重试",
-            );
+          setSummaryUnavailableOrderIds((old) =>
+            updateUnavailableOrderIds(old, orderIds, false),
+          );
+        } catch {
+          if (signal?.aborted) return;
         }
-      } else {
-        setSummaryError("");
-      }
+      } else if (!cursor) setSummaryUnavailableOrderIds(new Set());
     } catch (cause) {
       if (!signal?.aborted)
         setRechargeError(
@@ -123,8 +125,19 @@ export function RechargeRecords({
       const requested = new URLSearchParams(window.location.search).get(
         "invoice",
       );
-      const selected = result.items.find((item) => item.id === requested);
-      if (!cursor && selected) {
+      const selected = !cursor
+        ? await resolveRequestedInvoice(requested, result.items, (id) =>
+            getRechargeInvoice(base, accountId, id, signal),
+          )
+        : undefined;
+      if (selected) {
+        setInvoices((old) => ({
+          ...old,
+          items: [
+            selected,
+            ...old.items.filter((item) => item.id !== selected.id),
+          ],
+        }));
         setDialog({ invoice: selected });
         setTab("invoices");
       }
@@ -163,6 +176,9 @@ export function RechargeRecords({
       ),
     [invoiceSummaries],
   );
+  const summaryError = summaryUnavailableOrderIds.size
+    ? "部分发票状态读取失败，请刷新后重试"
+    : "";
 
   function saveInvoice(value: RechargeInvoice) {
     setInvoices((old) => ({
@@ -273,6 +289,9 @@ export function RechargeRecords({
                 <tbody>
                   {recharges.items.map((order) => {
                     const invoice = invoiceByOrder.get(order.id);
+                    const summaryUnavailable = summaryUnavailableOrderIds.has(
+                      order.id,
+                    );
                     return (
                       <tr key={order.id}>
                         <td>{date(order.createdAt)}</td>
@@ -294,7 +313,7 @@ export function RechargeRecords({
                           </Status>
                         </td>
                         <td>
-                          {summaryError ? (
+                          {summaryUnavailable ? (
                             <Status tone="neutral">待刷新</Status>
                           ) : (
                             invoiceStatus(order, invoice)
@@ -303,7 +322,7 @@ export function RechargeRecords({
                         <td className={styles.rowActions}>
                           {order.status === "SUCCESSFUL" &&
                             !invoice &&
-                            !summaryError && (
+                            !summaryUnavailable && (
                               <button
                                 type="button"
                                 onClick={() => setDialog({ order })}
@@ -484,4 +503,26 @@ function date(value: string) {
 function money(value: string) {
   const fen = BigInt(value);
   return `¥${fen / 100n}.${(fen % 100n).toString().padStart(2, "0")}`;
+}
+
+export async function resolveRequestedInvoice(
+  requested: string | null,
+  currentPage: RechargeInvoice[],
+  read: (id: string) => Promise<RechargeInvoice>,
+) {
+  if (!requested) return undefined;
+  return currentPage.find((item) => item.id === requested) ?? read(requested);
+}
+
+export function updateUnavailableOrderIds(
+  current: ReadonlySet<string>,
+  orderIds: string[],
+  unavailable: boolean,
+) {
+  const next = new Set(current);
+  for (const orderId of orderIds) {
+    if (unavailable) next.add(orderId);
+    else next.delete(orderId);
+  }
+  return next;
 }

@@ -32,6 +32,15 @@ const requestInclude = {
   customer: { select: { mobile: true } },
   assignee: { select: { id: true, mobile: true, role: true } },
 } satisfies Prisma.RechargeInvoiceRequestInclude;
+const summaryInclude = {
+  submissions: {
+    orderBy: { revision: "desc" },
+    take: 1,
+    select: { buyerType: true, revision: true, submittedAt: true },
+  },
+  customer: { select: { mobile: true } },
+  assignee: { select: { id: true, mobile: true, role: true } },
+} satisfies Prisma.RechargeInvoiceRequestInclude;
 const detailInclude = {
   ...requestInclude,
   audits: {
@@ -50,6 +59,9 @@ type InvoiceRow = Prisma.RechargeInvoiceRequestGetPayload<{
 }>;
 type InvoiceDetailRow = Prisma.RechargeInvoiceRequestGetPayload<{
   include: typeof detailInclude;
+}>;
+type InvoiceSummaryRow = Prisma.RechargeInvoiceRequestGetPayload<{
+  include: typeof summaryInclude;
 }>;
 
 @Injectable()
@@ -330,9 +342,9 @@ export class RechargeInvoiceService {
           },
           orderBy: { number: "desc" },
           take: query.limit + 1,
-          include: requestInclude,
+          include: summaryInclude,
         });
-        return page(rows, query.limit, presentInternal);
+        return page(rows, query.limit, presentInternalSummary);
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
     );
@@ -349,20 +361,15 @@ export class RechargeInvoiceService {
       await this.assertActor(tx, actor, [
         operations ? "OPERATIONS" : "ADMINISTRATOR",
       ]);
-      const row = await tx.rechargeInvoiceRequest.findFirst({
-        where: {
-          id: requestId,
-          ...(operations
-            ? {
-                OR: [
-                  { assigneeAccountId: null },
-                  { assigneeAccountId: actor.accountId },
-                ],
-              }
-            : {}),
-        },
-        include: detailInclude,
-      });
+      const row = operations
+        ? await tx.rechargeInvoiceRequest.findFirst({
+            where: { id: requestId, assigneeAccountId: actor.accountId },
+            include: requestInclude,
+          })
+        : await tx.rechargeInvoiceRequest.findFirst({
+            where: { id: requestId },
+            include: detailInclude,
+          });
       if (!row) throw new NotFoundException("未找到这份开票申请");
       return presentInternal(row);
     });
@@ -429,7 +436,14 @@ export class RechargeInvoiceService {
         input.requestId,
         digest,
       );
-      if (replay) return presentInternal(replay);
+      if (replay) {
+        if (
+          actor.role === "OPERATIONS" &&
+          replay.assigneeAccountId !== actor.accountId
+        )
+          throw new ForbiddenException("当前任务已不再由你负责");
+        return presentInternal(replay);
+      }
       if (current.revision !== input.expectedRevision)
         throw new ConflictException("开票申请已变化，请刷新后重试");
       if (current.status === "ISSUED")
@@ -458,10 +472,9 @@ export class RechargeInvoiceService {
             correctionNote: input.note ?? null,
             revision: { increment: 1 },
           };
-          reason = publicCorrectionReason(
-            input.reasonCode,
-            input.note ?? null,
-          ).summary;
+          reason =
+            input.note ??
+            publicCorrectionReason(input.reasonCode, null).summary;
           action = "CORRECTION_REQUESTED";
           break;
         case "COMPLETE":
@@ -530,7 +543,10 @@ export class RechargeInvoiceService {
               invoiceRequestId: row.id,
               rechargeOrderId: row.rechargeOrderId,
               number: row.number,
-              reason,
+              reason: publicCorrectionReason(
+                row.correctionReasonCode ?? "OTHER",
+                null,
+              ).summary,
             },
             correlationId: input.requestId,
           },
@@ -726,6 +742,31 @@ function presentInternal(row: InvoiceRow | InvoiceDetailRow) {
   };
 }
 
+function presentInternalSummary(row: InvoiceSummaryRow) {
+  const submission = row.submissions[0];
+  if (!submission) throw new Error("RECHARGE_INVOICE_SUBMISSION_MISSING");
+  return {
+    id: row.id,
+    number: row.number,
+    rechargeOrderId: row.rechargeOrderId,
+    amountFen: row.amountFen.toString(),
+    currency: row.currency as "CNY",
+    status: row.status,
+    revision: row.revision,
+    buyerType: submission.buyerType,
+    customerReference: maskMobile(row.customer.mobile),
+    assignee: row.assignee
+      ? {
+          accountId: row.assignee.id,
+          mobile: row.assignee.mobile,
+          role: row.assignee.role as "OPERATIONS" | "ADMINISTRATOR",
+        }
+      : null,
+    submittedAt: row.submittedAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
 function state(row: InvoiceRow): Prisma.InputJsonObject {
   return {
     status: row.status,
@@ -776,4 +817,8 @@ function maskEmail(value: string) {
   if (!name || !domain) return "***";
   const shown = name.slice(0, Math.min(2, name.length));
   return `${shown}${"*".repeat(Math.max(2, name.length - shown.length))}@${domain}`;
+}
+
+function maskMobile(value: string) {
+  return value.length <= 4 ? "****" : `****${value.slice(-4)}`;
 }

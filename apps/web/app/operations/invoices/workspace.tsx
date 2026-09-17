@@ -10,6 +10,8 @@ import {
   listOperationsRechargeInvoices,
   type AccountSummary,
   type InternalRechargeInvoice,
+  type InternalRechargeInvoicePage,
+  type InternalRechargeInvoiceSummary,
   type RechargeInvoiceCommand,
 } from "@geoeval/api-client";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -33,74 +35,89 @@ export function InvoiceOperationsWorkspace({
 }) {
   const admin = role === "ADMINISTRATOR";
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
-  const [items, setItems] = useState<InternalRechargeInvoice[]>([]);
+  const [items, setItems] = useState<InternalRechargeInvoiceSummary[]>([]);
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
   const [scope, setScope] = useState<"UNASSIGNED" | "MINE">("UNASSIGNED");
   const [status, setStatus] = useState("");
   const [selected, setSelected] = useState<InternalRechargeInvoice>();
   const [operations, setOperations] = useState<AccountSummary[]>([]);
   const [busy, setBusy] = useState(true);
+  const [claimingId, setClaimingId] = useState("");
   const [error, setError] = useState("");
   const request = useRef<AbortController | undefined>(undefined);
 
-  const load = useCallback(async () => {
-    request.current?.abort();
-    const abort = new AbortController();
-    request.current = abort;
-    setBusy(true);
-    setError("");
-    try {
-      const next = await loadRoleSession(base, role);
-      if (abort.signal.aborted) return;
-      setSession(next);
-      if (next.kind !== "ready") {
-        setItems([]);
-        return;
-      }
-      const page = admin
-        ? await listAdminRechargeInvoices(
-            base,
-            next.account.id,
-            {
-              ...(status
-                ? { status: status as InternalRechargeInvoice["status"] }
-                : {}),
-            },
-            abort.signal,
-          )
-        : await listOperationsRechargeInvoices(
-            base,
-            next.account.id,
-            {
-              scope,
-              ...(status
-                ? { status: status as InternalRechargeInvoice["status"] }
-                : {}),
-            },
-            abort.signal,
+  const load = useCallback(
+    async (cursor?: number) => {
+      request.current?.abort();
+      const abort = new AbortController();
+      request.current = abort;
+      setBusy(true);
+      setError("");
+      try {
+        const next = await loadRoleSession(base, role);
+        if (abort.signal.aborted) return;
+        setSession(next);
+        if (next.kind !== "ready") {
+          setItems([]);
+          setNextCursor(null);
+          return;
+        }
+        const page = admin
+          ? await listAdminRechargeInvoices(
+              base,
+              next.account.id,
+              {
+                ...(status
+                  ? {
+                      status:
+                        status as InternalRechargeInvoiceSummary["status"],
+                    }
+                  : {}),
+                ...(cursor ? { cursor } : {}),
+              },
+              abort.signal,
+            )
+          : await listOperationsRechargeInvoices(
+              base,
+              next.account.id,
+              {
+                scope,
+                ...(status
+                  ? {
+                      status:
+                        status as InternalRechargeInvoiceSummary["status"],
+                    }
+                  : {}),
+                ...(cursor ? { cursor } : {}),
+              },
+              abort.signal,
+            );
+        if (!abort.signal.aborted) {
+          setItems((old) =>
+            mergeInternalInvoicePage(old, page, cursor !== undefined),
           );
-      if (!abort.signal.aborted) setItems(page.items);
-      if (admin) {
-        const accounts = await listAdminAccounts(base, {
-          role: "OPERATIONS",
-          status: "ACTIVE",
-          limit: 50,
-        });
-        if (!abort.signal.aborted) setOperations(accounts.items);
+          setNextCursor(page.nextCursor);
+        }
+        if (admin && cursor === undefined) {
+          const accounts = await listAllOperations(abort.signal);
+          if (!abort.signal.aborted) setOperations(accounts);
+        }
+      } catch (cause) {
+        if (!abort.signal.aborted)
+          setError(cause instanceof Error ? cause.message : "开票任务读取失败");
+      } finally {
+        if (!abort.signal.aborted) setBusy(false);
       }
-    } catch (cause) {
-      if (!abort.signal.aborted)
-        setError(cause instanceof Error ? cause.message : "开票任务读取失败");
-    } finally {
-      if (!abort.signal.aborted) setBusy(false);
-    }
-  }, [admin, role, scope, status]);
+    },
+    [admin, role, scope, status],
+  );
 
   useEffect(() => {
     void load();
     return () => request.current?.abort();
   }, [load]);
 
-  async function open(item: InternalRechargeInvoice) {
+  async function open(item: InternalRechargeInvoiceSummary) {
     if (session.kind !== "ready") return;
     setError("");
     try {
@@ -111,6 +128,32 @@ export function InvoiceOperationsWorkspace({
     } catch (cause) {
       setSelected(undefined);
       setError(cause instanceof Error ? cause.message : "开票详情读取失败");
+    }
+  }
+
+  async function claim(item: InternalRechargeInvoiceSummary) {
+    if (session.kind !== "ready" || admin) return;
+    setClaimingId(item.id);
+    setError("");
+    try {
+      const detail = await commandOperationsRechargeInvoice(
+        base,
+        session.account.id,
+        item.id,
+        {
+          action: "CLAIM",
+          requestId: crypto.randomUUID(),
+          expectedRevision: item.revision,
+        },
+      );
+      setSelected(detail);
+      void load();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "领取失败，请刷新后重试",
+      );
+    } finally {
+      setClaimingId("");
     }
   }
 
@@ -203,7 +246,7 @@ export function InvoiceOperationsWorkspace({
                 <tr>
                   <th>申请号</th>
                   <th>客户</th>
-                  <th>抬头</th>
+                  <th>抬头类型</th>
                   <th>金额</th>
                   <th>订单号</th>
                   <th>负责人</th>
@@ -216,8 +259,8 @@ export function InvoiceOperationsWorkspace({
                 {items.map((item) => (
                   <tr key={item.id}>
                     <td># {item.number}</td>
-                    <td>{item.customerMobile}</td>
-                    <td>{item.submission.title}</td>
+                    <td>{item.customerReference}</td>
+                    <td>{item.buyerType === "ENTERPRISE" ? "企业" : "个人"}</td>
                     <td>{money(item.amountFen)}</td>
                     <td>
                       <RecordReference
@@ -231,13 +274,33 @@ export function InvoiceOperationsWorkspace({
                     </td>
                     <td>{date(item.submittedAt)}</td>
                     <td>
-                      <button onClick={() => void open(item)}>查看处理</button>
+                      {!admin && !item.assignee ? (
+                        <button
+                          disabled={claimingId === item.id}
+                          onClick={() => void claim(item)}
+                        >
+                          {claimingId === item.id ? "正在领取…" : "领取并处理"}
+                        </button>
+                      ) : (
+                        <button onClick={() => void open(item)}>
+                          查看处理
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+        )}
+        {nextCursor && (
+          <button
+            className="secondary-button"
+            disabled={busy}
+            onClick={() => void load(nextCursor)}
+          >
+            加载更多
+          </button>
         )}
         {selected && (
           <InvoicePanel
@@ -248,9 +311,7 @@ export function InvoiceOperationsWorkspace({
             onClose={() => setSelected(undefined)}
             onChanged={(value) => {
               setSelected(value);
-              setItems((old) =>
-                old.map((item) => (item.id === value.id ? value : item)),
-              );
+              void load();
             }}
           />
         )}
@@ -391,14 +452,6 @@ function InvoicePanel({
         )}
         {value.status !== "ISSUED" && (
           <div className={styles.actions}>
-            {!admin && !value.assignee && (
-              <button
-                className="primary-button"
-                onClick={() => void command({ action: "CLAIM" })}
-              >
-                领取
-              </button>
-            )}
             {admin && (
               <button
                 className="secondary-button"
@@ -557,7 +610,15 @@ function InvoicePanel({
           <ul className={styles.audit} aria-label="处理记录">
             {value.audit.map((entry) => (
               <li key={entry.id}>
-                {auditLabel(entry.action)} · {date(entry.createdAt)}
+                <div>
+                  <strong>{auditLabel(entry.action)}</strong>
+                  <span>{date(entry.createdAt)}</span>
+                </div>
+                <RecordReference
+                  value={entry.actorAccountId}
+                  label="操作账号"
+                />
+                {entry.reason && <p>{entry.reason}</p>}
               </li>
             ))}
           </ul>
@@ -667,4 +728,32 @@ function auditLabel(action: string) {
       } as Record<string, string>
     )[action] ?? action
   );
+}
+
+export function mergeInternalInvoicePage(
+  current: InternalRechargeInvoiceSummary[],
+  page: InternalRechargeInvoicePage,
+  append: boolean,
+) {
+  if (!append) return page.items;
+  const byId = new Map(current.map((item) => [item.id, item]));
+  for (const item of page.items) byId.set(item.id, item);
+  return [...byId.values()];
+}
+
+async function listAllOperations(signal: AbortSignal) {
+  const accounts = new Map<string, AccountSummary>();
+  let cursor: string | undefined;
+  do {
+    const page = await listAdminAccounts(base, {
+      role: "OPERATIONS",
+      status: "ACTIVE",
+      limit: 50,
+      ...(cursor ? { cursor } : {}),
+    });
+    if (signal.aborted) return [];
+    for (const account of page.items) accounts.set(account.id, account);
+    cursor = page.nextCursor ?? undefined;
+  } while (cursor);
+  return [...accounts.values()];
 }

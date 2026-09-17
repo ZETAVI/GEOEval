@@ -51,6 +51,10 @@ the product stores no invoice file.
   status.
 - Operations SHALL atomically claim from a shared pool. Only the current
   assignee may request correction or complete the request.
+- Shared-pool and internal list responses SHALL contain only task summaries,
+  masked customer reference and purchaser type. Only the current assignee or an
+  administrator may read the complete purchaser submission; reassignment SHALL
+  revoke a former assignee even when it replays an older request identity.
 - Correction SHALL require a bounded reason, notify the customer and allow one
   new submission revision on the same request. Resubmission SHALL keep the
   current assignee by default.
@@ -65,6 +69,8 @@ the product stores no invoice file.
 
 - A current administrator SHALL read all requests and audit, assign or reassign
   to a current operations account, return to the pool, or explicitly take over.
+- Administrator audit presentation SHALL identify the action, actor, time and
+  recorded reason when present.
 - An administrator may request correction or complete only after explicit
   takeover. Every governance and processing action SHALL append audit.
 - No role may alter an accepted submission, Recharge owner or amount, bypass
@@ -85,6 +91,9 @@ the product stores no invoice file.
 - Issued detail SHALL show invoice number, issue date, operator-confirmed sent
   time and masked email without claiming verified email delivery or offering a
   file download.
+- Customer and internal record pages SHALL preserve continuation cursors so all
+  records remain reachable. Opening an invoice notification SHALL resolve the
+  owned request by identity even when it is not present on the first list page.
 
 ### Requirement: Idempotent, private and recoverable commands
 

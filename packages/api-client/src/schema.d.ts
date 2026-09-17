@@ -3929,6 +3929,31 @@ export interface components {
             /** @enum {string} */
             role: "OPERATIONS" | "ADMINISTRATOR";
         };
+        InternalRechargeInvoiceSummaryResponse: {
+            /** Format: uuid */
+            id: string;
+            number: number;
+            /** Format: uuid */
+            rechargeOrderId: string;
+            amountFen: string;
+            /** @enum {string} */
+            currency: "CNY";
+            /** @enum {string} */
+            status: "PROCESSING" | "NEEDS_CORRECTION" | "ISSUED";
+            revision: number;
+            /** @enum {string} */
+            buyerType: "INDIVIDUAL" | "ENTERPRISE";
+            customerReference: string;
+            assignee: components["schemas"]["RechargeInvoiceAssigneeResponse"] | null;
+            /** Format: date-time */
+            submittedAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        InternalRechargeInvoicePageResponse: {
+            items: components["schemas"]["InternalRechargeInvoiceSummaryResponse"][];
+            nextCursor: number | null;
+        };
         RechargeInvoiceAuditResponse: {
             /** Format: uuid */
             id: string;
@@ -3963,10 +3988,6 @@ export interface components {
             customerMobile: string;
             assignee: components["schemas"]["RechargeInvoiceAssigneeResponse"] | null;
             audit?: components["schemas"]["RechargeInvoiceAuditResponse"][];
-        };
-        InternalRechargeInvoicePageResponse: {
-            items: components["schemas"]["InternalRechargeInvoiceResponse"][];
-            nextCursor: number | null;
         };
         RechargeInvoiceCommandRequest: {
             /** @enum {string} */

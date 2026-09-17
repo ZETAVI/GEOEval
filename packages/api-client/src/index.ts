@@ -1236,6 +1236,8 @@ export type RechargeInvoiceCommand =
   components["schemas"]["RechargeInvoiceCommandRequest"];
 export type InternalRechargeInvoice =
   components["schemas"]["InternalRechargeInvoiceResponse"];
+export type InternalRechargeInvoiceSummary =
+  components["schemas"]["InternalRechargeInvoiceSummaryResponse"];
 export type InternalRechargeInvoicePage =
   components["schemas"]["InternalRechargeInvoicePageResponse"];
 export type RechargeInvoiceFilter = {

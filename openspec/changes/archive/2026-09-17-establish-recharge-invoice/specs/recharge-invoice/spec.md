@@ -20,6 +20,7 @@
 
 - Stored customer status SHALL be `PROCESSING`, `NEEDS_CORRECTION` or `ISSUED`; eligibility is a derived view.
 - Operations SHALL atomically claim from a shared pool. Only the current assignee may request correction or complete the request.
+- Shared-pool/internal list responses SHALL expose only task summaries, masked customer reference and purchaser type. Only the current assignee or administrator may read the complete purchaser submission, and reassignment SHALL revoke a former assignee.
 - Correction SHALL require a bounded reason, notify the customer and allow a new revision on the same request. Resubmission SHALL keep the assignee by default.
 - Completion SHALL require an invoice number, issue date and explicit confirmation that operations has already sent it outside GEOEval. Status, completion facts, audit and Outbox SHALL commit together.
 - GEOEval SHALL NOT send email or upload/store/serve an invoice PDF. Nonreceipt or later dispute SHALL route to Support with the request reference.
@@ -27,6 +28,7 @@
 ### Requirement: Administrator governance without legal-data mutation
 
 - A current administrator SHALL read all requests and audit, assign or reassign to an eligible operations account, return to the pool, or explicitly take over.
+- Administrator audit presentation SHALL identify action, actor, time and the recorded reason when present.
 - An administrator may perform correction/completion only after explicit takeover; every governance and processing action SHALL append audit.
 - No role may alter an accepted customer submission, Recharge owner/amount, or eligibility; `ISSUED` SHALL not be reversed by this module.
 - Agents SHALL have no recharge-invoice access.
@@ -39,3 +41,4 @@
 - Payment methods SHALL display official Alipay and WeChat Pay marks with visible text and equivalent visual weight.
 - Long UUIDs SHALL use a short human-scannable reference with a control that copies the complete immutable value; the detail view SHALL make the complete value available.
 - Issued detail SHALL show invoice number, issue date, operations-confirmed sent time and masked email, without implying verified email delivery or offering a file download.
+- Customer and internal record pages SHALL keep continuation cursors reachable. An invoice notice SHALL open the owned request by identity even when that request is outside the first page.

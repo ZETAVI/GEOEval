@@ -132,8 +132,26 @@ export class InternalRechargeInvoiceResponse extends RechargeInvoiceResponse {
   audit?: RechargeInvoiceAuditResponse[];
 }
 
+export class InternalRechargeInvoiceSummaryResponse {
+  @ApiProperty({ type: String, format: "uuid" }) id!: string;
+  @ApiProperty({ type: Number }) number!: number;
+  @ApiProperty({ type: String, format: "uuid" }) rechargeOrderId!: string;
+  @ApiProperty({ type: String }) amountFen!: string;
+  @ApiProperty({ enum: ["CNY"] }) currency!: "CNY";
+  @ApiProperty({ enum: ["PROCESSING", "NEEDS_CORRECTION", "ISSUED"] })
+  status!: "PROCESSING" | "NEEDS_CORRECTION" | "ISSUED";
+  @ApiProperty({ type: Number }) revision!: number;
+  @ApiProperty({ enum: ["INDIVIDUAL", "ENTERPRISE"] }) buyerType!:
+    "INDIVIDUAL" | "ENTERPRISE";
+  @ApiProperty({ type: String }) customerReference!: string;
+  @ApiProperty({ type: RechargeInvoiceAssigneeResponse, nullable: true })
+  assignee!: RechargeInvoiceAssigneeResponse | null;
+  @ApiProperty({ type: String, format: "date-time" }) submittedAt!: string;
+  @ApiProperty({ type: String, format: "date-time" }) updatedAt!: string;
+}
+
 export class InternalRechargeInvoicePageResponse {
-  @ApiProperty({ type: [InternalRechargeInvoiceResponse] })
-  items!: InternalRechargeInvoiceResponse[];
+  @ApiProperty({ type: [InternalRechargeInvoiceSummaryResponse] })
+  items!: InternalRechargeInvoiceSummaryResponse[];
   @ApiProperty({ type: Number, nullable: true }) nextCursor!: number | null;
 }

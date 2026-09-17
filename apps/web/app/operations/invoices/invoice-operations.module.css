@@ -154,9 +154,20 @@
   border-top: 1px solid #d6e2dc;
 }
 .audit li {
+  display: grid;
+  gap: 7px;
   padding: 10px 0;
   border-bottom: 1px solid #e5ece8;
   color: #52685e;
+}
+.audit li > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
+.audit p {
+  margin: 0;
 }
 @media (max-width: 700px) {
   .facts {
