@@ -539,27 +539,35 @@ Node 侧优先评估支付宝官方 `alipay-sdk`。其官方仓库说明支持 A
 
 ## 13. 配置与密钥边界
 
-建议增加独立 Payment/Recharge runtime config，供 API 和 Worker 共用：
+API 与独立 Recharge Worker 共用显式 provider 配置。当前实际变量为：
 
 ```text
-RECHARGE_PROVIDER_MODE=disabled|deterministic|wechat
-RECHARGE_CREATE_ENABLED=false
-WECHAT_PAY_MERCHANT_ID=...
-WECHAT_PAY_APP_ID=...
-WECHAT_PAY_MERCHANT_CERT_SERIAL=...
-WECHAT_PAY_PUBLIC_KEY_ID=...
-WECHAT_PAY_PRIVATE_KEY_SECRET_REF=...
-WECHAT_PAY_PUBLIC_KEY_SECRET_REF=...
-WECHAT_PAY_API_V3_KEY_SECRET_REF=...
-WECHAT_PAY_NOTIFY_URL=https://.../recharges/providers/wechat/notify
-WECHAT_PAY_H5_DOMAIN=...
+RECHARGE_WECHAT_ACTIVATION=disabled|verify|live
+RECHARGE_WECHAT_MERCHANT_ID=...
+RECHARGE_WECHAT_APP_ID=...
+RECHARGE_WECHAT_MERCHANT_CERT_SERIAL=...
+RECHARGE_WECHAT_PUBLIC_KEY_ID=...
+RECHARGE_WECHAT_PRIVATE_KEY_FILE=/protected/.../apiclient_key.pem
+RECHARGE_WECHAT_PUBLIC_KEY_FILE=/protected/.../wechatpay_public.pem
+RECHARGE_WECHAT_API_V3_KEY_FILE=/protected/.../api_v3.key
+RECHARGE_WECHAT_NOTIFY_URL=https://.../recharges/providers/wechat/notify
+RECHARGE_WECHAT_API_ORIGIN=https://api.mch.weixin.qq.com
+RECHARGE_WECHAT_TIMEOUT_MS=8000
 ```
 
-- 配置对象保存 secret reference 或进程内受限值，不在启动日志、健康接口、异常、Issue、聊天或 Git 输出 secret；
-- 私钥、APIv3 key 和可信公钥由 secret manager/受控挂载注入；文件权限、轮换、吊销和双钥过渡要有 runbook；
-- `disabled` 仅适用于没有未结支付义务的环境；真实交易存在后停用新单用 `RECHARGE_CREATE_ENABLED=false`，继续回调、inbox 消费、查单/关单和对账；`deterministic` 只允许隔离测试；
+- 配置对象保存进程内受限值，不在启动日志、健康接口、异常、Issue、聊天或 Git 输出 secret；
+- 私钥、APIv3 key 和可信公钥由 secret manager/受控挂载注入；文件必须是绝对路径、普通文件、权限 0400/0600，轮换、吊销和双钥过渡要有 runbook；
+- `disabled` 不加载该渠道；`verify` 保留回调、inbox、查单/关单和既有义务但禁止新单；`live` 才开放微信 Native 新单与发起。隔离测试继续使用显式构造的内存密钥/网关，不增加生产 `deterministic` 模式；
 - 订单冻结稳定商户/AppID，API 与 Worker 按该身份定位可信凭证版本，不能用可变 alias 充当商户身份；密钥轮换不迁移订单身份；
 - 时钟同步、TLS、出站域名、主/备 API 域名和回调公网 HTTPS 属于部署前检查项。
+
+双渠道宿主以现有 `RechargePaymentGateway` 为变化接缝，不增加通用 Payment 服务：
+
+- API 为每个配置渠道构造一个现有恢复 runtime；创建按请求 method 路由，已有订单的核验、取消和收银动作按订单冻结 method 路由。
+- 回调模块注册 provider→verifier 映射，并只暴露已配置 provider 的控制器。微信 raw JSON/AES-GCM 与支付宝 form/RSA2 继续各自解析，持久付款事实才汇入同一结算边界。
+- Worker 的 provider 下单/查单/关单并行推进，避免一个慢渠道阻塞另一个；通知与 settlement 仍是独立 lane。settlement 查询本身按持久记录携带 provider，不需要每个 provider 重复扫描。
+- 共享金额范围、快捷金额和账户活动单上限必须一致；不同商户/AppID、动作类型、超时和激活状态保留在渠道内部。
+- 旧 `Native*` 数据字段继续作为兼容持久实现名称，本片只增加中性组合层。删除或批量重命名数据库列不会减少真实复杂度，也会扩大迁移风险。
 
 ## 14. 可靠性恢复、状态提示与对账
 

@@ -100,7 +100,13 @@ export function createWechatHttpsExchange(
             if (status < 200 || status >= 300) {
               finished = true;
               clearTimeout(timer);
-              resolve({ status, headers: {}, body: Buffer.alloc(0) });
+              resolve({
+                status,
+                headers: {
+                  "request-id": response.headersDistinct["request-id"],
+                },
+                body: Buffer.alloc(0),
+              });
               response.destroy();
               return;
             }

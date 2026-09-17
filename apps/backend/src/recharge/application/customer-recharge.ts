@@ -3,6 +3,7 @@ import type {
   RechargeOrder,
 } from "../domain/recharge-order.js";
 import type { NativeCheckoutSnapshot } from "./native-recovery.js";
+import type { RechargeMethod } from "./provider-payment.js";
 
 export const RECHARGE_CUSTOMER_QUERIES = Symbol("RECHARGE_CUSTOMER_QUERIES");
 export const RECHARGE_CUSTOMER_RUNTIME = Symbol("RECHARGE_CUSTOMER_RUNTIME");
@@ -38,3 +39,30 @@ export type RechargeCustomerOptions = Readonly<{
   pointsPerYuan: number;
   supportMessage: string | null;
 }>;
+
+/** Customer command seam. A host may route several configured payment channels. */
+export interface RechargeCustomerRuntime {
+  supports(method: RechargeMethod): boolean;
+  create(accountId: string, input: unknown): Promise<RechargeOrder>;
+  cancel(
+    accountId: string,
+    orderId: string,
+    method?: RechargeMethod,
+  ): Promise<NativeCheckoutSnapshot | null>;
+  verify(
+    accountId: string,
+    orderId: string,
+    method?: RechargeMethod,
+  ): Promise<NativeCheckoutSnapshot | null>;
+  grantCashier(
+    accountId: string,
+    orderId: string,
+    method?: RechargeMethod,
+  ): Promise<{ path: string; expiresAt: string }>;
+  cashierPage(
+    accountId: string,
+    orderId: string,
+    method?: RechargeMethod,
+  ): Promise<string>;
+  onApplicationShutdown?(): Promise<void>;
+}

@@ -42,6 +42,14 @@ export type WechatPayConfig = Readonly<{
   apiV3Key: Buffer;
   notifyUrl: string;
   origin?: string;
+  timeoutMs?: number;
+  report?: (
+    event: Readonly<{
+      kind: "WECHAT_RESPONSE";
+      status: number;
+      requestId: string | null;
+    }>,
+  ) => void;
 }>;
 
 const MAX_MESSAGE_BYTES = 2 * 1024 * 1024;
@@ -128,13 +136,20 @@ export class WechatPayGateway
         apiV3Key: Buffer.from(config.apiV3Key),
         notifyUrl: config.notifyUrl,
         ...(config.origin ? { origin: config.origin } : {}),
+        ...(config.timeoutMs !== undefined
+          ? { timeoutMs: config.timeoutMs }
+          : {}),
+        ...(config.report ? { report: config.report } : {}),
       };
       this.#keys = keys;
       this.#exchange =
         exchange ??
-        createWechatHttpsExchange(
-          config.origin ? { origin: config.origin } : {},
-        );
+        createWechatHttpsExchange({
+          ...(config.origin ? { origin: config.origin } : {}),
+          ...(config.timeoutMs !== undefined
+            ? { timeoutMs: config.timeoutMs }
+            : {}),
+        });
     } catch {
       throw new Error("WECHAT_PAY_CONFIGURATION_INVALID");
     }
@@ -352,6 +367,21 @@ export class WechatPayGateway
         "User-Agent": "GEOEval-WeChatPay/1",
       },
     });
+    const requestIds = response.headers["request-id"],
+      requestId =
+        requestIds?.length === 1 &&
+        /^[A-Za-z0-9._:-]{1,128}$/.test(requestIds[0]!)
+          ? requestIds[0]!
+          : null;
+    try {
+      this.#config.report?.({
+        kind: "WECHAT_RESPONSE",
+        status: response.status,
+        requestId,
+      });
+    } catch {
+      /* Diagnostics cannot change a payment result. */
+    }
     if (response.status < 200 || response.status >= 300)
       throw new WechatProtocolError(
         response.status >= 300 && response.status < 400

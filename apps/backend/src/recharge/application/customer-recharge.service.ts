@@ -12,13 +12,13 @@ import {
   RechargeError,
   type RechargeOrder,
 } from "../domain/recharge-order.js";
-import { NativeRecoveryService } from "./native-recovery.service.js";
 import {
   RECHARGE_CUSTOMER_OPTIONS,
   RECHARGE_CUSTOMER_QUERIES,
   RECHARGE_CUSTOMER_RUNTIME,
   type RechargeCustomerOptions,
   type RechargeCustomerQueries,
+  type RechargeCustomerRuntime,
 } from "./customer-recharge.js";
 
 const status = z.enum([
@@ -64,7 +64,7 @@ export class CustomerRechargeService {
     @Inject(RECHARGE_CUSTOMER_QUERIES)
     private readonly queries: RechargeCustomerQueries,
     @Inject(RECHARGE_CUSTOMER_RUNTIME)
-    private readonly runtime: NativeRecoveryService | null,
+    private readonly runtime: RechargeCustomerRuntime | null,
     @Inject(RECHARGE_CUSTOMER_OPTIONS)
     private readonly publicOptions: RechargeCustomerOptions,
   ) {}
@@ -90,7 +90,11 @@ export class CustomerRechargeService {
       // Recovery remains available even when the merchant host has been unconfigured.
       const prior = await this.queries.findRequest(accountId, parsed.data);
       if (prior) return this.detail(accountId, prior.id);
-      if (!this.runtime || !this.publicOptions.available)
+      if (
+        !this.runtime ||
+        !this.publicOptions.available ||
+        !this.publicOptions.methods.includes(parsed.data.method)
+      )
         throw new RechargeError("CREATION_DISABLED");
       const order = await this.runtime.create(accountId, parsed.data);
       return this.detail(accountId, order.id);
@@ -103,20 +107,23 @@ export class CustomerRechargeService {
     const found = await this.queries.readOwned(accountId, id, sampledAt);
     if (!found) throw new NotFoundException("未找到这笔充值");
     const responseAt = new Date();
+    const runtimeAvailable = !!this.runtime?.supports(found.order.method);
     return {
       order: {
         ...summary(found.order),
         cancelRequested: found.cancelRequested,
-        canCancel: !!this.runtime && found.canCancel,
+        canCancel: runtimeAvailable && found.canCancel,
         supportRequired: found.reviewRequired,
         qr:
-          this.runtime && found.qr && new Date(found.qr.expiresAt) > responseAt
+          runtimeAvailable &&
+          found.qr &&
+          new Date(found.qr.expiresAt) > responseAt
             ? found.qr
             : null,
         ...(found.order.method === "ALIPAY_PC"
           ? {
               cashier:
-                this.runtime &&
+                runtimeAvailable &&
                 found.cashier &&
                 new Date(found.cashier.expiresAt) > responseAt
                   ? found.cashier
@@ -124,7 +131,7 @@ export class CustomerRechargeService {
             }
           : {}),
         canVerify:
-          !!this.runtime &&
+          runtimeAvailable &&
           !found.reviewRequired &&
           ["PENDING_PAYMENT", "CONFIRMING"].includes(found.order.status),
       },
@@ -183,13 +190,13 @@ export class CustomerRechargeService {
     if (!z.object({}).strict().safeParse(raw).success)
       throw new BadRequestException("操作请求不接受支付结果、金额或账号覆盖。");
     // Ownership is checked before availability so an unavailable host never reveals another account's order.
-    await this.detail(accountId, id);
-    if (!this.runtime)
+    const current = await this.detail(accountId, id);
+    if (!this.runtime?.supports(current.order.method))
       throw new ServiceUnavailableException(
         "暂时无法处理此操作，请保留原订单并稍后重试。",
       );
     try {
-      await this.runtime[command](accountId, id);
+      await this.runtime[command](accountId, id, current.order.method);
       return { accepted: true as const };
     } catch (error) {
       throw publicError(error);
@@ -198,20 +205,29 @@ export class CustomerRechargeService {
   async grantCashier(accountId: string, id: string, raw: unknown) {
     if (!z.object({}).strict().safeParse(raw).success)
       throw new BadRequestException("操作请求不接受支付结果、金额或账号覆盖。");
-    await this.detail(accountId, id);
-    if (!this.runtime)
+    const current = await this.detail(accountId, id);
+    if (!this.runtime?.supports(current.order.method))
       throw new ServiceUnavailableException(messages.CASHIER_UNAVAILABLE);
     try {
-      return await this.runtime.grantCashier(accountId, id);
+      return await this.runtime.grantCashier(
+        accountId,
+        id,
+        current.order.method,
+      );
     } catch (error) {
       throw publicError(error);
     }
   }
   async cashierPage(accountId: string, id: string) {
-    if (!this.runtime)
+    const current = await this.detail(accountId, id);
+    if (!this.runtime?.supports(current.order.method))
       throw new ServiceUnavailableException(messages.CASHIER_UNAVAILABLE);
     try {
-      return await this.runtime.cashierPage(accountId, id);
+      return await this.runtime.cashierPage(
+        accountId,
+        id,
+        current.order.method,
+      );
     } catch (error) {
       throw publicError(error);
     }

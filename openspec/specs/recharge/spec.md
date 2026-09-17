@@ -14,12 +14,15 @@ The explicitly configured [resident worker](../../../apps/backend/src/recharge/r
 drives that runtime independently of customer API, Identity, evaluation and Redis.
 
 The ordinary API exposes authenticated history and recovery of committed creation
-requests. Alipay remains disabled unless the host supplies an explicit activation
-profile and protected key files. The separate Recharge worker entry point uses the
-same configuration and durable recovery; the general evaluation worker does not
-load payment keys. This boundary does not activate production payment, H5 or
-invoices. Customer success notifications require the configured Recharge delivery
-lane.
+requests. Alipay and WeChat remain disabled unless the host supplies their explicit
+activation profiles and protected key files. A configured host may compose both
+channels; customer commands route by the order's frozen method, callback routes
+select their own verifier, provider dispatch remains independent, and the shared
+settlement scan still applies one authoritative Commerce transaction. The separate
+Recharge worker entry point uses the same configuration and durable recovery; the
+general evaluation worker does not load payment keys. This boundary does not
+activate production payment, H5 or invoices. Customer success notifications require
+the configured Recharge delivery lane.
 
 The [Alipay adapter](../../../apps/backend/src/recharge/infrastructure/alipay/README.md)
 provides SDK-level page/notification/query/close handling and is assembled through
@@ -204,8 +207,11 @@ and converge on the same settlement transaction.
   not be exposed. A reporting failure SHALL not change payment results.
 - Configuration SHALL be explicit. The dedicated module SHALL import no
   customer controllers, Identity, AI or Redis; the existing ordinary entry
-  points SHALL not activate it without the Alipay activation profile. Signal-hook ownership and an external
-  supervisor's forced-stop policy remain the deploying host's responsibility.
+  points SHALL not activate it without at least one provider activation profile.
+  Each configured provider SHALL receive order work independently; the
+  provider-neutral settlement lane SHALL be scanned once. Signal-hook ownership
+  and an external supervisor's forced-stop policy remain the deploying host's
+  responsibility.
 
 ### Requirement: Explicit activation and compatible rollback
 
@@ -221,6 +227,17 @@ and converge on the same settlement transaction.
   rejected in production, and `live` is the only profile that may expose a
   production cashier. Private/public PEM paths SHALL be absolute protected files
   outside Git, never inline environment secrets.
+- WeChat activation SHALL default to `disabled`. `verify` SHALL load request
+  signing, response/callback verification, callback decryption and existing-order
+  query/close recovery without allowing a new Native order. `live` alone SHALL
+  expose `WECHAT_NATIVE` for creation and enable Native initiation. Merchant API
+  private key, WeChat Pay public key and APIv3 key SHALL be read from absolute
+  protected files outside Git; key contents SHALL not be accepted through public
+  API input, logs or committed environment files.
+- When several providers are configured, the host SHALL reject duplicate methods,
+  duplicate callback providers and conflicting shared amount/active-order policy.
+  Stopping creation for one provider SHALL keep its callbacks and existing-order
+  recovery available and SHALL NOT remove another provider's creation method.
 - The history-index migration SHALL preserve existing money and order facts.
   Disabling new creation or reverting presentation SHALL not delete facts,
   reservations or the processing capability needed for existing obligations.

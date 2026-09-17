@@ -273,3 +273,22 @@ Notification 现有 source UUID 唯一、upsert 不更新已读、SSE revision/l
 - 本地直接证据：网关 UNRESOLVED 附带 httpStatus，但 Native attempt 仅存 diagnosticCode；RETRY_EXHAUSTED 阻断 due 扫描，客户 supportRequired 来自统一 reviewRequired。R1 必须同时处理错误分类、历史兼容与提示，不能只提高 maxFailures 或移除扫描过滤。
 
 设计归属为 design14，验收在 R1 tasks；账单只触发逐单认证复核，未新增账单直写积分权威。刷新条件是正式商户/账单类型/下载格式或对应接口规则变化。
+## 2026-09-16 微信 Native 恢复接入刷新
+
+### 决策
+
+保留现有 Node 标准 crypto + 窄 HTTPS Adapter，不引入额外语言进程或非官方 Node 支付 SDK。本轮新增双 provider 宿主和受保护微信配置；真实启用分为 `verify` 与 `live`，商户产品开通不自动等于 AppID 已绑定、密钥已托管、回调已送达或资金已验收。
+
+### 当前一手事实
+
+- [Native 开发接入准备](https://pay.wechatpay.cn/doc/v3/merchant/4015614538)（页面更新 2026-05-19）要求已认证 AppID、商户发起授权绑定并由对应平台确认；技术负责人/安全联系人随后获取开发参数。官方特别要求记录响应 `Request-ID` 以便定位。
+- [开发必要参数](https://pay.wechatpay.cn/doc/v3/merchant/4013070756)与[微信支付公钥介绍](https://pay.wechatpay.cn/doc/v3/merchant/4012153196)（后者更新 2026-05-20）确认请求签名使用商户 API 证书私钥和证书序列号；新接入优先使用微信支付公钥及其 `PUB_KEY_ID_*` 验证应答与回调。
+- [APIv3 密钥配置](https://pay.wechatpay.cn/doc/v3/merchant/4012072195)（页面更新 2025-10-28）确认 APIv3 key 是 32 位数字/大小写字母，用于回调 AES-256-GCM 解密，设置后不能查看，只能重设。
+- [Native 下单](https://pay.wechatpay.cn/doc/v3/merchant/4012791877)仍为 `POST /v3/pay/transactions/native`，要求已绑定的 appid/mchid，返回 `code_url`；APPID_MCHID_NOT_MATCH、NO_AUTH、SIGN_ERROR 分别保留为配置/权限/签名失败，不归为支付事实。
+- [普通支付成功通知](https://pay.wechatpay.cn/doc/v3/merchant/4012791861)与[回调注意事项](https://pay.wechatpay.cn/doc/v3/merchant/4012075420)要求验签、5 秒内 200/204 应答、重复通知幂等，并明确不能只依赖通知，应结合查单。项目继续采用持久 inbox 后 ACK、后台结算。
+- [Native 开发指引](https://pay.wechatpay.cn/doc/v3/merchant/4012791891)确认 NOTPAY 可关单，CLOSED/SUCCESS/REFUND 为终态；本地超时和错误响应仍不能替代认证查单/关单事实。
+- [微信支付官方 GitHub 组织](https://github.com/wechatpay-apiv3)当前列出的官方 APIv3 SDK 仍以 Java、PHP、Go 为主；[官方敏感字段说明](https://pay.wechatpay.cn/doc/v3/merchant/4013053257)也明确官方 SDK 当前为这三种语言。没有发现官方 Node SDK，因此保留已经用官方固定向量和实际 HTTPS 契约验证的窄 Node 实现。
+
+### 约束与刷新条件
+
+商户号认证与 Native 产品开通由用户确认；AppID 绑定、真实 key 文件、公网回调和 provider 调用仍需账户/环境证据。任何微信接口、密钥/证书规则、官方 SDK 范围或商户账号配置变化时刷新本节。1 分预下单再立即关单会创建真实未付 provider 订单，只能通过正常持久 RechargeOrder/runtime 路径运行，使关单响应丢失后仍可按同号恢复；它不证明付款或到账。

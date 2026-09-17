@@ -1,4 +1,4 @@
-import type { RechargeApiConfiguration } from "../src/recharge/recharge-api.module.js";
+import type { RechargeSingleChannelApiConfiguration } from "../src/recharge/recharge-api.module.js";
 import { WechatPayGateway } from "../src/recharge/infrastructure/wechat/wechat-pay.gateway.js";
 import { wechatFixture } from "./wechat-pay.fixture.js";
 
@@ -43,7 +43,7 @@ export function rechargeApiFixture() {
       }),
     );
   });
-  const configuration: RechargeApiConfiguration = {
+  const configuration: RechargeSingleChannelApiConfiguration = {
     recharge: {
       merchantId: protocol.order.merchantId,
       appId: protocol.order.appId,
