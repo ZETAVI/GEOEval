@@ -1,11 +1,12 @@
 # Code Review
 
-Reviewed fixed range: `1c60d36..9507bcd` on
+Reviewed fixed range: `3825beb..2745243` on
 `codex/issue-116-agency-withdrawal`.
 
-Live protected main had advanced to `3825beb` only through Issue #117's archival
-of the already merged evaluation Change. The GitHub comparison showed no shared
-file with Issue #116 and no change to its implementation assumptions.
+The branch was rebased linearly onto protected `main@3825beb`. The only base
+change since implementation started was Issue #117's archival of the already
+merged evaluation Change; it had no shared file or changed assumption for Issue
+#116.
 
 ## Intent
 
