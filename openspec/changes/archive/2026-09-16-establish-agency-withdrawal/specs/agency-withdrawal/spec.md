@@ -81,4 +81,3 @@ Withdrawal SHALL append idempotent result events for `COMPLETED`, `REJECTED` and
 - **WHEN** an accepted result event cannot be materialized immediately
 - **THEN** the withdrawal result remains committed
 - **AND** replay or restart creates at most one account-scoped notice
-

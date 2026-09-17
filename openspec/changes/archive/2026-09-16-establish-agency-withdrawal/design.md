@@ -82,4 +82,3 @@ Withdrawal不读取Commission私有表结构的调用方逻辑，不把Identity�
 - Residual production gate: 密钥托管/备份、真实最低金额、公司付款SOP、敏感信息处理影响评估、生产代理与真实资金验收由Product Owner/财务另行批准。
 
 架构评审：ready。边界符合高内聚/单向依赖；不需要ADR，原因和替代已由本Change设计持有。若通用加密接口获得第二个业务消费者或引入托管密钥，再评估提升为稳定架构合同。
-

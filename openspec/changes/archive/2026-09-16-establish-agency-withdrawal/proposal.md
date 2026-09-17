@@ -21,4 +21,3 @@ Agency Commission继续唯一拥有正式佣金；Withdrawal只读累计金额�
 ## 当前态对账
 
 完成时新增Agency Withdrawal current spec，并更新Agency Commission、Notification、产品定义、术语和架构的当前事实；产品定义中人工填写金额/精确付款时间、可上传转账凭证等旧候选规则将被本片已确认边界替代。Change在PR集成前归档。
-
