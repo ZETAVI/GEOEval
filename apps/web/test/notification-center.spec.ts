@@ -31,6 +31,14 @@ const evaluationReadNotice: Notification = {
   kind: "EVALUATION_RETRY_REQUIRED",
   target: { kind: "EVALUATION_RETRY", brandId: brand, runId: "run-one" },
 };
+const withdrawalReadNotice: Notification = {
+  ...readNotice,
+  kind: "AGENCY_WITHDRAWAL_COMPLETED",
+  target: {
+    kind: "AGENCY_WITHDRAWAL",
+    withdrawalId: "77000000-0000-4000-8000-000000000105",
+  },
+};
 const controllers: NotificationCenterController[] = [];
 
 function deferred<T>() {
@@ -254,6 +262,19 @@ describe("notification account scope and refresh lifecycle", () => {
 });
 
 describe("explicit notification navigation", () => {
+  it("opens an agency withdrawal result without reading customer brand context", async () => {
+    const f = fixture();
+    f.source.list.mockResolvedValue(page([withdrawalReadNotice]));
+    f.source.markRead.mockResolvedValue(withdrawalReadNotice);
+    f.controller.start();
+    await flush();
+    await f.controller.openNotification(withdrawalReadNotice.id);
+    expect(f.source.selectBrand).not.toHaveBeenCalled();
+    expect(f.navigate).toHaveBeenCalledExactlyOnceWith(
+      "/agent/withdrawals/77000000-0000-4000-8000-000000000105",
+    );
+  });
+
   it("retries the failed notice by id after SSE pushes it off the latest page", async () => {
     const f = fixture();
     const latest = Array.from({ length: 9 }, (_, index) => ({

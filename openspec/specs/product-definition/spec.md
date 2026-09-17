@@ -14,7 +14,7 @@
   are owned by [Agency Entry](../agency-entry/spec.md). Current service
   relationships, administrator reassignment and customer/brand/report access
   are owned by [Agency Customer Service](../agency-customer-service/spec.md).
-  Commission estimates and final entries now belong to [Agency Commission](../agency-commission/spec.md). Retain this marker for withdrawal activation; purchase snapshots are owned by [Agency Order Terms](../agency-order-terms/spec.md).
+  Commission estimates and final entries now belong to [Agency Commission](../agency-commission/spec.md); payout profiles and withdrawals belong to [Agency Withdrawal](../agency-withdrawal/spec.md); purchase snapshots are owned by [Agency Order Terms](../agency-order-terms/spec.md).
 - Completed extraction: S6 provider execution, protected provider evidence,
   semantic route recovery, and public report projection are owned by the
   [evaluation-evidence](../evaluation-evidence/spec.md) and
@@ -43,7 +43,7 @@
   Customer recharge API/history, controlled Native checkout and saved publishing
   continuation now follow [Recharge](../recharge/spec.md). This marker is explicitly
   retained for real-merchant/operational activation, maintained amount policy,
-  recharge invoices and withdrawals; controlled testing does not activate them.
+  and recharge invoices; controlled testing does not activate them.
   Order admission, exclusive whole-order responsibility, explicit start/return
   and administrator reassignment now use [Publication Delivery](../publication-delivery/spec.md).
   Sparse work items, Mock/manual preparation, effective results/corrections,
@@ -1312,100 +1312,12 @@ ineligible for the future commission capability below.
 - **AND** the initial product does not require a general point-history rollback
   feature
 
-Current purchase attribution, commission switch/rate configuration and suspension behavior are owned by [Agency Order Terms](../agency-order-terms/spec.md). Estimates, final retained-funded-consumption commission, immutable entries and scoped earnings queries are owned by [Agency Commission](../agency-commission/spec.md). Closed orders participate regardless of publication count. The following withdrawal requirements remain future activation.
+Current purchase attribution, commission switch/rate configuration and suspension behavior are owned by [Agency Order Terms](../agency-order-terms/spec.md). Estimates, final retained-funded-consumption commission, immutable entries and scoped earnings queries are owned by [Agency Commission](../agency-commission/spec.md). Closed orders participate regardless of publication count. The current payout profile, derived availability, immutable withdrawal request, administrator offline-payment handling, result notification and protected-data boundary are owned by [Agency Withdrawal](../agency-withdrawal/spec.md); they do not create another commission wallet or an automatic bank-payment route.
 
-### Requirement: Manually reviewed agent withdrawals
+### Requirement: Recharge invoice remains separate from agency withdrawal
 
-The initial product SHALL let an agent request withdrawal of available commission
-while keeping approval and actual payment under company control.
-
-#### Scenario: An agent views commission balances
-
-- **WHEN** the agent opens the commission center
-- **THEN** the product separately shows pending commission, available commission,
-  amount in withdrawal processing, cumulative settled commission, and cumulative
-  effective commission
-- **AND** only effective, unreserved commission contributes to the available
-  amount
-
-#### Scenario: An agent submits a withdrawal
-
-- **GIVEN** the requested amount does not exceed available commission
-- **AND** it meets the global minimum amount maintained by an administrator
-- **AND** the agent has no other unfinished withdrawal request
-- **WHEN** the agent selects a valid payout profile and submits the request
-- **THEN** the requested amount is frozen from available commission
-- **AND** the request enters **Pending review**
-- **AND** the request stores a snapshot of the selected payout profile
-- **AND** later profile changes do not alter that request
-- **AND** the initial product charges no withdrawal fee and applies no separate
-  daily, weekly, or monthly request-frequency limit
-- **AND** finance confirms the initial minimum amount before launch
-
-#### Scenario: An administrator processes a withdrawal
-
-- **WHEN** an administrator approves a pending request for offline payment
-- **THEN** the request enters **Paying**
-- **AND** the company completes the transfer outside the product
-- **AND** an authorized administrator records the actual paid amount, payment
-  time, and bank transaction reference before the request becomes **Completed**
-- **AND** the administrator can attach a transfer receipt and records the
-  handling operator and any short operating note
-- **AND** the amount moves from withdrawal processing to cumulative settled
-  commission
-- **AND** the agent receives a completion notification
-- **BUT WHEN** the administrator rejects the request
-- **THEN** the administrator must record a reason
-- **AND** the request becomes **Rejected**
-- **AND** the frozen amount returns to available commission
-- **AND** the agent receives the result and reason
-- **AND** the initial product does not require an automatic payout interface
-
-#### Scenario: An approved offline transfer fails
-
-- **GIVEN** a withdrawal request is in **Paying**
-- **WHEN** the company cannot complete the bank transfer
-- **THEN** an authorized administrator records the failure reason
-- **AND** the request becomes **Payment failed**
-- **AND** its frozen amount returns to available commission
-- **AND** the agent receives a failure notification and can correct the payout
-  profile
-- **AND** the agent submits a new request rather than reopening the failed one
-
-### Requirement: Minimal and protected payout profiles
-
-Payout information SHALL support the company's actual domestic bank-transfer
-route without collecting unrelated identity, invoice, or tax data.
-
-#### Scenario: An agent saves individual or enterprise payout instructions
-
-- **WHEN** an agent creates or edits a payout profile
-- **THEN** the product records recipient type, exact bank-account name,
-  bank-account number, bank name, and contact mobile number
-- **AND** it requests opening branch full name, opening-bank province and city,
-  or a twelve-digit CNAPS or joint-bank number only when the actual bank-payment
-  route requires them
-- **AND** it does not require a physical opening-bank street address
-- **AND** it does not require a bank-card image
-- **AND** the account number is masked after saving except in authorized handling
-  views
-
-#### Scenario: Sensitive payout data is collected
-
-- **WHEN** the product asks an agent for a financial account
-- **THEN** it explains the payout purpose, necessity, data categories, handling,
-  and material impact
-- **AND** obtains the consent required for sensitive financial-account data
-- **AND** limits full-value access and retention to the approved business need
-- **AND** the withdrawal flow does not request identity documents, taxpayer
-  identifiers, enterprise-registration information, agent invoices, or
-  withholding information
-- **AND** those tax matters remain outside the current product boundary
-
-### Requirement: Two bounded money-information routes
-
-The initial product SHALL support customer recharge invoices and agent commission
-withdrawals as two simple and separate routes.
+The initial product SHALL keep customer recharge invoices separate from the
+current agent commission-withdrawal route.
 
 #### Scenario: A customer requests an invoice for a recharge order
 
@@ -1470,16 +1382,6 @@ withdrawals as two simple and separate routes.
 - **AND** after issue the customer cannot edit, cancel, or reissue the invoice
   through self-service, while exceptional correction is handled manually through
   customer service
-
-#### Scenario: An individual or enterprise agent requests withdrawal
-
-- **WHEN** an agent requests withdrawal of available commission
-- **THEN** the agent supplies only the payout profile required for the offline
-  transfer
-- **AND** the same product boundary applies whether the agent is an individual
-  or an enterprise
-- **AND** the initial product does not ask the agent for invoice, taxpayer,
-  withholding, or other tax information
 
 ### Requirement: Truthful media library
 

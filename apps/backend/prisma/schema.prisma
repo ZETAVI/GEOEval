@@ -147,6 +147,42 @@ enum NotificationKind {
   EVALUATION_COMPLETED
   EVALUATION_RETRY_REQUIRED
   RECHARGE_SUCCESSFUL
+  AGENCY_WITHDRAWAL_COMPLETED
+  AGENCY_WITHDRAWAL_REJECTED
+  AGENCY_WITHDRAWAL_PAYMENT_FAILED
+}
+
+enum AgencyPayoutRecipientType {
+  INDIVIDUAL
+  ENTERPRISE
+}
+
+enum AgencyWithdrawalStatus {
+  PENDING_REVIEW
+  PAYING
+  COMPLETED
+  REJECTED
+  PAYMENT_FAILED
+  WITHDRAWN
+}
+
+enum AgencyWithdrawalAuditTarget {
+  POLICY
+  PROFILE
+  REQUEST
+  PAYOUT_REVEAL
+}
+
+enum AgencyWithdrawalAuditAction {
+  POLICY_UPDATED
+  PROFILE_UPDATED
+  REQUEST_SUBMITTED
+  REQUEST_WITHDRAWN
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+  REQUEST_COMPLETED
+  REQUEST_PAYMENT_FAILED
+  PAYOUT_REVEALED
 }
 
 enum MediaPlatformStatus {
@@ -196,6 +232,14 @@ enum MediaQualityTier {
 
 model Account {
   commissionEntries AgencyCommission[]
+
+  payoutProfile             AgencyPayoutProfile?      @relation("PayoutProfileAgent")
+  withdrawalRequests        AgencyWithdrawalRequest[] @relation("WithdrawalAgent")
+  withdrawalsApproved       AgencyWithdrawalRequest[] @relation("WithdrawalApprover")
+  withdrawalsResolved       AgencyWithdrawalRequest[] @relation("WithdrawalResolver")
+  withdrawalAuditsActed     AgencyWithdrawalAudit[]   @relation("WithdrawalAuditActor")
+  withdrawalAuditsForAgent  AgencyWithdrawalAudit[]   @relation("WithdrawalAuditAgent")
+  withdrawalPoliciesUpdated AgencyWithdrawalPolicy[]  @relation("WithdrawalPolicyUpdater")
 
   supportTickets SupportTicket[] @relation("SupportCustomer")
   supportAssignments SupportTicket[] @relation("SupportAssignee")
@@ -1679,4 +1723,90 @@ model AgencyCommission {
   agent Account @relation(fields:[agentAccountId],references:[id],onDelete:Restrict,onUpdate:Restrict)
   @@index([agentAccountId,createdAt,orderId])
   @@map("agency_commissions")
+}
+
+model AgencyWithdrawalPolicy {
+  id                 String   @id @default("global") @db.VarChar(32)
+  minimumFen         BigInt   @map("minimum_fen")
+  revision           Int      @default(1)
+  updatedByAccountId String   @map("updated_by_account_id") @db.Uuid
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedBy          Account  @relation("WithdrawalPolicyUpdater", fields: [updatedByAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@map("agency_withdrawal_policies")
+}
+
+model AgencyPayoutProfile {
+  agentAccountId          String                    @id @map("agent_account_id") @db.Uuid
+  recipientType           AgencyPayoutRecipientType @map("recipient_type")
+  accountName             String                    @map("account_name") @db.VarChar(120)
+  accountNumberCiphertext String                    @map("account_number_ciphertext") @db.Text
+  accountNumberLast4      String                    @map("account_number_last4") @db.Char(4)
+  bankName                String                    @map("bank_name") @db.VarChar(120)
+  openingBranch           String                    @map("opening_branch") @db.VarChar(160)
+  contactMobile           String                    @map("contact_mobile") @db.VarChar(20)
+  consentVersion          String                    @map("consent_version") @db.VarChar(40)
+  consentedAt             DateTime                  @map("consented_at") @db.Timestamptz(3)
+  revision                Int                       @default(1)
+  updatedAt               DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  agent                   Account                   @relation("PayoutProfileAgent", fields: [agentAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@map("agency_payout_profiles")
+}
+
+model AgencyWithdrawalRequest {
+  id                            String                    @id @default(uuid()) @db.Uuid
+  number                        Int                       @unique @default(autoincrement())
+  agentAccountId                String                    @map("agent_account_id") @db.Uuid
+  amountFen                     BigInt                    @map("amount_fen")
+  status                        AgencyWithdrawalStatus    @default(PENDING_REVIEW)
+  revision                      Int                       @default(1)
+  payoutRecipientType           AgencyPayoutRecipientType @map("payout_recipient_type")
+  payoutAccountName             String                    @map("payout_account_name") @db.VarChar(120)
+  payoutAccountNumberCiphertext String                    @map("payout_account_number_ciphertext") @db.Text
+  payoutAccountNumberLast4      String                    @map("payout_account_number_last4") @db.Char(4)
+  payoutBankName                String                    @map("payout_bank_name") @db.VarChar(120)
+  payoutOpeningBranch           String                    @map("payout_opening_branch") @db.VarChar(160)
+  payoutContactMobile           String                    @map("payout_contact_mobile") @db.VarChar(20)
+  payoutConsentVersion          String                    @map("payout_consent_version") @db.VarChar(40)
+  submittedAt                   DateTime                  @default(now()) @map("submitted_at") @db.Timestamptz(3)
+  approvedByAccountId           String?                   @map("approved_by_account_id") @db.Uuid
+  approvedAt                    DateTime?                 @map("approved_at") @db.Timestamptz(3)
+  resolvedByAccountId           String?                   @map("resolved_by_account_id") @db.Uuid
+  resolvedAt                    DateTime?                 @map("resolved_at") @db.Timestamptz(3)
+  resultReason                  String?                   @map("result_reason") @db.VarChar(320)
+  bankTransactionReference      String?                   @map("bank_transaction_reference") @db.VarChar(160)
+  externalPaidAt                DateTime?                 @map("external_paid_at") @db.Timestamptz(3)
+  updatedAt                     DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  agent                         Account                   @relation("WithdrawalAgent", fields: [agentAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  approvedBy                    Account?                  @relation("WithdrawalApprover", fields: [approvedByAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  resolvedBy                    Account?                  @relation("WithdrawalResolver", fields: [resolvedByAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  audits                        AgencyWithdrawalAudit[]
+
+  @@index([agentAccountId, number])
+  @@index([status, number])
+  @@map("agency_withdrawal_requests")
+}
+
+model AgencyWithdrawalAudit {
+  id             String                      @id @default(uuid()) @db.Uuid
+  agentAccountId String?                     @map("agent_account_id") @db.Uuid
+  withdrawalId   String?                     @map("withdrawal_id") @db.Uuid
+  actorAccountId String                      @map("actor_account_id") @db.Uuid
+  requestId      String                      @map("request_id") @db.Uuid
+  requestDigest  String                      @map("request_digest") @db.Char(64)
+  target         AgencyWithdrawalAuditTarget
+  action         AgencyWithdrawalAuditAction
+  beforeState    Json?                       @map("before_state")
+  afterState     Json                        @map("after_state")
+  reason         String?                     @db.VarChar(320)
+  createdAt      DateTime                    @default(now()) @map("created_at") @db.Timestamptz(3)
+  agent          Account?                    @relation("WithdrawalAuditAgent", fields: [agentAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  actor          Account                     @relation("WithdrawalAuditActor", fields: [actorAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  withdrawal     AgencyWithdrawalRequest?    @relation(fields: [withdrawalId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([actorAccountId, requestId])
+  @@index([agentAccountId, createdAt, id])
+  @@index([withdrawalId, createdAt, id])
+  @@map("agency_withdrawal_audits")
 }

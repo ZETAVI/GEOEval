@@ -1515,3 +1515,187 @@ export function getCommission(
     signal: signal ?? null,
   });
 }
+
+export type AgencyWithdrawal = components["schemas"]["WithdrawalResponse"];
+export type AgencyWithdrawalPage =
+  components["schemas"]["WithdrawalPageResponse"];
+export type AgencyWithdrawalSummary =
+  components["schemas"]["WithdrawalSummaryResponse"];
+export type AgencyPayoutProfile =
+  components["schemas"]["PayoutProfileResponse"];
+export type AgencyPayoutProfileInput =
+  components["schemas"]["PayoutProfileRequest"];
+export type AgencyWithdrawalPolicy =
+  components["schemas"]["WithdrawalPolicyResponse"];
+export type AgencyWithdrawalPolicyInput =
+  components["schemas"]["WithdrawalPolicyRequest"];
+export type AgencyWithdrawalCommand =
+  components["schemas"]["WithdrawalCommandRequest"];
+export type AgencyWithdrawalFilter = {
+  agentId?: string;
+  status?: AgencyWithdrawal["status"];
+  cursor?: number;
+  limit?: number;
+};
+
+function withdrawalQuery(filter: AgencyWithdrawalFilter) {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(filter))
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  return query;
+}
+
+export function getAgencyWithdrawalSummary(
+  base: string,
+  actor: string,
+  signal?: AbortSignal,
+): Promise<AgencyWithdrawalSummary> {
+  return apiRequest(base, "/agency/withdrawals/summary", {
+    headers: { "x-geoeval-account": actor },
+    cache: "no-store",
+    signal: signal ?? null,
+  });
+}
+
+export function getAgencyPayoutProfile(
+  base: string,
+  actor: string,
+  signal?: AbortSignal,
+): Promise<{ profile: AgencyPayoutProfile | null }> {
+  return apiRequest(base, "/agency/withdrawals/payout-profile", {
+    headers: { "x-geoeval-account": actor },
+    cache: "no-store",
+    signal: signal ?? null,
+  });
+}
+
+export function saveAgencyPayoutProfile(
+  base: string,
+  actor: string,
+  input: AgencyPayoutProfileInput,
+): Promise<AgencyPayoutProfile> {
+  return apiRequest(base, "/agency/withdrawals/payout-profile", {
+    method: "PUT",
+    headers: { "x-geoeval-account": actor },
+    body: JSON.stringify(input),
+  });
+}
+
+export function listAgencyWithdrawals(
+  base: string,
+  actor: string,
+  filter: AgencyWithdrawalFilter = {},
+  signal?: AbortSignal,
+): Promise<AgencyWithdrawalPage> {
+  return apiRequest(base, `/agency/withdrawals?${withdrawalQuery(filter)}`, {
+    headers: { "x-geoeval-account": actor },
+    cache: "no-store",
+    signal: signal ?? null,
+  });
+}
+
+export function getAgencyWithdrawal(
+  base: string,
+  actor: string,
+  id: string,
+  admin = false,
+  signal?: AbortSignal,
+): Promise<AgencyWithdrawal> {
+  return apiRequest(
+    base,
+    `${admin ? "/admin/agency-withdrawals" : "/agency/withdrawals"}/${encodeURIComponent(id)}`,
+    {
+      headers: { "x-geoeval-account": actor },
+      cache: "no-store",
+      signal: signal ?? null,
+    },
+  );
+}
+
+export function submitAgencyWithdrawal(
+  base: string,
+  actor: string,
+  input: components["schemas"]["WithdrawalSubmitRequest"],
+): Promise<AgencyWithdrawal> {
+  return apiRequest(base, "/agency/withdrawals", {
+    method: "POST",
+    headers: { "x-geoeval-account": actor },
+    body: JSON.stringify(input),
+  });
+}
+
+export function commandAgencyWithdrawal(
+  base: string,
+  actor: string,
+  id: string,
+  input: AgencyWithdrawalCommand,
+  admin = false,
+): Promise<AgencyWithdrawal> {
+  return apiRequest(
+    base,
+    `${admin ? "/admin/agency-withdrawals" : "/agency/withdrawals"}/${encodeURIComponent(id)}/actions`,
+    {
+      method: "POST",
+      headers: { "x-geoeval-account": actor },
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function getAdminWithdrawalPolicy(
+  base: string,
+  actor: string,
+  signal?: AbortSignal,
+): Promise<{ policy: AgencyWithdrawalPolicy | null }> {
+  return apiRequest(base, "/admin/agency-withdrawals/policy", {
+    headers: { "x-geoeval-account": actor },
+    cache: "no-store",
+    signal: signal ?? null,
+  });
+}
+
+export function saveAdminWithdrawalPolicy(
+  base: string,
+  actor: string,
+  input: AgencyWithdrawalPolicyInput,
+): Promise<AgencyWithdrawalPolicy> {
+  return apiRequest(base, "/admin/agency-withdrawals/policy", {
+    method: "PUT",
+    headers: { "x-geoeval-account": actor },
+    body: JSON.stringify(input),
+  });
+}
+
+export function listAdminAgencyWithdrawals(
+  base: string,
+  actor: string,
+  filter: AgencyWithdrawalFilter = {},
+  signal?: AbortSignal,
+): Promise<AgencyWithdrawalPage> {
+  return apiRequest(
+    base,
+    `/admin/agency-withdrawals?${withdrawalQuery(filter)}`,
+    {
+      headers: { "x-geoeval-account": actor },
+      cache: "no-store",
+      signal: signal ?? null,
+    },
+  );
+}
+
+export function revealAgencyWithdrawalPayout(
+  base: string,
+  actor: string,
+  id: string,
+  input: components["schemas"]["PayoutRevealRequest"],
+): Promise<components["schemas"]["PayoutRevealResponse"]> {
+  return apiRequest(
+    base,
+    `/admin/agency-withdrawals/${encodeURIComponent(id)}/reveal-payout`,
+    {
+      method: "POST",
+      headers: { "x-geoeval-account": actor },
+      body: JSON.stringify(input),
+    },
+  );
+}

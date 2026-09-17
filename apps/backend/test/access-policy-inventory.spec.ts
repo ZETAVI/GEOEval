@@ -86,6 +86,16 @@ const expectedControllerPolicies: Record<
     handler: string,
   ) => Pick<RoutePolicy, "publicAccess" | "csrfExempt" | "roles">
 > = {
+  AdminAgencyWithdrawalController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["ADMINISTRATOR"],
+  }),
+  AgencyWithdrawalController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["AGENT"],
+  }),
   AdminPointRecordsController: () => ({
     publicAccess: false,
     csrfExempt: false,
@@ -193,7 +203,11 @@ const expectedControllerPolicies: Record<
   StoreLocationVerificationController: customerOnly,
   EvaluationController: customerOnly,
   GeoOptimizationController: customerOnly,
-  NotificationController: customerOnly,
+  NotificationController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["TERMINAL_CUSTOMER", "AGENT"],
+  }),
   MediaAdminController: () => ({
     publicAccess: false,
     csrfExempt: false,

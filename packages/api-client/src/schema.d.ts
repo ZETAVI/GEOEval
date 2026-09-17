@@ -1204,6 +1204,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/agency/withdrawals/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyWithdrawalController_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/withdrawals/payout-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyWithdrawalController_profile"];
+        put: operations["AgencyWithdrawalController_saveProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/withdrawals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyWithdrawalController_list"];
+        put?: never;
+        post: operations["AgencyWithdrawalController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/withdrawals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AgencyWithdrawalController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency/withdrawals/{id}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AgencyWithdrawalController_command"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/agency-withdrawals/policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAgencyWithdrawalController_policy"];
+        put: operations["AdminAgencyWithdrawalController_savePolicy"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/agency-withdrawals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAgencyWithdrawalController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/agency-withdrawals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAgencyWithdrawalController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/agency-withdrawals/{id}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminAgencyWithdrawalController_command"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/agency-withdrawals/{id}/reveal-payout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminAgencyWithdrawalController_reveal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/recharges/options": {
         parameters: {
             query?: never;
@@ -3099,13 +3259,19 @@ export interface components {
             brandId: string;
             runId: string;
         };
+        AgencyWithdrawalNotificationTargetResponse: {
+            /** @enum {string} */
+            kind: "AGENCY_WITHDRAWAL";
+            /** Format: uuid */
+            withdrawalId: string;
+        };
         NotificationResponse: {
             id: string;
             /** @enum {string} */
-            kind: "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED" | "RECHARGE_SUCCESSFUL";
+            kind: "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED" | "RECHARGE_SUCCESSFUL" | "AGENCY_WITHDRAWAL_COMPLETED" | "AGENCY_WITHDRAWAL_REJECTED" | "AGENCY_WITHDRAWAL_PAYMENT_FAILED";
             title: string;
             summary: string;
-            target: components["schemas"]["RechargeNotificationTargetResponse"] | components["schemas"]["EvaluationReportNotificationTargetResponse"] | components["schemas"]["EvaluationRetryNotificationTargetResponse"];
+            target: components["schemas"]["RechargeNotificationTargetResponse"] | components["schemas"]["EvaluationReportNotificationTargetResponse"] | components["schemas"]["EvaluationRetryNotificationTargetResponse"] | components["schemas"]["AgencyWithdrawalNotificationTargetResponse"];
             /** Format: date-time */
             occurredAt: string;
             /** Format: date-time */
@@ -3200,6 +3366,132 @@ export interface components {
             expectedRevision: number;
             /** Format: uuid */
             requestId: string;
+        };
+        WithdrawalSummaryResponse: {
+            bookedFen: string;
+            availableFen: string;
+            processingFen: string;
+            withdrawnFen: string;
+            minimumFen: string | null;
+            profileConfigured: boolean;
+            enabled: boolean;
+        };
+        PayoutProfileResponse: {
+            /** @enum {string} */
+            recipientType: "INDIVIDUAL" | "ENTERPRISE";
+            accountName: string;
+            maskedAccountNumber: string;
+            bankName: string;
+            openingBranch: string;
+            contactMobile: string;
+            consentVersion: string;
+            /** Format: date-time */
+            consentedAt: string;
+            revision: number;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        PayoutProfileStateResponse: {
+            profile: components["schemas"]["PayoutProfileResponse"] | null;
+        };
+        PayoutProfileRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            requestId: string;
+            /** @enum {string} */
+            recipientType: "INDIVIDUAL" | "ENTERPRISE";
+            accountName: string;
+            /** @description Digits; never returned after save */
+            accountNumber: string;
+            bankName: string;
+            openingBranch: string;
+            contactMobile: string;
+            /** @enum {string} */
+            consentVersion: "agency-payout-v1";
+            sensitiveDataConsent: boolean;
+        };
+        WithdrawalPayoutResponse: {
+            /** @enum {string} */
+            recipientType: "INDIVIDUAL" | "ENTERPRISE";
+            accountName: string;
+            maskedAccountNumber: string;
+            bankName: string;
+            openingBranch: string;
+            contactMobile: string;
+        };
+        WithdrawalResponse: {
+            /** Format: uuid */
+            id: string;
+            number: number;
+            /** Format: uuid */
+            agentId: string;
+            amountFen: string;
+            /** @enum {string} */
+            status: "PENDING_REVIEW" | "PAYING" | "COMPLETED" | "REJECTED" | "PAYMENT_FAILED" | "WITHDRAWN";
+            revision: number;
+            payout: components["schemas"]["WithdrawalPayoutResponse"];
+            /** Format: date-time */
+            submittedAt: string;
+            /** Format: date-time */
+            approvedAt: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            resultReason: string | null;
+            bankTransactionReference: string | null;
+            /** Format: date-time */
+            externalPaidAt: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        WithdrawalPageResponse: {
+            items: components["schemas"]["WithdrawalResponse"][];
+            nextCursor: number | null;
+        };
+        WithdrawalSubmitRequest: {
+            /** Format: uuid */
+            requestId: string;
+            amountFen: string;
+        };
+        WithdrawalCommandRequest: {
+            /** @enum {string} */
+            action: "WITHDRAW" | "APPROVE" | "REJECT" | "COMPLETE" | "PAYMENT_FAILED";
+            expectedRevision: number;
+            /** Format: uuid */
+            requestId: string;
+            reason?: string;
+            bankTransactionReference?: string;
+            /** Format: date-time */
+            externalPaidAt?: string;
+            note?: string;
+        };
+        WithdrawalPolicyResponse: {
+            minimumFen: string;
+            revision: number;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        WithdrawalPolicyStateResponse: {
+            policy: components["schemas"]["WithdrawalPolicyResponse"] | null;
+        };
+        WithdrawalPolicyRequest: {
+            expectedRevision: number;
+            /** Format: uuid */
+            requestId: string;
+            minimumFen: string;
+            reason: string;
+        };
+        PayoutRevealRequest: {
+            /** Format: uuid */
+            requestId: string;
+            reason: string;
+        };
+        PayoutRevealResponse: {
+            /** Format: uuid */
+            withdrawalId: string;
+            accountName: string;
+            accountNumber: string;
+            bankName: string;
+            openingBranch: string;
         };
         RechargeOptionsResponse: {
             available: boolean;
@@ -5559,6 +5851,312 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SupportReceiptResponse"];
+                };
+            };
+        };
+    };
+    AgencyWithdrawalController_summary: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalSummaryResponse"];
+                };
+            };
+        };
+    };
+    AgencyWithdrawalController_profile: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayoutProfileStateResponse"];
+                };
+            };
+        };
+    };
+    AgencyWithdrawalController_saveProfile: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayoutProfileRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayoutProfileResponse"];
+                };
+            };
+        };
+    };
+    AgencyWithdrawalController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: number;
+                status?: unknown;
+            };
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalPageResponse"];
+                };
+            };
+        };
+    };
+    AgencyWithdrawalController_submit: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WithdrawalSubmitRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalResponse"];
+                };
+            };
+        };
+    };
+    AgencyWithdrawalController_detail: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalResponse"];
+                };
+            };
+        };
+    };
+    AgencyWithdrawalController_command: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WithdrawalCommandRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalResponse"];
+                };
+            };
+        };
+    };
+    AdminAgencyWithdrawalController_policy: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalPolicyStateResponse"];
+                };
+            };
+        };
+    };
+    AdminAgencyWithdrawalController_savePolicy: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WithdrawalPolicyRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalPolicyResponse"];
+                };
+            };
+        };
+    };
+    AdminAgencyWithdrawalController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: number;
+                status?: unknown;
+                agentId?: unknown;
+            };
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalPageResponse"];
+                };
+            };
+        };
+    };
+    AdminAgencyWithdrawalController_detail: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalResponse"];
+                };
+            };
+        };
+    };
+    AdminAgencyWithdrawalController_command: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WithdrawalCommandRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WithdrawalResponse"];
+                };
+            };
+        };
+    };
+    AdminAgencyWithdrawalController_reveal: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayoutRevealRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayoutRevealResponse"];
                 };
             };
         };

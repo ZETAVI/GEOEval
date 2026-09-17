@@ -3006,6 +3006,500 @@
         ]
       }
     },
+    "/agency/withdrawals/summary": {
+      "get": {
+        "operationId": "AgencyWithdrawalController_summary",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalSummaryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-withdrawal"
+        ]
+      }
+    },
+    "/agency/withdrawals/payout-profile": {
+      "get": {
+        "operationId": "AgencyWithdrawalController_profile",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutProfileStateResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-withdrawal"
+        ]
+      },
+      "put": {
+        "operationId": "AgencyWithdrawalController_saveProfile",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayoutProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutProfileResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-withdrawal"
+        ]
+      }
+    },
+    "/agency/withdrawals": {
+      "get": {
+        "operationId": "AgencyWithdrawalController_list",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-withdrawal"
+        ]
+      },
+      "post": {
+        "operationId": "AgencyWithdrawalController_submit",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawalSubmitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-withdrawal"
+        ]
+      }
+    },
+    "/agency/withdrawals/{id}": {
+      "get": {
+        "operationId": "AgencyWithdrawalController_detail",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-withdrawal"
+        ]
+      }
+    },
+    "/agency/withdrawals/{id}/actions": {
+      "post": {
+        "operationId": "AgencyWithdrawalController_command",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawalCommandRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agency-withdrawal"
+        ]
+      }
+    },
+    "/admin/agency-withdrawals/policy": {
+      "get": {
+        "operationId": "AdminAgencyWithdrawalController_policy",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalPolicyStateResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-agency-withdrawal"
+        ]
+      },
+      "put": {
+        "operationId": "AdminAgencyWithdrawalController_savePolicy",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawalPolicyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalPolicyResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-agency-withdrawal"
+        ]
+      }
+    },
+    "/admin/agency-withdrawals": {
+      "get": {
+        "operationId": "AdminAgencyWithdrawalController_list",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "agentId",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-agency-withdrawal"
+        ]
+      }
+    },
+    "/admin/agency-withdrawals/{id}": {
+      "get": {
+        "operationId": "AdminAgencyWithdrawalController_detail",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-agency-withdrawal"
+        ]
+      }
+    },
+    "/admin/agency-withdrawals/{id}/actions": {
+      "post": {
+        "operationId": "AdminAgencyWithdrawalController_command",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawalCommandRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-agency-withdrawal"
+        ]
+      }
+    },
+    "/admin/agency-withdrawals/{id}/reveal-payout": {
+      "post": {
+        "operationId": "AdminAgencyWithdrawalController_reveal",
+        "parameters": [
+          {
+            "name": "x-geoeval-account",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayoutRevealRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutRevealResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admin-agency-withdrawal"
+        ]
+      }
+    },
     "/recharges/options": {
       "get": {
         "operationId": "CustomerRechargeController_options",
@@ -9882,6 +10376,25 @@
           "runId"
         ]
       },
+      "AgencyWithdrawalNotificationTargetResponse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "AGENCY_WITHDRAWAL"
+            ]
+          },
+          "withdrawalId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "kind",
+          "withdrawalId"
+        ]
+      },
       "NotificationResponse": {
         "type": "object",
         "properties": {
@@ -9893,7 +10406,10 @@
             "enum": [
               "EVALUATION_COMPLETED",
               "EVALUATION_RETRY_REQUIRED",
-              "RECHARGE_SUCCESSFUL"
+              "RECHARGE_SUCCESSFUL",
+              "AGENCY_WITHDRAWAL_COMPLETED",
+              "AGENCY_WITHDRAWAL_REJECTED",
+              "AGENCY_WITHDRAWAL_PAYMENT_FAILED"
             ]
           },
           "title": {
@@ -9912,6 +10428,9 @@
               },
               {
                 "$ref": "#/components/schemas/EvaluationRetryNotificationTargetResponse"
+              },
+              {
+                "$ref": "#/components/schemas/AgencyWithdrawalNotificationTargetResponse"
               }
             ]
           },
@@ -10292,6 +10811,469 @@
           "action",
           "expectedRevision",
           "requestId"
+        ]
+      },
+      "WithdrawalSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "bookedFen": {
+            "type": "string"
+          },
+          "availableFen": {
+            "type": "string"
+          },
+          "processingFen": {
+            "type": "string"
+          },
+          "withdrawnFen": {
+            "type": "string"
+          },
+          "minimumFen": {
+            "type": "string",
+            "nullable": true
+          },
+          "profileConfigured": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "bookedFen",
+          "availableFen",
+          "processingFen",
+          "withdrawnFen",
+          "minimumFen",
+          "profileConfigured",
+          "enabled"
+        ]
+      },
+      "PayoutProfileResponse": {
+        "type": "object",
+        "properties": {
+          "recipientType": {
+            "type": "string",
+            "enum": [
+              "INDIVIDUAL",
+              "ENTERPRISE"
+            ]
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "maskedAccountNumber": {
+            "type": "string"
+          },
+          "bankName": {
+            "type": "string"
+          },
+          "openingBranch": {
+            "type": "string"
+          },
+          "contactMobile": {
+            "type": "string"
+          },
+          "consentVersion": {
+            "type": "string"
+          },
+          "consentedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revision": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "recipientType",
+          "accountName",
+          "maskedAccountNumber",
+          "bankName",
+          "openingBranch",
+          "contactMobile",
+          "consentVersion",
+          "consentedAt",
+          "revision",
+          "updatedAt"
+        ]
+      },
+      "PayoutProfileStateResponse": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PayoutProfileResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "PayoutProfileRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 0
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipientType": {
+            "type": "string",
+            "enum": [
+              "INDIVIDUAL",
+              "ENTERPRISE"
+            ]
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Digits; never returned after save"
+          },
+          "bankName": {
+            "type": "string"
+          },
+          "openingBranch": {
+            "type": "string"
+          },
+          "contactMobile": {
+            "type": "string"
+          },
+          "consentVersion": {
+            "type": "string",
+            "enum": [
+              "agency-payout-v1"
+            ]
+          },
+          "sensitiveDataConsent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "requestId",
+          "recipientType",
+          "accountName",
+          "accountNumber",
+          "bankName",
+          "openingBranch",
+          "contactMobile",
+          "consentVersion",
+          "sensitiveDataConsent"
+        ]
+      },
+      "WithdrawalPayoutResponse": {
+        "type": "object",
+        "properties": {
+          "recipientType": {
+            "type": "string",
+            "enum": [
+              "INDIVIDUAL",
+              "ENTERPRISE"
+            ]
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "maskedAccountNumber": {
+            "type": "string"
+          },
+          "bankName": {
+            "type": "string"
+          },
+          "openingBranch": {
+            "type": "string"
+          },
+          "contactMobile": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "recipientType",
+          "accountName",
+          "maskedAccountNumber",
+          "bankName",
+          "openingBranch",
+          "contactMobile"
+        ]
+      },
+      "WithdrawalResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "number"
+          },
+          "agentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amountFen": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_REVIEW",
+              "PAYING",
+              "COMPLETED",
+              "REJECTED",
+              "PAYMENT_FAILED",
+              "WITHDRAWN"
+            ]
+          },
+          "revision": {
+            "type": "number"
+          },
+          "payout": {
+            "$ref": "#/components/schemas/WithdrawalPayoutResponse"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "approvedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "resultReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankTransactionReference": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalPaidAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "agentId",
+          "amountFen",
+          "status",
+          "revision",
+          "payout",
+          "submittedAt",
+          "approvedAt",
+          "resolvedAt",
+          "resultReason",
+          "bankTransactionReference",
+          "externalPaidAt",
+          "updatedAt"
+        ]
+      },
+      "WithdrawalPageResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WithdrawalResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "WithdrawalSubmitRequest": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amountFen": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId",
+          "amountFen"
+        ]
+      },
+      "WithdrawalCommandRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "WITHDRAW",
+              "APPROVE",
+              "REJECT",
+              "COMPLETE",
+              "PAYMENT_FAILED"
+            ]
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "bankTransactionReference": {
+            "type": "string"
+          },
+          "externalPaidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "expectedRevision",
+          "requestId"
+        ]
+      },
+      "WithdrawalPolicyResponse": {
+        "type": "object",
+        "properties": {
+          "minimumFen": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "minimumFen",
+          "revision",
+          "updatedAt"
+        ]
+      },
+      "WithdrawalPolicyStateResponse": {
+        "type": "object",
+        "properties": {
+          "policy": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WithdrawalPolicyResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "policy"
+        ]
+      },
+      "WithdrawalPolicyRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 0
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "minimumFen": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "requestId",
+          "minimumFen",
+          "reason"
+        ]
+      },
+      "PayoutRevealRequest": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId",
+          "reason"
+        ]
+      },
+      "PayoutRevealResponse": {
+        "type": "object",
+        "properties": {
+          "withdrawalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string"
+          },
+          "bankName": {
+            "type": "string"
+          },
+          "openingBranch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "withdrawalId",
+          "accountName",
+          "accountNumber",
+          "bankName",
+          "openingBranch"
         ]
       },
       "RechargeOptionsResponse": {

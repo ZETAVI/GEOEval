@@ -30,7 +30,13 @@ const initial: AdminRechargeState = {
   detail: null,
   accounts: [],
 };
-export function AdminRechargeWorkspace({ orderId }: { orderId?: string }) {
+export function AdminRechargeWorkspace({
+  orderId,
+  withdrawalEnabled = false,
+}: {
+  orderId?: string;
+  withdrawalEnabled?: boolean;
+}) {
   const [state, setState] = useState(initial);
   const controller = useRef<AdminRechargeController | null>(null);
   useEffect(() => {
@@ -95,7 +101,10 @@ export function AdminRechargeWorkspace({ orderId }: { orderId?: string }) {
             刷新
           </button>
         </header>
-        <BusinessRecordsNavigation active="recharges" />
+        <BusinessRecordsNavigation
+          active="recharges"
+          withdrawalEnabled={withdrawalEnabled}
+        />
         {state.error && (
           <p role="alert" className={styles.error}>
             {state.error}

@@ -84,7 +84,7 @@ The feature SHALL share the existing controlled Agency activation boundary. It S
 
 [Agency Entry](../agency-entry/spec.md) owns the stable acquisition link and 30-day anonymous source. Reassignment preserves the customer's original entry evidence and does not revoke the old agent's general acquisition link. That link can still acquire new customers; an existing customer opening it is never reclaimed.
 
-Manual assignment of a pre-existing public customer creates no fictitious entry evidence. Account, brand, report, wallet and order data remain under their owners. This capability does not supply purchase-time agent/rate snapshots, commission, 72-hour point-return claims or withdrawal behavior; those remain future commercial activation outcomes under #100. A customer's historical commercial ownership is never inferred from the current service relationship.
+Manual assignment of a pre-existing public customer creates no fictitious entry evidence. Account, brand, report, wallet and order data remain under their owners. This capability does not supply purchase-time agent/rate snapshots, commission, 72-hour point-return claims or [withdrawal behavior](../agency-withdrawal/spec.md); those remain separate commercial owners under #100. A customer's historical commercial ownership is never inferred from the current service relationship.
 
 ### Requirement: Suspension retains attribution
 

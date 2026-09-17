@@ -45,6 +45,8 @@ const apiSchema = commonSchema.extend({
     .min(1)
     .default("http://127.0.0.1:3100,http://127.0.0.1:3200"),
   AGENCY_ACQUISITION_ENABLED: z.enum(["0", "1"]).default("0"),
+  AGENCY_WITHDRAWAL_ENABLED: z.enum(["0", "1"]).default("0"),
+  AGENCY_WITHDRAWAL_KEY_HEX: z.string().default(""),
   AUTH_CHALLENGE_MODE: z.literal("deterministic").default("deterministic"),
   AUTH_HASH_PEPPER: z.string().min(32),
   AUTH_DETERMINISTIC_CODE: z.string().regex(/^\d{6}$/),
@@ -199,6 +201,10 @@ export type ApiConfig = {
   telemetryShouldFail: boolean;
   runtimeEnvironment: "development" | "test" | "production";
   agencyAcquisitionEnabled: boolean;
+  agencyWithdrawal?: {
+    enabled: boolean;
+    encryptionKeyHex: string;
+  };
   authChallengeMode: "deterministic";
   authHashPepper: string;
   authDeterministicCode: string;
@@ -269,6 +275,14 @@ export function loadApiConfig(
 ): ApiConfig {
   const parsed = apiSchema.parse(withLocalDefaults(environment));
   if (
+    parsed.AGENCY_WITHDRAWAL_ENABLED === "1" &&
+    !/^[0-9a-f]{64}$/i.test(parsed.AGENCY_WITHDRAWAL_KEY_HEX)
+  ) {
+    throw new Error(
+      "AGENCY_WITHDRAWAL_KEY_HEX must contain 32-byte hex when withdrawals are enabled",
+    );
+  }
+  if (
     parsed.NODE_ENV === "production" &&
     parsed.STORE_LOCATION_MODE === "deterministic"
   ) {
@@ -338,6 +352,10 @@ export function loadApiConfig(
     telemetryShouldFail: parsed.GEOEVAL_TELEMETRY_FAIL === "1",
     runtimeEnvironment: parsed.NODE_ENV,
     agencyAcquisitionEnabled: parsed.AGENCY_ACQUISITION_ENABLED === "1",
+    agencyWithdrawal: {
+      enabled: parsed.AGENCY_WITHDRAWAL_ENABLED === "1",
+      encryptionKeyHex: parsed.AGENCY_WITHDRAWAL_KEY_HEX.toLowerCase(),
+    },
     authChallengeMode: parsed.AUTH_CHALLENGE_MODE,
     authHashPepper: parsed.AUTH_HASH_PEPPER,
     authDeterministicCode: parsed.AUTH_DETERMINISTIC_CODE,

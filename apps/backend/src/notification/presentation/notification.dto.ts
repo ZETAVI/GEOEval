@@ -27,6 +27,13 @@ export class RechargeNotificationTargetResponse {
   rechargeOrderId!: string;
 }
 
+export class AgencyWithdrawalNotificationTargetResponse {
+  @ApiProperty({ type: String, enum: ["AGENCY_WITHDRAWAL"] })
+  kind!: "AGENCY_WITHDRAWAL";
+  @ApiProperty({ type: String, format: "uuid" })
+  withdrawalId!: string;
+}
+
 export class NotificationResponse {
   @ApiProperty({ type: String })
   id!: string;
@@ -36,12 +43,18 @@ export class NotificationResponse {
       "EVALUATION_COMPLETED",
       "EVALUATION_RETRY_REQUIRED",
       "RECHARGE_SUCCESSFUL",
+      "AGENCY_WITHDRAWAL_COMPLETED",
+      "AGENCY_WITHDRAWAL_REJECTED",
+      "AGENCY_WITHDRAWAL_PAYMENT_FAILED",
     ],
   })
   kind!:
     | "EVALUATION_COMPLETED"
     | "EVALUATION_RETRY_REQUIRED"
-    | "RECHARGE_SUCCESSFUL";
+    | "RECHARGE_SUCCESSFUL"
+    | "AGENCY_WITHDRAWAL_COMPLETED"
+    | "AGENCY_WITHDRAWAL_REJECTED"
+    | "AGENCY_WITHDRAWAL_PAYMENT_FAILED";
   @ApiProperty({ type: String })
   title!: string;
   @ApiProperty({ type: String })
@@ -52,12 +65,14 @@ export class NotificationResponse {
       { $ref: getSchemaPath(RechargeNotificationTargetResponse) },
       { $ref: getSchemaPath(EvaluationReportNotificationTargetResponse) },
       { $ref: getSchemaPath(EvaluationRetryNotificationTargetResponse) },
+      { $ref: getSchemaPath(AgencyWithdrawalNotificationTargetResponse) },
     ],
   })
   target!:
     | EvaluationReportNotificationTargetResponse
     | EvaluationRetryNotificationTargetResponse
-    | RechargeNotificationTargetResponse;
+    | RechargeNotificationTargetResponse
+    | AgencyWithdrawalNotificationTargetResponse;
   @ApiProperty({ type: String, format: "date-time" })
   occurredAt!: Date;
   @ApiProperty({ type: String, format: "date-time", nullable: true })

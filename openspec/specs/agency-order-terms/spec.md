@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Own administrator commission configuration and the immutable commercial facts captured by new purchases. Final commission entries use [Agency Commission](../agency-commission/spec.md), and final 72-hour settlement uses [Publishing Commerce](../publishing-commerce/spec.md). Withdrawals remain future activation.
+Own administrator commission configuration and the immutable commercial facts captured by new purchases. Final commission entries use [Agency Commission](../agency-commission/spec.md), final 72-hour settlement uses [Publishing Commerce](../publishing-commerce/spec.md), and withdrawals use [Agency Withdrawal](../agency-withdrawal/spec.md).
 
 ## Requirements
 

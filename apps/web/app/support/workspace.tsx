@@ -48,10 +48,12 @@ export function SupportWorkspace({
   role,
   ticketId,
   publishingOrderId,
+  withdrawalEnabled = false,
 }: {
   role: Role;
   ticketId?: string | undefined;
   publishingOrderId?: string | undefined;
+  withdrawalEnabled?: boolean;
 }) {
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
   const [epoch, setEpoch] = useState(0);
@@ -168,7 +170,10 @@ export function SupportWorkspace({
             {ticketId && <a href={home(role)}>返回工单列表</a>}
           </header>
           {role === "ADMINISTRATOR" && (
-            <BusinessRecordsNavigation active="support" />
+            <BusinessRecordsNavigation
+              active="support"
+              withdrawalEnabled={withdrawalEnabled}
+            />
           )}
           <SupportContent
             key={`${account.id}:${ticketId ?? "list"}:${publishingOrderId ?? "all"}`}

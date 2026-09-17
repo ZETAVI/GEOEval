@@ -383,8 +383,26 @@ respective owners; no historical commercial attribution is inferred here.
 
 ### Agency purchase terms
 
-[Agency Order Terms](../../openspec/specs/agency-order-terms/spec.md) owns administrator commission configuration and its purchase-time meaning. Commerce persists immutable order terms through the Agency-owned transaction reader described by [ADR 0005](adr/0005-atomic-publishing-purchase.md). Suspension keeps service relationships but excludes new orders from commission; old orders retain captured eligibility. Final entries now follow Agency Commission; withdrawals remain separate. Customer wallets, fulfilment facts and public order projections retain their existing owners.
+[Agency Order Terms](../../openspec/specs/agency-order-terms/spec.md) owns administrator commission configuration and its purchase-time meaning. Commerce persists immutable order terms through the Agency-owned transaction reader described by [ADR 0005](adr/0005-atomic-publishing-purchase.md). Suspension keeps service relationships but excludes new orders from commission; old orders retain captured eligibility. Final entries follow Agency Commission and payout follows Agency Withdrawal. Customer wallets, fulfilment facts and public order projections retain their existing owners.
 
 ### Agency commission
 
 [Agency Commission](../../openspec/specs/agency-commission/spec.md) consumes immutable Commerce final receipts through owner-provided read projections. The application service composes purchase sources, current Delivery agreement for estimates and the Agency ledger. The source allocation is the same pure function used by actual returns; no second refund algorithm, customer wallet or writable earnings total exists. Formal accrual has its own short transaction: unique order identity plus source-checking and immutable-ledger constraints. It never acquires wallet/Delivery write locks, so commission failures cannot roll back customer settlement. The existing Worker independently scans persisted missing entries with a default-off switch. Views use one consistent read snapshot, actor/filter-scoped pagination and exact integer-fen strings; historical commission access conveys no current customer-service authority.
+
+### Agency withdrawal
+
+[Agency Withdrawal](../../openspec/specs/agency-withdrawal/spec.md) reads the
+immutable booked-commission total through one Agency-owned projection and
+derives available, processing, and completed amounts from its own immutable
+requests. It owns one encrypted current payout profile per agent, request-time
+payout snapshots, the short review/payment state machine, global minimum,
+sanitized audit and result Outbox events. It does not add a mutable earnings
+balance or assign commissions to individual withdrawals.
+
+All money commands serialize on the agent account before reading availability;
+global policy writes have their own transaction-level serialization point, and
+the database enforces one unfinished request plus immutable snapshots and
+terminal history. Identity supplies current role and account status. Notification
+materializes only result summaries and never calls back into funds. Full payout
+data is available only through an explicit administrator command whose reason is
+audited; ordinary APIs, audit state, events and notifications remain masked.
