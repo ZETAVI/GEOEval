@@ -2,7 +2,7 @@
 
 方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; N4 adds durable post-settlement notices and account-safe customer navigation; current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real merchant/Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims. The [current integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) supersedes their earlier merge-authority limitations.
+Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; N4 adds durable post-settlement notices and account-safe customer navigation. W1 has reached real signed no-funds WeChat query and protected server credential custody; W2 adds a dedicated callback-only host but is not yet deployed. Current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real prepay/funds, Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims. The [current integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) supersedes their earlier merge-authority limitations.
 
 已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
@@ -554,6 +554,7 @@ RECHARGE_WECHAT_NOTIFY_URL=https://.../recharges/providers/wechat/notify
 RECHARGE_WECHAT_API_ORIGIN=https://api.mch.weixin.qq.com
 RECHARGE_WECHAT_IP_FAMILY=auto|ipv4|ipv6
 RECHARGE_WECHAT_TIMEOUT_MS=8000
+RECHARGE_CALLBACK_PORT=3300
 ```
 
 - 配置对象保存进程内受限值，不在启动日志、健康接口、异常、Issue、聊天或 Git 输出 secret；
@@ -562,6 +563,7 @@ RECHARGE_WECHAT_TIMEOUT_MS=8000
 - 订单冻结稳定商户/AppID，API 与 Worker 按该身份定位可信凭证版本，不能用可变 alias 充当商户身份；密钥轮换不迁移订单身份；
 - 时钟同步、TLS、出站域名、主/备 API 域名和回调公网 HTTPS 属于部署前检查项。
 - 网络族默认 `auto`；只有实际部署环境证明某一网络族不可达时才显式选择 `ipv4` 或 `ipv6`。该选择只进入微信 HTTPS Adapter，不通过全局 Node 参数影响其他渠道或基础设施。
+- `recharge-callback-main` 只绑定 loopback，由反向代理精确暴露渠道通知路径；它只装配 PostgreSQL、raw-body parser、通知验签和 durable inbox，不装配 Identity、客户 API、后台 Worker、AI、媒体或 Redis。微信回调进程只读取微信支付公钥和 APIv3 密钥，不读取商户私钥、证书、AppID 或出站 API 配置。
 
 凭证保管与轮换：
 
@@ -902,3 +904,13 @@ QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字
 - **验收**：成功事务中新待办失败回滚；重复/并发只有一份待办和消息；通知失败资金不变且后项推进；物化后ACK前强杀再启动、已读不重置；身份冲突保留待核查；默认不开通、旧数据升级不变、评测通知兼容；新旧账户/忽略abort的迟到响应/SSE断开/直接订单跳转真实HTTP与浏览器。
 
 前置及实现后架构复核已完成；没有需要扩展 Commerce 或建设通用事件平台的依据。共享写入遵循主负责后端/schema/generated、前端执行者负责手写 client/通知组件与自有测试。实际接口与规则归 [Recharge spec](../../specs/recharge/spec.md)、[Notification spec](../../specs/notification/spec.md)及其实现；验证与浏览器复验限制归 [verification](verification.md)。
+
+## W2 公网回调最小宿主实施卡
+
+真实接入不启动完整 `ApiModule`。当前生产认证发送器仍未就绪，而回调本身只需要验签、解密和持久接收；公开完整 API 会无谓扩大路由、依赖和凭证边界。
+
+- **进程边界**：`recharge-callback-main` 独立绑定 `127.0.0.1:RECHARGE_CALLBACK_PORT`。`RechargeCallbackModule` 只导入 `PersistenceModule` 和 `RechargeNotificationModule`；公网 Nginx 只代理精确的 `/recharges/providers/wechat/notify`。
+- **最小凭证**：`WechatPayNotificationVerifier` 从完整 Gateway 中拆出被动验签/解密能力，只持有微信支付公钥与 APIv3 密钥。商户私钥、API 证书、AppID、notify URL 和出站 HTTP 不进入回调进程。
+- **一致性**：HTTP 只在现有 inbox 事务提交后返回 `204`；无效签名为 `401`，无效报文为 `400`，数据库或处理预算不确定为 `503` 促使微信重试。按钮、回跳和客户端状态仍不能决定到账。
+- **部署门槛**：正式 PostgreSQL、Node 24 运行时、systemd 进程和 Nginx upstream 尚未启用。当前 HTTPS 域名仍以 `503` 明确表示后端未就绪；不得用内存、文件或现有 Redis 替代 durable inbox。
+- **回退**：停止或撤下 callback 进程/代理只会让微信重试，不能删除 observation、receipt 或已存在的订单义务；恢复后仍由同一幂等接收与结算路径处理。

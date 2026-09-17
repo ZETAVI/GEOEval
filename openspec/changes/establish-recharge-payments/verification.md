@@ -1,6 +1,6 @@
 # Recharge verification
 
-Current accepted code: main29d115d contains A0/B0/C1, N1–N4 and R1; exact merge/CI and post-merge evidence live in the [integration closeout](https://github.com/ZETAVI/GEOEval/pull/86#issuecomment-5628433299). Earlier dated sections are historical scope/evidence. R1 merge evidence lives in PR #87; O1a is implemented and locally verified in PR #88, not yet claimed merged. #77 remains open for reliability, operational/mobile and real-merchant acceptance.
+Current accepted code: `main@c78032b` contains A0/B0/C1, N1–N4, R1/O1a, Alipay PC composition and the W1 WeChat real-query network fix. Exact historical merge/CI evidence remains in the owning PRs. The current branch adds the callback-only W2 host and credential-custody record; local evidence below does not imply merge or deployment. #77 remains open for callback deployment, AppID binding, real funds, operational and mobile acceptance.
 
 ## O1a administrator lookup evidence
 
@@ -438,4 +438,16 @@ Final local validation: `pnpm typecheck`, `pnpm format:check`, `python3 scripts/
 | Web 与可交付构建 | Web 32 文件 226 项；workspace typecheck、format、framework/link、完整 build | Passed；OpenAPI/API client 生成无 diff，生产 Web 20 个静态页与动态路由构建完成 |
 | 完整后端回归 | 92 文件 | 887 passed / 15 skipped / 1 failed。失败为 evaluation Worker restart 用例固定 5 秒 timeout；在临时 `origin/main@18e53e0` 工作树单独复现同一失败，Diff 不含 evaluation 文件，因此不是本片通过项或支付回归 |
 
-PR #122 两项 CI 已通过并合并为 `c78032b`。待运行：AppID 绑定回执、服务器 Node 24/PostgreSQL/DNS/HTTPS、公钥真实应答验签、1 分持久 prepay+close、公网伪造/真实回调、最小付款和财务到账。真实无资金 query 已完成且只证明其上表列出的请求接受边界。整体真实微信链路仍为 **partially verified**。
+PR #122 两项 CI 已通过并合并为 `c78032b`。`app.geohdp.com` 的 DNS 与独立 HTTPS 已就绪，后端保持明确 `503`。待运行：AppID 绑定回执、服务器 Node 24/PostgreSQL/callback 进程、公钥真实应答验签、1 分持久 prepay+close、公网伪造/真实回调、最小付款和财务到账。真实无资金 query 已完成且只证明其上表列出的请求接受边界。整体真实微信链路仍为 **partially verified**。
+
+## W2 callback-only host evidence（2026-09-17，本地固定 Diff）
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| 公网接收面不加载完整应用 | `recharge-callback.spec.ts` 的真实 Nest/HTTP 装配 | Passed：仅 `RechargeCallbackModule`、`PersistenceModule`、`RechargeNotificationModule` 和微信 Controller；无 API/Identity/Commerce/Media/AI/Redis/Recharge Worker，客户与 OpenAPI 路径均为 404 |
+| 回调进程不持有商户签名能力 | `WechatPayNotificationVerifier` 与 `loadRechargeCallbackConfiguration` | Passed：只读取微信支付公钥、其 ID 和 APIv3 密钥；缺少商户私钥、证书、AppID、notify URL 仍能完成回调配置。完整 Gateway 复用同一验证器，既有协议行为未改 |
+| 错误请求不会误 ACK | callback HTTP 负例 | Passed：伪造签名返回 401；有效签名在 test DB 断开时进入 inbox seam 后返回 503，不声称入库成功 |
+| 提交后才 ACK、重复与冲突保持既有语义 | 独立 `geoeval_issue77_callback` PostgreSQL 从空库部署当前 53 个迁移；`recharge-notification.integration.spec.ts` 与 callback/config/gateway 定向组合 | 4 files / 111 tests passed：专用宿主在 observation/receipt 各写入一行后返回空 `204`；覆盖真实 raw body、事务提交前不 ACK、锁等待/回滚、并发重投/冲突、响应丢失后恢复、错误签名/密文/大小/编码。使用合成签名，不是公网微信回调 |
+| 编译与回归边界 | 后端 TypeScript `--noEmit`、后端 build、全量后端回归 | Passed：90 files / 893 tests；3 files / 15 tests 按既有专属环境 gate 跳过。PR CI、完整 workspace build 和服务器运行仍待后续执行 |
+
+仍未完成：服务器 PostgreSQL 与 Node 24 安装、应用构建/迁移、systemd、Nginx exact-path upstream、公网伪造请求、微信真实通知。当前 `app.geohdp.com` 的 TLS/DNS 已就绪，但 HTTPS 后端继续返回明确 `503`，不能称为回调已部署。

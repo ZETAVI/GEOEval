@@ -196,14 +196,35 @@ function result<T, U>(
   return source.ok ? { ok: true, value: map(source.value) } : source;
 }
 
+/** Adapts the passive WeChat callback protocol to the provider-neutral inbox seam. */
+export class WechatRechargeNotificationVerifier implements ProviderNotificationVerifier {
+  readonly provider = "WECHAT" as const;
+
+  constructor(private readonly verifier: PaymentNotificationVerifier) {}
+
+  verifyNotification(input: {
+    headers: Readonly<Record<string, readonly string[] | undefined>>;
+    rawBody: Buffer;
+  }): ProviderResult<ProviderNotification> {
+    return result(this.verifier.verifyNotification(input), (value) =>
+      wechatNotification(value),
+    );
+  }
+}
+
 /** Keeps the released WeChat protocol port stable while Recharge consumes one provider seam. */
-export class WechatRechargePaymentGateway implements RechargePaymentGateway {
+export class WechatRechargePaymentGateway
+  extends WechatRechargeNotificationVerifier
+  implements RechargePaymentGateway
+{
   readonly provider = "WECHAT" as const;
   readonly method = "WECHAT_NATIVE" as const;
   readonly actionKind = "QR_CODE" as const;
   constructor(
     private readonly gateway: PaymentGateway & PaymentNotificationVerifier,
-  ) {}
+  ) {
+    super(gateway);
+  }
   async initiate(
     order: PaymentOrder,
     input: Readonly<{ description: string; expiresAt: string }>,
@@ -225,14 +246,6 @@ export class WechatRechargePaymentGateway implements RechargePaymentGateway {
       transactionId: null,
       proof: wechatProof(value.proof),
     }));
-  }
-  verifyNotification(input: {
-    headers: Readonly<Record<string, readonly string[] | undefined>>;
-    rawBody: Buffer;
-  }): ProviderResult<ProviderNotification> {
-    return result(this.gateway.verifyNotification(input), (value) =>
-      wechatNotification(value),
-    );
   }
   dispose() {
     return (

@@ -1,8 +1,12 @@
 import { createPrivateKey, createPublicKey } from "node:crypto";
 import { z } from "zod";
 import type { RechargeSingleChannelApiConfiguration } from "./recharge-api.module.js";
+import { WechatRechargeNotificationVerifier } from "./application/provider-payment.js";
 import type { RechargeWorkerConfiguration } from "./recharge-worker.module.js";
-import { WechatPayGateway } from "./infrastructure/wechat/wechat-pay.gateway.js";
+import {
+  WechatPayGateway,
+  WechatPayNotificationVerifier,
+} from "./infrastructure/wechat/wechat-pay.gateway.js";
 import { WECHAT_API_ORIGINS } from "./infrastructure/wechat/wechat-https.js";
 import {
   httpsUrl,
@@ -43,6 +47,15 @@ const configurationSchema = sharedRechargeRuntimeSchema.extend({
     .max(30_000)
     .default(8000),
 });
+
+const notificationConfigurationSchema = z
+  .object({
+    RECHARGE_WECHAT_ACTIVATION: z.enum(["verify", "live"]),
+    RECHARGE_WECHAT_PUBLIC_KEY_ID: z.string().regex(/^PUB_KEY_ID_\d+$/),
+    RECHARGE_WECHAT_PUBLIC_KEY_FILE: z.string().min(1),
+    RECHARGE_WECHAT_API_V3_KEY_FILE: z.string().min(1),
+  })
+  .passthrough();
 
 function apiV3Key(path: string) {
   const value = protectedFile(path, 128).toString("utf8").trim();
@@ -142,6 +155,31 @@ export function loadWechatRechargeApiConfiguration(
     shortcutAmounts: value.shortcutAmounts,
     supportMessage: value.parsed.RECHARGE_SUPPORT_MESSAGE,
   };
+}
+
+export function loadWechatRechargeNotificationVerifier(
+  environment: NodeJS.ProcessEnv = process.env,
+): WechatRechargeNotificationVerifier | null {
+  const activation =
+    activationSchema.parse(environment).RECHARGE_WECHAT_ACTIVATION;
+  if (activation === "disabled") return null;
+  const parsed = notificationConfigurationSchema.parse(environment);
+  let publicKey;
+  try {
+    publicKey = createPublicKey(
+      protectedPem(parsed.RECHARGE_WECHAT_PUBLIC_KEY_FILE),
+    );
+  } catch {
+    throw new Error("RECHARGE_WECHAT_KEY_MATERIAL_INVALID");
+  }
+  return new WechatRechargeNotificationVerifier(
+    new WechatPayNotificationVerifier({
+      verificationKeys: [
+        { id: parsed.RECHARGE_WECHAT_PUBLIC_KEY_ID, key: publicKey },
+      ],
+      apiV3Key: apiV3Key(parsed.RECHARGE_WECHAT_API_V3_KEY_FILE),
+    }),
+  );
 }
 
 export function loadWechatRechargeWorkerConfiguration(
