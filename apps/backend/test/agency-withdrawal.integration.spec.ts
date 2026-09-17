@@ -383,12 +383,8 @@ describe("agency withdrawal from immutable booked commission", () => {
       await http(`/admin/agency-withdrawals/${created.body.id}`, 0)
     ).json();
     expect(adminDetail.externalPaidAt).toBe("2026-09-16T02:00:00.000Z");
-    const adminPage = await (
-      await http("/admin/agency-withdrawals", 0)
-    ).json();
-    expect(adminPage.items[0].externalPaidAt).toBe(
-      "2026-09-16T02:00:00.000Z",
-    );
+    const adminPage = await (await http("/admin/agency-withdrawals", 0)).json();
+    expect(adminPage.items[0].externalPaidAt).toBe("2026-09-16T02:00:00.000Z");
     expect(
       await (await http("/agency/withdrawals/summary", 3)).json(),
     ).toMatchObject({
