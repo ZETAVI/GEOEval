@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { AdminSidebar } from "./admin/admin-sidebar.js";
 import { roleHomePath } from "./enter/post-login-route.js";
 import { SessionExitActions } from "./session-exit-actions.js";
+import { CustomerNotificationCenter } from "./customer-notification-center.js";
 import {
   accountRoleLabels,
   loadRoleSession,
@@ -48,9 +49,11 @@ const statusLabels: Record<
 export function SupportingRoleWorkspace({
   role,
   acquisitionEnabled = false,
+  withdrawalEnabled = false,
 }: {
   role: SupportingRole;
   acquisitionEnabled?: boolean;
+  withdrawalEnabled?: boolean;
 }) {
   const config = supportingRoleConfig(role);
   if (role === "AGENT" && acquisitionEnabled)
@@ -73,6 +76,21 @@ export function SupportingRoleWorkspace({
       (item) => item.label === "客户管理",
     );
     if (customerNav) customerNav.href = "/agent/customers";
+  }
+  if (role === "AGENT" && withdrawalEnabled) {
+    const withdrawalNav = config.navigation?.find(
+      (item) => item.label === "提现记录",
+    );
+    if (withdrawalNav) withdrawalNav.href = "/agent/withdrawals";
+    const withdrawalCard = config.cards.find(
+      (card) => card.title === "提现状态",
+    );
+    if (withdrawalCard) {
+      withdrawalCard.description =
+        "设置收款资料，查看可提现金额并跟进提现处理结果。";
+      withdrawalCard.status = "AVAILABLE";
+      withdrawalCard.href = "/agent/withdrawals";
+    }
   }
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
 
@@ -142,6 +160,9 @@ export function SupportingRoleWorkspace({
             <b>职责边界</b>
             <p>{config.boundary}</p>
           </div>
+          {role === "AGENT" && (
+            <CustomerNotificationCenter accountId={account.id} />
+          )}
           <div className="sidebar-account">
             <span>{account.mobile.slice(-4)}</span>
             <div>

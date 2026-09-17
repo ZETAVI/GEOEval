@@ -3,9 +3,10 @@
 ## Purpose
 
 Define the accepted first durable in-product notification capability. This
-increment owns terminal-customer evaluation-completed, retry-required and recharge-successful
-notices, account-scoped read state, and a recoverable realtime refresh hint. It
-does not own source evaluation results or recharge/point accounting, other product-role events, external
+increment owns terminal-customer evaluation-completed, retry-required and
+recharge-successful notices, agent withdrawal-result notices, account-scoped
+read state, and a recoverable realtime refresh hint. It does not own source
+evaluation results, recharge/point accounting, withdrawal state, external
 channels, retention policy, deletion, or subscription settings.
 
 ## Requirements
@@ -14,7 +15,8 @@ channels, retention policy, deletion, or subscription settings.
 
 Notification SHALL materialize one recipient-owned notice from each approved
 business-result fact before its owning delivery obligation is marked delivered.
-Evaluation uses its Outbox; Recharge owns its private post-settlement obligation.
+Evaluation and Agency Withdrawal use Product Outbox; Recharge owns its private
+post-settlement obligation.
 
 #### Scenario: An evaluation reaches a customer-relevant result
 
@@ -62,13 +64,25 @@ the durable inbox.
 
 ## Current environment boundary
 
-The implementation covers terminal-customer evaluation completion, retry-required
-and successful-recharge notices in controlled local environments. Recharge delivery
-requires an explicitly configured worker lane; migration does not backfill old
-successful orders. Production
+The implementation covers terminal-customer evaluation completion,
+retry-required and successful-recharge notices and agent withdrawal results in
+controlled local environments. Recharge delivery requires an explicitly
+configured worker lane; migrations do not backfill old results. Production
 proxy buffering and reconnect behavior, notification retention, load, external
-channels, and event production for operations, administrators, and agents are
-later release gates.
+channels, and event production for operations and administrators are later
+release gates.
+
+### Requirement: Agent withdrawal result notices
+
+- Agency Withdrawal SHALL append a unique Product Outbox event only for
+  Completed, Rejected, and Payment failed results. Notification SHALL
+  materialize it for the owning agent with an `AGENCY_WITHDRAWAL` target.
+- The title and summary MAY include the request number, amount, and customer-safe
+  result reason. They SHALL NOT include payout data, bank transaction reference,
+  internal note, or encryption material.
+- Opening the notice SHALL revalidate and mark the owned notice, then open the
+  agent withdrawal detail without selecting a customer Brand. Delivery retry
+  SHALL create at most one notice and SHALL never change withdrawal state.
 
 ### Requirement: Recharge notice identity and destination
 

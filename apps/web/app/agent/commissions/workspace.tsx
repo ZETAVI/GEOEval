@@ -27,10 +27,12 @@ export function CommissionWorkspace({
   role,
   filter = {},
   orderId,
+  withdrawalEnabled = false,
 }: {
   role: "AGENT" | "ADMINISTRATOR";
   filter?: CommissionFilter;
   orderId?: string;
+  withdrawalEnabled?: boolean;
 }) {
   const scope = JSON.stringify({ role, filter, orderId });
   const load = useCallback(async (): Promise<Data> => {
@@ -87,7 +89,12 @@ export function CommissionWorkspace({
             刷新
           </button>
         </header>
-        {admin && <BusinessRecordsNavigation active="commissions" />}
+        {admin && (
+          <BusinessRecordsNavigation
+            active="commissions"
+            withdrawalEnabled={withdrawalEnabled}
+          />
+        )}
         {!orderId && (
           <form className={styles.controls} action={root}>
             {admin && (

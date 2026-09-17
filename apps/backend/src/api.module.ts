@@ -1,5 +1,6 @@
 import { CommissionController } from "./agency/presentation/commission.controller.js";
 import { AgencyCommissionModule } from "./application/agency-commission.module.js";
+import { AgencyWithdrawalModule } from "./agency-withdrawal/agency-withdrawal.module.js";
 import { AdminOrderSettlementController } from "./publication-delivery/presentation/admin-order-settlement.controller.js";
 import { OrderSettlementModule } from "./application/order-settlement.module.js";
 import { OrderSettlementAccess } from "./publishing-commerce/infrastructure/order-settlement-access.js";
@@ -76,6 +77,9 @@ export class ApiModule {
         SupportModule,
         OrderSettlementModule,
         AgencyCommissionModule,
+        AgencyWithdrawalModule.register(
+          config.agencyWithdrawal ?? { enabled: false, encryptionKeyHex: "" },
+        ),
         RechargeApiModule.register(recharge),
         RechargeAdminModule,
         ReadinessModule,

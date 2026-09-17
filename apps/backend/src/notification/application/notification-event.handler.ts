@@ -28,6 +28,16 @@ const retrySchema = z
   })
   .strict();
 
+const withdrawalSchema = z
+  .object({
+    recipientAccountId: z.string().uuid(),
+    withdrawalId: z.string().uuid(),
+    number: z.number().int().positive(),
+    amountFen: z.string().regex(/^\d+$/),
+    reason: z.string().min(1).max(320).optional(),
+  })
+  .strict();
+
 @Injectable()
 export class NotificationEventHandler {
   constructor(
@@ -62,6 +72,46 @@ export class NotificationEventHandler {
   }
 
   async handle(event: ProductOutboxWorkEvent): Promise<void> {
+    if (event.eventType.startsWith("agency.withdrawal.")) {
+      const payload = withdrawalSchema.parse(event.payload);
+      const amount = formatFen(payload.amountFen);
+      const common = {
+        recipientAccountId: payload.recipientAccountId,
+        sourceEventId: event.id,
+        target: {
+          kind: "AGENCY_WITHDRAWAL" as const,
+          withdrawalId: payload.withdrawalId,
+        },
+        occurredAt: event.createdAt,
+      };
+      if (event.eventType === "agency.withdrawal.completed") {
+        await this.repository.materialize({
+          ...common,
+          kind: "AGENCY_WITHDRAWAL_COMPLETED",
+          title: "提现已完成",
+          summary: `提现申请 #${payload.number} 已完成，金额 ${amount} 元。`,
+        });
+        return;
+      }
+      if (event.eventType === "agency.withdrawal.rejected") {
+        await this.repository.materialize({
+          ...common,
+          kind: "AGENCY_WITHDRAWAL_REJECTED",
+          title: "提现申请未通过",
+          summary: `提现申请 #${payload.number} 未通过：${payload.reason}`,
+        });
+        return;
+      }
+      if (event.eventType === "agency.withdrawal.payment_failed") {
+        await this.repository.materialize({
+          ...common,
+          kind: "AGENCY_WITHDRAWAL_PAYMENT_FAILED",
+          title: "提现付款失败",
+          summary: `提现申请 #${payload.number} 付款失败：${payload.reason}`,
+        });
+        return;
+      }
+    }
     if (event.eventType === "evaluation.report.accepted") {
       const payload = completedSchema.parse(event.payload);
       await this.repository.materialize({
@@ -99,4 +149,9 @@ export class NotificationEventHandler {
     }
     throw new Error(`Unsupported notification event ${event.eventType}`);
   }
+}
+
+function formatFen(value: string): string {
+  const fen = BigInt(value);
+  return `${fen / 100n}.${(fen % 100n).toString().padStart(2, "0")}`;
 }

@@ -962,32 +962,30 @@ agent notification. It does not require an automatic payout integration.
 
 The agent center distinguishes pending commission, available commission,
 withdrawal-in-process amount, cumulative settled commission, and cumulative
-effective commission. A request moves through **Pending review**, **Paying**, and
-**Completed**. A global administrator-maintained minimum applies, with its exact
-amount confirmed by finance before launch. The initial product charges no
-withdrawal fee and imposes no calendar frequency limit, but one agent can have
-only one unfinished request at a time. If rejected, the administrator records a
-reason and the frozen amount returns to available commission. If an approved
-offline transfer fails, the request becomes **Payment failed**, records the
-failure reason, returns the frozen amount to available commission, and notifies
-the agent. After correcting the payout information, the agent submits a new
-request rather than reopening the failed one.
+effective commission. A request starts at **Pending review** and can enter
+**Paying**, **Completed**, **Rejected**, **Payment failed**, or **Withdrawn** only
+through the defined transitions. A global administrator-maintained minimum
+applies, with its exact amount confirmed by finance before launch. The initial
+product charges no withdrawal fee and imposes no calendar frequency limit, but
+one agent can have only one unfinished request at a time. An agent may withdraw
+a pending request; that request ends and any later application is a new record.
+Rejected and definitely failed payments release their frozen amount and notify
+the agent. A bank result that is not yet known remains **Paying** and reserved.
 
-Completing a withdrawal requires the authorized administrator to record the
-actual paid amount, payment time, and bank transaction reference. A transfer
-receipt can be attached when available, with the handling operator and a short
-note retained in the operating record. These fields evidence the offline
-payment; they do not turn the product into an automatic payout system.
+Completing a withdrawal always uses the immutable requested amount. The
+authorized administrator records the bank transaction reference; the system
+records the handling operator and confirmation time. A known bank payment time
+and a short internal note are optional. The initial product does not upload a
+transfer receipt. These facts evidence the offline payment; they do not turn the
+product into an automatic payout system.
 
-An agent maintains one or more payout profiles for individual or enterprise bank
-transfer. The core bank-transfer data is recipient type, bank-account name,
-account number, bank name, and contact mobile number. Opening branch full name,
-province and city, and the twelve-digit CNAPS or joint-bank number are collected
-only when required by the company's actual bank-payment route. A physical street
-address for the opening bank is not a default field. Each withdrawal captures a
-snapshot of its payout profile; later edits affect only new requests. Account
-numbers are masked after saving and visible in full only to authorized handling
-roles.
+An agent maintains one current payout profile for individual or enterprise bank
+transfer. The profile contains recipient type, bank-account name, account
+number, bank name, opening branch, and contact mobile number. A physical bank
+address, bank-card image, identity document, invoice, or tax information is not
+collected. Each withdrawal captures an immutable snapshot; later edits affect
+only new requests. Account numbers are encrypted at rest, masked after saving,
+and visible in full only through an authorized, audited handling action.
 
 The initial product has only two money-information routes. After a terminal
 customer successfully completes a renminbi recharge order, the customer can

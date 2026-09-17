@@ -34,7 +34,8 @@ export class ProductWorkProcessor {
     let result: EvaluationProcessResult = EVALUATION_PROCESS_COMPLETED;
     if (
       event.eventType === "evaluation.report.accepted" ||
-      event.eventType === "evaluation.retry.required"
+      event.eventType === "evaluation.retry.required" ||
+      event.eventType.startsWith("agency.withdrawal.")
     ) {
       await this.notifications.handle(event);
     } else if (event.eventType === "evaluation.definition.prepare.requested") {

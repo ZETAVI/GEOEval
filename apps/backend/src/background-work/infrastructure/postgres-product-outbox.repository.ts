@@ -7,7 +7,7 @@ import type {
   ProductOutboxWorkEvent,
 } from "../domain/product-outbox.repository.js";
 
-const EVALUATION_EVENT_TYPES = [
+const PRODUCT_EVENT_TYPES = [
   "evaluation.run.started",
   "evaluation.sample.acquire.requested",
   "evaluation.sample.interpret.requested",
@@ -16,6 +16,9 @@ const EVALUATION_EVENT_TYPES = [
   "evaluation.definition.prepare.requested",
   "evaluation.report.accepted",
   "evaluation.retry.required",
+  "agency.withdrawal.completed",
+  "agency.withdrawal.rejected",
+  "agency.withdrawal.payment_failed",
 ] as const;
 
 @Injectable()
@@ -26,7 +29,7 @@ export class PostgresProductOutboxRepository implements ProductOutboxRepository 
     const events = await this.prisma.productOutboxEvent.findMany({
       where: {
         status: { in: ["PENDING", "DISPATCHED"] },
-        eventType: { in: [...EVALUATION_EVENT_TYPES] },
+        eventType: { in: [...PRODUCT_EVENT_TYPES] },
       },
       orderBy: { createdAt: "asc" },
       take: limit,
@@ -48,7 +51,7 @@ export class PostgresProductOutboxRepository implements ProductOutboxRepository 
       },
     });
     if (!event || event.status === "COMPLETED") return undefined;
-    if (!isEvaluationEventType(event.eventType)) {
+    if (!isProductEventType(event.eventType)) {
       throw new Error(`Unsupported product event ${event.eventType}`);
     }
     if (!isRecord(event.payload)) {
@@ -78,8 +81,8 @@ export class PostgresProductOutboxRepository implements ProductOutboxRepository 
   }
 }
 
-function isEvaluationEventType(value: string): boolean {
-  return (EVALUATION_EVENT_TYPES as readonly string[]).includes(value);
+function isProductEventType(value: string): boolean {
+  return (PRODUCT_EVENT_TYPES as readonly string[]).includes(value);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

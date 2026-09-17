@@ -1,9 +1,20 @@
 import { z } from "zod";
 
 export type NotificationKind =
-  "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED" | "RECHARGE_SUCCESSFUL";
+  | "EVALUATION_COMPLETED"
+  | "EVALUATION_RETRY_REQUIRED"
+  | "RECHARGE_SUCCESSFUL"
+  | "AGENCY_WITHDRAWAL_COMPLETED"
+  | "AGENCY_WITHDRAWAL_REJECTED"
+  | "AGENCY_WITHDRAWAL_PAYMENT_FAILED";
 
 export const notificationTargetSchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      kind: z.literal("AGENCY_WITHDRAWAL"),
+      withdrawalId: z.string().uuid(),
+    })
+    .strict(),
   z
     .object({
       kind: z.literal("RECHARGE_ORDER"),

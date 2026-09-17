@@ -28,7 +28,13 @@ export function recordsFilter(form: RecordsForm): AdminPointRecordFilter {
     if (value.trim()) Object.assign(result, { [key]: value.trim() });
   return result;
 }
-export function AdminRecordsWorkspace({ initial }: { initial: RecordsForm }) {
+export function AdminRecordsWorkspace({
+  initial,
+  withdrawalEnabled = false,
+}: {
+  initial: RecordsForm;
+  withdrawalEnabled?: boolean;
+}) {
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
   const [form, setForm] = useState(initial),
     [filter, setFilter] = useState(initial);
@@ -127,7 +133,10 @@ export function AdminRecordsWorkspace({ initial }: { initial: RecordsForm }) {
             客户积分管理
           </a>
         </header>
-        <BusinessRecordsNavigation active="points" />
+        <BusinessRecordsNavigation
+          active="points"
+          withdrawalEnabled={withdrawalEnabled}
+        />
         <form
           className="commerce-editor"
           onSubmit={(e) => {

@@ -116,6 +116,28 @@ describe("process-scoped configuration", () => {
     ).toBe("deterministic");
   });
 
+  it("keeps withdrawal writes disabled and requires an exact encryption key when enabled", () => {
+    const base = {
+      DATABASE_URL: "postgresql://example/api",
+      AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+      AUTH_DETERMINISTIC_CODE: "246810",
+    };
+    expect(loadApiConfig(base).agencyWithdrawal).toEqual({
+      enabled: false,
+      encryptionKeyHex: "",
+    });
+    expect(() =>
+      loadApiConfig({ ...base, AGENCY_WITHDRAWAL_ENABLED: "1" }),
+    ).toThrow("AGENCY_WITHDRAWAL_KEY_HEX");
+    expect(
+      loadApiConfig({
+        ...base,
+        AGENCY_WITHDRAWAL_ENABLED: "1",
+        AGENCY_WITHDRAWAL_KEY_HEX: "AB".repeat(32),
+      }).agencyWithdrawal,
+    ).toEqual({ enabled: true, encryptionKeyHex: "ab".repeat(32) });
+  });
+
   it("requires an explicit database and digest-only Bootstrap verifier", () => {
     const digest = "a".repeat(64);
     expect(

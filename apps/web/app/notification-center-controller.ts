@@ -270,6 +270,13 @@ export class NotificationCenterController {
         succeeded = true;
         return;
       }
+      if (target.kind === "AGENCY_WITHDRAWAL") {
+        this.navigate(
+          `/agent/withdrawals/${encodeURIComponent(target.withdrawalId)}`,
+        );
+        succeeded = true;
+        return;
+      }
       await this.request("action", (request) =>
         this.source.selectBrand(target.brandId, request),
       );

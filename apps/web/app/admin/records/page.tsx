@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+import { withdrawalEnabled } from "../../withdrawals/server.js";
 import { AdminRecordsWorkspace } from "./workspace.js";
 export default async function Page({
   searchParams,
@@ -18,6 +20,7 @@ export default async function Page({
         createdBefore:
           typeof params.createdBefore === "string" ? params.createdBefore : "",
       }}
+      withdrawalEnabled={withdrawalEnabled()}
     />
   );
 }

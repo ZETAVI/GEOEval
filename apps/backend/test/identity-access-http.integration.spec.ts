@@ -133,7 +133,7 @@ describe("Identity HTTP role and forgery boundary", () => {
       },
       {
         path: "/notifications",
-        allowed: ["TERMINAL_CUSTOMER"],
+        allowed: ["TERMINAL_CUSTOMER", "AGENT"],
       },
       {
         path: "/admin/accounts",

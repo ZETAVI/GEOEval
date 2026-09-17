@@ -37,12 +37,13 @@ import { ReadinessState } from "../../readiness.js";
 import { NotificationService } from "../application/notification.service.js";
 import type { NotificationView } from "../domain/notification.types.js";
 import {
-  RechargeNotificationTargetResponse,
+  AgencyWithdrawalNotificationTargetResponse,
   EvaluationReportNotificationTargetResponse,
   EvaluationRetryNotificationTargetResponse,
   NotificationListResponse,
   NotificationReadAllResponse,
   NotificationResponse,
+  RechargeNotificationTargetResponse,
 } from "./notification.dto.js";
 
 @ApiTags("notifications")
@@ -50,13 +51,14 @@ import {
   RechargeNotificationTargetResponse,
   EvaluationReportNotificationTargetResponse,
   EvaluationRetryNotificationTargetResponse,
+  AgencyWithdrawalNotificationTargetResponse,
 )
 @ApiHeader({
   name: "x-geoeval-account",
   required: false,
   description: "Expected signed-in account, never selects recipient",
 })
-@RequireAccountRoles("TERMINAL_CUSTOMER")
+@RequireAccountRoles("TERMINAL_CUSTOMER", "AGENT")
 @Controller("notifications")
 export class NotificationController {
   constructor(

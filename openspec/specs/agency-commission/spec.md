@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Own derived order commission estimates, immutable final renminbi entries and scoped read-only earnings views. Purchase eligibility/rates belong to [Agency Order Terms](../agency-order-terms/spec.md); final point returns belong to [Publishing Commerce](../publishing-commerce/spec.md). Withdrawals remain unactivated.
+Own derived order commission estimates, immutable final renminbi entries and scoped read-only earnings views. Purchase eligibility/rates belong to [Agency Order Terms](../agency-order-terms/spec.md); final point returns belong to [Publishing Commerce](../publishing-commerce/spec.md). [Agency Withdrawal](../agency-withdrawal/spec.md) reads booked totals without changing this ledger.
 
 ## Requirements
 
@@ -45,7 +45,7 @@ Active agents SHALL read only estimates and entries attributed to them at purcha
 - **THEN** the page shows Estimated and Booked renminbi, with order number/title, original granted/funded consumption, return split, eligible funded points and captured rate
 - **AND** forecast returns are distinguished from confirmed actual returns
 - **AND** administrators can follow factual order/point-ledger links with renewed permission checks
-- **AND** no withdrawal availability or payout implementation is implied
+- **AND** withdrawable availability and payout lifecycle remain owned by Agency Withdrawal
 
 ### Requirement: Controlled execution
 Accrual SHALL run in the existing Worker with `AGENCY_COMMISSION_ENABLED=false` by default. Each scan SHALL be bounded and advance past individual failures; restart SHALL rediscover missing entries. Disabling stops new accrual without deleting accepted entries. Development data requires no backfill or parallel legacy path.

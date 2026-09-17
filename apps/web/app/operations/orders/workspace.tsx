@@ -94,9 +94,11 @@ export function DeliveryScheduleView({
 export function DeliveryWorkspace({
   admin = false,
   orderId,
+  withdrawalEnabled = false,
 }: {
   admin?: boolean;
   orderId?: string;
+  withdrawalEnabled?: boolean;
 }) {
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
   const [scope, setScope] = useState<"POOL" | "MINE" | "ALL">(
@@ -335,7 +337,12 @@ export function DeliveryWorkspace({
             </button>
           </div>
         </header>
-        {admin && <BusinessRecordsNavigation active="orders" />}
+        {admin && (
+          <BusinessRecordsNavigation
+            active="orders"
+            withdrawalEnabled={withdrawalEnabled}
+          />
+        )}
         {error && (
           <p className="form-error" role="alert">
             {error}

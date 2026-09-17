@@ -20,18 +20,23 @@ const value: AdminOrderSettlement = {
   windowElapsed: true,
 };
 describe("business record navigation and factual settlement context", () => {
-  it("reuses the existing four views", () => {
+  it("links every factual business-record view", () => {
     const html = renderToStaticMarkup(
-      <BusinessRecordsNavigation active="points" />,
+      <BusinessRecordsNavigation active="points" withdrawalEnabled />,
     );
     for (const path of [
       "/admin/records",
       "/admin/recharges",
       "/admin/delivery",
       "/admin/support",
+      "/admin/commissions",
+      "/admin/withdrawals",
     ])
       expect(html).toContain(path);
     expect(html).toContain('aria-current="page"');
+    expect(
+      renderToStaticMarkup(<BusinessRecordsNavigation active="points" />),
+    ).not.toContain("/admin/withdrawals");
   });
   it("distinguishes an open issue, a missing receipt and a completed zero settlement", () => {
     expect(settlementExplanation(value)).toContain("工单");
