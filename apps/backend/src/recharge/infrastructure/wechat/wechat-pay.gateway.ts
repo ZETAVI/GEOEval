@@ -53,6 +53,11 @@ export type WechatPayConfig = Readonly<{
   ) => void;
 }>;
 
+export type WechatPayNotificationConfig = Readonly<{
+  verificationKeys: readonly Readonly<{ id: string; key: KeyObject }>[];
+  apiV3Key: Buffer;
+}>;
+
 const MAX_MESSAGE_BYTES = 2 * 1024 * 1024;
 
 function failure<T>(
@@ -75,28 +80,13 @@ function failure<T>(
   };
 }
 
-/** No environment lookup, database, logger, retry, or application activation. */
-export class WechatPayGateway
-  implements PaymentGateway, PaymentNotificationVerifier
-{
-  readonly #config: Omit<WechatPayConfig, "verificationKeys">;
+/** Passive callback verifier: no merchant private key, outbound transport or order creation. */
+export class WechatPayNotificationVerifier implements PaymentNotificationVerifier {
   readonly #keys: ReadonlyMap<string, KeyObject>;
-  readonly #exchange: WechatExchange;
+  readonly #apiV3Key: Buffer;
 
-  constructor(config: WechatPayConfig, exchange?: WechatExchange) {
+  constructor(config: WechatPayNotificationConfig) {
     try {
-      identifier(config.merchantId);
-      identifier(config.appId);
-      requireProtocol(/^\d{1,32}$/.test(config.merchantId));
-      requireProtocol(
-        /^[A-Fa-f0-9]{1,64}$/.test(config.merchantCertificateSerial),
-      );
-      requireProtocol(
-        config.merchantPrivateKey.type === "private" &&
-          config.merchantPrivateKey.asymmetricKeyType === "rsa" &&
-          (config.merchantPrivateKey.asymmetricKeyDetails?.modulusLength ??
-            0) >= 2048,
-      );
       requireProtocol(
         Buffer.isBuffer(config.apiV3Key) && config.apiV3Key.length === 32,
       );
@@ -113,7 +103,98 @@ export class WechatPayGateway
         );
         keys.set(entry.id, entry.key);
       }
-      requireProtocol(keys.has(config.activeVerificationKeyId));
+      requireProtocol(keys.size > 0);
+      this.#keys = keys;
+      this.#apiV3Key = Buffer.from(config.apiV3Key);
+    } catch {
+      throw new Error("WECHAT_PAY_NOTIFICATION_CONFIGURATION_INVALID");
+    }
+  }
+
+  hasKey(id: string): boolean {
+    return this.#keys.has(id);
+  }
+
+  verifyResponse(
+    headers: Readonly<Record<string, readonly string[] | undefined>>,
+    rawBody: Buffer,
+  ): PaymentProof {
+    return verifyMessage(headers, rawBody, this.#keys, new Date());
+  }
+
+  verifyNotification(
+    input: Parameters<PaymentNotificationVerifier["verifyNotification"]>[0],
+  ): GatewayResult<AuthenticatedPaymentNotification> {
+    try {
+      requireProtocol(
+        Buffer.isBuffer(input.rawBody) &&
+          input.rawBody.length <= MAX_MESSAGE_BYTES,
+        "RESPONSE_SIZE",
+      );
+      const raw = Buffer.from(input.rawBody);
+      const proof = this.verifyResponse(input.headers, raw);
+      const data = object(parseJson(raw));
+      requireProtocol(
+        data.event_type === "TRANSACTION.SUCCESS" &&
+          data.resource_type === "encrypt-resource",
+      );
+      requireProtocol(
+        typeof data.summary === "string" && data.summary.length <= 64,
+      );
+      const notificationId = identifier(data.id, 36),
+        createdAt = rfc3339(data.create_time);
+      const facts = paymentFacts(
+        parseJson(decryptResource(data.resource, this.#apiV3Key)),
+        true,
+      );
+      // Preserve authenticated foreign/unknown references for the inbox discrepancy path.
+      // Never infer local ownership, order matching, durable receipt or credit here.
+      return {
+        ok: true,
+        value: {
+          notificationId,
+          createdAt,
+          factsVersion: 1,
+          factsSha256: paymentFactsSha256(facts),
+          facts,
+          proof,
+        },
+      };
+    } catch (error) {
+      return failure("INVALID_NOTIFICATION", error);
+    }
+  }
+}
+
+/** No environment lookup, database, logger, retry, or application activation. */
+export class WechatPayGateway
+  implements PaymentGateway, PaymentNotificationVerifier
+{
+  readonly #config: Omit<WechatPayConfig, "verificationKeys" | "apiV3Key">;
+  readonly #notificationVerifier: WechatPayNotificationVerifier;
+  readonly #exchange: WechatExchange;
+
+  constructor(config: WechatPayConfig, exchange?: WechatExchange) {
+    try {
+      identifier(config.merchantId);
+      identifier(config.appId);
+      requireProtocol(/^\d{1,32}$/.test(config.merchantId));
+      requireProtocol(
+        /^[A-Fa-f0-9]{1,64}$/.test(config.merchantCertificateSerial),
+      );
+      requireProtocol(
+        config.merchantPrivateKey.type === "private" &&
+          config.merchantPrivateKey.asymmetricKeyType === "rsa" &&
+          (config.merchantPrivateKey.asymmetricKeyDetails?.modulusLength ??
+            0) >= 2048,
+      );
+      this.#notificationVerifier = new WechatPayNotificationVerifier({
+        verificationKeys: config.verificationKeys,
+        apiV3Key: config.apiV3Key,
+      });
+      requireProtocol(
+        this.#notificationVerifier.hasKey(config.activeVerificationKeyId),
+      );
       const notify = new URL(config.notifyUrl);
       requireProtocol(
         notify.protocol === "https:" &&
@@ -139,7 +220,6 @@ export class WechatPayGateway
         merchantCertificateSerial: config.merchantCertificateSerial,
         merchantPrivateKey: config.merchantPrivateKey,
         activeVerificationKeyId: config.activeVerificationKeyId,
-        apiV3Key: Buffer.from(config.apiV3Key),
         notifyUrl: config.notifyUrl,
         ...(config.origin ? { origin: config.origin } : {}),
         ...(config.ipFamily ? { ipFamily: config.ipFamily } : {}),
@@ -148,7 +228,6 @@ export class WechatPayGateway
           : {}),
         ...(config.report ? { report: config.report } : {}),
       };
-      this.#keys = keys;
       this.#exchange =
         exchange ??
         createWechatHttpsExchange({
@@ -294,44 +373,7 @@ export class WechatPayGateway
   verifyNotification(
     input: Parameters<PaymentNotificationVerifier["verifyNotification"]>[0],
   ): GatewayResult<AuthenticatedPaymentNotification> {
-    try {
-      requireProtocol(
-        Buffer.isBuffer(input.rawBody) &&
-          input.rawBody.length <= MAX_MESSAGE_BYTES,
-        "RESPONSE_SIZE",
-      );
-      const raw = Buffer.from(input.rawBody);
-      const proof = verifyMessage(input.headers, raw, this.#keys, new Date());
-      const data = object(parseJson(raw));
-      requireProtocol(
-        data.event_type === "TRANSACTION.SUCCESS" &&
-          data.resource_type === "encrypt-resource",
-      );
-      requireProtocol(
-        typeof data.summary === "string" && data.summary.length <= 64,
-      );
-      const notificationId = identifier(data.id, 36),
-        createdAt = rfc3339(data.create_time);
-      const facts = paymentFacts(
-        parseJson(decryptResource(data.resource, this.#config.apiV3Key)),
-        true,
-      );
-      // Preserve authenticated foreign/unknown references for the inbox discrepancy path.
-      // Never infer local ownership, order matching, durable receipt or credit here.
-      return {
-        ok: true,
-        value: {
-          notificationId,
-          createdAt,
-          factsVersion: 1,
-          factsSha256: paymentFactsSha256(facts),
-          facts,
-          proof,
-        },
-      };
-    } catch (error) {
-      return failure("INVALID_NOTIFICATION", error);
-    }
+    return this.#notificationVerifier.verifyNotification(input);
   }
 
   #order(order: PaymentOrder): PaymentOrder {
@@ -403,11 +445,9 @@ export class WechatPayGateway
         response.body.length <= MAX_MESSAGE_BYTES,
       "RESPONSE_SIZE",
     );
-    const proof = verifyMessage(
+    const proof = this.#notificationVerifier.verifyResponse(
       response.headers,
       response.body,
-      this.#keys,
-      new Date(),
     );
     if (expectedStatus === 204) {
       requireProtocol(response.body.length === 0);

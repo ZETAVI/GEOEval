@@ -7,6 +7,7 @@ import { RECHARGE_CUSTOMER_OPTIONS } from "../src/recharge/application/customer-
 import { RechargeApiModule } from "../src/recharge/recharge-api.module.js";
 import {
   loadRechargeApiConfiguration,
+  loadRechargeCallbackConfiguration,
   loadRechargeWorkerConfiguration,
 } from "../src/recharge/recharge.runtime-config.js";
 import { RechargeNotificationModule } from "../src/recharge/recharge-notification.module.js";
@@ -108,6 +109,23 @@ describe("WeChat and multi-provider recharge host configuration", () => {
       native: { recharge: { method: "WECHAT_NATIVE" } },
       scheduling: { orderIntervalMs: 2000, settlementIntervalMs: 1000 },
     });
+  });
+
+  it("loads a passive callback verifier without merchant signing credentials", () => {
+    const callback = loadRechargeCallbackConfiguration({
+      DATABASE_URL: base.DATABASE_URL,
+      RECHARGE_CALLBACK_PORT: "3300",
+      RECHARGE_WECHAT_ACTIVATION: "verify",
+      RECHARGE_WECHAT_PUBLIC_KEY_ID: base.RECHARGE_WECHAT_PUBLIC_KEY_ID,
+      RECHARGE_WECHAT_PUBLIC_KEY_FILE: base.RECHARGE_WECHAT_PUBLIC_KEY_FILE,
+      RECHARGE_WECHAT_API_V3_KEY_FILE: base.RECHARGE_WECHAT_API_V3_KEY_FILE,
+    });
+    expect(callback).toMatchObject({
+      databaseUrl: "postgresql://example/recharge",
+      port: 3300,
+    });
+    expect(callback?.verifiers).toHaveLength(1);
+    expect(callback?.verifiers[0]?.provider).toBe("WECHAT");
   });
 
   it("opens Native creation only in live mode", () => {

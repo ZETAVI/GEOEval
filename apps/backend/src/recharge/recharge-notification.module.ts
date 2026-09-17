@@ -1,7 +1,7 @@
 import { Module, type DynamicModule } from "@nestjs/common";
 import type { PaymentNotificationVerifier } from "./application/payment-gateway.js";
 import {
-  WechatRechargePaymentGateway,
+  WechatRechargeNotificationVerifier,
   type ProviderNotificationVerifier,
 } from "./application/provider-payment.js";
 import {
@@ -28,12 +28,13 @@ export class RechargeNotificationModule {
       | readonly (PaymentNotificationVerifier | ProviderNotificationVerifier)[],
   ): DynamicModule {
     const supplied = Array.isArray(verifier) ? verifier : [verifier];
+    if (supplied.length < 1)
+      throw new Error("RECHARGE_NOTIFICATION_VERIFIERS_REQUIRED");
     const normalized = supplied.map((value) =>
       "provider" in value
         ? value
-        : new WechatRechargePaymentGateway(
-            value as PaymentNotificationVerifier &
-              import("./application/payment-gateway.js").PaymentGateway,
+        : new WechatRechargeNotificationVerifier(
+            value as PaymentNotificationVerifier,
           ),
     );
     const verifiers = new Map(
