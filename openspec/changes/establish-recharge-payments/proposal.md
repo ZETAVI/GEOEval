@@ -11,7 +11,7 @@ Customers need a reliable account-recharge path before paying points for publish
 
 ## Confirmed direction
 
-- Latest owner decision (2026-09-15): Alipay PC is the primary payment route and its application, product, keys and code path are ready for public callback and small-payment acceptance. WeChat finance qualification continues separately; the customer page shows WeChat as unavailable and cannot select it. Dual-provider runtime composition and the legacy Native naming seam wait until WeChat work resumes. Alipay mobile website payment follows PC acceptance; WeChat H5 and JSAPI remain separate later decisions.
+- Latest owner decision (2026-09-16): the WeChat merchant account is certified and Native payment is open, so the paused WeChat work resumes alongside the existing Alipay PC route. The first resumed slice composes both providers explicitly in API, callback and Worker hosts, adds protected WeChat production configuration, and keeps new WeChat orders disabled until AppID binding, key custody, public callback and controlled merchant evidence are complete. Alipay mobile website payment, WeChat H5 and JSAPI remain separate later decisions.
 - Website preparation is a minimal truthful static page at geohdp.com, whose company-held ICP filing the owner confirmed. The HTTPS page is deployed in an isolated directory on the nominated Alibaba Cloud host; app.geohdp.com remains reserved and the business application is not deployed. Full application launch and production login were not prerequisites for the static page. The owner provided website filing 粤ICP备11067188号-12 and chose to omit public company/telephone text from the introduction page; the footer uses the Guangdong filing and official link.
 - Customers choose amount/method locally, use the selected cashier and return to local order management. Cashier presentation is replaceable; a future provider requires its own official interface and merchant evidence.
 - Local commands commit synchronously; channel work and accepted payment receipts are processed asynchronously. Receipt acceptance commits before ACK; ACK does not wait for atomic local settlement. Customer reads and notification delivery never own payment truth.
@@ -43,7 +43,10 @@ Documentation impact: update existing owners and retire obsolete execution summa
 - [x] Customer API, order history, Native QR and explicit publishing return have controlled HTTP/browser evidence.
 - [x] Resident worker process recovery and durable account-safe customer notices have focused, process and browser evidence.
 - [ ] H5 implementation and named iOS/Android external-browser journeys.
-- [ ] Operational lookup, reconciliation, safe recovery, maintained amount/support policies and real-environment configuration.
+- [x] Administrator read-only lookup and bounded transient recovery.
+- [ ] Reconciliation, maintained amount/support policies and real-environment configuration.
+- [x] Dual-provider host composition and protected WeChat configuration.
+- [ ] Controlled Native merchant verification, public callback and real-funds acceptance.
 - [ ] Required merchant products, financial test controls, real-channel/funds verification and separately authorized production activation.
 
 ## Coordination and workspace

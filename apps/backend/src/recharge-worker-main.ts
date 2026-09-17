@@ -1,10 +1,10 @@
 import "reflect-metadata";
 
-import { loadAlipayRechargeWorkerConfiguration } from "./recharge/alipay-recharge.runtime-config.js";
+import { loadRechargeWorkerConfiguration } from "./recharge/recharge.runtime-config.js";
 import { createRechargeWorkerApp } from "./recharge/recharge-worker.module.js";
 
-const configuration = loadAlipayRechargeWorkerConfiguration();
-if (!configuration) throw new Error("RECHARGE_ALIPAY_RUNTIME_DISABLED");
+const configuration = loadRechargeWorkerConfiguration();
+if (!configuration) throw new Error("RECHARGE_RUNTIME_DISABLED");
 await createRechargeWorkerApp(configuration);
 process.stdout.write(
   `${JSON.stringify({

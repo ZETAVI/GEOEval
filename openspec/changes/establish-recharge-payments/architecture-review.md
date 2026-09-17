@@ -331,3 +331,20 @@
 | consider，旧`PaymentGateway`与应用层`Native*`名称并存 | 第三个支付方式或双渠道维护时容易误解边界 | 双渠道片收束应用层名称；不为样式重命名持久列 |
 
 结论：**ready with follow-up**。本片满足支付宝主力、微信可见但禁用的当前决定；没有理由在真实支付宝验收前扩大为跨数据库命名迁移或通用支付平台。
+## W1 双渠道宿主与微信真实配置复核（2026-09-16）
+
+复核基线为 `main@3825beb`、Issue #77 当前正文、Recharge current spec 和本 Change。用户已确认微信商户号认证与 Native 产品开通，原“微信暂停”依赖失效；AppID 绑定、密钥托管、公网回调和真实渠道行为仍是运行 Gate。
+
+| 严重度 | 发现与可达后果 | 窄处理 |
+| --- | --- | --- |
+| must-fix，已处理 | API、回调和 Worker 只能装配一个渠道；直接把配置切到微信会停止支付宝新单/回调或让另一渠道旧单失去自动恢复 | 增加 provider 数组宿主；客户命令按冻结 method 路由，回调按 provider 选择 verifier，provider I/O 并行，provider-neutral settlement 只扫描一次 |
+| must-fix，已处理 | WeChatPayGateway 有协议实现但没有正式环境配置入口；若临时在启动文件读取字符串 key，会绕过文件权限、激活和停新单边界 | 增加 `disabled|verify|live` 配置，只从仓库外绝对受保护文件读取三类 key；`verify` 保留义务但禁止新 QR |
+| should-fix，已处理 | 当前官方接入准备要求记录响应 Request-ID，现有 transport 丢弃非 2xx 头且 gateway 无安全诊断口 | transport 仅保留错误响应的 Request-ID；gateway 发出有界 status/Request-ID 事件，禁止携带订单、商户、客户或原始错误，日志失败不改变支付结果 |
+| should-fix，已处理 | 多渠道若各自运行 settlement，会重复扫描同一通知/query 待办；虽然事务幂等，仍增加无意义竞争 | Worker 只让一个 runtime 驱动共享 settlement；各 provider 的下单/查单/关单并行执行 |
+| must-fix，代码审查已处理 | 支付宝 live 使全局 `available=true` 时，直接提交处于 verify 的微信 method 可绕过前端置灰并创建订单 | Customer 服务在持久幂等重放之后、创建之前再次要求 method 属于服务端公布的 create-enabled 集合；HTTP/PG 反例证明返回 503 且无微信订单 |
+| must-fix，代码审查已处理 | 独立 prepay-close CLI 若关单响应丢失，会留下没有本地 RechargeOrder 的真实 provider 订单，后续无法按现有恢复机制接管 | 删除该写入脚本；standalone verify 只做不存在订单查询。预下单/关单必须从正常持久订单/runtime 路径运行 |
+| consider，明确保留 | 应用层仍有 `Native*` 名称，持久表列也沿用历史名称 | 新组合层使用 Recharge/provider 语言；不批量重命名表列或重写已验证状态机。第三个渠道或语义误用出现时再局部收束 |
+
+所有权保持不变：Recharge 拥有订单、渠道适配、回调 inbox、恢复和结算编排；Commerce 仍是余额/流水唯一写入者；Notification 仍只负责到账后的站内消息。没有新增通用 Payment 平台、第二套钱包、schema 迁移或客户状态。
+
+结论：**ready with follow-up**。固定 Diff 已通过定向/集成/Web/构建验证，可进入 PR CI；真实 AppID 绑定、受保护 key、公共回调、1 分持久预下单/关单和最小真实支付尚未运行，因此整体微信真实接入仍是 partially verified，不能开放 `live`。

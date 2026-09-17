@@ -22,26 +22,35 @@ import { AlipayNotificationController } from "./presentation/alipay-notification
 @Module({})
 export class RechargeNotificationModule {
   static register(
-    verifier: PaymentNotificationVerifier | ProviderNotificationVerifier,
+    verifier:
+      | PaymentNotificationVerifier
+      | ProviderNotificationVerifier
+      | readonly (PaymentNotificationVerifier | ProviderNotificationVerifier)[],
   ): DynamicModule {
-    const normalized: ProviderNotificationVerifier =
-      "provider" in verifier
-        ? verifier
+    const supplied = Array.isArray(verifier) ? verifier : [verifier];
+    const normalized = supplied.map((value) =>
+      "provider" in value
+        ? value
         : new WechatRechargePaymentGateway(
-            verifier as PaymentNotificationVerifier &
+            value as PaymentNotificationVerifier &
               import("./application/payment-gateway.js").PaymentGateway,
-          );
+          ),
+    );
+    const verifiers = new Map(
+      normalized.map((value) => [value.provider, value] as const),
+    );
+    if (verifiers.size !== normalized.length)
+      throw new Error("RECHARGE_NOTIFICATION_PROVIDER_DUPLICATE");
     return {
       module: RechargeNotificationModule,
       controllers: [
-        normalized.provider === "WECHAT"
-          ? WechatNotificationController
-          : AlipayNotificationController,
+        ...(verifiers.has("WECHAT") ? [WechatNotificationController] : []),
+        ...(verifiers.has("ALIPAY") ? [AlipayNotificationController] : []),
       ],
       providers: [
         {
           provide: PAYMENT_NOTIFICATION_VERIFIER,
-          useValue: new Map([[normalized.provider, normalized]]),
+          useValue: verifiers,
         },
         PrismaNotificationInbox,
         { provide: NOTIFICATION_INBOX, useExisting: PrismaNotificationInbox },

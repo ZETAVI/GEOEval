@@ -1,6 +1,6 @@
 # Tasks
 
-Owner #77. A0/B0/C1, publication return, N1–N4, R1 and O1a are accepted on main. Alipay PC implementation merged through [PR #89](https://github.com/ZETAVI/GEOEval/pull/89) at `main@d795002`; app/product/key readiness and a signed production-gateway no-funds query are confirmed, with local database, HTTP, Worker and Web acceptance recorded in verification. The current owner decision makes Alipay the only selectable new-payment method and pauses WeChat qualification work; the UI keeps WeChat visible but disabled. Real payment, public callback delivery, closed/refund lifecycle acceptance, H5, dual-provider composition and production activation remain unfinished.
+Owner #77. A0/B0/C1, publication return, N1–N4, R1 and O1a are accepted on main. Alipay PC implementation merged through [PR #89](https://github.com/ZETAVI/GEOEval/pull/89) at `main@d795002`; app/product/key readiness and a signed production-gateway no-funds query are confirmed. On 2026-09-16 the owner confirmed that the WeChat merchant account is certified and Native payment is open, so WeChat technical work resumes. Dual-provider composition and protected WeChat configuration are the current bounded implementation; AppID binding, credential custody, public callback, controlled prepay/close, real payment and production activation remain separate gates.
 
 ## Remaining work and actual dependencies
 
@@ -15,7 +15,7 @@ The approved route stays account recharge → verified payment → funded credit
 | H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
 | Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
 
-Current planning: R1, O1a and Alipay PC code are merged. Alipay enterprise certification, PC product, app binding, RSA2 keys and app上线 are confirmed. The next action-time gate is a public callback plus minimum real payment and the named closed/refund lifecycle scenarios; mobile website payment follows PC acceptance. WeChat is displayed as unavailable and cannot create a new order. Finance qualification, dual-provider runtime composition and the application-layer Native naming cleanup resume together when WeChat becomes active. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. Reconciliation remains later bounded acceptance.
+Current planning: R1, O1a and Alipay PC code are merged. Alipay remains the current selectable method until the WeChat `live` gate passes. The WeChat merchant and Native product gate is now confirmed; code composition proceeds without waiting for keys. AppID binding, protected key files, public callback and controlled provider calls must still be verified before the server advertises WeChat for new orders. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. Reconciliation remains later bounded acceptance.
 
 ## R1: Transient recovery and truthful status
 
@@ -51,7 +51,7 @@ Current planning: R1, O1a and Alipay PC code are merged. Alipay enterprise certi
 ## A1: Alipay PC first, then mobile website payment
 
 - [x] Record the owner decision to use Alipay as the primary selectable method, pause WeChat integration and render WeChat visibly unavailable without permitting selection or submission.
-- [ ] When WeChat work resumes, compose both providers explicitly in API/callback/Worker hosts and then narrow the legacy `PaymentGateway`/`Native*` application naming debt. Do not rename persistent columns merely for style or make this a blocker for Alipay-only acceptance.
+- [x] Compose both providers explicitly in API/callback/Worker hosts; add a narrow method router and retain legacy `PaymentGateway`/`Native*` persistence names where renaming would add migration risk.
 - [x] Record owner priority change and confirmed enterprise certification; distinguish product opening, app上线/APPID binding and technical configuration from merchant registration.
 - [x] Read current official PC/H5 introductions, self-development preparation, app creation/binding/keys/product opening, PC payment/notification and sandbox documents; keep the scope/contradictions in source-brief.
 - [x] Prepare a finance/technical handoff checklist with official product links and a status-only receipt; no private merchant login, application submission, credential generation or provider/funds call performed.
@@ -69,6 +69,19 @@ Current planning: R1, O1a and Alipay PC code are merged. Alipay enterprise certi
 - [x] Verify ephemeral-key protocol cases, all 47 migrations from a clean database, repeat notifications, optional-time convergence, wrong identity/amount, close flow, actual method display and old-channel compatibility. Final payment combination is 119/119, Web is 219/219, and the isolated backend suite is 815 passed/13 gated skips. A signed production-gateway query with the approved app/key returned the expected nonexistent-trade result without creating a transaction.
 - [ ] Exercise public callback delivery, return navigation, minimum real payment and the named no-submit/expired replay/natural expiry/lost-close/full-refund lifecycle with finance review. Sandbox remains optional evidence and must not mix production credentials.
 - [ ] Extend to mobile website payment and named mobile browsers after PC acceptance; keep WeChat in-app/JSAPI and H5 sandbox limitations explicit.
+
+## W1: WeChat Native real-account resumption
+
+- [x] Re-read current main, Issue #77, active Change and merged WeChat/Alipay slices; establish the new branch and rebase the fixed implementation onto current `main@18e53e0` while preserving untracked research artifacts.
+- [x] Recheck current official Native readiness, APIv3 parameters, WeChat Pay public-key recommendation, notification timing/idempotency and official SDK availability. Keep the released Node crypto adapter; current official SDKs remain Java/PHP/Go.
+- [x] Add `disabled|verify|live` WeChat activation and protected-file loading for merchant private key, WeChat Pay public key and APIv3 key. `verify` stops new QR creation while keeping callback and recovery capability.
+- [x] Compose API customer commands by frozen payment method, register both callback controllers/verifiers, run provider dispatch concurrently and scan provider-neutral settlement once. Preserve Commerce and database ownership.
+- [x] Add safe Request-ID diagnostics containing no merchant, order, customer or key material.
+- [x] Verify configuration rejection, method routing, callback registration, Worker composition, protocol regression and dual-provider HTTP/DB behavior with ephemeral keys and the dedicated `geoeval_issue77_wechat_live` database.
+- [ ] Confirm the certified service-account AppID is bound to the merchant number and record only status, never secrets.
+- [ ] Create/download the merchant API certificate, WeChat Pay public key and ID, and set/store the APIv3 key in protected server files; establish technical-owner custody and rotation notes.
+- [ ] Deploy the callback endpoint with HTTPS in `verify`, reject forged callbacks, and execute the no-funds query. Afterward, use the normal persisted RechargeOrder/runtime path for one explicit 1-fen prepay-and-immediate-close probe so a lost close response remains recoverable; do not create an untracked provider order from a standalone script.
+- [ ] Switch WeChat to `live` only for a named minimum real payment; confirm QR, callback/query convergence, once-only points, customer/admin projections and finance receipt. Return to `verify` immediately if evidence is incomplete.
 
 ## P0: Fixed inputs and reviewable contracts
 

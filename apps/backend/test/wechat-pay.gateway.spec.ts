@@ -264,6 +264,30 @@ describe("WeChat Native operation mapping", () => {
     });
     expect(exchange).toHaveBeenCalledTimes(1);
   });
+  it("reports only bounded provider Request-ID diagnostics", async () => {
+    const report = vi.fn();
+    const response = f.response({
+      mchid: f.order.merchantId,
+      appid: f.order.appId,
+      out_trade_no: f.order.merchantOrderNo,
+      trade_state: "NOTPAY",
+    });
+    response.headers = {
+      ...response.headers,
+      "request-id": ["wx-request-77"],
+    };
+    const gateway = new WechatPayGateway(
+      { ...f.config(), report },
+      async () => response,
+    );
+    expect(await gateway.query(f.order)).toMatchObject({ ok: true });
+    expect(report).toHaveBeenCalledWith({
+      kind: "WECHAT_RESPONSE",
+      status: 200,
+      requestId: "wx-request-77",
+    });
+    expect(JSON.stringify(report.mock.calls)).not.toContain("ORDER_77");
+  });
   it("keeps success total and nullable query payer fields distinct", async () => {
     const gateway = new WechatPayGateway(f.config(), async () =>
       f.response(

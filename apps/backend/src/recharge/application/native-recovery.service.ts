@@ -54,6 +54,9 @@ export class NativeRecoveryService {
     this.channel = Object.freeze({ ...channel, provider, method });
     this.policy = Object.freeze(policySchema.parse(policy));
   }
+  supports(method: RechargeMethod) {
+    return method === this.channel.method;
+  }
   create(accountId: string, input: unknown) {
     if (
       !input ||

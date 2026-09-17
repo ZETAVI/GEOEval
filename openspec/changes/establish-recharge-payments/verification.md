@@ -403,3 +403,20 @@ Final local validation: `pnpm typecheck`, `pnpm format:check`, `python3 scripts/
 - 已提交的旧请求仍显示并恢复其原支付方式，不因新建入口停用而改变订单身份。前端没有新增支付状态、API字段、渠道调用或积分写入口。
 - Web全量29个文件221项通过：静态渲染反例确认支付宝输入没有`disabled`、微信输入存在`disabled`且提示可见；控制器反例确认尝试选择微信仍只提交宿主公布的支付宝方式。Web类型检查、格式检查、生产构建和`git diff --check`通过。
 - 本片不证明公网回调、真实资金、微信权限或双渠道运行时；这些门槛仍由tasks持有。
+## W1 双渠道组合与微信配置证据（2026-09-17，本地固定 Diff）
+
+当前只使用临时 RSA/APIv3 测试材料、受控 HTTPS 和专用数据库；没有读取公司密钥、调用微信商户接口、生成真实二维码或发生资金变化。
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| 双渠道客户命令不会串路由 | `recharge-customer-runtime.spec.ts`；专用数据库上的 `recharge-multi-provider.integration.spec.ts` | Passed：创建按 method，已有订单命令按冻结 method；verify-only 微信 method 的直接 HTTP 提交返回 503、无订单；支付宝收银动作不能落到微信订单 |
+| API 同时暴露两个已配置回调 | 配置单测及真实 Nest HTTP 负例 | Passed：两条路径都注册；伪造微信 JSON/支付宝 form 均未被当作有效通知 |
+| Worker 不遗漏渠道且不重复 settlement 扫描 | `recharge-worker-composition.spec.ts` | Passed：两个 provider I/O 均收到同一停止信号并聚合结果；共享 settlement 只由一个 runtime 扫描；关闭释放全部 gateway |
+| 微信配置停新单与密钥边界 | `wechat-recharge-runtime-config.spec.ts` | Passed：默认 disabled；verify 不发起；live 才允许新 QR；弱文件权限、短 APIv3 key、带 query 回调拒绝；与 Alipay 同时装配时只公布 create-enabled method |
+| 既有微信协议/HTTPS 保持 | gateway/config/router/Worker focused suites 合计 96 项；实际 loopback HTTPS 20 项 | Passed：含当前官方 QR URI、签名/AES、查询/关单/通知、TLS/超时/大小限制；本次新增安全 Request-ID 事件。不是微信服务器证据 |
+| 数据库隔离 | 新建 `geoeval_issue77_wechat_live`，从空库部署当前 52 个迁移，再执行双 provider HTTP/PG 测试 | Passed。首次尝试因默认共享库可能被 TRUNCATE 而被自动审批拒绝；没有绕过，改用专用库。此证据不涉及生产或共享开发数据 |
+| 资金路径回归 | 原子到账、Native 恢复、通知、客户 API、支付宝和双 provider 6 个集成文件 90 项；审查修正后客户/双 provider 11 项复验 | Passed on dedicated database；不含真实 provider 或资金 |
+| Web 与可交付构建 | Web 32 文件 226 项；workspace typecheck、format、framework/link、完整 build | Passed；OpenAPI/API client 生成无 diff，生产 Web 20 个静态页与动态路由构建完成 |
+| 完整后端回归 | 92 文件 | 887 passed / 15 skipped / 1 failed。失败为 evaluation Worker restart 用例固定 5 秒 timeout；在临时 `origin/main@18e53e0` 工作树单独复现同一失败，Diff 不含 evaluation 文件，因此不是本片通过项或支付回归 |
+
+待运行：准确 PR CI；AppID 绑定回执、真实受保护配置、无资金 query、1 分持久 prepay+close、公网伪造/真实回调、最小付款和财务到账。当前代码片为 **verified with one pre-existing non-payment suite failure**；整体真实微信链路为 **partially verified**。
