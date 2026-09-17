@@ -270,6 +270,13 @@ export class NotificationCenterController {
         succeeded = true;
         return;
       }
+      if (target.kind === "RECHARGE_INVOICE") {
+        this.navigate(
+          `/recharges?invoice=${encodeURIComponent(target.invoiceRequestId)}`,
+        );
+        succeeded = true;
+        return;
+      }
       if (target.kind === "AGENCY_WITHDRAWAL") {
         this.navigate(
           `/agent/withdrawals/${encodeURIComponent(target.withdrawalId)}`,

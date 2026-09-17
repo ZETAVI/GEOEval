@@ -11,6 +11,7 @@ import { GeoIntelligenceModule } from "./geo-intelligence/geo-intelligence.modul
 import { AgencyModule } from "./agency/agency.module.js";
 import { Module, type DynamicModule } from "@nestjs/common";
 import { RechargeAdminModule } from "./recharge/recharge-admin.module.js";
+import { RechargeInvoiceModule } from "./recharge/invoice/recharge-invoice.module.js";
 
 import {
   RechargeApiModule,
@@ -82,6 +83,7 @@ export class ApiModule {
         ),
         RechargeApiModule.register(recharge),
         RechargeAdminModule,
+        RechargeInvoiceModule,
         ReadinessModule,
         FoundationModule,
       ],

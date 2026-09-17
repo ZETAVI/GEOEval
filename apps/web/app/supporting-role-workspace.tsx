@@ -273,6 +273,12 @@ export function supportingRoleConfig(
           href: "/admin/recharges",
         },
         {
+          title: "开票管理",
+          description: "查看全部充值开票申请，分配、改派、收回或显式接管。",
+          status: "AVAILABLE",
+          href: "/admin/invoices",
+        },
+        {
           title: "履约订单",
           description:
             "查看履约与协商记录、按需改派，并核查“待退点”订单的自动结算依据。",
@@ -309,7 +315,12 @@ export function supportingRoleConfig(
           mark: "客",
           href: "/operations/support",
         },
-        { label: "发票处理", description: "已分配的开票工作", mark: "票" },
+        {
+          label: "发票处理",
+          description: "待领取与我负责的申请",
+          mark: "票",
+          href: "/operations/invoices",
+        },
       ],
       cards: [
         {
@@ -331,13 +342,20 @@ export function supportingRoleConfig(
           status: "AVAILABLE",
           href: "/operations/orders",
         },
+        {
+          title: "充值发票处理",
+          description: "领取开票申请，退回资料补正，并在外部发送后确认完成。",
+          status: "AVAILABLE",
+          href: "/operations/invoices",
+        },
       ],
     };
   }
   return {
     eyebrow: "代理商工作区",
     title: "客户与收益总览",
-    introduction: "代理商身份已经可独立登录；可查看属于自己的订单佣金明细。",
+    introduction:
+      "分享入口发展客户，跟进已归因客户服务，并查看佣金与提现记录。",
     boundary:
       "代理商只查看归因客户与自身收益，不获得客户账号角色，也不能管理平台或履约订单。",
     navigation: [
@@ -359,7 +377,8 @@ export function supportingRoleConfig(
     cards: [
       {
         title: "客户管理",
-        description: "归因关系尚未激活，当前不会显示客户或品牌样例数据。",
+        description:
+          "能力已交付；当前环境启用后可查看归因客户、品牌和评测报告，不接触客户开票资料。",
         status: "FUTURE_CAPABILITY",
       },
       {
@@ -370,7 +389,8 @@ export function supportingRoleConfig(
       },
       {
         title: "提现状态",
-        description: "提现模块激活后展示可提现收益、申请与管理员处理状态。",
+        description:
+          "能力已交付；当前环境启用后可查看可提现收益、申请进度和处理结果。",
         status: "FUTURE_CAPABILITY",
       },
     ],

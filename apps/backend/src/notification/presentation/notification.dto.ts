@@ -27,6 +27,15 @@ export class RechargeNotificationTargetResponse {
   rechargeOrderId!: string;
 }
 
+export class RechargeInvoiceNotificationTargetResponse {
+  @ApiProperty({ type: String, enum: ["RECHARGE_INVOICE"] })
+  kind!: "RECHARGE_INVOICE";
+  @ApiProperty({ type: String, format: "uuid" })
+  invoiceRequestId!: string;
+  @ApiProperty({ type: String, format: "uuid" })
+  rechargeOrderId!: string;
+}
+
 export class AgencyWithdrawalNotificationTargetResponse {
   @ApiProperty({ type: String, enum: ["AGENCY_WITHDRAWAL"] })
   kind!: "AGENCY_WITHDRAWAL";
@@ -43,6 +52,8 @@ export class NotificationResponse {
       "EVALUATION_COMPLETED",
       "EVALUATION_RETRY_REQUIRED",
       "RECHARGE_SUCCESSFUL",
+      "RECHARGE_INVOICE_NEEDS_CORRECTION",
+      "RECHARGE_INVOICE_ISSUED",
       "AGENCY_WITHDRAWAL_COMPLETED",
       "AGENCY_WITHDRAWAL_REJECTED",
       "AGENCY_WITHDRAWAL_PAYMENT_FAILED",
@@ -52,6 +63,8 @@ export class NotificationResponse {
     | "EVALUATION_COMPLETED"
     | "EVALUATION_RETRY_REQUIRED"
     | "RECHARGE_SUCCESSFUL"
+    | "RECHARGE_INVOICE_NEEDS_CORRECTION"
+    | "RECHARGE_INVOICE_ISSUED"
     | "AGENCY_WITHDRAWAL_COMPLETED"
     | "AGENCY_WITHDRAWAL_REJECTED"
     | "AGENCY_WITHDRAWAL_PAYMENT_FAILED";
@@ -63,6 +76,7 @@ export class NotificationResponse {
     type: () => Object,
     oneOf: [
       { $ref: getSchemaPath(RechargeNotificationTargetResponse) },
+      { $ref: getSchemaPath(RechargeInvoiceNotificationTargetResponse) },
       { $ref: getSchemaPath(EvaluationReportNotificationTargetResponse) },
       { $ref: getSchemaPath(EvaluationRetryNotificationTargetResponse) },
       { $ref: getSchemaPath(AgencyWithdrawalNotificationTargetResponse) },
@@ -72,6 +86,7 @@ export class NotificationResponse {
     | EvaluationReportNotificationTargetResponse
     | EvaluationRetryNotificationTargetResponse
     | RechargeNotificationTargetResponse
+    | RechargeInvoiceNotificationTargetResponse
     | AgencyWithdrawalNotificationTargetResponse;
   @ApiProperty({ type: String, format: "date-time" })
   occurredAt!: Date;

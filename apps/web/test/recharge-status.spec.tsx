@@ -107,9 +107,9 @@ describe("simple recharge presentation preserves business state", () => {
         base="http://127.0.0.1:3100"
       />,
     );
-    expect(html.indexOf("支付宝 · 官方收银台")).toBeLessThan(
-      html.indexOf("微信支付 · 电脑扫码"),
-    );
+    expect(html.indexOf("支付宝")).toBeLessThan(html.indexOf("微信支付"));
+    expect(html).toContain("/payment-marks/alipay.png");
+    expect(html).toContain("/payment-marks/wechat-pay.png");
     const alipay = html.match(/<input[^>]*value="ALIPAY_PC"[^>]*>/)?.[0],
       wechat = html.match(/<input[^>]*value="WECHAT_NATIVE"[^>]*>/)?.[0];
     expect(alipay).toBeDefined();

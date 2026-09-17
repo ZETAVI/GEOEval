@@ -178,6 +178,18 @@ const expectedControllerPolicies: Record<
   PublishingOrderController: customerOnly,
   CustomerPublicationResultsController: customerOnly,
   CustomerRechargeController: customerOnly,
+  RechargeInvoiceApplicationController: customerOnly,
+  CustomerRechargeInvoiceController: customerOnly,
+  OperationsRechargeInvoiceController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["OPERATIONS"],
+  }),
+  AdminRechargeInvoiceController: () => ({
+    publicAccess: false,
+    csrfExempt: false,
+    roles: ["ADMINISTRATOR"],
+  }),
   AdminRechargeController: () => ({
     publicAccess: false,
     csrfExempt: false,

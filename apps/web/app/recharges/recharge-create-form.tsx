@@ -9,14 +9,15 @@ import {
   rechargeReturnKey,
 } from "./recharge-intent.js";
 import styles from "./recharge.module.css";
+import { PaymentMethodMark } from "./payment-method-mark.js";
 const memory = {
   getItem: (k: string) => localStorage.getItem(k),
   setItem: (k: string, v: string) => localStorage.setItem(k, v),
   removeItem: (k: string) => localStorage.removeItem(k),
 };
 const paymentMethods = [
-  { method: "ALIPAY_PC", label: "支付宝 · 官方收银台" },
-  { method: "WECHAT_NATIVE", label: "微信支付 · 电脑扫码" },
+  { method: "ALIPAY_PC" },
+  { method: "WECHAT_NATIVE" },
 ] as const;
 export function RechargeCreateForm({
   accountId,
@@ -151,7 +152,7 @@ export function RechargeCreateForm({
                 ({ method }) => method === state.pending?.method,
               )
             : paymentMethods
-          ).map(({ method, label }) => {
+          ).map(({ method }) => {
             const availableForCreation =
               !!state.pending ||
               (options.available && options.methods.includes(method));
@@ -170,7 +171,7 @@ export function RechargeCreateForm({
                   disabled={locked || !availableForCreation}
                   onChange={() => controller.setMethod(method)}
                 />{" "}
-                <span>{label}</span>
+                <PaymentMethodMark method={method} />
                 {!availableForCreation && (
                   <small className={styles.methodStatus}>暂未开放</small>
                 )}

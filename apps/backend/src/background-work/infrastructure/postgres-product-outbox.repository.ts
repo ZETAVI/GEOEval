@@ -16,6 +16,8 @@ const PRODUCT_EVENT_TYPES = [
   "evaluation.definition.prepare.requested",
   "evaluation.report.accepted",
   "evaluation.retry.required",
+  "recharge.invoice.needs_correction",
+  "recharge.invoice.issued",
   "agency.withdrawal.completed",
   "agency.withdrawal.rejected",
   "agency.withdrawal.payment_failed",

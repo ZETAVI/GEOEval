@@ -21,8 +21,11 @@ select their own verifier, provider dispatch remains independent, and the shared
 settlement scan still applies one authoritative Commerce transaction. The separate
 Recharge worker entry point uses the same configuration and durable recovery; the
 general evaluation worker does not load payment keys. This boundary does not
-activate production payment, H5 or invoices. Customer success notifications require
-the configured Recharge delivery lane.
+activate production payment or H5. Customer recharge invoicing is implemented by
+the owner-local [Recharge Invoice specification](../recharge-invoice/spec.md),
+which consumes only the narrow eligibility and `invoiceableAmountFen` projection;
+it does not enter Provider, callback, recovery or credit state. Customer success
+notifications require the configured Recharge delivery lane.
 
 The [Alipay adapter](../../../apps/backend/src/recharge/infrastructure/alipay/README.md)
 provides SDK-level page/notification/query/close handling and is assembled through

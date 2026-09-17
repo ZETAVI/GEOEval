@@ -1492,6 +1492,198 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/recharges/{orderId}/invoice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RechargeInvoiceApplicationController_apply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/recharge-invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerRechargeInvoiceController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/recharge-invoices/default-submission": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerRechargeInvoiceController_defaults"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/recharge-invoices/order-summaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerRechargeInvoiceController_orderSummaries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/recharge-invoices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerRechargeInvoiceController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/recharge-invoices/{id}/resubmit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerRechargeInvoiceController_resubmit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/operations/recharge-invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["OperationsRechargeInvoiceController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/operations/recharge-invoices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["OperationsRechargeInvoiceController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/operations/recharge-invoices/{id}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["OperationsRechargeInvoiceController_command"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/recharge-invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminRechargeInvoiceController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/recharge-invoices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminRechargeInvoiceController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/recharge-invoices/{id}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminRechargeInvoiceController_command"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/brands/{brandId}/evaluation-report": {
         parameters: {
             query?: never;
@@ -3246,6 +3438,14 @@ export interface components {
             /** Format: uuid */
             rechargeOrderId: string;
         };
+        RechargeInvoiceNotificationTargetResponse: {
+            /** @enum {string} */
+            kind: "RECHARGE_INVOICE";
+            /** Format: uuid */
+            invoiceRequestId: string;
+            /** Format: uuid */
+            rechargeOrderId: string;
+        };
         EvaluationReportNotificationTargetResponse: {
             /** @enum {string} */
             kind: "EVALUATION_REPORT";
@@ -3268,10 +3468,10 @@ export interface components {
         NotificationResponse: {
             id: string;
             /** @enum {string} */
-            kind: "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED" | "RECHARGE_SUCCESSFUL" | "AGENCY_WITHDRAWAL_COMPLETED" | "AGENCY_WITHDRAWAL_REJECTED" | "AGENCY_WITHDRAWAL_PAYMENT_FAILED";
+            kind: "EVALUATION_COMPLETED" | "EVALUATION_RETRY_REQUIRED" | "RECHARGE_SUCCESSFUL" | "RECHARGE_INVOICE_NEEDS_CORRECTION" | "RECHARGE_INVOICE_ISSUED" | "AGENCY_WITHDRAWAL_COMPLETED" | "AGENCY_WITHDRAWAL_REJECTED" | "AGENCY_WITHDRAWAL_PAYMENT_FAILED";
             title: string;
             summary: string;
-            target: components["schemas"]["RechargeNotificationTargetResponse"] | components["schemas"]["EvaluationReportNotificationTargetResponse"] | components["schemas"]["EvaluationRetryNotificationTargetResponse"] | components["schemas"]["AgencyWithdrawalNotificationTargetResponse"];
+            target: components["schemas"]["RechargeNotificationTargetResponse"] | components["schemas"]["RechargeInvoiceNotificationTargetResponse"] | components["schemas"]["EvaluationReportNotificationTargetResponse"] | components["schemas"]["EvaluationRetryNotificationTargetResponse"] | components["schemas"]["AgencyWithdrawalNotificationTargetResponse"];
             /** Format: date-time */
             occurredAt: string;
             /** Format: date-time */
@@ -3640,6 +3840,171 @@ export interface components {
             notificationState: "PENDING" | "DELIVERED" | null;
             /** Format: date-time */
             notificationDeliveredAt: string | null;
+        };
+        RechargeInvoiceApplicationRequest: {
+            /** Format: uuid */
+            requestId: string;
+            /** @enum {string} */
+            buyerType: "INDIVIDUAL" | "ENTERPRISE";
+            /** @default 个人 */
+            title: string;
+            taxNumber?: string;
+            /** Format: email */
+            email: string;
+            /** @enum {boolean} */
+            confirmedAccurate: true;
+        };
+        RechargeInvoiceSubmissionResponse: {
+            /** @enum {string} */
+            buyerType: "INDIVIDUAL" | "ENTERPRISE";
+            title: string;
+            taxNumber: string | null;
+            /** Format: email */
+            email: string;
+            revision: number;
+            /** Format: date-time */
+            submittedAt: string;
+        };
+        RechargeInvoiceCorrectionResponse: {
+            code: string;
+            summary: string;
+            note: string | null;
+        };
+        RechargeInvoiceIssuedResponse: {
+            invoiceNumber: string;
+            /** Format: date */
+            issuedOn: string;
+            /** Format: date-time */
+            confirmedSentAt: string;
+            maskedEmail: string;
+        };
+        RechargeInvoiceResponse: {
+            /** Format: uuid */
+            id: string;
+            number: number;
+            /** Format: uuid */
+            rechargeOrderId: string;
+            amountFen: string;
+            /** @enum {string} */
+            currency: "CNY";
+            /** @enum {string} */
+            status: "PROCESSING" | "NEEDS_CORRECTION" | "ISSUED";
+            revision: number;
+            submission: components["schemas"]["RechargeInvoiceSubmissionResponse"];
+            correction: components["schemas"]["RechargeInvoiceCorrectionResponse"] | null;
+            issued: components["schemas"]["RechargeInvoiceIssuedResponse"] | null;
+            /** Format: date-time */
+            submittedAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        RechargeInvoicePageResponse: {
+            items: components["schemas"]["RechargeInvoiceResponse"][];
+            nextCursor: number | null;
+        };
+        RechargeInvoiceDefaultResponse: {
+            submission: components["schemas"]["RechargeInvoiceSubmissionResponse"] | null;
+        };
+        RechargeInvoiceOrderSummariesResponse: {
+            items: components["schemas"]["RechargeInvoiceResponse"][];
+        };
+        RechargeInvoiceResubmissionRequest: {
+            /** Format: uuid */
+            requestId: string;
+            /** @enum {string} */
+            buyerType: "INDIVIDUAL" | "ENTERPRISE";
+            /** @default 个人 */
+            title: string;
+            taxNumber?: string;
+            /** Format: email */
+            email: string;
+            /** @enum {boolean} */
+            confirmedAccurate: true;
+            expectedRevision: number;
+        };
+        RechargeInvoiceAssigneeResponse: {
+            /** Format: uuid */
+            accountId: string;
+            mobile: string;
+            /** @enum {string} */
+            role: "OPERATIONS" | "ADMINISTRATOR";
+        };
+        InternalRechargeInvoiceSummaryResponse: {
+            /** Format: uuid */
+            id: string;
+            number: number;
+            /** Format: uuid */
+            rechargeOrderId: string;
+            amountFen: string;
+            /** @enum {string} */
+            currency: "CNY";
+            /** @enum {string} */
+            status: "PROCESSING" | "NEEDS_CORRECTION" | "ISSUED";
+            revision: number;
+            /** @enum {string} */
+            buyerType: "INDIVIDUAL" | "ENTERPRISE";
+            customerReference: string;
+            assignee: components["schemas"]["RechargeInvoiceAssigneeResponse"] | null;
+            /** Format: date-time */
+            submittedAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        InternalRechargeInvoicePageResponse: {
+            items: components["schemas"]["InternalRechargeInvoiceSummaryResponse"][];
+            nextCursor: number | null;
+        };
+        RechargeInvoiceAuditResponse: {
+            /** Format: uuid */
+            id: string;
+            action: string;
+            /** Format: uuid */
+            actorAccountId: string;
+            reason: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        InternalRechargeInvoiceResponse: {
+            /** Format: uuid */
+            id: string;
+            number: number;
+            /** Format: uuid */
+            rechargeOrderId: string;
+            amountFen: string;
+            /** @enum {string} */
+            currency: "CNY";
+            /** @enum {string} */
+            status: "PROCESSING" | "NEEDS_CORRECTION" | "ISSUED";
+            revision: number;
+            submission: components["schemas"]["RechargeInvoiceSubmissionResponse"];
+            correction: components["schemas"]["RechargeInvoiceCorrectionResponse"] | null;
+            issued: components["schemas"]["RechargeInvoiceIssuedResponse"] | null;
+            /** Format: date-time */
+            submittedAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: uuid */
+            accountId: string;
+            customerMobile: string;
+            assignee: components["schemas"]["RechargeInvoiceAssigneeResponse"] | null;
+            audit?: components["schemas"]["RechargeInvoiceAuditResponse"][];
+        };
+        RechargeInvoiceCommandRequest: {
+            /** @enum {string} */
+            action: "CLAIM" | "REQUEST_CORRECTION" | "COMPLETE" | "ASSIGN" | "RETURN_TO_POOL" | "TAKE_OVER";
+            /** Format: uuid */
+            requestId: string;
+            expectedRevision: number;
+            /** @enum {string} */
+            reasonCode?: "NAME_TAX_MISMATCH" | "TAX_NUMBER_INVALID" | "EMAIL_INVALID" | "OTHER";
+            note?: string;
+            invoiceNumber?: string;
+            /** Format: date */
+            issuedOn?: string;
+            /** @enum {boolean} */
+            confirmedSent?: true;
+            /** Format: uuid */
+            assigneeAccountId?: string;
         };
         EvaluationQuestionResponse: {
             id: string;
@@ -6393,6 +6758,305 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminRechargeDetailResponse"];
+                };
+            };
+        };
+    };
+    RechargeInvoiceApplicationController_apply: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path: {
+                orderId: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RechargeInvoiceApplicationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeInvoiceResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeInvoiceController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: number;
+            };
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeInvoicePageResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeInvoiceController_defaults: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeInvoiceDefaultResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeInvoiceController_orderSummaries: {
+        parameters: {
+            query: {
+                orderIds: string;
+            };
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeInvoiceOrderSummariesResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeInvoiceController_detail: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeInvoiceResponse"];
+                };
+            };
+        };
+    };
+    CustomerRechargeInvoiceController_resubmit: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RechargeInvoiceResubmissionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RechargeInvoiceResponse"];
+                };
+            };
+        };
+    };
+    OperationsRechargeInvoiceController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: number;
+                status?: "PROCESSING" | "NEEDS_CORRECTION" | "ISSUED";
+                scope?: "UNASSIGNED" | "MINE";
+            };
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalRechargeInvoicePageResponse"];
+                };
+            };
+        };
+    };
+    OperationsRechargeInvoiceController_detail: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalRechargeInvoiceResponse"];
+                };
+            };
+        };
+    };
+    OperationsRechargeInvoiceController_command: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RechargeInvoiceCommandRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalRechargeInvoiceResponse"];
+                };
+            };
+        };
+    };
+    AdminRechargeInvoiceController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: number;
+                assigneeAccountId?: unknown;
+                accountId?: unknown;
+                status?: "PROCESSING" | "NEEDS_CORRECTION" | "ISSUED";
+                scope?: "UNASSIGNED" | "MINE";
+            };
+            header: {
+                "x-geoeval-account": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalRechargeInvoicePageResponse"];
+                };
+            };
+        };
+    };
+    AdminRechargeInvoiceController_detail: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalRechargeInvoiceResponse"];
+                };
+            };
+        };
+    };
+    AdminRechargeInvoiceController_command: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-geoeval-account": string;
+            };
+            path: {
+                id: unknown;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RechargeInvoiceCommandRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InternalRechargeInvoiceResponse"];
                 };
             };
         };

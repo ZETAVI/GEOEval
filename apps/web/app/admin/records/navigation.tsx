@@ -5,6 +5,7 @@ export function BusinessRecordsNavigation({
   active:
     | "points"
     | "recharges"
+    | "invoices"
     | "orders"
     | "support"
     | "commissions"
@@ -14,6 +15,7 @@ export function BusinessRecordsNavigation({
   const items = [
     ["points", "积分流水", "/admin/records"],
     ["recharges", "充值记录", "/admin/recharges"],
+    ["invoices", "开票管理", "/admin/invoices"],
     ["orders", "发布订单", "/admin/delivery"],
     ["support", "客服工单", "/admin/support"],
     ["commissions", "佣金明细", "/admin/commissions"],

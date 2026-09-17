@@ -339,6 +339,24 @@ The administrator business-record entry reuses existing recharge, delivery and S
 
 Current behavior is owned by [Support](../../openspec/specs/support/spec.md), [Publication Delivery](../../openspec/specs/publication-delivery/spec.md), and [Publishing Commerce](../../openspec/specs/publishing-commerce/spec.md). Development data requires no historical compatibility path; normal once-only settlement and crash recovery remain mandatory.
 
+### Recharge invoice
+
+[Recharge Invoice](../../openspec/specs/recharge-invoice/spec.md) is an owner-local
+Recharge submodule, not fields inside the payment state machine and not a generic
+Billing platform. Recharge supplies one locked, read-only eligibility and
+`invoiceableAmountFen` projection. Invoice owns the one-order request, immutable
+submission revisions, assignment, correction/issued lifecycle and sanitized
+audit. Recharge never imports Invoice.
+
+Customer, operations and administrator commands recheck current Identity facts
+and use request revisions plus actor-scoped idempotency. Order uniqueness and an
+order lock serialize application; request locking serializes claim, correction,
+assignment and completion. Completion atomically stores the invoice number,
+issue date and operator-confirmed external-send time with audit and Product
+Outbox. Notification materializes correction and issued notices asynchronously;
+Support remains a linked destination. No tax platform, email transport, PDF/file
+owner, agent access or generic workflow is introduced.
+
 ## Architecture qualities
 
 When architecture work begins, it must preserve:

@@ -1223,6 +1223,222 @@ export function getAdminRecharge(
   );
 }
 
+export type RechargeInvoice = components["schemas"]["RechargeInvoiceResponse"];
+export type RechargeInvoicePage =
+  components["schemas"]["RechargeInvoicePageResponse"];
+export type RechargeInvoiceSubmission =
+  components["schemas"]["RechargeInvoiceSubmissionResponse"];
+export type RechargeInvoiceApplication =
+  components["schemas"]["RechargeInvoiceApplicationRequest"];
+export type RechargeInvoiceResubmission =
+  components["schemas"]["RechargeInvoiceResubmissionRequest"];
+export type RechargeInvoiceCommand =
+  components["schemas"]["RechargeInvoiceCommandRequest"];
+export type InternalRechargeInvoice =
+  components["schemas"]["InternalRechargeInvoiceResponse"];
+export type InternalRechargeInvoiceSummary =
+  components["schemas"]["InternalRechargeInvoiceSummaryResponse"];
+export type InternalRechargeInvoicePage =
+  components["schemas"]["InternalRechargeInvoicePageResponse"];
+export type RechargeInvoiceFilter = {
+  scope?: "UNASSIGNED" | "MINE";
+  status?: RechargeInvoice["status"];
+  accountId?: string;
+  assigneeAccountId?: string;
+  cursor?: number;
+  limit?: number;
+};
+
+function invoiceQuery(filter: RechargeInvoiceFilter) {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(filter))
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  return query.size ? `?${query}` : "";
+}
+
+export function listRechargeInvoices(
+  base: string,
+  accountId: string,
+  options: Pick<RechargeInvoiceFilter, "cursor" | "limit"> = {},
+  signal?: AbortSignal,
+): Promise<RechargeInvoicePage> {
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharge-invoices${invoiceQuery(options)}`,
+    { signal: signal ?? null },
+  );
+}
+
+export function getRechargeInvoiceOrderSummaries(
+  base: string,
+  accountId: string,
+  orderIds: string[],
+  signal?: AbortSignal,
+): Promise<{ items: RechargeInvoice[] }> {
+  const query = new URLSearchParams({ orderIds: orderIds.join(",") });
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharge-invoices/order-summaries?${query}`,
+    { signal: signal ?? null },
+  );
+}
+
+export function getRechargeInvoiceDefaults(
+  base: string,
+  accountId: string,
+  signal?: AbortSignal,
+): Promise<{ submission: RechargeInvoiceSubmission | null }> {
+  return rechargeRequest(
+    base,
+    accountId,
+    "/recharge-invoices/default-submission",
+    {
+      signal: signal ?? null,
+    },
+  );
+}
+
+export function getRechargeInvoice(
+  base: string,
+  accountId: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<RechargeInvoice> {
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharge-invoices/${encodeURIComponent(id)}`,
+    { signal: signal ?? null },
+  );
+}
+
+export function applyRechargeInvoice(
+  base: string,
+  accountId: string,
+  orderId: string,
+  input: RechargeInvoiceApplication,
+  signal?: AbortSignal,
+): Promise<RechargeInvoice> {
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharges/${encodeURIComponent(orderId)}/invoice`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+      signal: signal ?? null,
+    },
+  );
+}
+
+export function resubmitRechargeInvoice(
+  base: string,
+  accountId: string,
+  id: string,
+  input: RechargeInvoiceResubmission,
+  signal?: AbortSignal,
+): Promise<RechargeInvoice> {
+  return rechargeRequest(
+    base,
+    accountId,
+    `/recharge-invoices/${encodeURIComponent(id)}/resubmit`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+      signal: signal ?? null,
+    },
+  );
+}
+
+export function listOperationsRechargeInvoices(
+  base: string,
+  actorId: string,
+  filter: Pick<
+    RechargeInvoiceFilter,
+    "scope" | "status" | "cursor" | "limit"
+  > = {},
+  signal?: AbortSignal,
+): Promise<InternalRechargeInvoicePage> {
+  return rechargeRequest(
+    base,
+    actorId,
+    `/operations/recharge-invoices${invoiceQuery(filter)}`,
+    { signal: signal ?? null },
+  );
+}
+
+export function getOperationsRechargeInvoice(
+  base: string,
+  actorId: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<InternalRechargeInvoice> {
+  return rechargeRequest(
+    base,
+    actorId,
+    `/operations/recharge-invoices/${encodeURIComponent(id)}`,
+    { signal: signal ?? null },
+  );
+}
+
+export function commandOperationsRechargeInvoice(
+  base: string,
+  actorId: string,
+  id: string,
+  input: RechargeInvoiceCommand,
+): Promise<InternalRechargeInvoice> {
+  return rechargeRequest(
+    base,
+    actorId,
+    `/operations/recharge-invoices/${encodeURIComponent(id)}/actions`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function listAdminRechargeInvoices(
+  base: string,
+  actorId: string,
+  filter: RechargeInvoiceFilter = {},
+  signal?: AbortSignal,
+): Promise<InternalRechargeInvoicePage> {
+  return rechargeRequest(
+    base,
+    actorId,
+    `/admin/recharge-invoices${invoiceQuery(filter)}`,
+    { signal: signal ?? null },
+  );
+}
+
+export function getAdminRechargeInvoice(
+  base: string,
+  actorId: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<InternalRechargeInvoice> {
+  return rechargeRequest(
+    base,
+    actorId,
+    `/admin/recharge-invoices/${encodeURIComponent(id)}`,
+    { signal: signal ?? null },
+  );
+}
+
+export function commandAdminRechargeInvoice(
+  base: string,
+  actorId: string,
+  id: string,
+  input: RechargeInvoiceCommand,
+): Promise<InternalRechargeInvoice> {
+  return rechargeRequest(
+    base,
+    actorId,
+    `/admin/recharge-invoices/${encodeURIComponent(id)}/actions`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
 export function issueAgencyEntry(
   apiBaseUrl: string,
   agentAccountId: string,
