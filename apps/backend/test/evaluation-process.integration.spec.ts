@@ -311,6 +311,25 @@ describe("resumable evaluation evidence", () => {
       taskKind: "STRUCTURED_OUTPUT",
       outputContract: { version: REPORT_COMPOSITION_MODEL_CONTRACT_VERSION },
     });
+    const compositionRequest = JSON.parse(
+      JSON.stringify(synthesisAttempts[1]!.requestPayload),
+    ) as {
+      userContext: {
+        samples: Array<{ question: string; platformLabel: string }>;
+      };
+    };
+    expect(
+      compositionRequest.userContext.samples.map(
+        (sample) => `${sample.question}|${sample.platformLabel}`,
+      ),
+    ).toEqual(
+      currentReport!.questions.flatMap((question) =>
+        question.samples.map(
+          (sample) => `${question.content}|${sample.platformLabel}`,
+        ),
+      ),
+    );
+    expect(JSON.stringify(compositionRequest)).not.toContain("pointRef");
     expect(JSON.stringify(synthesisAttempts)).not.toContain("originalAnswer");
     expect(
       await prisma.evaluationBrandResolution.count({ where: { runId } }),

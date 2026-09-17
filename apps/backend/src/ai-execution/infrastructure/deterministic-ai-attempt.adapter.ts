@@ -100,15 +100,22 @@ export class DeterministicAiAttemptAdapter implements AiAttemptAdapter {
 
     return {
       kind: "SUCCEEDED",
-      output: deterministicSampleParser(request.input.userContext),
+      output: deterministicSampleParser(
+        request.input.userContext,
+        request.input.outputContract.jsonSchema,
+      ),
       usage: { inputTokens: 220, outputTokens: 96 },
     };
   }
 }
 
-function deterministicSampleParser(userContext: Record<string, unknown>) {
+function deterministicSampleParser(
+  userContext: Record<string, unknown>,
+  jsonSchema: Record<string, unknown>,
+) {
   const focusBrand = requiredString(userContext, "focusBrand");
   const content = requiredString(userContext, "content");
+  const openQuestion = JSON.stringify(jsonSchema).includes('"queryRole"');
   const names = [focusBrand, "晨光咖啡", "城市咖啡"]
     .filter((name) => content.includes(name))
     .sort((left, right) => content.indexOf(left) - content.indexOf(right));
@@ -116,6 +123,12 @@ function deterministicSampleParser(userContext: Record<string, unknown>) {
     brands: names.map((displayName) => ({
       displayName,
       isFocusBrand: displayName === focusBrand,
+      ...(openQuestion
+        ? {
+            queryRole:
+              displayName === focusBrand ? null : ("CANDIDATE" as const),
+          }
+        : {}),
       attitude: "POSITIVE",
       mentionContext: [
         {
@@ -153,18 +166,6 @@ function deterministicReportComposition(userContext: Record<string, unknown>) {
     requiredRecordValue(value, "composition sample"),
   );
   const targetSamples = samples.filter((sample) => sample.target !== null);
-  const pointRefs = targetSamples.flatMap((sample) => {
-    const target = requiredRecord(sample, "target");
-    return optionalArray(target, "mentionContext")
-      .slice(0, 1)
-      .map((value) => {
-        const point = requiredRecordValue(value, "composition point");
-        return {
-          sampleRef: requiredString(sample, "sampleRef"),
-          pointRef: requiredString(point, "pointRef"),
-        };
-      });
-  });
   const sampleRefs = (targetSamples.length > 0 ? targetSamples : samples)
     .slice(0, 5)
     .map((sample) => requiredString(sample, "sampleRef"));
@@ -174,12 +175,12 @@ function deterministicReportComposition(userContext: Record<string, unknown>) {
     brandPerception:
       "现有回答主要将品牌理解为能够回应相关需求的具体选择，并保留了适用场景与体验方面的介绍。",
     positiveThemes:
-      pointRefs.length > 0
+      targetSamples.length > 0
         ? [
             {
               label: "已有正向认知",
               summary: "部分回答已经形成可用于后续内容强化的正向品牌印象。",
-              pointRefs,
+              sampleRefs,
             },
           ]
         : [],

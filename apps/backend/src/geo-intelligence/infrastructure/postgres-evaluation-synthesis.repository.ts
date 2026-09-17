@@ -490,6 +490,12 @@ async function loadContext(
       interpretation,
     });
   }
+  metricSamples.sort(
+    (left, right) =>
+      left.questionOrdinal - right.questionOrdinal ||
+      left.platformOrdinal - right.platformOrdinal ||
+      left.sampleId.localeCompare(right.sampleId),
+  );
   const metrics = calculateEvaluationReportMetrics(metricSamples);
   if (metrics.coverage.validSampleCount < 17) return undefined;
   const samples = metricSamples.flatMap((sample) =>

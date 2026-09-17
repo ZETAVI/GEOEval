@@ -10,19 +10,15 @@ import type { BrandNameResolutionOutput } from "./brand-name-resolution.contract
 import { applyBrandNameResolution } from "./brand-name-resolution.contract.js";
 
 export const REPORT_COMPOSITION_MODEL_CONTRACT_VERSION =
-  "evaluation.report-composition-model@2";
+  "evaluation.report-composition-model@3";
 
 const text = (maximum: number) => z.string().trim().min(1).max(maximum);
-const localId = z.string().regex(/^[a-z][a-z0-9-]{0,63}$/);
 const sampleReference = z.string().regex(/^s[1-9][0-9]*$/);
-const pointReferenceSchema = z
-  .object({ sampleRef: sampleReference, pointRef: localId })
-  .strict();
 const themeSchema = z
   .object({
     label: text(80),
     summary: text(600),
-    pointRefs: z.array(pointReferenceSchema).min(1),
+    sampleRefs: z.array(sampleReference).min(1).max(60),
   })
   .strict();
 export const reportCompositionOutputSchema = z
@@ -38,7 +34,7 @@ export const reportCompositionOutputSchema = z
             currentProblem: text(400),
             recommendedDirection: text(600),
             intendedImprovement: text(300),
-            sampleRefs: z.array(sampleReference).min(1),
+            sampleRefs: z.array(sampleReference).min(1).max(60),
           })
           .strict(),
       )
@@ -76,26 +72,24 @@ export function parseAndProjectReportComposition(input: {
       (sample, index) => [reportCompositionSampleRef(index), sample] as const,
     ),
   );
-  const pointKeys = new Set(
-    input.samples.flatMap((sample, index) =>
-      sample.semantic.targetObservations.map(
-        (point) =>
-          `${reportCompositionSampleRef(index)}:${point.observationId}`,
-      ),
-    ),
-  );
   const issues: string[] = [];
-  const validateTheme = (theme: (typeof output.positiveThemes)[number]) => {
-    for (const ref of theme.pointRefs) {
-      if (!pointKeys.has(`${ref.sampleRef}:${ref.pointRef}`)) {
+  const validateTheme = (
+    theme: (typeof output.positiveThemes)[number],
+    tone: "POSITIVE" | "NEGATIVE",
+  ) => {
+    for (const reference of theme.sampleRefs) {
+      const sample = sampleByRef.get(reference);
+      if (!sample) {
+        issues.push(`theme references missing sample ${reference}`);
+      } else if (!themeObservation(sample, tone)) {
         issues.push(
-          `theme references missing point ${ref.sampleRef}:${ref.pointRef}`,
+          `theme references sample without ${tone.toLowerCase()} target content ${reference}`,
         );
       }
     }
   };
-  output.positiveThemes.forEach(validateTheme);
-  output.negativeThemes.forEach(validateTheme);
+  output.positiveThemes.forEach((theme) => validateTheme(theme, "POSITIVE"));
+  output.negativeThemes.forEach((theme) => validateTheme(theme, "NEGATIVE"));
   for (const direction of output.directions) {
     for (const reference of direction.sampleRefs) {
       if (!sampleByRef.has(reference)) {
@@ -122,14 +116,20 @@ export function parseAndProjectReportComposition(input: {
     observationId: null,
   }));
   let themeOrdinal = 0;
-  const projectTheme = (theme: (typeof output.positiveThemes)[number]) => ({
+  const projectTheme = (
+    theme: (typeof output.positiveThemes)[number],
+    tone: "POSITIVE" | "NEGATIVE",
+  ) => ({
     themeId: `theme-${++themeOrdinal}`,
     label: theme.label,
     summary: theme.summary,
-    evidenceRefs: uniquePointRefs(theme.pointRefs).map((ref) => ({
-      sampleId: sampleByRef.get(ref.sampleRef)!.sampleId,
-      observationId: ref.pointRef,
-    })),
+    evidenceRefs: uniqueSampleRefs(theme.sampleRefs).map((reference) => {
+      const sample = sampleByRef.get(reference)!;
+      return {
+        sampleId: sample.sampleId,
+        observationId: themeObservation(sample, tone)!.observationId,
+      };
+    }),
   });
   const customerDirections = output.directions.map((direction, index) => ({
     directionId: `direction-${index + 1}`,
@@ -152,23 +152,37 @@ export function parseAndProjectReportComposition(input: {
       evidenceRefs: targetRefs.length > 0 ? targetRefs : fallbackRefs,
     },
     themes: {
-      positive: output.positiveThemes.map(projectTheme),
-      negative: output.negativeThemes.map(projectTheme),
+      positive: output.positiveThemes.map((theme) =>
+        projectTheme(theme, "POSITIVE"),
+      ),
+      negative: output.negativeThemes.map((theme) =>
+        projectTheme(theme, "NEGATIVE"),
+      ),
     },
     customerDirections,
     internalGuidance: {
       summary: output.brandPerception,
-      priorities: [...output.positiveThemes, ...output.negativeThemes].map(
-        (theme, index) => ({
-          guidanceId: `guidance-priority-${index + 1}`,
-          label: theme.label,
-          detail: theme.summary,
-          evidenceRefs: uniquePointRefs(theme.pointRefs).map((ref) => ({
-            sampleId: sampleByRef.get(ref.sampleRef)!.sampleId,
-            observationId: ref.pointRef,
-          })),
+      priorities: [
+        ...output.positiveThemes.map((theme) => ({
+          theme,
+          tone: "POSITIVE" as const,
+        })),
+        ...output.negativeThemes.map((theme) => ({
+          theme,
+          tone: "NEGATIVE" as const,
+        })),
+      ].map(({ theme, tone }, index) => ({
+        guidanceId: `guidance-priority-${index + 1}`,
+        label: theme.label,
+        detail: theme.summary,
+        evidenceRefs: uniqueSampleRefs(theme.sampleRefs).map((reference) => {
+          const sample = sampleByRef.get(reference)!;
+          return {
+            sampleId: sample.sampleId,
+            observationId: themeObservation(sample, tone)!.observationId,
+          };
         }),
-      ),
+      })),
       writingAngles: customerDirections.map((direction, index) => ({
         guidanceId: `guidance-angle-${index + 1}`,
         label: direction.recommendedDirection.slice(0, 100),
@@ -192,14 +206,18 @@ export class ReportCompositionSemanticError extends Error {
   }
 }
 
-function uniquePointRefs(refs: Array<{ sampleRef: string; pointRef: string }>) {
-  const seen = new Set<string>();
-  return refs.filter((ref) => {
-    const key = `${ref.sampleRef}:${ref.pointRef}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+function uniqueSampleRefs(references: string[]) {
+  return [...new Set(references)];
+}
+
+function themeObservation(
+  sample: ReportCompositionSample,
+  tone: "POSITIVE" | "NEGATIVE",
+) {
+  return sample.semantic.targetObservations.find(
+    (observation) =>
+      observation.polarity === tone || observation.polarity === "MIXED",
+  );
 }
 
 function rejectInternalReferences(

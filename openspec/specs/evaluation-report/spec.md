@@ -81,6 +81,24 @@ after deterministic projection into its canonical semantic contracts.
 - **AND** the selected analysis route uses Model Studio
   `deepseek-v4-flash-0731` with thinking disabled and no automatic model fallback
 
+#### Scenario: Open parsing distinguishes query use from sentiment
+
+- **WHEN** an open-answer parser identifies concrete brands in one complete
+  sampled answer
+- **THEN** it preserves each brand in first-appearance order and separately
+  records the answer's sentiment and how each non-current brand is used for the
+  current query
+- **AND** a candidate is one the answer offers as a choice even when ordinary
+  conditions or drawbacks are present
+- **AND** a comparison, example, historical or background reference remains
+  parsed but does not become an eligible competitor occurrence
+- **AND** a brand explicitly described as failing an important query constraint
+  remains parsed but does not become an eligible competitor occurrence
+- **AND** the parser judges only the supplied question and answer and performs no
+  external fact or branch verification
+- **AND** deterministic program logic assigns competitor eligibility and
+  recommendation positions from the accepted role rather than from sentiment
+
 #### Scenario: Name resolution groups observed competitor subjects
 
 - **WHEN** accepted open-question interpretations contain other-brand names
@@ -107,6 +125,14 @@ after deterministic projection into its canonical semantic contracts.
   than internal question, sample, or content-point identifiers
 - **AND** it neither changes a metric nor infers verified real-world positioning
   from differences among sampled answers
+- **AND** positive and negative themes and GEO directions identify their
+  supporting samples without asking the model to reconstruct content-point
+  identifiers
+- **AND** program logic validates sample membership and theme polarity before
+  restoring any owner-local compatibility reference required by stored internal
+  guidance
+- **AND** exact quote, line, occurrence, character and highlight anchors remain
+  optional presentation aids rather than report-success requirements
 
 ### Requirement: Explicit public and protected projections
 
