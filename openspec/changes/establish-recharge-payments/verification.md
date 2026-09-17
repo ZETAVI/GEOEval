@@ -407,6 +407,19 @@ Final local validation: `pnpm typecheck`, `pnpm format:check`, `python3 scripts/
 
 当前只使用临时 RSA/APIv3 测试材料、受控 HTTPS 和专用数据库；没有读取公司密钥、调用微信商户接口、生成真实二维码或发生资金变化。
 
+### 真实商户非敏感凭证清单（2026-09-17）
+
+本清单记录可公开识别的配置定位信息和核验状态。商户私钥、APIv3 密钥正文及其密码管理位置不进入 Git、Issue、聊天或日志。
+
+| 项目 | 已确认事实 | 证据范围 / 未决项 |
+| --- | --- | --- |
+| 商户号与 API 证书 | 商户号 `1117725778`；证书序列号 `4D418CCF15E6E8FF5EEA00172D3BAE16BAAEA2DC`；有效期 `2026-09-17 07:13:46Z` 至 `2031-09-16 07:13:46Z` | 本机对官方证书包中的 `apiclient_cert.pem` 解析；证书公钥与 `apiclient_key.pem` 导出的公钥一致。未记录私钥正文 |
+| 微信支付公钥 | 公钥 ID `PUB_KEY_ID_0111177257782026091700211615001802`；商户平台显示已下载 | ID 由用户和后台回执确认；对应 PEM 尚未在本机定位并验签，不能据此声称运行配置完整 |
+| APIv3 密钥 | 商户平台显示已申请，用户确认已生成并保存 | 密钥正文按安全边界不写入本清单；尚未通过受保护服务器文件加载或回调解密验证 |
+| APIv2 密钥 | 未设置 | 当前 Native APIv3 接入不依赖该项 |
+
+上述证据只把真实商户身份材料推进到“账号已配置、部分本机核验”。已认证 AppID 与商户号的绑定、公钥 PEM、受保护服务器装载、公网回调、无资金查询、持久预下单/关单和真实付款仍分别验收。
+
 | Claim | Evidence | Result / limit |
 | --- | --- | --- |
 | 双渠道客户命令不会串路由 | `recharge-customer-runtime.spec.ts`；专用数据库上的 `recharge-multi-provider.integration.spec.ts` | Passed：创建按 method，已有订单命令按冻结 method；verify-only 微信 method 的直接 HTTP 提交返回 503、无订单；支付宝收银动作不能落到微信订单 |
