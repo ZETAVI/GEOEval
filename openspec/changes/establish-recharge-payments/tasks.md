@@ -78,7 +78,7 @@ Current planning: R1, O1a and Alipay PC code are merged. Alipay remains the curr
 - [x] Compose API customer commands by frozen payment method, register both callback controllers/verifiers, run provider dispatch concurrently and scan provider-neutral settlement once. Preserve Commerce and database ownership.
 - [x] Add safe Request-ID diagnostics containing no merchant, order, customer or key material.
 - [x] Verify configuration rejection, method routing, callback registration, Worker composition, protocol regression and dual-provider HTTP/DB behavior with ephemeral keys and the dedicated `geoeval_issue77_wechat_live` database.
-- [ ] Confirm the certified service-account AppID is bound to the merchant number and record only status, never secrets.
+- [ ] Complete and confirm certification for service-account AppID `wx0402876c556f2029`, then bind it to merchant `1117725778`; record only status, never secrets. Until both steps pass, do not run Native prepay or enable `live`.
 - [ ] Create/download the merchant API certificate, WeChat Pay public key and ID, and set/store the APIv3 key in protected server files; establish technical-owner custody and rotation notes.
 - [ ] Deploy the callback endpoint with HTTPS in `verify`, reject forged callbacks, and execute the no-funds query. Afterward, use the normal persisted RechargeOrder/runtime path for one explicit 1-fen prepay-and-immediate-close probe so a lost close response remains recoverable; do not create an untracked provider order from a standalone script.
 - [ ] Switch WeChat to `live` only for a named minimum real payment; confirm QR, callback/query convergence, once-only points, customer/admin projections and finance receipt. Return to `verify` immediately if evidence is incomplete.
