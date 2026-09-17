@@ -42,6 +42,7 @@ export type WechatPayConfig = Readonly<{
   apiV3Key: Buffer;
   notifyUrl: string;
   origin?: string;
+  ipFamily?: 4 | 6;
   timeoutMs?: number;
   report?: (
     event: Readonly<{
@@ -127,6 +128,11 @@ export class WechatPayGateway
         config.origin === undefined ||
           WECHAT_API_ORIGINS.some((origin) => origin === config.origin),
       );
+      requireProtocol(
+        config.ipFamily === undefined ||
+          config.ipFamily === 4 ||
+          config.ipFamily === 6,
+      );
       this.#config = {
         merchantId: config.merchantId,
         appId: config.appId,
@@ -136,6 +142,7 @@ export class WechatPayGateway
         apiV3Key: Buffer.from(config.apiV3Key),
         notifyUrl: config.notifyUrl,
         ...(config.origin ? { origin: config.origin } : {}),
+        ...(config.ipFamily ? { ipFamily: config.ipFamily } : {}),
         ...(config.timeoutMs !== undefined
           ? { timeoutMs: config.timeoutMs }
           : {}),
@@ -146,6 +153,7 @@ export class WechatPayGateway
         exchange ??
         createWechatHttpsExchange({
           ...(config.origin ? { origin: config.origin } : {}),
+          ...(config.ipFamily ? { ipFamily: config.ipFamily } : {}),
           ...(config.timeoutMs !== undefined
             ? { timeoutMs: config.timeoutMs }
             : {}),
