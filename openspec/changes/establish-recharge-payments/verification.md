@@ -405,7 +405,7 @@ Final local validation: `pnpm typecheck`, `pnpm format:check`, `python3 scripts/
 - 本片不证明公网回调、真实资金、微信权限或双渠道运行时；这些门槛仍由tasks持有。
 ## W1 双渠道组合与微信配置证据（2026-09-17，本地固定 Diff）
 
-当前只使用临时 RSA/APIv3 测试材料、受控 HTTPS 和专用数据库；没有读取公司密钥、调用微信商户接口、生成真实二维码或发生资金变化。
+本节固定 Diff 的自动化测试只使用临时 RSA/APIv3 材料、受控 HTTPS 和专用数据库。其后的真实商户清单与查询检查另行使用仓库外受保护公司凭证；没有创建微信订单、生成真实二维码或发生资金变化。
 
 ### 真实商户非敏感凭证清单（2026-09-17）
 
@@ -418,8 +418,11 @@ Final local validation: `pnpm typecheck`, `pnpm format:check`, `python3 scripts/
 | APIv3 密钥 | 商户平台显示已申请，用户确认已生成并保存 | 密钥正文按安全边界不写入本清单；尚未通过受保护服务器文件加载或回调解密验证 |
 | APIv2 密钥 | 未设置 | 当前 Native APIv3 接入不依赖该项 |
 | AppID 绑定 | 目标服务号 AppID `wx0402876c556f2029` | 用户确认当前账号认证尚未通过，因此尚未与商户号 `1117725778` 完成授权绑定；认证和双向绑定完成前不得执行 Native 预下单或开放 `live` |
+| 真实无资金查询 | 随机不存在商户订单查询返回 HTTP `404`，证明商户签名请求被微信接受并进入订单查询；微信 `Request-ID` 已在当次受控输出中保留 | 证明商户证书签名、真实 HTTPS 和查询权限；非2xx应答未进入公钥验签，因此不证明公钥 ID/PEM 配对，也不证明 AppID 绑定、下单、回调解密或到账 |
 
-上述证据只把真实商户身份材料推进到“账号已配置、本机材料可解析”。受保护服务器装载、公网回调和不依赖 AppID 绑定的无资金查询可继续；AppID 认证与绑定完成后，才进入持久预下单/关单和真实付款验收。
+上述证据把真实商户身份材料推进到“本机受保护配置可加载、无资金查询请求已被微信接受”。服务器装载和公网回调仍待验证；AppID 认证与绑定完成后，才进入持久预下单/关单和真实付款验收。
+
+第一次真实查询在取得 HTTP 应答前以 `TRANSPORT` 结束。最小对照证明同机 `curl -4` 和 Node `family: 4` 可连接主/备微信域名，IPv6 则稳定超时，默认 Node 请求报 `ETIMEDOUT`。窄修复在微信 HTTPS Adapter 增加 `auto|ipv4|ipv6` 配置，默认保持 `auto`，本次环境显式使用 `ipv4`；没有关闭 TLS、固定服务端 IP、引入全局 `NODE_OPTIONS` 或改变其他渠道。修复后微信协议/实际 HTTPS/运行配置/多渠道 Worker 组合 109 项、后端 TypeScript 检查及后端构建通过，真实查询取得上述请求已接受 404。
 
 | Claim | Evidence | Result / limit |
 | --- | --- | --- |
@@ -433,4 +436,4 @@ Final local validation: `pnpm typecheck`, `pnpm format:check`, `python3 scripts/
 | Web 与可交付构建 | Web 32 文件 226 项；workspace typecheck、format、framework/link、完整 build | Passed；OpenAPI/API client 生成无 diff，生产 Web 20 个静态页与动态路由构建完成 |
 | 完整后端回归 | 92 文件 | 887 passed / 15 skipped / 1 failed。失败为 evaluation Worker restart 用例固定 5 秒 timeout；在临时 `origin/main@18e53e0` 工作树单独复现同一失败，Diff 不含 evaluation 文件，因此不是本片通过项或支付回归 |
 
-待运行：准确 PR CI；AppID 绑定回执、真实受保护配置、无资金 query、1 分持久 prepay+close、公网伪造/真实回调、最小付款和财务到账。当前代码片为 **verified with one pre-existing non-payment suite failure**；整体真实微信链路为 **partially verified**。
+待运行：准确 PR CI；AppID 绑定回执、服务器受保护配置、公钥真实应答验签、1 分持久 prepay+close、公网伪造/真实回调、最小付款和财务到账。真实无资金 query 已完成且只证明其上表列出的请求接受边界。当前代码片为 **verified with one pre-existing non-payment suite failure**；整体真实微信链路为 **partially verified**。

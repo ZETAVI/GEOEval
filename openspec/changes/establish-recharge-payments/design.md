@@ -552,6 +552,7 @@ RECHARGE_WECHAT_PUBLIC_KEY_FILE=/protected/.../wechatpay_public.pem
 RECHARGE_WECHAT_API_V3_KEY_FILE=/protected/.../api_v3.key
 RECHARGE_WECHAT_NOTIFY_URL=https://.../recharges/providers/wechat/notify
 RECHARGE_WECHAT_API_ORIGIN=https://api.mch.weixin.qq.com
+RECHARGE_WECHAT_IP_FAMILY=auto|ipv4|ipv6
 RECHARGE_WECHAT_TIMEOUT_MS=8000
 ```
 
@@ -560,6 +561,7 @@ RECHARGE_WECHAT_TIMEOUT_MS=8000
 - `disabled` 不加载该渠道；`verify` 保留回调、inbox、查单/关单和既有义务但禁止新单；`live` 才开放微信 Native 新单与发起。隔离测试继续使用显式构造的内存密钥/网关，不增加生产 `deterministic` 模式；
 - 订单冻结稳定商户/AppID，API 与 Worker 按该身份定位可信凭证版本，不能用可变 alias 充当商户身份；密钥轮换不迁移订单身份；
 - 时钟同步、TLS、出站域名、主/备 API 域名和回调公网 HTTPS 属于部署前检查项。
+- 网络族默认 `auto`；只有实际部署环境证明某一网络族不可达时才显式选择 `ipv4` 或 `ipv6`。该选择只进入微信 HTTPS Adapter，不通过全局 Node 参数影响其他渠道或基础设施。
 
 双渠道宿主以现有 `RechargePaymentGateway` 为变化接缝，不增加通用 Payment 服务：
 

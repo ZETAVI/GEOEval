@@ -35,6 +35,7 @@ const configurationSchema = sharedRechargeRuntimeSchema.extend({
   RECHARGE_WECHAT_API_ORIGIN: z
     .enum(WECHAT_API_ORIGINS)
     .default(WECHAT_API_ORIGINS[0]),
+  RECHARGE_WECHAT_IP_FAMILY: z.enum(["auto", "ipv4", "ipv6"]).default("auto"),
   RECHARGE_WECHAT_TIMEOUT_MS: z.coerce
     .number()
     .int()
@@ -86,6 +87,11 @@ function assemble(environment: NodeJS.ProcessEnv) {
     apiV3Key: apiV3Key(parsed.RECHARGE_WECHAT_API_V3_KEY_FILE),
     notifyUrl,
     origin: parsed.RECHARGE_WECHAT_API_ORIGIN,
+    ...(parsed.RECHARGE_WECHAT_IP_FAMILY === "auto"
+      ? {}
+      : {
+          ipFamily: parsed.RECHARGE_WECHAT_IP_FAMILY === "ipv4" ? 4 : 6,
+        }),
     timeoutMs: parsed.RECHARGE_WECHAT_TIMEOUT_MS,
     report: (event) => {
       process.stdout.write(

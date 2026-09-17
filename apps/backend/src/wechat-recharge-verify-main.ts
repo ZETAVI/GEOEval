@@ -29,7 +29,7 @@ const order = {
 
 try {
   const result = await gateway.query(order);
-  const verified =
+  const requestAccepted =
     !result.ok &&
     result.error.code === "HTTP_ERROR" &&
     result.error.httpStatus === 404;
@@ -38,13 +38,14 @@ try {
       process: "wechat-recharge-verify",
       mode,
       provider: "WECHAT",
-      verified,
+      requestAccepted,
+      responseSignatureVerified: false,
       result: result.ok
         ? "UNEXPECTED_ORDER"
         : `${result.error.code}:${result.error.httpStatus ?? "none"}`,
     })}\n`,
   );
-  if (!verified) process.exitCode = 1;
+  if (!requestAccepted) process.exitCode = 1;
 } finally {
   await gateway.dispose?.();
 }

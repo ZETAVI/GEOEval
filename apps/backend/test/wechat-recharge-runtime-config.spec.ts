@@ -70,6 +70,7 @@ describe("WeChat and multi-provider recharge host configuration", () => {
       RECHARGE_WECHAT_API_V3_KEY_FILE: files.apiV3,
       RECHARGE_WECHAT_NOTIFY_URL:
         "https://app.example.test/recharges/providers/wechat/notify",
+      RECHARGE_WECHAT_IP_FAMILY: "ipv4",
       RECHARGE_MIN_AMOUNT_YUAN: "1",
       RECHARGE_MAX_AMOUNT_YUAN: "100",
       RECHARGE_SHORTCUT_AMOUNTS: "1,10,50",
@@ -146,6 +147,12 @@ describe("WeChat and multi-provider recharge host configuration", () => {
           "https://app.example.test/recharges/providers/wechat/notify?x=1",
       }),
     ).toThrow("RECHARGE_WECHAT_NOTIFY_URL_MUST_BE_HTTPS");
+    expect(() =>
+      loadWechatRechargeApiConfiguration({
+        ...base,
+        RECHARGE_WECHAT_IP_FAMILY: "invalid",
+      }),
+    ).toThrow();
   });
 
   it("composes both providers without exposing a disabled method for new orders", () => {

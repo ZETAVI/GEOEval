@@ -348,3 +348,15 @@
 所有权保持不变：Recharge 拥有订单、渠道适配、回调 inbox、恢复和结算编排；Commerce 仍是余额/流水唯一写入者；Notification 仍只负责到账后的站内消息。没有新增通用 Payment 平台、第二套钱包、schema 迁移或客户状态。
 
 结论：**ready with follow-up**。固定 Diff 已通过定向/集成/Web/构建验证，可进入 PR CI；真实 AppID 绑定、受保护 key、公共回调、1 分持久预下单/关单和最小真实支付尚未运行，因此整体微信真实接入仍是 partially verified，不能开放 `live`。
+
+## W1 真实网络族与无资金查询复核（2026-09-17）
+
+本轮只处理已证明的微信 HTTPS 连接失败：同机 IPv4 可达、IPv6 稳定超时，默认 Node 请求报 `ETIMEDOUT`。改动由微信 HTTPS Adapter 所有，不改变订单、回调、账务、数据库或其他 Provider。
+
+| 严重度 | 发现与可达后果 | 窄处理 |
+| --- | --- | --- |
+| must-fix，已处理 | 真实商户查询在取得 HTTP 应答前耗尽8秒预算，所有查单/关单/下单都会退化为 `TRANSPORT` | 增加 Adapter 局部 `auto|ipv4|ipv6` 网络族配置，默认仍为 `auto`；已证明环境显式使用 `ipv4` |
+| must-fix，代码审查已处理 | 非2xx查询只保留状态码和 Request-ID，CLI 的 `verified=true` 容易被误解为微信公钥已经验签 | CLI 改报 `requestAccepted=true` 与 `responseSignatureVerified=false`；文档不再把404写成公钥配对证据 |
+| consider，明确保留 | 部署可以用全局 `NODE_OPTIONS` 调整 DNS 顺序 | 拒绝全局开关；它会影响支付宝、数据库和其他外部连接，且本机实测没有修复该连接 |
+
+TLS 校验、微信域名白名单、固定超时、签名材料和错误分类均未放宽。微信协议/实际 HTTPS/运行配置/多渠道 Worker 组合 109 项、TypeScript、后端构建与真实请求重放通过；真实重放只证明签名请求被微信接受并进入订单查询。结论：**ready with follow-up**。服务器网络与回调仍需部署验证，AppID 未认证绑定，因此不能执行 Native 预下单或启用 `live`。

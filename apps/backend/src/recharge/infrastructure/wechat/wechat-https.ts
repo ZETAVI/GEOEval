@@ -30,16 +30,19 @@ type RequestFactory = (
 export function createWechatHttpsExchange(
   options: {
     origin?: string;
+    ipFamily?: 4 | 6;
     timeoutMs?: number;
     maxResponseBytes?: number;
   } = {},
   requestFactory: RequestFactory = httpsRequest,
 ): WechatExchange {
   const origin = options.origin ?? WECHAT_API_ORIGINS[0];
+  const ipFamily = options.ipFamily;
   const timeoutMs = options.timeoutMs ?? 8000;
   const maxResponseBytes = options.maxResponseBytes ?? 2 * 1024 * 1024;
   requireProtocol(
     WECHAT_API_ORIGINS.some((value) => value === origin) &&
+      (ipFamily === undefined || ipFamily === 4 || ipFamily === 6) &&
       Number.isInteger(timeoutMs) &&
       timeoutMs > 0 &&
       timeoutMs <= 60000 &&
@@ -77,6 +80,7 @@ export function createWechatHttpsExchange(
             protocol: "https:",
             hostname: new URL(origin).hostname,
             port: 443,
+            ...(ipFamily === undefined ? {} : { family: ipFamily }),
             method: input.method,
             path: input.path,
             agent: false,

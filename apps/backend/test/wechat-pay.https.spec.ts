@@ -199,6 +199,7 @@ describe("actual WeChat adapter through controlled HTTPS", () => {
     options: {
       trusted?: boolean;
       servername?: string;
+      ipFamily?: 4 | 6;
       timeoutMs?: number;
       maxResponseBytes?: number;
     } = {},
@@ -206,6 +207,7 @@ describe("actual WeChat adapter through controlled HTTPS", () => {
     const exchange = createWechatHttpsExchange(
       {
         timeoutMs: options.timeoutMs ?? 1500,
+        ...(options.ipFamily ? { ipFamily: options.ipFamily } : {}),
         ...(options.maxResponseBytes
           ? { maxResponseBytes: options.maxResponseBytes }
           : {}),
@@ -214,6 +216,7 @@ describe("actual WeChat adapter through controlled HTTPS", () => {
         attempts += 1;
         expect(requestOptions.protocol).toBe("https:");
         expect(requestOptions.hostname).toBe("api.mch.weixin.qq.com");
+        expect(requestOptions.family).toBe(options.ipFamily);
         expect(requestOptions.rejectUnauthorized).toBe(true);
         // The test alone redirects the socket to loopback and trusts the ephemeral CA.
         return request(
@@ -282,6 +285,16 @@ describe("actual WeChat adapter through controlled HTTPS", () => {
         "INVALID_INPUT",
       );
     }
+    expect(() => createWechatHttpsExchange({ ipFamily: 5 as 4 })).toThrow(
+      "INVALID_INPUT",
+    );
+  });
+  it("passes an explicit IP family without weakening TLS", async () => {
+    expect(await adapter({ ipFamily: 4 }).query(f.order)).toMatchObject({
+      ok: true,
+    });
+    expect(attempts).toBe(1);
+    expect(captured).toHaveLength(1);
   });
   it("verifies raw bytes split inside UTF-8 before JSON interpretation", async () => {
     plan = { mode: "split" };

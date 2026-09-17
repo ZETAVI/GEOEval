@@ -288,7 +288,8 @@ Notification 现有 source UUID 唯一、upsert 不更新已读、SSE revision/l
 - [普通支付成功通知](https://pay.wechatpay.cn/doc/v3/merchant/4012791861)与[回调注意事项](https://pay.wechatpay.cn/doc/v3/merchant/4012075420)要求验签、5 秒内 200/204 应答、重复通知幂等，并明确不能只依赖通知，应结合查单。项目继续采用持久 inbox 后 ACK、后台结算。
 - [Native 开发指引](https://pay.wechatpay.cn/doc/v3/merchant/4012791891)确认 NOTPAY 可关单，CLOSED/SUCCESS/REFUND 为终态；本地超时和错误响应仍不能替代认证查单/关单事实。
 - [微信支付官方 GitHub 组织](https://github.com/wechatpay-apiv3)当前列出的官方 APIv3 SDK 仍以 Java、PHP、Go 为主；[官方敏感字段说明](https://pay.wechatpay.cn/doc/v3/merchant/4013053257)也明确官方 SDK 当前为这三种语言。没有发现官方 Node SDK，因此保留已经用官方固定向量和实际 HTTPS 契约验证的窄 Node 实现。
+- [Node.js 24 `net.Socket` 连接选项](https://nodejs.org/docs/latest-v24.x/api/net.html#socketconnectoptions-connectlistener)与[`dns.lookup`](https://nodejs.org/docs/latest-v24.x/api/dns.html#dnslookuphostname-options-callback)支持显式网络族；本机最小对照证明默认 Node 连接因不可达 IPv6 超时，`family: 4` 可通过原域名和 TLS 连接微信主、备域名。配置只进入微信 Adapter，默认保持自动选择。
 
 ### 约束与刷新条件
 
-商户号认证与 Native 产品开通由用户确认；AppID 绑定、真实 key 文件、公网回调和 provider 调用仍需账户/环境证据。任何微信接口、密钥/证书规则、官方 SDK 范围或商户账号配置变化时刷新本节。1 分预下单再立即关单会创建真实未付 provider 订单，只能通过正常持久 RechargeOrder/runtime 路径运行，使关单响应丢失后仍可按同号恢复；它不证明付款或到账。
+商户号认证与 Native 产品开通由用户确认；商户证书、公钥/APIv3 材料和无资金查询已有本机证据，但 AppID 认证绑定、服务器密钥装载、公网回调和资金行为仍需各自验证。任何微信接口、密钥/证书规则、官方 SDK 范围、商户账号配置或部署网络族变化时刷新本节。1 分预下单再立即关单会创建真实未付 provider 订单，只能通过正常持久 RechargeOrder/runtime 路径运行，使关单响应丢失后仍可按同号恢复；它不证明付款或到账。
