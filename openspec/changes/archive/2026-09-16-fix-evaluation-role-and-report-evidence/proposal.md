@@ -1,6 +1,6 @@
 # Change: Fix Evaluation Query Roles and Report Evidence
 
-- Status: Verified; awaiting integration
+- Status: Archived after integration at `main@1c60d36`
 - Class: Architectural bug fix
 - Owning Issue: [#112](https://github.com/ZETAVI/GEOEval/issues/112)
 

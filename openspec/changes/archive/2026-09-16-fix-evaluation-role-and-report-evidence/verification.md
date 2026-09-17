@@ -94,6 +94,7 @@ Worker scheduling boundary retains its existing `206.227s` evidence.
 
 ## Remaining delivery step
 
-Create the final PR, run Required Checks and record separate follow-ups for
-stage-aware corrective retry and BullMQ lock renewal. Neither follow-up changes
+PR #115 passed both Required Checks and merged as `main@1c60d36`. Issue #112
+closed through its native `Closes #112` relationship. Follow-up Issues #113 and
+#114 own stage-aware corrective retry and BullMQ lock renewal; neither changes
 the accepted #112 behavior.
