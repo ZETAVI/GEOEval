@@ -3,8 +3,8 @@
 ## Purpose
 
 Define the accepted first durable in-product notification capability. This
-increment owns terminal-customer evaluation-completed, retry-required and
-recharge-successful notices, agent withdrawal-result notices, account-scoped
+increment owns terminal-customer evaluation-completed, retry-required,
+recharge-successful and recharge-invoice-result notices, agent withdrawal-result notices, account-scoped
 read state, and a recoverable realtime refresh hint. It does not own source
 evaluation results, recharge/point accounting, withdrawal state, external
 channels, retention policy, deletion, or subscription settings.
@@ -15,8 +15,8 @@ channels, retention policy, deletion, or subscription settings.
 
 Notification SHALL materialize one recipient-owned notice from each approved
 business-result fact before its owning delivery obligation is marked delivered.
-Evaluation and Agency Withdrawal use Product Outbox; Recharge owns its private
-post-settlement obligation.
+Evaluation, Recharge Invoice and Agency Withdrawal use Product Outbox; Recharge
+owns its private post-settlement obligation.
 
 #### Scenario: An evaluation reaches a customer-relevant result
 
@@ -66,7 +66,8 @@ the durable inbox.
 
 The implementation covers terminal-customer evaluation completion,
 retry-required and successful-recharge notices and agent withdrawal results in
-controlled local environments. Recharge delivery requires an explicitly
+controlled local environments, including recharge-invoice correction and issued
+notices. Recharge delivery requires an explicitly
 configured worker lane; migrations do not backfill old results. Production
 proxy buffering and reconnect behavior, notification retention, load, external
 channels, and event production for operations and administrators are later
@@ -95,6 +96,19 @@ release gates.
   under that identity SHALL be rejected explicitly, never acknowledged as delivered.
 - Opening a recharge notice SHALL revalidate/mark the owned notice and open the
   owned recharge detail. It SHALL neither select a Brand nor submit a purchase.
+
+### Requirement: Recharge invoice correction and issued notices
+
+- Recharge Invoice SHALL append a unique Product Outbox event when operations
+  requests correction and when the assigned operator confirms issue and external
+  send. Notification SHALL materialize it for the owning customer with a
+  `RECHARGE_INVOICE` target containing the request and recharge-order identities.
+- The correction summary MAY contain the customer-safe standard reason. Neither
+  event nor notice SHALL contain tax number, legal title, full email, invoice
+  number, operator identity or internal note.
+- Opening either notice SHALL revalidate and mark it read, then open the invoice
+  record inside the recharge page without selecting a Brand. Retry SHALL create
+  at most one notice and SHALL never change invoice state.
 
 ### Requirement: Account change and bounded browser requests
 

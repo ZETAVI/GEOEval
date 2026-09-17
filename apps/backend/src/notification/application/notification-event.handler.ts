@@ -38,6 +38,16 @@ const withdrawalSchema = z
   })
   .strict();
 
+const rechargeInvoiceSchema = z
+  .object({
+    recipientAccountId: z.string().uuid(),
+    invoiceRequestId: z.string().uuid(),
+    rechargeOrderId: z.string().uuid(),
+    number: z.number().int().positive(),
+    reason: z.string().min(1).max(320).optional(),
+  })
+  .strict();
+
 @Injectable()
 export class NotificationEventHandler {
   constructor(
@@ -72,6 +82,37 @@ export class NotificationEventHandler {
   }
 
   async handle(event: ProductOutboxWorkEvent): Promise<void> {
+    if (event.eventType.startsWith("recharge.invoice.")) {
+      const payload = rechargeInvoiceSchema.parse(event.payload);
+      const common = {
+        recipientAccountId: payload.recipientAccountId,
+        sourceEventId: event.id,
+        target: {
+          kind: "RECHARGE_INVOICE" as const,
+          invoiceRequestId: payload.invoiceRequestId,
+          rechargeOrderId: payload.rechargeOrderId,
+        },
+        occurredAt: event.createdAt,
+      };
+      if (event.eventType === "recharge.invoice.needs_correction") {
+        await this.repository.materialize({
+          ...common,
+          kind: "RECHARGE_INVOICE_NEEDS_CORRECTION",
+          title: "开票资料需要修改",
+          summary: `开票申请 #${payload.number} 需要修改：${payload.reason}`,
+        });
+        return;
+      }
+      if (event.eventType === "recharge.invoice.issued") {
+        await this.repository.materialize({
+          ...common,
+          kind: "RECHARGE_INVOICE_ISSUED",
+          title: "发票已开具",
+          summary: `开票申请 #${payload.number} 已由运营确认发送。`,
+        });
+        return;
+      }
+    }
     if (event.eventType.startsWith("agency.withdrawal.")) {
       const payload = withdrawalSchema.parse(event.payload);
       const amount = formatFen(payload.amountFen);

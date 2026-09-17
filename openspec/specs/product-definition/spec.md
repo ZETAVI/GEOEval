@@ -43,7 +43,9 @@
   Customer recharge API/history, controlled Native checkout and saved publishing
   continuation now follow [Recharge](../recharge/spec.md). This marker is explicitly
   retained for real-merchant/operational activation, maintained amount policy,
-  and recharge invoices; controlled testing does not activate them.
+  while customer recharge invoicing is owned by
+  [Recharge Invoice](../recharge-invoice/spec.md); controlled payment testing
+  does not activate a production merchant or real invoicing operation.
   Order admission, exclusive whole-order responsibility, explicit start/return
   and administrator reassignment now use [Publication Delivery](../publication-delivery/spec.md).
   Sparse work items, Mock/manual preparation, effective results/corrections,
@@ -1316,72 +1318,11 @@ Current purchase attribution, commission switch/rate configuration and suspensio
 
 ### Requirement: Recharge invoice remains separate from agency withdrawal
 
-The initial product SHALL keep customer recharge invoices separate from the
-current agent commission-withdrawal route.
-
-#### Scenario: A customer requests an invoice for a recharge order
-
-- **GIVEN** a terminal customer has successfully completed a renminbi recharge
-  order
-- **WHEN** the customer provides the required invoice information and submits an
-  invoice request for that recharge record
-- **THEN** the company can process and issue the invoice
-- **AND** the invoice amount equals the renminbi amount actually paid for that
-  recharge order
-- **AND** credited point quantity, point origin, or later point use does not
-  determine invoice eligibility or amount
-- **AND** one recharge order can create at most one invoice request and one
-  resulting invoice
-- **AND** the initial product does not combine multiple recharge orders into one
-  invoice or split one recharge order across multiple invoices
-- **AND** the customer can choose an individual or enterprise purchaser title
-- **AND** the initial product issues only an electronic ordinary invoice and does
-  not support a special VAT invoice
-- **AND** an individual title requires invoice name and receiving email
-- **AND** an enterprise title requires enterprise name, unified social credit
-  code or taxpayer identification number, and receiving email
-- **AND** the recharge-order number and actual renminbi paid are supplied by the
-  system as read-only context
-- **AND** the form does not request an address, telephone, opening bank, bank
-  account, or personal identity number
-- **AND** any manual-correction contact uses the mobile number already held by the
-  account rather than a second invoice-contact field
-- **AND** the completed result is returned to the customer and can produce the
-  already defined invoice-completion notification
-- **AND** publishing-order submission and point consumption do not create a
-  separate invoice route in the initial product
-
-#### Scenario: An invoice request needs correction
-
-- **GIVEN** the customer can freely edit the invoice information before
-  submission
-- **WHEN** the customer submits the invoice request
-- **THEN** the submitted information is locked and the customer sees
-  **Processing**
-- **BUT WHEN** operations finds that the submitted information needs correction
-- **THEN** operations records a short reason and the customer sees **Needs
-  correction**
-- **AND** the customer edits and resubmits the same request rather than creating
-  another invoice request for the recharge order
-- **AND** the initial product does not provide customer self-service cancellation
-  or withdrawal of a submitted request
-
-#### Scenario: Operations delivers an issued invoice
-
-- **GIVEN** an invoice request is **Processing**
-- **WHEN** operations creates the invoice outside the product and successfully
-  sends it to the customer's receiving email
-- **THEN** operations uploads the invoice PDF, records the invoice number and
-  issue date, and confirms the request as **Issued**
-- **AND** the customer can view or download the result from the related recharge
-  order or invoice record
-- **AND** the customer receives the approved in-product invoice-completion
-  notification
-- **AND** the product itself does not send the invoice email or integrate with an
-  external tax-invoicing system
-- **AND** after issue the customer cannot edit, cancel, or reissue the invoice
-  through self-service, while exceptional correction is handled manually through
-  customer service
+Customer recharge invoicing is owned by
+[Recharge Invoice](../recharge-invoice/spec.md). It uses Recharge-owned payment
+eligibility and amount, not points or agent finance. The product stores no PDF,
+sends no invoice email and grants no invoice access to agents. Agency Withdrawal
+continues to own only agent commission payout.
 
 ### Requirement: Truthful media library
 

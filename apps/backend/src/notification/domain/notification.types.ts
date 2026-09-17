@@ -4,11 +4,20 @@ export type NotificationKind =
   | "EVALUATION_COMPLETED"
   | "EVALUATION_RETRY_REQUIRED"
   | "RECHARGE_SUCCESSFUL"
+  | "RECHARGE_INVOICE_NEEDS_CORRECTION"
+  | "RECHARGE_INVOICE_ISSUED"
   | "AGENCY_WITHDRAWAL_COMPLETED"
   | "AGENCY_WITHDRAWAL_REJECTED"
   | "AGENCY_WITHDRAWAL_PAYMENT_FAILED";
 
 export const notificationTargetSchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      kind: z.literal("RECHARGE_INVOICE"),
+      invoiceRequestId: z.string().uuid(),
+      rechargeOrderId: z.string().uuid(),
+    })
+    .strict(),
   z
     .object({
       kind: z.literal("AGENCY_WITHDRAWAL"),

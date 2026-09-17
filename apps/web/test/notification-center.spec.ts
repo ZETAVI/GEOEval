@@ -39,6 +39,15 @@ const withdrawalReadNotice: Notification = {
     withdrawalId: "77000000-0000-4000-8000-000000000105",
   },
 };
+const invoiceReadNotice: Notification = {
+  ...readNotice,
+  kind: "RECHARGE_INVOICE_NEEDS_CORRECTION",
+  target: {
+    kind: "RECHARGE_INVOICE",
+    invoiceRequestId: "77000000-0000-4000-8000-000000000109",
+    rechargeOrderId: order,
+  },
+};
 const controllers: NotificationCenterController[] = [];
 
 function deferred<T>() {
@@ -262,6 +271,19 @@ describe("notification account scope and refresh lifecycle", () => {
 });
 
 describe("explicit notification navigation", () => {
+  it("opens the same-page invoice record without reading brand context", async () => {
+    const f = fixture();
+    f.source.list.mockResolvedValue(page([invoiceReadNotice]));
+    f.source.markRead.mockResolvedValue(invoiceReadNotice);
+    f.controller.start();
+    await flush();
+    await f.controller.openNotification(invoiceReadNotice.id);
+    expect(f.source.selectBrand).not.toHaveBeenCalled();
+    expect(f.navigate).toHaveBeenCalledExactlyOnceWith(
+      "/recharges?invoice=77000000-0000-4000-8000-000000000109",
+    );
+  });
+
   it("opens an agency withdrawal result without reading customer brand context", async () => {
     const f = fixture();
     f.source.list.mockResolvedValue(page([withdrawalReadNotice]));

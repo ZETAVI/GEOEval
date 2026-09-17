@@ -147,9 +147,34 @@ enum NotificationKind {
   EVALUATION_COMPLETED
   EVALUATION_RETRY_REQUIRED
   RECHARGE_SUCCESSFUL
+  RECHARGE_INVOICE_NEEDS_CORRECTION
+  RECHARGE_INVOICE_ISSUED
   AGENCY_WITHDRAWAL_COMPLETED
   AGENCY_WITHDRAWAL_REJECTED
   AGENCY_WITHDRAWAL_PAYMENT_FAILED
+}
+
+enum RechargeInvoiceStatus {
+  PROCESSING
+  NEEDS_CORRECTION
+  ISSUED
+}
+
+enum RechargeInvoiceBuyerType {
+  INDIVIDUAL
+  ENTERPRISE
+}
+
+enum RechargeInvoiceAuditAction {
+  APPLICATION_SUBMITTED
+  REQUEST_CLAIMED
+  CORRECTION_REQUESTED
+  CORRECTION_RESUBMITTED
+  REQUEST_ASSIGNED
+  REQUEST_REASSIGNED
+  REQUEST_RETURNED
+  REQUEST_TAKEN_OVER
+  REQUEST_ISSUED
 }
 
 enum AgencyPayoutRecipientType {
@@ -232,6 +257,12 @@ enum MediaQualityTier {
 
 model Account {
   commissionEntries AgencyCommission[]
+
+  rechargeInvoiceRequests       RechargeInvoiceRequest[] @relation("RechargeInvoiceCustomer")
+  rechargeInvoicesAssigned      RechargeInvoiceRequest[] @relation("RechargeInvoiceAssignee")
+  rechargeInvoicesCompleted     RechargeInvoiceRequest[] @relation("RechargeInvoiceCompleter")
+  rechargeInvoiceAuditsActed    RechargeInvoiceAudit[]   @relation("RechargeInvoiceAuditActor")
+  rechargeInvoiceAuditsForOwner RechargeInvoiceAudit[]   @relation("RechargeInvoiceAuditCustomer")
 
   payoutProfile             AgencyPayoutProfile?      @relation("PayoutProfileAgent")
   withdrawalRequests        AgencyWithdrawalRequest[] @relation("WithdrawalAgent")
@@ -1406,6 +1437,7 @@ model RechargeNotificationReceipt {
 
 model RechargeOrder {
   supportTickets SupportTicket[]
+  invoiceRequest RechargeInvoiceRequest?
 
   nativeDescription       String?                    @map("native_description") @db.VarChar(127)
   nativeNotifyUrl         String?                    @map("native_notify_url") @db.VarChar(256)
@@ -1468,6 +1500,77 @@ model RechargeOrder {
   @@index([accountId, createdAt, id], map: "recharge_account_history_idx")
   @@index([nativeNextActionAt], map: "recharge_native_due_idx")
   @@map("recharge_orders")
+}
+
+model RechargeInvoiceRequest {
+  id                        String                @id @default(uuid()) @db.Uuid
+  number                    Int                   @unique @default(autoincrement())
+  rechargeOrderId           String                @unique @map("recharge_order_id") @db.Uuid
+  accountId                 String                @map("account_id") @db.Uuid
+  amountFen                 BigInt                @map("amount_fen")
+  currency                  String                @default("CNY") @db.VarChar(3)
+  status                    RechargeInvoiceStatus @default(PROCESSING)
+  revision                  Int                   @default(1)
+  currentSubmissionRevision Int                   @default(1) @map("current_submission_revision")
+  assigneeAccountId         String?               @map("assignee_account_id") @db.Uuid
+  correctionReasonCode      String?               @map("correction_reason_code") @db.VarChar(40)
+  correctionNote            String?               @map("correction_note") @db.VarChar(320)
+  invoiceNumber             String?               @map("invoice_number") @db.VarChar(120)
+  issuedOn                  DateTime?              @map("issued_on") @db.Date
+  sentAt                    DateTime?              @map("sent_at") @db.Timestamptz(3)
+  completedByAccountId      String?               @map("completed_by_account_id") @db.Uuid
+  submittedAt               DateTime               @default(now()) @map("submitted_at") @db.Timestamptz(3)
+  updatedAt                 DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+  rechargeOrder             RechargeOrder         @relation(fields: [rechargeOrderId, accountId], references: [id, accountId], onDelete: Restrict, onUpdate: Restrict, map: "recharge_invoice_order_owner_fkey")
+  customer                  Account               @relation("RechargeInvoiceCustomer", fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  assignee                  Account?              @relation("RechargeInvoiceAssignee", fields: [assigneeAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  completedBy               Account?              @relation("RechargeInvoiceCompleter", fields: [completedByAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  submissions               RechargeInvoiceSubmission[]
+  audits                    RechargeInvoiceAudit[]
+
+  @@index([accountId, number])
+  @@index([status, assigneeAccountId, number])
+  @@index([assigneeAccountId, status, number])
+  @@unique([rechargeOrderId, accountId], map: "recharge_invoice_order_owner_key")
+  @@map("recharge_invoice_requests")
+}
+
+model RechargeInvoiceSubmission {
+  id          String                   @id @default(uuid()) @db.Uuid
+  requestId   String                   @map("request_id") @db.Uuid
+  revision    Int
+  buyerType   RechargeInvoiceBuyerType @map("buyer_type")
+  title       String                   @db.VarChar(160)
+  taxNumber   String?                  @map("tax_number") @db.VarChar(32)
+  email       String                   @db.VarChar(254)
+  submittedAt DateTime                 @default(now()) @map("submitted_at") @db.Timestamptz(3)
+  request     RechargeInvoiceRequest   @relation(fields: [requestId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([requestId, revision])
+  @@index([requestId, submittedAt])
+  @@map("recharge_invoice_submissions")
+}
+
+model RechargeInvoiceAudit {
+  id             String                     @id @default(uuid()) @db.Uuid
+  requestId      String                     @map("request_id") @db.Uuid
+  accountId      String                     @map("account_id") @db.Uuid
+  actorAccountId String                     @map("actor_account_id") @db.Uuid
+  idempotencyKey String                     @map("idempotency_key") @db.Uuid
+  requestDigest  String                     @map("request_digest") @db.Char(64)
+  action         RechargeInvoiceAuditAction
+  beforeState    Json?                      @map("before_state")
+  afterState     Json                       @map("after_state")
+  reason         String?                    @db.VarChar(320)
+  createdAt      DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+  request        RechargeInvoiceRequest     @relation(fields: [requestId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  customer       Account                    @relation("RechargeInvoiceAuditCustomer", fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  actor          Account                    @relation("RechargeInvoiceAuditActor", fields: [actorAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([actorAccountId, idempotencyKey])
+  @@index([requestId, createdAt, id])
+  @@index([accountId, createdAt, id])
+  @@map("recharge_invoice_audits")
 }
 
 model RechargeCreditReservation {

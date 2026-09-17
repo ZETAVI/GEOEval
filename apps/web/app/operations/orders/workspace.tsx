@@ -300,6 +300,20 @@ export function DeliveryWorkspace({
                 <small>领取与处理</small>
               </span>
             </a>
+            <a className="side-link" href="/operations/support">
+              <i>客</i>
+              <span>
+                <b>客服工单</b>
+                <small>问题与处理</small>
+              </span>
+            </a>
+            <a className="side-link" href="/operations/invoices">
+              <i>票</i>
+              <span>
+                <b>发票处理</b>
+                <small>领取、补正与完成</small>
+              </span>
+            </a>
           </nav>
           <div className="sidebar-account">
             <span>{session.account.mobile.slice(-4)}</span>

@@ -43,12 +43,14 @@ import {
   NotificationListResponse,
   NotificationReadAllResponse,
   NotificationResponse,
+  RechargeInvoiceNotificationTargetResponse,
   RechargeNotificationTargetResponse,
 } from "./notification.dto.js";
 
 @ApiTags("notifications")
 @ApiExtraModels(
   RechargeNotificationTargetResponse,
+  RechargeInvoiceNotificationTargetResponse,
   EvaluationReportNotificationTargetResponse,
   EvaluationRetryNotificationTargetResponse,
   AgencyWithdrawalNotificationTargetResponse,

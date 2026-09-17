@@ -16,6 +16,7 @@ type AdminSection =
   | "points"
   | "delivery"
   | "recharges"
+  | "invoices"
   | "support";
 
 export function AdminSidebar({
@@ -130,6 +131,17 @@ export function AdminSidebar({
           <span>
             <b>充值记录</b>
             <small>付款与到账查询</small>
+          </span>
+        </a>
+        <a
+          className={active === "invoices" ? "side-link active" : "side-link"}
+          href="/admin/invoices"
+          aria-current={active === "invoices" ? "page" : undefined}
+        >
+          <i>票</i>
+          <span>
+            <b>开票管理</b>
+            <small>分配、接管与审计</small>
           </span>
         </a>
       </nav>

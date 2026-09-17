@@ -35,6 +35,7 @@ export class ProductWorkProcessor {
     if (
       event.eventType === "evaluation.report.accepted" ||
       event.eventType === "evaluation.retry.required" ||
+      event.eventType.startsWith("recharge.invoice.") ||
       event.eventType.startsWith("agency.withdrawal.")
     ) {
       await this.notifications.handle(event);

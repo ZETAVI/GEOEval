@@ -48,11 +48,15 @@ export function SupportWorkspace({
   role,
   ticketId,
   publishingOrderId,
+  rechargeOrderId,
+  invoiceNumber,
   withdrawalEnabled = false,
 }: {
   role: Role;
   ticketId?: string | undefined;
   publishingOrderId?: string | undefined;
+  rechargeOrderId?: string | undefined;
+  invoiceNumber?: string | undefined;
   withdrawalEnabled?: boolean;
 }) {
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" });
@@ -137,6 +141,13 @@ export function SupportWorkspace({
                   <small>问题与处理记录</small>
                 </span>
               </a>
+              <a className="side-link" href="/operations/invoices">
+                <i>票</i>
+                <span>
+                  <b>发票处理</b>
+                  <small>领取、补正与完成</small>
+                </span>
+              </a>
             </nav>
             <div className="sidebar-account">
               <span>{account.mobile.slice(-4)}</span>
@@ -176,12 +187,14 @@ export function SupportWorkspace({
             />
           )}
           <SupportContent
-            key={`${account.id}:${ticketId ?? "list"}:${publishingOrderId ?? "all"}`}
+            key={`${account.id}:${ticketId ?? "list"}:${publishingOrderId ?? rechargeOrderId ?? "all"}`}
             refreshEpoch={epoch}
             account={account}
             role={role}
             ticketId={ticketId}
             publishingOrderId={publishingOrderId}
+            rechargeOrderId={rechargeOrderId}
+            invoiceNumber={invoiceNumber}
           />
         </main>
       </div>
@@ -194,6 +207,8 @@ function SupportContent({
   role,
   ticketId,
   publishingOrderId,
+  rechargeOrderId,
+  invoiceNumber,
   refreshEpoch,
 }: {
   account: Account;
@@ -201,6 +216,8 @@ function SupportContent({
   ticketId?: string | undefined;
   refreshEpoch: number;
   publishingOrderId?: string | undefined;
+  rechargeOrderId?: string | undefined;
+  invoiceNumber?: string | undefined;
 }) {
   const [scope, setScope] = useState(
     role === "OPERATIONS" && !publishingOrderId
@@ -219,9 +236,15 @@ function SupportContent({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [subject, setSubject] = useState(publishingOrderId ? "订单问题" : "");
+  const [subject, setSubject] = useState(
+    publishingOrderId
+      ? "订单问题"
+      : rechargeOrderId
+        ? `发票问题${invoiceNumber ? ` #${invoiceNumber}` : ""}`
+        : "",
+  );
   const [body, setBody] = useState("");
-  const [recharge, setRecharge] = useState("");
+  const [recharge, setRecharge] = useState(rechargeOrderId ?? "");
   const [reply, setReply] = useState("");
   // Retain one identity for a retried unchanged submission; never generate a new key for a network retry.
   const pending = useRef<{ signature: string; requestId: string } | undefined>(

@@ -80,6 +80,31 @@ describe("supporting role homes", () => {
     expect(resolution?.description).not.toContain("管理员执行");
   });
 
+  it("activates bounded invoice entries without granting agents customer invoice access", () => {
+    expect(supportingRoleConfig("OPERATIONS").navigation).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: "发票处理",
+          href: "/operations/invoices",
+        }),
+      ]),
+    );
+    expect(supportingRoleConfig("ADMINISTRATOR").cards).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: "开票管理",
+          status: "AVAILABLE",
+          href: "/admin/invoices",
+        }),
+      ]),
+    );
+    const agent = supportingRoleConfig("AGENT");
+    expect(agent.navigation?.some((item) => item.label.includes("发票"))).toBe(
+      false,
+    );
+    expect(agent.boundary).toContain("归因客户");
+  });
+
   it.each(["ADMINISTRATOR", "OPERATIONS", "AGENT"] as const)(
     "renders a bounded loading state for %s before reading protected data",
     (role) => {
