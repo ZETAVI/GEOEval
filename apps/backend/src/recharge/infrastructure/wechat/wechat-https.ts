@@ -99,21 +99,13 @@ export function createWechatHttpsExchange(
             response.on("close", () => {
               if (!response.complete) fail("RESPONSE_INTERRUPTED");
             });
-            const status = response.statusCode ?? 0;
-            // Error bodies are not payment facts; do not parse, log, redirect or retry them.
-            if (status < 200 || status >= 300) {
-              finished = true;
-              clearTimeout(timer);
-              resolve({
-                status,
-                headers: {
-                  "request-id": response.headersDistinct["request-id"],
-                },
-                body: Buffer.alloc(0),
-              });
-              response.destroy();
-              return;
-            }
+            const status = response.statusCode ?? 0,
+              responseLimit =
+                status >= 200 && status < 300
+                  ? maxResponseBytes
+                  : Math.min(maxResponseBytes, 4096);
+            // Every body stays bounded. Callers may retain only a whitelisted
+            // provider error code; error text is never payment evidence or output.
             const encoding = response.headersDistinct["content-encoding"];
             if (
               encoding &&
@@ -128,7 +120,7 @@ export function createWechatHttpsExchange(
               (length.length !== 1 ||
                 !/^\d+$/.test(length[0]!) ||
                 !Number.isSafeInteger(Number(length[0])) ||
-                Number(length[0]) > maxResponseBytes)
+                Number(length[0]) > responseLimit)
             ) {
               fail("RESPONSE_SIZE");
               return;
@@ -137,7 +129,7 @@ export function createWechatHttpsExchange(
             const chunks: Buffer[] = [];
             response.on("data", (chunk: Buffer) => {
               size += chunk.length;
-              if (size > maxResponseBytes) {
+              if (size > responseLimit) {
                 fail("RESPONSE_SIZE");
                 return;
               }

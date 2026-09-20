@@ -76,8 +76,29 @@ function failure<T>(
       ...(protocol.httpStatus === undefined
         ? {}
         : { httpStatus: protocol.httpStatus }),
+      ...(protocol.providerCode === undefined
+        ? {}
+        : { providerCode: protocol.providerCode }),
     },
   };
+}
+
+function providerErrorCode(response: WechatHttpResponse): string | undefined {
+  try {
+    const types = response.headers["content-type"];
+    if (
+      types?.length !== 1 ||
+      !/^application\/json(?:\s*;|$)/i.test(types[0]!) ||
+      response.body.length > 4096
+    )
+      return undefined;
+    const code = object(parseJson(response.body)).code;
+    return typeof code === "string" && /^[A-Z0-9_]{1,64}$/.test(code)
+      ? code
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /** Passive callback verifier: no merchant private key, outbound transport or order creation. */
@@ -438,6 +459,7 @@ export class WechatPayGateway
           ? "REDIRECT"
           : "HTTP_ERROR",
         response.status,
+        providerErrorCode(response),
       );
     requireProtocol(response.status === expectedStatus);
     requireProtocol(
