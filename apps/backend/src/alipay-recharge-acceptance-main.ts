@@ -36,7 +36,10 @@ async function main() {
       prisma,
     });
     if (input.mode === "prepare") {
-      const result = await prepareAlipayPaymentAcceptance(runtime, input);
+      const result = await prepareAlipayPaymentAcceptance(
+        runtime,
+        input.request,
+      );
       await writeFile(input.cashierFile, result.cashierHtml, {
         encoding: "utf8",
         mode: 0o600,
@@ -52,7 +55,10 @@ async function main() {
         })}\n`,
       );
     } else {
-      const evidence = await reconcileAlipayPaymentAcceptance(runtime, input);
+      const evidence = await reconcileAlipayPaymentAcceptance(
+        runtime,
+        input.request,
+      );
       process.stdout.write(
         `${JSON.stringify({
           process: "alipay-recharge-acceptance",
