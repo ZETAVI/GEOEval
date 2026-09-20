@@ -144,7 +144,7 @@ Verify the effective unit before exposing Nginx:
 User=geoeval-callback
 Group=geo-runtime
 Slice=geo.slice
-MemoryHigh=134217728
+MemoryHigh=150994944
 MemoryMax=167772160
 ```
 

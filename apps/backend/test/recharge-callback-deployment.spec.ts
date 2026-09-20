@@ -14,7 +14,7 @@ describe("recharge callback production deployment boundary", () => {
     expect(service).toContain("User=geoeval-callback");
     expect(service).toContain("Group=geo-runtime");
     expect(service).toContain("Slice=geo.slice");
-    expect(service).toContain("MemoryHigh=128M");
+    expect(service).toContain("MemoryHigh=144M");
     expect(service).toContain("MemoryMax=160M");
     expect(service).toContain("dist/recharge-callback-main.js");
     expect(service).toContain(
