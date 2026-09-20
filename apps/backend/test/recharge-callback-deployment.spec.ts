@@ -136,6 +136,12 @@ describe("recharge callback production deployment boundary", () => {
     expect(target).toContain("geoeval-recharge-callback.service");
   });
 
+  it("stores absolute timestamps in UTC while presentation uses China Standard Time", () => {
+    const postgres = read("postgresql/20-geoeval.conf");
+
+    expect(postgres).toContain("timezone = 'UTC'");
+  });
+
   it("grants the callback role only the two durable inbox tables", () => {
     const grants = read("postgresql/grant-callback.sql");
 
