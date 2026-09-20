@@ -365,31 +365,91 @@ shell and SHALL keep authorization on the backend.
 
 ### Requirement: Challenge delivery remains an adapter boundary
 
-Identity and Access SHALL own Challenge lifecycle and abuse controls while a
-delivery adapter owns only message transport.
+Identity and Access SHALL own Challenge lifecycle, human-verification policy,
+code generation and abuse controls while a delivery adapter owns only message
+transport.
 
 #### Scenario: Local or test authentication requests a Challenge
 
-- **WHEN** the deterministic adapter is explicitly selected outside production
+- **WHEN** deterministic code generation, delivery and disabled human
+  verification are explicitly selected outside production
 - **THEN** Identity applies the same Challenge expiry, single-use, attempt, and
   request-rate rules used by other adapters
 - **AND** may return the deterministic code only in the approved local/test
   response.
 
+#### Scenario: Production requests a Challenge
+
+- **WHEN** a Web/H5 client requests a production login or registration
+  Challenge
+- **THEN** it submits one opaque freshly acquired human-verification value
+- **AND** Identity verifies the value against its server-configured fixed scene
+  before persisting or delivering a Challenge
+- **AND** generates one cryptographically secure six-digit code whose existing
+  keyed digest is the only persisted code representation
+- **AND** client-side success alone never grants permission to send SMS.
+
+#### Scenario: Human verification is rejected
+
+- **WHEN** the value is absent, malformed, expired, replayed, risk-rejected or
+  belongs to another scene/user
+- **THEN** Identity creates no Challenge and sends no SMS
+- **AND** returns a bounded retry result without exposing provider risk detail.
+
+#### Scenario: Human-verification infrastructure is unavailable
+
+- **WHEN** a syntactically valid value cannot be checked because the provider
+  invocation has a network, DNS, timeout or server-availability failure
+- **THEN** the configured application policy either fails closed or uses only
+  its finite constrained degradation budget
+- **AND** exhaustion automatically restores fail-closed behavior
+- **AND** credential, permission, account and request-configuration errors never
+  enter degradation.
+
+#### Scenario: SMS submission has an external outcome
+
+- **WHEN** the selected provider accepts the request
+- **THEN** Identity returns the persisted Challenge without claiming carrier
+  delivery or login
+- **BUT WHEN** the provider explicitly rejects credentials, permission,
+  qualification, signature, template, balance, rate or another business rule
+- **THEN** Identity returns a recoverable service failure without automatic
+  retry
+- **BUT WHEN** transport fails after submission may have occurred
+- **THEN** Identity returns the persisted Challenge, records an internal
+  submission-unknown outcome and requires any resend to pass the normal
+  interval and every Gate.
+
+#### Scenario: An operator stops new Challenge messages
+
+- **WHEN** the stop-new-Challenge control is closed for cost, abuse or provider
+  recovery
+- **THEN** Identity creates and sends no new Challenge
+- **AND** existing Sessions and previously issued Challenges retain their
+  existing lifecycle.
+
 #### Scenario: Production selects Challenge delivery
 
 - **WHEN** production authentication is prepared
-- **THEN** deterministic delivery remains rejected
-- **AND** real SMS provider selection, credentials, cost, templates, availability,
-  and live validation require their own external-dependency and release Gate.
+- **THEN** deterministic generation/delivery and disabled human verification
+  remain rejected
+- **AND** the real adapters require explicit provider identifiers and
+  deployment-managed minimum-permission credentials
+- **AND** signature/template approval, privacy review, paid tests, formal
+  CAPTCHA mode and activation retain separate external-dependency and release
+  Gates.
 
 ## Current environment boundary
 
-The accepted implementation and evidence cover local/test deterministic
-Challenge delivery and an isolated migration/rollback rehearsal. Production
-still requires separate authorization for real SMS, configuration, migration,
-Bootstrap, second-administrator readiness, monitoring, post-activation rollback,
-deployment, and activation.
+The accepted implementation provides local/test deterministic Challenge
+delivery and explicit Alibaba Cloud CAPTCHA/SMS adapters with fail-closed
+production configuration, no automatic SMS retry and redacted outcome
+observation. It does not prove a compliant public SMS signature, minimum-
+permission runtime credential, paid carrier delivery, formal CAPTCHA policy,
+privacy notice, multi-replica degradation budget or production activation.
+Those facts plus migration, Bootstrap, second-administrator readiness,
+monitoring, post-activation rollback and deployment require separate
+authorization and named-environment evidence.
 
 ## Agency service integration
 

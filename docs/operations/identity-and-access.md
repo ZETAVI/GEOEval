@@ -27,6 +27,57 @@ Each of those actions remains an explicit human Gate.
 5. Keep an independently restorable backup before migration. Rehearse restore
    against the named release environment or its representative isolated copy.
 
+## Real Challenge protection and delivery
+
+Local development uses deterministic delivery with human verification disabled.
+Production configuration is fail-closed and requires both real modes:
+
+    AUTH_CHALLENGE_MODE=aliyun
+    AUTH_HUMAN_VERIFICATION_MODE=aliyun
+    AUTH_CHALLENGE_SENDING_ENABLED=0
+
+Keep the sending switch closed while preparing the release. Supply the remaining
+AUTH, ALIYUN and ALIBABA_CLOUD values listed in
+[the environment example](../../.env.example) through the deployment
+environment or secret manager. The browser prefix and SceneId are public
+configuration; the AccessKey pair is not. Never use the Alibaba Cloud primary-
+account AccessKey, place a secret in Git or copy it into an Issue, PR, log or
+command output.
+
+Before opening the switch:
+
+1. Create a dedicated minimum-permission RAM runtime identity in a separately
+   authorized account operation. Confirm only the required CAPTCHA verification
+   and dysms:SendSms abilities; record policy names/versions, never keys.
+2. Confirm the backend and Web use the same approved mainland Web/H5 scene. In
+   test mode exercise “invisible pass”, “invisible deny + second challenge pass”
+   and “both deny”; a test-mode call is still billable. Only then separately
+   authorize formal mode.
+3. Confirm the visible SMS SignName and TemplateCode are approved and reported
+   for the target carriers. HDP remains unusable until it has a compliant
+   qualification path; do not substitute an unapproved name in configuration.
+4. Review the user-facing privacy notice and processor boundary for Alibaba's
+   browser, IP, device and interaction-risk processing. GEOEval must not copy
+   those raw observations into its own records.
+5. Verify the configured 60-second resend interval, five requests/hour,
+   provider-side limits, finite CAPTCHA-unavailable budget, daily/monthly alert
+   thresholds and the operator stop path in the named environment.
+6. Use named authorized test mobiles and an explicit maximum paid count/amount.
+   Keep carrier receipt, actual receipt and successful Challenge completion as
+   separate evidence.
+
+The identity.challenge.request telemetry event contains only the internal
+correlation ID, configured provider names, bounded verification/delivery
+outcomes and duration. It must not contain the full mobile, Challenge code,
+captchaVerifyParam, AccessKey material or raw provider messages. Aggregate this
+event for daily/monthly volume and cost alerts before paid activation.
+
+Alibaba SendSms is not idempotent. The adapter never retries automatically: an
+explicit rejection returns a service failure, while a timeout/connection loss
+after possible submission preserves and returns the existing Challenge. The
+user waits for that SMS and any later resend must pass the normal interval.
+Provider acceptance is not carrier delivery and carrier delivery is not login.
+
 ## Migration and activation
 
 1. Stop before applying migrations unless the production migration Gate names
@@ -112,6 +163,11 @@ growth before changing retention or adding another authority store.
 | The sole active administrator is unreachable | Preserve backups, Account/Session/audit state, stop administrator-only operations, and open an explicitly authorized production incident and recovery-security decision | Bootstrap stays closed; there is no Recovery Secret or automated break-glass command |
 | A release needs post-activation application rollback | Pause and design an approved Session invalidation, compatibility, write-stop, and verification plan | The pre-activation compatibility rehearsal alone is insufficient |
 | CSRF/Origin failures appear after release | Confirm the exact deployed Web Origin and request header/content type; do not weaken checks to wildcard or suffix matching | Topology changes require review before policy changes |
+| CAPTCHA returns a normal denial, replay or scene mismatch | Ask the user to complete a fresh verification; confirm matching Web/backend SceneId if failures grow | Never classify a normal denial or configuration error as provider unavailability |
+| CAPTCHA invocation has network/timeout/5xx failures | Observe the finite configured degradation budget; close new Challenge sending if the threshold is reached or failures grow | Do not widen/reset the budget or add replicas without a new risk decision |
+| SMS returns signature/template/qualification/balance/permission failure | Keep new sending closed, repair the external asset or credential and re-run a named test | Do not retry, switch signature silently or expose raw provider detail |
+| SMS submission times out with unknown outcome | Preserve the Challenge, ask the user to wait, and allow only the ordinary resend path after its interval | Do not submit a second SMS automatically |
+| SMS cost or abuse grows unexpectedly | Set AUTH_CHALLENGE_SENDING_ENABLED=0 and restart/reload through the authorized release path; keep Sessions available | Do not delete Challenge, Account or Session facts to stop cost |
 
 ## Release evidence
 

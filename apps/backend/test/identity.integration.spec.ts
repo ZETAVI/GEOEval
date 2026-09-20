@@ -1,10 +1,24 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
+import type { ApiConfig } from "../src/config/runtime-config.js";
 import { AuthenticationService } from "../src/identity/application/authentication.service.js";
+import { HumanVerificationPolicy } from "../src/identity/application/human-verification.policy.js";
 import { SessionService } from "../src/identity/application/session.service.js";
+import {
+  ChallengeDeliveryRejectedError,
+  type ChallengeDeliveryPort,
+} from "../src/identity/domain/challenge-delivery.port.js";
+import type { ChallengeCodeGenerator } from "../src/identity/domain/challenge-code-generator.port.js";
+import type { HumanVerificationPort } from "../src/identity/domain/human-verification.port.js";
+import { DeterministicChallengeCodeGenerator } from "../src/identity/infrastructure/deterministic-challenge-code-generator.js";
 import { DeterministicChallengeDelivery } from "../src/identity/infrastructure/deterministic-challenge-delivery.js";
+import { DisabledHumanVerification } from "../src/identity/infrastructure/disabled-human-verification.js";
 import { PostgresIdentityRepository } from "../src/identity/infrastructure/postgres-identity.repository.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
+import {
+  SafeTelemetry,
+  type TelemetryEvent,
+} from "../src/infrastructure/telemetry.js";
 import { clearCustomerData } from "./customer-data.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
 
@@ -20,11 +34,27 @@ const identityTestConfig = {
 describe("terminal-customer passwordless entry", () => {
   const prisma = new PrismaService(config.databaseUrl);
   const repository = new PostgresIdentityRepository(prisma);
-  const authentication = new AuthenticationService(
-    repository,
-    identityTestConfig,
-    new DeterministicChallengeDelivery(),
-  );
+  function authenticationFor(
+    testConfig: ApiConfig,
+    options: {
+      challengeCodeGenerator?: ChallengeCodeGenerator;
+      delivery?: ChallengeDeliveryPort;
+      humanVerification?: HumanVerificationPort;
+      telemetry?: SafeTelemetry;
+    } = {},
+  ) {
+    return new AuthenticationService(
+      repository,
+      testConfig,
+      options.delivery ?? new DeterministicChallengeDelivery(),
+      options.humanVerification ?? new DisabledHumanVerification(),
+      new HumanVerificationPolicy(testConfig),
+      options.challengeCodeGenerator ??
+        new DeterministicChallengeCodeGenerator(testConfig),
+      options.telemetry ?? new SafeTelemetry({ export: async () => undefined }),
+    );
+  }
+  const authentication = authenticationFor(identityTestConfig);
   const sessions = new SessionService(repository, identityTestConfig);
 
   beforeAll(async () => prisma.$connect());
@@ -239,18 +269,149 @@ describe("terminal-customer passwordless entry", () => {
     ).toBeInstanceOf(Date);
   });
 
-  it("enforces the configured Challenge request window without creating extra rows", async () => {
-    const limited = new AuthenticationService(
-      repository,
+  it("checks the stop switch and human verification before creating a Challenge", async () => {
+    let verificationCalls = 0;
+    const stopped = authenticationFor(
+      { ...identityTestConfig, authChallengeSendingEnabled: false },
       {
-        ...identityTestConfig,
-        authChallengePolicy: {
-          ...identityTestConfig.authChallengePolicy,
-          maximumRequestsPerWindow: 2,
+        humanVerification: {
+          verify: async () => {
+            verificationCalls += 1;
+            return { outcome: "verified" };
+          },
         },
       },
-      new DeterministicChallengeDelivery(),
     );
+    await expect(stopped.requestChallenge("13800138020")).rejects.toMatchObject(
+      {
+        status: 503,
+        response: { code: "CHALLENGE_SENDING_DISABLED" },
+      },
+    );
+    expect(verificationCalls).toBe(0);
+    expect(await prisma.mobileChallenge.count()).toBe(0);
+
+    const rejected = authenticationFor(identityTestConfig, {
+      humanVerification: {
+        verify: async () => ({
+          outcome: "rejected",
+          reason: "REPLAYED",
+        }),
+      },
+    });
+    await expect(
+      rejected.requestChallenge("13800138021", undefined, false, "opaque"),
+    ).rejects.toMatchObject({
+      status: 403,
+      response: { code: "HUMAN_VERIFICATION_REJECTED" },
+    });
+    expect(await prisma.mobileChallenge.count()).toBe(0);
+  });
+
+  it("bounds verification outage degradation before failing closed", async () => {
+    const degraded = authenticationFor(
+      {
+        ...identityTestConfig,
+        authHumanVerificationPolicy: {
+          unavailableMode: "limited",
+          maximumConsecutiveUnavailable: 1,
+        },
+      },
+      {
+        humanVerification: {
+          verify: async () => ({
+            outcome: "unavailable",
+            reason: "TIMEOUT",
+          }),
+        },
+      },
+    );
+    await expect(
+      degraded.requestChallenge("13800138022", undefined, false, "opaque"),
+    ).resolves.toMatchObject({ challengeId: expect.any(String) });
+    await expect(
+      degraded.requestChallenge("13800138023", undefined, false, "opaque"),
+    ).rejects.toMatchObject({
+      status: 503,
+      response: { code: "HUMAN_VERIFICATION_UNAVAILABLE" },
+    });
+    expect(await prisma.mobileChallenge.count()).toBe(1);
+  });
+
+  it("does not retry explicit SMS rejection and preserves unknown submission", async () => {
+    let rejectionCalls = 0;
+    const rejected = authenticationFor(identityTestConfig, {
+      delivery: {
+        deliver: async () => {
+          rejectionCalls += 1;
+          throw new ChallengeDeliveryRejectedError("SIGNATURE");
+        },
+      },
+    });
+    await expect(
+      rejected.requestChallenge("13800138024"),
+    ).rejects.toMatchObject({
+      status: 503,
+      response: { code: "CHALLENGE_DELIVERY_UNAVAILABLE" },
+    });
+    expect(rejectionCalls).toBe(1);
+    expect(await prisma.mobileChallenge.count()).toBe(1);
+
+    let unknownCalls = 0;
+    const unknown = authenticationFor(identityTestConfig, {
+      delivery: {
+        deliver: async () => {
+          unknownCalls += 1;
+          return { outcome: "unknown" };
+        },
+      },
+    });
+    await expect(unknown.requestChallenge("13800138025")).resolves.toEqual({
+      challengeId: expect.any(String),
+      expiresAt: expect.any(String),
+    });
+    expect(unknownCalls).toBe(1);
+    expect(await prisma.mobileChallenge.count()).toBe(2);
+  });
+
+  it("observes bounded Challenge outcomes without mobile or plaintext code", async () => {
+    const events: TelemetryEvent[] = [];
+    const observed = authenticationFor(identityTestConfig, {
+      telemetry: new SafeTelemetry({
+        export: async (event) => {
+          events.push(event);
+        },
+      }),
+    });
+    const challenge = await observed.requestChallenge("13800138026");
+    expect(challenge.developmentCode).toBe("246810");
+    expect(events).toEqual([
+      {
+        name: "identity.challenge.request",
+        correlationId: challenge.challengeId,
+        attributes: {
+          humanProvider: "DISABLED",
+          humanOutcome: "VERIFIED",
+          deliveryProvider: "DETERMINISTIC",
+          deliveryOutcome: "ACCEPTED",
+          durationMs: expect.any(String),
+        },
+      },
+    ]);
+    const serialized = JSON.stringify(events);
+    expect(serialized).not.toContain("13800138026");
+    expect(serialized).not.toContain("+8613800138026");
+    expect(serialized).not.toContain("246810");
+  });
+
+  it("enforces the configured Challenge request window without creating extra rows", async () => {
+    const limited = authenticationFor({
+      ...identityTestConfig,
+      authChallengePolicy: {
+        ...identityTestConfig.authChallengePolicy,
+        maximumRequestsPerWindow: 2,
+      },
+    });
 
     await limited.requestChallenge("13800138008");
     await limited.requestChallenge("13800138008");
@@ -274,17 +435,13 @@ describe("terminal-customer passwordless entry", () => {
   });
 
   it("serializes concurrent Challenge requests at the configured limit", async () => {
-    const limited = new AuthenticationService(
-      repository,
-      {
-        ...identityTestConfig,
-        authChallengePolicy: {
-          ...identityTestConfig.authChallengePolicy,
-          maximumRequestsPerWindow: 1,
-        },
+    const limited = authenticationFor({
+      ...identityTestConfig,
+      authChallengePolicy: {
+        ...identityTestConfig.authChallengePolicy,
+        maximumRequestsPerWindow: 1,
       },
-      new DeterministicChallengeDelivery(),
-    );
+    });
 
     const results = await Promise.allSettled([
       limited.requestChallenge("13800138009"),
@@ -306,11 +463,7 @@ describe("terminal-customer passwordless entry", () => {
   });
 
   it("enforces the resend interval without superseding the usable Challenge", async () => {
-    const resendProtected = new AuthenticationService(
-      repository,
-      config,
-      new DeterministicChallengeDelivery(),
-    );
+    const resendProtected = authenticationFor(config);
     const first = await resendProtected.requestChallenge("13800138010");
 
     await expect(
@@ -333,17 +486,13 @@ describe("terminal-customer passwordless entry", () => {
   });
 
   it("caps failed verification attempts before a correct code can create a session", async () => {
-    const twoAttempts = new AuthenticationService(
-      repository,
-      {
-        ...identityTestConfig,
-        authChallengePolicy: {
-          ...identityTestConfig.authChallengePolicy,
-          maximumFailedAttempts: 2,
-        },
+    const twoAttempts = authenticationFor({
+      ...identityTestConfig,
+      authChallengePolicy: {
+        ...identityTestConfig.authChallengePolicy,
+        maximumFailedAttempts: 2,
       },
-      new DeterministicChallengeDelivery(),
-    );
+    });
     const challenge = await twoAttempts.requestChallenge("13800138011");
     const wrong = {
       challengeId: challenge.challengeId,

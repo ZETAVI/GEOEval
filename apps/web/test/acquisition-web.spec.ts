@@ -123,6 +123,7 @@ describe("same-origin acquisition boundary", () => {
         },
         body: JSON.stringify({
           mobile: "13900010000",
+          captchaVerifyParam: "opaque-captcha",
           acquisitionVisitToken: "forged",
           target: "https://evil.test",
         }),
@@ -136,6 +137,7 @@ describe("same-origin acquisition boundary", () => {
     expect(url).toBe("https://api.example.test/identity/challenges");
     expect(JSON.parse(init.body as string)).toEqual({
       mobile: "13900010000",
+      captchaVerifyParam: "opaque-captcha",
       acquisitionVisitToken: token,
     });
   });

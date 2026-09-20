@@ -495,10 +495,14 @@ export function listPublishingPackageAudits(
 export function requestLoginChallenge(
   apiBaseUrl: string,
   mobile: string,
+  captchaVerifyParam?: string,
 ): Promise<Challenge> {
   return apiRequest(apiBaseUrl, "/identity/challenges", {
     method: "POST",
-    body: JSON.stringify({ mobile }),
+    body: JSON.stringify({
+      mobile,
+      ...(captchaVerifyParam ? { captchaVerifyParam } : {}),
+    }),
   });
 }
 
@@ -1458,10 +1462,15 @@ export function getOwnAgencyEntry(
 export function requestExistingAccountChallenge(
   apiBaseUrl: string,
   mobile: string,
+  captchaVerifyParam?: string,
 ): Promise<Challenge> {
   return apiRequest(apiBaseUrl, "/identity/challenges", {
     method: "POST",
-    body: JSON.stringify({ mobile, existingAccountOnly: true }),
+    body: JSON.stringify({
+      mobile,
+      existingAccountOnly: true,
+      ...(captchaVerifyParam ? { captchaVerifyParam } : {}),
+    }),
   });
 }
 

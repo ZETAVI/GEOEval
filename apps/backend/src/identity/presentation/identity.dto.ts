@@ -7,6 +7,13 @@ import type {
 
 export class RequestChallengeRequest {
   @ApiPropertyOptional({
+    type: String,
+    description:
+      "Opaque Alibaba Cloud CAPTCHA result; required when human verification is enabled",
+  })
+  captchaVerifyParam?: string;
+
+  @ApiPropertyOptional({
     type: Boolean,
     description: "Restricts this challenge to an already registered account",
   })

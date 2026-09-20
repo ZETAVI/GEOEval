@@ -13,6 +13,6 @@ export class DeterministicChallengeDelivery implements ChallengeDeliveryPort {
     code: string;
     expiresAt: Date;
   }): Promise<ChallengeDeliveryResult> {
-    return { developmentCode: input.code };
+    return { outcome: "accepted", developmentCode: input.code };
   }
 }

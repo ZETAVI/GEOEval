@@ -12,49 +12,52 @@
 
 ## I1: Identity-owned contracts
 
-- [ ] Add `HumanVerificationPort`, application policy and bounded result
+- [x] Add `HumanVerificationPort`, application policy and bounded result
   categories without Alibaba SDK types outside infrastructure.
-- [ ] Add deterministic and cryptographically secure
+- [x] Add deterministic and cryptographically secure
   `ChallengeCodeGenerator` implementations.
-- [ ] Extend `ChallengeDeliveryPort` with accepted/unknown semantics and one
+- [x] Extend `ChallengeDeliveryPort` with accepted/unknown semantics and one
   typed explicit-rejection boundary.
-- [ ] Refactor `requestChallenge` so stop/verification precede persistence and
+- [x] Refactor `requestChallenge` so stop/verification precede persistence and
   provider unknown preserves the persisted Challenge.
-- [ ] Prove the new contracts with focused service tests before adding real SDK
+- [x] Prove the new contracts with focused service tests before adding real SDK
   composition.
 
 ## I2: Alibaba CAPTCHA
 
-- [ ] Pin the official CAPTCHA SDK and add one reusable adapter/client.
-- [ ] Map `VerifyResult`, replay/scene/parameter denials, credential/permission
+- [x] Pin the official CAPTCHA SDK and add one reusable adapter/client.
+- [x] Map `VerifyResult`, replay/scene/parameter denials, credential/permission
   errors and invocation unavailability without leaking provider details.
-- [ ] Implement disabled/default local behavior and fail-closed production
+- [x] Implement disabled/default local behavior and fail-closed production
   configuration with finite unavailable degradation.
-- [ ] Add the opaque field to DTO/OpenAPI/client and both direct/acquisition
+- [x] Add the opaque field to DTO/OpenAPI/client and both direct/acquisition
   request paths.
-- [ ] Integrate the V3 invisible popup client without persisting or logging its
+- [x] Integrate the V3 invisible popup client without persisting or logging its
   opaque result.
 
 ## I3: Alibaba SMS
 
-- [ ] Pin the official domestic SMS SDK and create one reusable client with
+- [x] Pin the official domestic SMS SDK and create one reusable client with
   explicit timeout and no automatic retry.
-- [ ] Implement accepted, explicit rejection and submission-unknown mappings;
+- [x] Implement accepted, explicit rejection and submission-unknown mappings;
   keep SignName/TemplateCode configurable and code-only template parameters.
-- [ ] Select deterministic or Aliyun adapters explicitly in
+- [x] Select deterministic or Aliyun adapters explicitly in
   `IdentityModule`; production must reject deterministic, disabled or
   incomplete combinations.
-- [ ] Add stop-new-Challenge and bounded provider observation without exposing
+- [x] Add stop-new-Challenge and bounded provider observation without exposing
   code, full mobile, CAPTCHA data or credentials.
 
 ## I4: Safeguards and evidence
 
-- [ ] Align the existing same-mobile window to 60 seconds and five/hour; add a
-  coarse trusted-entry/IP boundary without a device-fingerprint system.
-- [ ] Add daily/monthly usage observation and an operator stop path before any
-  paid activation; do not create a delivery ledger unless a real recovery need
-  is demonstrated.
-- [ ] Verify CAPTCHA pass/deny/replay/mismatch/unavailable budget, SMS
+- [ ] Confirm the production trusted-proxy topology before adding a local
+  coarse-IP key; rely on Alibaba CAPTCHA risk/IP controls and the existing
+  Origin/mobile boundaries until that source address is trustworthy.
+- [x] Align the existing same-mobile window to 60 seconds and five/hour; emit
+  bounded verification/delivery/latency telemetry and provide an operator stop
+  path without creating a delivery ledger.
+- [ ] Configure named-environment daily/monthly telemetry aggregation, cost
+  alerts and stop thresholds before any paid activation.
+- [x] Verify offline CAPTCHA pass/deny/replay/mismatch/unavailable budget, SMS
   accepted/rejected/unknown, configuration fail-closed, no retry, stop behavior
   and redaction.
 - [ ] Run focused tests, typecheck, generated-contract checks and the
@@ -62,7 +65,7 @@
 
 ## I5: Reconcile and deliver
 
-- [ ] Promote accepted behavior into the current Identity spec and operations
+- [x] Promote accepted behavior into the current Identity spec and operations
   runbook; generate OpenAPI/client owners and resolve any touched Evolution
   marker.
 - [ ] Run fixed-diff architecture and code review, then verify the final Change
@@ -72,4 +75,3 @@
 - [ ] Record RAM/signature/paid-test/formal-mode/production residual gates and
   the worktree exit state; archive this Change only when its accepted scope is
   reconciled.
-

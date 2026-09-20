@@ -8,11 +8,18 @@ import {
   requestExistingAccountChallenge,
   type BrandMutation,
 } from "@geoeval/api-client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BrandProfileFields } from "../brands/brand-profile-fields.js";
 import { brandMutationForSave } from "../brands/brand-mutation.js";
 import { prewarmEvaluationQuestions } from "../brands/evaluation-question-prewarm.js";
 import { requestEntryChallenge } from "../acquisition/challenge-client.js";
+import {
+  aliyunCaptchaEnabled,
+  CAPTCHA_ELEMENT_ID,
+  CAPTCHA_TRIGGER_ID,
+  type HumanVerificationGate,
+  prepareAliyunCaptcha,
+} from "./aliyun-captcha.js";
 import { postLoginRoute } from "./post-login-route.js";
 
 const apiBaseUrl =
@@ -35,16 +42,44 @@ export function EntryFlow({
   });
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [captchaReady, setCaptchaReady] = useState(!aliyunCaptchaEnabled());
+  const captchaGate = useRef<HumanVerificationGate | undefined>(undefined);
+
+  useEffect(() => {
+    let active = true;
+    if (!aliyunCaptchaEnabled()) return;
+    prepareAliyunCaptcha()
+      .then((gate) => {
+        if (!active || !gate) return;
+        captchaGate.current = gate;
+        setCaptchaReady(true);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setMessage(
+          error instanceof Error ? error.message : "安全验证初始化失败",
+        );
+      });
+    return () => {
+      active = false;
+      captchaGate.current = undefined;
+    };
+  }, []);
 
   async function requestCode() {
     setBusy(true);
     setMessage("");
     try {
+      const captchaVerifyParam = await requestHumanVerification();
       const challenge = existingAccountOnly
-        ? await requestExistingAccountChallenge(apiBaseUrl, mobile)
+        ? await requestExistingAccountChallenge(
+            apiBaseUrl,
+            mobile,
+            captchaVerifyParam,
+          )
         : acquisitionEnabled
-          ? await requestEntryChallenge(mobile)
-          : await requestLoginChallenge(apiBaseUrl, mobile);
+          ? await requestEntryChallenge(mobile, captchaVerifyParam)
+          : await requestLoginChallenge(apiBaseUrl, mobile, captchaVerifyParam);
       setChallengeId(challenge.challengeId);
       setDevelopmentCode(challenge.developmentCode);
       if (challenge.developmentCode) setCode(challenge.developmentCode);
@@ -53,6 +88,27 @@ export function EntryFlow({
       setMessage(error instanceof Error ? error.message : "暂时无法获取验证码");
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function requestHumanVerification(): Promise<string | undefined> {
+    if (!aliyunCaptchaEnabled()) return undefined;
+    const gate = captchaGate.current;
+    if (!gate) throw new Error("安全验证正在准备，请稍后重试");
+    captchaGate.current = undefined;
+    setCaptchaReady(false);
+    try {
+      return await gate.start();
+    } finally {
+      prepareAliyunCaptcha()
+        .then((nextGate) => {
+          if (!nextGate) return;
+          captchaGate.current = nextGate;
+          setCaptchaReady(true);
+        })
+        .catch(() => {
+          setMessage("安全验证暂时不可用，请刷新后重试");
+        });
     }
   }
 
@@ -127,11 +183,23 @@ export function EntryFlow({
           <button
             className="primary-button"
             type="button"
-            disabled={busy || !mobile.trim()}
+            disabled={busy || !mobile.trim() || !captchaReady}
             onClick={() => void requestCode()}
           >
-            {busy ? "正在获取…" : "获取验证码"}
+            {busy
+              ? "正在获取…"
+              : captchaReady
+                ? "获取验证码"
+                : "正在准备安全验证…"}
           </button>
+          <div id={CAPTCHA_ELEMENT_ID} />
+          <button
+            id={CAPTCHA_TRIGGER_ID}
+            type="button"
+            tabIndex={-1}
+            aria-hidden="true"
+            hidden
+          />
           <p className="form-footnote">
             登录即表示你同意平台为提供服务而保存账号与品牌资料。
           </p>
