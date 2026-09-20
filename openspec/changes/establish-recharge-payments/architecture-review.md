@@ -2,6 +2,27 @@
 
 审查日期：2026-09-08。Owner：[Issue #77](https://github.com/ZETAVI/GEOEval/issues/77)。对象：[架构候选方案](design.md)、[微信 APIv3 协议证据](source-brief.md)。主审自行复核，无独立 reviewer 或真实支付执行。
 
+## W3 callback 生产部署准备审查
+
+对象是 `main@281323f` 之上的 callback-only 部署资产，不改变充值、积分、开票 schema 或业务状态。当前服务器实况显示 Node 24、PostgreSQL 16、TLS/DNS 和受保护微信材料已经存在；应用数据库、callback unit 和 upstream 尚未启用。PostgreSQL 当前在 `system-postgresql.slice` 且无应用库，直接使用会绕过既定 GEO 资源预算。
+
+- **模块与宿主**：继续运行已经合并的 `recharge-callback-main`，只装配 Persistence 和 Recharge notification；Nginx 精确代理微信通知路径，其他应用路径保持 `503`。没有为部署方便启动完整 API、登录、Worker、Web 或 Redis。
+- **权限**：代码层本来只读取微信支付公钥和 APIv3 key；部署再用专用 `geoeval-callback` 身份和 systemd `LoadCredential=` 收紧操作系统边界，使其不能读取同目录的商户私钥和证书。peer 数据库角色只可读写 observation/receipt 两表，不能访问订单、账户或积分。
+- **资源与生命周期**：PostgreSQL 与 callback 都加入现有 `geo.slice` 和 `geo-runtime.target`。三个 GEO 服务的硬内存上限总和等于 slice 的 768 MiB 上限；PostgreSQL 连接和工作内存同步收束。实际应用配置前必须再次证明该 cluster 没有非 GEO consumer，并在共享宿主锁内完成一次可回滚维护窗口。
+- **恢复与证据**：公网切换最后执行；失败先把 app 域名恢复为全路径 `503`，再停 callback。数据库迁移和已认证付款事实不逆转或删除。部署只证明公网接收和持久 inbox；公钥成功响应、真实通知解密、预下单/关单、付款到账各自保留为后续 Gate。
+- **金额**：所有本项目 provider 探针统一走可持久恢复的一元 RechargeOrder；不建立一分旁路或 provider-only 脚本。
+
+本片没有扩大通用支付平台或生产应用范围。固定 Diff 需通过部署合同测试、callback/config 回归、构建、PR CI 和共享宿主 owner 复核后才能应用；当前结论为 **architecture ready for fixed-Diff verification，production not changed**。
+
+### W3 固定 Diff 代码审查
+
+- **需求一致性**：所有本项目测试金额统一为一元；AppID 认证绑定只解除账号 Gate，不被写成接口或资金证据。部署仍是 `verify` callback-only，未偷偷带入完整应用或真实下单。
+- **工程边界**：新增资产只有 systemd、PostgreSQL、Nginx、非 secret env 示例、运行手册和一份合同测试。callback 代码、Recharge/Commerce/Invoice schema 与业务状态不变。凭据、数据库和公网权限都按实际调用面收窄。
+- **恢复与共享宿主**：Nginx 最后切换且可先恢复全路径 `503`；观察/收据和迁移不作为回滚删除。PostgreSQL 移入 `geo.slice` 之前必须再次核对无非 GEO consumer，并按共享锁 → 应用锁的顺序执行。
+- **证据**：7 个回调定向文件 141 项、Backend typecheck/build、格式/框架/link、目标 systemd 255 verify 与 Nginx `-t` 通过。完整 Backend 为 919 passed / 2 skipped / 1 failed；唯一失败是未改动的 evaluation Worker restart 固定 5 秒 timeout，单独复验仍超时，不列作本片通过项。
+
+固定 Diff 未发现阻断本 PR 的支付或部署缺陷。PR CI、真实安装、公网伪造请求、成功响应公钥验签、真实通知解密和一元资金验收仍各自保留，不以本审查替代。
+
 ## O1a 实施作者审查
 
 对象：PR #88 的管理员只读查询，基线main29d115d；用户确认design14.4并授权实施，共享窗口见[执行记录](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630711415)。以下按需求、工程、证据三个维度自行复核，不声称独立review。
@@ -347,7 +368,7 @@
 
 所有权保持不变：Recharge 拥有订单、渠道适配、回调 inbox、恢复和结算编排；Commerce 仍是余额/流水唯一写入者；Notification 仍只负责到账后的站内消息。没有新增通用 Payment 平台、第二套钱包、schema 迁移或客户状态。
 
-结论：**ready with follow-up**。固定 Diff 已通过定向/集成/Web/构建验证，可进入 PR CI；真实 AppID 绑定、受保护 key、公共回调、1 分持久预下单/关单和最小真实支付尚未运行，因此整体微信真实接入仍是 partially verified，不能开放 `live`。
+结论：**ready with follow-up**。固定 Diff 已通过定向/集成/Web/构建验证，可进入 PR CI；这段历史评审之后 AppID 认证绑定和受保护 key 准备已确认，公共回调、一元持久预下单/关单和一元真实支付仍未运行，因此整体微信真实接入仍是 partially verified，不能开放 `live`。
 
 ## W1 真实网络族与无资金查询复核（2026-09-17）
 
@@ -359,4 +380,4 @@
 | must-fix，代码审查已处理 | 非2xx查询只保留状态码和 Request-ID，CLI 的 `verified=true` 容易被误解为微信公钥已经验签 | CLI 改报 `requestAccepted=true` 与 `responseSignatureVerified=false`；文档不再把404写成公钥配对证据 |
 | consider，明确保留 | 部署可以用全局 `NODE_OPTIONS` 调整 DNS 顺序 | 拒绝全局开关；它会影响支付宝、数据库和其他外部连接，且本机实测没有修复该连接 |
 
-TLS 校验、微信域名白名单、固定超时、签名材料和错误分类均未放宽。微信协议/实际 HTTPS/运行配置/多渠道 Worker 组合 109 项、TypeScript、后端构建与真实请求重放通过；真实重放只证明签名请求被微信接受并进入订单查询。结论：**ready with follow-up**。服务器网络与回调仍需部署验证，AppID 未认证绑定，因此不能执行 Native 预下单或启用 `live`。
+TLS 校验、微信域名白名单、固定超时、签名材料和错误分类均未放宽。微信协议/实际 HTTPS/运行配置/多渠道 Worker 组合 109 项、TypeScript、后端构建与真实请求重放通过；真实重放只证明签名请求被微信接受并进入订单查询。结论：**ready with follow-up**。这段历史评审之后 AppID 认证绑定已经确认；服务器 callback 仍需部署验证，因此在一元 prepay/close 与资金证据完成前不能启用 `live`。

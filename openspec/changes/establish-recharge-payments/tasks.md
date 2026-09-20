@@ -1,6 +1,6 @@
 # Tasks
 
-Owner #77. A0/B0/C1, publication return, N1–N4, R1 and O1a are accepted on main. Alipay PC implementation merged through [PR #89](https://github.com/ZETAVI/GEOEval/pull/89) at `main@d795002`; app/product/key readiness and a signed production-gateway no-funds query are confirmed. On 2026-09-16 the owner confirmed that the WeChat merchant account is certified and Native payment is open, so WeChat technical work resumes. Dual-provider composition, protected WeChat configuration, real signed no-funds query and callback-only host implementation are the current bounded work; AppID binding, callback deployment, controlled prepay/close, real payment and production activation remain separate gates.
+Owner #77. A0/B0/C1, publication return, N1–N4, R1, O1a, Alipay PC composition and the callback-only W2 host are accepted on main. The latest baseline is `main@281323f`, including the independently owned recharge-invoice slice. WeChat merchant/Native readiness, AppID certification and binding, protected key custody and a signed production-gateway no-funds query are confirmed. The current bounded work prepares the callback-only production deployment; controlled one-yuan prepay/close, one-yuan real payment and customer production activation remain separate gates.
 
 ## Remaining work and actual dependencies
 
@@ -15,7 +15,7 @@ The approved route stays account recharge → verified payment → funded credit
 | H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
 | Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
 
-Current planning: R1, O1a and Alipay PC code are merged. Alipay remains the current selectable method until the WeChat `live` gate passes. The WeChat merchant and Native product gate is now confirmed; code composition proceeds without waiting for keys. AppID binding, protected key files, public callback and controlled provider calls must still be verified before the server advertises WeChat for new orders. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. Reconciliation remains later bounded acceptance.
+Current planning: R1, O1a, Alipay PC and the WeChat callback-only host are merged. Alipay remains the current selectable method until the WeChat `live` gate passes. Merchant/Native, AppID binding and protected key-file preparation are confirmed. The public callback and controlled provider calls must still be verified before the server advertises WeChat for new orders. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. Reconciliation remains later bounded acceptance.
 
 ## R1: Transient recovery and truthful status
 
@@ -78,11 +78,20 @@ Current planning: R1, O1a and Alipay PC code are merged. Alipay remains the curr
 - [x] Compose API customer commands by frozen payment method, register both callback controllers/verifiers, run provider dispatch concurrently and scan provider-neutral settlement once. Preserve Commerce and database ownership.
 - [x] Add safe Request-ID diagnostics containing no merchant, order, customer or key material.
 - [x] Verify configuration rejection, method routing, callback registration, Worker composition, protocol regression and dual-provider HTTP/DB behavior with ephemeral keys and the dedicated `geoeval_issue77_wechat_live` database.
-- [ ] Complete and confirm certification for service-account AppID `wx0402876c556f2029`, then bind it to merchant `1117725778`; record only status, never secrets. Until both steps pass, do not run Native prepay or enable `live`.
+- [x] Confirm certification for service-account AppID `wx0402876c556f2029` and its completed binding to merchant `1117725778`; record only status, never secrets.
 - [x] Create/download the merchant API certificate, WeChat Pay public key and ID, and set/store the APIv3 key in protected server files; establish role-based technical custody and rotation notes. Server evidence: `geoeval`-owned `0700` directory, four `0600` files, matching certificate/private key, matching public-key fingerprint and valid APIv3 format.
 - [x] Implement a callback-only Nest host and passive WeChat verifier. It binds loopback, mounts no full API/Identity/Worker/Redis routes, reads no merchant signing key, preserves raw bytes, and uses the existing durable inbox/ACK contract.
-- [ ] Deploy the callback endpoint with HTTPS in `verify` and reject forged callbacks. The real no-funds query passed on 2026-09-17 with a signed-request-accepted 404 after selecting verified IPv4 transport; this non-2xx probe does not verify the response public key. After AppID certification/binding, use the normal persisted RechargeOrder/runtime path for one explicit 1-fen prepay-and-immediate-close probe so a lost close response remains recoverable; do not create an untracked provider order from a standalone script.
+- [ ] Deploy the callback endpoint with HTTPS in `verify` and reject forged callbacks. The real no-funds query passed on 2026-09-17 with a signed-request-accepted 404 after selecting verified IPv4 transport; this non-2xx probe does not verify the response public key. Use the normal persisted RechargeOrder/runtime path for one explicit **one-yuan** prepay-and-immediate-close probe so a lost close response remains recoverable; do not create an untracked provider order from a standalone script.
 - [ ] Switch WeChat to `live` only for a named minimum real payment; confirm QR, callback/query convergence, once-only points, customer/admin projections and finance receipt. Return to `verify` immediately if evidence is incomplete.
+
+## W3: Callback production deployment preparation
+
+- [x] Rebase the retained #77 branch by fast-forward to current `main@281323f`; preserve the callback-only composition while including the latest 54-migration chain and recharge-invoice owner.
+- [x] Inspect the current shared host without writes: Node 24, TLS/DNS and protected WeChat material exist; PostgreSQL 16 is local-only and has no application database, but currently runs outside `geo.slice`; `app.geohdp.com` continues to return `503`.
+- [x] Add versioned callback deployment assets: dedicated OS/peer database identity, systemd `LoadCredential=`, exact Nginx path, least-privilege inbox grants, PostgreSQL and callback resource budgets, shared-lock order, recovery and evidence sequence. Do not add an all-in-one installer.
+- [x] Standardize every controlled provider and real-funds probe on the product's one-yuan minimum; historical observations of another site's one-fen order remain research facts only.
+- [ ] Complete fixed-Diff tests, architecture/code review, PR CI and merge before changing the shared host.
+- [ ] Coordinate the exact PostgreSQL/systemd/Nginx maintenance window with the shared-host owner, then deploy callback-only `verify` mode and record runtime evidence. Do not deploy the full API, Web app, login or Worker in this slice.
 
 ## P0: Fixed inputs and reviewable contracts
 
