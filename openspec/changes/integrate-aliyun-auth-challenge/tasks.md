@@ -60,7 +60,7 @@
 - [x] Verify offline CAPTCHA pass/deny/replay/mismatch/unavailable budget, SMS
   accepted/rejected/unknown, configuration fail-closed, no retry, stop behavior
   and redaction.
-- [ ] Run focused tests, typecheck, generated-contract checks and the
+- [x] Run focused tests, typecheck, generated-contract checks and the
   task-appropriate broader suite; record skipped environment-dependent checks.
 
 ## I5: Reconcile and deliver
@@ -68,7 +68,7 @@
 - [x] Promote accepted behavior into the current Identity spec and operations
   runbook; generate OpenAPI/client owners and resolve any touched Evolution
   marker.
-- [ ] Run fixed-diff architecture and code review, then verify the final Change
+- [x] Run fixed-diff architecture and code review, then verify the final Change
   against Issue #64 acceptance.
 - [ ] Open one main-direct PR with a Partial or Final relationship matching the
   actually completed external gates.
