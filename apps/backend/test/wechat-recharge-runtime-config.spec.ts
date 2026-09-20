@@ -19,6 +19,7 @@ import { AlipayNotificationController } from "../src/recharge/presentation/alipa
 import { WechatNotificationController } from "../src/recharge/presentation/wechat-notification.controller.js";
 
 describe("WeChat and multi-provider recharge host configuration", () => {
+  const previousCredentialDirectory = process.env.CREDENTIALS_DIRECTORY;
   let directory: string;
   let base: NodeJS.ProcessEnv;
 
@@ -87,7 +88,12 @@ describe("WeChat and multi-provider recharge host configuration", () => {
     };
   });
 
-  afterEach(() => rmSync(directory, { recursive: true, force: true }));
+  afterEach(() => {
+    if (previousCredentialDirectory === undefined)
+      delete process.env.CREDENTIALS_DIRECTORY;
+    else process.env.CREDENTIALS_DIRECTORY = previousCredentialDirectory;
+    rmSync(directory, { recursive: true, force: true });
+  });
 
   it("stays unconfigured unless explicitly activated", () => {
     expect(
@@ -126,6 +132,18 @@ describe("WeChat and multi-provider recharge host configuration", () => {
     });
     expect(callback?.verifiers).toHaveLength(1);
     expect(callback?.verifiers[0]?.provider).toBe("WECHAT");
+  });
+
+  it("accepts systemd credential copies without accepting ordinary group-readable keys", () => {
+    chmodSync(base.RECHARGE_WECHAT_PUBLIC_KEY_FILE!, 0o440);
+    chmodSync(base.RECHARGE_WECHAT_API_V3_KEY_FILE!, 0o440);
+    process.env.CREDENTIALS_DIRECTORY = directory;
+    expect(loadRechargeCallbackConfiguration(base)?.verifiers).toHaveLength(1);
+
+    process.env.CREDENTIALS_DIRECTORY = join(directory, "another-unit");
+    expect(() => loadRechargeCallbackConfiguration(base)).toThrow(
+      "RECHARGE_WECHAT_KEY_MATERIAL_INVALID",
+    );
   });
 
   it("opens Native creation only in live mode", () => {

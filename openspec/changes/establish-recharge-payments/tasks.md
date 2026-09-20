@@ -90,8 +90,10 @@ Current planning: R1, O1a, Alipay PC and the WeChat callback-only host are merge
 - [x] Inspect the current shared host without writes: Node 24, TLS/DNS and protected WeChat material exist; PostgreSQL 16 is local-only and has no application database, but currently runs outside `geo.slice`; `app.geohdp.com` continues to return `503`.
 - [x] Add versioned callback deployment assets: dedicated OS/peer database identity, systemd `LoadCredential=`, exact Nginx path, least-privilege inbox grants, PostgreSQL and callback resource budgets, shared-lock order, recovery and evidence sequence. Do not add an all-in-one installer.
 - [x] Standardize every controlled provider and real-funds probe on the product's one-yuan minimum; historical observations of another site's one-fen order remain research facts only.
-- [x] Complete fixed-Diff tests, architecture/code review and required CI; merge deployment preparation through PR #125 at `main@0ee1c7d`. Shared-host review subsequently reduced callback `MemoryMax` to 160 MiB for 32 MiB slice headroom; its follow-up PR must merge before deployment.
+- [x] Complete fixed-Diff tests, architecture/code review and required CI; merge deployment preparation through PR #125 at `main@0ee1c7d`. Shared-host review subsequently reduced callback `MemoryMax` to 160 MiB for 32 MiB slice headroom; PR #126 merged that correction at `main@6488f23` before deployment.
 - [ ] Coordinate the exact PostgreSQL/systemd/Nginx maintenance window with the shared-host owner, then deploy callback-only `verify` mode and record runtime evidence. Do not deploy the full API, Web app, login or Worker in this slice.
+- [x] Begin the explicitly authorized callback-only window: PostgreSQL 16/main moved into `geo.slice` with final limits, immutable `main@6488f23` release built, production `geoeval` database received 54 migrations, and callback peer role grants were verified. First callback start failed closed before listen because systemd credential copies are `0440`; Nginx remained full-path `503` and callback was stopped.
+- [ ] Merge and deploy the bounded systemd credential-mode、Prisma socket URL and target `Requires` → `Wants` corrections, then resume local/public forged-callback and shared-host acceptance before any provider order.
 
 ## P0: Fixed inputs and reviewable contracts
 
