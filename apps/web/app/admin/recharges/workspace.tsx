@@ -11,6 +11,8 @@ import {
   type AdminRechargeDetail,
 } from "@geoeval/api-client";
 import { AdminSidebar } from "../admin-sidebar.js";
+import { formatChinaDateTime } from "../../china-time.js";
+import { formatPoints } from "../../point-format.js";
 import { loadRoleSession, WorkspaceAccessPanel } from "../../session-access.js";
 import {
   rechargeLabels,
@@ -130,14 +132,14 @@ export function AdminRechargeWorkspace({
   );
 }
 function time(value: string | null) {
-  return value ? new Date(value).toLocaleString("zh-CN") : "—";
+  return value ? formatChinaDateTime(value) : "—";
 }
 export function RechargeAdminDetail({ order }: { order: AdminRechargeDetail }) {
   const fields = [
     ["充值单号", order.id],
     ["客户账号", order.accountMobile],
     ["充值金额", `¥${order.amountYuan.toFixed(2)}`],
-    ["对应积分", String(order.points)],
+    ["对应积分", formatPoints(order.points)],
     ["支付方式", rechargeMethodLabels[order.method]],
     ["订单状态", rechargeLabels[order.status]],
     ["创建时间", time(order.createdAt)],
@@ -155,7 +157,9 @@ export function RechargeAdminDetail({ order }: { order: AdminRechargeDetail }) {
     ],
     [
       "到账积分",
-      order.creditedPoints === null ? "尚未到账" : String(order.creditedPoints),
+      order.creditedPoints === null
+        ? "尚未到账"
+        : formatPoints(order.creditedPoints),
     ],
     ["到账流水号", order.ledgerId ?? "—"],
     ["到账记录时间", time(order.creditedAt)],

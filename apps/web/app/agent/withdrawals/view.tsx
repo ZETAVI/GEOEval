@@ -1,5 +1,6 @@
 import type { AgencyWithdrawal } from "@geoeval/api-client";
 import styles from "../../agency/customer-service.module.css";
+import { formatChinaDateTime } from "../../china-time.js";
 
 export const withdrawalStatusLabels: Record<
   AgencyWithdrawal["status"],
@@ -98,5 +99,5 @@ export function WithdrawalFacts({ value }: { value: AgencyWithdrawal }) {
 }
 
 export function time(value: string) {
-  return new Date(value).toLocaleString("zh-CN");
+  return formatChinaDateTime(value);
 }

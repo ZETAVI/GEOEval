@@ -1,4 +1,5 @@
 import type { PurchasedTerms } from "@geoeval/api-client";
+import { formatPoints } from "../point-format.js";
 export function AgreementSummary({ terms }: { terms: PurchasedTerms }) {
   return (
     <section className="commerce-editor" aria-label="购买服务约定">
@@ -18,8 +19,8 @@ export function AgreementSummary({ terms }: { terms: PurchasedTerms }) {
             <li key={l.platformId}>
               <strong>{l.displayName}</strong>
               <span>
-                {l.quantity} 篇 × {l.unitPoints.toLocaleString()} 积分 ={" "}
-                {l.totalPoints.toLocaleString()} 积分
+                {l.quantity} 篇 × {formatPoints(l.unitPoints)} ={" "}
+                {formatPoints(l.totalPoints)}
               </span>
             </li>
           ))}
@@ -30,7 +31,7 @@ export function AgreementSummary({ terms }: { terms: PurchasedTerms }) {
           发布数量<strong>{terms.quantity} 篇</strong>
         </span>
         <span>
-          购买积分<strong>{terms.totalPoints.toLocaleString()} 积分</strong>
+          购买积分<strong>{formatPoints(terms.totalPoints)}</strong>
         </span>
       </div>
     </section>

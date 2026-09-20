@@ -14,6 +14,11 @@ import {
   rechargeIntentKey,
   readReturnBrand,
 } from "../app/recharges/recharge-intent.js";
+import {
+  amountDraftFromPoints,
+  parseRechargePoints,
+  pointDraftFromAmount,
+} from "../app/recharges/recharge-point-selection.js";
 const account = "77000000-0000-4000-8000-000000000101",
   order = "77000000-0000-4000-8000-000000000102",
   brand = "77000000-0000-4000-8000-000000000103";
@@ -90,6 +95,19 @@ async function flush() {
   await vi.advanceTimersByTimeAsync(0);
 }
 describe("recoverable customer recharge creation", () => {
+  it("presents point choices while preserving the whole-yuan request", () => {
+    expect(parseRechargePoints("100", options)).toEqual({
+      points: 100,
+      amount: 10,
+      problem: null,
+    });
+    expect(parseRechargePoints("15", options)).toMatchObject({
+      amount: null,
+      problem: "充值积分需为 ⚡10 的整数倍",
+    });
+    expect(amountDraftFromPoints("150", 10)).toBe("15");
+    expect(pointDraftFromAmount("15", 10)).toBe("150");
+  });
   it("preserves decimal/invalid drafts without falling back to a shortcut", async () => {
     const f = setup(),
       c = f.create();

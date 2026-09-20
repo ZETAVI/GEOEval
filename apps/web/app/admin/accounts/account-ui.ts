@@ -3,6 +3,7 @@ import {
   type Account,
   type IdentityGovernanceAudit,
 } from "@geoeval/api-client";
+import { formatChinaDateTime } from "../../china-time.js";
 
 export const accountRoleLabels: Record<Account["role"], string> = {
   TERMINAL_CUSTOMER: "终端客户",
@@ -36,11 +37,11 @@ export function accountTimestamp(
   if (!value) return emptyLabel;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return emptyLabel;
-  return new Intl.DateTimeFormat("zh-CN", {
+  return formatChinaDateTime(date, {
     dateStyle: "medium",
     timeStyle: "short",
     hour12: false,
-  }).format(date);
+  });
 }
 
 export function shortAccountId(accountId: string): string {

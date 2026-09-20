@@ -1,5 +1,6 @@
 import type { EvaluationReport } from "@geoeval/api-client";
 import type { CSSProperties } from "react";
+import { formatChinaDateTime } from "../china-time.js";
 
 import { SafeMarkdown } from "./safe-markdown.js";
 
@@ -262,9 +263,7 @@ export function EvaluationReportView({
       </section>
 
       <footer className="report-footer">
-        <span>
-          评测时间：{new Date(report.acceptedAt).toLocaleString("zh-CN")}
-        </span>
+        <span>评测时间：{formatChinaDateTime(report.acceptedAt)}</span>
       </footer>
     </div>
   );

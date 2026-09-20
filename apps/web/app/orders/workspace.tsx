@@ -8,6 +8,8 @@ import {
 } from "@geoeval/api-client";
 import { useEffect, useRef, useState } from "react";
 import { CustomerSidebar } from "../customer-sidebar.js";
+import { formatChinaDateTime } from "../china-time.js";
+import { formatPoints } from "../point-format.js";
 import { SafeMarkdown } from "../diagnosis/safe-markdown.js";
 import { AgreementSummary } from "../publishing/agreement-summary.js";
 import {
@@ -155,12 +157,11 @@ export function OrderWorkspace({ orderId }: { orderId?: string }) {
                     </span>
                   </div>
                   <p>
-                    {item.number} · {new Date(item.createdAt).toLocaleString()}
+                    {item.number} · {formatChinaDateTime(item.createdAt)}
                   </p>
                   <p>
                     {item.mode === "RANDOM" ? "随机套餐" : "精确发布"} ·{" "}
-                    {item.quantity} 篇 · {item.totalPoints.toLocaleString()}{" "}
-                    积分
+                    {item.quantity} 篇 · {formatPoints(item.totalPoints)}
                   </p>
                   <a className="secondary-button" href={`/orders/${item.id}`}>
                     查看订单详情
@@ -195,7 +196,7 @@ export function OrderDetail({ order }: { order: PublishingOrder }) {
         <div>
           <h2>{order.title}</h2>
           <p>
-            购买时间：{new Date(order.createdAt).toLocaleString()} · 文章版本{" "}
+            购买时间：{formatChinaDateTime(order.createdAt)} · 文章版本{" "}
             {order.articleRevision}
           </p>
         </div>

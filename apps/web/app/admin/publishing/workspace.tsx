@@ -19,6 +19,8 @@ import {
   type RoleSessionState,
 } from "../../session-access.js";
 import { AdminSidebar } from "../admin-sidebar.js";
+import { formatChinaDateTime } from "../../china-time.js";
+import { formatPoints } from "../../point-format.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -150,7 +152,7 @@ export function AdminPublishingWorkspace() {
                 </span>
               </div>
               <p className="commerce-price">
-                {item.pointPrice.toLocaleString()} <small>积分 / 套餐</small>
+                {formatPoints(item.pointPrice)} <small>/ 套餐</small>
               </p>
               <p>
                 成功发布 {item.quantity.toLocaleString()} 篇 · 第{" "}
@@ -467,15 +469,16 @@ function PackageAudit({
             <li key={item.id}>
               <strong>{item.reason}</strong>
               <p>
-                {new Date(item.createdAt).toLocaleString()} · 第{" "}
+                {formatChinaDateTime(item.createdAt)} · 第{" "}
                 {item.afterState.revision} 版
               </p>
               <p>
                 {item.beforeState
-                  ? `${item.beforeState.quantity} 篇 / ${item.beforeState.pointPrice} 积分 → `
+                  ? `${item.beforeState.quantity} 篇 / ${formatPoints(item.beforeState.pointPrice)} → `
                   : "创建："}
-                {item.afterState.quantity} 篇 / {item.afterState.pointPrice}{" "}
-                积分 · {item.afterState.status === "ACTIVE" ? "启用" : "停用"}
+                {item.afterState.quantity} 篇 /{" "}
+                {formatPoints(item.afterState.pointPrice)} ·{" "}
+                {item.afterState.status === "ACTIVE" ? "启用" : "停用"}
               </p>
               <small>操作账号：{item.actorAccountId}</small>
             </li>

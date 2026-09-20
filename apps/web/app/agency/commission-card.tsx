@@ -7,6 +7,7 @@ import {
   type AgencyCommissionUpdate,
 } from "@geoeval/api-client";
 import { useAgencyRead } from "./use-agency-read.js";
+import { formatChinaDateTime } from "../china-time.js";
 import styles from "./customer-service.module.css";
 const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 export function AgencyCommissionCard({
@@ -170,7 +171,7 @@ export function AgencyCommissionCard({
           <ul>
             {data.audits.map((event) => (
               <li key={event.id}>
-                {new Date(event.createdAt).toLocaleString("zh-CN")} ·{" "}
+                {formatChinaDateTime(event.createdAt)} ·{" "}
                 {event.before.enabled ? "开启" : "关闭"} →{" "}
                 {event.after.enabled ? "开启" : "关闭"} ·{" "}
                 {event.before.rateBps === null

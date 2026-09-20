@@ -92,6 +92,8 @@ shared across Brands, with integer granted/funded balances and ordered history.
   registration step
 - **AND** history is ordered/paginated by immutable account sequence and includes
   time, signed amount, resulting balance and a customer-facing reason
+- **AND** Web views render every point quantity with the `⚡` unit, distinct from
+  renminbi amounts and agent commission
 - **AND** origin, actor, request identity, internal notes and business references
   are excluded from the customer response.
 
@@ -289,12 +291,12 @@ Commerce SHALL return points automatically only after fulfilment has ended, its 
 #### Scenario: Deadline elapsed with a pending issue
 - **WHEN** an order passed its deadline but an eligible issue remains unresolved
 - **THEN** final settlement waits
-- **AND** the unchanged customer wording is "已约定退回 X 积分，待订单结束结算"
+- **AND** the customer wording is "已约定退回 ⚡X，待订单结束结算"
 
 #### Scenario: Positive settlement succeeds
 - **WHEN** eligibility is confirmed under the order transaction
 - **THEN** one actual return and one final settlement receipt commit atomically
-- **AND** the customer wording changes to "已退回 X 积分"
+- **AND** the customer wording changes to "已退回 ⚡X"
 - **AND** system execution and the operator's agreement are separately traceable without pretending a human clicked
 
 #### Scenario: Zero, duplicate, crash or insufficient capacity

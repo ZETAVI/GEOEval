@@ -8,6 +8,7 @@ import {
   type OperationalOrder,
   type SaveDeliveryResolution,
 } from "@geoeval/api-client";
+import { formatPoints } from "../../point-format.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -69,9 +70,9 @@ export function DeliveryResolutionSummary({
           {resolution.points === 0 ? (
             <p>无需退还积分。</p>
           ) : resolution.returnedPoints !== null ? (
-            <p>已退回 {resolution.returnedPoints} 积分</p>
+            <p>已退回 {formatPoints(resolution.returnedPoints)}</p>
           ) : (
-            <p>已约定退回 {resolution.points} 积分，待订单结束结算</p>
+            <p>已约定退回 {formatPoints(resolution.points)}，待订单结束结算</p>
           )}
         </>
       )}

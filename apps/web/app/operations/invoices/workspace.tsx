@@ -18,6 +18,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AdminSidebar } from "../../admin/admin-sidebar.js";
 import { BusinessRecordsNavigation } from "../../admin/records/navigation.js";
 import { RecordReference } from "../../recharges/record-reference.js";
+import { formatChinaDateTime } from "../../china-time.js";
 import { SessionExitActions } from "../../session-exit-actions.js";
 import {
   loadRoleSession,
@@ -710,7 +711,7 @@ function money(value: string) {
   return `¥${fen / 100n}.${(fen % 100n).toString().padStart(2, "0")}`;
 }
 function date(value: string) {
-  return new Date(value).toLocaleString("zh-CN", { hour12: false });
+  return formatChinaDateTime(value);
 }
 function auditLabel(action: string) {
   return (

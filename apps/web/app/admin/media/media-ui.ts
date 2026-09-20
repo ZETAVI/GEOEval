@@ -1,4 +1,5 @@
 import { ApiRequestError, type MediaPlatformAdmin } from "@geoeval/api-client";
+import { formatChinaDateTime } from "../../china-time.js";
 
 export const mediaCategoryOptions = [
   ["CENTRAL_MEDIA", "中央媒体"],
@@ -222,8 +223,8 @@ export function formatAuditValue(value: unknown): string {
 }
 
 export function formatDateTime(value: string): string {
-  return new Intl.DateTimeFormat("zh-CN", {
+  return formatChinaDateTime(value, {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(new Date(value));
+  });
 }

@@ -9,6 +9,7 @@ import {
   type RechargeSummary,
 } from "@geoeval/api-client";
 import { useRef, useState } from "react";
+import { formatChinaDateTime } from "../china-time.js";
 import { RecordReference } from "./record-reference.js";
 import styles from "./recharge.module.css";
 
@@ -320,5 +321,5 @@ function money(fen: bigint) {
 }
 
 function date(value: string) {
-  return new Date(value).toLocaleString("zh-CN", { hour12: false });
+  return formatChinaDateTime(value);
 }

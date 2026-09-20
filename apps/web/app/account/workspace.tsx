@@ -8,6 +8,7 @@ import {
 import { useEffect, useState } from "react";
 import { CustomerSidebar } from "../customer-sidebar.js";
 import { PointHistoryList } from "../points/point-history.js";
+import { formatPoints } from "../point-format.js";
 import {
   loadRoleSession,
   sessionFailureState,
@@ -105,8 +106,8 @@ export function AccountPointsWorkspace() {
         </header>
         <section className="point-balance">
           <p>当前可用积分</p>
-          <strong>{balance?.balance.toLocaleString()}</strong>
-          <span>积分</span>
+          <strong>{balance ? formatPoints(balance.balance) : "⚡—"}</strong>
+          <span>可用积分</span>
           <p>内容生成、编辑和确认不扣积分，发布订单提交时才会扣除。</p>
           <a className="secondary-button" href="/recharges">
             充值与记录 →

@@ -1,4 +1,5 @@
 import type { PublishingQuote } from "@geoeval/api-client";
+import { formatPoints } from "../point-format.js";
 const problems: Record<string, string> = {
   ARTICLE_CHANGED: "文章已更新，请确认当前文章后重新保存发布选择。",
   ARTICLE_UNCONFIRMED:
@@ -48,10 +49,14 @@ export function QuoteSummary({
                   <strong>{line.displayName}</strong>
                   <span>
                     {line.quantity} 篇 ×{" "}
-                    {line.unitPoints?.toLocaleString() ?? "—"} 积分
+                    {line.unitPoints === null
+                      ? "⚡—"
+                      : formatPoints(line.unitPoints)}
                   </span>
                   <span>
-                    {line.totalPoints?.toLocaleString() ?? "—"} 积分
+                    {line.totalPoints === null
+                      ? "⚡—"
+                      : formatPoints(line.totalPoints)}
                     {!line.available && " · 已不可用"}
                   </span>
                 </li>
@@ -65,21 +70,27 @@ export function QuoteSummary({
             <span>
               需要积分
               <strong>
-                {quote.totalPoints?.toLocaleString() ?? "暂无法报价"}
+                {quote.totalPoints === null
+                  ? "暂无法报价"
+                  : formatPoints(quote.totalPoints)}
               </strong>
             </span>
             <span>
-              可用余额<strong>{balance.toLocaleString()}</strong>
+              可用余额<strong>{formatPoints(balance)}</strong>
             </span>
             <span>
               积分差额
-              <strong>{quote.shortfall?.toLocaleString() ?? "—"}</strong>
+              <strong>
+                {quote.shortfall === null
+                  ? "⚡—"
+                  : formatPoints(quote.shortfall)}
+              </strong>
             </span>
           </div>
           {!!quote.shortfall && (
             <p>
-              还差 {quote.shortfall.toLocaleString()} 积分，按 10
-              积分/元约需充值 {quote.suggestedRechargeYuan}{" "}
+              还差 {formatPoints(quote.shortfall)}，按 ⚡10/元约需充值{" "}
+              {quote.suggestedRechargeYuan}{" "}
               元。充值后仍需核对最新方案并确认购买。
             </p>
           )}
@@ -102,7 +113,7 @@ export function QuoteSummary({
       ) : (
         <p>
           明确保存发布选择后，在这里查看服务端报价。当前可用{" "}
-          {balance.toLocaleString()} 积分。
+          {formatPoints(balance)}。
         </p>
       )}
       <button

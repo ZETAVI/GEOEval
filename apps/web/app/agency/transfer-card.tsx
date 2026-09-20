@@ -9,6 +9,7 @@ import {
   type AgencyTransfer,
 } from "@geoeval/api-client";
 import { useAgencyRead } from "./use-agency-read.js";
+import { formatChinaDateTime } from "../china-time.js";
 import styles from "./customer-service.module.css";
 const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 export function AgencyTransferCard({ customerId }: { customerId: string }) {
@@ -215,7 +216,7 @@ export function AgencyTransferCard({ customerId }: { customerId: string }) {
                     · {e.reason}
                   </p>
                   <small>
-                    {new Date(e.createdAt).toLocaleString("zh-CN")} · 操作者{" "}
+                    {formatChinaDateTime(e.createdAt)} · 操作者{" "}
                     {e.actorMobile ?? e.actorAccountId.slice(0, 8)}
                   </small>
                 </li>

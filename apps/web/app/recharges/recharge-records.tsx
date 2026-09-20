@@ -13,6 +13,8 @@ import {
   type RechargeSummary,
 } from "@geoeval/api-client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { formatChinaDateTime } from "../china-time.js";
+import { formatPoints } from "../point-format.js";
 import { InvoiceDialog } from "./invoice-dialog.js";
 import { PaymentMethodMark } from "./payment-method-mark.js";
 import { RecordReference } from "./record-reference.js";
@@ -272,83 +274,71 @@ export function RechargeRecords({
           ) : !recharges.items.length ? (
             <p>当前没有充值记录。</p>
           ) : (
-            <div className={styles.tableScroll}>
-              <table className={styles.recordsTable}>
-                <thead>
-                  <tr>
-                    <th>充值时间</th>
-                    <th>充值额度</th>
-                    <th>实付人民币</th>
-                    <th>支付方式</th>
-                    <th>订单号</th>
-                    <th>支付状态</th>
-                    <th>发票状态</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recharges.items.map((order) => {
-                    const invoice = invoiceByOrder.get(order.id);
-                    const summaryUnavailable = summaryUnavailableOrderIds.has(
-                      order.id,
-                    );
-                    return (
-                      <tr key={order.id}>
-                        <td>{date(order.createdAt)}</td>
-                        <td>{order.points.toLocaleString()} 积分</td>
-                        <td>¥{order.amountYuan.toLocaleString()}</td>
-                        <td>
-                          <PaymentMethodMark method={order.method} compact />
-                        </td>
-                        <td>
-                          <RecordReference value={order.id} label="订单号" />
-                        </td>
-                        <td>
-                          <Status
-                            tone={
-                              order.status === "SUCCESSFUL" ? "good" : "neutral"
-                            }
+            <div className={styles.recordList}>
+              {recharges.items.map((order) => {
+                const invoice = invoiceByOrder.get(order.id);
+                const summaryUnavailable = summaryUnavailableOrderIds.has(
+                  order.id,
+                );
+                return (
+                  <article className={styles.recordCard} key={order.id}>
+                    <div className={styles.recordAmount}>
+                      <span>充值积分</span>
+                      <strong>{formatPoints(order.points)}</strong>
+                      <p>
+                        实付 ¥
+                        {order.amountYuan.toLocaleString("zh-CN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                    <div className={styles.recordPayment}>
+                      <PaymentMethodMark method={order.method} compact />
+                      <time>{date(order.createdAt)}</time>
+                    </div>
+                    <div className={styles.recordState}>
+                      <Status tone={rechargeTone(order.status)}>
+                        {rechargeLabels[order.status]}
+                      </Status>
+                      {summaryUnavailable ? (
+                        <Status tone="neutral">发票状态待刷新</Status>
+                      ) : (
+                        invoiceStatus(order, invoice)
+                      )}
+                    </div>
+                    <div className={styles.recordReference}>
+                      <span>充值单号</span>
+                      <RecordReference value={order.id} label="订单号" />
+                    </div>
+                    <div className={styles.rowActions}>
+                      {order.status === "SUCCESSFUL" &&
+                        !invoice &&
+                        !summaryUnavailable && (
+                          <button
+                            type="button"
+                            onClick={() => setDialog({ order })}
                           >
-                            {rechargeLabels[order.status]}
-                          </Status>
-                        </td>
-                        <td>
-                          {summaryUnavailable ? (
-                            <Status tone="neutral">待刷新</Status>
-                          ) : (
-                            invoiceStatus(order, invoice)
-                          )}
-                        </td>
-                        <td className={styles.rowActions}>
-                          {order.status === "SUCCESSFUL" &&
-                            !invoice &&
-                            !summaryUnavailable && (
-                              <button
-                                type="button"
-                                onClick={() => setDialog({ order })}
-                              >
-                                申请发票
-                              </button>
-                            )}
-                          {invoice && (
-                            <button
-                              type="button"
-                              onClick={() => setDialog({ order, invoice })}
-                            >
-                              {invoice.status === "NEEDS_CORRECTION"
-                                ? "修改资料"
-                                : invoice.status === "ISSUED"
-                                  ? "查看详情"
-                                  : "查看申请"}
-                            </button>
-                          )}
-                          <a href={`/recharges/${order.id}`}>订单详情</a>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                            申请发票
+                          </button>
+                        )}
+                      {invoice && (
+                        <button
+                          type="button"
+                          onClick={() => setDialog({ order, invoice })}
+                        >
+                          {invoice.status === "NEEDS_CORRECTION"
+                            ? "修改资料"
+                            : invoice.status === "ISSUED"
+                              ? "查看发票"
+                              : "查看申请"}
+                        </button>
+                      )}
+                      <a href={`/recharges/${order.id}`}>订单详情</a>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
           {recharges.nextCursor && (
@@ -497,7 +487,15 @@ function invoiceStatus(
 }
 
 function date(value: string) {
-  return new Date(value).toLocaleString("zh-CN", { hour12: false });
+  return formatChinaDateTime(value);
+}
+
+function rechargeTone(
+  status: RechargeSummary["status"],
+): "good" | "warning" | "neutral" {
+  if (status === "SUCCESSFUL") return "good";
+  if (status === "PENDING_PAYMENT" || status === "CONFIRMING") return "warning";
+  return "neutral";
 }
 
 function money(value: string) {
