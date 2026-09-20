@@ -1,16 +1,17 @@
 # Verification
 
 Verification date: 2026-09-20. Base:
-`main@71136ad8c75c61c04267581912dac10dc28aed80`. Reviewed implementation
-through `codex/issue-64-sms-challenge-delivery@e4eb6a8` plus this evidence
+`main@5f3ec07`. Reviewed implementation through
+`codex/issue-64-sms-challenge-delivery@a45c56d` plus this evidence
 reconciliation.
 
-PR #134 was linearly rebased from `main@6b09858` after three Recharge-only
-commits entered `main`. The only shared source file was
-`apps/backend/package.json`, where the newer base added an independent
-Recharge script outside this Change's dependency block. The rebase had no
-conflict; dependency, build, affected test, Diff and closing-relationship
-evidence were refreshed before the branch was updated.
+PR #134 was linearly rebased from `main@6b09858` through `71136ad` to
+`5f3ec07` after four Recharge-only commits entered `main`. The first update's
+only shared source file was `apps/backend/package.json`, where the newer base
+added an independent Recharge script outside this Change's dependency block;
+the second update changed only WeChat implementation/tests. Both rebases had no
+conflict. Dependency, build, affected test, Diff and closing-relationship
+evidence were refreshed before each branch update.
 
 ## Evidence matrix
 
