@@ -6,9 +6,11 @@ import type {
   ProviderProof,
   ProviderResult,
   ProviderTradeObservation,
+  ProviderNotificationVerifier,
   RechargePaymentGateway,
 } from "../../application/provider-payment.js";
 import {
+  AlipayNotificationAdapter,
   AlipayPaymentAdapter,
   type AlipayResult,
   type AlipayTrade,
@@ -107,11 +109,40 @@ function observation(
   };
 }
 
-export class AlipayRechargePaymentGateway implements RechargePaymentGateway {
+type AlipayNotificationProtocol = Pick<
+  AlipayNotificationAdapter | AlipayPaymentAdapter,
+  "verifyNotification"
+>;
+
+export class AlipayRechargeNotificationVerifier implements ProviderNotificationVerifier {
   readonly provider = "ALIPAY" as const;
+
+  constructor(private readonly verifier: AlipayNotificationProtocol) {}
+
+  verifyNotification(input: {
+    headers: Readonly<Record<string, readonly string[] | undefined>>;
+    rawBody: Buffer;
+  }): ProviderResult<ProviderNotification> {
+    return convert(
+      this.verifier.verifyNotification(input.rawBody),
+      (value) => ({
+        notificationId: value.notificationId,
+        createdAt: value.notificationAt,
+        observation: observation(value.trade, proof(value.proof)),
+      }),
+    );
+  }
+}
+
+export class AlipayRechargePaymentGateway
+  extends AlipayRechargeNotificationVerifier
+  implements RechargePaymentGateway
+{
   readonly method = "ALIPAY_PC" as const;
   readonly actionKind = "CASHIER_PAGE" as const;
-  constructor(private readonly adapter: AlipayPaymentAdapter) {}
+  constructor(private readonly adapter: AlipayPaymentAdapter) {
+    super(adapter);
+  }
 
   prepareCashier(
     order: PaymentOrder,
@@ -136,17 +167,6 @@ export class AlipayRechargePaymentGateway implements RechargePaymentGateway {
       identity: { ...order },
       transactionId: value.transactionId,
       proof: proof(value.proof),
-    }));
-  }
-
-  verifyNotification(input: {
-    headers: Readonly<Record<string, readonly string[] | undefined>>;
-    rawBody: Buffer;
-  }): ProviderResult<ProviderNotification> {
-    return convert(this.adapter.verifyNotification(input.rawBody), (value) => ({
-      notificationId: value.notificationId,
-      createdAt: value.notificationAt,
-      observation: observation(value.trade, proof(value.proof)),
     }));
   }
 

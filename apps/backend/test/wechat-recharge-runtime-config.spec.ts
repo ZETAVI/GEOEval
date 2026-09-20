@@ -11,6 +11,7 @@ import {
   loadRechargeWorkerConfiguration,
 } from "../src/recharge/recharge.runtime-config.js";
 import { RechargeNotificationModule } from "../src/recharge/recharge-notification.module.js";
+import { loadAlipayRechargeNotificationVerifier } from "../src/recharge/alipay-recharge.runtime-config.js";
 import {
   loadWechatRechargeApiConfiguration,
   loadWechatRechargeWorkerConfiguration,
@@ -134,16 +135,86 @@ describe("WeChat and multi-provider recharge host configuration", () => {
     expect(callback?.verifiers[0]?.provider).toBe("WECHAT");
   });
 
+  it("loads an Alipay passive verifier with no application private key or payment URLs", () => {
+    const callback = loadRechargeCallbackConfiguration({
+      NODE_ENV: "production",
+      DATABASE_URL: base.DATABASE_URL,
+      RECHARGE_CALLBACK_PORT: "3300",
+      RECHARGE_WECHAT_ACTIVATION: "disabled",
+      RECHARGE_ALIPAY_ACTIVATION: "verify",
+      RECHARGE_ALIPAY_APP_ID: base.RECHARGE_ALIPAY_APP_ID,
+      RECHARGE_ALIPAY_MERCHANT_ID: base.RECHARGE_ALIPAY_MERCHANT_ID,
+      RECHARGE_ALIPAY_PUBLIC_KEY_FILE: base.RECHARGE_ALIPAY_PUBLIC_KEY_FILE,
+    });
+    expect(callback).toMatchObject({
+      databaseUrl: "postgresql://example/recharge",
+      port: 3300,
+    });
+    expect(callback?.verifiers.map((value) => value.provider)).toEqual([
+      "ALIPAY",
+    ]);
+  });
+
+  it("composes both passive callback verifiers without payment signing credentials", () => {
+    const callback = loadRechargeCallbackConfiguration({
+      NODE_ENV: "production",
+      DATABASE_URL: base.DATABASE_URL,
+      RECHARGE_CALLBACK_PORT: "3300",
+      RECHARGE_WECHAT_ACTIVATION: "verify",
+      RECHARGE_WECHAT_PUBLIC_KEY_ID: base.RECHARGE_WECHAT_PUBLIC_KEY_ID,
+      RECHARGE_WECHAT_PUBLIC_KEY_FILE: base.RECHARGE_WECHAT_PUBLIC_KEY_FILE,
+      RECHARGE_WECHAT_API_V3_KEY_FILE: base.RECHARGE_WECHAT_API_V3_KEY_FILE,
+      RECHARGE_ALIPAY_ACTIVATION: "verify",
+      RECHARGE_ALIPAY_APP_ID: base.RECHARGE_ALIPAY_APP_ID,
+      RECHARGE_ALIPAY_MERCHANT_ID: base.RECHARGE_ALIPAY_MERCHANT_ID,
+      RECHARGE_ALIPAY_PUBLIC_KEY_FILE: base.RECHARGE_ALIPAY_PUBLIC_KEY_FILE,
+    });
+    expect(callback?.verifiers.map((value) => value.provider)).toEqual([
+      "WECHAT",
+      "ALIPAY",
+    ]);
+  });
+
   it("accepts systemd credential copies without accepting ordinary group-readable keys", () => {
     chmodSync(base.RECHARGE_WECHAT_PUBLIC_KEY_FILE!, 0o440);
     chmodSync(base.RECHARGE_WECHAT_API_V3_KEY_FILE!, 0o440);
+    chmodSync(base.RECHARGE_ALIPAY_PUBLIC_KEY_FILE!, 0o440);
     process.env.CREDENTIALS_DIRECTORY = directory;
-    expect(loadRechargeCallbackConfiguration(base)?.verifiers).toHaveLength(1);
+    expect(
+      loadRechargeCallbackConfiguration({
+        ...base,
+        RECHARGE_ALIPAY_ACTIVATION: "verify",
+      })?.verifiers,
+    ).toHaveLength(2);
 
     process.env.CREDENTIALS_DIRECTORY = join(directory, "another-unit");
     expect(() => loadRechargeCallbackConfiguration(base)).toThrow(
       "RECHARGE_WECHAT_KEY_MATERIAL_INVALID",
     );
+  });
+
+  it("rejects invalid Alipay callback key material and sandbox in production", () => {
+    writeFileSync(base.RECHARGE_ALIPAY_PUBLIC_KEY_FILE!, "not-a-public-key", {
+      mode: 0o600,
+    });
+    expect(() =>
+      loadAlipayRechargeNotificationVerifier({
+        NODE_ENV: "production",
+        RECHARGE_ALIPAY_ACTIVATION: "verify",
+        RECHARGE_ALIPAY_APP_ID: base.RECHARGE_ALIPAY_APP_ID,
+        RECHARGE_ALIPAY_MERCHANT_ID: base.RECHARGE_ALIPAY_MERCHANT_ID,
+        RECHARGE_ALIPAY_PUBLIC_KEY_FILE: base.RECHARGE_ALIPAY_PUBLIC_KEY_FILE,
+      }),
+    ).toThrow("RECHARGE_ALIPAY_KEY_MATERIAL_INVALID");
+    expect(() =>
+      loadAlipayRechargeNotificationVerifier({
+        NODE_ENV: "production",
+        RECHARGE_ALIPAY_ACTIVATION: "sandbox",
+        RECHARGE_ALIPAY_APP_ID: base.RECHARGE_ALIPAY_APP_ID,
+        RECHARGE_ALIPAY_MERCHANT_ID: base.RECHARGE_ALIPAY_MERCHANT_ID,
+        RECHARGE_ALIPAY_PUBLIC_KEY_FILE: base.RECHARGE_ALIPAY_PUBLIC_KEY_FILE,
+      }),
+    ).toThrow("RECHARGE_SANDBOX_FORBIDDEN_IN_PRODUCTION");
   });
 
   it("opens Native creation only in live mode", () => {

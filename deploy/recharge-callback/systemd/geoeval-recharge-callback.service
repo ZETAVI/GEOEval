@@ -17,9 +17,11 @@ Environment=NODE_ENV=production
 Environment=NODE_OPTIONS=--max-old-space-size=64
 Environment=RECHARGE_WECHAT_PUBLIC_KEY_FILE=%d/wechat_public_key.pem
 Environment=RECHARGE_WECHAT_API_V3_KEY_FILE=%d/api_v3.key
+Environment=RECHARGE_ALIPAY_PUBLIC_KEY_FILE=%d/alipay_public_key.pem
 EnvironmentFile=/etc/geoeval/recharge-callback.env
 LoadCredential=wechat_public_key.pem:/opt/geoeval/shared/secrets/wechat/wechatpay_public_key.pem
 LoadCredential=api_v3.key:/opt/geoeval/shared/secrets/wechat/api_v3.key
+LoadCredential=alipay_public_key.pem:/opt/geoeval/shared/secrets/alipay/2021007100630148/alipay_public_key.pem
 ExecStart=/opt/geoeval/shared/node/bin/node /opt/geoeval/current/apps/backend/dist/recharge-callback-main.js
 Restart=on-failure
 RestartSec=5s
