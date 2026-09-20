@@ -306,21 +306,33 @@ describe("actual WeChat adapter through controlled HTTPS", () => {
     ).toMatchObject({ ok: true });
   });
   it.each([302, 401, 404, 429, 503])(
-    "HTTP %i returns unresolved exactly once",
+    "HTTP %i retains only a safe provider code exactly once",
     async (status) => {
       plan = {
         status,
+        body: Buffer.from(
+          JSON.stringify({
+            code: "APPID_MCHID_NOT_MATCH",
+            message: "private provider detail",
+          }),
+        ),
         headers: {
           Location: "https://api.mch.weixin.qq.com/redirected",
           "Retry-After": "0",
         },
       };
-      expect(await adapter().query(f.order)).toMatchObject({
+      const result = await adapter().query(f.order);
+      expect(result).toMatchObject({
         ok: false,
-        error: { kind: "UNRESOLVED", httpStatus: status },
+        error: {
+          kind: "UNRESOLVED",
+          httpStatus: status,
+          providerCode: "APPID_MCHID_NOT_MATCH",
+        },
       });
       expect(attempts).toBe(1);
       expect(captured).toHaveLength(1);
+      expect(JSON.stringify(result)).not.toContain("private provider detail");
     },
   );
   it("preserves and rejects duplicate signature headers from actual HTTP", async () => {
@@ -380,6 +392,16 @@ describe("actual WeChat adapter through controlled HTTPS", () => {
       ).toMatchObject({ ok: false, error: { code: "RESPONSE_SIZE" } });
     },
   );
+  it("caps non-success diagnostics at four KiB", async () => {
+    plan = {
+      status: 400,
+      body: Buffer.from("x".repeat(4097)),
+    };
+    expect(await adapter().query(f.order)).toMatchObject({
+      ok: false,
+      error: { code: "RESPONSE_SIZE" },
+    });
+  });
   it("rejects oversized headers through the strict HTTP parser", async () => {
     plan = { headers: { "X-Large": "x".repeat(20000) } };
     expect(await adapter().query(f.order)).toMatchObject({

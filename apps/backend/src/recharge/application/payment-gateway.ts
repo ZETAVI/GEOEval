@@ -65,6 +65,7 @@ export type GatewayResult<T> =
         kind: "INVALID_REQUEST" | "UNRESOLVED" | "INVALID_NOTIFICATION";
         code: GatewayFailureCode;
         httpStatus?: number;
+        providerCode?: string;
       };
     };
 

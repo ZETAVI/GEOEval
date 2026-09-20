@@ -192,8 +192,31 @@ function wechatObservation(value: TradeObservation): ProviderTradeObservation {
 function result<T, U>(
   source: GatewayResult<T>,
   map: (value: T) => U,
+  operation?: "INITIATE" | "QUERY" | "CLOSE",
 ): ProviderResult<U> {
-  return source.ok ? { ok: true, value: map(source.value) } : source;
+  if (source.ok) return { ok: true, value: map(source.value) };
+  const { providerCode, ...error } = source.error;
+  return {
+    ok: false,
+    error: {
+      ...error,
+      code: providerCode ?? error.code,
+      ...(providerCode
+        ? {
+            recovery:
+              error.httpStatus === 429 ||
+              (error.httpStatus !== undefined && error.httpStatus >= 500) ||
+              ["FREQUENCY_LIMITED", "SYSTEM_ERROR"].includes(providerCode)
+                ? ("RETRY" as const)
+                : operation === "QUERY" &&
+                    (error.httpStatus === 404 ||
+                      providerCode === "ORDER_NOT_EXIST")
+                  ? ("VERIFY" as const)
+                  : ("REVIEW" as const),
+          }
+        : {}),
+    },
+  };
 }
 
 /** Adapts the passive WeChat callback protocol to the provider-neutral inbox seam. */
@@ -229,23 +252,31 @@ export class WechatRechargePaymentGateway
     order: PaymentOrder,
     input: Readonly<{ description: string; expiresAt: string }>,
   ) {
-    return result(await this.gateway.initiate(order, input), (value) => ({
-      kind: "QR_CODE" as const,
-      url: value.url,
-      paymentExpiresAt: value.paymentExpiresAt,
-      proof: wechatProof(value.proof),
-    }));
+    return result(
+      await this.gateway.initiate(order, input),
+      (value) => ({
+        kind: "QR_CODE" as const,
+        url: value.url,
+        paymentExpiresAt: value.paymentExpiresAt,
+        proof: wechatProof(value.proof),
+      }),
+      "INITIATE",
+    );
   }
   async query(order: PaymentOrder) {
-    return result(await this.gateway.query(order), wechatObservation);
+    return result(await this.gateway.query(order), wechatObservation, "QUERY");
   }
   async close(order: PaymentOrder) {
-    return result(await this.gateway.close(order), (value) => ({
-      kind: value.kind,
-      identity: value.identity,
-      transactionId: null,
-      proof: wechatProof(value.proof),
-    }));
+    return result(
+      await this.gateway.close(order),
+      (value) => ({
+        kind: value.kind,
+        identity: value.identity,
+        transactionId: null,
+        proof: wechatProof(value.proof),
+      }),
+      "CLOSE",
+    );
   }
   dispose() {
     return (

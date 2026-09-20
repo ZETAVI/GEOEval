@@ -5,6 +5,7 @@ export class WechatProtocolError extends Error {
   constructor(
     readonly code: GatewayFailureCode,
     readonly httpStatus?: number,
+    readonly providerCode?: string,
   ) {
     super(code);
     this.name = "WechatProtocolError";

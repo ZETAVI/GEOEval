@@ -6,6 +6,7 @@ import {
 } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
+import { WechatRechargePaymentGateway } from "../src/recharge/application/provider-payment.js";
 import { WechatPayGateway } from "../src/recharge/infrastructure/wechat/wechat-pay.gateway.js";
 import {
   decryptResource,
@@ -419,12 +420,41 @@ describe("WeChat Native operation mapping", () => {
       );
       expect(result).toMatchObject({
         ok: false,
-        error: { kind: "UNRESOLVED", httpStatus: status },
+        error: {
+          kind: "UNRESOLVED",
+          httpStatus: status,
+          providerCode: "ORDER_NOT_EXIST",
+        },
       });
       expect(exchange).toHaveBeenCalledTimes(1);
       expect(JSON.stringify(result)).not.toContain("private-error-body");
     },
   );
+  it("maps only the safe provider code into Recharge diagnostics", async () => {
+    const protocol = new WechatPayGateway(f.config(), async () =>
+      f.response(
+        {
+          code: "APPID_MCHID_NOT_MATCH",
+          message: "private provider detail",
+        },
+        400,
+      ),
+    );
+    const result = await new WechatRechargePaymentGateway(protocol).initiate(
+      f.order,
+      input,
+    );
+    expect(result).toEqual({
+      ok: false,
+      error: {
+        kind: "UNRESOLVED",
+        code: "APPID_MCHID_NOT_MATCH",
+        httpStatus: 400,
+        recovery: "REVIEW",
+      },
+    });
+    expect(JSON.stringify(result)).not.toContain("private provider detail");
+  });
   it("sanitizes thrown transport errors and does not resend", async () => {
     const exchange = vi.fn(async () => {
       throw new Error("private-key / Authorization / private-response");
