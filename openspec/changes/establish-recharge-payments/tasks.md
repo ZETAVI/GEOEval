@@ -94,7 +94,8 @@ Current planning: R1, O1a, Alipay PC and the WeChat callback-only host are merge
 - [ ] Coordinate the exact PostgreSQL/systemd/Nginx maintenance window with the shared-host owner, then deploy callback-only `verify` mode and record runtime evidence. Do not deploy the full API, Web app, login or Worker in this slice.
 - [x] Begin the explicitly authorized callback-only window: PostgreSQL 16/main moved into `geo.slice` with final limits, immutable `main@6488f23` release built, production `geoeval` database received 54 migrations, and callback peer role grants were verified. First callback start failed closed before listen because systemd credential copies are `0440`; Nginx remained full-path `503` and callback was stopped.
 - [x] Merge the bounded systemd credential-mode、Prisma socket URL and target `Requires` → `Wants` corrections through PR #127 at `main@37df66d`, build/deploy a new immutable release, and prove stable callback listen plus target/PG/GEOMonitor isolation. Nginx remains closed.
-- [ ] Apply the measured callback soft-limit correction (`MemoryHigh` 128 → 144 MiB, `MemoryMax` stays 160 MiB) and prove forged-request latency, zero inbox writes, no new high/max/OOM events, and graceful SIGTERM without affecting target/PG/GEOMonitor.
+- [x] Apply the measured callback soft-limit correction (`MemoryHigh` 128 → 144 MiB, `MemoryMax` stays 160 MiB) through PR #128 at `main@6c347a9`; production proved that raising only the cgroup soft limit was insufficient and remained fail-closed behind Nginx `503`.
+- [ ] Add the production-proven unit-local V8 old-space cap, then prove prompt forged-request rejection, zero inbox writes, no max/OOM or sustained pressure, and graceful SIGTERM without affecting target/PG/GEOMonitor before exposing Nginx.
 
 ## P0: Fixed inputs and reviewable contracts
 

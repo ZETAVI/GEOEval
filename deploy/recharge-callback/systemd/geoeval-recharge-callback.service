@@ -14,6 +14,7 @@ Group=geo-runtime
 SupplementaryGroups=geoeval
 WorkingDirectory=/opt/geoeval/current/apps/backend
 Environment=NODE_ENV=production
+Environment=NODE_OPTIONS=--max-old-space-size=64
 Environment=RECHARGE_WECHAT_PUBLIC_KEY_FILE=%d/wechat_public_key.pem
 Environment=RECHARGE_WECHAT_API_V3_KEY_FILE=%d/api_v3.key
 EnvironmentFile=/etc/geoeval/recharge-callback.env

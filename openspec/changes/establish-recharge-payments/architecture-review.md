@@ -32,7 +32,7 @@
 
 同一反馈还暴露 target 反向耦合：`geo-runtime.target Requires=callback` 会在 callback 失败或显式 stop 时停止 target，而 PostgreSQL/GEOMonitor 的 `PartOf=target` 随之停止。journal 证明 15:47 的多次 PostgreSQL start/stop 来自这条依赖链，不是数据库崩溃。最终 drop-in 改用 `Wants=`；target 正常启动全部成员，但 callback 的故障／维护停止不再牵连其他 GEO 服务。生产临时 drop-in 已在锁内排除 callback 并恢复 target、PostgreSQL 和 GEOMonitor，仓库修正合并后才恢复完整 Wants 列表。
 
-新 release 稳定启动后，callback 常驻约 131–137 MiB；原 `MemoryHigh=128M` 产生 12,252 次 high event 和接近 87% 的十秒 memory pressure，伪造请求虽正确返回 401 但耗时约 4 秒，随后 SIGTERM 在 15 秒内未完成而被 systemd kill。hard max 从未触发，数据库保持 0/0。资源修正以实测峰值把 soft high 提到 144 MiB，保留约 7 MiB 软余量和 16 MiB hard 区间；不能放宽 160 MiB hard max。恢复验收必须同时证明请求延迟、memory events 和 graceful stop，不以 active 状态单独通过。
+新 release 稳定启动后，callback 常驻约 131–137 MiB；原 `MemoryHigh=128M` 产生 12,252 次 high event 和接近 87% 的十秒 memory pressure，伪造请求虽正确返回 401 但耗时约 4 秒，随后 SIGTERM 在 15 秒内未完成而被 systemd kill。hard max 从未触发，数据库保持 0/0。只把 soft high 提到 144 MiB 仍使匿名内存扩张到约 151 MiB，4,653 次 high event、十秒 pressure 约 61%，伪造请求在 5 秒内无响应。受锁临时探针在 callback unit 内加入 `--max-old-space-size=64` 后，稳定内存约 98–105 MiB，伪造请求 36–44 ms 返回 401，inbox 仍为 0/0，停止耗时 0 秒；144/148 MiB soft high 都只有启动瞬时事件且 pressure 为 0。最终保留更窄的 `MemoryHigh=144M` 和 `MemoryMax=160M`，并用 unit-local V8 上限控制分配源头；不得放宽 hard max 或把 `NODE_OPTIONS` 扩散到其他服务。恢复验收仍须证明请求延迟、数据库无写入、无 max/OOM、无持续 pressure 和 graceful stop，不以 active 状态单独通过。
 
 ## O1a 实施作者审查
 
