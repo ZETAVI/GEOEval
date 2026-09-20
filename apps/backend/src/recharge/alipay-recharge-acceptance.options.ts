@@ -43,5 +43,21 @@ export function parseAlipayRechargeAcceptanceOptions(argv: string[]) {
       throw new Error("RECHARGE_ACCEPTANCE_OPTIONS_INVALID");
     values[name] = value;
   }
-  return optionsSchema.parse(values);
+  const parsed = optionsSchema.parse(values);
+  return parsed.mode === "prepare"
+    ? {
+        mode: parsed.mode,
+        cashierFile: parsed.cashierFile,
+        request: {
+          accountId: parsed.accountId,
+          idempotencyKey: parsed.idempotencyKey,
+        },
+      }
+    : {
+        mode: parsed.mode,
+        request: {
+          accountId: parsed.accountId,
+          orderId: parsed.orderId,
+        },
+      };
 }

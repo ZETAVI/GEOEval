@@ -99,9 +99,8 @@ describe("controlled persisted Alipay acceptance", () => {
       ]),
     ).toEqual({
       mode: "prepare",
-      accountId,
-      idempotencyKey,
       cashierFile: "/run/geoeval-alipay-acceptance/one-yuan.html",
+      request: { accountId, idempotencyKey },
     });
     expect(
       parseAlipayRechargeAcceptanceOptions([
@@ -111,7 +110,7 @@ describe("controlled persisted Alipay acceptance", () => {
         "--order-id",
         orderId,
       ]),
-    ).toEqual({ mode: "reconcile", accountId, orderId });
+    ).toEqual({ mode: "reconcile", request: { accountId, orderId } });
     expect(() =>
       parseAlipayRechargeAcceptanceOptions([
         "prepare",
