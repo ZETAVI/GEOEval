@@ -55,6 +55,16 @@ export type SessionDelivery = {
   expiresAt: Date;
 };
 
+type ChallengeRequestObservation = {
+  humanVerification: string;
+  humanReason: string;
+  humanProviderRequestId: string | undefined;
+  delivery: string;
+  deliveryReason: string;
+  deliveryProviderRequestId: string | undefined;
+  deliveryProviderReceiptId: string | undefined;
+};
+
 @Injectable()
 export class AuthenticationService {
   constructor(
@@ -84,7 +94,12 @@ export class AuthenticationService {
     const startedAt = Date.now();
     const observation = {
       humanVerification: "NOT_ATTEMPTED",
+      humanReason: "NONE",
       delivery: "NOT_ATTEMPTED",
+      deliveryReason: "NONE",
+      humanProviderRequestId: undefined as string | undefined,
+      deliveryProviderRequestId: undefined as string | undefined,
+      deliveryProviderReceiptId: undefined as string | undefined,
     };
     try {
       return await this.issueChallenge(
@@ -103,9 +118,28 @@ export class AuthenticationService {
           attributes: {
             humanProvider: this.config.authHumanVerificationMode.toUpperCase(),
             humanOutcome: observation.humanVerification,
+            humanReason: observation.humanReason,
             deliveryProvider: this.config.authChallengeMode.toUpperCase(),
             deliveryOutcome: observation.delivery,
+            deliveryReason: observation.deliveryReason,
             durationMs: String(Date.now() - startedAt),
+            ...(observation.humanProviderRequestId
+              ? {
+                  humanProviderRequestId: observation.humanProviderRequestId,
+                }
+              : {}),
+            ...(observation.deliveryProviderRequestId
+              ? {
+                  deliveryProviderRequestId:
+                    observation.deliveryProviderRequestId,
+                }
+              : {}),
+            ...(observation.deliveryProviderReceiptId
+              ? {
+                  deliveryProviderReceiptId:
+                    observation.deliveryProviderReceiptId,
+                }
+              : {}),
           },
         });
       }
@@ -114,7 +148,7 @@ export class AuthenticationService {
 
   private async issueChallenge(
     id: string,
-    observation: { humanVerification: string; delivery: string },
+    observation: ChallengeRequestObservation,
     rawMobile: string,
     acquisitionVisitToken?: string,
     existingAccountOnly = false,
@@ -138,6 +172,9 @@ export class AuthenticationService {
     const verification = await this.humanVerification.verify({
       ...(captchaVerifyParam !== undefined ? { captchaVerifyParam } : {}),
     });
+    observation.humanReason =
+      verification.outcome === "verified" ? "NONE" : verification.reason;
+    observation.humanProviderRequestId = verification.providerRequestId;
     const verificationDecision =
       this.humanVerificationPolicy.decide(verification);
     if (verificationDecision.outcome === "deny") {
@@ -222,6 +259,8 @@ export class AuthenticationService {
       .catch((error: unknown) => {
         if (error instanceof ChallengeDeliveryRejectedError) {
           observation.delivery = "REJECTED";
+          observation.deliveryReason = error.reason;
+          observation.deliveryProviderRequestId = error.providerRequestId;
           throw new ServiceUnavailableException({
             code: "CHALLENGE_DELIVERY_UNAVAILABLE",
             message: "暂时无法发送验证码，请稍后重试",
@@ -231,6 +270,8 @@ export class AuthenticationService {
         throw error;
       });
     observation.delivery = delivery.outcome.toUpperCase();
+    observation.deliveryProviderRequestId = delivery.providerRequestId;
+    observation.deliveryProviderReceiptId = delivery.providerReceiptId;
     return {
       challengeId: id,
       expiresAt: expiresAt.toISOString(),

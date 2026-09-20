@@ -3,6 +3,8 @@ export const CHALLENGE_DELIVERY = Symbol("CHALLENGE_DELIVERY");
 export type ChallengeDeliveryResult = {
   outcome: "accepted" | "unknown";
   developmentCode?: string;
+  providerRequestId?: string;
+  providerReceiptId?: string;
 };
 
 export type ChallengeDeliveryRejection =

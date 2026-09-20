@@ -392,8 +392,10 @@ describe("terminal-customer passwordless entry", () => {
         attributes: {
           humanProvider: "DISABLED",
           humanOutcome: "VERIFIED",
+          humanReason: "NONE",
           deliveryProvider: "DETERMINISTIC",
           deliveryOutcome: "ACCEPTED",
+          deliveryReason: "NONE",
           durationMs: expect.any(String),
         },
       },

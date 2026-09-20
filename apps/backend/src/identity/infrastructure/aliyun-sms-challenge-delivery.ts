@@ -42,9 +42,23 @@ export class AliyunSmsChallengeDelivery implements ChallengeDeliveryPort {
         }),
         aliyunRuntime(this.config),
       );
-      if (response.body?.code === "OK") return { outcome: "accepted" };
+      if (response.body?.code === "OK")
+        return {
+          outcome: "accepted",
+          ...(response.body.requestId
+            ? { providerRequestId: response.body.requestId }
+            : {}),
+          ...(response.body.bizId
+            ? { providerReceiptId: response.body.bizId }
+            : {}),
+        };
       if (response.statusCode !== undefined && response.statusCode >= 500) {
-        return { outcome: "unknown" };
+        return {
+          outcome: "unknown",
+          ...(response.body?.requestId
+            ? { providerRequestId: response.body.requestId }
+            : {}),
+        };
       }
       throw new ChallengeDeliveryRejectedError(
         rejectionFor(response.body?.code),
@@ -54,7 +68,12 @@ export class AliyunSmsChallengeDelivery implements ChallengeDeliveryPort {
       if (error instanceof ChallengeDeliveryRejectedError) throw error;
       const details = aliyunErrorView(error);
       if (isAliyunInvocationUnavailable(details)) {
-        return { outcome: "unknown" };
+        return {
+          outcome: "unknown",
+          ...(details.requestId
+            ? { providerRequestId: details.requestId }
+            : {}),
+        };
       }
       throw new ChallengeDeliveryRejectedError(
         rejectionFor(details.code),

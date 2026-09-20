@@ -31,13 +31,16 @@ export interface AliyunSmsClient {
 export function createAliyunCaptchaClient(
   config: ApiConfig,
 ): AliyunCaptchaClient {
-  return new CaptchaModule.default(
+  const CaptchaClient =
+    resolveAliyunClientConstructor<AliyunCaptchaClient>(CaptchaModule);
+  return new CaptchaClient(
     aliyunConfig(config, config.authAliyun.captchaEndpoint, "cn-shanghai"),
   );
 }
 
 export function createAliyunSmsClient(config: ApiConfig): AliyunSmsClient {
-  return new SmsModule.default(
+  const SmsClient = resolveAliyunClientConstructor<AliyunSmsClient>(SmsModule);
+  return new SmsClient(
     aliyunConfig(config, config.authAliyun.smsEndpoint, "cn-hangzhou"),
   );
 }
@@ -66,4 +69,22 @@ function aliyunConfig(
     connectTimeout: config.authAliyun.requestTimeoutMs,
     readTimeout: config.authAliyun.requestTimeoutMs,
   });
+}
+
+type AliyunClientConstructor<T> = new (config: $OpenApiUtil.Config) => T;
+
+function resolveAliyunClientConstructor<T>(
+  moduleValue: unknown,
+): AliyunClientConstructor<T> {
+  if (typeof moduleValue === "function")
+    return moduleValue as AliyunClientConstructor<T>;
+  if (
+    typeof moduleValue === "object" &&
+    moduleValue !== null &&
+    "default" in moduleValue &&
+    typeof moduleValue.default === "function"
+  ) {
+    return moduleValue.default as AliyunClientConstructor<T>;
+  }
+  throw new Error("Alibaba Cloud SDK client export is unavailable");
 }

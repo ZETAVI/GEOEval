@@ -15,6 +15,10 @@ import type {
   AliyunCaptchaClient,
   AliyunSmsClient,
 } from "../src/identity/infrastructure/aliyun-auth-clients.js";
+import {
+  createAliyunCaptchaClient,
+  createAliyunSmsClient,
+} from "../src/identity/infrastructure/aliyun-auth-clients.js";
 import { AliyunCaptchaVerifier } from "../src/identity/infrastructure/aliyun-captcha-verifier.js";
 import { AliyunSmsChallengeDelivery } from "../src/identity/infrastructure/aliyun-sms-challenge-delivery.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
@@ -37,6 +41,15 @@ const config: ApiConfig = {
 };
 
 describe("Alibaba authentication adapters", () => {
+  it("constructs both pinned official SDK clients without running a postinstall build", () => {
+    expect(
+      createAliyunCaptchaClient(config).verifyIntelligentCaptchaWithOptions,
+    ).toBeTypeOf("function");
+    expect(createAliyunSmsClient(config).sendSmsWithOptions).toBeTypeOf(
+      "function",
+    );
+  });
+
   it("forwards the opaque CAPTCHA value unchanged with the fixed server scene", async () => {
     const fake = new FakeCaptchaClient({
       statusCode: 200,
@@ -145,7 +158,11 @@ describe("Alibaba authentication adapters", () => {
         code: "042810",
         expiresAt: new Date("2026-09-20T00:00:00Z"),
       }),
-    ).resolves.toEqual({ outcome: "accepted" });
+    ).resolves.toEqual({
+      outcome: "accepted",
+      providerRequestId: "sms-request",
+      providerReceiptId: "receipt",
+    });
     expect(fake.request).toMatchObject({
       phoneNumbers: "+8613800138000",
       signName: "approved-sign",

@@ -10,6 +10,11 @@ at approximately 1,000–2,000 SMS messages per month.
 - Official TypeScript SDK packages
   `@alicloud/captcha20230305@1.1.4` and
   `@alicloud/dysmsapi20170525@4.6.0`; both publish Apache-2.0 metadata.
+- Direct SDK runtime helpers are pinned as
+  `@alicloud/openapi-core@1.0.8` (ISC) and
+  `@darabonba/typescript@1.0.5` (Apache-2.0). The former's Node-version
+  postinstall selector is explicitly disabled because the shipped runtime is
+  complete and the script is unnecessary on the project's pinned Node 24.
 
 ## Current controlled account facts
 
@@ -62,4 +67,3 @@ Recheck these sources before creating RAM policy/credentials, changing endpoints
 or SDK major versions, submitting a signature/template, enabling formal mode,
 making the first paid call, adding another provider/region/client type, or
 running more than one production API replica.
-
