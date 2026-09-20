@@ -8,6 +8,7 @@ import { alipayCallTransport, transportFailure } from "./alipay-transport.js";
 import {
   createPrivateKey,
   createPublicKey,
+  createVerify,
   X509Certificate,
   type KeyObject,
 } from "node:crypto";
@@ -46,6 +47,11 @@ export type AlipayConfig = Readonly<{
         alipayCertificate: string;
         rootCertificate: string;
       };
+}>;
+export type AlipayNotificationConfig = Readonly<{
+  appId: string;
+  merchantId: string;
+  publicKey: string;
 }>;
 export type AlipayResult<T> =
   | { ok: true; value: T }
@@ -171,6 +177,164 @@ function failure<T>(
   };
 }
 
+function trade(
+  data: Record<string, unknown>,
+  source: "QUERY" | "NOTIFICATION",
+  appId: string,
+  merchantId: string,
+): AlipayTrade {
+  const state = data.trade_status;
+  requireValue(
+    state === "TRADE_SUCCESS" ||
+      state === "TRADE_FINISHED" ||
+      state === "WAIT_BUYER_PAY" ||
+      state === "TRADE_CLOSED",
+  );
+  const total = amountFen(data.total_amount);
+  requireValue(total > 0, "AMOUNT_INVALID");
+  const payer =
+    data.buyer_pay_amount === undefined
+      ? null
+      : amountFen(data.buyer_pay_amount);
+  requireValue(payer === null || payer <= total, "AMOUNT_INVALID");
+  const value: AlipayTradeData = {
+    provider: "ALIPAY",
+    merchantId,
+    appId,
+    merchantOrderNo: identifier(data.out_trade_no),
+    transactionId:
+      data.trade_no === undefined &&
+      (state === "WAIT_BUYER_PAY" || state === "TRADE_CLOSED")
+        ? null
+        : identifier(data.trade_no),
+    orderTotalFen: total,
+    currency: "CNY",
+    payerTotalFen: payer,
+    state:
+      state === "TRADE_CLOSED"
+        ? "CLOSED_UNRESOLVED"
+        : state === "WAIT_BUYER_PAY"
+          ? state
+          : "SUCCESS",
+    providerState: state,
+    paymentAt: source === "NOTIFICATION" ? channelDate(data.gmt_payment) : null,
+    sellerTransferAt:
+      source === "QUERY" ? channelDate(data.send_pay_date) : null,
+  };
+  if (value.state !== "SUCCESS") return { ...value, state: value.state };
+  const paid = { ...value, transactionId: identifier(data.trade_no) };
+  return {
+    ...paid,
+    state: "SUCCESS",
+    factsVersion: 2,
+    factsSha256: alipayPaymentFactsSha256(paid),
+  };
+}
+
+function notificationSignature(
+  data: Record<string, string>,
+  publicKey: KeyObject,
+): boolean {
+  if (data.sign_type !== "RSA2" || !data.sign) return false;
+  const signature = data.sign;
+  const fields = { ...data };
+  delete fields.sign;
+  const verify = (input: Record<string, string>) =>
+    createVerify("RSA-SHA256")
+      .update(
+        Object.keys(input)
+          .sort()
+          .map((key) => `${key}=${input[key]}`)
+          .join("&"),
+        "utf8",
+      )
+      .verify(publicKey, signature, "base64");
+  if (verify(fields)) return true;
+  // Match the pinned SDK's legacy-compatible checkNotifySignV2 behavior.
+  delete fields.sign_type;
+  return verify(fields);
+}
+
+/** Passive form verifier: no merchant signing key, network client or payment action. */
+export class AlipayNotificationAdapter {
+  readonly #appId: string;
+  readonly #merchantId: string;
+  readonly #publicKey: KeyObject;
+  readonly #keyId: string;
+
+  constructor(
+    config: AlipayNotificationConfig,
+    readonly clock: () => Date = () => new Date(),
+  ) {
+    try {
+      requireValue(
+        /^\d{16,32}$/.test(config.appId) &&
+          /^2088\d{12}$/.test(config.merchantId),
+        "INVALID_INPUT",
+      );
+      this.#appId = config.appId;
+      this.#merchantId = config.merchantId;
+      this.#publicKey = rsa(createPublicKey(config.publicKey));
+      this.#keyId = publicId(this.#publicKey);
+    } catch {
+      throw new AlipayProtocolError("ALIPAY_NOTIFICATION_CONFIG_INVALID");
+    }
+  }
+
+  verifyNotification(rawBody: Buffer): AlipayResult<{
+    trade: AlipayTrade;
+    notificationId: string;
+    notificationAt: string;
+    proof: {
+      kind: "ALIPAY_FORM_RSA2";
+      verificationKeyId: string;
+      receivedAt: string;
+      bodySha256: string;
+    };
+  }> {
+    try {
+      const data = decodeNotification(rawBody);
+      requireValue(
+        notificationSignature(data, this.#publicKey),
+        "AUTH_SIGNATURE",
+      );
+      requireValue(
+        data.app_id === this.#appId && data.seller_id === this.#merchantId,
+        "IDENTITY_MISMATCH",
+      );
+      requireValue(
+        data.notify_type === "trade_status_sync",
+        "INVALID_NOTIFICATION",
+      );
+      requireValue(
+        typeof data.notify_id === "string" &&
+          data.notify_id.length > 0 &&
+          data.notify_id.length <= 128 &&
+          !/[\u0000-\u001f\u007f]/.test(data.notify_id),
+        "INVALID_NOTIFICATION",
+      );
+      const notificationAt = channelDate(data.notify_time);
+      requireValue(notificationAt !== null, "INVALID_NOTIFICATION");
+      return {
+        ok: true,
+        value: {
+          trade: trade(data, "NOTIFICATION", this.#appId, this.#merchantId),
+          notificationId: data.notify_id,
+          notificationAt,
+          proof: {
+            kind: "ALIPAY_FORM_RSA2",
+            verificationKeyId: this.#keyId,
+            receivedAt: this.clock().toISOString(),
+            bodySha256: sha256(rawBody),
+          },
+        },
+      };
+    } catch (error) {
+      return failure(error, "INVALID_NOTIFICATION");
+    }
+  }
+}
+
 /** Protocol-only: not assembled into HTTP, a worker, persistence or the V1 WeChat port. */
 export class AlipayPaymentAdapter {
   readonly #sdk: AlipaySdk;
@@ -184,6 +348,7 @@ export class AlipayPaymentAdapter {
   readonly #origin: string;
   readonly #timeoutMs: number;
   readonly #maxPaymentWindowMs: number;
+  readonly #notifications: AlipayNotificationAdapter;
   #disposed = false;
   #disposal?: Promise<void>;
   constructor(
@@ -241,6 +406,16 @@ export class AlipayPaymentAdapter {
         };
       }
       this.#keyId = publicId(publicKey);
+      this.#notifications = new AlipayNotificationAdapter(
+        {
+          appId: this.#appId,
+          merchantId: this.#merchantId,
+          publicKey: publicKey
+            .export({ type: "spki", format: "pem" })
+            .toString(),
+        },
+        clock,
+      );
       this.#origin = ENDPOINTS[config.environment];
       this.#timeoutMs = config.timeoutMs;
       this.#maxPaymentWindowMs =
@@ -335,110 +510,8 @@ export class AlipayPaymentAdapter {
       return failure(error, "INVALID_INPUT");
     }
   }
-  #trade(
-    data: Record<string, unknown>,
-    source: "QUERY" | "NOTIFICATION",
-  ): AlipayTrade {
-    const state = data.trade_status;
-    requireValue(
-      state === "TRADE_SUCCESS" ||
-        state === "TRADE_FINISHED" ||
-        state === "WAIT_BUYER_PAY" ||
-        state === "TRADE_CLOSED",
-    );
-    const total = amountFen(data.total_amount);
-    requireValue(total > 0, "AMOUNT_INVALID");
-    const payer =
-      data.buyer_pay_amount === undefined
-        ? null
-        : amountFen(data.buyer_pay_amount);
-    requireValue(payer === null || payer <= total, "AMOUNT_INVALID");
-    const trade: AlipayTradeData = {
-      provider: "ALIPAY",
-      merchantId: this.#merchantId,
-      appId: this.#appId,
-      merchantOrderNo: identifier(data.out_trade_no),
-      transactionId:
-        data.trade_no === undefined &&
-        (state === "WAIT_BUYER_PAY" || state === "TRADE_CLOSED")
-          ? null
-          : identifier(data.trade_no),
-      orderTotalFen: total,
-      currency: "CNY",
-      payerTotalFen: payer,
-      state:
-        state === "TRADE_CLOSED"
-          ? "CLOSED_UNRESOLVED"
-          : state === "WAIT_BUYER_PAY"
-            ? state
-            : "SUCCESS",
-      providerState: state,
-      paymentAt:
-        source === "NOTIFICATION" ? channelDate(data.gmt_payment) : null,
-      sellerTransferAt:
-        source === "QUERY" ? channelDate(data.send_pay_date) : null,
-    };
-    if (trade.state !== "SUCCESS") return { ...trade, state: trade.state };
-    // Only verified success with a real transaction identity receives paid facts.
-    const paid = { ...trade, transactionId: identifier(data.trade_no) };
-    return {
-      ...paid,
-      state: "SUCCESS",
-      factsVersion: 2,
-      factsSha256: alipayPaymentFactsSha256(paid),
-    };
-  }
-  verifyNotification(rawBody: Buffer): AlipayResult<{
-    trade: AlipayTrade;
-    notificationId: string;
-    notificationAt: string;
-    proof: {
-      kind: "ALIPAY_FORM_RSA2";
-      verificationKeyId: string;
-      receivedAt: string;
-      bodySha256: string;
-    };
-  }> {
-    try {
-      const data = decodeNotification(rawBody);
-      requireValue(
-        data.sign_type === "RSA2" && this.#sdk.checkNotifySignV2(data),
-        "AUTH_SIGNATURE",
-      );
-      requireValue(
-        data.app_id === this.#appId && data.seller_id === this.#merchantId,
-        "IDENTITY_MISMATCH",
-      );
-      requireValue(
-        data.notify_type === "trade_status_sync",
-        "INVALID_NOTIFICATION",
-      );
-      requireValue(
-        typeof data.notify_id === "string" &&
-          data.notify_id.length > 0 &&
-          data.notify_id.length <= 128 &&
-          !/[\u0000-\u001f\u007f]/.test(data.notify_id),
-        "INVALID_NOTIFICATION",
-      );
-      const notificationAt = channelDate(data.notify_time);
-      requireValue(notificationAt !== null, "INVALID_NOTIFICATION");
-      return {
-        ok: true,
-        value: {
-          trade: this.#trade(data, "NOTIFICATION"),
-          notificationId: data.notify_id!,
-          notificationAt,
-          proof: {
-            kind: "ALIPAY_FORM_RSA2",
-            verificationKeyId: this.#keyId,
-            receivedAt: this.clock().toISOString(),
-            bodySha256: sha256(rawBody),
-          },
-        },
-      };
-    } catch (error) {
-      return failure(error, "INVALID_NOTIFICATION");
-    }
+  verifyNotification(rawBody: Buffer) {
+    return this.#notifications.verifyNotification(rawBody);
   }
   async #request(
     order: PaymentOrder,
@@ -518,12 +591,20 @@ export class AlipayPaymentAdapter {
     const response = await this.#request(expected, "query", signal);
     if (!response.ok) return response;
     try {
-      const trade = this.#trade(response.value.data, "QUERY");
+      const observed = trade(
+        response.value.data,
+        "QUERY",
+        this.#appId,
+        this.#merchantId,
+      );
       requireValue(
-        trade.orderTotalFen === expected.amountFen,
+        observed.orderTotalFen === expected.amountFen,
         "AMOUNT_MISMATCH",
       );
-      return { ok: true, value: { trade, proof: response.value.proof } };
+      return {
+        ok: true,
+        value: { trade: observed, proof: response.value.proof },
+      };
     } catch (error) {
       return failure(error, "UNRESOLVED");
     }

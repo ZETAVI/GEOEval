@@ -30,7 +30,14 @@ describe("recharge callback production deployment boundary", () => {
       "RECHARGE_WECHAT_PUBLIC_KEY_FILE=%d/wechat_public_key.pem",
     );
     expect(service).toContain("RECHARGE_WECHAT_API_V3_KEY_FILE=%d/api_v3.key");
+    expect(service).toContain(
+      "LoadCredential=alipay_public_key.pem:/opt/geoeval/shared/secrets/alipay/2021007100630148/alipay_public_key.pem",
+    );
+    expect(service).toContain(
+      "RECHARGE_ALIPAY_PUBLIC_KEY_FILE=%d/alipay_public_key.pem",
+    );
     expect(service).not.toMatch(/merchant[_-](private|cert)/i);
+    expect(service).not.toMatch(/alipay.*private/i);
     expect(service).not.toMatch(/api-main|worker-main|redis/i);
   });
 
@@ -61,10 +68,14 @@ describe("recharge callback production deployment boundary", () => {
     expect(grants).not.toMatch(/\bDELETE\b/);
   });
 
-  it("publishes only the exact WeChat callback path", () => {
+  it("publishes only the exact provider callback paths", () => {
     const nginx = read("nginx/app.geohdp.com.conf");
 
     expect(nginx).toContain("location = /recharges/providers/wechat/notify");
+    expect(nginx).toContain("location = /recharges/providers/alipay/notify");
+    expect(nginx).toMatch(
+      /location = \/recharges\/providers\/alipay\/notify \{\s+client_max_body_size 64k;/,
+    );
     expect(nginx).toContain("proxy_pass http://127.0.0.1:3300;");
     expect(nginx).toMatch(/location \/ \{\s+return 503;/);
     expect(nginx).not.toMatch(/proxy_pass\s+http:\/\/127\.0\.0\.1:3300\/;/);
@@ -74,6 +85,11 @@ describe("recharge callback production deployment boundary", () => {
     const environment = read("recharge-callback.env.example");
 
     expect(environment).toContain("RECHARGE_WECHAT_ACTIVATION=verify");
+    expect(environment).toContain("RECHARGE_ALIPAY_ACTIVATION=verify");
+    expect(environment).toContain("RECHARGE_ALIPAY_APP_ID=2021007100630148");
+    expect(environment).toContain(
+      "RECHARGE_ALIPAY_MERCHANT_ID=2088631900727575",
+    );
     expect(environment).toContain(
       "DATABASE_URL=postgresql://geoeval-callback@localhost/geoeval?host=%2Fvar%2Frun%2Fpostgresql",
     );
@@ -82,5 +98,6 @@ describe("recharge callback production deployment boundary", () => {
     );
     expect(environment).not.toMatch(/API_V3_KEY=/);
     expect(environment).not.toMatch(/PRIVATE_KEY/);
+    expect(environment).not.toMatch(/ALIPAY_PUBLIC_KEY_FILE/);
   });
 });

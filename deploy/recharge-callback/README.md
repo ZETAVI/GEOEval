@@ -1,18 +1,20 @@
-# WeChat recharge callback deployment
+# Recharge callback deployment
 
-This package deploys only the authenticated WeChat payment callback ingress for
-Issue #77. It does not deploy the customer API, login, recharge Worker, Web app,
-Alipay callback, or any real-payment command. The process stays in `verify`
-mode: it can authenticate and durably record a WeChat notification, but it
-cannot create a QR order.
+This package deploys only the authenticated WeChat and Alipay payment callback
+ingress for Issue #77. It does not deploy the customer API, login, recharge
+Worker, Web app, or any real-payment command. Both providers stay in `verify`
+mode: the process can authenticate and durably record notifications, but it
+cannot create a QR order or cashier form.
 
 ## Fixed production boundary
 
 - Public path: `POST https://app.geohdp.com/recharges/providers/wechat/notify`
+- Public path: `POST https://app.geohdp.com/recharges/providers/alipay/notify`
 - Local listener: `127.0.0.1:3300`
 - Process: `dist/recharge-callback-main.js`
 - Runtime identity: `geoeval-callback`; it can read only systemd's copied
-  WeChat Pay public key and APIv3 credential.
+  WeChat Pay public key/APIv3 credential and Alipay public key. Neither provider
+  merchant signing key enters this process.
 - Database identity: peer-authenticated `geoeval-callback`, limited to
   `recharge_payment_observations` and `recharge_notification_receipts`.
 - Resource ownership: callback and PostgreSQL are children of `geo.slice` and
@@ -21,11 +23,13 @@ cannot create a QR order.
   existing 768 MiB slice ceiling for cgroup and short lifecycle overhead.
 - All other `app.geohdp.com` HTTPS paths continue to return `503`.
 
-The public-key identifier is
+The WeChat public-key identifier is
 `PUB_KEY_ID_0111177257782026091700211615001802`. The APIv3 value and key
 contents remain outside Git. The service reads their existing protected source
 files through `LoadCredential=`; the source files are never made readable by
-the callback account.
+the callback account. The Alipay application is `2021007100630148`, bound to
+merchant `2088631900727575`; its verification public key is copied from
+`/opt/geoeval/shared/secrets/alipay/2021007100630148/alipay_public_key.pem`.
 
 ## Preconditions and stop conditions
 
@@ -36,15 +40,19 @@ Before any host write, confirm all of the following:
 2. `/opt/geoeval/shared/secrets/wechat/wechatpay_public_key.pem` and
    `/opt/geoeval/shared/secrets/wechat/api_v3.key` still pass the repository's
    protected-file checks. Do not print either value.
-3. PostgreSQL `16/main` still has no non-GEO database or consumer. Stop if this
+3. `/opt/geoeval/shared/secrets/alipay/2021007100630148/alipay_public_key.pem`
+   is the verified Alipay public key for application `2021007100630148` and
+   merchant `2088631900727575`. Do not copy the application private key into
+   this callback deployment.
+4. PostgreSQL `16/main` still has no non-GEO database or consumer. Stop if this
    is no longer true; moving a shared database into `geo.slice` would cross an
    application boundary.
-4. The immutable release was built from the reviewed commit and contains the
+5. The immutable release was built from the reviewed commit and contains the
    complete current migration chain and backend build.
-5. The shared-host owner has accepted the exact window. Acquire
+6. The shared-host owner has accepted the exact window. Acquire
    `/run/lock/shared-host-control.lock` before the GEO application lock. Do not
    run `apt`, `dpkg`, or touch LanChen's MySQL, Redis, units, or files.
-6. Record the current unit, Nginx, PostgreSQL configuration and service state so
+7. Record the current unit, Nginx, PostgreSQL configuration and service state so
    the control-plane changes can be restored exactly.
 
 Stop the window if a preflight differs from the reviewed state, migration or
@@ -156,9 +164,10 @@ steady memory near 100 MiB while the unchanged systemd limits remain the
 second line of protection; do not export this `NODE_OPTIONS` globally.
 
 Check that only `127.0.0.1:3300` listens. A forged loopback notification must
-return `401`; a signed synthetic notification built with non-production test
-keys is not valid against this service. Confirm the callback account cannot
-open the merchant private key or certificate source files.
+return `401` on each provider path; a signed synthetic notification built with
+non-production test keys is not valid against this service. Confirm the callback
+account cannot open either provider's merchant/application private key or
+certificate source files.
 
 ### 5. Exact public path
 
@@ -167,18 +176,25 @@ Back up the active `geoeval-app.conf`, install the reviewed Nginx file, and run
 
 Then verify:
 
-- forged JSON at the exact HTTPS callback path returns `401` and creates no
-  observation or receipt;
+- forged requests with each provider's required content type at the exact
+  WeChat/Alipay HTTPS callback paths return `401` and create no observation or
+  receipt; an invalid content type returns `415` without a database write;
 - `GET /health` and every non-callback application path still return `503`;
 - existing `geohdp.com`, GEOMonitor, LanChen, MySQL, and Redis checks are
   unchanged;
 - Nginx and callback logs contain no key material, raw decrypted resource,
   payer identity, or full database URL.
 
-This completes callback deployment only. A real WeChat notification remains
-unverified until a separately authorized one-yuan payment test.
+This completes callback deployment only. Real WeChat and Alipay notifications
+remain unverified until their separately authorized one-yuan payment tests.
 
 ## Recovery
+
+When Alipay is added to an already healthy WeChat callback deployment, restore
+the previous WeChat-only unit, environment file and Nginx file first, reload
+systemd/Nginx, and restart the callback. Verify the WeChat path before ending
+the window. Do not stop the shared callback process merely because the Alipay
+credential or route failed validation.
 
 For callback or Nginx failure, restore the previous Nginx file first so all
 `app.geohdp.com` routes return the known `503`, reload Nginx, then stop and
@@ -205,6 +221,10 @@ Once this callback slice is healthy, the next gates are separate:
    convergence, exactly-once funded points, customer/admin projections, and
    merchant receipt. Return WeChat activation to `verify` immediately if any
    evidence is incomplete.
+3. Reuse the same accepted persistent-order test entry for one **1 yuan**
+   Alipay PC order. Use the public Alipay callback above, treat `return_url` as
+   navigation only, and prove callback/query convergence, exactly-once ten-point
+   credit, customer/admin projections, invoice eligibility, and merchant receipt.
 
 The product does not support a one-fen RechargeOrder; all controlled channel
 probes and real-funds acceptance use the same one-yuan minimum.

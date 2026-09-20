@@ -8,6 +8,7 @@ import type {
 import type { RechargeWorkerConfiguration } from "./recharge-worker.module.js";
 import {
   loadAlipayRechargeApiConfiguration,
+  loadAlipayRechargeNotificationVerifier,
   loadAlipayRechargeWorkerConfiguration,
 } from "./alipay-recharge.runtime-config.js";
 import {
@@ -94,6 +95,7 @@ export function loadRechargeCallbackConfiguration(
 ): RechargeCallbackConfiguration | null {
   const verifiers = [
     loadWechatRechargeNotificationVerifier(environment),
+    loadAlipayRechargeNotificationVerifier(environment),
   ].filter((value): value is NonNullable<typeof value> => value !== null);
   if (verifiers.length < 1) return null;
   const host = callbackHostSchema.parse(environment);

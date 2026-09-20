@@ -6,7 +6,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { beforeEach, afterAll, describe, expect, it, vi } from "vitest";
+import { AlipaySdk } from "alipay-sdk";
 import {
+  AlipayNotificationAdapter,
   AlipayPaymentAdapter,
   type AlipayConfig,
 } from "../src/recharge/infrastructure/alipay/alipay-payment.adapter.js";
@@ -48,6 +50,18 @@ const config: AlipayConfig = {
   timeoutMs: 1200,
 };
 const adapter = () => new AlipayPaymentAdapter(config, () => now);
+const notificationAdapter = () =>
+  new AlipayNotificationAdapter(
+    {
+      appId: config.appId,
+      merchantId: config.merchantId,
+      publicKey:
+        config.verification.mode === "PUBLIC_KEY"
+          ? config.verification.publicKey
+          : "",
+    },
+    () => now,
+  );
 const order = {
   merchantId: config.merchantId,
   appId: config.appId,
@@ -100,6 +114,31 @@ function notification(changes: Record<string, string> = {}) {
     provider.privateKey,
   ).toString("base64");
   return Buffer.from(new URLSearchParams(data).toString());
+}
+function notificationIncludingSignType(changes: Record<string, string> = {}) {
+  const data: Record<string, string> = {
+    ...successful,
+    app_id: config.appId,
+    seller_id: config.merchantId,
+    notify_id: "signed-with-type",
+    notify_time: "2026-09-09 16:00:00",
+    notify_type: "trade_status_sync",
+    sign_type: "RSA2",
+    ...changes,
+  };
+  const content = Object.keys(data)
+    .sort()
+    .map((key) => `${key}=${data[key]}`)
+    .join("&");
+  data.sign = sign(
+    "RSA-SHA256",
+    Buffer.from(content),
+    provider.privateKey,
+  ).toString("base64");
+  return Buffer.from(new URLSearchParams(data).toString());
+}
+function decodedNotification(raw: Buffer) {
+  return Object.fromEntries(new URLSearchParams(raw.toString("utf8")));
 }
 beforeEach(() => {
   http.mockReset().mockRejectedValue(new Error("UNEXPECTED_NETWORK_REQUEST"));
@@ -316,6 +355,29 @@ describe("v3 request signing and authenticated observations", () => {
 });
 
 describe("one-pass form verification and long-lived notification replay", () => {
+  it.each([notification(), notificationIncludingSignType()])(
+    "matches the pinned SDK for both supported RSA2 signing-string forms",
+    (raw) => {
+      const sdk = new AlipaySdk({
+        appId: config.appId,
+        privateKey: config.privateKey,
+        keyType: "PKCS8",
+        signType: "RSA2",
+        alipayPublicKey:
+          config.verification.mode === "PUBLIC_KEY"
+            ? config.verification.publicKey
+            : "",
+      });
+      expect(sdk.checkNotifySignV2(decodedNotification(raw))).toBe(true);
+      expect(notificationAdapter().verifyNotification(raw).ok).toBe(true);
+      const tampered = Buffer.from(
+        raw.toString("utf8").replace("123.00", "124.00"),
+      );
+      expect(sdk.checkNotifySignV2(decodedNotification(tampered))).toBe(false);
+      expect(notificationAdapter().verifyNotification(tampered).ok).toBe(false);
+    },
+  );
+
   it("shares V2 monetary identity across query, notification and final-state metadata", async () => {
     const gateway = adapter();
     http.mockResolvedValueOnce(signedResponse(successful));
