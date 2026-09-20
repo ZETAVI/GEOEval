@@ -4,16 +4,23 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  UnauthorizedException,
+  Optional,
   ServiceUnavailableException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { randomBytes, randomUUID } from "node:crypto";
 
 import type { ApiConfig } from "../../config/runtime-config.js";
+import { SafeTelemetry } from "../../infrastructure/telemetry.js";
 import {
   CHALLENGE_DELIVERY,
+  ChallengeDeliveryRejectedError,
   type ChallengeDeliveryPort,
 } from "../domain/challenge-delivery.port.js";
+import {
+  CHALLENGE_CODE_GENERATOR,
+  type ChallengeCodeGenerator,
+} from "../domain/challenge-code-generator.port.js";
 import {
   challengeDigest,
   digestsMatch,
@@ -28,7 +35,12 @@ import {
   type IdentityRepository,
 } from "../domain/identity.repository.js";
 import type { AccountView } from "../domain/identity.types.js";
+import {
+  HUMAN_VERIFICATION,
+  type HumanVerificationPort,
+} from "../domain/human-verification.port.js";
 import { InvalidMobileError, normalizeMobile } from "../domain/mobile.js";
+import { HumanVerificationPolicy } from "./human-verification.policy.js";
 import { IDENTITY_CONFIG } from "./identity.config.js";
 
 export type ChallengeDelivery = {
@@ -43,6 +55,16 @@ export type SessionDelivery = {
   expiresAt: Date;
 };
 
+type ChallengeRequestObservation = {
+  humanVerification: string;
+  humanReason: string;
+  humanProviderRequestId: string | undefined;
+  delivery: string;
+  deliveryReason: string;
+  deliveryProviderRequestId: string | undefined;
+  deliveryProviderReceiptId: string | undefined;
+};
+
 @Injectable()
 export class AuthenticationService {
   constructor(
@@ -51,12 +73,86 @@ export class AuthenticationService {
     @Inject(IDENTITY_CONFIG) private readonly config: ApiConfig,
     @Inject(CHALLENGE_DELIVERY)
     private readonly delivery: ChallengeDeliveryPort,
+    @Inject(HUMAN_VERIFICATION)
+    private readonly humanVerification: HumanVerificationPort,
+    @Inject(HumanVerificationPolicy)
+    private readonly humanVerificationPolicy: HumanVerificationPolicy,
+    @Inject(CHALLENGE_CODE_GENERATOR)
+    private readonly challengeCodeGenerator: ChallengeCodeGenerator,
+    @Optional()
+    @Inject(SafeTelemetry)
+    private readonly telemetry?: SafeTelemetry,
   ) {}
 
   async requestChallenge(
     rawMobile: string,
     acquisitionVisitToken?: string,
     existingAccountOnly = false,
+    captchaVerifyParam?: string,
+  ): Promise<ChallengeDelivery> {
+    const id = randomUUID();
+    const startedAt = Date.now();
+    const observation = {
+      humanVerification: "NOT_ATTEMPTED",
+      humanReason: "NONE",
+      delivery: "NOT_ATTEMPTED",
+      deliveryReason: "NONE",
+      humanProviderRequestId: undefined as string | undefined,
+      deliveryProviderRequestId: undefined as string | undefined,
+      deliveryProviderReceiptId: undefined as string | undefined,
+    };
+    try {
+      return await this.issueChallenge(
+        id,
+        observation,
+        rawMobile,
+        acquisitionVisitToken,
+        existingAccountOnly,
+        captchaVerifyParam,
+      );
+    } finally {
+      if (this.telemetry) {
+        await this.telemetry.export({
+          name: "identity.challenge.request",
+          correlationId: id,
+          attributes: {
+            humanProvider: this.config.authHumanVerificationMode.toUpperCase(),
+            humanOutcome: observation.humanVerification,
+            humanReason: observation.humanReason,
+            deliveryProvider: this.config.authChallengeMode.toUpperCase(),
+            deliveryOutcome: observation.delivery,
+            deliveryReason: observation.deliveryReason,
+            durationMs: String(Date.now() - startedAt),
+            ...(observation.humanProviderRequestId
+              ? {
+                  humanProviderRequestId: observation.humanProviderRequestId,
+                }
+              : {}),
+            ...(observation.deliveryProviderRequestId
+              ? {
+                  deliveryProviderRequestId:
+                    observation.deliveryProviderRequestId,
+                }
+              : {}),
+            ...(observation.deliveryProviderReceiptId
+              ? {
+                  deliveryProviderReceiptId:
+                    observation.deliveryProviderReceiptId,
+                }
+              : {}),
+          },
+        });
+      }
+    }
+  }
+
+  private async issueChallenge(
+    id: string,
+    observation: ChallengeRequestObservation,
+    rawMobile: string,
+    acquisitionVisitToken?: string,
+    existingAccountOnly = false,
+    captchaVerifyParam?: string,
   ): Promise<ChallengeDelivery> {
     if (typeof existingAccountOnly !== "boolean")
       throw new BadRequestException("登录请求格式不正确");
@@ -65,13 +161,60 @@ export class AuthenticationService {
       !this.config.agencyAcquisitionEnabled
     )
       throw new ServiceUnavailableException("入口服务尚未开放");
+    if (!this.config.authChallengeSendingEnabled) {
+      observation.delivery = "STOPPED";
+      throw new ServiceUnavailableException({
+        code: "CHALLENGE_SENDING_DISABLED",
+        message: "暂时无法获取验证码，请稍后重试",
+      });
+    }
     const mobile = normalizeMobileForHttp(rawMobile);
-    const id = randomUUID();
+    const verification = await this.humanVerification.verify({
+      ...(captchaVerifyParam !== undefined ? { captchaVerifyParam } : {}),
+    });
+    observation.humanReason =
+      verification.outcome === "verified" ? "NONE" : verification.reason;
+    observation.humanProviderRequestId = verification.providerRequestId;
+    const verificationDecision =
+      this.humanVerificationPolicy.decide(verification);
+    if (verificationDecision.outcome === "deny") {
+      observation.humanVerification =
+        verificationDecision.reason === "REJECTED"
+          ? "REJECTED"
+          : verificationDecision.reason === "CONFIGURATION"
+            ? "CONFIGURATION_ERROR"
+            : "UNAVAILABLE_DENIED";
+      if (
+        verification.outcome === "rejected" &&
+        ["MISSING", "INVALID"].includes(verification.reason)
+      ) {
+        throw new BadRequestException({
+          code: "HUMAN_VERIFICATION_INVALID",
+          message: "请重新完成人机验证",
+        });
+      }
+      if (verificationDecision.reason === "REJECTED") {
+        throw new HttpException(
+          {
+            code: "HUMAN_VERIFICATION_REJECTED",
+            message: "请重新完成人机验证",
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
+      throw new ServiceUnavailableException({
+        code: "HUMAN_VERIFICATION_UNAVAILABLE",
+        message: "暂时无法获取验证码，请稍后重试",
+      });
+    }
+    observation.humanVerification = verificationDecision.degraded
+      ? "UNAVAILABLE_DEGRADED"
+      : "VERIFIED";
     const now = new Date();
     const expiresAt = new Date(
       now.getTime() + this.config.authChallengePolicy.lifetimeMs,
     );
-    const code = this.config.authDeterministicCode;
+    const code = this.challengeCodeGenerator.generate();
     try {
       await this.repository.issueChallenge({
         existingAccountOnly,
@@ -95,6 +238,8 @@ export class AuthenticationService {
       });
     } catch (error) {
       if (error instanceof ChallengeRateLimitError) {
+        observation.delivery = "RATE_LIMITED";
+        observation.deliveryReason = "MOBILE";
         throw new HttpException(
           {
             code: "CHALLENGE_RATE_LIMITED",
@@ -106,16 +251,35 @@ export class AuthenticationService {
       }
       throw error;
     }
-    const delivery = await this.delivery.deliver({
-      challengeId: id,
-      mobile,
-      code,
-      expiresAt,
-    });
+    const delivery = await this.delivery
+      .deliver({
+        challengeId: id,
+        mobile,
+        code,
+        expiresAt,
+      })
+      .catch((error: unknown) => {
+        if (error instanceof ChallengeDeliveryRejectedError) {
+          observation.delivery = "REJECTED";
+          observation.deliveryReason = error.reason;
+          observation.deliveryProviderRequestId = error.providerRequestId;
+          throw new ServiceUnavailableException({
+            code: "CHALLENGE_DELIVERY_UNAVAILABLE",
+            message: "暂时无法发送验证码，请稍后重试",
+          });
+        }
+        observation.delivery = "UNEXPECTED_FAILURE";
+        throw error;
+      });
+    observation.delivery = delivery.outcome.toUpperCase();
+    observation.deliveryProviderRequestId = delivery.providerRequestId;
+    observation.deliveryProviderReceiptId = delivery.providerReceiptId;
     return {
       challengeId: id,
       expiresAt: expiresAt.toISOString(),
-      ...delivery,
+      ...(delivery.developmentCode
+        ? { developmentCode: delivery.developmentCode }
+        : {}),
     };
   }
 

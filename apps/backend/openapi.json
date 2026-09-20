@@ -6977,6 +6977,10 @@
       "RequestChallengeRequest": {
         "type": "object",
         "properties": {
+          "captchaVerifyParam": {
+            "type": "string",
+            "description": "Opaque Alibaba Cloud CAPTCHA result; required when human verification is enabled"
+          },
           "existingAccountOnly": {
             "type": "boolean",
             "description": "Restricts this challenge to an already registered account"
@@ -7016,6 +7020,10 @@
       "CompleteSessionRequest": {
         "type": "object",
         "properties": {
+          "captchaVerifyParam": {
+            "type": "string",
+            "description": "Opaque Alibaba Cloud CAPTCHA result; required when human verification is enabled"
+          },
           "existingAccountOnly": {
             "type": "boolean",
             "description": "Restricts this challenge to an already registered account"

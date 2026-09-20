@@ -2447,6 +2447,8 @@ export interface components {
             items: components["schemas"]["CustomerPublicationItemResponse"][];
         };
         RequestChallengeRequest: {
+            /** @description Opaque Alibaba Cloud CAPTCHA result; required when human verification is enabled */
+            captchaVerifyParam?: string;
             /** @description Restricts this challenge to an already registered account */
             existingAccountOnly?: boolean;
             /** @description Opaque acquisition visit credential; not account authority */
@@ -2461,6 +2463,8 @@ export interface components {
             developmentCode?: string;
         };
         CompleteSessionRequest: {
+            /** @description Opaque Alibaba Cloud CAPTCHA result; required when human verification is enabled */
+            captchaVerifyParam?: string;
             /** @description Restricts this challenge to an already registered account */
             existingAccountOnly?: boolean;
             /** @description Opaque acquisition visit credential; not account authority */

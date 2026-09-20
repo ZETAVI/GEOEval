@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       const part = await reader.read();
       if (part.done) break;
       length += part.value.byteLength;
-      if (length > 1024) {
+      if (length > 12 * 1024) {
         await reader.cancel();
         return NextResponse.json(
           { message: "请求过大" },
@@ -47,15 +47,28 @@ export async function POST(request: NextRequest) {
       raw += decoder.decode(part.value, { stream: true });
     }
     raw += decoder.decode();
-    if (raw.length > 1024)
+    if (raw.length > 12 * 1024)
       return NextResponse.json(
         { message: "请求过大" },
         { status: 413, headers },
       );
-    const body = JSON.parse(raw) as { mobile?: unknown };
+    const body = JSON.parse(raw) as {
+      captchaVerifyParam?: unknown;
+      mobile?: unknown;
+    };
     if (typeof body.mobile !== "string" || body.mobile.length > 30)
       return NextResponse.json(
         { message: "手机号格式不正确" },
+        { status: 400, headers },
+      );
+    if (
+      body.captchaVerifyParam !== undefined &&
+      (typeof body.captchaVerifyParam !== "string" ||
+        body.captchaVerifyParam.length < 1 ||
+        body.captchaVerifyParam.length > 8192)
+    )
+      return NextResponse.json(
+        { message: "安全验证结果不正确" },
         { status: 400, headers },
       );
     const acquisitionVisitToken = (await cookies()).get(
@@ -71,6 +84,9 @@ export async function POST(request: NextRequest) {
       );
     const response = await entryBackend("identity/challenges", {
       mobile: body.mobile,
+      ...(body.captchaVerifyParam
+        ? { captchaVerifyParam: body.captchaVerifyParam }
+        : {}),
       acquisitionVisitToken,
     });
     const data = await response.json();

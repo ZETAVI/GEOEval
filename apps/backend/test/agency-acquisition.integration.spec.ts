@@ -3,10 +3,15 @@ import { PrismaService } from "../src/infrastructure/prisma.service.js";
 import { PostgresAcquisitionRepository } from "../src/agency/infrastructure/postgres-acquisition.repository.js";
 import { PostgresIdentityRepository } from "../src/identity/infrastructure/postgres-identity.repository.js";
 import { AuthenticationService } from "../src/identity/application/authentication.service.js";
+import { HumanVerificationPolicy } from "../src/identity/application/human-verification.policy.js";
+import { DeterministicChallengeCodeGenerator } from "../src/identity/infrastructure/deterministic-challenge-code-generator.js";
 import { DeterministicChallengeDelivery } from "../src/identity/infrastructure/deterministic-challenge-delivery.js";
+import { DisabledHumanVerification } from "../src/identity/infrastructure/disabled-human-verification.js";
+import type { ApiConfig } from "../src/config/runtime-config.js";
 import { loadIntegrationApiConfig } from "./integration-test-config.js";
 import { clearCustomerData } from "./customer-data.js";
 import { ACQUISITION_LIFETIME_MS } from "../src/agency/domain/acquisition.js";
+import { SafeTelemetry } from "../src/infrastructure/telemetry.js";
 
 const base = loadIntegrationApiConfig();
 const config = {
@@ -18,11 +23,18 @@ describe("agency entry and atomic first registration", () => {
   const db = new PrismaService(config.databaseUrl);
   const entry = new PostgresAcquisitionRepository(db);
   const identity = new PostgresIdentityRepository(db);
-  const auth = new AuthenticationService(
-    identity,
-    config,
-    new DeterministicChallengeDelivery(),
-  );
+  function authenticationFor(testConfig: ApiConfig) {
+    return new AuthenticationService(
+      identity,
+      testConfig,
+      new DeterministicChallengeDelivery(),
+      new DisabledHumanVerification(),
+      new HumanVerificationPolicy(testConfig),
+      new DeterministicChallengeCodeGenerator(testConfig),
+      new SafeTelemetry({ export: async () => undefined }),
+    );
+  }
+  const auth = authenticationFor(config);
   let admin: string, a: string, b: string, ka: string, kb: string;
   beforeAll(() => db.$connect());
   afterAll(async () => {
@@ -159,11 +171,10 @@ describe("agency entry and atomic first registration", () => {
       where: { tokenDigest: row.tokenDigest },
       data: { expiresAt: new Date(row.createdAt.getTime() + 1) },
     });
-    const stopped = new AuthenticationService(
-      identity,
-      { ...config, agencyAcquisitionEnabled: false },
-      new DeterministicChallengeDelivery(),
-    );
+    const stopped = authenticationFor({
+      ...config,
+      agencyAcquisitionEnabled: false,
+    });
     await expect(
       stopped.requestChallenge("13900010102", visit.visitToken!),
     ).rejects.toThrow("入口服务尚未开放");

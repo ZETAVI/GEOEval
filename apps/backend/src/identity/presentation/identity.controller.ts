@@ -63,6 +63,7 @@ export class IdentityController {
       input.mobile,
       input.acquisitionVisitToken,
       input.existingAccountOnly ?? false,
+      input.captchaVerifyParam,
     );
   }
 

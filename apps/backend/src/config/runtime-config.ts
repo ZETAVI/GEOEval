@@ -47,7 +47,48 @@ const apiSchema = commonSchema.extend({
   AGENCY_ACQUISITION_ENABLED: z.enum(["0", "1"]).default("0"),
   AGENCY_WITHDRAWAL_ENABLED: z.enum(["0", "1"]).default("0"),
   AGENCY_WITHDRAWAL_KEY_HEX: z.string().default(""),
-  AUTH_CHALLENGE_MODE: z.literal("deterministic").default("deterministic"),
+  AUTH_CHALLENGE_MODE: z
+    .enum(["deterministic", "aliyun"])
+    .default("deterministic"),
+  AUTH_CHALLENGE_SENDING_ENABLED: z.enum(["0", "1"]).default("0"),
+  AUTH_HUMAN_VERIFICATION_MODE: z
+    .enum(["disabled", "aliyun"])
+    .default("disabled"),
+  AUTH_CAPTCHA_UNAVAILABLE_MODE: z.enum(["deny", "limited"]).default("deny"),
+  AUTH_CAPTCHA_MAX_CONSECUTIVE_UNAVAILABLE: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .max(20)
+    .default(0),
+  ALIBABA_CLOUD_ACCESS_KEY_ID: z.string().default(""),
+  ALIBABA_CLOUD_ACCESS_KEY_SECRET: z.string().default(""),
+  ALIYUN_CAPTCHA_SCENE_ID: z
+    .string()
+    .regex(/^[A-Za-z0-9_-]*$/)
+    .max(64)
+    .default(""),
+  ALIYUN_CAPTCHA_ENDPOINT: z
+    .enum([
+      "captcha.cn-shanghai.aliyuncs.com",
+      "captcha-dualstack.cn-shanghai.aliyuncs.com",
+      "captcha-vpc.cn-shanghai.aliyuncs.com",
+    ])
+    .default("captcha.cn-shanghai.aliyuncs.com"),
+  ALIYUN_SMS_SIGN_NAME: z.string().trim().max(100).default(""),
+  ALIYUN_SMS_TEMPLATE_CODE: z
+    .string()
+    .regex(/^(?:SMS_[0-9]+)?$/)
+    .default(""),
+  ALIYUN_SMS_ENDPOINT: z
+    .literal("dysmsapi.aliyuncs.com")
+    .default("dysmsapi.aliyuncs.com"),
+  AUTH_ALIYUN_REQUEST_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1000)
+    .max(10000)
+    .default(3000),
   AUTH_HASH_PEPPER: z.string().min(32),
   AUTH_DETERMINISTIC_CODE: z.string().regex(/^\d{6}$/),
   AUTH_CHALLENGE_LIFETIME_SECONDS: z.coerce
@@ -67,7 +108,7 @@ const apiSchema = commonSchema.extend({
     .int()
     .min(60)
     .max(3600)
-    .default(900),
+    .default(3600),
   AUTH_CHALLENGE_MAX_REQUESTS: z.coerce
     .number()
     .int()
@@ -205,7 +246,23 @@ export type ApiConfig = {
     enabled: boolean;
     encryptionKeyHex: string;
   };
-  authChallengeMode: "deterministic";
+  authChallengeMode: "deterministic" | "aliyun";
+  authChallengeSendingEnabled: boolean;
+  authHumanVerificationMode: "disabled" | "aliyun";
+  authHumanVerificationPolicy: {
+    unavailableMode: "deny" | "limited";
+    maximumConsecutiveUnavailable: number;
+  };
+  authAliyun: {
+    accessKeyId: string;
+    accessKeySecret: string;
+    requestTimeoutMs: number;
+    captchaSceneId: string;
+    captchaEndpoint: string;
+    smsSignName: string;
+    smsTemplateCode: string;
+    smsEndpoint: string;
+  };
   authHashPepper: string;
   authDeterministicCode: string;
   authCookieSecure: boolean;
@@ -265,6 +322,8 @@ function withLocalDefaults(environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
     REDIS_URL: environment.REDIS_URL ?? localRedisUrl,
     AUTH_HASH_PEPPER: environment.AUTH_HASH_PEPPER ?? localAuthHashPepper,
     AUTH_DETERMINISTIC_CODE: environment.AUTH_DETERMINISTIC_CODE ?? "246810",
+    AUTH_CHALLENGE_SENDING_ENABLED:
+      environment.AUTH_CHALLENGE_SENDING_ENABLED ?? "1",
     GEO_OPTIMIZATION_WRITER_MODE:
       environment.GEO_OPTIMIZATION_WRITER_MODE ?? "deterministic",
   };
@@ -322,6 +381,49 @@ export function loadApiConfig(
   }
   if (
     parsed.NODE_ENV === "production" &&
+    parsed.AUTH_HUMAN_VERIFICATION_MODE !== "aliyun"
+  ) {
+    throw new Error(
+      "Alibaba human verification is required for production authentication challenges",
+    );
+  }
+  if (
+    (parsed.AUTH_CHALLENGE_MODE === "aliyun" ||
+      parsed.AUTH_HUMAN_VERIFICATION_MODE === "aliyun") &&
+    (!parsed.ALIBABA_CLOUD_ACCESS_KEY_ID.trim() ||
+      !parsed.ALIBABA_CLOUD_ACCESS_KEY_SECRET.trim())
+  ) {
+    throw new Error(
+      "Alibaba Cloud credentials are required for real authentication protection",
+    );
+  }
+  if (
+    parsed.AUTH_HUMAN_VERIFICATION_MODE === "aliyun" &&
+    !parsed.ALIYUN_CAPTCHA_SCENE_ID.trim()
+  ) {
+    throw new Error(
+      "ALIYUN_CAPTCHA_SCENE_ID is required for Alibaba human verification",
+    );
+  }
+  if (
+    parsed.AUTH_CHALLENGE_MODE === "aliyun" &&
+    (!parsed.ALIYUN_SMS_SIGN_NAME.trim() ||
+      !parsed.ALIYUN_SMS_TEMPLATE_CODE.trim())
+  ) {
+    throw new Error(
+      "Alibaba SMS sign and template are required for real Challenge delivery",
+    );
+  }
+  if (
+    parsed.AUTH_CAPTCHA_UNAVAILABLE_MODE === "limited" &&
+    parsed.AUTH_CAPTCHA_MAX_CONSECUTIVE_UNAVAILABLE < 1
+  ) {
+    throw new Error(
+      "Limited CAPTCHA degradation requires a positive unavailable budget",
+    );
+  }
+  if (
+    parsed.NODE_ENV === "production" &&
     parsed.GEO_OPTIMIZATION_WRITER_MODE === "deterministic"
   ) {
     throw new Error(
@@ -357,6 +459,23 @@ export function loadApiConfig(
       encryptionKeyHex: parsed.AGENCY_WITHDRAWAL_KEY_HEX.toLowerCase(),
     },
     authChallengeMode: parsed.AUTH_CHALLENGE_MODE,
+    authChallengeSendingEnabled: parsed.AUTH_CHALLENGE_SENDING_ENABLED === "1",
+    authHumanVerificationMode: parsed.AUTH_HUMAN_VERIFICATION_MODE,
+    authHumanVerificationPolicy: {
+      unavailableMode: parsed.AUTH_CAPTCHA_UNAVAILABLE_MODE,
+      maximumConsecutiveUnavailable:
+        parsed.AUTH_CAPTCHA_MAX_CONSECUTIVE_UNAVAILABLE,
+    },
+    authAliyun: {
+      accessKeyId: parsed.ALIBABA_CLOUD_ACCESS_KEY_ID,
+      accessKeySecret: parsed.ALIBABA_CLOUD_ACCESS_KEY_SECRET,
+      requestTimeoutMs: parsed.AUTH_ALIYUN_REQUEST_TIMEOUT_MS,
+      captchaSceneId: parsed.ALIYUN_CAPTCHA_SCENE_ID,
+      captchaEndpoint: parsed.ALIYUN_CAPTCHA_ENDPOINT,
+      smsSignName: parsed.ALIYUN_SMS_SIGN_NAME,
+      smsTemplateCode: parsed.ALIYUN_SMS_TEMPLATE_CODE,
+      smsEndpoint: parsed.ALIYUN_SMS_ENDPOINT,
+    },
     authHashPepper: parsed.AUTH_HASH_PEPPER,
     authDeterministicCode: parsed.AUTH_DETERMINISTIC_CODE,
     authCookieSecure: parsed.NODE_ENV === "production",

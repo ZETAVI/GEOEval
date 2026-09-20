@@ -16,6 +16,8 @@ describe("process-scoped configuration", () => {
     });
     expect(api.databaseUrl).toBe("postgresql://example/api");
     expect(api.geoOptimizationWriterMode).toBe("disabled");
+    expect(api.authChallengeSendingEnabled).toBe(false);
+    expect(api.authHumanVerificationMode).toBe("disabled");
   });
 
   it("rejects the same environment for the worker when Redis is absent", () => {
@@ -49,6 +51,10 @@ describe("process-scoped configuration", () => {
     expect(
       loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" }).geoOptimizationWriterMode,
     ).toBe("deterministic");
+    expect(
+      loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" })
+        .authChallengeSendingEnabled,
+    ).toBe(true);
   });
 
   it("rejects deterministic challenge delivery in production", () => {
@@ -62,6 +68,56 @@ describe("process-scoped configuration", () => {
     ).toThrow("forbidden in production");
   });
 
+  it("requires complete Alibaba authentication protection in production", () => {
+    const base = {
+      NODE_ENV: "production",
+      DATABASE_URL: "postgresql://example/api",
+      AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+      AUTH_DETERMINISTIC_CODE: "246810",
+      AUTH_CHALLENGE_MODE: "aliyun",
+      AUTH_HUMAN_VERIFICATION_MODE: "aliyun",
+    };
+    expect(() => loadApiConfig(base)).toThrow("credentials are required");
+    expect(
+      loadApiConfig({
+        ...base,
+        ALIBABA_CLOUD_ACCESS_KEY_ID: "access-key",
+        ALIBABA_CLOUD_ACCESS_KEY_SECRET: "access-secret",
+        ALIYUN_CAPTCHA_SCENE_ID: "18hnihr4",
+        ALIYUN_SMS_SIGN_NAME: "approved-sign",
+        ALIYUN_SMS_TEMPLATE_CODE: "SMS_123456",
+      }),
+    ).toMatchObject({
+      authChallengeMode: "aliyun",
+      authHumanVerificationMode: "aliyun",
+      authAliyun: {
+        captchaSceneId: "18hnihr4",
+        smsSignName: "approved-sign",
+        smsTemplateCode: "SMS_123456",
+        requestTimeoutMs: 3000,
+      },
+    });
+  });
+
+  it("requires a positive finite CAPTCHA unavailable budget", () => {
+    const base = {
+      DATABASE_URL: "postgresql://example/api",
+      AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+      AUTH_DETERMINISTIC_CODE: "246810",
+      AUTH_CAPTCHA_UNAVAILABLE_MODE: "limited",
+    };
+    expect(() => loadApiConfig(base)).toThrow("positive unavailable budget");
+    expect(
+      loadApiConfig({
+        ...base,
+        AUTH_CAPTCHA_MAX_CONSECUTIVE_UNAVAILABLE: "2",
+      }).authHumanVerificationPolicy,
+    ).toEqual({
+      unavailableMode: "limited",
+      maximumConsecutiveUnavailable: 2,
+    });
+  });
+
   it("bounds Challenge abuse and lifecycle cleanup configuration", () => {
     const base = {
       DATABASE_URL: "postgresql://example/api",
@@ -72,7 +128,7 @@ describe("process-scoped configuration", () => {
       authChallengePolicy: {
         lifetimeMs: 300_000,
         resendIntervalMs: 60_000,
-        windowMs: 900_000,
+        windowMs: 3_600_000,
         maximumRequestsPerWindow: 5,
         maximumFailedAttempts: 5,
       },

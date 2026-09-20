@@ -1,9 +1,15 @@
-export async function requestEntryChallenge(mobile: string) {
+export async function requestEntryChallenge(
+  mobile: string,
+  captchaVerifyParam?: string,
+) {
   const response = await fetch("/api/entry/challenge", {
     method: "POST",
     credentials: "same-origin",
     headers: { "content-type": "application/json", "x-geoeval-request": "1" },
-    body: JSON.stringify({ mobile }),
+    body: JSON.stringify({
+      mobile,
+      ...(captchaVerifyParam ? { captchaVerifyParam } : {}),
+    }),
   });
   const data = (await response.json()) as {
     challengeId: string;
