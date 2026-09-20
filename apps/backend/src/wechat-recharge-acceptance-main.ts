@@ -1,39 +1,13 @@
 import "reflect-metadata";
 
-import { z } from "zod";
 import { PrismaService } from "./infrastructure/prisma.service.js";
 import { runWechatPrepayCloseAcceptance } from "./recharge/application/wechat-recharge-acceptance.js";
 import { createNativeRecoveryRuntime } from "./recharge/native-recovery.runtime.js";
+import { parseWechatRechargeAcceptanceOptions } from "./recharge/wechat-recharge-acceptance.options.js";
 import { loadWechatRechargeWorkerConfiguration } from "./recharge/wechat-recharge.runtime-config.js";
 
-const optionsSchema = z
-  .object({
-    mode: z.literal("prepay-close"),
-    accountId: z.string().uuid(),
-    idempotencyKey: z.string().uuid(),
-  })
-  .strict();
-
-function options(argv: string[]) {
-  const values: Record<string, string> = { mode: argv[0] ?? "" };
-  for (let index = 1; index < argv.length; index += 2) {
-    const key = argv[index],
-      value = argv[index + 1];
-    if (!key?.startsWith("--") || value === undefined)
-      throw new Error("RECHARGE_ACCEPTANCE_OPTIONS_INVALID");
-    values[
-      key === "--account-id"
-        ? "accountId"
-        : key === "--idempotency-key"
-          ? "idempotencyKey"
-          : key
-    ] = value;
-  }
-  return optionsSchema.parse(values);
-}
-
 async function main() {
-  const input = options(process.argv.slice(2));
+  const input = parseWechatRechargeAcceptanceOptions(process.argv.slice(2));
   const configuration = loadWechatRechargeWorkerConfiguration();
   if (
     !configuration ||
@@ -52,7 +26,10 @@ async function main() {
       ...configuration.native,
       prisma,
     });
-    const evidence = await runWechatPrepayCloseAcceptance(runtime, input);
+    const evidence = await runWechatPrepayCloseAcceptance(
+      runtime,
+      input.request,
+    );
     process.stdout.write(
       `${JSON.stringify({ process: "wechat-recharge-acceptance", mode: input.mode, ...evidence })}\n`,
     );

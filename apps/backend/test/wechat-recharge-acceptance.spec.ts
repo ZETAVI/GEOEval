@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { NativeCheckoutSnapshot } from "../src/recharge/application/native-recovery.js";
 import { runWechatPrepayCloseAcceptance } from "../src/recharge/application/wechat-recharge-acceptance.js";
 import type { RechargeOrder } from "../src/recharge/domain/recharge-order.js";
+import { parseWechatRechargeAcceptanceOptions } from "../src/recharge/wechat-recharge-acceptance.options.js";
 
 const accountId = randomUUID(),
   idempotencyKey = randomUUID(),
@@ -57,6 +58,21 @@ function snapshot(
 }
 
 describe("controlled persisted WeChat prepay-close acceptance", () => {
+  it("keeps the CLI mode outside the strict acceptance request", () => {
+    expect(
+      parseWechatRechargeAcceptanceOptions([
+        "prepay-close",
+        "--account-id",
+        accountId,
+        "--idempotency-key",
+        idempotencyKey,
+      ]),
+    ).toEqual({
+      mode: "prepay-close",
+      request: { accountId, idempotencyKey },
+    });
+  });
+
   it("uses one exact persisted order and never returns its QR", async () => {
     let phase = 0;
     const runtime = {
