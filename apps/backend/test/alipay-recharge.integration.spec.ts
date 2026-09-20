@@ -15,6 +15,10 @@ import {
 } from "vitest";
 import { createApiApp } from "../src/api-app.js";
 import { PrismaService } from "../src/infrastructure/prisma.service.js";
+import {
+  prepareAlipayPaymentAcceptance,
+  reconcileAlipayPaymentAcceptance,
+} from "../src/recharge/application/alipay-recharge-acceptance.js";
 import { RECHARGE_CUSTOMER_RUNTIME } from "../src/recharge/application/customer-recharge.js";
 import { NativeRecoveryService } from "../src/recharge/application/native-recovery.service.js";
 import { AlipayPaymentAdapter } from "../src/recharge/infrastructure/alipay/alipay-payment.adapter.js";
@@ -282,6 +286,52 @@ describe("Alipay PC recharge integration", () => {
         })
       ).fundedBalance,
     ).toBe(10);
+  });
+
+  it("runs the controlled acceptance through one persisted order and normal settlement", async () => {
+    const prepared = await prepareAlipayPaymentAcceptance(runtime, {
+      accountId,
+      idempotencyKey: randomUUID(),
+    });
+    expect(prepared.evidence).toMatchObject({
+      amountYuan: 1,
+      fundedPoints: 10,
+      provider: "ALIPAY",
+      method: "ALIPAY_PC",
+      status: "PENDING_PAYMENT",
+      cashierPrepared: true,
+    });
+    expect(prepared.cashierHtml).toContain("openapi-sandbox.dl.alipaydev.com");
+    const order = await db.rechargeOrder.findUniqueOrThrow({
+      where: { id: prepared.evidence.orderId },
+    });
+    const response = await fetch(
+      origin + "/recharges/providers/alipay/notify",
+      {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: new Uint8Array(notification(order)),
+      },
+    );
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("success");
+
+    now = new Date(Math.max(Date.now(), now.getTime()) + 1);
+    const reconciled = await reconcileAlipayPaymentAcceptance(runtime, {
+      accountId,
+      orderId: order.id,
+    });
+    expect(reconciled).toMatchObject({
+      orderId: order.id,
+      status: "SUCCESSFUL",
+      fundedPoints: 10,
+      providerWork: { claimed: 0, failed: 0 },
+      settlements: { applied: 1, reviewed: 0, failed: 0 },
+    });
+    expect(reconciled.ledgerId).toBeTruthy();
+    expect(
+      await db.pointChange.count({ where: { rechargeOrderId: order.id } }),
+    ).toBe(1);
   });
 
   it("accepts later notification metadata after a query already credited the trade", async () => {

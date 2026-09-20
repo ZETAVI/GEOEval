@@ -21,6 +21,7 @@
     "db:migrate": "GEOEVAL_LOCAL_DEFAULTS=1 prisma migrate deploy --config prisma.config.ts",
     "openapi:generate": "GEOEVAL_LOCAL_DEFAULTS=1 node --import tsx src/generate-openapi.ts",
     "recharge:alipay:verify": "node --import tsx src/alipay-recharge-verify-main.ts",
+    "recharge:alipay:acceptance": "node --import tsx src/alipay-recharge-acceptance-main.ts",
     "recharge:wechat:verify": "node --import tsx src/wechat-recharge-verify-main.ts query",
     "recharge:wechat:acceptance": "node --import tsx src/wechat-recharge-acceptance-main.ts",
     "identity:bootstrap": "node --import tsx src/identity-bootstrap-main.ts",
