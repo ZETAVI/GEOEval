@@ -238,6 +238,8 @@ export class AuthenticationService {
       });
     } catch (error) {
       if (error instanceof ChallengeRateLimitError) {
+        observation.delivery = "RATE_LIMITED";
+        observation.deliveryReason = "MOBILE";
         throw new HttpException(
           {
             code: "CHALLENGE_RATE_LIMITED",

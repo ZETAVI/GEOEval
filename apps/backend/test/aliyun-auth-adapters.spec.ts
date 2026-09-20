@@ -142,6 +142,24 @@ describe("Alibaba authentication adapters", () => {
       reason: "PERMISSION",
       providerRequestId: "denied-request",
     });
+
+    const bodyOutage = new FakeCaptchaClient({
+      statusCode: 200,
+      body: {
+        success: false,
+        code: "InternalError",
+        requestId: "body-outage-request",
+      },
+    });
+    await expect(
+      new AliyunCaptchaVerifier(bodyOutage, config).verify({
+        captchaVerifyParam: "opaque",
+      }),
+    ).resolves.toEqual({
+      outcome: "unavailable",
+      reason: "PROVIDER_SERVER",
+      providerRequestId: "body-outage-request",
+    });
   });
 
   it("submits one no-retry SMS request with only the code template variable", async () => {
@@ -215,6 +233,21 @@ describe("Alibaba authentication adapters", () => {
       }),
     ).resolves.toEqual({ outcome: "unknown" });
     expect(timeout.calls).toBe(1);
+
+    const nestedNetworkFailure = new FakeSmsClient(
+      undefined,
+      Object.assign(new TypeError("fetch failed"), {
+        cause: { code: "ECONNRESET" },
+      }),
+    );
+    await expect(
+      new AliyunSmsChallengeDelivery(nestedNetworkFailure, config).deliver({
+        challengeId: "challenge",
+        mobile: "+8613800138000",
+        code: "246810",
+        expiresAt: new Date(),
+      }),
+    ).resolves.toEqual({ outcome: "unknown" });
   });
 });
 

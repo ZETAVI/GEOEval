@@ -101,6 +101,13 @@ function responseFailure(
       ...(requestId ? { providerRequestId: requestId } : {}),
     };
   }
+  if (code === "InternalError") {
+    return {
+      outcome: "unavailable",
+      reason: "PROVIDER_SERVER",
+      ...(requestId ? { providerRequestId: requestId } : {}),
+    };
+  }
   if (code === "MissingParameter" || code === "InvalidParameter") {
     return {
       outcome: "rejected",
