@@ -463,4 +463,6 @@ PR #122 两项 CI 已通过并合并为 `c78032b`；callback-only PR #123 已合
 | 目标 systemd 语义 | 服务器 systemd 255 自带 `systemd.exec(5)`、`systemd.resource-control(5)`、`systemd.unit(5)`；`systemd-analyze verify` 对临时 unit | Passed for this unit；两条 warning 均来自既有 `cloudmonitor.service`，本片不触碰。未安装或 daemon-reload |
 | 目标 Nginx 语法 | 服务器实际 Nginx 对 `/tmp` wrapper 和候选 `app.geohdp.com.conf` 执行 `nginx -t` | Passed；未替换 active site 或 reload |
 
-部署资产和运行手册已固定 callback-only、共享锁、最小权限、回滚及一元后续证据。生产数据库/schema、systemd、Nginx 和公网响应均未改变；PR CI、合并、共享宿主 owner 窗口与真实运行证据仍待完成。
+部署资产和运行手册已固定 callback-only、共享锁、最小权限、回滚及一元后续证据。生产数据库/schema、systemd、Nginx 和公网响应均未改变；共享宿主 owner 窗口与真实运行证据仍待完成。
+
+PR #125 两项 required CI 已通过并线性合并为 `main@0ee1c7d`。合并后共享宿主 owner 的只读复核确认锁空闲、LanChen stable、PostgreSQL 无非 GEO consumer、3300 空闲且无重叠维护；同时指出三个子单元原硬上限恰好等于 768 MiB slice、零余量。最终候选把 callback `MemoryMax` 收到 160 MiB，使硬上限总和为 736 MiB，并保留 `MemoryHigh=128M`；生产状态仍未改变。新的 callback-only 写窗口需要 owner 再次明确授权。
