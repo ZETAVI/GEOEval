@@ -114,8 +114,13 @@ Run the complete migration chain from the immutable release as OS user
 `geoeval`, using:
 
 ```text
-DATABASE_URL=postgresql://geoeval@/geoeval?host=%2Fvar%2Frun%2Fpostgresql
+DATABASE_URL=postgresql://geoeval@localhost/geoeval?host=%2Fvar%2Frun%2Fpostgresql
 ```
+
+The non-empty URL host satisfies Prisma's connection-string validation; the
+encoded `host=/var/run/postgresql` query remains the actual node-postgres Unix
+socket destination, so peer authentication still applies and no TCP/database
+password is introduced.
 
 After migrations succeed, run `postgresql/grant-callback.sql` against
 `geoeval`. Repeat that grant file after any future migration before restarting

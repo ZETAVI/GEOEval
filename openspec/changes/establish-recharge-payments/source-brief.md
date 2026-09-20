@@ -296,6 +296,8 @@ Notification 现有 source UUID 唯一、upsert 不更新已读、SSE revision/l
 
 ### 2026-09-20 callback 宿主平台依据
 
-目标服务器实际运行 systemd 255。其同版本 `systemd.exec(5)` 明确说明环境变量不适合承载 secret，`LoadCredential=` 会把来源复制到仅 unit 用户和 root 可读的只读 credential 目录，并支持在 `Environment=` 中用 `%d/name` 引用；因此 APIv3 key 不进入 env 文件，callback 账号也不直接读取原始 secret 目录。`systemd.resource-control(5)` 将 `MemoryHigh=` 定义为主要节流机制、`MemoryMax=` 定义为 OOM 最后边界；部署把 PostgreSQL 和 callback 都纳入既有 `geo.slice`，没有提高 768 MiB 总上限。`PartOf=` 只传播目标的 stop/restart，实际启动依赖仍由 `geo-runtime.target` 的 `Requires=`/`After=` 明确表达。
+目标服务器实际运行 systemd 255。其同版本 `systemd.exec(5)` 明确说明环境变量不适合承载 secret，`LoadCredential=` 会把来源复制到仅 unit 用户和 root 可读的只读 credential 目录，并支持在 `Environment=` 中用 `%d/name` 引用；因此 APIv3 key 不进入 env 文件，callback 账号也不直接读取原始 secret 目录。`systemd.resource-control(5)` 将 `MemoryHigh=` 定义为主要节流机制、`MemoryMax=` 定义为 OOM 最后边界；部署把 PostgreSQL 和 callback 都纳入既有 `geo.slice`，没有提高 768 MiB 总上限。`PartOf=` 只把 target 的 stop/restart 传播给子服务；target 用 `Wants=`/`After=` 启动 PostgreSQL 和 callback，使 callback 单点失败不会反向停止 target、PostgreSQL 或 GEOMonitor。
 
 当前 PostgreSQL 16 使用 Unix socket `/var/run/postgresql` 和 local peer；callback 的 OS/DB 角色同名，无数据库密码或监听面扩展。Nginx 当前 `app.geohdp.com` HTTPS server 全路径 `503`，新配置只增加 exact-match 微信通知路径。服务器同版本 `systemd-analyze verify` 对草案无本片错误；输出的两条 warning 属于既有 `cloudmonitor.service`。临时 wrapper 下 `nginx -t` 通过。以上只证明平台配置可解析，不证明安装、进程健康或公网通知。
+
+生产首次启动补充了配置解析未覆盖的事实：systemd 255 的实际 credential 文件为 `root:root 0440`，服务用户通过私有 credential mount 读取；源文件仍为 `geoeval:geoeval 0600`。Node 24 对源 PEM 和 credential 副本均能 `createPublicKey`，失败来自项目权限前置检查。实现只在 `$CREDENTIALS_DIRECTORY` 的真实子路径接受精确的 group-read 位，不把普通 group-readable key 视为安全。Prisma 7.9.1 还会在 driver 前拒绝空 URL host，因此 Unix socket 连接使用 `@localhost/...?...host=%2Fvar%2Frun%2Fpostgresql`；实际连接仍由 query host 指向 socket 并通过 peer 认证。

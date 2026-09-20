@@ -1,5 +1,5 @@
-import { readFileSync, statSync } from "node:fs";
-import { isAbsolute } from "node:path";
+import { readFileSync, realpathSync, statSync } from "node:fs";
+import { isAbsolute, relative, sep } from "node:path";
 import { z } from "zod";
 
 export const sharedRechargeRuntimeSchema = z.object({
@@ -93,11 +93,32 @@ export const sharedRechargeRuntimeSchema = z.object({
 
 export type SharedRechargeRuntime = z.infer<typeof sharedRechargeRuntimeSchema>;
 
+function isSystemdCredential(path: string): boolean {
+  const directory = process.env.CREDENTIALS_DIRECTORY;
+  if (!directory || !isAbsolute(directory)) return false;
+  try {
+    const relativePath = relative(realpathSync(directory), realpathSync(path));
+    return (
+      relativePath.length > 0 &&
+      relativePath !== ".." &&
+      !relativePath.startsWith(`..${sep}`) &&
+      !isAbsolute(relativePath)
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function protectedFile(path: string, maxBytes = 32 * 1024): Buffer {
   if (!isAbsolute(path)) throw new Error("RECHARGE_KEY_PATH_MUST_BE_ABSOLUTE");
   try {
     const metadata = statSync(path);
-    if (!metadata.isFile() || (metadata.mode & 0o077) !== 0)
+    const exposedPermissions = metadata.mode & 0o077;
+    if (
+      !metadata.isFile() ||
+      (exposedPermissions !== 0 &&
+        !(exposedPermissions === 0o040 && isSystemdCredential(path)))
+    )
       throw new Error("RECHARGE_KEY_FILE_NOT_PRIVATE");
     if (metadata.size > maxBytes)
       throw new Error("RECHARGE_KEY_FILE_TOO_LARGE");

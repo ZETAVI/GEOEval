@@ -465,4 +465,12 @@ PR #122 两项 CI 已通过并合并为 `c78032b`；callback-only PR #123 已合
 
 部署资产和运行手册已固定 callback-only、共享锁、最小权限、回滚及一元后续证据。生产数据库/schema、systemd、Nginx 和公网响应均未改变；共享宿主 owner 窗口与真实运行证据仍待完成。
 
-PR #125 两项 required CI 已通过并线性合并为 `main@0ee1c7d`。合并后共享宿主 owner 的只读复核确认锁空闲、LanChen stable、PostgreSQL 无非 GEO consumer、3300 空闲且无重叠维护；同时指出三个子单元原硬上限恰好等于 768 MiB slice、零余量。最终候选把 callback `MemoryMax` 收到 160 MiB，使硬上限总和为 736 MiB，并保留 `MemoryHigh=128M`；生产状态仍未改变。新的 callback-only 写窗口需要 owner 再次明确授权。
+PR #125 两项 required CI 已通过并线性合并为 `main@0ee1c7d`。合并后共享宿主 owner 的只读复核确认锁空闲、LanChen stable、PostgreSQL 无非 GEO consumer、3300 空闲且无重叠维护；同时指出三个子单元原硬上限恰好等于 768 MiB slice、零余量。PR #126 把 callback `MemoryMax` 收到 160 MiB，使硬上限总和为 736 MiB，并保留 `MemoryHigh=128M`，两项 CI 全绿后合并为 `main@6488f23`。截至该 follow-up 合并时生产状态未改变，新的 callback-only 写窗口仍需 owner 明确授权。
+
+用户随后明确开启服务器真实支付测试。生产首次窗口的已完成证据：release `main@6488f23` 在服务器 Node 24 原生生成/构建，依赖锁与旧 Linux release 哈希一致；PostgreSQL 实际 cgroup 为 `/geo.slice/postgresql@16-main.service`，30 connections、128 MiB shared buffers、2 MiB work_mem、256/320 MiB systemd 边界；`geoeval` 生产库完成 54 migrations；callback peer role 只能使用 public schema、SELECT/INSERT observation、SELECT/INSERT/UPDATE receipt，不能 CREATE schema、UPDATE observation 或 SELECT recharge orders。LanChen `v3.11.1`、MySQL、Redis、Nginx、GEOMonitor 前后健康。
+
+首次 callback start **failed closed**：systemd 状态短暂进入 auto-restart，journal 为 `RECHARGE_WECHAT_KEY_MATERIAL_INVALID`，3300 未监听，随后受锁 stop/reset-failed；Nginx 未修改，`app.geohdp.com/health` 保持 `503`，inbox 无付款事实。实际 transient credential probe 显示 `root|root|440|451`、首行为 `BEGIN PUBLIC KEY` 且 Node `createPublicKey` 通过，证明失败是权限检查不兼容 systemd credential mode，而非公钥损坏。Prisma 首次 migration 命令也在连接前拒绝 empty-host URL；改用非空 host + encoded Unix socket query 后 54 migrations 成功。两项修正必须经测试/CI/合并和新 release 后再恢复 callback，不能在服务器临时改代码绕过。
+
+修正后的固定 Diff：runtime/deployment 3 files / 18 tests passed；完整 callback/deployment/runtime/inbox/receiver/gateway/HTTPS 7 files / 142 tests passed；Backend typecheck/build、Prettier、Diff、framework/link validation passed。该证据仍不是生产恢复；required CI、合并、新 release 和 callback 实际稳定监听保持独立 Gate。
+
+共享只读监控随后发现 target、PostgreSQL 与 GEOMonitor inactive。journal 给出完整因果链：`geo-runtime.target Requires=callback`，callback 的失败/restart 或显式 stop 会停止 target，PostgreSQL 与 GEOMonitor 再因 `PartOf=target` 停止；这造成 15:47:00–15:47:33 多次受 systemd transaction 驱动的 PG stop/start，不是 crash，NRestarts 仍为 0。受锁恢复将生产 target 临时改为仅 `Wants/After PostgreSQL` 并排除未修复 callback；最终 target、PG、GEOMonitor active，PG cgroup/54 migrations/pg_isready 正常，LanChen/MySQL/Redis/Nginx active 且 NRestarts=0，LanChen health UP，公网仍 503，锁已释放。仓库 final drop-in 使用 `Wants=PostgreSQL callback`，并有合同测试禁止 `Requires=` 回归。

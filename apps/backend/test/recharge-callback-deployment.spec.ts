@@ -43,7 +43,8 @@ describe("recharge callback production deployment boundary", () => {
     expect(postgres).toContain("Slice=geo.slice");
     expect(postgres).toContain("MemoryHigh=256M");
     expect(postgres).toContain("MemoryMax=320M");
-    expect(target).toContain("Requires=postgresql@16-main.service");
+    expect(target).toContain("Wants=postgresql@16-main.service");
+    expect(target).not.toContain("Requires=");
     expect(target).toContain("geoeval-recharge-callback.service");
   });
 
@@ -70,6 +71,9 @@ describe("recharge callback production deployment boundary", () => {
     const environment = read("recharge-callback.env.example");
 
     expect(environment).toContain("RECHARGE_WECHAT_ACTIVATION=verify");
+    expect(environment).toContain(
+      "DATABASE_URL=postgresql://geoeval-callback@localhost/geoeval?host=%2Fvar%2Frun%2Fpostgresql",
+    );
     expect(environment).toContain(
       "PUB_KEY_ID_0111177257782026091700211615001802",
     );

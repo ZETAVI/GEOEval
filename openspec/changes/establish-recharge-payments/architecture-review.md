@@ -24,6 +24,14 @@
 
 固定 Diff 未发现阻断本 PR 的支付或部署缺陷。PR CI、真实安装、公网伪造请求、成功响应公钥验签、真实通知解密和一元资金验收仍各自保留，不以本审查替代。
 
+### W3 生产首次启动反馈
+
+生产受锁部署完成 PostgreSQL 实例资源边界、不可变 release、专用 peer roles、54 migrations 和两表 grants 后，callback 首次启动在监听前以 `RECHARGE_WECHAT_KEY_MATERIAL_INVALID` 失败；Nginx 尚未开放且数据库没有付款事实。实际 systemd 255 transient unit 证明源 PEM 与 credential 副本都能被 OpenSSL/Node 解析，但 `LoadCredential=` 副本为 `root:root 0440`，与代码只接受 group/other 位全 0 的假设冲突。
+
+修正仅在真实 `$CREDENTIALS_DIRECTORY` 的规范化子路径内接受 systemd 的 group-read-only 位 `0040`；普通路径的 `0440`、任何 group write/execute 或 other 权限继续拒绝。路径和目录都先 `realpath`，不能用 `..` 或符号链接逃出 credential mount。另将 Prisma Unix socket URL 改为非空 URL host + encoded socket query，保留 peer auth。该修正不读取更多 credential、不接触商户私钥、不放宽源 secret `0600`，也不改变充值或账务语义。
+
+同一反馈还暴露 target 反向耦合：`geo-runtime.target Requires=callback` 会在 callback 失败或显式 stop 时停止 target，而 PostgreSQL/GEOMonitor 的 `PartOf=target` 随之停止。journal 证明 15:47 的多次 PostgreSQL start/stop 来自这条依赖链，不是数据库崩溃。最终 drop-in 改用 `Wants=`；target 正常启动全部成员，但 callback 的故障／维护停止不再牵连其他 GEO 服务。生产临时 drop-in 已在锁内排除 callback 并恢复 target、PostgreSQL 和 GEOMonitor，仓库修正合并后才恢复完整 Wants 列表。
+
 ## O1a 实施作者审查
 
 对象：PR #88 的管理员只读查询，基线main29d115d；用户确认design14.4并授权实施，共享窗口见[执行记录](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630711415)。以下按需求、工程、证据三个维度自行复核，不声称独立review。
