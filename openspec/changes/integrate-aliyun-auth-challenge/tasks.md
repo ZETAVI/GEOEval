@@ -6,7 +6,8 @@
   the approved CAPTCHA/SMS architecture and external activation gates.
 - [x] Create the isolated
   `codex/issue-64-sms-challenge-delivery` worktree from
-  `main@6b09858b09e39976be7427c2901b45e1a1124c63`.
+  `main@71136ad8c75c61c04267581912dac10dc28aed80` after the pre-PR
+  linear rebase.
 - [x] Fix current owners, shared-file boundary, documentation impact, rollback
   and smallest disconfirming evidence.
 

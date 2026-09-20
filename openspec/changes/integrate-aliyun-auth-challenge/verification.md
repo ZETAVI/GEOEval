@@ -1,9 +1,16 @@
 # Verification
 
 Verification date: 2026-09-20. Base:
-`main@6b09858b09e39976be7427c2901b45e1a1124c63`. Reviewed implementation:
-`codex/issue-64-sms-challenge-delivery@6fc455f` plus this evidence
+`main@71136ad8c75c61c04267581912dac10dc28aed80`. Reviewed implementation
+through `codex/issue-64-sms-challenge-delivery@e4eb6a8` plus this evidence
 reconciliation.
+
+PR #134 was linearly rebased from `main@6b09858` after three Recharge-only
+commits entered `main`. The only shared source file was
+`apps/backend/package.json`, where the newer base added an independent
+Recharge script outside this Change's dependency block. The rebase had no
+conflict; dependency, build, affected test, Diff and closing-relationship
+evidence were refreshed before the branch was updated.
 
 ## Evidence matrix
 
@@ -71,4 +78,3 @@ No unresolved code-level review finding remains at the reviewed revision.
 Verdict: **partially verified for the full Issue outcome; verified for the
 credential-free implementation slice.** The branch may enter PR review as a
 Partial delivery and must not close Issue #64.
-

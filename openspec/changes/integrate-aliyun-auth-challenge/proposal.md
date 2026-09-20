@@ -81,12 +81,11 @@ unchanged.
 - Documentation impact: `update` the current Identity spec and runbook;
   `generate` OpenAPI/client types; archive this Change after accepted behavior
   is promoted. The current Identity spec has no active Evolution marker.
-- Workspace: `codex/issue-64-sms-challenge-delivery` at
-  `main@6b09858b09e39976be7427c2901b45e1a1124c63`, owned by Issue #64,
+- Workspace: `codex/issue-64-sms-challenge-delivery` rebased onto
+  `main@71136ad8c75c61c04267581912dac10dc28aed80`, owned by Issue #64,
   targeting protected `main` with `main-direct` topology.
 - Shared ownership: this Change owns Identity/CAPTCHA/SMS code and its Web
   entry path. If implementation must touch payment-owned runtime composition,
   Recharge contracts or payment pages, stop and coordinate with Issue #77.
 - Exit: retain while active; after an accepted merge and post-integration
   reconciliation, remove the clean worktree and branch.
-
