@@ -44,9 +44,10 @@ or key material. The file path must stay under
 through the protected administration channel and opening it in the named test
 browser.
 
-The profile keeps the normal three-active-order account limit so an unresolved
-order from another provider remains untouched. This command still creates only
-the one named Alipay order and never scans, closes or replaces those orders.
+The one-shot production profile allows four active orders only so the three
+retained, unpaid acceptance records remain untouched while this command creates
+the one named Alipay order. The product default remains three. This command
+never scans, closes or replaces those earlier orders.
 
 Install `alipay.env.example` as `/etc/geoeval/alipay-acceptance.env` with
 `root:geoeval` mode `0640`. Keep the long-lived source keys in the root-only
