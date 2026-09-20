@@ -1,6 +1,6 @@
 # Recharge verification
 
-Current accepted code: `main@6c347a9` contains A0/B0/C1, N1–N4, R1/O1a, Alipay PC composition, the W1 WeChat real-query network fix, callback-only W2/W3 deployment through PR #128 and the independently owned recharge-invoice slice. Exact historical merge/CI evidence remains in the owning PRs. The current branch adds the production-proven unit-local V8 cap; local evidence below does not imply its merge or final callback activation. #77 remains open for public callback, one-yuan provider/funds evidence, operational and mobile acceptance.
+Current accepted code: `main@6b09858` contains A0/B0/C1, N1–N4, R1/O1a, Alipay PC composition, the W1 WeChat real-query network fix, the public callback-only W2/W3 host and the independently owned recharge-invoice slice. Exact historical merge/CI evidence remains in the owning PRs. The current branch adds W4's exact persisted one-yuan prepay/close operator seam; local evidence below does not imply its merge or any real Provider order. #77 remains open for one-yuan provider/funds evidence, operational and mobile acceptance.
 
 ## O1a administrator lookup evidence
 
@@ -480,3 +480,7 @@ PR #127 两项 required CI 全绿并线性合并为 `main@37df66d`。新 release
 PR #128 两项 required CI 全绿并合并为 `main@6c347a9`。服务器不可变 release 完成 Prisma 生成、Backend build、54 migrations 无待执行项和 callback grants 后原子切换；首次自动 pnpm 检查及 postgres 直接读取 release SQL 均在切换前安全停止，随后分别改为直接调用已安装工具、由 root 管道已审阅 SQL，没有联网安装或扩大目录权限。只提高 `MemoryHigh=144M` 的正式启动仍达到约 151 MiB anonymous memory、`high=4653`、十秒 pressure 约 61%，伪造通知五秒无响应；DB 保持 `0|0`，Nginx 仍为全路径 503，受锁停止用时 4 秒且其他服务不受影响。
 
 随后两次 `/run` 临时 drop-in 探针只向 callback unit 注入 `NODE_OPTIONS=--max-old-space-size=64`，测试结束均删除并 daemon-reload，服务最终 inactive。144 MiB soft high 下稳定内存约 98–99 MiB、启动 high 75、pressure 0、伪造通知 44 ms 返回 401、DB `0|0`、停止 0 秒；148 MiB 对照稳定约 105 MiB、启动 high 52、pressure 0、36 ms 返回 401、DB `0|0`、停止 0 秒。两次 target、PostgreSQL、GEOMonitor、LanChen、MySQL、Redis、Nginx 全部 active，NRestarts 无变化。提高 soft high 没有改变可见行为，因此正式候选保留 144/160 MiB，只固化 unit-local V8 cap；公网与真实微信通知仍未验收。
+
+PR #129 两项 required CI 全绿并合并为 `main@6b09858`。同提交不可变 release 在服务器原生生成/编译，54 migrations 无待执行项，正式 unit 稳定约 99 MiB；10 秒稳定窗口 `high=69` 不增长、pressure 10/60/300 秒均为 0、max/oom/oom_kill 为 0。本机伪造请求 55 ms 返回 401、未知路径 4.6 ms 返回 404、DB `0|0`；stop 0 秒且全部共享服务 active，restart 后 36 ms 返回 401。Nginx exact POST 路径公开后，公网伪造请求 49–51 ms 返回 401，`/health` 和未知路径继续 503，DB `0|0`，callback/Nginx NRestarts=0，敏感日志模式命中 0。该证据只完成被动 callback，不证明成功通知或资金。
+
+W4 本地实现增加精确 `runOrder(orderId)` 和只编排正常 persisted runtime 的一元 prepay-close CLI。新建项目专用 `geoeval_issue77_acceptance_w4` PostgreSQL 数据库，从空库部署完整 54 migrations；`native-recovery.integration` 与 `wechat-recharge-acceptance` 两文件 **35 passed**。新增反例在两笔同时到期订单中只推进显式选中的第二笔，第一笔仍为 UNSENT/generation 0；结果提交失败仍准确报告 claimed=1/failed=1 并保留 MAY_EXIST 恢复事实；编排固定 1 元/10 点、同一 orderId 三次精确驱动、取得 QR 后才取消，最终 CLOSED 且输出不含 `weixin://`；无法领取时保留订单并返回 recovery required；生产 profile 只含固定金额、公开身份与受保护文件路径，不含 key 内容。Backend TypeScript typecheck/build、受影响 Prettier、Diff 与框架链接校验通过。没有连接生产 Provider、没有生产 Account、没有真实订单/资金。

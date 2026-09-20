@@ -34,6 +34,12 @@
 
 新 release 稳定启动后，callback 常驻约 131–137 MiB；原 `MemoryHigh=128M` 产生 12,252 次 high event 和接近 87% 的十秒 memory pressure，伪造请求虽正确返回 401 但耗时约 4 秒，随后 SIGTERM 在 15 秒内未完成而被 systemd kill。hard max 从未触发，数据库保持 0/0。只把 soft high 提到 144 MiB 仍使匿名内存扩张到约 151 MiB，4,653 次 high event、十秒 pressure 约 61%，伪造请求在 5 秒内无响应。受锁临时探针在 callback unit 内加入 `--max-old-space-size=64` 后，稳定内存约 98–105 MiB，伪造请求 36–44 ms 返回 401，inbox 仍为 0/0，停止耗时 0 秒；144/148 MiB soft high 都只有启动瞬时事件且 pressure 为 0。最终保留更窄的 `MemoryHigh=144M` 和 `MemoryMax=160M`，并用 unit-local V8 上限控制分配源头；不得放宽 hard max 或把 `NODE_OPTIONS` 扩散到其他服务。恢复验收仍须证明请求延迟、数据库无写入、无 max/OOM、无持续 pressure 和 graceful stop，不以 active 状态单独通过。
 
+### W4 精确订单驱动审查
+
+一元 prepay-close 继续由 Recharge 拥有，账户仍由 Identity 拥有，积分容量与流水仍由 Publishing Commerce 拥有。新增接缝只把已有 Worker 的单项执行提取为 `runOrder(orderId)`，批量 Worker 反向复用该实现；它不暴露 Provider、数据库 transaction 或任意金额配置，也不会把 operator CLI 变成常驻服务。CLI 固定一元与微信 Native，依赖正常 `create/cancel/read` 和精确恢复命令，不创建 Account、不输出 QR、不扫描其他订单。
+
+主要失败反例保留：发起或关单响应丢失时本地已有 order/attempt/lease 可恢复；被选订单未到期或被租约占用时 CLI 失败退出而非推进其他单；任何成功付款、review 或 Provider 失败都停止，不释放或人工补点。新接缝的独立选择集成反例证明只推进目标订单；编排单测证明金额、方法、单号和不输出 QR。结论为 **ready for production prepay-close after an Identity-owned test account exists**，不包含真实 Provider、资金或客户 API 启用结论。
+
 ## O1a 实施作者审查
 
 对象：PR #88 的管理员只读查询，基线main29d115d；用户确认design14.4并授权实施，共享窗口见[执行记录](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630711415)。以下按需求、工程、证据三个维度自行复核，不声称独立review。

@@ -1,6 +1,6 @@
 # Tasks
 
-Owner #77. A0/B0/C1, publication return, N1–N4, R1, O1a, Alipay PC composition and the callback-only W2 host are accepted on main. The latest baseline is `main@281323f`, including the independently owned recharge-invoice slice. WeChat merchant/Native readiness, AppID certification and binding, protected key custody and a signed production-gateway no-funds query are confirmed. The current bounded work prepares the callback-only production deployment; controlled one-yuan prepay/close, one-yuan real payment and customer production activation remain separate gates.
+Owner #77. A0/B0/C1, publication return, N1–N4, R1, O1a, Alipay PC composition and the callback-only W2/W3 host are accepted on `main@6b09858`, including the independently owned recharge-invoice slice. WeChat merchant/Native readiness, AppID certification and binding, protected key custody, a signed production-gateway no-funds query and the public callback-only host are confirmed. The current bounded work prepares the controlled persisted one-yuan prepay/close; one-yuan real payment and customer production activation remain separate gates.
 
 ## Remaining work and actual dependencies
 
@@ -81,7 +81,8 @@ Current planning: R1, O1a, Alipay PC and the WeChat callback-only host are merge
 - [x] Confirm certification for service-account AppID `wx0402876c556f2029` and its completed binding to merchant `1117725778`; record only status, never secrets.
 - [x] Create/download the merchant API certificate, WeChat Pay public key and ID, and set/store the APIv3 key in protected server files; establish role-based technical custody and rotation notes. Server evidence: `geoeval`-owned `0700` directory, four `0600` files, matching certificate/private key, matching public-key fingerprint and valid APIv3 format.
 - [x] Implement a callback-only Nest host and passive WeChat verifier. It binds loopback, mounts no full API/Identity/Worker/Redis routes, reads no merchant signing key, preserves raw bytes, and uses the existing durable inbox/ACK contract.
-- [ ] Deploy the callback endpoint with HTTPS in `verify` and reject forged callbacks. The real no-funds query passed on 2026-09-17 with a signed-request-accepted 404 after selecting verified IPv4 transport; this non-2xx probe does not verify the response public key. Use the normal persisted RechargeOrder/runtime path for one explicit **one-yuan** prepay-and-immediate-close probe so a lost close response remains recoverable; do not create an untracked provider order from a standalone script.
+- [x] Deploy the callback endpoint with HTTPS in `verify` and reject forged callbacks. The real no-funds query passed on 2026-09-17 with a signed-request-accepted 404 after selecting verified IPv4 transport; this non-2xx probe does not verify the response public key.
+- [ ] Use the normal persisted RechargeOrder/runtime path for one explicit **one-yuan** prepay-and-immediate-close probe so a lost close response remains recoverable; do not create an untracked provider order from a standalone script.
 - [ ] Switch WeChat to `live` only for a named minimum real payment; confirm QR, callback/query convergence, once-only points, customer/admin projections and finance receipt. Return to `verify` immediately if evidence is incomplete.
 
 ## W3: Callback production deployment preparation
@@ -91,11 +92,19 @@ Current planning: R1, O1a, Alipay PC and the WeChat callback-only host are merge
 - [x] Add versioned callback deployment assets: dedicated OS/peer database identity, systemd `LoadCredential=`, exact Nginx path, least-privilege inbox grants, PostgreSQL and callback resource budgets, shared-lock order, recovery and evidence sequence. Do not add an all-in-one installer.
 - [x] Standardize every controlled provider and real-funds probe on the product's one-yuan minimum; historical observations of another site's one-fen order remain research facts only.
 - [x] Complete fixed-Diff tests, architecture/code review and required CI; merge deployment preparation through PR #125 at `main@0ee1c7d`. Shared-host review subsequently reduced callback `MemoryMax` to 160 MiB for 32 MiB slice headroom; PR #126 merged that correction at `main@6488f23` before deployment.
-- [ ] Coordinate the exact PostgreSQL/systemd/Nginx maintenance window with the shared-host owner, then deploy callback-only `verify` mode and record runtime evidence. Do not deploy the full API, Web app, login or Worker in this slice.
+- [x] Coordinate the exact PostgreSQL/systemd/Nginx maintenance window with the shared-host owner, then deploy callback-only `verify` mode and record runtime evidence. The final public path is exact-match POST only; the full API, Web app, login and Worker remain undeployed.
 - [x] Begin the explicitly authorized callback-only window: PostgreSQL 16/main moved into `geo.slice` with final limits, immutable `main@6488f23` release built, production `geoeval` database received 54 migrations, and callback peer role grants were verified. First callback start failed closed before listen because systemd credential copies are `0440`; Nginx remained full-path `503` and callback was stopped.
 - [x] Merge the bounded systemd credential-mode、Prisma socket URL and target `Requires` → `Wants` corrections through PR #127 at `main@37df66d`, build/deploy a new immutable release, and prove stable callback listen plus target/PG/GEOMonitor isolation. Nginx remains closed.
 - [x] Apply the measured callback soft-limit correction (`MemoryHigh` 128 → 144 MiB, `MemoryMax` stays 160 MiB) through PR #128 at `main@6c347a9`; production proved that raising only the cgroup soft limit was insufficient and remained fail-closed behind Nginx `503`.
-- [ ] Add the production-proven unit-local V8 old-space cap, then prove prompt forged-request rejection, zero inbox writes, no max/OOM or sustained pressure, and graceful SIGTERM without affecting target/PG/GEOMonitor before exposing Nginx.
+- [x] Add the production-proven unit-local V8 old-space cap through PR #129 at `main@6b09858`; prove prompt forged-request rejection, zero inbox writes, no max/OOM or sustained pressure, graceful SIGTERM and target/PG/GEOMonitor isolation, then expose only the exact Nginx callback path.
+
+## W4: Controlled persisted one-yuan acceptance
+
+- [x] Add an exact `runOrder(orderId)` recovery seam so an operator probe cannot scan or advance another customer's due order; ordinary Worker batch behavior reuses the same single-order implementation.
+- [x] Add a one-shot prepay-close orchestrator and CLI that fixes the amount at 1 yuan / 10 funded points, accepts only an existing active customer account, uses the normal `RechargeOrder` and reservation, never calls the Provider gateway directly, never returns the QR, and leaves uncertain work persisted for normal recovery.
+- [x] Verify the exact-order seam, one-yuan deployment profile and orchestration against a fresh project-owned 54-migration database: 2 files / 35 tests passed; backend typecheck and build passed.
+- [ ] Select or provision one controlled production customer through the Identity boundary, then run the real 1-yuan prepay → authenticated query NOTPAY → close sequence and prove the local order closes with its reservation released and signed attempts retained.
+- [ ] Keep the separate 1-yuan real-payment order pending until the user scans; then prove callback/query convergence and exactly-once 10-point funding before activating any customer-facing API or Worker.
 
 ## P0: Fixed inputs and reviewable contracts
 
