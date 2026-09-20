@@ -1,17 +1,17 @@
 # Verification
 
 Verification date: 2026-09-20. Base:
-`main@5f3ec07`. Reviewed implementation through
-`codex/issue-64-sms-challenge-delivery@a45c56d` plus this evidence
+`main@e0dd70c`. Reviewed the current PR #134 implementation and this evidence
 reconciliation.
 
 PR #134 was linearly rebased from `main@6b09858` through `71136ad` to
-`5f3ec07` after four Recharge-only commits entered `main`. The first update's
+`5f3ec07`, then to `e0dd70c`, after Recharge-only commits entered `main`. The
+first update's
 only shared source file was `apps/backend/package.json`, where the newer base
 added an independent Recharge script outside this Change's dependency block;
-the second update changed only WeChat implementation/tests. Both rebases had no
-conflict. Dependency, build, affected test, Diff and closing-relationship
-evidence were refreshed before each branch update.
+the later updates changed only WeChat or Alipay implementation/tests. All
+rebases had no conflict. Dependency, build, affected test, Diff and
+closing-relationship evidence were refreshed before each branch update.
 
 ## Evidence matrix
 
@@ -42,6 +42,10 @@ evidence were refreshed before each branch update.
   - complete Backend: 206/206 suites; 923 passed, 16 skipped, 0 failed;
   - after fixed-diff review corrections: 5/5 files, 46/46 tests.
 - `pnpm --filter @geoeval/web test`: 34/34 files, 236/236 tests.
+- After the final Recharge-only rebase to `main@e0dd70c`, the complete Backend
+  suite passed again: 96 files passed, 3 environment-gated files skipped; 938
+  tests passed, 16 skipped. The complete Web suite, frozen install, format,
+  framework validation and full build also passed on that base.
 
 The first broad run reused a previously exercised isolated database and failed
 through unrelated cross-module cleanup leftovers. Repeating from a newly
