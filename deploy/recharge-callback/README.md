@@ -144,9 +144,16 @@ Verify the effective unit before exposing Nginx:
 User=geoeval-callback
 Group=geo-runtime
 Slice=geo.slice
+Environment=NODE_OPTIONS=--max-old-space-size=64
 MemoryHigh=150994944
 MemoryMax=167772160
 ```
+
+The callback unit caps V8 old space at 64 MiB. Production probes showed that
+raising only `MemoryHigh` let anonymous memory expand to the new throttle and
+did not restore the five-second response budget. The unit-local V8 cap keeps
+steady memory near 100 MiB while the unchanged systemd limits remain the
+second line of protection; do not export this `NODE_OPTIONS` globally.
 
 Check that only `127.0.0.1:3300` listens. A forged loopback notification must
 return `401`; a signed synthetic notification built with non-production test

@@ -1,6 +1,6 @@
 # Recharge verification
 
-Current accepted code: `main@281323f` contains A0/B0/C1, N1–N4, R1/O1a, Alipay PC composition, the W1 WeChat real-query network fix, the callback-only W2 host and the independently owned recharge-invoice slice. Exact historical merge/CI evidence remains in the owning PRs. The current branch adds versioned W3 callback deployment assets; local evidence below does not imply merge or deployment. #77 remains open for callback deployment, one-yuan provider/funds evidence, operational and mobile acceptance.
+Current accepted code: `main@6c347a9` contains A0/B0/C1, N1–N4, R1/O1a, Alipay PC composition, the W1 WeChat real-query network fix, callback-only W2/W3 deployment through PR #128 and the independently owned recharge-invoice slice. Exact historical merge/CI evidence remains in the owning PRs. The current branch adds the production-proven unit-local V8 cap; local evidence below does not imply its merge or final callback activation. #77 remains open for public callback, one-yuan provider/funds evidence, operational and mobile acceptance.
 
 ## O1a administrator lookup evidence
 
@@ -476,3 +476,7 @@ PR #125 两项 required CI 已通过并线性合并为 `main@0ee1c7d`。合并�
 共享只读监控随后发现 target、PostgreSQL 与 GEOMonitor inactive。journal 给出完整因果链：`geo-runtime.target Requires=callback`，callback 的失败/restart 或显式 stop 会停止 target，PostgreSQL 与 GEOMonitor 再因 `PartOf=target` 停止；这造成 15:47:00–15:47:33 多次受 systemd transaction 驱动的 PG stop/start，不是 crash，NRestarts 仍为 0。受锁恢复将生产 target 临时改为仅 `Wants/After PostgreSQL` 并排除未修复 callback；最终 target、PG、GEOMonitor active，PG cgroup/54 migrations/pg_isready 正常，LanChen/MySQL/Redis/Nginx active 且 NRestarts=0，LanChen health UP，公网仍 503，锁已释放。仓库 final drop-in 使用 `Wants=PostgreSQL callback`，并有合同测试禁止 `Requires=` 回归。
 
 PR #127 两项 required CI 全绿并线性合并为 `main@37df66d`。新 release 在服务器原生构建后 callback stable/listening、NRestarts=0；本机 forged request 正确返回 401、前后 inbox 均为 `0|0`。但请求约 4 秒，cgroup 显示 `MemoryCurrent≈143 MB`、`high=12252`、`max/oom/oom_kill=0`、十秒 pressure 接近 87%。停止 callback 时 target/PG/GEOMonitor 继续 active，证明 `Wants` 隔离修正有效；callback 自身因 SIGTERM 15 秒超时被 systemd kill。Nginx 仍未开放。最终候选只把 callback `MemoryHigh` 从 128 提到 144 MiB，`MemoryMax=160M` 不变；恢复后必须用同一请求与 graceful stop 重新验收。
+
+PR #128 两项 required CI 全绿并合并为 `main@6c347a9`。服务器不可变 release 完成 Prisma 生成、Backend build、54 migrations 无待执行项和 callback grants 后原子切换；首次自动 pnpm 检查及 postgres 直接读取 release SQL 均在切换前安全停止，随后分别改为直接调用已安装工具、由 root 管道已审阅 SQL，没有联网安装或扩大目录权限。只提高 `MemoryHigh=144M` 的正式启动仍达到约 151 MiB anonymous memory、`high=4653`、十秒 pressure 约 61%，伪造通知五秒无响应；DB 保持 `0|0`，Nginx 仍为全路径 503，受锁停止用时 4 秒且其他服务不受影响。
+
+随后两次 `/run` 临时 drop-in 探针只向 callback unit 注入 `NODE_OPTIONS=--max-old-space-size=64`，测试结束均删除并 daemon-reload，服务最终 inactive。144 MiB soft high 下稳定内存约 98–99 MiB、启动 high 75、pressure 0、伪造通知 44 ms 返回 401、DB `0|0`、停止 0 秒；148 MiB 对照稳定约 105 MiB、启动 high 52、pressure 0、36 ms 返回 401、DB `0|0`、停止 0 秒。两次 target、PostgreSQL、GEOMonitor、LanChen、MySQL、Redis、Nginx 全部 active，NRestarts 无变化。提高 soft high 没有改变可见行为，因此正式候选保留 144/160 MiB，只固化 unit-local V8 cap；公网与真实微信通知仍未验收。
