@@ -292,4 +292,10 @@ Notification 现有 source UUID 唯一、upsert 不更新已读、SSE revision/l
 
 ### 约束与刷新条件
 
-商户号认证与 Native 产品开通由用户确认；商户证书、公钥/APIv3 材料、无资金查询、服务器受保护文件和微信 IPv4 出口已有证据。AppID 认证绑定、服务器 Node 24/PostgreSQL、DNS/HTTPS、公网回调和资金行为仍需各自验证。任何微信接口、密钥/证书规则、官方 SDK 范围、商户账号配置或部署网络族变化时刷新本节。1 分预下单再立即关单会创建真实未付 provider 订单，只能通过正常持久 RechargeOrder/runtime 路径运行，使关单响应丢失后仍可按同号恢复；它不证明付款或到账。
+商户号认证、Native 产品开通以及 AppID `wx0402876c556f2029` 的认证和商户绑定由用户确认；商户证书、公钥/APIv3 材料、无资金查询、服务器受保护文件、Node 24、local-only PostgreSQL、DNS/HTTPS 和微信 IPv4 出口已有证据。公网 callback 进程、成功应答验签、真实通知解密和资金行为仍需分别验证。任何微信接口、密钥/证书规则、官方 SDK 范围、商户账号配置或部署网络族变化时刷新本节。一元预下单再立即关单会创建真实未付 provider 订单，只能通过正常持久 RechargeOrder/runtime 路径运行，使关单响应丢失后仍可按同号恢复；它不证明付款或到账。系统正式业务模型只接受整数人民币，第三方参考站的一分测试档只是历史观察，不能变成本项目测试入口。
+
+### 2026-09-20 callback 宿主平台依据
+
+目标服务器实际运行 systemd 255。其同版本 `systemd.exec(5)` 明确说明环境变量不适合承载 secret，`LoadCredential=` 会把来源复制到仅 unit 用户和 root 可读的只读 credential 目录，并支持在 `Environment=` 中用 `%d/name` 引用；因此 APIv3 key 不进入 env 文件，callback 账号也不直接读取原始 secret 目录。`systemd.resource-control(5)` 将 `MemoryHigh=` 定义为主要节流机制、`MemoryMax=` 定义为 OOM 最后边界；部署把 PostgreSQL 和 callback 都纳入既有 `geo.slice`，没有提高 768 MiB 总上限。`PartOf=` 只传播目标的 stop/restart，实际启动依赖仍由 `geo-runtime.target` 的 `Requires=`/`After=` 明确表达。
+
+当前 PostgreSQL 16 使用 Unix socket `/var/run/postgresql` 和 local peer；callback 的 OS/DB 角色同名，无数据库密码或监听面扩展。Nginx 当前 `app.geohdp.com` HTTPS server 全路径 `503`，新配置只增加 exact-match 微信通知路径。服务器同版本 `systemd-analyze verify` 对草案无本片错误；输出的两条 warning 属于既有 `cloudmonitor.service`。临时 wrapper 下 `nginx -t` 通过。以上只证明平台配置可解析，不证明安装、进程健康或公网通知。
