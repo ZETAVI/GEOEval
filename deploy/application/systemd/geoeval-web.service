@@ -1,0 +1,53 @@
+[Unit]
+Description=GEOEval Next.js Web
+After=network-online.target geoeval-api.service
+Wants=network-online.target geoeval-api.service
+PartOf=geo-runtime.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=geoeval-web
+Group=geoeval
+WorkingDirectory=/opt/geoeval/current/apps/web/.next/standalone/apps/web
+Environment=NODE_ENV=production
+Environment=NODE_OPTIONS=--max-old-space-size=96
+EnvironmentFile=/etc/geoeval/application-web.env
+ExecStart=/opt/geoeval/shared/node/bin/node /opt/geoeval/current/apps/web/.next/standalone/apps/web/server.js
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=30s
+TimeoutStopSec=20s
+KillSignal=SIGTERM
+SuccessExitStatus=143
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ProtectClock=true
+ProtectControlGroups=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectProc=invisible
+ProcSubset=pid
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+AmbientCapabilities=
+ReadOnlyPaths=/opt/geoeval
+UMask=0077
+Slice=geo.slice
+MemoryHigh=128M
+MemoryMax=160M
+CPUWeight=80
+TasksMax=128
+OOMPolicy=stop
+
+[Install]
+WantedBy=geo-runtime.target
