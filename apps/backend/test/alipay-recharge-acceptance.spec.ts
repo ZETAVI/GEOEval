@@ -207,6 +207,7 @@ describe("controlled persisted Alipay acceptance", () => {
     expect(environment).toContain("RECHARGE_ALIPAY_ACTIVATION=live");
     expect(environment).toContain("RECHARGE_MIN_AMOUNT_YUAN=1");
     expect(environment).toContain("RECHARGE_MAX_AMOUNT_YUAN=1");
+    expect(environment).toContain("RECHARGE_MAX_ACTIVE_ORDERS=3");
     expect(environment).toContain(
       "RECHARGE_ALIPAY_NOTIFY_URL=https://app.geohdp.com/recharges/providers/alipay/notify",
     );

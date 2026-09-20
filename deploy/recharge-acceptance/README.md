@@ -44,6 +44,10 @@ or key material. The file path must stay under
 through the protected administration channel and opening it in the named test
 browser.
 
+The profile keeps the normal three-active-order account limit so an unresolved
+order from another provider remains untouched. This command still creates only
+the one named Alipay order and never scans, closes or replaces those orders.
+
 Install `alipay.env.example` as `/etc/geoeval/alipay-acceptance.env` with
 `root:geoeval` mode `0640`. Keep the long-lived source keys in the root-only
 merchant directory. While holding both production locks, root creates
