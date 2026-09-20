@@ -65,10 +65,15 @@ describe("simple recharge presentation preserves business state", () => {
       notice: "加载失败，请重试",
     };
     const html = render(value);
-    expect(html).toContain("积分已到账");
+    expect(html).toContain("⚡已到账");
     expect(html).toContain("充值成功");
     expect(html).toContain("加载失败，请重试");
     expect(html).not.toContain("正在确认支付结果");
+  });
+  it("uses the customer-facing unpaid label for a closed order", () => {
+    const html = render(state("CLOSED"));
+    expect(html).toContain("未支付");
+    expect(html).toContain("订单未支付，如需充值请重新下单");
   });
   it("a local polling pause never claims that background recovery stopped", () => {
     const html = render({ ...state("CONFIRMING"), pollingEnded: true });

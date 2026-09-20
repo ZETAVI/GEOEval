@@ -113,7 +113,7 @@ describe("purchase review, recovery and frozen order presentation", () => {
         onBack={() => {}}
       />,
     );
-    expect(review).toContain("确认购买并扣除 800 积分");
+    expect(review).toContain("确认购买并扣除 ⚡800");
     expect(review).toContain("返回调整选择");
     expect(review).toContain("文章版本 2");
     const recovery = renderToStaticMarkup(

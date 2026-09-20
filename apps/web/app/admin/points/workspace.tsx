@@ -11,6 +11,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { AdminSidebar } from "../admin-sidebar.js";
 import { PointHistoryList } from "../../points/point-history.js";
+import { formatPoints, formatSignedPoints } from "../../point-format.js";
 import {
   loadRoleSession,
   sessionFailureState,
@@ -205,7 +206,7 @@ export function AdminPointsWorkspace() {
       setPending(null);
       setForm({ ...emptyAdjustmentForm });
       setNotice(
-        `已核对流水 ${result.sequence}：${result.amount > 0 ? "+" : ""}${result.amount} 积分；重复请求不会再次记账。`,
+        `已核对流水 ${result.sequence}：${formatSignedPoints(result.amount)}；重复请求不会再次记账。`,
       );
       setWallet(undefined);
       try {
@@ -341,11 +342,11 @@ export function AdminPointsWorkspace() {
                     {wallet.customer.mobile} ·{" "}
                     {wallet.customer.status === "ACTIVE" ? "正常" : "已停用"}
                   </p>
-                  <strong>{wallet.balance.toLocaleString()}</strong>
-                  <span>积分</span>
+                  <strong>{formatPoints(wallet.balance)}</strong>
+                  <span>可用积分</span>
                   <p>
-                    赠送 {wallet.grantedBalance.toLocaleString()} / 充值{" "}
-                    {wallet.fundedBalance.toLocaleString()} · 账务序号{" "}
+                    赠送 {formatPoints(wallet.grantedBalance)} / 充值{" "}
+                    {formatPoints(wallet.fundedBalance)} · 账务序号{" "}
                     {wallet.revision}
                   </p>
                   <button
@@ -362,7 +363,7 @@ export function AdminPointsWorkspace() {
                     <p>目标客户：{wallet.customer.mobile}</p>
                     <p>
                       {pending.request.amount > 0 ? "增加" : "扣减"}赠送积分{" "}
-                      {Math.abs(pending.request.amount).toLocaleString()}
+                      {formatPoints(Math.abs(pending.request.amount))}
                     </p>
                     <p>客户可见原因：{pending.request.reason}</p>
                     <button
@@ -452,7 +453,10 @@ export function AdminPointsWorkspace() {
                       <p>
                         确认后将向 {wallet.customer.mobile}{" "}
                         {form.direction === "ADD" ? "增加" : "扣减"}{" "}
-                        {form.amount || "—"} 赠送积分。
+                        {form.amount
+                          ? formatPoints(Number(form.amount))
+                          : "⚡—"}{" "}
+                        赠送积分。
                       </p>
                       <div className="commerce-actions">
                         <button

@@ -1,5 +1,6 @@
 "use client";
 import { BusinessRecordsNavigation } from "../../admin/records/navigation.js";
+import { formatChinaDateTime } from "../../china-time.js";
 import { useEffect, useRef, useState } from "react";
 import {
   actOnDeliveryOrder,
@@ -85,7 +86,7 @@ export function DeliveryScheduleView({
       </span>
       <p>
         {schedule.urgency === "CLOSED" ? "原预计完成" : "预计完成"}：
-        {new Date(schedule.expectedCompletionAt).toLocaleString()}
+        {formatChinaDateTime(schedule.expectedCompletionAt)}
       </p>
     </div>
   );
@@ -488,7 +489,7 @@ export function DeliveryWorkspace({
                     </span>
                   </div>
                   <p>
-                    {item.number} · {new Date(item.createdAt).toLocaleString()}
+                    {item.number} · {formatChinaDateTime(item.createdAt)}
                   </p>
                   <p>
                     {item.agreement.mode === "RANDOM" ? "随机套餐" : "精确发布"}{" "}
@@ -545,7 +546,7 @@ export function DeliveryWorkspace({
                 </p>
                 <p>
                   {order.delivery.startedAt
-                    ? `开始处理：${new Date(order.delivery.startedAt).toLocaleString()}`
+                    ? `开始处理：${formatChinaDateTime(order.delivery.startedAt)}`
                     : "尚未开始实际处理"}
                 </p>
               </div>
@@ -718,7 +719,7 @@ export function DeliveryWorkspace({
               <ol>
                 {order.delivery.history.map((entry) => (
                   <li key={entry.revision}>
-                    {new Date(entry.createdAt).toLocaleString()} ·{" "}
+                    {formatChinaDateTime(entry.createdAt)} ·{" "}
                     {actionLabels[String(entry.request.action)] ?? "处理记录"}{" "}
                     {typeof entry.request.reason === "string"
                       ? `· ${entry.request.reason}`

@@ -2,6 +2,7 @@
 import { submitPublishingOrder } from "@geoeval/api-client";
 import { useEffect, useRef, useState } from "react";
 import { AgreementSummary } from "./agreement-summary.js";
+import { formatPoints } from "../point-format.js";
 import {
   purchaseRejected,
   purchaseStorageKey,
@@ -105,7 +106,7 @@ export function PurchaseConfirmation({
             ? "正在核对购买…"
             : pending
               ? "核对或重试同一次购买"
-              : `确认购买并扣除 ${intent.request.acceptedTerms.totalPoints.toLocaleString()} 积分`}
+              : `确认购买并扣除 ${formatPoints(intent.request.acceptedTerms.totalPoints)}`}
         </button>
         {!pending && (
           <button

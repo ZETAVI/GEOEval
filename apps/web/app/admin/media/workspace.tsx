@@ -18,6 +18,7 @@ import {
   type MediaSupplier,
   type MediaSupplierDetail,
 } from "@geoeval/api-client";
+import { formatPoints } from "../../point-format.js";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -673,7 +674,7 @@ export function AdminMediaWorkspace() {
                                   </span>
                                   <span>
                                     {typeof platform.pointPrice === "number"
-                                      ? `${platform.pointPrice.toLocaleString("zh-CN")} 积分/次`
+                                      ? `${formatPoints(platform.pointPrice)}/次`
                                       : "未设置积分价"}
                                   </span>
                                 </small>
@@ -1027,7 +1028,7 @@ function OverviewPanel({
             <dt>单次积分价</dt>
             <dd>
               {typeof platform.pointPrice === "number"
-                ? `${platform.pointPrice.toLocaleString("zh-CN")} 积分 / 次`
+                ? `${formatPoints(platform.pointPrice)} / 次`
                 : "未设置"}
             </dd>
           </div>

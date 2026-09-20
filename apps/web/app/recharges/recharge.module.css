@@ -1,26 +1,91 @@
 .layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(230px, 1fr);
-  gap: 24px;
-  align-items: start;
+  display: block;
 }
 .create {
   display: grid;
-  gap: 16px;
+  gap: 12px;
+  padding: 30px;
+  border: 1px solid #dbe7e1;
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgb(18 65 45 / 8%);
 }
 .create h2,
 .history h2 {
   margin: 0;
 }
-.shortcuts {
+.balanceHero {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 24px 28px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #123f31, #1c6a4d);
+  color: white;
+  box-shadow: 0 16px 42px rgb(18 63 49 / 16%);
+}
+.balanceHero div {
+  display: grid;
+  gap: 6px;
+}
+.balanceHero span,
+.balanceHero p {
+  margin: 0;
+  color: rgb(255 255 255 / 76%);
+}
+.balanceHero strong {
+  font-size: clamp(32px, 5vw, 48px);
+  letter-spacing: -0.04em;
+}
+.createHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.createHeading > span {
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #edf7f2;
+  color: #176043;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.step {
+  margin: 0 0 5px;
+  color: #5b7166;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.formBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.8fr);
+  gap: 28px;
+  align-items: start;
+  margin-top: 12px;
+}
+.selection {
+  display: grid;
+  gap: 16px;
+}
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+.shortcuts button {
+  min-height: 64px;
+  font-size: 18px;
 }
 .amount {
   display: grid;
   gap: 8px;
-  max-width: 380px;
+  max-width: none;
+  color: #263c32;
+  font-weight: 700;
 }
 .amount input,
 .historyHeading select {
@@ -36,16 +101,19 @@
 }
 .methods {
   border: 1px solid #d6e2dc;
-  border-radius: 10px;
-  padding: 14px;
+  border-radius: 14px;
+  padding: 14px 16px 10px;
 }
 .methods label {
   display: flex;
   align-items: center;
   gap: 10px;
   min-height: 54px;
-  padding: 8px 10px;
-  border-radius: 8px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid #e0e9e5;
+  border-radius: 10px;
+  background: white;
 }
 .methods input {
   accent-color: #176043;
@@ -53,6 +121,8 @@
 }
 .methodUnavailable {
   color: #82938b;
+  background: #f5f7f6 !important;
+  opacity: 0.72;
 }
 .methodStatus {
   margin-left: auto;
@@ -108,18 +178,39 @@
   width: 78px;
   height: 32px;
 }
-.total {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 0;
-  border-top: 1px solid #d6e2dc;
+.orderPreview {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid #d6e5de;
+  border-radius: 16px;
+  background: #f6faf8;
 }
-.total strong {
-  color: #176043;
+.orderPreview > div {
+  display: grid;
+  gap: 5px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dce7e2;
 }
-.guide p {
-  line-height: 1.8;
+.orderPreview span {
+  color: #61766c;
+  font-size: 13px;
+}
+.orderPreview strong {
+  color: #123f31;
+  font-size: 28px;
+}
+.orderPreview button {
+  width: 100%;
+  min-height: 46px;
+}
+.orderPreview > p:last-child {
+  margin: 0;
+  color: #61766c;
+  font-size: 13px;
+  line-height: 1.65;
 }
 .controlled {
   padding: 14px 18px;
@@ -129,7 +220,7 @@
   color: #6d4e11;
 }
 .history {
-  margin-top: 36px;
+  margin-top: 42px;
 }
 .recordTabs {
   display: flex;
@@ -194,6 +285,56 @@
   border: 1px solid #d6e2dc;
   border-radius: 12px;
   background: white;
+}
+.recordList {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.recordCard {
+  display: grid;
+  grid-template-columns:
+    minmax(150px, 0.8fr) minmax(180px, 1fr) auto minmax(210px, 1.2fr)
+    auto;
+  gap: 20px;
+  align-items: center;
+  padding: 20px 22px;
+  border: 1px solid #dbe6e1;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 8px 24px rgb(26 75 55 / 5%);
+}
+.recordAmount,
+.recordPayment,
+.recordReference {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.recordAmount > span,
+.recordReference > span {
+  color: #6b7e75;
+  font-size: 12px;
+}
+.recordAmount strong {
+  color: #176043;
+  font-size: 24px;
+}
+.recordAmount p,
+.recordPayment time {
+  margin: 0;
+  color: #60736a;
+  font-size: 13px;
+}
+.recordState {
+  display: grid;
+  justify-items: start;
+  gap: 7px;
+}
+.recordReference :global(code) {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .recordsTable {
   width: 100%;
@@ -424,9 +565,51 @@
   margin-bottom: 16px;
   color: #5a7165;
 }
+@media (max-width: 1100px) {
+  .recordCard {
+    grid-template-columns: minmax(150px, 1fr) auto;
+  }
+  .recordPayment,
+  .recordReference,
+  .rowActions {
+    grid-column: 1 / -1;
+  }
+  .recordState {
+    justify-self: end;
+  }
+}
 @media (max-width: 760px) {
-  .layout {
+  .formBody {
     grid-template-columns: 1fr;
+  }
+  .create {
+    padding: 22px 18px;
+  }
+  .balanceHero,
+  .createHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .balanceHero {
+    padding: 22px;
+  }
+  .shortcuts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .orderPreview {
+    position: static;
+  }
+  .recordCard {
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+  }
+  .recordPayment,
+  .recordReference,
+  .rowActions {
+    grid-column: 1 / -1;
+  }
+  .recordState {
+    justify-self: end;
   }
   .orders li {
     grid-template-columns: minmax(0, 1fr) auto;

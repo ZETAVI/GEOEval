@@ -185,11 +185,11 @@ describe("explicit negotiated resolution", () => {
     const waiting = positive().resolution;
     expect(
       renderToStaticMarkup(<DeliveryResolutionSummary resolution={waiting} />),
-    ).toContain("已约定退回 90 积分，待订单结束结算");
+    ).toContain("已约定退回 ⚡90，待订单结束结算");
     const html = renderToStaticMarkup(
       <DeliveryResolutionSummary resolution={positive().resolution} />,
     );
-    expect(html).toContain("已约定退回 90 积分，待订单结束结算");
+    expect(html).toContain("已约定退回 ⚡90，待订单结束结算");
     expect(html).not.toContain("可由管理员执行");
   });
 });
@@ -266,7 +266,7 @@ describe("stopped publication and customer meaning", () => {
       <PublicationProgressView page={page} fallbackStatus="PUBLISHING" />,
     );
     expect(html).toContain("已购发布已全部完成");
-    expect(html).toContain("已约定退回 90 积分，待订单结束结算");
+    expect(html).toContain("已约定退回 ⚡90，待订单结束结算");
     expect(html).not.toContain("已关闭");
   });
 });

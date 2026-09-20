@@ -20,6 +20,7 @@ import {
   uuid,
 } from "../recharges/recharge-intent.js";
 import { CustomerSidebar } from "../customer-sidebar.js";
+import { formatPoints } from "../point-format.js";
 import {
   loadRoleSession,
   sessionFailureState,
@@ -373,8 +374,7 @@ export function PublishingWorkspace() {
                         "具体发布安排以所选平台与确认的服务内容为准。"}
                     </p>
                     <p className="commerce-price">
-                      {item.pointPrice.toLocaleString()}{" "}
-                      <small>积分 / 篇</small>
+                      {formatPoints(item.pointPrice)} <small>/ 篇</small>
                     </p>
                     <p className="commerce-muted">
                       {item.categories
@@ -453,8 +453,10 @@ export function PublishingWorkspace() {
                         />
                       </label>
                       <span>
-                        {prices.get(line.platformId)?.toLocaleString() ?? "—"}{" "}
-                        积分/篇
+                        {prices.has(line.platformId)
+                          ? formatPoints(prices.get(line.platformId)!)
+                          : "⚡—"}
+                        /篇
                       </span>
                       <button
                         className="text-button"
@@ -481,8 +483,8 @@ export function PublishingWorkspace() {
           <div>
             <h2>当前选择{dirty ? " · 尚未保存" : ""}</h2>
             <p>
-              估算 {estimated?.toLocaleString() ?? "—"} 积分 · 可用余额{" "}
-              {data.balance.toLocaleString()} 积分
+              估算 {estimated == null ? "⚡—" : formatPoints(estimated)} ·
+              可用余额 {formatPoints(data.balance)}
             </p>
             <p className="commerce-muted">
               以上是选择估算；明确保存后以下方服务端报价为准。
@@ -578,7 +580,7 @@ export function PublishingPackageCards({
             </span>
           </div>
           <p className="commerce-price">
-            {item.pointPrice.toLocaleString()} <small>积分 / 套餐</small>
+            {formatPoints(item.pointPrice)} <small>/ 套餐</small>
           </p>
           <p className="commerce-quantity">
             成功发布 <strong>{item.quantity.toLocaleString()}</strong> 篇

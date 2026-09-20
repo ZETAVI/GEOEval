@@ -17,6 +17,7 @@ import { NativeCheckout } from "./native-checkout.js";
 import { nativeApiSource, rechargeApiBase } from "./native-api-source.js";
 import { rechargeReturnKey, readReturnBrand } from "./recharge-intent.js";
 import styles from "./recharge.module.css";
+import { formatPoints } from "../point-format.js";
 export function RechargeDetailWorkspace({ orderId }: { orderId: string }) {
   const [session, setSession] = useState<RoleSessionState>({ kind: "loading" }),
     [options, setOptions] = useState<RechargeOptions>(),
@@ -175,7 +176,7 @@ export function RechargeDetailWorkspace({ orderId }: { orderId: string }) {
             <p>
               当前可用积分：
               <strong>
-                {balance?.balance.toLocaleString() ?? "正在读取…"}
+                {balance ? formatPoints(balance.balance) : "正在读取…"}
               </strong>
             </p>
             {message && <p role="alert">{message}</p>}

@@ -144,6 +144,16 @@ and converge on the same settlement transaction.
 - History and checkout SHALL share four business labels and the corresponding
   short copy owned by [recharge-status](../../../apps/web/app/recharges/recharge-status.ts).
   Internal recovery phases SHALL not introduce public states or extra DTO hints.
+- The persisted `CLOSED` state SHALL be presented to customers as `未支付`.
+  This presentation SHALL NOT convert local expiry, a missing provider trade or
+  a return-page action into a provider closure fact.
+- Point quantities SHALL use the `⚡` unit in customer and management views.
+  Recharge selection SHALL lead with the requested point quantity and show the
+  actual renminbi amount separately before submission; point history SHALL
+  remain separate from unpaid recharge history.
+- Product, payment and operator timestamps SHALL be rendered in
+  `Asia/Shanghai`. Persistence and service transport MAY retain UTC instants;
+  the browser's device timezone SHALL NOT change the displayed business time.
 - Local read/operation failures SHALL remain separate feedback and SHALL not
   overwrite the last known order state. Browser polling pause SHALL not imply
   that server recovery stopped. Notification failure SHALL not downgrade credit.

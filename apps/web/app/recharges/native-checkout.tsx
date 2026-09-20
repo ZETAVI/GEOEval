@@ -10,6 +10,7 @@ import {
 } from "./native-checkout-controller.js";
 import styles from "./native-checkout.module.css";
 import { rechargeLabels, rechargeMessages } from "./recharge-status.js";
+import { formatPoints } from "../point-format.js";
 
 const browserMemory: CancellationMemory = {
   read: (key) => localStorage.getItem(key) === "requested",
@@ -101,9 +102,9 @@ export function NativeCheckoutPanel({
     state.busy === "cashier" ||
     !state.commandReady;
   const heading = success
-    ? "积分已到账"
+    ? "⚡已到账"
     : closed
-      ? "这笔充值已关闭"
+      ? "这笔充值未支付"
       : order?.method === "ALIPAY_PC"
         ? "支付宝充值"
         : "微信扫码充值";
@@ -141,7 +142,7 @@ export function NativeCheckoutPanel({
         {order && (
           <div className={styles.summary}>
             <div>
-              <span>充值金额</span>
+              <span>实付金额</span>
               <strong>
                 ¥
                 {order.amountYuan.toLocaleString("zh-CN", {
@@ -158,9 +159,7 @@ export function NativeCheckoutPanel({
                     ? "本单对应积分"
                     : "充值成功可得"}
               </span>
-              <b>
-                {order.points.toLocaleString("zh-CN")} <small>积分</small>
-              </b>
+              <b>{formatPoints(order.points)}</b>
             </div>
           </div>
         )}

@@ -1,5 +1,7 @@
 import styles from "../../agency/customer-service.module.css";
 import type { Commission } from "@geoeval/api-client";
+import { formatChinaDateTime } from "../../china-time.js";
+import { formatPoints } from "../../point-format.js";
 export function commissionMoney(fen: string) {
   const n = BigInt(fen);
   return `¥${n / 100n}.${(n % 100n).toString().padStart(2, "0")}`;
@@ -29,7 +31,7 @@ export function CommissionFacts({
         )}
         <div>
           <dt>下单时间</dt>
-          <dd>{new Date(r.createdAt).toLocaleString("zh-CN")}</dd>
+          <dd>{formatChinaDateTime(r.createdAt)}</dd>
         </div>
         <div>
           <dt>佣金</dt>
@@ -45,19 +47,20 @@ export function CommissionFacts({
         <div>
           <dt>原消费</dt>
           <dd>
-            实付 {r.originalFundedPoints} 积分 / 赠送 {r.originalGrantedPoints}{" "}
-            积分
+            实付 {formatPoints(r.originalFundedPoints)} / 赠送{" "}
+            {formatPoints(r.originalGrantedPoints)}
           </dd>
         </div>
         <div>
           <dt>{r.returnConfirmed ? "实际退回" : "约定退回"}</dt>
           <dd>
-            实付 {r.returnFundedPoints} 积分 / 赠送 {r.returnGrantedPoints} 积分
+            实付 {formatPoints(r.returnFundedPoints)} / 赠送{" "}
+            {formatPoints(r.returnGrantedPoints)}
           </dd>
         </div>
         <div>
           <dt>计佣消费</dt>
-          <dd>{r.eligibleFundedPoints} 实付积分</dd>
+          <dd>{formatPoints(r.eligibleFundedPoints)} 实付积分</dd>
         </div>
         <div>
           <dt>订单进度</dt>
@@ -76,7 +79,7 @@ export function CommissionFacts({
         {r.bookedAt && (
           <div>
             <dt>入账时间</dt>
-            <dd>{new Date(r.bookedAt).toLocaleString("zh-CN")}</dd>
+            <dd>{formatChinaDateTime(r.bookedAt)}</dd>
           </div>
         )}
       </dl>

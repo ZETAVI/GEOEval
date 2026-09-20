@@ -18,6 +18,7 @@ import {
 } from "../../session-access.js";
 import { useAgencyRead } from "../../agency/use-agency-read.js";
 import { EvaluationReportView } from "../../diagnosis/report-view.js";
+import { formatChinaDateTime } from "../../china-time.js";
 import styles from "../../agency/customer-service.module.css";
 const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 type PageData = {
@@ -121,7 +122,7 @@ export function AgentCustomersWorkspace({
               {data.list.items.map((c) => (
                 <tr key={c.id}>
                   <td>{c.mobile}</td>
-                  <td>{new Date(c.createdAt).toLocaleString("zh-CN")}</td>
+                  <td>{formatChinaDateTime(c.createdAt)}</td>
                   <td>
                     <a href={`/agent/customers/${c.id}`}>查看品牌与报告</a>
                   </td>
@@ -150,11 +151,7 @@ export function AgentCustomersWorkspace({
             </div>
             <div>
               <dt>注册时间</dt>
-              <dd>
-                {new Date(data.detail.customer.createdAt).toLocaleString(
-                  "zh-CN",
-                )}
-              </dd>
+              <dd>{formatChinaDateTime(data.detail.customer.createdAt)}</dd>
             </div>
           </dl>
         </section>
@@ -272,9 +269,7 @@ export function AgentCustomersWorkspace({
             <h2>当前报告</h2>
             {data.current ? (
               <>
-                <p>
-                  {new Date(data.current.acceptedAt).toLocaleString("zh-CN")}
-                </p>
+                <p>{formatChinaDateTime(data.current.acceptedAt)}</p>
                 <a href={`${brandPath}/reports/${data.current.id}`}>
                   打开完整报告
                 </a>
@@ -290,8 +285,7 @@ export function AgentCustomersWorkspace({
               {data.history.items.map((r) => (
                 <li key={r.id}>
                   <a href={`${brandPath}/reports/${r.id}`}>
-                    {new Date(r.acceptedAt).toLocaleString("zh-CN")} ·{" "}
-                    {r.brandName}
+                    {formatChinaDateTime(r.acceptedAt)} · {r.brandName}
                   </a>
                 </li>
               ))}

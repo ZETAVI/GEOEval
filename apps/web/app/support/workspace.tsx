@@ -21,6 +21,7 @@ import {
   type SupportCommand,
 } from "@geoeval/api-client";
 import { CustomerSidebar } from "../customer-sidebar.js";
+import { formatChinaDateTime } from "../china-time.js";
 import { AdminSidebar } from "../admin/admin-sidebar.js";
 import { SessionExitActions } from "../session-exit-actions.js";
 import {
@@ -40,8 +41,7 @@ const home = (role: Role) =>
       : "/admin/support";
 const statusText = (status: string) =>
   status === "RESOLVED" ? "已处理" : "处理中";
-const date = (value: string) =>
-  new Date(value).toLocaleString("zh-CN", { hour12: false });
+const date = (value: string) => formatChinaDateTime(value);
 const message = (error: unknown) =>
   error instanceof Error ? error.message : "暂时无法完成，请重试";
 export function SupportWorkspace({

@@ -4,6 +4,8 @@ import {
   getAdminOrderSettlement,
   type AdminOrderSettlement,
 } from "@geoeval/api-client";
+import { formatChinaDateTime } from "../../china-time.js";
+import { formatPoints } from "../../point-format.js";
 const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
 export function settlementExplanation(value: AdminOrderSettlement) {
   if (value.settledAt) return "结算已完成";
@@ -72,8 +74,7 @@ export function OrderSettlementDetails({
 }: {
   value: AdminOrderSettlement;
 }) {
-  const time = (s: string | null) =>
-    s ? new Date(s).toLocaleString("zh-CN") : "—";
+  const time = (s: string | null) => (s ? formatChinaDateTime(s) : "—");
   return (
     <section className="commerce-card">
       <h2>订单结算</h2>
@@ -82,10 +83,10 @@ export function OrderSettlementDetails({
         首次结束：{time(value.endedAt)} · 售后截止：{time(value.appealUntil)}
       </p>
       <p>
-        约定退回 {value.agreedPoints} 积分 · 实际退回{" "}
+        约定退回 {formatPoints(value.agreedPoints)} · 实际退回{" "}
         {value.returnedPoints === null
           ? "尚未发生"
-          : `${value.returnedPoints} 积分`}
+          : formatPoints(value.returnedPoints)}
       </p>
       <p>
         处理中工单：{value.hasOpenIssue ? "有" : "无"} · 结算时间：

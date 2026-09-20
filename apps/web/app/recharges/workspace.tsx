@@ -19,6 +19,7 @@ import { RechargeRecords } from "./recharge-records.js";
 import { rechargeApiBase } from "./native-api-source.js";
 import styles from "./recharge.module.css";
 import { rechargeLabels } from "./recharge-status.js";
+import { formatPoints } from "../point-format.js";
 
 export { rechargeLabels };
 
@@ -100,15 +101,19 @@ export function RechargeWorkspace() {
           <div>
             <p className="eyebrow">账户中心</p>
             <h1>账户充值</h1>
-            <p>
-              当前可用 {balance?.balance.toLocaleString() ?? "—"} 积分 ·
-              同一账号各品牌共用。
-            </p>
+            <p>选择充值积分并前往官方收银台完成付款。</p>
           </div>
           <a className="secondary-button" href="/account">
             积分与流水
           </a>
         </header>
+        <section className={styles.balanceHero} aria-label="当前积分余额">
+          <div>
+            <span>当前可用积分</span>
+            <strong>{balance ? formatPoints(balance.balance) : "⚡—"}</strong>
+          </div>
+          <p>同一账号下的所有品牌共用这份余额。</p>
+        </section>
         {options.controlled && (
           <p className={styles.controlled} role="status">
             受控测试环境 · 仅验证流程，二维码不能真实付款
@@ -120,13 +125,6 @@ export function RechargeWorkspace() {
             options={options}
             base={rechargeApiBase}
           />
-          <aside className={`commerce-editor ${styles.guide}`}>
-            <h2>充值与购买</h2>
-            <p>支付确认后积分到账。充值不会自动购买发布服务。</p>
-            <p>需要发票时，请在下方已成功的充值订单中提交申请。</p>
-            <a href="/publishing">查看发布方案 →</a>
-            {options.supportMessage && <p>{options.supportMessage}</p>}
-          </aside>
         </div>
         <RechargeRecords
           base={rechargeApiBase}

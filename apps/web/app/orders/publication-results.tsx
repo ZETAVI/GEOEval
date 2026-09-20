@@ -5,6 +5,8 @@ import {
   type CustomerPublicationPage,
   type PublishingOrder,
 } from "@geoeval/api-client";
+import { formatChinaDateTime } from "../china-time.js";
+import { formatPoints } from "../point-format.js";
 
 export const deliveryStatusLabel: Record<PublishingOrder["status"], string> = {
   PENDING_HANDLING: "待处理",
@@ -45,9 +47,7 @@ export function PublicationResultsView({
           {item.result ? (
             <>
               <p>{item.result.title}</p>
-              <p>
-                发布时间：{new Date(item.result.publishedAt).toLocaleString()}
-              </p>
+              <p>发布时间：{formatChinaDateTime(item.result.publishedAt)}</p>
               <a
                 className="secondary-button"
                 href={item.result.url}
@@ -117,15 +117,15 @@ export function PublicationProgressView({
             {status === "CLOSED" || page.resolution.stopped
               ? "原预计完成时间"
               : "预计完成时间"}
-            ：{new Date(page.expectedCompletionAt).toLocaleString()}
+            ：{formatChinaDateTime(page.expectedCompletionAt)}
           </p>
           {page.resolution.mode !== null && (
             <p>
               {page.resolution.agreedPoints === 0
                 ? "无需退还积分。"
                 : page.resolution.returnedPoints !== null
-                  ? `已退回 ${page.resolution.returnedPoints} 积分`
-                  : `已约定退回 ${page.resolution.agreedPoints} 积分，待订单结束结算`}
+                  ? `已退回 ${formatPoints(page.resolution.returnedPoints)}`
+                  : `已约定退回 ${formatPoints(page.resolution.agreedPoints)}，待订单结束结算`}
             </p>
           )}
         </>

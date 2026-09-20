@@ -1,4 +1,6 @@
 import type { PointAdminChange, PointChange } from "@geoeval/api-client";
+import { formatChinaDateTime } from "../china-time.js";
+import { formatPoints, formatSignedPoints } from "../point-format.js";
 
 export function PointHistoryList({
   items,
@@ -34,13 +36,12 @@ export function PointHistoryList({
             <b
               className={item.amount > 0 ? "point-increase" : "point-decrease"}
             >
-              {item.amount > 0 ? "+" : ""}
-              {item.amount.toLocaleString()}
+              {formatSignedPoints(item.amount)}
             </b>
           </div>
           <p className="commerce-muted">
-            {new Date(item.createdAt).toLocaleString()} · 记账后余额{" "}
-            {item.balanceAfter.toLocaleString()} · 流水 {item.sequence}
+            {formatChinaDateTime(item.createdAt)} · 记账后余额{" "}
+            {formatPoints(item.balanceAfter)} · 流水 {item.sequence}
           </p>
           {item.publishingOrderId && (
             <a
@@ -71,7 +72,8 @@ export function PointHistoryList({
                 {item.actorKind === "SYSTEM" ? "系统确认" : item.actorAccountId}
               </p>
               <p>
-                赠送变动 {item.grantedDelta} / 充值变动 {item.fundedDelta}
+                赠送变动 {formatSignedPoints(item.grantedDelta)} / 充值变动{" "}
+                {formatSignedPoints(item.fundedDelta)}
               </p>
               {item.internalNote && <p>内部备注：{item.internalNote}</p>}
               {item.businessReference && (

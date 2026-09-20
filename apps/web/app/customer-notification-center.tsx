@@ -14,6 +14,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { NotificationCenterController } from "./notification-center-controller.js";
+import { formatChinaDateTime } from "./china-time.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -189,10 +190,10 @@ function AccountNotificationCenter({ accountId }: { accountId: string }) {
 }
 
 function formatTime(value: string): string {
-  return new Intl.DateTimeFormat("zh-CN", {
+  return formatChinaDateTime(value, {
     month: "numeric",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(value));
+  });
 }

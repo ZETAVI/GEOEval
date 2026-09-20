@@ -14,6 +14,7 @@ import {
   type DeliveryReplacementTargets,
 } from "@geoeval/api-client";
 import { deliveryStatusLabel } from "../../orders/publication-results.js";
+import { formatChinaDateTime } from "../../china-time.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
@@ -788,7 +789,7 @@ export function PublicationWorkPanel({
             <ol>
               {history.map((entry) => (
                 <li key={entry.revision}>
-                  {new Date(entry.createdAt).toLocaleString()} ·{" "}
+                  {formatChinaDateTime(entry.createdAt)} ·{" "}
                   {actionLabels[String(entry.request.action)] ?? "处理记录"}
                   {typeof entry.request.reason === "string"
                     ? ` · ${entry.request.reason}`
