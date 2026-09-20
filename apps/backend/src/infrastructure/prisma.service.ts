@@ -14,7 +14,13 @@ export class PrismaService
 {
   constructor(databaseUrl: string) {
     super({
-      adapter: new PrismaPg({ connectionString: databaseUrl }),
+      // Prisma PG serializes DateTime values as UTC fields without an offset.
+      // PostgreSQL must interpret those fields in UTC; presentation and channel
+      // formatting remain explicitly Asia/Shanghai at their owning boundaries.
+      adapter: new PrismaPg({
+        connectionString: databaseUrl,
+        options: "-c TimeZone=UTC",
+      }),
     });
   }
 

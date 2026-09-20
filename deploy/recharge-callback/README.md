@@ -61,14 +61,14 @@ callback cannot durably write before its response deadline.
 
 ## Reviewed assets
 
-| Asset | Installation target |
-| --- | --- |
-| `systemd/geoeval-recharge-callback.service` | `/etc/systemd/system/geoeval-recharge-callback.service` |
-| `systemd/geo-runtime.target.d/20-geoeval-recharge-callback.conf` | matching target drop-in |
-| `systemd/postgresql@16-main.service.d/20-geo-slice.conf` | matching PostgreSQL drop-in |
-| `postgresql/20-geoeval.conf` | `/etc/postgresql/16/main/conf.d/20-geoeval.conf` |
-| `recharge-callback.env.example` | `/etc/geoeval/recharge-callback.env` after exact review |
-| `nginx/app.geohdp.com.conf` | `/etc/nginx/sites-available/geoeval-app.conf` |
+| Asset                                                            | Installation target                                     |
+| ---------------------------------------------------------------- | ------------------------------------------------------- |
+| `systemd/geoeval-recharge-callback.service`                      | `/etc/systemd/system/geoeval-recharge-callback.service` |
+| `systemd/geo-runtime.target.d/20-geoeval-recharge-callback.conf` | matching target drop-in                                 |
+| `systemd/postgresql@16-main.service.d/20-geo-slice.conf`         | matching PostgreSQL drop-in                             |
+| `postgresql/20-geoeval.conf`                                     | `/etc/postgresql/16/main/conf.d/20-geoeval.conf`        |
+| `recharge-callback.env.example`                                  | `/etc/geoeval/recharge-callback.env` after exact review |
+| `nginx/app.geohdp.com.conf`                                      | `/etc/nginx/sites-available/geoeval-app.conf`           |
 
 Do not copy this directory wholesale. Install and verify each control plane in
 the following order while holding the shared-host lock.
@@ -105,9 +105,15 @@ MemoryHigh=268435456
 MemoryMax=335544320
 ```
 
-Also query `max_connections`, `shared_buffers`, `work_mem`, and the local socket
-directory. A failed or killed database ends the window; do not raise the slice
-ceiling ad hoc.
+The GEO PostgreSQL cluster and every Prisma connection use UTC internally.
+Prisma PG serializes DateTime values as UTC fields without an offset, so a
+non-UTC database session would shift stored `timestamptz` instants. Product,
+operator and payment-channel timestamps are still formatted as
+`Asia/Shanghai` (China Standard Time, UTC+8) at their presentation boundary.
+
+Also query `max_connections`, `shared_buffers`, `work_mem`, `timezone`, and the
+local socket directory. A failed or killed database ends the window; do not
+raise the slice ceiling ad hoc.
 
 ### 3. Database, migrations, and least privilege
 
