@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { createRechargeCallbackApp } from "./recharge/recharge-callback.module.js";
-import { loadRechargeCallbackConfiguration } from "./recharge/recharge.runtime-config.js";
+import { loadRechargeCallbackConfiguration } from "./recharge/recharge-callback.runtime-config.js";
 
 const configuration = loadRechargeCallbackConfiguration();
 if (!configuration) throw new Error("RECHARGE_CALLBACK_RUNTIME_DISABLED");
