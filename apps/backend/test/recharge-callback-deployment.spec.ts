@@ -1,13 +1,91 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const deployment = resolve(root, "deploy/recharge-callback");
 const read = (path: string) => readFileSync(resolve(deployment, path), "utf8");
 
+function runtimeImports(path: string): string[] {
+  const source = ts.createSourceFile(
+    path,
+    readFileSync(path, "utf8"),
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  const imports: string[] = [];
+  for (const statement of source.statements) {
+    if (ts.isImportDeclaration(statement)) {
+      const clause = statement.importClause;
+      const runtimeImport =
+        clause === undefined ||
+        (!clause.isTypeOnly &&
+          (clause.name !== undefined ||
+            clause.namedBindings === undefined ||
+            ts.isNamespaceImport(clause.namedBindings) ||
+            clause.namedBindings.elements.some((value) => !value.isTypeOnly)));
+      if (runtimeImport && ts.isStringLiteral(statement.moduleSpecifier))
+        imports.push(statement.moduleSpecifier.text);
+    } else if (
+      ts.isExportDeclaration(statement) &&
+      !statement.isTypeOnly &&
+      statement.moduleSpecifier &&
+      ts.isStringLiteral(statement.moduleSpecifier)
+    ) {
+      imports.push(statement.moduleSpecifier.text);
+    }
+  }
+  return imports;
+}
+
+function callbackModuleGraph() {
+  const entry = resolve(root, "apps/backend/src/recharge-callback-main.ts");
+  const files = new Set<string>();
+  const packages = new Set<string>();
+  const pending = [entry];
+  while (pending.length > 0) {
+    const path = pending.pop()!;
+    if (files.has(path)) continue;
+    files.add(path);
+    for (const specifier of runtimeImports(path)) {
+      if (!specifier.startsWith(".")) {
+        packages.add(specifier);
+        continue;
+      }
+      const candidate = resolve(
+        dirname(path),
+        specifier.replace(/\.js$/, ".ts"),
+      );
+      if (!existsSync(candidate))
+        throw new Error(`UNRESOLVED_CALLBACK_IMPORT:${path}:${specifier}`);
+      pending.push(candidate);
+    }
+  }
+  return { files: [...files], packages: [...packages] };
+}
+
 describe("recharge callback production deployment boundary", () => {
+  it("keeps the passive callback runtime free of the Alipay payment SDK and full adapter", () => {
+    const graph = callbackModuleGraph();
+
+    expect(graph.packages).not.toContain("alipay-sdk");
+    expect(graph.packages).not.toContain("urllib");
+    expect(graph.files).not.toContain(
+      resolve(
+        root,
+        "apps/backend/src/recharge/infrastructure/alipay/alipay-payment.adapter.ts",
+      ),
+    );
+    expect(graph.files).not.toContain(
+      resolve(
+        root,
+        "apps/backend/src/recharge/alipay-recharge.runtime-config.ts",
+      ),
+    );
+  });
+
   it("runs only the callback host with copied credentials and a dedicated identity", () => {
     const service = read("systemd/geoeval-recharge-callback.service");
 

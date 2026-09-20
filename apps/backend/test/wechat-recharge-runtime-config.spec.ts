@@ -7,11 +7,11 @@ import { RECHARGE_CUSTOMER_OPTIONS } from "../src/recharge/application/customer-
 import { RechargeApiModule } from "../src/recharge/recharge-api.module.js";
 import {
   loadRechargeApiConfiguration,
-  loadRechargeCallbackConfiguration,
   loadRechargeWorkerConfiguration,
 } from "../src/recharge/recharge.runtime-config.js";
+import { loadRechargeCallbackConfiguration } from "../src/recharge/recharge-callback.runtime-config.js";
 import { RechargeNotificationModule } from "../src/recharge/recharge-notification.module.js";
-import { loadAlipayRechargeNotificationVerifier } from "../src/recharge/alipay-recharge.runtime-config.js";
+import { loadAlipayRechargeNotificationVerifier } from "../src/recharge/alipay-notification.runtime-config.js";
 import {
   loadWechatRechargeApiConfiguration,
   loadWechatRechargeWorkerConfiguration,
