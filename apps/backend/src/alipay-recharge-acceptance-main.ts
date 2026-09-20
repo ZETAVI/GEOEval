@@ -22,7 +22,7 @@ async function main() {
     configuration.native.recharge.method !== "ALIPAY_PC" ||
     configuration.native.recharge.minAmountYuan !== 1 ||
     configuration.native.recharge.maxAmountYuan !== 1 ||
-    configuration.native.recharge.maxActiveOrders !== 3 ||
+    configuration.native.recharge.maxActiveOrders !== 4 ||
     configuration.native.recharge.paymentWindowSeconds !== 900
   )
     throw new Error("RECHARGE_ACCEPTANCE_LIVE_CONFIGURATION_REQUIRED");
