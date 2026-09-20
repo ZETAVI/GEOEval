@@ -15,7 +15,7 @@ describe("recharge callback production deployment boundary", () => {
     expect(service).toContain("Group=geo-runtime");
     expect(service).toContain("Slice=geo.slice");
     expect(service).toContain("MemoryHigh=128M");
-    expect(service).toContain("MemoryMax=192M");
+    expect(service).toContain("MemoryMax=160M");
     expect(service).toContain("dist/recharge-callback-main.js");
     expect(service).toContain(
       "LoadCredential=wechat_public_key.pem:/opt/geoeval/shared/secrets/wechat/wechatpay_public_key.pem",

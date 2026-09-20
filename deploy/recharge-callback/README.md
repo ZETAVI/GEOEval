@@ -17,7 +17,8 @@ cannot create a QR order.
   `recharge_payment_observations` and `recharge_notification_receipts`.
 - Resource ownership: callback and PostgreSQL are children of `geo.slice` and
   `geo-runtime.target`. The existing GEOMonitor limit is unchanged. Their
-  configured `MemoryMax` values add up to the existing 768 MiB slice ceiling.
+  configured `MemoryMax` values add up to 736 MiB, leaving 32 MiB below the
+  existing 768 MiB slice ceiling for cgroup and short lifecycle overhead.
 - All other `app.geohdp.com` HTTPS paths continue to return `503`.
 
 The public-key identifier is
@@ -139,7 +140,7 @@ User=geoeval-callback
 Group=geo-runtime
 Slice=geo.slice
 MemoryHigh=134217728
-MemoryMax=201326592
+MemoryMax=167772160
 ```
 
 Check that only `127.0.0.1:3300` listens. A forged loopback notification must

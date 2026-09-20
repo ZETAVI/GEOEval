@@ -8,7 +8,7 @@
 
 - **模块与宿主**：继续运行已经合并的 `recharge-callback-main`，只装配 Persistence 和 Recharge notification；Nginx 精确代理微信通知路径，其他应用路径保持 `503`。没有为部署方便启动完整 API、登录、Worker、Web 或 Redis。
 - **权限**：代码层本来只读取微信支付公钥和 APIv3 key；部署再用专用 `geoeval-callback` 身份和 systemd `LoadCredential=` 收紧操作系统边界，使其不能读取同目录的商户私钥和证书。peer 数据库角色只可读写 observation/receipt 两表，不能访问订单、账户或积分。
-- **资源与生命周期**：PostgreSQL 与 callback 都加入现有 `geo.slice` 和 `geo-runtime.target`。三个 GEO 服务的硬内存上限总和等于 slice 的 768 MiB 上限；PostgreSQL 连接和工作内存同步收束。实际应用配置前必须再次证明该 cluster 没有非 GEO consumer，并在共享宿主锁内完成一次可回滚维护窗口。
+- **资源与生命周期**：PostgreSQL 与 callback 都加入现有 `geo.slice` 和 `geo-runtime.target`。共享宿主 owner 复核后把 callback `MemoryMax` 从 192 MiB 收到 160 MiB，三个 GEO 服务的硬上限总和为 736 MiB，在 slice 的 768 MiB 上限内保留 32 MiB 余量；PostgreSQL 连接和工作内存同步收束。实际应用配置前必须再次证明该 cluster 没有非 GEO consumer，并在共享宿主锁内完成一次可回滚维护窗口。
 - **恢复与证据**：公网切换最后执行；失败先把 app 域名恢复为全路径 `503`，再停 callback。数据库迁移和已认证付款事实不逆转或删除。部署只证明公网接收和持久 inbox；公钥成功响应、真实通知解密、预下单/关单、付款到账各自保留为后续 Gate。
 - **金额**：所有本项目 provider 探针统一走可持久恢复的一元 RechargeOrder；不建立一分旁路或 provider-only 脚本。
 
@@ -19,6 +19,7 @@
 - **需求一致性**：所有本项目测试金额统一为一元；AppID 认证绑定只解除账号 Gate，不被写成接口或资金证据。部署仍是 `verify` callback-only，未偷偷带入完整应用或真实下单。
 - **工程边界**：新增资产只有 systemd、PostgreSQL、Nginx、非 secret env 示例、运行手册和一份合同测试。callback 代码、Recharge/Commerce/Invoice schema 与业务状态不变。凭据、数据库和公网权限都按实际调用面收窄。
 - **恢复与共享宿主**：Nginx 最后切换且可先恢复全路径 `503`；观察/收据和迁移不作为回滚删除。PostgreSQL 移入 `geo.slice` 之前必须再次核对无非 GEO consumer，并按共享锁 → 应用锁的顺序执行。
+- **组级压力**：`geo.slice` 的 `MemoryHigh=512M` 低于三个子单元 high 的算术和，这是预期的组级节流保护；运行验收按服务状态、内存事件和业务 smoke 判断，不能把发生节流本身误报成服务故障或据此临时提高总上限。
 - **证据**：7 个回调定向文件 141 项、Backend typecheck/build、格式/框架/link、目标 systemd 255 verify 与 Nginx `-t` 通过。完整 Backend 为 919 passed / 2 skipped / 1 failed；唯一失败是未改动的 evaluation Worker restart 固定 5 秒 timeout，单独复验仍超时，不列作本片通过项。
 
 固定 Diff 未发现阻断本 PR 的支付或部署缺陷。PR CI、真实安装、公网伪造请求、成功响应公钥验签、真实通知解密和一元资金验收仍各自保留，不以本审查替代。
