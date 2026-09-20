@@ -208,6 +208,45 @@ describe("durable Native recovery with PostgreSQL and authenticated controlled W
     expect((await runtime().read(customer, o.id))?.qr?.value).toBe(qr);
   });
 
+  it("drives only the explicitly selected order", async () => {
+    const first = await create(),
+      selected = await create(),
+      result = await runtime().runOrder(selected.id);
+    expect(result).toEqual({ claimed: 1, failed: 0 });
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0]!.body.toString()).out_trade_no).toBe(
+      selected.merchantOrderNo,
+    );
+    expect(await stored(first.id)).toMatchObject({
+      dispatchState: "UNSENT",
+      nativeGeneration: 0,
+      nativeNextOperation: "INITIATE",
+    });
+    expect(await stored(selected.id)).toMatchObject({
+      dispatchState: "MAY_EXIST",
+      nativeGeneration: 1,
+      nativeNextOperation: "QUERY",
+    });
+  });
+
+  it("reports an exact order as claimed when its result commit fails", async () => {
+    const selected = await create();
+    vi.spyOn(
+      PostgresNativeRecoveryRepository.prototype,
+      "complete",
+    ).mockRejectedValueOnce(new Error("controlled result commit failure"));
+    expect(await runtime().runOrder(selected.id)).toEqual({
+      claimed: 1,
+      failed: 1,
+    });
+    expect(requests).toHaveLength(1);
+    expect(await stored(selected.id)).toMatchObject({
+      dispatchState: "MAY_EXIST",
+      nativeGeneration: 1,
+      nativeNextOperation: "QUERY",
+    });
+  });
+
   it("recovers an uncommitted initiate response by querying the same order after the lease", async () => {
     const o = await create(),
       lost = await claim(o.id);

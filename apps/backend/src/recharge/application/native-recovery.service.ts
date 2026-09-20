@@ -128,39 +128,16 @@ export class NativeRecoveryService {
     for (const orderId of ids) {
       // Stop taking new work; an already started claim/call/commit must finish.
       if (stop?.aborted) break;
-      try {
-        const claim = await this.repository.claim(
-          orderId,
-          this.channel,
-          this.policy,
-          this.clock(),
-        );
-        if (!claim) continue;
-        claimed++;
-        const result = await this.perform(claim);
-        // A commit failure deliberately leaves a lease and uncertain operation for recovery.
-        await this.repository.complete(
-          claim,
-          result,
-          this.policy,
-          this.clock(),
-        );
-        if (!result.response.ok) failed++;
-      } catch {
-        failed++;
-        try {
-          const now = this.clock();
-          await this.repository.deferOrder(
-            orderId,
-            now,
-            new Date(now.getTime() + this.policy.retryDelayMs),
-          );
-        } catch {
-          /* durable due work remains; report this failed item */
-        }
-      }
+      const result = await this.runOrderId(orderId, stop);
+      claimed += result.claimed;
+      failed += result.failed;
     }
     return { claimed, failed };
+  }
+  /** Exact operator/recovery seam; never scans or advances another order. */
+  runOrder(orderId: string, stop?: AbortSignal) {
+    this.identifiers(orderId);
+    return this.runOrderId(orderId, stop);
   }
   async runSettlements(limit: number, stop?: AbortSignal) {
     this.limit(limit);
@@ -197,6 +174,36 @@ export class NativeRecoveryService {
   }
   onApplicationShutdown() {
     return this.channel.gateway.dispose?.();
+  }
+  private async runOrderId(orderId: string, stop?: AbortSignal) {
+    if (stop?.aborted) return { claimed: 0, failed: 0 };
+    let claimed = 0;
+    try {
+      const claim = await this.repository.claim(
+        orderId,
+        this.channel,
+        this.policy,
+        this.clock(),
+      );
+      if (!claim) return { claimed: 0, failed: 0 };
+      claimed = 1;
+      const result = await this.perform(claim);
+      // A commit failure deliberately leaves a lease and uncertain operation for recovery.
+      await this.repository.complete(claim, result, this.policy, this.clock());
+      return { claimed, failed: result.response.ok ? 0 : 1 };
+    } catch {
+      try {
+        const now = this.clock();
+        await this.repository.deferOrder(
+          orderId,
+          now,
+          new Date(now.getTime() + this.policy.retryDelayMs),
+        );
+      } catch {
+        /* durable due work remains; report this failed item */
+      }
+      return { claimed, failed: 1 };
+    }
   }
   private async perform(claim: NativeClaim): Promise<NativeOperationResult> {
     try {

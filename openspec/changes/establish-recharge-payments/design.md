@@ -2,7 +2,7 @@
 
 方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; N4 adds durable post-settlement notices and account-safe customer navigation. W1 has reached real signed no-funds WeChat query and protected server credential custody; W2 adds a dedicated callback-only host but is not yet deployed. Current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Real prepay/funds, Worker activation, H5, invoices and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims. The [current integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) supersedes their earlier merge-authority limitations.
+Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; N4 adds durable post-settlement notices and account-safe customer navigation. W1 has reached real signed no-funds WeChat query and protected server credential custody; W2/W3 deploy the public callback-only host in production. W4 now adds the exact persisted one-yuan prepay/close operator seam; its production Provider call and all real-funds evidence remain unrun. Current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Worker/customer activation, H5 and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims. The [current integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) supersedes their earlier merge-authority limitations.
 
 已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
@@ -916,3 +916,11 @@ QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字
 - **凭据与公网面**：callback 服务只获得微信支付公钥和 APIv3 credential 的只读副本，操作系统身份不能遍历商户私钥源；Nginx 只代理精确的微信通知路径，其余应用路径继续 `503`。商户私钥、证书、AppID 和出站网关配置留给后续独立的预下单/Worker 宿主。
 - **资源与恢复**：首个 callback-only profile 保留 `geo.slice` 的 768 MiB 上限，GEOMonitor 256 MiB、PostgreSQL 320 MiB、callback 160 MiB 的 `MemoryMax` 总和为 736 MiB，保留 32 MiB 余量。callback unit 用 64 MiB V8 old-space 上限控制应用分配，`MemoryHigh` 保持 144 MiB、hard max 保持 160 MiB；实测稳定内存约 98–105 MiB、拒绝请求 36–44 ms、无持续 pressure。slice 的 512 MiB `MemoryHigh` 继续提供组级保护。失败先恢复 Nginx 的全路径 `503` 并停 callback；数据库、迁移和已接收付款事实保留，不以删表或回滚观察记录恢复。
 - **回退**：停止或撤下 callback 进程/代理只会让微信重试，不能删除 observation、receipt 或已存在的订单义务；恢复后仍由同一幂等接收与结算路径处理。
+
+## W4 一元持久预下单／关单
+
+W4 不新增 provider-only 测试订单或第二套状态机。一次性 operator CLI 只接受 Identity 已拥有的 ACTIVE `TERMINAL_CUSTOMER` accountId，并固定创建 `WECHAT_NATIVE`、人民币 1 元、funded 10 点的正常 `RechargeOrder`。创建事务仍同时保存冻结商户请求、积分容量预留与 INITIATE due work；CLI 不创建或修改 Account，也不直接依赖微信 Gateway。
+
+`NativeRecoveryService.runOrder(orderId)` 是内部精确驱动接缝：它复用普通 Worker 的 claim → Provider I/O → complete 路径，但不扫描其他到期订单。prepay-close 编排先取得并持久保存验签后的 QR 响应，再请求取消；随后按同一订单执行认证 QUERY，只有 NOTPAY 才计划 CLOSE，最终只以验签关单响应关闭本地订单并释放预留。CLI 不输出 QR，任何 timeout、HTTP/验签、提交或恢复不确定性都以非零退出并保留原订单、attempt、lease 与预留，后续继续同号恢复。
+
+真实付款使用另一笔独立的一元订单，不复用已关闭的 prepay-close 单。二维码只在需要用户扫码时受控展示；callback、查询或两者竞争都继续进入同一 observation/settlement 与一次 `RECHARGE +10` 事务。生产当前没有任何 Account，故 Provider 调用前必须先通过 Identity owner 选定或建立受控测试客户，不能让 W4 CLI 越权填充账户表。
