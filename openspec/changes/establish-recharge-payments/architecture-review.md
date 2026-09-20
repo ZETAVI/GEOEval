@@ -32,6 +32,8 @@
 
 同一反馈还暴露 target 反向耦合：`geo-runtime.target Requires=callback` 会在 callback 失败或显式 stop 时停止 target，而 PostgreSQL/GEOMonitor 的 `PartOf=target` 随之停止。journal 证明 15:47 的多次 PostgreSQL start/stop 来自这条依赖链，不是数据库崩溃。最终 drop-in 改用 `Wants=`；target 正常启动全部成员，但 callback 的故障／维护停止不再牵连其他 GEO 服务。生产临时 drop-in 已在锁内排除 callback 并恢复 target、PostgreSQL 和 GEOMonitor，仓库修正合并后才恢复完整 Wants 列表。
 
+新 release 稳定启动后，callback 常驻约 131–137 MiB；原 `MemoryHigh=128M` 产生 12,252 次 high event 和接近 87% 的十秒 memory pressure，伪造请求虽正确返回 401 但耗时约 4 秒，随后 SIGTERM 在 15 秒内未完成而被 systemd kill。hard max 从未触发，数据库保持 0/0。资源修正以实测峰值把 soft high 提到 144 MiB，保留约 7 MiB 软余量和 16 MiB hard 区间；不能放宽 160 MiB hard max。恢复验收必须同时证明请求延迟、memory events 和 graceful stop，不以 active 状态单独通过。
+
 ## O1a 实施作者审查
 
 对象：PR #88 的管理员只读查询，基线main29d115d；用户确认design14.4并授权实施，共享窗口见[执行记录](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630711415)。以下按需求、工程、证据三个维度自行复核，不声称独立review。

@@ -914,5 +914,5 @@ QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字
 - **一致性**：HTTP 只在现有 inbox 事务提交后返回 `204`；无效签名为 `401`，无效报文为 `400`，数据库或处理预算不确定为 `503` 促使微信重试。按钮、回跳和客户端状态仍不能决定到账。
 - **部署门槛**：服务器已有 Node 24、local-only PostgreSQL 16、DNS/TLS 和受保护微信材料，但尚无 GEOEval 数据库、callback systemd 进程或 Nginx upstream。部署包用专用 `geoeval-callback` 身份、systemd `LoadCredential=`、Unix peer 数据库角色和两张 inbox 表的最小权限；PostgreSQL 与 callback 都必须进入现有 `geo.slice`，并在共享宿主锁和单一写入窗口内变更。当前 HTTPS 域名仍以 `503` 明确表示后端未就绪；不得用内存、文件或现有 Redis 替代 durable inbox。
 - **凭据与公网面**：callback 服务只获得微信支付公钥和 APIv3 credential 的只读副本，操作系统身份不能遍历商户私钥源；Nginx 只代理精确的微信通知路径，其余应用路径继续 `503`。商户私钥、证书、AppID 和出站网关配置留给后续独立的预下单/Worker 宿主。
-- **资源与恢复**：首个 callback-only profile 保留 `geo.slice` 的 768 MiB 上限，GEOMonitor 256 MiB、PostgreSQL 320 MiB、callback 160 MiB 的 `MemoryMax` 总和为 736 MiB，保留 32 MiB 余量；slice 的 512 MiB `MemoryHigh` 仍会先实施组级压力保护。失败先恢复 Nginx 的全路径 `503` 并停 callback；数据库、迁移和已接收付款事实保留，不以删表或回滚观察记录恢复。
+- **资源与恢复**：首个 callback-only profile 保留 `geo.slice` 的 768 MiB 上限，GEOMonitor 256 MiB、PostgreSQL 320 MiB、callback 160 MiB 的 `MemoryMax` 总和为 736 MiB，保留 32 MiB 余量。callback 生产基线峰值约 136.6 MiB，`MemoryHigh` 设为 144 MiB，hard max 仍为 160 MiB；slice 的 512 MiB `MemoryHigh` 仍会先实施组级压力保护。失败先恢复 Nginx 的全路径 `503` 并停 callback；数据库、迁移和已接收付款事实保留，不以删表或回滚观察记录恢复。
 - **回退**：停止或撤下 callback 进程/代理只会让微信重试，不能删除 observation、receipt 或已存在的订单义务；恢复后仍由同一幂等接收与结算路径处理。
