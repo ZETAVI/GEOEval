@@ -1,0 +1,51 @@
+[Unit]
+Description=GEOEval full application API
+Requires=postgresql-16.service
+After=network-online.target postgresql-16.service
+Wants=network-online.target
+PartOf=geo-runtime.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=geoeval-app
+Group=geoeval
+WorkingDirectory=/opt/geoeval/current/apps/backend
+Environment=NODE_ENV=production
+Environment=NODE_OPTIONS=--max-old-space-size=192
+Environment=RECHARGE_ALIPAY_PRIVATE_KEY_FILE=/opt/geoeval/shared/secrets/alipay/2021007100630148/app_private_key.pem
+Environment=RECHARGE_ALIPAY_PUBLIC_KEY_FILE=/opt/geoeval/shared/secrets/alipay/2021007100630148/alipay_public_key.pem
+EnvironmentFile=/etc/geoeval/application-api.env
+ExecStart=/opt/geoeval/shared/node/bin/node /opt/geoeval/current/apps/backend/dist/api-main.js
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=30s
+TimeoutStopSec=30s
+KillSignal=SIGTERM
+SuccessExitStatus=143
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+AmbientCapabilities=
+ReadOnlyPaths=/opt/geoeval
+UMask=0077
+Slice=geo.slice
+MemoryHigh=256M
+MemoryMax=320M
+CPUWeight=100
+TasksMax=128
+
+[Install]
+WantedBy=geo-runtime.target

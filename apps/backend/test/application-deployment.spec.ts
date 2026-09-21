@@ -113,26 +113,32 @@ describe("full application production deployment boundary", () => {
     expect(target).not.toContain("Requires=");
   });
 
-  it("adapts database dependencies without changing application units on Alibaba Cloud Linux", () => {
-    const overrides = [
-      read(
-        "systemd/alibaba-cloud-linux/geoeval-api.service.d/10-platform.conf",
-      ),
-      read(
-        "systemd/alibaba-cloud-linux/geoeval-recharge-callback.service.d/10-platform.conf",
-      ),
-      read(
-        "systemd/alibaba-cloud-linux/geoeval-recharge-worker.service.d/10-platform.conf",
-      ),
-      read(
-        "systemd/alibaba-cloud-linux/geoeval-worker.service.d/10-platform.conf",
-      ),
-    ].join("\n");
+  it("publishes complete systemd 239 units for Alibaba Cloud Linux", () => {
+    const units = [
+      "geoeval-api.service",
+      "geoeval-recharge-callback.service",
+      "geoeval-recharge-worker.service",
+      "geoeval-web.service",
+      "geoeval-worker.service",
+    ].map((unit) => read(`systemd/alibaba-cloud-linux/units/${unit}`));
+    const all = units.join("\n");
 
-    expect(overrides).toContain("Requires=postgresql-16.service");
-    expect(overrides).toContain("Requires=postgresql-16.service redis.service");
-    expect(overrides).not.toContain("postgresql@16-main.service");
-    expect(overrides).not.toContain("redis-server.service");
+    expect(all).toContain("Requires=postgresql-16.service");
+    expect(all).toContain("Requires=postgresql-16.service redis.service");
+    expect(all).not.toContain("postgresql@16-main.service");
+    expect(all).not.toContain("redis-server.service");
+    expect(all).not.toMatch(
+      /LoadCredential|ProtectClock|ProtectKernelLogs|ProtectProc|ProcSubset|OOMPolicy|IPAddressDeny|IPAddressAllow/,
+    );
+    expect(all).not.toContain("%d/");
+    expect(all).toContain(
+      "RECHARGE_ALIPAY_PRIVATE_KEY_FILE=/opt/geoeval/shared/secrets/alipay/2021007100630148/app_private_key.pem",
+    );
+    for (const unit of units) {
+      expect(unit).toContain("ProtectSystem=strict");
+      expect(unit).toContain("NoNewPrivileges=true");
+      expect(unit).toContain("Slice=geo.slice");
+    }
   });
 
   it("gives the application runtime DML without migration authority", () => {

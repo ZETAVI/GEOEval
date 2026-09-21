@@ -107,10 +107,13 @@ before reloading systemd. The slice uses `MemoryHigh=1G` and
 limit.
 These are pilot limits, not measured production capacity.
 
-On Alibaba Cloud Linux, install the drop-ins under
-`systemd/alibaba-cloud-linux/`. They replace the Debian PostgreSQL and Redis
-unit names with `postgresql-16.service` and `redis.service`; the application
-units and runtime identities remain unchanged.
+On Alibaba Cloud Linux 3 with systemd 239, install the complete units under
+`systemd/alibaba-cloud-linux/units/` instead of the newer default units. They
+use `postgresql-16.service` and `redis.service`, retain the supported sandbox
+and resource controls, and give payment-authorized processes absolute paths to
+the group-readable `0640 root:geoeval` key files. Systemd 239 does not support
+`LoadCredential`; do not install the default units or ignore compatibility
+warnings.
 
 Start one new process at a time. After each start, record host available memory,
 swap, `geo.slice` memory, the new unit's memory/restart count and all existing
