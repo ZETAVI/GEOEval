@@ -37,6 +37,10 @@ describe("full application production deployment boundary", () => {
     expect(nginx).toContain("proxy_pass http://127.0.0.1:3301;");
     expect(nginx).toContain("proxy_pass http://127.0.0.1:3200;");
     expect(nginx).toContain("proxy_buffering off;");
+    expect(nginx).toContain('auth_basic "GEOEval internal demo";');
+    expect(nginx).toContain("auth_basic_user_file /etc/geoeval/demo.htpasswd;");
+    expect(nginx.match(/auth_basic off;/g)).toHaveLength(2);
+    expect(nginx.match(/proxy_set_header Authorization "";/g)).toHaveLength(5);
     expect(nginx.indexOf("/recharges/providers/alipay/notify")).toBeLessThan(
       nginx.lastIndexOf("location / {"),
     );
@@ -84,6 +88,9 @@ describe("full application production deployment boundary", () => {
 
     expect(api).toContain("LoadCredential=alipay_private_key.pem:");
     expect(recharge).toContain("LoadCredential=alipay_private_key.pem:");
+    expect(api).toContain("/app_private_key.pem");
+    expect(recharge).toContain("/app_private_key.pem");
+    expect(`${api}\n${recharge}`).not.toContain("app_private_key_pkcs8.pem");
     expect(web).not.toMatch(/alipay/i);
     expect(worker).not.toMatch(/alipay/i);
     expect(callback).not.toMatch(/alipay.*private/i);
@@ -125,8 +132,11 @@ describe("full application production deployment boundary", () => {
     const recharge = read("application-recharge-worker.env.example");
     const all = [api, web, worker, recharge].join("\n");
 
-    expect(api).toContain("AUTH_CHALLENGE_MODE=aliyun");
-    expect(api).toContain("AUTH_CHALLENGE_SENDING_ENABLED=0");
+    expect(api).toContain("INTERNAL_DEMO_MODE=1");
+    expect(api).toContain("AUTH_CHALLENGE_MODE=deterministic");
+    expect(api).toContain("AUTH_CHALLENGE_SENDING_ENABLED=1");
+    expect(api).toContain("AUTH_HUMAN_VERIFICATION_MODE=disabled");
+    expect(api).toContain("GEO_OPTIMIZATION_WRITER_MODE=demo");
     expect(api).toContain("STORE_LOCATION_MODE=amap");
     expect(api).toContain("RECHARGE_ALIPAY_ACTIVATION=live");
     expect(api).toContain("RECHARGE_WECHAT_ACTIVATION=disabled");
@@ -165,8 +175,11 @@ describe("full application production deployment boundary", () => {
     });
 
     expect(api.runtimeEnvironment).toBe("production");
-    expect(api.authChallengeMode).toBe("aliyun");
-    expect(api.authChallengeSendingEnabled).toBe(false);
+    expect(api.internalDemoMode).toBe(true);
+    expect(api.authChallengeMode).toBe("deterministic");
+    expect(api.authChallengeSendingEnabled).toBe(true);
+    expect(api.authHumanVerificationMode).toBe("disabled");
+    expect(api.geoOptimizationWriterMode).toBe("demo");
     expect(api.storeLocation.mode).toBe("amap");
     expect(worker.runtimeEnvironment).toBe("production");
     expect(worker.aiExecution.mode).toBe("real");

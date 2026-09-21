@@ -20,6 +20,34 @@ describe("process-scoped configuration", () => {
     expect(api.authHumanVerificationMode).toBe("disabled");
   });
 
+  it("requires an explicit demo Writer mode for production demonstration", () => {
+    const production = {
+      NODE_ENV: "production",
+      DATABASE_URL: "postgresql://example/api",
+      AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+      AUTH_DETERMINISTIC_CODE: "246810",
+      AUTH_CHALLENGE_MODE: "aliyun",
+      AUTH_HUMAN_VERIFICATION_MODE: "aliyun",
+      ALIBABA_CLOUD_ACCESS_KEY_ID: "access-key",
+      ALIBABA_CLOUD_ACCESS_KEY_SECRET: "access-secret",
+      ALIYUN_CAPTCHA_SCENE_ID: "18hnihr4",
+      ALIYUN_SMS_SIGN_NAME: "approved-sign",
+      ALIYUN_SMS_TEMPLATE_CODE: "SMS_123456",
+    };
+    const config = loadApiConfig({
+      ...production,
+      GEO_OPTIMIZATION_WRITER_MODE: "demo",
+    });
+
+    expect(config.geoOptimizationWriterMode).toBe("demo");
+    expect(() =>
+      loadApiConfig({
+        ...production,
+        GEO_OPTIMIZATION_WRITER_MODE: "deterministic",
+      }),
+    ).toThrow("forbidden in production");
+  });
+
   it("rejects the same environment for the worker when Redis is absent", () => {
     expect(() =>
       loadWorkerConfig({ DATABASE_URL: "postgresql://example/worker" }),
@@ -66,6 +94,41 @@ describe("process-scoped configuration", () => {
         AUTH_DETERMINISTIC_CODE: "246810",
       }),
     ).toThrow("forbidden in production");
+  });
+
+  it("allows deterministic Challenge delivery only in the explicit internal demo", () => {
+    const config = loadApiConfig({
+      NODE_ENV: "production",
+      INTERNAL_DEMO_MODE: "1",
+      DATABASE_URL: "postgresql://example/api",
+      AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+      AUTH_DETERMINISTIC_CODE: "246810",
+      AUTH_CHALLENGE_MODE: "deterministic",
+      AUTH_CHALLENGE_SENDING_ENABLED: "1",
+      AUTH_HUMAN_VERIFICATION_MODE: "disabled",
+      GEO_OPTIMIZATION_WRITER_MODE: "demo",
+    });
+
+    expect(config).toMatchObject({
+      runtimeEnvironment: "production",
+      internalDemoMode: true,
+      authChallengeMode: "deterministic",
+      authChallengeSendingEnabled: true,
+      authHumanVerificationMode: "disabled",
+      authCookieSecure: true,
+      geoOptimizationWriterMode: "demo",
+    });
+    expect(() =>
+      loadApiConfig({
+        NODE_ENV: "production",
+        INTERNAL_DEMO_MODE: "1",
+        DATABASE_URL: "postgresql://example/api",
+        AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+        AUTH_DETERMINISTIC_CODE: "246810",
+        AUTH_CHALLENGE_MODE: "aliyun",
+        AUTH_HUMAN_VERIFICATION_MODE: "disabled",
+      }),
+    ).toThrow("Internal demo authentication requires");
   });
 
   it("requires complete Alibaba authentication protection in production", () => {

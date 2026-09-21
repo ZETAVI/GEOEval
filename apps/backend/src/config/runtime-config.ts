@@ -39,6 +39,7 @@ const apiSchema = commonSchema.extend({
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
+  INTERNAL_DEMO_MODE: z.enum(["0", "1"]).default("0"),
   PORT: z.coerce.number().int().positive().default(3300),
   CORS_ORIGINS: z
     .string()
@@ -155,7 +156,7 @@ const apiSchema = commonSchema.extend({
     .enum(["disabled", "deterministic", "amap"])
     .default("disabled"),
   GEO_OPTIMIZATION_WRITER_MODE: z
-    .enum(["disabled", "deterministic"])
+    .enum(["disabled", "deterministic", "demo"])
     .default("disabled"),
   STORE_LOCATION_RECEIPT_SIGNING_SECRET: z.string().default(""),
   STORE_LOCATION_RECEIPT_TTL_SECONDS: z.coerce
@@ -241,6 +242,7 @@ export type ApiConfig = {
   corsOrigins: string[];
   telemetryShouldFail: boolean;
   runtimeEnvironment: "development" | "test" | "production";
+  internalDemoMode: boolean;
   agencyAcquisitionEnabled: boolean;
   agencyWithdrawal?: {
     enabled: boolean;
@@ -282,7 +284,7 @@ export type ApiConfig = {
     touchIntervalMs: number;
   };
   storeLocation: StoreLocationRuntimeConfig;
-  geoOptimizationWriterMode: "disabled" | "deterministic";
+  geoOptimizationWriterMode: "disabled" | "deterministic" | "demo";
 };
 
 export type IdentityCleanupPolicy = {
@@ -373,7 +375,8 @@ export function loadApiConfig(
   }
   if (
     parsed.NODE_ENV === "production" &&
-    parsed.AUTH_CHALLENGE_MODE === "deterministic"
+    parsed.AUTH_CHALLENGE_MODE === "deterministic" &&
+    parsed.INTERNAL_DEMO_MODE !== "1"
   ) {
     throw new Error(
       "Deterministic authentication challenge delivery is forbidden in production",
@@ -381,10 +384,21 @@ export function loadApiConfig(
   }
   if (
     parsed.NODE_ENV === "production" &&
-    parsed.AUTH_HUMAN_VERIFICATION_MODE !== "aliyun"
+    parsed.AUTH_HUMAN_VERIFICATION_MODE !== "aliyun" &&
+    parsed.INTERNAL_DEMO_MODE !== "1"
   ) {
     throw new Error(
       "Alibaba human verification is required for production authentication challenges",
+    );
+  }
+  if (
+    parsed.NODE_ENV === "production" &&
+    parsed.INTERNAL_DEMO_MODE === "1" &&
+    (parsed.AUTH_CHALLENGE_MODE !== "deterministic" ||
+      parsed.AUTH_HUMAN_VERIFICATION_MODE !== "disabled")
+  ) {
+    throw new Error(
+      "Internal demo authentication requires deterministic Challenge delivery and disabled human verification",
     );
   }
   if (
@@ -453,6 +467,7 @@ export function loadApiConfig(
     corsOrigins: parsed.CORS_ORIGINS.split(",").map((origin) => origin.trim()),
     telemetryShouldFail: parsed.GEOEVAL_TELEMETRY_FAIL === "1",
     runtimeEnvironment: parsed.NODE_ENV,
+    internalDemoMode: parsed.INTERNAL_DEMO_MODE === "1",
     agencyAcquisitionEnabled: parsed.AGENCY_ACQUISITION_ENABLED === "1",
     agencyWithdrawal: {
       enabled: parsed.AGENCY_WITHDRAWAL_ENABLED === "1",

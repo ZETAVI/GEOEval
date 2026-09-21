@@ -74,6 +74,26 @@ official recommended server proxy pattern for the JS security code. Real AI
 execution requires all four provider routes, the approved Model Studio
 workspace-specific base URL, explicit timeouts and metadata-only Langfuse.
 
+GEO Optimization remains behind its existing provider-neutral Writer port. The
+pilot can explicitly select `demo`, which maps to the existing deterministic
+local adapter and therefore preserves the same immutable input snapshot,
+idempotency, retry, replacement and article-revision rules. Production still
+rejects the local/test `deterministic` setting, `disabled` remains the default,
+and no implicit fallback turns demo generation on. The mode performs no model
+or Skill call and does not satisfy Issue #11's professional Writer outcome.
+
+Internal-demo authentication reuses the existing Challenge, rate-limit,
+Session, role and audit path. An explicit `INTERNAL_DEMO_MODE=1` permits the
+deterministic Challenge delivery and disabled human verification in a production
+process, while Nginx Basic Auth protects every Web/API route and exempts only
+the exact provider callback locations. The Web may complete the returned demo
+Challenge immediately. This mode cannot be combined with Aliyun Challenge or
+CAPTCHA modes and must be removed when real authentication is activated.
+
+This exception does not apply to AI execution. The Product Worker remains in
+real mode and uses the four configured Provider API connections for sampling,
+semantic parsing and synthesis; no deterministic production override is added.
+
 ## Activation and recovery
 
 Activation order is database, API, Web, real login, media/accounts, recharge
