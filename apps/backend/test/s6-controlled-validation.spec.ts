@@ -176,6 +176,36 @@ describe("S6 controlled provider validation", () => {
     });
     expect(summary.calls.map((call) => call.ordinal)).toEqual([3, 4, 5]);
   });
+
+  it("accepts the current P03 model contract without an obsolete structure classifier", async () => {
+    const root = await mkdtemp(join(tmpdir(), "geoeval-s6-controlled-"));
+    temporaryDirectories.push(root);
+    const semantic = buildS6ControlledBatch("semantic-probe");
+    const batch = {
+      ...semantic,
+      cases: semantic.cases.filter(
+        (item) =>
+          item.fixtureId === "P03" &&
+          item.request.routePolicyId ===
+            "evaluation.interpretation.qwen-primary@2",
+      ),
+    };
+    const manifest = publicS6ControlledManifest(batch);
+
+    const summary = await executeS6ControlledBatch({
+      batch,
+      adapter: new SemanticP03Adapter(),
+      confirmation: s6ControlledManifestConfirmation(manifest),
+      evidenceRoot: root,
+      now: () => new Date("2026-09-21T01:53:07.550Z"),
+    });
+
+    expect(summary).toMatchObject({
+      executedExternalRequests: 1,
+      stoppedEarly: false,
+      calls: [{ fixtureId: "P03", status: "ACCEPTED" }],
+    });
+  });
 });
 
 class RecordingAdapter implements AiAttemptAdapter {
@@ -214,6 +244,73 @@ class RecordingAdapter implements AiAttemptAdapter {
         returnedModel: request.requestedModel,
         searchObservation: "TRIGGERED",
         reasoningEvidenceKind: "NONE",
+      },
+    };
+  }
+}
+
+class SemanticP03Adapter implements AiAttemptAdapter {
+  resolve(request: AiAttemptRequest): ResolvedAiRoute {
+    const route = REAL_AI_ROUTES.find(
+      (candidate) => candidate.routePolicyId === request.routePolicyId,
+    );
+    if (!route) throw new Error("missing fixture route");
+    return {
+      providerKey: route.providerKey,
+      serviceClass: route.serviceClass,
+      protocol: route.protocol,
+      requestedModel: route.requestedModel,
+    };
+  }
+
+  async execute(request: ResolvedAiAttemptRequest): Promise<AiAdapterResult> {
+    return {
+      kind: "SUCCEEDED",
+      output: {
+        brands: [
+          {
+            displayName: "云栖咖啡",
+            attitude: "NEUTRAL",
+            mentionContext: [
+              {
+                text: "座位数量较多，工作日上午通常更安静",
+                polarity: "NEUTRAL",
+              },
+            ],
+            isFocusBrand: false,
+            queryRole: "CANDIDATE",
+          },
+          {
+            displayName: "星河咖啡实验店",
+            attitude: "POSITIVE",
+            mentionContext: [
+              { text: "设置了相对独立的办公区域", polarity: "POSITIVE" },
+              { text: "提供手冲咖啡", polarity: "POSITIVE" },
+            ],
+            isFocusBrand: true,
+            queryRole: null,
+          },
+          {
+            displayName: "林间咖啡",
+            attitude: "NEUTRAL",
+            mentionContext: [
+              { text: "以户外空间为主，更适合轻松聊天", polarity: "NEUTRAL" },
+            ],
+            isFocusBrand: false,
+            queryRole: "REFERENCE",
+          },
+        ],
+        cardInterpretation:
+          "星河咖啡实验店设有相对独立的办公区域，并提供手冲咖啡。",
+      },
+      usage: { input_tokens: 984, output_tokens: 860 },
+      evidence: {
+        providerKey: request.providerKey,
+        serviceClass: request.serviceClass,
+        protocol: request.protocol,
+        returnedModel: request.requestedModel,
+        searchObservation: "UNKNOWN",
+        reasoningEvidenceKind: "TEXT",
       },
     };
   }

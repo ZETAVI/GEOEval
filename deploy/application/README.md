@@ -23,6 +23,9 @@ location.
 ## Immutable release
 
 Build the release for **Linux x64 with Node 24.12** from the accepted revision.
+Build on an isolated runner or workstation with a Linux container. Do not run a
+Next production build on the 4 GiB application host; deployment only transfers
+an already verified immutable release.
 Do not copy a macOS `node_modules` or `.next/standalone` tree to the server.
 After `pnpm install --frozen-lockfile` and `pnpm build`, assemble the Web output
 as required by Next.js:
@@ -84,8 +87,9 @@ retry and article-revision path; it makes no model call and is not evidence of a
 real Writing Agent. Never select the local/test-only `deterministic` mode in
 production.
 
-The internal pilot is protected by Nginx Basic Authentication using the
-root-owned `/etc/geoeval/demo.htpasswd`. The payment callback locations
+The internal pilot is protected by Nginx Basic Authentication using
+`/etc/nginx/geoeval-demo.htpasswd`, owned by `root` and readable only by the
+Nginx service group. The payment callback locations
 explicitly disable Basic Authentication so Alipay and later WeChat can still
 deliver notifications. Behind that outer gate, `INTERNAL_DEMO_MODE=1` permits
 the existing deterministic Challenge adapter and disabled CAPTCHA in production;
@@ -98,9 +102,15 @@ activated.
 ## Resource boundary
 
 Install the `geo.slice` drop-in and all units, then run `systemd-analyze verify`
-before reloading systemd. The slice uses `MemoryHigh=768M` and
-`MemoryMax=1G`. Each process also has a V8 cap and a smaller systemd hard limit.
+before reloading systemd. The slice uses `MemoryHigh=1G` and
+`MemoryMax=1280M`. Each process also has a V8 cap and a smaller systemd hard
+limit.
 These are pilot limits, not measured production capacity.
+
+On Alibaba Cloud Linux, install the drop-ins under
+`systemd/alibaba-cloud-linux/`. They replace the Debian PostgreSQL and Redis
+unit names with `postgresql-16.service` and `redis.service`; the application
+units and runtime identities remain unchanged.
 
 Start one new process at a time. After each start, record host available memory,
 swap, `geo.slice` memory, the new unit's memory/restart count and all existing

@@ -13,7 +13,7 @@ User=geoeval-app
 Group=geoeval
 WorkingDirectory=/opt/geoeval/current/apps/backend
 Environment=NODE_ENV=production
-Environment=NODE_OPTIONS=--max-old-space-size=128
+Environment=NODE_OPTIONS=--max-old-space-size=192
 Environment=RECHARGE_ALIPAY_PRIVATE_KEY_FILE=%d/alipay_private_key.pem
 Environment=RECHARGE_ALIPAY_PUBLIC_KEY_FILE=%d/alipay_public_key.pem
 EnvironmentFile=/etc/geoeval/application-api.env
@@ -48,8 +48,8 @@ AmbientCapabilities=
 ReadOnlyPaths=/opt/geoeval
 UMask=0077
 Slice=geo.slice
-MemoryHigh=192M
-MemoryMax=224M
+MemoryHigh=256M
+MemoryMax=320M
 CPUWeight=100
 TasksMax=128
 OOMPolicy=stop

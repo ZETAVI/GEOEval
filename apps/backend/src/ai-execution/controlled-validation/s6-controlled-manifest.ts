@@ -419,12 +419,6 @@ function validateParserFixtureOutcome(
   if (!otherBrandNames.has("云栖咖啡") || !otherBrandNames.has("林间咖啡")) {
     fail("explicit other brands were not retained");
   }
-  if (
-    fixtureId === "P03" &&
-    openOutput.semantic.answerStructure !== "PARAGRAPHS"
-  ) {
-    fail("parallel paragraphs were not recognized");
-  }
 }
 
 function synthesisCase(
