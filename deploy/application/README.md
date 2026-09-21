@@ -71,14 +71,19 @@ Copy the four examples to `/etc/geoeval/` without the `.example` suffix. Set
 owner `root:root`, mode `0600`, and fill values through a protected channel.
 Never print, diff, commit or attach them to an Issue.
 
-- `application-api.env`: Identity, Amap server access and Alipay cashier.
+- `application-api.env`: Identity, Amap server access and the enabled payment
+  cashiers.
 - `application-web.env`: loopback API bridge and Amap JS proxy security code.
 - `application-worker.env`: model providers and metadata-only Langfuse.
-- `application-recharge-worker.env`: Alipay recovery and notification delivery.
+- `application-recharge-worker.env`: enabled payment-channel recovery and
+  notification delivery.
 
-The API and recharge Worker receive the Alipay key pair through systemd
-credentials. The callback retains only the public verification key. Credentials
-that appeared in chat or command output must be rotated before installation.
+The API and recharge Worker receive the Alipay key pair plus the WeChat merchant
+private key, WeChat Pay public key and APIv3 key through systemd credentials.
+The callback receives only provider verification/decryption material and never
+either merchant private key. Web and the product Worker receive no payment key.
+Credentials that appeared in chat or command output must be rotated before
+installation.
 
 The API defaults to `GEO_OPTIMIZATION_WRITER_MODE=disabled`. For the controlled
 internal demonstration only, set it explicitly to `demo`. This mode runs the
@@ -167,8 +172,9 @@ accounts or Sessions with SQL.
 
 - **Alipay:** `live` in API and recharge Worker; exact notification path remains
   on callback. `return_url` is navigation only.
-- **WeChat:** callback verification remains available, but API/Worker order
-  creation stays disabled until its own live acceptance succeeds.
+- **WeChat:** set API and recharge Worker to `live` only after the exact merchant
+  certificate, AppID binding, signed no-funds query and one-yuan prepay/close
+  acceptance pass. Callback verification remains independently available.
 - **Amap:** API uses the Web Service Key; Web exposes the public JS Key and keeps
   the JS security code in its server proxy. Probe only the approved place-text
   path.
