@@ -88,6 +88,9 @@ describe("full application production deployment boundary", () => {
 
     expect(api).toContain("LoadCredential=alipay_private_key.pem:");
     expect(recharge).toContain("LoadCredential=alipay_private_key.pem:");
+    expect(api).toContain("/app_private_key.pem");
+    expect(recharge).toContain("/app_private_key.pem");
+    expect(`${api}\n${recharge}`).not.toContain("app_private_key_pkcs8.pem");
     expect(web).not.toMatch(/alipay/i);
     expect(worker).not.toMatch(/alipay/i);
     expect(callback).not.toMatch(/alipay.*private/i);

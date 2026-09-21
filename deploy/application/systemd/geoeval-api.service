@@ -17,7 +17,7 @@ Environment=NODE_OPTIONS=--max-old-space-size=128
 Environment=RECHARGE_ALIPAY_PRIVATE_KEY_FILE=%d/alipay_private_key.pem
 Environment=RECHARGE_ALIPAY_PUBLIC_KEY_FILE=%d/alipay_public_key.pem
 EnvironmentFile=/etc/geoeval/application-api.env
-LoadCredential=alipay_private_key.pem:/opt/geoeval/shared/secrets/alipay/2021007100630148/app_private_key_pkcs8.pem
+LoadCredential=alipay_private_key.pem:/opt/geoeval/shared/secrets/alipay/2021007100630148/app_private_key.pem
 LoadCredential=alipay_public_key.pem:/opt/geoeval/shared/secrets/alipay/2021007100630148/alipay_public_key.pem
 ExecStart=/opt/geoeval/shared/node/bin/node /opt/geoeval/current/apps/backend/dist/api-main.js
 Restart=on-failure
