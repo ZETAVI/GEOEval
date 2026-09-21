@@ -79,7 +79,7 @@ describe("full application production deployment boundary", () => {
     expect(units.recharge).toContain("User=geoeval-app");
   });
 
-  it("copies the Alipay private key only into payment-authorized processes", () => {
+  it("copies payment private keys only into payment-authorized processes", () => {
     const api = read("systemd/geoeval-api.service");
     const recharge = read("systemd/geoeval-recharge-worker.service");
     const web = read("systemd/geoeval-web.service");
@@ -93,9 +93,27 @@ describe("full application production deployment boundary", () => {
     expect(api).toContain("/app_private_key.pem");
     expect(recharge).toContain("/app_private_key.pem");
     expect(`${api}\n${recharge}`).not.toContain("app_private_key_pkcs8.pem");
+    for (const unit of [api, recharge]) {
+      expect(unit).toContain("LoadCredential=wechat_merchant_private_key.pem:");
+      expect(unit).toContain("/wechat/merchant_private_key.pem");
+      expect(unit).toContain("LoadCredential=wechat_public_key.pem:");
+      expect(unit).toContain("LoadCredential=wechat_api_v3.key:");
+      expect(unit).toContain(
+        "RECHARGE_WECHAT_PRIVATE_KEY_FILE=%d/wechat_merchant_private_key.pem",
+      );
+      expect(unit).toContain(
+        "RECHARGE_WECHAT_PUBLIC_KEY_FILE=%d/wechat_public_key.pem",
+      );
+      expect(unit).toContain(
+        "RECHARGE_WECHAT_API_V3_KEY_FILE=%d/wechat_api_v3.key",
+      );
+    }
     expect(web).not.toMatch(/alipay/i);
     expect(worker).not.toMatch(/alipay/i);
+    expect(web).not.toMatch(/wechat/i);
+    expect(worker).not.toMatch(/wechat/i);
     expect(callback).not.toMatch(/alipay.*private/i);
+    expect(callback).not.toMatch(/wechat.*merchant.*private/i);
   });
 
   it("raises the shared GEO budget while retaining per-process ceilings", () => {
@@ -163,15 +181,26 @@ describe("full application production deployment boundary", () => {
     expect(api).toContain("GEO_OPTIMIZATION_WRITER_MODE=demo");
     expect(api).toContain("STORE_LOCATION_MODE=amap");
     expect(api).toContain("RECHARGE_ALIPAY_ACTIVATION=live");
-    expect(api).toContain("RECHARGE_WECHAT_ACTIVATION=disabled");
+    expect(api).toContain("RECHARGE_WECHAT_ACTIVATION=live");
+    expect(api).toContain("RECHARGE_WECHAT_MERCHANT_ID=1117725778");
+    expect(api).toContain("RECHARGE_WECHAT_APP_ID=wx0402876c556f2029");
     expect(worker).toContain("AI_EXECUTION_MODE=real");
     expect(worker).toContain("AI_TELEMETRY_CONTENT_MODE=metadata-only");
     expect(worker).toContain("replace-with-approved-workspace-host");
     expect(recharge).toContain("RECHARGE_ALIPAY_ACTIVATION=live");
+    expect(recharge).toContain("RECHARGE_WECHAT_ACTIVATION=live");
     expect(web).toContain(
       "GEOEVAL_INTERNAL_API_BASE_URL=http://127.0.0.1:3301",
     );
-    expect(all).not.toMatch(/=(?:sk-|pk-|ark-|bce-v3\/|[0-9a-f]{32})/i);
+    const valuesThatAreNotPublicIdentifiers = all
+      .split("\n")
+      .filter(
+        (line) => !line.startsWith("RECHARGE_WECHAT_MERCHANT_CERT_SERIAL="),
+      )
+      .join("\n");
+    expect(valuesThatAreNotPublicIdentifiers).not.toMatch(
+      /=(?:sk-|pk-|ark-|bce-v3\/|[0-9a-f]{32})/i,
+    );
   });
 
   it("keeps API and Worker examples aligned with the executable config", () => {
