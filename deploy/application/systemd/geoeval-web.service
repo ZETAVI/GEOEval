@@ -12,7 +12,7 @@ User=geoeval-web
 Group=geoeval
 WorkingDirectory=/opt/geoeval/current/apps/web/.next/standalone/apps/web
 Environment=NODE_ENV=production
-Environment=NODE_OPTIONS=--max-old-space-size=96
+Environment=NODE_OPTIONS=--max-old-space-size=128
 EnvironmentFile=/etc/geoeval/application-web.env
 ExecStart=/opt/geoeval/shared/node/bin/node /opt/geoeval/current/apps/web/.next/standalone/apps/web/server.js
 Restart=on-failure
@@ -43,8 +43,8 @@ AmbientCapabilities=
 ReadOnlyPaths=/opt/geoeval
 UMask=0077
 Slice=geo.slice
-MemoryHigh=128M
-MemoryMax=160M
+MemoryHigh=192M
+MemoryMax=256M
 CPUWeight=80
 TasksMax=128
 OOMPolicy=stop

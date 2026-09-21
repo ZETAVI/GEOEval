@@ -38,7 +38,9 @@ describe("full application production deployment boundary", () => {
     expect(nginx).toContain("proxy_pass http://127.0.0.1:3200;");
     expect(nginx).toContain("proxy_buffering off;");
     expect(nginx).toContain('auth_basic "GEOEval internal demo";');
-    expect(nginx).toContain("auth_basic_user_file /etc/geoeval/demo.htpasswd;");
+    expect(nginx).toContain(
+      "auth_basic_user_file /etc/nginx/geoeval-demo.htpasswd;",
+    );
     expect(nginx.match(/auth_basic off;/g)).toHaveLength(2);
     expect(nginx.match(/proxy_set_header Authorization "";/g)).toHaveLength(5);
     expect(nginx.indexOf("/recharges/providers/alipay/notify")).toBeLessThan(
@@ -102,13 +104,35 @@ describe("full application production deployment boundary", () => {
       "systemd/geo-runtime.target.d/30-geoeval-application.conf",
     );
 
-    expect(slice).toContain("MemoryHigh=768M");
-    expect(slice).toContain("MemoryMax=1G");
+    expect(slice).toContain("MemoryHigh=1G");
+    expect(slice).toContain("MemoryMax=1280M");
     expect(target).toContain("geoeval-api.service");
     expect(target).toContain("geoeval-web.service");
     expect(target).toContain("geoeval-worker.service");
     expect(target).toContain("geoeval-recharge-worker.service");
     expect(target).not.toContain("Requires=");
+  });
+
+  it("adapts database dependencies without changing application units on Alibaba Cloud Linux", () => {
+    const overrides = [
+      read(
+        "systemd/alibaba-cloud-linux/geoeval-api.service.d/10-platform.conf",
+      ),
+      read(
+        "systemd/alibaba-cloud-linux/geoeval-recharge-callback.service.d/10-platform.conf",
+      ),
+      read(
+        "systemd/alibaba-cloud-linux/geoeval-recharge-worker.service.d/10-platform.conf",
+      ),
+      read(
+        "systemd/alibaba-cloud-linux/geoeval-worker.service.d/10-platform.conf",
+      ),
+    ].join("\n");
+
+    expect(overrides).toContain("Requires=postgresql-16.service");
+    expect(overrides).toContain("Requires=postgresql-16.service redis.service");
+    expect(overrides).not.toContain("postgresql@16-main.service");
+    expect(overrides).not.toContain("redis-server.service");
   });
 
   it("gives the application runtime DML without migration authority", () => {

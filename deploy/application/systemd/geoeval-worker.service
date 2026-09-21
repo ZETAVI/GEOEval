@@ -13,7 +13,7 @@ User=geoeval-app
 Group=geoeval
 WorkingDirectory=/opt/geoeval/current/apps/backend
 Environment=NODE_ENV=production
-Environment=NODE_OPTIONS=--max-old-space-size=128
+Environment=NODE_OPTIONS=--max-old-space-size=192
 EnvironmentFile=/etc/geoeval/application-worker.env
 ExecStart=/opt/geoeval/shared/node/bin/node /opt/geoeval/current/apps/backend/dist/worker-main.js
 Restart=on-failure
@@ -44,8 +44,8 @@ AmbientCapabilities=
 ReadOnlyPaths=/opt/geoeval
 UMask=0077
 Slice=geo.slice
-MemoryHigh=192M
-MemoryMax=224M
+MemoryHigh=256M
+MemoryMax=320M
 CPUWeight=80
 TasksMax=128
 OOMPolicy=stop
