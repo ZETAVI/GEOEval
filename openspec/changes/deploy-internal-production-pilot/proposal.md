@@ -30,6 +30,12 @@ accepted modular monolith:
   Challenge flow;
 - external capabilities activate only with rotated credentials and controlled
   runtime evidence.
+- the optimization journey may explicitly activate a no-provider `demo` Writer
+  so an internal presentation can produce and edit a draft without claiming a
+  real Writing Agent.
+- the public pilot surface is protected by an outer Basic Auth gate; inside it,
+  the normal Identity Challenge/session flow may use an explicit internal-demo
+  adapter without waiting for SMS/CAPTCHA approval.
 
 ## Scope
 
@@ -49,6 +55,10 @@ accepted modular monolith:
 - No WeChat order creation until its own merchant acceptance succeeds.
 - No activation of agency acquisition, withdrawal, automatic invoicing or
   external publication authority without their owning release Gates.
+- No professional Writing Skill, real model-backed Writer, material parsing or
+  automatic article publication.
+- No deterministic substitute for the real model sampling and multi-platform
+  parsing Worker.
 
 ## Ownership
 

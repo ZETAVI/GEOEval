@@ -40,14 +40,44 @@ pilot ceiling, and activation stops after each process for measurement.
 
 ### Residual release Gates
 
-- Real Identity configuration and a received SMS are required before public Web
-  routing. A process starting with test or fabricated authentication is not an
-  acceptable substitute.
+- The internal demo Identity exception requires the outer Basic Auth gate and
+  must be removed before general public access or real SMS/CAPTCHA activation.
 - Amap/model/Langfuse values disclosed in chat must be rotated before install.
 - The Model Studio workspace-specific base URL and approved account/demo mobile
   identities are still external inputs.
 - Linux x64 artifact assembly, runtime memory, media apply, real payment and
   provider calls remain unverified until deployment.
+
+### Resolved release gate: article generation stops in production
+
+The accepted GEO Optimization seam already separates the Writer adapter from
+input snapshots, generation execution and article state. The observed demo
+failure came from the production default selecting the disabled adapter, not
+from missing form persistence or a broken article lifecycle. Adding a second
+order path, direct article insert or API-only mock would duplicate ownership and
+bypass idempotency/revision checks.
+
+The bounded fix is an explicit `demo` runtime mode mapped to the existing
+deterministic adapter. It preserves the owner module and all durable lifecycle
+rules, performs no external effect and cannot be confused with the local/test
+`deterministic` setting in production configuration. Disabled remains the
+default and unsupported modes still fail startup, so the pilot cannot enable
+demo generation accidentally. Professional Writing Skill recovery remains with
+Issue #11.
+
+### Resolved pilot gate: account access before SMS/CAPTCHA approval
+
+Creating direct Sessions or adding a separate demo-account endpoint would split
+Identity ownership and bypass its expiry, role and audit controls. The pilot
+instead reuses the existing deterministic Challenge adapter behind a required
+Nginx Basic Auth boundary. Only explicit internal-demo configuration permits the
+production exception; normal production still rejects deterministic delivery
+and disabled human verification. Provider callback routes stay outside Basic
+Auth because their own signatures are the authentication mechanism.
+
+The exception is limited to Identity and the no-provider article Writer. Real
+sampling, multi-platform parsing and synthesis remain on the production Worker
+and its existing Provider contracts.
 
 ## Conclusion
 

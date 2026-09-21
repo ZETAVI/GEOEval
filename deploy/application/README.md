@@ -40,9 +40,8 @@ values are:
 ```text
 NEXT_PUBLIC_API_BASE_URL=/api
 NEXT_PUBLIC_AMAP_JS_KEY=<domain-bound public JS key>
-NEXT_PUBLIC_AUTH_HUMAN_VERIFICATION_MODE=aliyun
-NEXT_PUBLIC_ALIYUN_CAPTCHA_PREFIX=<approved public prefix>
-NEXT_PUBLIC_ALIYUN_CAPTCHA_SCENE_ID=<approved public scene id>
+NEXT_PUBLIC_AUTH_HUMAN_VERIFICATION_MODE=disabled
+NEXT_PUBLIC_INTERNAL_DEMO_MODE=enabled
 ```
 
 Record the Git revision, archive SHA-256, platform, Node/pnpm versions and these
@@ -78,6 +77,24 @@ The API and recharge Worker receive the Alipay key pair through systemd
 credentials. The callback retains only the public verification key. Credentials
 that appeared in chat or command output must be rotated before installation.
 
+The API defaults to `GEO_OPTIMIZATION_WRITER_MODE=disabled`. For the controlled
+internal demonstration only, set it explicitly to `demo`. This mode runs the
+local deterministic adapter through the normal immutable snapshot, idempotency,
+retry and article-revision path; it makes no model call and is not evidence of a
+real Writing Agent. Never select the local/test-only `deterministic` mode in
+production.
+
+The internal pilot is protected by Nginx Basic Authentication using the
+root-owned `/etc/geoeval/demo.htpasswd`. The payment callback locations
+explicitly disable Basic Authentication so Alipay and later WeChat can still
+deliver notifications. Behind that outer gate, `INTERNAL_DEMO_MODE=1` permits
+the existing deterministic Challenge adapter and disabled CAPTCHA in production;
+the Web automatically completes the returned short-lived Challenge. Session,
+role, rate-limit, expiry and audit behavior remain on the normal Identity path.
+Use a random deployment-only Challenge code and Basic Auth password, keep both
+outside Git, and remove this mode and the outer gate when real SMS/CAPTCHA is
+activated.
+
 ## Resource boundary
 
 Install the `geo.slice` drop-in and all units, then run `systemd-analyze verify`
@@ -108,8 +125,9 @@ Hold `/run/lock/shared-host-control.lock` and then
    for an unauthenticated protected endpoint, and unchanged payment counts.
 6. Start Web on `3200`; require the entry page and static/media-logo assets over
    loopback. Confirm no server-side cache write mutates the release.
-7. Complete real CAPTCHA/SMS login and role isolation before making Web public.
-   Production never uses deterministic Challenge delivery.
+7. Install the root-owned Basic Auth file, verify both callback paths remain
+   unauthenticated, and prove demo login plus role isolation. Do not expose the
+   deterministic Challenge path without the outer gate.
 8. Atomically point `current` to the release, install the reviewed Nginx file,
    run `nginx -t`, reload, and repeat HTTPS Web/API/callback probes.
 9. Import media and create accounts through their owned interfaces.
@@ -146,7 +164,8 @@ accounts or Sessions with SQL.
   path.
 - **AI:** all four provider connections and the approved Model Studio
   workspace-specific base URL are required for real mode. Use explicit timeout
-  and ambiguity deadlines.
+  and ambiguity deadlines. The internal demo still uses real Provider APIs for
+  sampling and parsing; `INTERNAL_DEMO_MODE` does not weaken Worker configuration.
 - **Langfuse:** optional and non-blocking; production uses `metadata-only` and a
   named release/environment. Telemetry failure must not reject business facts.
 

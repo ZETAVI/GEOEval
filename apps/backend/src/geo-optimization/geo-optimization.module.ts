@@ -12,7 +12,7 @@ import { PostgresGeoOptimizationRepository } from "./infrastructure/postgres-geo
 import { PostgresArticlePurchaseReaderFactory } from "./infrastructure/postgres-article-purchase-reader.js";
 
 export type GeoOptimizationRuntimeConfig = {
-  writerMode: "disabled" | "deterministic";
+  writerMode: "disabled" | "deterministic" | "demo";
   runtimeEnvironment: "development" | "test" | "production";
   storeLocation: StoreLocationRuntimeConfig;
 };
@@ -24,7 +24,9 @@ export class GeoOptimizationModule {
     intelligence = GeoIntelligenceModule.register(config.storeLocation),
   ): DynamicModule {
     if (
-      !(["disabled", "deterministic"] as unknown[]).includes(config.writerMode)
+      !(["disabled", "deterministic", "demo"] as unknown[]).includes(
+        config.writerMode,
+      )
     ) {
       throw new Error(
         `Unsupported Core Article Writer mode ${config.writerMode}`,
@@ -53,9 +55,9 @@ export class GeoOptimizationModule {
         {
           provide: CORE_ARTICLE_WRITER,
           useExisting:
-            config.writerMode === "deterministic"
-              ? DeterministicCoreArticleWriter
-              : DisabledCoreArticleWriter,
+            config.writerMode === "disabled"
+              ? DisabledCoreArticleWriter
+              : DeterministicCoreArticleWriter,
         },
         GeoOptimizationService,
       ],

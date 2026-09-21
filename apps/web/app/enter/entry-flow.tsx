@@ -24,6 +24,8 @@ import { postLoginRoute } from "./post-login-route.js";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3300";
+const internalDemoMode =
+  process.env.NEXT_PUBLIC_INTERNAL_DEMO_MODE === "enabled";
 
 export function EntryFlow({
   acquisitionEnabled = false,
@@ -80,6 +82,10 @@ export function EntryFlow({
         : acquisitionEnabled
           ? await requestEntryChallenge(mobile, captchaVerifyParam)
           : await requestLoginChallenge(apiBaseUrl, mobile, captchaVerifyParam);
+      if (internalDemoMode && challenge.developmentCode) {
+        await finishLogin(challenge.challengeId, challenge.developmentCode);
+        return;
+      }
       setChallengeId(challenge.challengeId);
       setDevelopmentCode(challenge.developmentCode);
       if (challenge.developmentCode) setCode(challenge.developmentCode);
@@ -116,31 +122,35 @@ export function EntryFlow({
     setBusy(true);
     setMessage("");
     try {
-      const account = await completeLogin(apiBaseUrl, {
-        challengeId,
-        mobile,
-        code,
-      });
-      const route = postLoginRoute(account.role);
-      if (route.kind === "redirect") {
-        window.location.assign(route.path);
-        return;
-      }
-      const brands = await listBrands(apiBaseUrl);
-      if (brands.length > 0) {
-        window.location.assign("/brands");
-        return;
-      }
-      setBrandForm((current) => ({
-        ...current,
-        contactMobile: current.contactMobile || mobile,
-      }));
-      setStep("brand");
+      await finishLogin(challengeId, code);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "登录失败，请重试");
     } finally {
       setBusy(false);
     }
+  }
+
+  async function finishLogin(nextChallengeId: string, nextCode: string) {
+    const account = await completeLogin(apiBaseUrl, {
+      challengeId: nextChallengeId,
+      mobile,
+      code: nextCode,
+    });
+    const route = postLoginRoute(account.role);
+    if (route.kind === "redirect") {
+      window.location.assign(route.path);
+      return;
+    }
+    const brands = await listBrands(apiBaseUrl);
+    if (brands.length > 0) {
+      window.location.assign("/brands");
+      return;
+    }
+    setBrandForm((current) => ({
+      ...current,
+      contactMobile: current.contactMobile || mobile,
+    }));
+    setStep("brand");
   }
 
   async function saveFirstBrand() {
@@ -188,9 +198,11 @@ export function EntryFlow({
           >
             {busy
               ? "正在获取…"
-              : captchaReady
-                ? "获取验证码"
-                : "正在准备安全验证…"}
+              : internalDemoMode
+                ? "进入演示"
+                : captchaReady
+                  ? "获取验证码"
+                  : "正在准备安全验证…"}
           </button>
           <div id={CAPTCHA_ELEMENT_ID} />
           <button
@@ -219,7 +231,7 @@ export function EntryFlow({
           <p className="form-intro">验证码已发送至 {mobile}</p>
           {developmentCode && (
             <p className="development-note">
-              本地开发验证码：<b>{developmentCode}</b>
+              当前环境验证码：<b>{developmentCode}</b>
             </p>
           )}
           <label>

@@ -10,7 +10,10 @@
 - [ ] Rebase after PR #134 merges and build a Linux x64 immutable release.
 - [ ] Back up production, deploy the release, apply migrations and runtime
       grants, then verify existing payment facts.
-- [ ] Activate and verify API/Web with real authentication.
+- [ ] Protect and activate API/Web with Basic Auth plus demo Challenge delivery;
+      verify terminal/internal role isolation through normal Sessions.
+- [ ] Activate the explicit demo Writer and verify one saved-input → generated
+      draft → edit → confirmation journey without provider traffic.
 - [ ] Import the first media batch and create approved role/demo accounts through
       owned interfaces.
 - [ ] Activate Alipay recovery and complete a customer-page small-payment proof.

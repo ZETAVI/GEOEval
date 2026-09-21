@@ -10,7 +10,9 @@ import {
   normalizeWriterResult,
   parseWriterRequest,
 } from "../src/geo-optimization/domain/writer.contract.js";
+import { CORE_ARTICLE_WRITER } from "../src/geo-optimization/domain/writer.port.js";
 import { DeterministicCoreArticleWriter } from "../src/geo-optimization/infrastructure/deterministic-core-article.writer.js";
+import { DisabledCoreArticleWriter } from "../src/geo-optimization/infrastructure/disabled-core-article.writer.js";
 import { GeoOptimizationModule } from "../src/geo-optimization/geo-optimization.module.js";
 
 describe("Core Article Writer contract", () => {
@@ -80,7 +82,7 @@ describe("Core Article Writer contract", () => {
     );
   });
 
-  it("fails closed for deterministic or unknown production Writer modes", () => {
+  it("allows only the explicit demo adapter in production", () => {
     const storeLocation = {
       mode: "disabled" as const,
       receiptSigningSecret: "",
@@ -96,6 +98,15 @@ describe("Core Article Writer contract", () => {
         storeLocation,
       }),
     ).toThrow("cannot run in production");
+    const demo = GeoOptimizationModule.register({
+      writerMode: "demo",
+      runtimeEnvironment: "production",
+      storeLocation,
+    });
+    expect(demo.providers).toContainEqual({
+      provide: CORE_ARTICLE_WRITER,
+      useExisting: DeterministicCoreArticleWriter,
+    });
     expect(() =>
       GeoOptimizationModule.register({
         writerMode: "real",
@@ -103,13 +114,15 @@ describe("Core Article Writer contract", () => {
         storeLocation,
       } as never),
     ).toThrow("Unsupported Core Article Writer mode");
-    expect(() =>
-      GeoOptimizationModule.register({
-        writerMode: "disabled",
-        runtimeEnvironment: "production",
-        storeLocation,
-      }),
-    ).not.toThrow();
+    const disabled = GeoOptimizationModule.register({
+      writerMode: "disabled",
+      runtimeEnvironment: "production",
+      storeLocation,
+    });
+    expect(disabled.providers).toContainEqual({
+      provide: CORE_ARTICLE_WRITER,
+      useExisting: DisabledCoreArticleWriter,
+    });
   });
 });
 
