@@ -1,6 +1,6 @@
 # Alibaba Cloud authentication source brief
 
-Evidence date: 2026-09-20. Scope: mainland China Web/H5 login and registration
+Evidence refreshed: 2026-09-21. Scope: mainland China Web/H5 login and registration
 at approximately 1,000–2,000 SMS messages per month.
 
 ## Selected products
@@ -20,6 +20,9 @@ at approximately 1,000–2,000 SMS messages per month.
 
 - CAPTCHA pay-as-you-go exists with AI basic protection enabled and custom
   policy disabled.
+- The account's public browser identity prefix is `1fz571`. This value and the
+  SceneId are browser configuration, not credentials; the `ekey` and runtime
+  AccessKey material remain secret.
 - Test scene `geoeval_auth_challenge_web`, SceneId `18hnihr4`, is Web/H5,
   invisible, default policy and test status. Encryption mode and security
   events are off.
@@ -48,17 +51,28 @@ at approximately 1,000–2,000 SMS messages per month.
 - `SendSms` has no idempotency guarantee. Alibaba advises checking delivery
   state after a timeout before deciding whether to retry; GEOEval performs no
   automatic retry inside authentication.
-- The narrow RAM action for sending is `dysms:SendSms`. CAPTCHA documentation
-  names `AliyunYundunAFSFullAccess`; production credential creation and any
-  tighter custom policy require their own approval and runtime check.
+- Alibaba documents custom minimum-permission policies for both runtime calls:
+  `yundun-afs:VerifyCaptcha` for CAPTCHA verification and `dysms:SendSms` for
+  one-recipient SMS submission. Both currently use `Resource: "*"`; this does
+  not imply management access. Do not grant `AliyunYundunAFSFullAccess`,
+  `AliyunDysmsFullAccess`, `PowerUserAccess` or primary-account credentials to
+  the GEOEval runtime.
+- Use a dedicated API-only RAM identity so the two permissions can be revoked,
+  rotated and audited without affecting console administrators or other
+  applications in the shared Alibaba Cloud account. Prefer temporary
+  credentials when the hosting surface supports them; the current application
+  configuration accepts a protected AccessKey pair and must never persist it in
+  Git, Issues, logs or command output.
 
 ## Primary sources
 
 - [CAPTCHA scene management](https://help.aliyun.com/zh/captcha/captcha2-0/user-guide/scene-management)
 - [CAPTCHA Web/H5 V3 integration](https://help.aliyun.com/zh/captcha/captcha2-0/user-guide/new-architecture-for-web-and-h5-client-access)
 - [CAPTCHA server verification](https://help.aliyun.com/zh/captcha/captcha2-0/user-guide/server-access)
+- [CAPTCHA RAM minimum authorization](https://help.aliyun.com/zh/captcha/captcha2-0/user-guide/authorize-a-ram-user-to-access-alibaba-cloud-captcha)
 - [SMS TypeScript/Node.js SDK](https://help.aliyun.com/zh/sms/developer-reference/using-typescript-openapi-example)
 - [SendSms API](https://help.aliyun.com/zh/sms/developer-reference/api-dysmsapi-2017-05-25-sendsms)
+- [SMS custom minimum authorization](https://help.aliyun.com/zh/sms/custom-permission-policy-reference)
 - [SMS signature rules](https://help.aliyun.com/zh/sms/user-guide/signature-specifications-1)
 
 ## Refresh triggers

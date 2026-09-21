@@ -5,8 +5,8 @@
 - [x] Link Issue #64, classify the Change as architectural/critical and record
   the approved CAPTCHA/SMS architecture and external activation gates.
 - [x] Create the isolated
-  `codex/issue-64-sms-challenge-delivery` worktree from
-  `main@e0dd70c` after the pre-integration linear rebases.
+  Issue #64 worktree for the delivery branch and reuse it for the disjoint
+  `codex/issue-64-ram-policy` follow-up from current `main@bbd865d`.
 - [x] Fix current owners, shared-file boundary, documentation impact, rollback
   and smallest disconfirming evidence.
 
@@ -70,8 +70,8 @@
   marker.
 - [x] Run fixed-diff architecture and code review, then verify the final Change
   against Issue #64 acceptance.
-- [ ] Open one main-direct PR with a Partial or Final relationship matching the
-  actually completed external gates.
-- [ ] Record RAM/signature/paid-test/formal-mode/production residual gates and
+- [x] Merge PR #134 as a Partial relationship without closing Issue #64; use a
+  separate main-direct PR for the minimum-permission evidence refresh.
+- [x] Record RAM/signature/paid-test/formal-mode/production residual gates and
   the worktree exit state; archive this Change only when its accepted scope is
   reconciled.

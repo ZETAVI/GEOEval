@@ -1,8 +1,9 @@
 # Verification
 
-Verification date: 2026-09-20. Base:
-`main@e0dd70c`. Reviewed the current PR #134 implementation and this evidence
-reconciliation.
+Verification date: 2026-09-20; local integration evidence refreshed
+2026-09-21 on `main@bbd865d`. PR #134 merged as
+`74563a42f3359a3720aa54511bf9e34d9e21b163`; this follow-up reviews the merged
+implementation and the minimum-permission runtime boundary.
 
 PR #134 was linearly rebased from `main@6b09858` through `71136ad` to
 `5f3ec07`, then to `e0dd70c`, after Recharge-only commits entered `main`. The
@@ -28,6 +29,8 @@ closing-relationship evidence were refreshed before each branch update.
 | Web regression boundary remains compatible | Complete Web suite | Passed | 34 files, 236 tests |
 | Current truth and operator recovery are reconciled | Current Identity spec, operations runbook, environment example and active Change review | Passed | No Evolution marker was present |
 | Repository remains buildable and policy-compliant | `pnpm install --frozen-lockfile`, `pnpm format:check`, project framework validator and `pnpm build` | Passed | Alibaba OpenAPI Core postinstall is explicitly denied |
+| The approved public scene can initialize the real browser component locally | Local `/enter` with public prefix `1fz571`, SceneId `18hnihr4` and Alibaba mode | Passed | Official Alibaba scripts loaded, the UI left its preparing state and browser error/warning logs were empty; no CAPTCHA was started or solved |
+| Merged Identity/CAPTCHA/SMS boundaries remain green on current main | Focused merged-main tests | Passed | Backend 5 files / 60 tests; Web 2 files / 8 tests; complete build, format and framework validation passed |
 
 ## Commands and results
 
@@ -46,6 +49,17 @@ closing-relationship evidence were refreshed before each branch update.
   suite passed again: 96 files passed, 3 environment-gated files skipped; 938
   tests passed, 16 skipped. The complete Web suite, frozen install, format,
   framework validation and full build also passed on that base.
+- On 2026-09-21, current `main@bbd865d` passed the merged-boundary refresh:
+  Backend 5/5 files and 60/60 tests; Web 2/2 files and 8/8 tests; frozen install,
+  complete build, format and framework validation all passed. The first focused
+  database run used a stale generated Prisma client and failed before business
+  assertions because `agencyAudit` was absent. `pnpm db:generate` restored the
+  schema-owned delegate and the unchanged command passed; this was a local
+  generated-artifact prerequisite, not an Identity regression.
+- A local browser session using public prefix `1fz571` and SceneId `18hnihr4`
+  loaded Alibaba's official CAPTCHA scripts and enabled the entry flow without
+  browser warnings/errors. The test stopped before starting or solving a
+  CAPTCHA and before any backend/provider or SMS request.
 
 The first broad run reused a previously exercised isolated database and failed
 through unrelated cross-module cleanup leftovers. Repeating from a newly
@@ -71,9 +85,11 @@ No unresolved code-level review finding remains at the reviewed revision.
 
 ## Not run / external gates
 
-- No RAM identity, role, policy or AccessKey was created or copied.
-- No live `VerifyIntelligentCaptcha` call, official client-script browser
-  session or paid `SendSms` call was made.
+- No RAM identity, role, policy or AccessKey was created or copied. The proposed
+  custom policy is limited to `yundun-afs:VerifyCaptcha` and `dysms:SendSms`.
+- The official client script was initialized locally, but no CAPTCHA was
+  started or solved. No live `VerifyIntelligentCaptcha` or paid `SendSms` call
+  was made.
 - CAPTCHA remains in test state; formal mode was not enabled.
 - No compliant `HDP` signature exists and no signature/template was changed.
 - Named carrier test numbers, receipt checks, daily/monthly alert configuration,
@@ -81,5 +97,6 @@ No unresolved code-level review finding remains at the reviewed revision.
   remain unverified.
 
 Verdict: **partially verified for the full Issue outcome; verified for the
-credential-free implementation slice.** The branch may enter PR review as a
-Partial delivery and must not close Issue #64.
+credential-free implementation and browser-initialization slice.** RAM
+creation, provider verification and carrier delivery remain separate Gates;
+Issue #64 stays open.

@@ -47,8 +47,30 @@ command output.
 Before opening the switch:
 
 1. Create a dedicated minimum-permission RAM runtime identity in a separately
-   authorized account operation. Confirm only the required CAPTCHA verification
-   and dysms:SendSms abilities; record policy names/versions, never keys.
+   authorized account operation. It needs API access only, not console login or
+   self-managed credentials. Attach one custom policy with exactly the current
+   runtime calls:
+
+   ```json
+   {
+     "Version": "1",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": ["yundun-afs:VerifyCaptcha", "dysms:SendSms"],
+         "Resource": "*"
+       }
+     ]
+   }
+   ```
+
+   Do not substitute the product-wide `AliyunYundunAFSFullAccess` or
+   `AliyunDysmsFullAccess` policies. Record the custom policy name/version and
+   RAM identity, never its keys. Bind a permanent AccessKey to the named
+   production egress IP only after that topology is stable; a separately
+   approved local test credential must be short-lived and revoked or rotated
+   after the test.
+
 2. Confirm the backend and Web use the same approved mainland Web/H5 scene. In
    test mode exercise “invisible pass”, “invisible deny + second challenge pass”
    and “both deny”; a test-mode call is still billable. Only then separately
