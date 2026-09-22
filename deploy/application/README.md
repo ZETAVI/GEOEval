@@ -1,7 +1,7 @@
-# GEOEval internal production application
+# GEOEval production application
 
-This directory owns the full application deployment for the internal production
-pilot at `app.geohdp.com`. It extends the accepted callback-first deployment in
+This directory owns the full application deployment for the controlled public
+service at `app.geohdp.com`. It extends the accepted callback-first deployment in
 [`deploy/recharge-callback`](../recharge-callback/README.md); it does not replace
 the callback's narrower trust boundary.
 
@@ -93,18 +93,21 @@ retry and article-revision path; it makes no model call and is not evidence of a
 real Writing Agent. Never select the local/test-only `deterministic` mode in
 production.
 
-The internal pilot remains protected by Nginx Basic Authentication using
-`/etc/nginx/geoeval-demo.htpasswd`, owned by `root` and readable only by the
-Nginx service group. The payment callback locations
-explicitly disable Basic Authentication so Alipay and later WeChat can still
-deliver notifications. The outer gate is independent from Identity: the
-protected Demo runs with `INTERNAL_DEMO_MODE=0`, Alibaba CAPTCHA/SMS enabled,
-and no browser-visible deterministic code. The accepted initial SMS signature
-is `互动派科技`; it is visible to recipients. The current Alibaba test scene may
-be used only while the Basic Auth gate limits this named Demo. Switching the
-scene to formal mode and removing the outer gate remain separate public-release
-decisions. Session, role, rate-limit, expiry and audit behavior stay on the
-normal Identity path.
+The public Demo uses product Identity rather than an outer shared password.
+Nginx exposes the homepage and entry, applies narrow source-IP limits to
+Challenge issue and Session completion, and keeps the two callback locations
+exact. The API independently enforces Session, fixed-role and CSRF policy on
+every non-public product route. Production does not register Swagger or the F0
+Foundation validation controller, and the Web Foundation probe returns not
+found.
+
+Production runs with `INTERNAL_DEMO_MODE=0`, formal Alibaba CAPTCHA/SMS and no
+browser-visible deterministic code. The accepted initial SMS signature is
+`互动派科技`; it is visible to recipients. The API requires explicit daily and
+monthly Challenge-attempt caps, emits a redacted warning at 80%, and retains the
+manual stop-new-Challenge switch. The public entry links the current security
+and privacy notice before CAPTCHA/SMS processing. Session, role, expiry and
+audit behavior stay on the normal Identity path.
 
 ## Resource boundary
 
@@ -142,7 +145,7 @@ shared service states. Stop the new unit when it reaches its hard limit or when
 LanChen, GEOMonitor, MySQL, Redis, Nginx or PostgreSQL changes from the accepted
 baseline. Do not compensate by changing another application's limits.
 
-## First activation sequence
+## Public activation sequence
 
 Hold `/run/lock/shared-host-control.lock` and then
 `/run/lock/geoeval-deploy.lock` for every production write.
@@ -159,16 +162,26 @@ Hold `/run/lock/shared-host-control.lock` and then
    for an unauthenticated protected endpoint, and unchanged payment counts.
 6. Start Web on `3200`; require the entry page and static/media-logo assets over
    loopback. Confirm no server-side cache write mutates the release.
-7. Install the root-owned Basic Auth file, verify both callback paths remain
-   unauthenticated, and prove demo login plus role isolation. Do not expose the
-   deterministic Challenge path without the outer gate.
-8. Atomically point `current` to the release, install the reviewed Nginx file,
-   run `nginx -t`, reload, and repeat HTTPS Web/API/callback probes.
+7. Confirm the Alibaba scene is formal, the runtime RAM policy allows only the
+   fixed server egress, the replacement credential works and the superseded key
+   is revoked. Verify configured day/month caps and the privacy notice.
+8. Atomically point `current` to the release, install the reviewed public Nginx
+   file, run `nginx -t`, reload, and repeat anonymous HTTPS Web, protected API,
+   rate-limit and callback probes. Keep the prior Basic-Auth Nginx file as the
+   immediate edge rollback.
 9. Import media and create accounts through their owned interfaces.
 10. Start recharge Worker, prove an existing order query/recovery cycle, then
     complete one authorized small Alipay customer-page payment.
 11. Start product Worker only after all provider and telemetry configuration
     passes a no-business-write controlled probe.
+
+The initial public authentication policy uses 100 persisted Challenge attempts
+per Asia/Shanghai day and 2,500 per month. The singleton budget row is
+transactionally locked across mobiles and survives ordinary Challenge cleanup.
+Reaching the 80% threshold emits a warning without mobile, code, CAPTCHA or
+credential data. Exhaustion returns a generic temporary failure and invokes no
+SMS. Inspect the row and `identity.challenge.request` telemetry together; the
+row is operational control state, not proof of carrier delivery.
 
 ## Media and account data
 

@@ -72,21 +72,26 @@ Before opening the switch:
    the RAM policy, not the AccessKey itself. A separately approved local test
    credential must be short-lived and revoked or rotated after the test.
 
-2. Confirm the backend and Web use the same approved mainland Web/H5 scene. The
-   current test scene may be activated only on the named Basic-Auth-protected
-   Demo; a test-mode call is still billable. Formal mode and removal of the
-   outer gate require a separate public-release decision.
+2. Confirm the backend and Web use the same approved mainland Web/H5 scene.
+   Public authentication requires formal mode; test mode is limited to
+   connection and deterministic second-challenge validation and remains
+   billable. Alibaba documents approximately five minutes for a mode change to
+   take effect.
 3. Confirm the visible SMS SignName and TemplateCode are approved and reported
    for the target carriers. The accepted initial signature is `互动派科技`, and
    recipients will see it. A future `HDP` signature is not an activation
    dependency; never substitute an unapproved name in configuration.
-4. Review the user-facing privacy notice and processor boundary for Alibaba's
-   browser, IP, device and interaction-risk processing. GEOEval must not copy
-   those raw observations into its own records.
+4. Keep `/privacy` readily available before the user triggers CAPTCHA/SMS. It
+   identifies the processor and contact path, purpose, categories, retention
+   and rights procedure, and describes Alibaba's browser, IP, device and
+   interaction-risk processing. GEOEval must not copy those raw observations
+   into its own records.
 5. Verify the configured 60-second resend interval, five requests/hour,
-   provider-side limits, finite CAPTCHA-unavailable budget and operator stop
-   path in the named environment. Add daily/monthly aggregation and cost alerts
-   before removing the protected-Demo gate.
+   provider-side limits, source-IP edge throttle, finite CAPTCHA-unavailable
+   budget and operator stop path in the named environment. Production requires
+   explicit daily/monthly attempt caps. The database control row is authoritative
+   for admission and emits one redacted warning at each 80% threshold crossing;
+   Alibaba statistics remain the provider-side cost reconciliation.
 6. Use named authorized test mobiles and an explicit maximum paid count/amount.
    Keep carrier receipt, actual receipt and successful Challenge completion as
    separate evidence.
@@ -96,6 +101,13 @@ correlation ID, configured provider names, bounded verification/delivery
 outcomes and duration. It must not contain the full mobile, Challenge code,
 captchaVerifyParam, AccessKey material or raw provider messages. Aggregate this
 event for daily/monthly volume and cost alerts before paid activation.
+
+The production runtime credential policy contains only
+`yundun-afs:VerifyCaptcha` and `dysms:SendSms` and constrains both with
+`acs:SourceIp` equal to the verified fixed server egress. Prove an allowed
+server request and an outside-source denial before revoking the superseded key.
+Changing egress is a fail-closed credential-policy incident, not a reason to
+remove the condition silently.
 
 Alibaba SendSms is not idempotent. The adapter never retries automatically: an
 explicit rejection returns a service failure, while a timeout/connection loss
@@ -193,6 +205,8 @@ growth before changing retention or adding another authority store.
 | SMS returns signature/template/qualification/balance/permission failure | Keep new sending closed, repair the external asset or credential and re-run a named test                                                                                | Do not retry, switch signature silently or expose raw provider detail                |
 | SMS submission times out with unknown outcome                           | Preserve the Challenge, ask the user to wait, and allow only the ordinary resend path after its interval                                                                | Do not submit a second SMS automatically                                             |
 | SMS cost or abuse grows unexpectedly                                    | Set AUTH_CHALLENGE_SENDING_ENABLED=0 and restart/reload through the authorized release path; keep Sessions available                                                    | Do not delete Challenge, Account or Session facts to stop cost                       |
+| Daily or monthly Challenge budget is exhausted                          | Keep new sending closed, inspect the singleton budget and provider console, then adjust only through an approved environment change                                    | Do not reset counters in SQL or expose counts to callers                             |
+| Public edge exposes Swagger or Foundation validation                    | Restore the prior Basic-Auth Nginx file or prior immutable release, then correct production composition                                                                | Do not rely on an unlinked hidden URL as access control                              |
 
 ## Release evidence
 

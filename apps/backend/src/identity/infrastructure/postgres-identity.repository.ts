@@ -9,12 +9,16 @@ import {
 } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import {
+  ChallengeBudgetLimitError,
   ChallengeRateLimitError,
   ExistingAccountRequiredError,
   IdentityBootstrapError,
   IdentityGovernanceError,
 } from "../domain/identity.errors.js";
-import type { IdentityRepository } from "../domain/identity.repository.js";
+import type {
+  ChallengeBudgetUsage,
+  IdentityRepository,
+} from "../domain/identity.repository.js";
 import type {
   AccountListPage,
   AccountRole,
@@ -41,6 +45,29 @@ export class PostgresIdentityRepository implements IdentityRepository {
     return account ? presentAccount(account) : undefined;
   }
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async readChallengeBudget(input: {
+    now: Date;
+    dailyMaximumRequests: number;
+    monthlyMaximumRequests: number;
+  }): Promise<
+    ChallengeBudgetUsage & {
+      available: boolean;
+      exhaustedPeriod?: "DAY" | "MONTH";
+    }
+  > {
+    const row = await this.prisma.mobileChallengeBudget.findUnique({
+      where: { id: "GLOBAL" },
+    });
+    if (!row) throw new Error("Challenge budget state is unavailable");
+    const usage = currentBudgetUsage(row, input.now);
+    const exhaustedPeriod = budgetExhaustedPeriod(usage, input);
+    return {
+      ...usage,
+      available: exhaustedPeriod === undefined,
+      ...(exhaustedPeriod ? { exhaustedPeriod } : {}),
+    };
+  }
 
   async bootstrapAdministrator(input: {
     mobile: string;
@@ -162,8 +189,36 @@ export class PostgresIdentityRepository implements IdentityRepository {
     resendIntervalMs: number;
     windowMs: number;
     maximumRequestsPerWindow: number;
-  }): Promise<void> {
-    await this.prisma.$transaction(async (transaction) => {
+    dailyMaximumRequests: number;
+    monthlyMaximumRequests: number;
+  }): Promise<ChallengeBudgetUsage> {
+    return this.prisma.$transaction(async (transaction) => {
+      const [budgetRow] = await transaction.$queryRaw<
+        Array<{
+          day_key: string;
+          day_count: number;
+          month_key: string;
+          month_count: number;
+        }>
+      >`
+          SELECT day_key, day_count, month_key, month_count
+          FROM mobile_challenge_budgets
+          WHERE id = 'GLOBAL'
+          FOR UPDATE
+        `;
+      if (!budgetRow) throw new Error("Challenge budget state is unavailable");
+      const budget = currentBudgetUsage(
+        {
+          dayKey: budgetRow.day_key,
+          dayCount: budgetRow.day_count,
+          monthKey: budgetRow.month_key,
+          monthCount: budgetRow.month_count,
+        },
+        input.now,
+      );
+      const exhaustedPeriod = budgetExhaustedPeriod(budget, input);
+      if (exhaustedPeriod) throw new ChallengeBudgetLimitError(exhaustedPeriod);
+
       await transaction.$executeRaw`
           INSERT INTO mobile_challenge_rate_limits (
             mobile,
@@ -241,6 +296,21 @@ export class PostgresIdentityRepository implements IdentityRepository {
           input.acquisitionVisitToken,
           input.now,
         );
+      const usage = {
+        ...budget,
+        dayCount: budget.dayCount + 1,
+        monthCount: budget.monthCount + 1,
+      };
+      await transaction.mobileChallengeBudget.update({
+        where: { id: "GLOBAL" },
+        data: {
+          dayKey: usage.dayKey,
+          dayCount: usage.dayCount,
+          monthKey: usage.monthKey,
+          monthCount: usage.monthCount,
+          updatedAt: input.now,
+        },
+      });
       await transaction.mobileChallengeRateLimit.update({
         where: { mobile: input.mobile },
         data: {
@@ -249,6 +319,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
           lastIssuedAt: input.now,
         },
       });
+      return usage;
     });
   }
 
@@ -745,6 +816,43 @@ export class PostgresIdentityRepository implements IdentityRepository {
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
   }
+}
+
+function currentBudgetUsage(
+  row: {
+    dayKey: string;
+    dayCount: number;
+    monthKey: string;
+    monthCount: number;
+  },
+  now: Date,
+): ChallengeBudgetUsage {
+  const dayKey = chinaPeriodKey(now);
+  const monthKey = dayKey.slice(0, 7);
+  return {
+    dayKey,
+    dayCount: row.dayKey === dayKey ? row.dayCount : 0,
+    monthKey,
+    monthCount: row.monthKey === monthKey ? row.monthCount : 0,
+  };
+}
+
+function budgetExhaustedPeriod(
+  usage: ChallengeBudgetUsage,
+  policy: {
+    dailyMaximumRequests: number;
+    monthlyMaximumRequests: number;
+  },
+): "DAY" | "MONTH" | undefined {
+  if (usage.dayCount >= policy.dailyMaximumRequests) return "DAY";
+  if (usage.monthCount >= policy.monthlyMaximumRequests) return "MONTH";
+  return undefined;
+}
+
+function chinaPeriodKey(now: Date): string {
+  return new Date(now.getTime() + 8 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
 }
 
 function retryAfterSeconds(milliseconds: number): number {

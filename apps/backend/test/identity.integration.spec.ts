@@ -1,4 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
 import type { ApiConfig } from "../src/config/runtime-config.js";
 import { AuthenticationService } from "../src/identity/application/authentication.service.js";
@@ -397,6 +405,8 @@ describe("terminal-customer passwordless entry", () => {
           deliveryOutcome: "ACCEPTED",
           deliveryReason: "NONE",
           durationMs: expect.any(String),
+          budgetDayCount: "1",
+          budgetMonthCount: "1",
         },
       },
     ]);
@@ -462,6 +472,157 @@ describe("terminal-customer passwordless entry", () => {
       },
     });
     expect(await prisma.mobileChallenge.count()).toBe(1);
+  });
+
+  it("serializes the aggregate budget across different mobiles", async () => {
+    let deliveryCalls = 0;
+    const limited = authenticationFor(
+      {
+        ...identityTestConfig,
+        authChallengePolicy: {
+          ...identityTestConfig.authChallengePolicy,
+          dailyMaximumRequests: 1,
+          monthlyMaximumRequests: 1,
+        },
+      },
+      {
+        delivery: {
+          deliver: async () => {
+            deliveryCalls += 1;
+            return { outcome: "accepted" };
+          },
+        },
+      },
+    );
+
+    const results = await Promise.allSettled([
+      limited.requestChallenge("13800138030"),
+      limited.requestChallenge("13800138031"),
+    ]);
+
+    expect(results.filter(({ status }) => status === "fulfilled")).toHaveLength(
+      1,
+    );
+    expect(results.find(({ status }) => status === "rejected")).toMatchObject({
+      status: "rejected",
+      reason: {
+        status: 503,
+        response: { code: "CHALLENGE_BUDGET_EXHAUSTED" },
+      },
+    });
+    expect(deliveryCalls).toBe(1);
+    expect(await prisma.mobileChallenge.count()).toBe(1);
+    expect(
+      await prisma.mobileChallengeBudget.findUniqueOrThrow({
+        where: { id: "GLOBAL" },
+      }),
+    ).toMatchObject({ dayCount: 1, monthCount: 1 });
+  });
+
+  it("rejects an exhausted aggregate budget before human verification", async () => {
+    const currentDay = new Date(Date.now() + 8 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    await prisma.mobileChallengeBudget.update({
+      where: { id: "GLOBAL" },
+      data: {
+        dayKey: currentDay,
+        dayCount: 1,
+        monthKey: currentDay.slice(0, 7),
+        monthCount: 1,
+      },
+    });
+    let verificationCalls = 0;
+    const exhausted = authenticationFor(
+      {
+        ...identityTestConfig,
+        authChallengePolicy: {
+          ...identityTestConfig.authChallengePolicy,
+          dailyMaximumRequests: 1,
+          monthlyMaximumRequests: 1,
+        },
+      },
+      {
+        humanVerification: {
+          verify: async () => {
+            verificationCalls += 1;
+            return { outcome: "verified" };
+          },
+        },
+      },
+    );
+
+    await expect(
+      exhausted.requestChallenge("13800138032"),
+    ).rejects.toMatchObject({
+      status: 503,
+      response: { code: "CHALLENGE_BUDGET_EXHAUSTED" },
+    });
+    expect(verificationCalls).toBe(0);
+    expect(await prisma.mobileChallenge.count()).toBe(0);
+  });
+
+  it("resets elapsed budget periods and emits a redacted threshold warning", async () => {
+    const currentDay = new Date(Date.now() + 8 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    await prisma.mobileChallengeBudget.update({
+      where: { id: "GLOBAL" },
+      data: {
+        dayKey: "2000-01-01",
+        dayCount: 99,
+        monthKey: "2000-01",
+        monthCount: 2499,
+      },
+    });
+    const chunks: string[] = [];
+    const write = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation((chunk: Uint8Array | string) => {
+        chunks.push(String(chunk));
+        return true;
+      });
+    try {
+      await authentication.requestChallenge("13800138033");
+      expect(
+        await prisma.mobileChallengeBudget.findUniqueOrThrow({
+          where: { id: "GLOBAL" },
+        }),
+      ).toMatchObject({
+        dayKey: currentDay,
+        dayCount: 1,
+        monthKey: currentDay.slice(0, 7),
+        monthCount: 1,
+      });
+
+      const warning = authenticationFor({
+        ...identityTestConfig,
+        authChallengePolicy: {
+          ...identityTestConfig.authChallengePolicy,
+          dailyMaximumRequests: 5,
+          monthlyMaximumRequests: 5,
+        },
+      });
+      await prisma.mobileChallengeBudget.update({
+        where: { id: "GLOBAL" },
+        data: {
+          dayKey: currentDay,
+          dayCount: 3,
+          monthKey: currentDay.slice(0, 7),
+          monthCount: 3,
+        },
+      });
+
+      await warning.requestChallenge("13800138034");
+
+      const serialized = chunks.join("");
+      expect(serialized).toContain("identity_challenge_budget");
+      expect(serialized).toContain('"periods":["DAY","MONTH"]');
+      expect(serialized).not.toContain("13800138034");
+      expect(serialized).not.toContain("246810");
+    } finally {
+      write.mockRestore();
+    }
   });
 
   it("enforces the resend interval without superseding the usable Challenge", async () => {

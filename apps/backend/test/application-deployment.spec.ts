@@ -31,22 +31,37 @@ describe("full application production deployment boundary", () => {
     expect(nginx).toContain("location = /recharges/providers/wechat/notify");
     expect(nginx).toContain("location = /recharges/providers/alipay/notify");
     expect(nginx).toContain("location = /api/entry/challenge");
+    expect(nginx).toContain("location = /api/identity/challenges");
+    expect(nginx).toContain("location = /api/identity/sessions");
     expect(nginx).toContain("location ^~ /api/");
     expect(nginx).toContain("rewrite ^/api/(.*)$ /$1 break;");
     expect(nginx).toContain("proxy_pass http://127.0.0.1:3300;");
     expect(nginx).toContain("proxy_pass http://127.0.0.1:3301;");
     expect(nginx).toContain("proxy_pass http://127.0.0.1:3200;");
     expect(nginx).toContain("proxy_buffering off;");
-    expect(nginx).toContain('auth_basic "GEOEval internal demo";');
+    expect(nginx).not.toContain("auth_basic");
     expect(nginx).toContain(
-      "auth_basic_user_file /etc/nginx/geoeval-demo.htpasswd;",
+      "limit_req_zone $binary_remote_addr zone=geoeval_auth_issue:10m rate=6r/m;",
     );
-    expect(nginx.match(/auth_basic off;/g)).toHaveLength(2);
-    expect(nginx.match(/proxy_set_header Authorization "";/g)).toHaveLength(5);
+    expect(nginx).toContain(
+      "limit_req_zone $binary_remote_addr zone=geoeval_auth_complete:10m rate=30r/m;",
+    );
+    expect(nginx.match(/limit_req zone=geoeval_auth_issue/g)).toHaveLength(2);
+    expect(nginx.match(/limit_req zone=geoeval_auth_complete/g)).toHaveLength(
+      1,
+    );
+    expect(nginx.match(/proxy_set_header Authorization "";/g)).toHaveLength(7);
+    expect(nginx).toContain(
+      'add_header Strict-Transport-Security "max-age=31536000" always;',
+    );
+    expect(nginx).toContain('add_header X-Frame-Options "DENY" always;');
     expect(nginx.indexOf("/recharges/providers/alipay/notify")).toBeLessThan(
       nginx.lastIndexOf("location / {"),
     );
     expect(nginx.indexOf("location = /api/entry/challenge")).toBeLessThan(
+      nginx.indexOf("location ^~ /api/"),
+    );
+    expect(nginx.indexOf("location = /api/identity/challenges")).toBeLessThan(
       nginx.indexOf("location ^~ /api/"),
     );
   });
@@ -200,6 +215,8 @@ describe("full application production deployment boundary", () => {
     expect(api).toContain("ALIYUN_CAPTCHA_SCENE_ID=18hnihr4");
     expect(api).toContain("ALIYUN_SMS_SIGN_NAME=互动派科技");
     expect(api).toContain("ALIYUN_SMS_TEMPLATE_CODE=SMS_496905143");
+    expect(api).toContain("AUTH_CHALLENGE_DAILY_MAX_REQUESTS=100");
+    expect(api).toContain("AUTH_CHALLENGE_MONTHLY_MAX_REQUESTS=2500");
     expect(api).not.toContain("AUTH_DETERMINISTIC_CODE=");
     expect(api).toContain("GEO_OPTIMIZATION_WRITER_MODE=demo");
     expect(api).toContain("STORE_LOCATION_MODE=amap");
@@ -261,6 +278,10 @@ describe("full application production deployment boundary", () => {
     expect(api.authChallengeMode).toBe("aliyun");
     expect(api.authChallengeSendingEnabled).toBe(true);
     expect(api.authHumanVerificationMode).toBe("aliyun");
+    expect(api.authChallengePolicy).toMatchObject({
+      dailyMaximumRequests: 100,
+      monthlyMaximumRequests: 2500,
+    });
     expect(api.geoOptimizationWriterMode).toBe("demo");
     expect(api.storeLocation.mode).toBe("amap");
     expect(worker.runtimeEnvironment).toBe("production");

@@ -80,6 +80,33 @@ describe("complete controller access-policy inventory", () => {
   });
 });
 
+describe("production public HTTP surface", () => {
+  it("does not register Swagger or Foundation validation routes", async () => {
+    const app = await createApiApp(
+      {
+        ...loadIntegrationApiConfig(),
+        runtimeEnvironment: "production",
+        internalDemoMode: false,
+        geoOptimizationWriterMode: "demo",
+      },
+      false,
+    );
+    await app.listen(0, "127.0.0.1");
+    try {
+      const routes = discoverRoutePolicies(app);
+      expect(
+        routes.some((route) => route.controller === "FoundationController"),
+      ).toBe(false);
+      expect((await fetch(`${await app.getUrl()}/openapi`)).status).toBe(404);
+      expect(
+        (await fetch(`${await app.getUrl()}/foundation/outbox/backlog`)).status,
+      ).toBe(404);
+    } finally {
+      await app.close();
+    }
+  });
+});
+
 const expectedControllerPolicies: Record<
   string,
   (

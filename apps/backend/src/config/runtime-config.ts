@@ -116,6 +116,18 @@ const apiSchema = commonSchema.extend({
     .min(1)
     .max(20)
     .default(5),
+  AUTH_CHALLENGE_DAILY_MAX_REQUESTS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100_000)
+    .default(100),
+  AUTH_CHALLENGE_MONTHLY_MAX_REQUESTS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(1_000_000)
+    .default(2500),
   AUTH_CHALLENGE_MAX_FAILED_ATTEMPTS: z.coerce
     .number()
     .int()
@@ -273,6 +285,8 @@ export type ApiConfig = {
     resendIntervalMs: number;
     windowMs: number;
     maximumRequestsPerWindow: number;
+    dailyMaximumRequests: number;
+    monthlyMaximumRequests: number;
     maximumFailedAttempts: number;
   };
   authCleanupPolicy: IdentityCleanupPolicy;
@@ -469,6 +483,14 @@ export function loadApiConfig(
       "AUTH_CHALLENGE_RESEND_SECONDS must not exceed AUTH_CHALLENGE_WINDOW_SECONDS",
     );
   }
+  if (
+    parsed.AUTH_CHALLENGE_DAILY_MAX_REQUESTS >
+    parsed.AUTH_CHALLENGE_MONTHLY_MAX_REQUESTS
+  ) {
+    throw new Error(
+      "AUTH_CHALLENGE_DAILY_MAX_REQUESTS must not exceed the monthly maximum",
+    );
+  }
   return {
     databaseUrl: parsed.DATABASE_URL,
     port: parsed.PORT,
@@ -507,6 +529,8 @@ export function loadApiConfig(
       resendIntervalMs: parsed.AUTH_CHALLENGE_RESEND_SECONDS * 1000,
       windowMs: parsed.AUTH_CHALLENGE_WINDOW_SECONDS * 1000,
       maximumRequestsPerWindow: parsed.AUTH_CHALLENGE_MAX_REQUESTS,
+      dailyMaximumRequests: parsed.AUTH_CHALLENGE_DAILY_MAX_REQUESTS,
+      monthlyMaximumRequests: parsed.AUTH_CHALLENGE_MONTHLY_MAX_REQUESTS,
       maximumFailedAttempts: parsed.AUTH_CHALLENGE_MAX_FAILED_ATTEMPTS,
     },
     authCleanupPolicy: cleanupPolicy(parsed),

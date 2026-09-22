@@ -213,7 +213,9 @@ export function EntryFlow({
             hidden
           />
           <p className="form-footnote">
-            登录即表示你同意平台为提供服务而保存账号与品牌资料。
+            获取验证码前，请阅读
+            <a href="/privacy">《个人信息与安全验证说明》</a>
+            。继续操作表示你已了解平台为登录、服务和安全防护处理必要信息。
           </p>
         </>
       )}

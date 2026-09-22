@@ -91,7 +91,9 @@ export class ApiModule {
         CommissionController,
         AdminOrderSettlementController,
         HealthController,
-        FoundationController,
+        ...(config.runtimeEnvironment === "production"
+          ? []
+          : [FoundationController]),
         DeliveryAssignmentController,
         DeliveryResolutionController,
         PublicationWorkController,
