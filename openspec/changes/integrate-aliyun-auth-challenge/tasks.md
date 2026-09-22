@@ -6,7 +6,8 @@
   the approved CAPTCHA/SMS architecture and external activation gates.
 - [x] Create the isolated
   Issue #64 worktree for the delivery branch and reuse it for the disjoint
-  `codex/issue-64-ram-policy` follow-up from current `main@bbd865d`.
+  `codex/issue-64-ram-policy` follow-up, then rebase it onto current
+  `main@bb9e7cc` before final review.
 - [x] Fix current owners, shared-file boundary, documentation impact, rollback
   and smallest disconfirming evidence.
 
@@ -60,6 +61,15 @@
 - [x] Verify offline CAPTCHA pass/deny/replay/mismatch/unavailable budget, SMS
   accepted/rejected/unknown, configuration fail-closed, no retry, stop behavior
   and redaction.
+- [x] Complete one separately authorized local real-CAPTCHA, formal-template
+  SMS, carrier-receipt, user-entered OTP and Session flow without repeating the
+  paid send or recording authentication-capable values.
+- [ ] Validate delivery stability for the target carrier mix before public
+  activation; one successful route is reachability evidence, not a success-rate
+  claim.
+- [ ] Inject the selected production credential through the protected
+  deployment path, then rotate or revoke local test credentials under a
+  separately confirmed account operation.
 - [x] Run focused tests, typecheck, generated-contract checks and the
   task-appropriate broader suite; record skipped environment-dependent checks.
 

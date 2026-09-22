@@ -1,7 +1,7 @@
 # Change: Integrate protected real authentication challenges
 
-- Status: Approved for credential-free implementation; external activation
-  gates remain.
+- Status: Implemented and locally validated; production activation gates
+  remain.
 - Issue:
   [#64](https://github.com/ZETAVI/GEOEval/issues/64)
 - Owner: ZETAVI
@@ -18,9 +18,10 @@ spend the shared Alibaba Cloud account and repeatedly target a mobile number.
 
 The Alibaba Cloud enterprise account, SMS service and CAPTCHA 2.0 pay-as-you-go
 instance are available. A Web/H5 invisible test scene named
-`geoeval_auth_challenge_web` exists with SceneId `18hnihr4`. A compliant
-`HDP` SMS signature does not yet exist, so code and offline verification may
-proceed while real SMS, formal CAPTCHA mode and production activation remain
+`geoeval_auth_challenge_web` exists with SceneId `18hnihr4`. The preferred
+`HDP` SMS signature still lacks a compliant qualification path, so controlled
+validation uses the approved company-qualified signature while the public
+signature decision, formal CAPTCHA mode and production activation remain
 separate gates.
 
 ## Outcome
@@ -59,7 +60,9 @@ unchanged.
   authority, acquisition ownership or CSRF rules.
 - Creating RAM identities or AccessKeys, sending paid SMS, changing shared
   account-wide alarms, switching the CAPTCHA scene to formal mode or activating
-  production.
+  production as repository implementation. Separately authorized account and
+  controlled-runtime operations may supply evidence without expanding this
+  code Change.
 - Claiming that an accepted SMS submission proves carrier delivery or login.
 
 ## Impact
@@ -82,10 +85,11 @@ unchanged.
   `generate` OpenAPI/client types; archive this Change after accepted behavior
   is promoted. The current Identity spec has no active Evolution marker.
 - Workspace: Issue #64 worktree on `codex/issue-64-ram-policy` from
-  `main@bbd865d`, following merged PR #134, owned by Issue #64,
+  `main@bb9e7cc`, following merged PR #134, owned by Issue #64,
   targeting protected `main` with `main-direct` topology.
 - Shared ownership: this Change owns Identity/CAPTCHA/SMS code and its Web
   entry path. If implementation must touch payment-owned runtime composition,
   Recharge contracts or payment pages, stop and coordinate with Issue #77.
-- Exit: retain while active; after an accepted merge and post-integration
-  reconciliation, remove the clean worktree and branch.
+- Exit: remove the clean worktree and branch after PR #146 is merged and its
+  post-integration revision is reconciled. Issue #64 and this active Change,
+  rather than a merged workspace, retain the remaining production gates.

@@ -444,12 +444,19 @@ transport.
 The accepted implementation provides local/test deterministic Challenge
 delivery and explicit Alibaba Cloud CAPTCHA/SMS adapters with fail-closed
 production configuration, no automatic SMS retry and redacted outcome
-observation. It does not prove a compliant public SMS signature, minimum-
-permission runtime credential, paid carrier delivery, formal CAPTCHA policy,
-privacy notice, multi-replica degradation budget or production activation.
-Those facts plus migration, Bootstrap, second-administrator readiness,
-monitoring, post-activation rollback and deployment require separate
-authorization and named-environment evidence.
+observation. A dedicated minimum-permission RAM identity and one controlled
+local application run have proven server-side CAPTCHA verification, SendSms
+acceptance, final carrier delivery, user-entered OTP completion and Session
+creation for the current company signature and login template on one observed
+route. That account-specific evidence proves reachability, not stable
+three-carrier delivery or production activation.
+
+The preferred public signature, formal CAPTCHA policy, privacy notice,
+production secret injection and credential rotation, trusted-proxy/IP control,
+daily/monthly cost monitoring, multi-replica degradation budget and production
+activation remain separate Gates. Those facts plus migration, Bootstrap,
+second-administrator readiness, post-activation rollback and named-environment
+deployment require separate authorization and evidence.
 
 ## Agency service integration
 

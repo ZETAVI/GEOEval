@@ -76,8 +76,11 @@ Before opening the switch:
    and “both deny”; a test-mode call is still billable. Only then separately
    authorize formal mode.
 3. Confirm the visible SMS SignName and TemplateCode are approved and reported
-   for the target carriers. HDP remains unusable until it has a compliant
-   qualification path; do not substitute an unapproved name in configuration.
+   for the target carriers. Controlled validation may use the approved
+   company-qualified signature, but public activation must explicitly accept
+   that visible identity or wait for another compliant signature. HDP remains
+   unusable until it has a compliant qualification path; do not substitute an
+   unapproved name in configuration.
 4. Review the user-facing privacy notice and processor boundary for Alibaba's
    browser, IP, device and interaction-risk processing. GEOEval must not copy
    those raw observations into its own records.

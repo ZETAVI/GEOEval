@@ -1,7 +1,7 @@
 # Alibaba Cloud authentication source brief
 
-Evidence refreshed: 2026-09-21. Scope: mainland China Web/H5 login and registration
-at approximately 1,000–2,000 SMS messages per month.
+Evidence refreshed: 2026-09-22 CST. Scope: mainland China Web/H5 login and
+registration at approximately 1,000–2,000 SMS messages per month.
 
 ## Selected products
 
@@ -29,8 +29,18 @@ at approximately 1,000–2,000 SMS messages per month.
 - SMS is active. The account has approved existing company-qualified assets,
   but they visibly use the company identity and do not satisfy the desired
   `HDP` public signature.
-- No credential value, legal-person detail or raw account identifier is part of
-  this Change.
+- A dedicated API-only RAM runtime identity is configured with the two required
+  actions. A separately authorized local AccessKey exercised both provider
+  calls; no credential value, legal-person detail or raw account identifier is
+  part of this Change.
+- Controlled application validation with the approved company signature and
+  approved login template completed one `CAPTCHA -> Challenge -> SendSms -> OTP
+  -> Session` path. Alibaba accepted the SMS, the carrier receipt later showed
+  successful delivery, and the user-entered OTP created a customer Session.
+- Earlier use of the same sign/template/number produced one carrier rejection
+  for signature real-name filing, followed by successful deliveries. The
+  current evidence proves reachability on one observed route, not stable
+  three-carrier delivery or production readiness.
 
 ## Interface facts
 
@@ -77,7 +87,9 @@ at approximately 1,000–2,000 SMS messages per month.
 
 ## Refresh triggers
 
-Recheck these sources before creating RAM policy/credentials, changing endpoints
-or SDK major versions, submitting a signature/template, enabling formal mode,
-making the first paid call, adding another provider/region/client type, or
-running more than one production API replica.
+Recheck these sources before changing the RAM policy or production credential,
+changing endpoints or SDK major versions, submitting a signature/template,
+enabling formal mode, adding another provider/region/client type, or running
+more than one production API replica. Repeat account-specific runtime probes
+only when the relevant account, route, configuration or decision boundary has
+changed.
