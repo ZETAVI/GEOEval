@@ -123,5 +123,5 @@ enabled. Do not force every ambiguity into automation or send every ordinary
 expiry to an operator.
 
 Official sources and the current integration design remain in the owning change's
-[source brief](../../../../../../openspec/changes/establish-recharge-payments/source-brief.md)
-and [design](../../../../../../openspec/changes/establish-recharge-payments/design.md).
+[source brief](../../../../../../openspec/changes/archive/2026-09-22-establish-recharge-payments/source-brief.md)
+and [design](../../../../../../openspec/changes/archive/2026-09-22-establish-recharge-payments/design.md).

@@ -33,7 +33,7 @@
       five-provider, full-evaluation and metadata-only telemetry probes.
 - [x] Reboot the host, verify automatic service/session recovery, rehearse TLS
       renewal and remove build/secret staging material.
-- [ ] Rehearse the first-release public rollback while preserving database
+- [x] Rehearse the first-release public rollback while preserving database
       facts.
-- [ ] Merge the runtime evidence update, refresh Issue #141 and record the final
+- [x] Merge the runtime evidence update, refresh Issue #141 and record the final
       workspace exit state.

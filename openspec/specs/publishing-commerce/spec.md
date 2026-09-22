@@ -6,7 +6,9 @@ This owner currently implements maintained random-package configuration,
 administrator audit, terminal-customer offer visibility, account points,
 granted-only administrator adjustments/history, saved selections, advisory quotes,
 atomic point-funded purchases, once-only original-order point returns and
-customer-safe order reads. Admission, responsibility, results, negotiated agreements
+customer-safe order reads. It also owns Recharge credit-capacity reservations and
+the atomic conversion of a matched payment into one funded ledger change. Admission,
+responsibility, results, negotiated agreements
 and fulfilment states are owned by [Publication Delivery](../publication-delivery/spec.md).
 Order returns do not activate a payment channel or customer self-service refund.
 Historical delivery rationale is retained in
@@ -147,6 +149,56 @@ shared across Brands, with integer granted/funded balances and ordered history.
 - **AND** the account recharge entry and saved-selection continuation follow
   [Recharge](../recharge/spec.md); its default unavailable state does not
   fabricate external payment success, invoices or fulfilment.
+
+### Requirement: Recharge reserves a realizable funded credit
+
+Publishing Commerce SHALL retain ownership of point balance, source allocation,
+ordered immutable changes and credit-capacity reservation. Recharge SHALL use the
+owner-provided transaction binding instead of updating private account persistence.
+
+#### Scenario: A recharge is created while another point operation runs
+
+- **WHEN** Recharge reserves the future funded credit under the account lock
+- **THEN** the reservation has one account/business identity and holds its funded
+  quantity and future sequence capacity
+- **AND** grants, purchases, recharge settlement and accepted order returns use
+  the same checked bounds and lock order
+- **AND** reserved points are excluded from available balance and cannot be spent
+  or used to reserve publishing inventory.
+
+#### Scenario: Payment succeeds or safe closure is confirmed
+
+- **WHEN** Recharge supplies a matched authenticated settlement or safe-close
+  command through its transaction adapter
+- **THEN** Commerce consumes the reservation into one funded change or releases it
+  exactly once in the same transaction as the matching Recharge state
+- **AND** duplicate callback, query or close evidence cannot repeat either effect.
+
+#### Scenario: Another point operation races the held capacity
+
+- **WHEN** a purchase, adjustment or return would consume balance or sequence
+  capacity held for an unresolved recharge
+- **THEN** the competing operation is rejected without partial effects
+- **AND** consuming the matching recharge reservation advances the ledger once
+  without increasing total reserved sequence demand
+- **AND** creating or safely releasing a reservation alone does not change the
+  customer balance or ledger sequence.
+
+#### Scenario: Business credit identities remain distinct
+
+- **WHEN** recharge settlement or an order return credits the same account
+- **THEN** recharge uses its dedicated source relation and funded origin, while
+  order return retains its original consumption and return relation
+- **AND** neither operation uses the administrator gift endpoint
+- **AND** a client request key equal to a recharge public reference cannot block
+  the distinct system settlement identity.
+
+#### Scenario: An unresolved credit cannot safely settle
+
+- **WHEN** an integrity or capacity constraint prevents immediate funded credit
+- **THEN** no partial balance, ledger or successful Recharge state is written
+- **AND** the obligation remains visible to authorized recovery
+- **AND** another recharge's reservation is not consumed to conceal the failure.
 
 ### Requirement: One explicitly saved publishing selection per Brand
 
@@ -289,17 +341,20 @@ Commerce SHALL expose a customer-owned order list and detail using safe DTOs.
 Commerce SHALL return points automatically only after fulfilment has ended, its continuous 72-hour window has elapsed, all relevant admitted issues are resolved and the final agreed total is confirmed. Operators establish the agreement; no last administrator/operator credit click is required. The original consumption, granted/funded restoration and reserved-capacity constraints SHALL remain authoritative.
 
 #### Scenario: Deadline elapsed with a pending issue
+
 - **WHEN** an order passed its deadline but an eligible issue remains unresolved
 - **THEN** final settlement waits
 - **AND** the customer wording is "已约定退回 ⚡X，待订单结束结算"
 
 #### Scenario: Positive settlement succeeds
+
 - **WHEN** eligibility is confirmed under the order transaction
 - **THEN** one actual return and one final settlement receipt commit atomically
 - **AND** the customer wording changes to "已退回 ⚡X"
 - **AND** system execution and the operator's agreement are separately traceable without pretending a human clicked
 
 #### Scenario: Zero, duplicate, crash or insufficient capacity
+
 - **WHEN** the final agreed amount is zero
 - **THEN** a final settlement receipt exists without a zero-value point ledger entry
 - **WHEN** execution repeats or resumes after a process failure
@@ -320,6 +375,7 @@ Positive order returns SHALL restore original granted/funded consumption proport
 Administrators SHALL read all customers' actual ledger entries, filter by customer, type, time and exact ledger/order/recharge reference, and follow authorized business links. Money and point units SHALL stay separate. Unpaid recharge orders and promised returns SHALL NOT appear as actual point changes; a shared customer identity SHALL NOT imply a one-to-one recharge-to-purchase allocation.
 
 #### Scenario: Paginated or changed query
+
 - **WHEN** an administrator reads a bounded page
 - **THEN** created time and unique ledger ID define stable ordering across customers, not an account-local sequence
 - **AND** cursors are scoped to the expected administrator and filters; changed filters or identity reject reuse
@@ -330,6 +386,7 @@ Administrators SHALL read all customers' actual ledger entries, filter by custom
 New publishing orders SHALL capture [agency order terms](../agency-order-terms/spec.md) atomically with order, debit and delivery admission. Success recovery precedes mutable checks, with an additional recovery check after wallet serialization. The snapshot SHALL remain internal and immutable; existing customer order projections and granted-first spending remain unchanged.
 
 #### Scenario: Later settings cannot rewrite an order
+
 - **WHEN** customer attribution, agent eligibility or commission configuration changes
 - **THEN** existing successful orders retain their captured commercial facts
 - **AND** a replay returns the same order without repeated debit or snapshot creation

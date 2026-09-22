@@ -1,6 +1,31 @@
 # Recharge verification
 
-Current accepted code: `main@bb9e7cc` contains A0/B0/C1, N1–N4, R1/O1a, both desktop payment channels, resident API/callback/Recharge Worker composition, the internal-pilot deployment boundary and the independently owned recharge-invoice slice. Exact historical merge/CI evidence remains in the owning PRs. One real WeChat Native payment and two real Alipay PC payments have completed through the public callbacks and the same settlement core. #77 remains open for reconciliation, ambiguous no-submit/expiry handling and mobile acceptance.
+Current accepted code: `main@6bd73af` contains A0/B0/C1, N1–N4,
+R1/O1a, both desktop payment channels, resident API/callback/Recharge Worker
+composition, the internal-pilot deployment boundary, the independent
+recharge-invoice slice and the protected real-authentication Demo. Production
+currently runs immutable release `geoeval-99ff2ae`; the later main revision is
+documentation-only. Exact historical merge/CI evidence remains in the owning
+PRs.
+
+The current independent-host database contains two successful WeChat Native
+¥1 recharges and one successful Alipay PC ¥1 recharge. They correspond to three
+canonical payment observations, three notification receipts and three unique
+`RECHARGE` ledger changes totaling 30 funded points. Four deliberately exposed
+but never submitted Alipay forms remain `CONFIRMING / MAY_EXIST`; no manual
+order, reservation or ledger update was used. Public desktop operations and
+that ambiguous expiry boundary continue under #157; mobile Web continues under
+#158. The protected desktop-payment outcome owned by #77 is verified and this
+Change is ready to archive.
+
+## Closeout evidence (2026-09-22)
+
+| Claim | Evidence | Result / limit |
+| --- | --- | --- |
+| Current production revision | `/opt/geoeval/current`, release receipt and loopback readiness after PR #154 | `geoeval-99ff2ae`, API ready; PR #155 only archives authentication evidence |
+| Desktop money facts survived later deployment | Read-only production aggregates after the real-auth release | Two WeChat + one Alipay successful orders; three observations/receipts; three `RECHARGE` rows totaling 30 funded points |
+| Payment processes remained healthy | systemd and cgroup inspection after the authentication deployment | API, Web, product Worker, Recharge Worker, callback, Nginx, PostgreSQL and Redis active; callback `NRestarts=0`, 176/192 MiB boundary retained |
+| Residual work has independent owners | #157 and #158 | Public operations/no-submit/reconciliation and mobile Web are not represented as incomplete desktop-pilot acceptance |
 
 ## Internal-pilot dual-provider acceptance (2026-09-22)
 
@@ -89,10 +114,10 @@ No new manual browser experience, real merchant/funds, public callback, alert re
 
 | Claim | Evidence | Result / limit |
 | --- | --- | --- |
-| The actual adapter implements Native, query, close and notification verification | [Business port](../../../apps/backend/src/recharge/application/payment-gateway.ts), [gateway](../../../apps/backend/src/recharge/infrastructure/wechat/wechat-pay.gateway.ts) | Implemented without application registration, database or environment lookup |
-| Crypto agrees with independent official expected values | Published request signature, fixed official signed notification, pinned Java AES-256-GCM vector in [gateway tests](../../../apps/backend/test/wechat-pay.gateway.spec.ts) | Passed in product implementation, not inferred from the old probes |
+| The actual adapter implements Native, query, close and notification verification | [Business port](../../../../apps/backend/src/recharge/application/payment-gateway.ts), [gateway](../../../../apps/backend/src/recharge/infrastructure/wechat/wechat-pay.gateway.ts) | Implemented without application registration, database or environment lookup |
+| Crypto agrees with independent official expected values | Published request signature, fixed official signed notification, pinned Java AES-256-GCM vector in [gateway tests](../../../../apps/backend/test/wechat-pay.gateway.spec.ts) | Passed in product implementation, not inferred from the old probes |
 | Operation-specific contracts preserve uncertainty | Missing unpaid fields accepted; success identity/amount/time required; nullable query payer fields differ from mandatory notification fields; 204, invalid identity/amount/state/URL and safe errors | 68 gateway/crypto checks passed |
-| Actual bytes and transport security match the contract | [HTTPS tests](../../../apps/backend/test/wechat-pay.https.spec.ts): ephemeral CA, trusted/untrusted certificates, hostname mismatch, real signed requests/responses, empty 204, duplicate headers, truncation/size, slow body, reset, no redirect/retry | 20 passed; loopback socket redirection exists only in the test request factory; TLS verification stays enabled |
+| Actual bytes and transport security match the contract | [HTTPS tests](../../../../apps/backend/test/wechat-pay.https.spec.ts): ephemeral CA, trusted/untrusted certificates, hostname mismatch, real signed requests/responses, empty 204, duplicate headers, truncation/size, slow body, reset, no redirect/retry | 20 passed; loopback socket redirection exists only in the test request factory; TLS verification stays enabled |
 | Total targeted verification | The two suites above | 88/88 passed; no actual provider or money |
 | Existing workspace compatibility | Locked dependency install, generated existing Prisma client, workspace typecheck and backend build | Passed; package manifests/lock/schema/migrations unchanged |
 | Scope isolation | Imports stay within Recharge and Node; no ApiModule/WorkerModule, Controller, environment activation, Prisma or Commerce edit | Checked with fixed diff; no customer payment path is active |
@@ -112,9 +137,9 @@ The generator writes only the ignored client from the existing schema; it does n
 
 ## Source custody and limitations
 
-The [request fixture](../../../apps/backend/test/fixtures/wechat/request.public-example.json) is the public unusable example from [official request signing](https://pay.wechatpay.cn/doc/v3/merchant/4012365336); its key is published teaching material, not merchant credentials. The original request body and expected signature are preserved. JSON file formatting does not alter the embedded signed body. Its JSAPI path tests shared APIv3 crypto only; A0 exposes Native.
+The [request fixture](../../../../apps/backend/test/fixtures/wechat/request.public-example.json) is the public unusable example from [official request signing](https://pay.wechatpay.cn/doc/v3/merchant/4012365336); its key is published teaching material, not merchant credentials. The original request body and expected signature are preserved. JSON file formatting does not alter the embedded signed body. Its JSAPI path tests shared APIv3 crypto only; A0 exposes Native.
 
-The [notification fixture](../../../apps/backend/test/fixtures/wechat/notification.public-example.json) comes from [official Go notify_test.go](https://github.com/wechatpay-apiv3/wechatpay-go/blob/6dbd7ce2ec5967ac2de5fa053479b411967b9c29/core/notify/notify_test.go). Its PAYSCORE event is used only by the crypto test, never as a valid recharge notification. The 300-second rule follows the pinned SDK validator. The AES-256 fixture is from [Java AeadAesCipherTest](https://github.com/wechatpay-apiv3/wechatpay-java/blob/1dab7bec717989e4a4f006d2469c3eebe9eabba7/core/src/test/java/com/wechat/pay/java/core/cipher/AeadAesCipherTest.java) and [TestConfig](https://github.com/wechatpay-apiv3/wechatpay-java/blob/1dab7bec717989e4a4f006d2469c3eebe9eabba7/core/src/test/java/com/wechat/pay/java/core/model/TestConfig.java). The Go AES example with a 16-byte key was not used for an AES-256 claim.
+The [notification fixture](../../../../apps/backend/test/fixtures/wechat/notification.public-example.json) comes from [official Go notify_test.go](https://github.com/wechatpay-apiv3/wechatpay-go/blob/6dbd7ce2ec5967ac2de5fa053479b411967b9c29/core/notify/notify_test.go). Its PAYSCORE event is used only by the crypto test, never as a valid recharge notification. The 300-second rule follows the pinned SDK validator. The AES-256 fixture is from [Java AeadAesCipherTest](https://github.com/wechatpay-apiv3/wechatpay-java/blob/1dab7bec717989e4a4f006d2469c3eebe9eabba7/core/src/test/java/com/wechat/pay/java/core/cipher/AeadAesCipherTest.java) and [TestConfig](https://github.com/wechatpay-apiv3/wechatpay-java/blob/1dab7bec717989e4a4f006d2469c3eebe9eabba7/core/src/test/java/com/wechat/pay/java/core/model/TestConfig.java). The Go AES example with a 16-byte key was not used for an AES-256 claim.
 
 One earlier official webpage response tuple remains **failed**: page 4013053249's public key/signature/52-byte body matched downloaded HTML but both Node and OpenSSL rejected it. Message SHA-256: `2f190612debde9369868489ccda12b9b816381eb5632a8abb73bfe80b6dbd5da`. It is excluded from passing fixtures and counts. The independent SDK fixture is the positive response-auth evidence; no claim is made that every official example passed.
 
@@ -285,7 +310,7 @@ N1 待实施的最小判别证据：
 
 | 完成主张 | 证据 | 结果与边界 |
 | --- | --- | --- |
-| 创建/领取/查询/关单可恢复且只一次记分 | [22 项 Native 集成测试](../../../apps/backend/test/native-recovery.integration.spec.ts)、[9 项本地规则测试](../../../apps/backend/test/native-recovery.spec.ts) | Passed。临时 RSA/APIv3 材料 + 实际 Adapter + 独立 PostgreSQL；不调用 provider |
+| 创建/领取/查询/关单可恢复且只一次记分 | [22 项 Native 集成测试](../../../../apps/backend/test/native-recovery.integration.spec.ts)、[9 项本地规则测试](../../../../apps/backend/test/native-recovery.spec.ts) | Passed。临时 RSA/APIv3 材料 + 实际 Adapter + 独立 PostgreSQL；不调用 provider |
 | 金额与旧模块责任保持 | Native、C1、B0、积分、购买、RETURN、Commerce 模块、Delivery resolution、当前 API 合并检查 | **145 passed、2 skipped，11 个文件**。其中旧 Delivery migration/recovery drill 的 2 项仅允许 #73 专属资源，按原有保护条件跳过；未改变或访问该资源 |
 | 中途失败不产生半笔账 | 结果事务最后一步触发器失败、关单后本地提交故障、入账后执行标记失败、重复 Worker/查单/通知竞争 | Passed；前两类保留义务并恢复，后一类重放 C1 不重复记分。连接重建通过，不声称做了 OS/磁盘故障测试 |
 | 取消/过期不假关闭 | 未发送本地取消；已发出取消后 ORDER_NOT_EXIST、迟到 QR/SUCCESS；支付到期后查关单 | Passed；容量只随 C1 到账或认证关闭释放，旧二维码不能重新出现 |
@@ -304,7 +329,7 @@ N1 待实施的最小判别证据：
 
 ## N2 客户 API 与受控桌面旅程（2026-09-09）
 
-Scope: #83 的线性客户接线片；普通 API 始终无商户配置，测试宿主明确注入合成签名渠道。全部数据为本地合成数据，不含用户提供的开票资料、真实商户 key 或真实付款。实现入口与当前行为由 [Recharge spec](../../specs/recharge/spec.md)、实际 controller/runtime 及生成 OpenAPI 持有。
+Scope: #83 的线性客户接线片；普通 API 始终无商户配置，测试宿主明确注入合成签名渠道。全部数据为本地合成数据，不含用户提供的开票资料、真实商户 key 或真实付款。实现入口与当前行为由 [Recharge spec](../../../specs/recharge/spec.md)、实际 controller/runtime 及生成 OpenAPI 持有。
 
 | Claim | Evidence | Result / limit |
 | --- | --- | --- |
@@ -326,7 +351,7 @@ Author review separates scope fidelity, engineering boundaries and evidence: no 
 
 ## N3 常驻 Worker 与真实子进程恢复（2026-09-09）
 
-基线：#84@89f0dbd，线性上层 N3；本片只增加 Recharge 独立 Nest 常驻装配和调度器，N1 两个扫描方法增加可选停止信号。无 schema/公开 HTTP/生成合同、Commerce/RETURN、通用/评测 Worker、环境密钥或生产启用改动。当前生命周期已收束至 [Recharge spec](../../specs/recharge/spec.md)和实际 worker/module。
+基线：#84@89f0dbd，线性上层 N3；本片只增加 Recharge 独立 Nest 常驻装配和调度器，N1 两个扫描方法增加可选停止信号。无 schema/公开 HTTP/生成合同、Commerce/RETURN、通用/评测 Worker、环境密钥或生产启用改动。当前生命周期已收束至 [Recharge spec](../../../specs/recharge/spec.md)和实际 worker/module。
 
 | Claim | Evidence | Result / limit |
 | --- | --- | --- |
@@ -362,7 +387,7 @@ Database/process verification uses localhost55432 and the named N4 database (CI 
 
 Upgrade raw synthetic snapshots and browser server state are retained locally under `artifacts/issue77-n4/`; they contain no merchant keys. The reproducible process/financial counterexamples are committed tests. The browser fixture now also accepts its explicitly named N4 database, refuses non-empty seed data and uses the real optional notification Worker. The old N2 test path keeps its original driver. Temporary parent-source and migration-config files were removed from executable source after the upgrade rehearsal.
 
-Canonical owners for the resulting branch behavior are [Recharge](../../specs/recharge/spec.md), [Notification](../../specs/notification/spec.md), the C1 repository, private delivery repository and Notification handler. O1 operational recovery/reconciliation and real-money/production gates remain open; notifications are in-product only, with no external email/SMS or invoices.
+Canonical owners for the resulting branch behavior are [Recharge](../../../specs/recharge/spec.md), [Notification](../../../specs/notification/spec.md), the C1 repository, private delivery repository and Notification handler. O1 operational recovery/reconciliation and real-money/production gates remain open; notifications are in-product only, with no external email/SMS or invoices.
 
 Final frontend review corrected one reachable retry gap: a failed notice could move off the first page after a new SSE arrival, making retry silently refresh instead of reopen. The controller now retains the failed ID, repeats the account-fenced mark-read and navigates using that response's target. The added first-page-drift counterexample passes: final notification suites26/26, Web typecheck passed. Exact head87ac9b7 full CI subsequently passed all176 Web tests and633 backend tests, with2 existing delivery-only environment-gated tests skipped; these skips are not N4 evidence.
 

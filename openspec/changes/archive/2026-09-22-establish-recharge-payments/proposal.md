@@ -1,6 +1,12 @@
 # Change: Establish reliable recharge and web payments
 
-- Status: A0/B0/C1, N1–N4, desktop customer/API/Worker composition and the internal-pilot activation are implemented. Real ¥1 WeChat Native and Alipay PC payments have converged through authenticated public callbacks, once-only funded credit and customer notices. H5, reconciliation and ambiguous no-submit/expiry handling remain unfinished. The whole Change remains active.
+- Status: Completed for the protected desktop-payment pilot. A0/B0/C1,
+  N1–N4, administrator lookup, resident API/Worker/callback composition and
+  both desktop channels are implemented. Production evidence now contains
+  three successful ¥1 recharges (one Alipay PC and two WeChat Native), three
+  canonical payment observations/receipts and 30 funded points. Public desktop
+  operation continues under #157; mobile Web continues under #158. This Change
+  is archived after current-spec and evidence reconciliation.
 - Issue: [#77](https://github.com/ZETAVI/GEOEval/issues/77)
 - Owner: ZETAVI
 - Lane/class: product delivery / architectural; Critical money boundary
@@ -23,18 +29,24 @@ Customers need a reliable account-recharge path before paying points for publish
 
 ## Scope
 
-In: Recharge lifecycle and ports; bounded Commerce points extraction; durable authenticated notification acceptance and active query/close; once-only funded credit; PC Native, Alipay PC/mobile website payments and external-browser H5; operational reconciliation and recovery needed for activation.
+In: Recharge lifecycle and ports; bounded Commerce points extraction; durable authenticated notification acceptance and active query/close; once-only funded credit; WeChat Native and Alipay PC desktop journeys; bounded recovery, administrator read-only lookup and customer notification for the protected pilot.
 
-Out: changing publication fulfilment/point-return semantics; treating point returns as cash refunds; JSAPI, aggregate acquiring, commissions, tax integration, a general payment platform or full application deployment. A minimal static public introduction is included in website-payment preparation. Real money and production enablement retain named-environment and financial controls.
+Out after the accepted scope decision: public desktop operational activation,
+T+1 reconciliation and ambiguous no-submit/expiry terminalization (#157);
+Alipay WAP, WeChat H5 and mobile-browser acceptance (#158); JSAPI, aggregate
+acquiring, commissions, tax integration and a general payment platform.
 
 ## Current owners and reconciliation
 
-- [Recharge](../../specs/recharge/spec.md) owns accepted customer orders, Native recovery, worker lifecycle, explicit activation and post-settlement delivery obligations; executable ports and schema own exact interfaces and constraints.
-- [Publishing Commerce](../../specs/publishing-commerce/spec.md) owns PointAccount/PointChange, origin allocation, purchase and atomic recharge/return writes. [Publication Delivery](../../specs/publication-delivery/spec.md) owns fulfilment and return eligibility.
-- [Notification](../../specs/notification/spec.md) owns materialized customer notices, read state and account-safe navigation. Identity remains the session/role/CSRF authority.
-- [Product definition](../../specs/product-definition/spec.md) owns product meaning and future invoice rules; [ADR 0005](../../../docs/architecture/adr/0005-atomic-publishing-purchase.md) owns the existing purchase transaction rationale.
+- [Recharge](../../../specs/recharge/spec.md) owns accepted customer orders, Native recovery, worker lifecycle, explicit activation and post-settlement delivery obligations; executable ports and schema own exact interfaces and constraints.
+- [Publishing Commerce](../../../specs/publishing-commerce/spec.md) owns PointAccount/PointChange, origin allocation, purchase and atomic recharge/return writes. [Publication Delivery](../../../specs/publication-delivery/spec.md) owns fulfilment and return eligibility.
+- [Notification](../../../specs/notification/spec.md) owns materialized customer notices, read state and account-safe navigation. Identity remains the session/role/CSRF authority.
+- [Product definition](../../../specs/product-definition/spec.md) owns product meaning and future invoice rules; [ADR 0005](../../../../docs/architecture/adr/0005-atomic-publishing-purchase.md) owns the existing purchase transaction rationale.
 
-Documentation impact: update existing owners and retire obsolete execution summaries in place. The detailed design retains historical slice boundaries explicitly; exact implementation is not duplicated into a new design document. Archive the Change only when its remaining acceptance and workspace exit are complete.
+Documentation impact: accepted Recharge and Commerce behavior is reconciled into
+their current specs. Detailed design and historical slice evidence remain in the
+archived Change; #157 and #158 own all later acceptance rather than keeping this
+completed parent as a mutable roadmap.
 
 ## Acceptance
 
@@ -42,9 +54,9 @@ Documentation impact: update existing owners and retire obsolete execution summa
 - [x] Official signature/AES vectors, protocol tamper cases, database constraints, concurrent idempotency, durable receipt/dispatch recovery and atomic credit have bounded evidence.
 - [x] Customer API, order history, Native QR and explicit publishing return have controlled HTTP/browser evidence.
 - [x] Resident worker process recovery and durable account-safe customer notices have focused, process and browser evidence.
-- [ ] H5 implementation and named iOS/Android external-browser journeys.
+- [ ] Transferred to #158: H5/WAP implementation and named iOS/Android external-browser journeys.
 - [x] Administrator read-only lookup and bounded transient recovery.
-- [ ] Reconciliation, maintained amount/support policies and real-environment configuration.
+- [ ] Transferred to #157: reconciliation, ambiguous expiry handling and maintained public-operation policies.
 - [x] Dual-provider host composition and protected WeChat configuration.
 - [x] Controlled Native merchant verification, public callback and real-funds acceptance for the desktop internal pilot.
 - [x] Required desktop merchant products, bounded ¥1 financial tests, real-channel/funds verification and separately authorized internal-pilot activation.
@@ -55,6 +67,9 @@ The [integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomm
 
 Earlier implementation and shared-writer windows remain evidenced by their PRs and the [N4 decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5611948972). That window has been returned. The [R1 execution checkpoint](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5630151311) records the refreshed bounded window; M4 confirmed no overlapping Recharge/schema/UI writes. No other task worktree is modified.
 
-Workspace exit: retain the #77 workspace and local research/recovery evidence. PRs and the Issue own live merge, branch and cleanup state. The Change remains open for its unfinished acceptance rather than serving as a second mutable merge ledger.
+Workspace exit: the final reconciliation branch is removed after integration.
+Protected merchant material and production recovery evidence remain in their
+host-owned locations; no local credential copy is part of the archived Change.
+Issues #157 and #158 are the only continuation owners.
 
 Remaining design, evidence and sequence: [design](design.md), [review](architecture-review.md), [source brief](source-brief.md), [verification](verification.md), [tasks](tasks.md).
