@@ -73,6 +73,11 @@ registration at approximately 1,000–2,000 SMS messages per month.
   credentials when the hosting surface supports them; the current application
   configuration accepts a protected AccessKey pair and must never persist it in
   Git, Issues, logs or command output.
+- When the production egress is fixed, constrain the same two actions with the
+  RAM policy `IpAddress` condition and `acs:SourceIp`, then prove an allowed and
+  denied source. The condition is policy state, not a property bound directly
+  to an AccessKey, and must not be guessed before the deployment route is
+  stable.
 
 ## Primary sources
 
@@ -80,6 +85,8 @@ registration at approximately 1,000–2,000 SMS messages per month.
 - [CAPTCHA Web/H5 V3 integration](https://help.aliyun.com/zh/captcha/captcha2-0/user-guide/new-architecture-for-web-and-h5-client-access)
 - [CAPTCHA server verification](https://help.aliyun.com/zh/captcha/captcha2-0/user-guide/server-access)
 - [CAPTCHA RAM minimum authorization](https://help.aliyun.com/zh/captcha/captcha2-0/user-guide/authorize-a-ram-user-to-access-alibaba-cloud-captcha)
+- [RAM policy elements and `acs:SourceIp`](https://help.aliyun.com/zh/ram/policy-elements)
+- [Restrict RAM access by source IP](https://help.aliyun.com/zh/ram/access-alibaba-cloud-resources-by-using-a-specific-ip-address-or-cidr-block)
 - [SMS TypeScript/Node.js SDK](https://help.aliyun.com/zh/sms/developer-reference/using-typescript-openapi-example)
 - [SendSms API](https://help.aliyun.com/zh/sms/developer-reference/api-dysmsapi-2017-05-25-sendsms)
 - [SMS custom minimum authorization](https://help.aliyun.com/zh/sms/custom-permission-policy-reference)

@@ -66,10 +66,11 @@ Before opening the switch:
 
    Do not substitute the product-wide `AliyunYundunAFSFullAccess` or
    `AliyunDysmsFullAccess` policies. Record the custom policy name/version and
-   RAM identity, never its keys. Bind a permanent AccessKey to the named
-   production egress IP only after that topology is stable; a separately
-   approved local test credential must be short-lived and revoked or rotated
-   after the test.
+   RAM identity, never its keys. After the production egress is stable, add an
+   `IpAddress` condition on `acs:SourceIp` to these policy actions and verify
+   both the allowed egress and an outside source; this restriction belongs to
+   the RAM policy, not the AccessKey itself. A separately approved local test
+   credential must be short-lived and revoked or rotated after the test.
 
 2. Confirm the backend and Web use the same approved mainland Web/H5 scene. In
    test mode exercise “invisible pass”, “invisible deny + second challenge pass”
