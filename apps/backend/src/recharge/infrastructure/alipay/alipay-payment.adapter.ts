@@ -77,6 +77,14 @@ function endpointUrl(value: string): string {
   );
   return url.href;
 }
+function withCashierFallback(html: string): string {
+  const closingForms = html.match(/<\/form\s*>/giu) ?? [];
+  requireValue(closingForms.length === 1, "INVALID_INPUT");
+  return html.replace(
+    /<\/form\s*>/iu,
+    '<p>正在前往支付宝官方收银台…</p><button type="submit">继续前往支付宝</button></form>',
+  );
+}
 function failure<T>(
   error: unknown,
   kind: "INVALID_INPUT" | "INVALID_NOTIFICATION" | "UNRESOLVED",
@@ -284,20 +292,22 @@ export class AlipayPaymentAdapter {
           /^[\p{L}\p{N} _.,，。-]{1,256}$/u.test(input.description),
         "INVALID_INPUT",
       );
-      const html = this.#sdk.pageExecute("alipay.trade.page.pay", "POST", {
-        timestamp: shanghaiDate(now),
-        notifyUrl: this.#notifyUrl,
-        returnUrl: this.#returnUrl,
-        bizContent: {
-          out_trade_no: o.merchantOrderNo,
-          total_amount: amountYuan(o.amountFen),
-          subject: input.description,
-          product_code: "FAST_INSTANT_TRADE_PAY",
-          qr_pay_mode: "2",
-          integration_type: "PCWEB",
-          time_expire: shanghaiDate(expiry),
-        },
-      });
+      const html = withCashierFallback(
+        this.#sdk.pageExecute("alipay.trade.page.pay", "POST", {
+          timestamp: shanghaiDate(now),
+          notifyUrl: this.#notifyUrl,
+          returnUrl: this.#returnUrl,
+          bizContent: {
+            out_trade_no: o.merchantOrderNo,
+            total_amount: amountYuan(o.amountFen),
+            subject: input.description,
+            product_code: "FAST_INSTANT_TRADE_PAY",
+            qr_pay_mode: "2",
+            integration_type: "PCWEB",
+            time_expire: shanghaiDate(expiry),
+          },
+        }),
+      );
       requireValue(html.length <= 16384, "INVALID_INPUT");
       return {
         ok: true,
