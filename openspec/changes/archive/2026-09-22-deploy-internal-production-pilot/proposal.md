@@ -1,5 +1,14 @@
 # Deploy the internal production pilot
 
+- Status: Completed. The independent host runs the accepted application under
+  an outer Basic Auth gate with real Alibaba CAPTCHA/SMS inside, both desktop
+  payment channels, bounded systemd services, recoverable PostgreSQL data and
+  an immutable release. Public authentication proceeds under #156; public
+  desktop payment operations proceed under #157.
+- Issue: [#141](https://github.com/ZETAVI/GEOEval/issues/141)
+- Owner: ZETAVI
+- Lane/class: release / architectural; shared-host production boundary
+
 ## Problem
 
 `app.geohdp.com` currently exposes only the two provider callback paths. The

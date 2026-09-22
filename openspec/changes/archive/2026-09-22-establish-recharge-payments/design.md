@@ -2,7 +2,18 @@
 
 方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0/C1 and N1–N4 are implemented. The protected internal pilot now runs the authenticated customer API/history, resident recovery Worker, post-settlement notices and both desktop cashiers. One real ¥1 WeChat Native payment and two real ¥1 Alipay PC payments passed through public callbacks and once-only funded credit. H5, reconciliation and ambiguous no-submit/expiry handling remain proposed. Current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims.
+Status: completed for the protected desktop-payment pilot. A0/B0/C1 and
+N1–N4 are implemented; the authenticated customer API/history, resident
+recovery Worker, post-settlement notices and both desktop cashiers run on the
+independent host. Its current database contains two successful ¥1 WeChat Native
+payments and one successful ¥1 Alipay PC payment through public callbacks and
+once-only funded credit. Public operations, reconciliation and ambiguous
+no-submit/expiry handling continue under #157; mobile Web continues under #158.
+Current semantics are reconciled into the [Recharge spec](../../../specs/recharge/spec.md)
+and [Publishing Commerce spec](../../../specs/publishing-commerce/spec.md). Control:
+[proposal](proposal.md); sequence and evidence: [tasks](tasks.md),
+[verification](verification.md). Earlier slice sections below are historical
+implementation boundaries, not current activation claims.
 
 已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
@@ -21,7 +32,7 @@ Publishing Commerce 继续拥有积分账户和追加式积分流水，并向 Re
 
 ## 2. 当前项目事实与不变边界
 
-以下保留设计起点 `main@bcb81db5f567c5f0c3bced0c57df7b3dd8b83aa6` 的历史边界。当前已实现行为以本文首段链接的 Recharge、Commerce 和 Notification 规范及源码为准；真实充值仍未激活：
+以下保留设计起点 `main@bcb81db5f567c5f0c3bced0c57df7b3dd8b83aa6` 的历史边界。当前已实现行为以本文首段链接的 Recharge、Commerce 和 Notification 规范及源码为准；下述“真实充值未激活”只描述当时起点，不代表当前内部 Demo 状态：
 
 - 客户充值人民币整数，按 `1 元 = 10 积分`增加 funded 积分；只有确认支付成功才入账；
 - 客户可见充值状态是 **待支付 / 确认中 / 充值成功 / 已关闭**；取消、失败和过期不入账；
@@ -206,7 +217,7 @@ apps/backend/src/recharge/
 
 ### 6.1 Provider 端口
 
-A0 已实现的业务接口与类型由 [payment-gateway.ts](../../../apps/backend/src/recharge/application/payment-gateway.ts)持有，不在这里复制另一份签名。PaymentGateway 提供 Native initiate/query/close；PaymentNotificationVerifier 是独立协议入口，接受原始 Buffer 与未合并的头部值列表。WechatPayGateway 不依赖数据库或应用装配。
+A0 已实现的业务接口与类型由 [payment-gateway.ts](../../../../apps/backend/src/recharge/application/payment-gateway.ts)持有，不在这里复制另一份签名。PaymentGateway 提供 Native initiate/query/close；PaymentNotificationVerifier 是独立协议入口，接受原始 Buffer 与未合并的头部值列表。WechatPayGateway 不依赖数据库或应用装配。
 
 查询核对调用前复制的冻结 merchant/app/order/amount；通知返回原有渠道身份，允许后续 inbox 将未知/错配订单作为差异处理，不能直接入账。关单结果与支付事实分开，只有对应调用的已验签空 204 形成 CLOSE_ACKNOWLEDGED。QR 动作返回原订单支付期限，不承诺每次调用都获得新的二维码有效期。
 
@@ -214,7 +225,7 @@ A0 已实现的业务接口与类型由 [payment-gateway.ts](../../../apps/backe
 
 ### 6.2 积分写入端口与事务责任
 
-C1 已实现的应用合同由 [recharge-order.ts](../../../apps/backend/src/recharge/domain/recharge-order.ts)与 [RechargeCoreService](../../../apps/backend/src/recharge/application/recharge-core.service.ts)持有：创建、本人读取、UNSENT 取消、通知及已认证成功查单的应用。返回业务结果，不返回 Prisma client；当前应用未注册。可信关单与调度由本分支的 N1 内部 runtime 持有，尚未注册到当前 API/Worker。
+C1 已实现的应用合同由 [recharge-order.ts](../../../../apps/backend/src/recharge/domain/recharge-order.ts)与 [RechargeCoreService](../../../../apps/backend/src/recharge/application/recharge-core.service.ts)持有：创建、本人读取、UNSENT 取消、通知及已认证成功查单的应用。返回业务结果，不返回 Prisma client；当前应用未注册。可信关单与调度由本分支的 N1 内部 runtime 持有，尚未注册到当前 API/Worker。
 
 | 入口 | 责任和前置事实 | 同一事务的效果 |
 | --- | --- | --- |
@@ -322,7 +333,7 @@ stateDiagram-v2
 
 ### 9.1 创建与下单
 
-以下后端恢复合同已在 [Native runtime](../../../apps/backend/src/recharge/native-recovery.runtime.ts)、[应用端口](../../../apps/backend/src/recharge/application/native-recovery.ts)、[调度服务](../../../apps/backend/src/recharge/application/native-recovery.service.ts)与 [持久仓储](../../../apps/backend/src/recharge/infrastructure/postgres-native-recovery.repository.ts)实现。第 1 项的实际 HTTP 路由与定时 Worker 装配仍是下一片；当前只接受宿主显式构造和有界调用，不读环境凭据、不自动启动。
+以下后端恢复合同已在 [Native runtime](../../../../apps/backend/src/recharge/native-recovery.runtime.ts)、[应用端口](../../../../apps/backend/src/recharge/application/native-recovery.ts)、[调度服务](../../../../apps/backend/src/recharge/application/native-recovery.service.ts)与 [持久仓储](../../../../apps/backend/src/recharge/infrastructure/postgres-native-recovery.repository.ts)实现。第 1 项的实际 HTTP 路由与定时 Worker 装配仍是下一片；当前只接受宿主显式构造和有界调用，不读环境凭据、不自动启动。
 
 1. 客户创建请求只提交金额、方式和幂等键。短事务创建/恢复本地订单并预留容量；新单的首次 due 待办与订单同事务提交，HTTP 随后返回本地结果，不等待渠道。唤醒丢失或 API 在响应前退出后，Worker 仍可重扫已提交订单；同键重试先恢复已有结果，不重复冻结容量。
 2. 第一次发起前冻结 `description`、`notify_url` 与已有商户/AppID/单号/金额/支付截止时间；订单不随配置更新改参数。保留显式凭证定位能力用于旧商户义务；密钥轮换允许替换认证材料，不改变原请求的业务参数。
@@ -437,7 +448,7 @@ flowchart LR
 
 这里的“支付方式”是客户选择的微信/支付宝，“服务商/商户配置”是后端冻结的实际收单与身份边界，“动作”才是 QR_CODE 或 REDIRECT。三者不能互相替代；带微信标识的第三方页面不会自动变成微信官方接口。继续采用第 9 节的订单和 attempt 所有权，不另建同义钱包、收银订单总表或通用支付平台。
 
-当前执行端口 [PaymentGateway](../../../apps/backend/src/recharge/application/payment-gateway.ts) 只实现直连 WECHAT/CNY/NATIVE 与 QR_CODE；虽然下列候选 API 留出了动作分支，**现有代码并未实现通用托管服务商**。托管接入必须先取得对应正式协议与商户能力，再评审身份、通知/查单证明、交易唯一性、金额币种、关单、账单和异常恢复；不能只换 URL 或把第三方通知伪装成微信 APIv3 事实。C1 的账务事务可复用，其付款事实入口按真实渠道合同适配。
+当前执行端口 [PaymentGateway](../../../../apps/backend/src/recharge/application/payment-gateway.ts) 只实现直连 WECHAT/CNY/NATIVE 与 QR_CODE；虽然下列候选 API 留出了动作分支，**现有代码并未实现通用托管服务商**。托管接入必须先取得对应正式协议与商户能力，再评审身份、通知/查单证明、交易唯一性、金额币种、关单、账单和异常恢复；不能只换 URL 或把第三方通知伪装成微信 APIv3 事实。C1 的账务事务可复用，其付款事实入口按真实渠道合同适配。
 
 进入客户页面实施前，收束以下边界：
 
@@ -480,7 +491,7 @@ flowchart LR
 
 ### 11.1a 可独立验证的 Native 页面切片
 
-已实现边界由 [controller](../../../apps/web/app/recharges/native-checkout-controller.ts) 与 [React 组件](../../../apps/web/app/recharges/native-checkout.tsx)持有，21 项行为回归见 [测试](../../../apps/web/test/native-checkout.spec.tsx)。实现证据和未接通部分统一记录在 verification，不把测试宿主当作客户支付页面。
+已实现边界由 [controller](../../../../apps/web/app/recharges/native-checkout-controller.ts) 与 [React 组件](../../../../apps/web/app/recharges/native-checkout.tsx)持有，21 项行为回归见 [测试](../../../../apps/web/test/native-checkout.spec.tsx)。实现证据和未接通部分统一记录在 verification，不把测试宿主当作客户支付页面。
 
 本切片提供 Web 私有的 NativeCheckout 组件和单一客户端 controller。未来 API mapping 只需提供本人订单安全快照、read/verify/cancel 三个有界方法，不把 C1 内部对象直接传到页面；本片没有默认 HTTP 地址、支付路由或后台注册。快照包含服务端采样时间供展示计时，wire DTO 在共享窗口确定后映射。
 
@@ -516,7 +527,7 @@ flowchart LR
 | 可复用开票资料 / 未来开票能力 | 个人姓名+收件邮箱，或企业名+税号+收件邮箱 | 与登录/通知邮箱可不同；资料修改不倒灌历史申请；本项目不收集地址、电话、银行信息 |
 | 充值开票申请 / 未来开票能力 | 唯一 rechargeOrderId、提交时资料快照、真实已付人民币、Processing/Needs correction/Issued、补正原因与结果引用 | 成功单才可申请，一单一申请/一张电子普票；补正重提同一申请，不以客户输入/积分倒算开票额 |
 
-开票产品意义继续由 [product-definition 的 money-information 场景](../../specs/product-definition/spec.md#requirement-two-bounded-money-information-routes)与 glossary 持有：提交后锁定；运营补正或在外部开票并发邮件后上传 PDF/票号/日期，客户查看下载并收到产品内通知。首批不由系统自动发邮件、不接税务平台、不支持专票/拆合票/自助撤回重开。参照站的付款前必填跨境 Invoice 和“我的回票”提现审核，不改变这份已确认合同。本 #77 支付实现只保留成功充值/实付事实的可靠读取边界，不趁调研提前建开票、提现或报表框架。
+开票产品意义继续由 [product-definition 的 money-information 场景](../../../specs/product-definition/spec.md#requirement-two-bounded-money-information-routes)与 glossary 持有：提交后锁定；运营补正或在外部开票并发邮件后上传 PDF/票号/日期，客户查看下载并收到产品内通知。首批不由系统自动发邮件、不接税务平台、不支持专票/拆合票/自助撤回重开。参照站的付款前必填跨境 Invoice 和“我的回票”提现审核，不改变这份已确认合同。本 #77 支付实现只保留成功充值/实付事实的可靠读取边界，不趁调研提前建开票、提现或报表框架。
 
 ### 11.4 充值入口、等待与历史的具体规则
 
@@ -643,9 +654,9 @@ R1 已按用户确认方向实现并通过本地验证，当前规则已归入 R
 
 ### 14.4 O1a 管理端只读充值查询（实施收束）
 
-已按用户确认的范围实现，当前行为归入 [Recharge spec](../../specs/recharge/spec.md)，精确字段由 [管理端 DTO](../../../apps/backend/src/recharge/presentation/admin-recharge.dto.ts)与生成 OpenAPI 持有；PR #88持有实时CI/合并状态。这里保留接缝与限制，不再维护第二份字段合同。
+已按用户确认的范围实现，当前行为归入 [Recharge spec](../../../specs/recharge/spec.md)，精确字段由 [管理端 DTO](../../../../apps/backend/src/recharge/presentation/admin-recharge.dto.ts)与生成 OpenAPI 持有；PR #88持有实时CI/合并状态。这里保留接缝与限制，不再维护第二份字段合同。
 
-- [RechargeAdminModule](../../../apps/backend/src/recharge/recharge-admin.module.ts)仅装配管理员查询服务/仓储与两个GET；不依赖客户命令、Native runtime、Worker或积分writer。普通API没有商户配置仍可使用。
+- [RechargeAdminModule](../../../../apps/backend/src/recharge/recharge-admin.module.ts)仅装配管理员查询服务/仓储与两个GET；不依赖客户命令、Native runtime、Worker或积分writer。普通API没有商户配置仍可使用。
 - 仓储使用已有订单、账号、settledLedger、最近已完成QUERY和Recharge自有消息待办的最小投影。只读RepeatableRead事务使多次关系读取共用快照；实际并发结算反例见verification。付款时间、到账记录时间、查询时间和消息投递独立表达，不新增通用updatedAt或支付状态。
 - `/admin/recharges`列表及详情复用AdminSidebar、账号查找和四状态标签；分页游标绑定操作者和筛选条件。角色/预期账号由服务器核验，浏览器请求有时限和代际隔离。查询失败保留筛选，缺付款引用显示尚未确认，消息待投递不降级到账。
 - 本片没有新业务表/索引/队列、管理写命令、对账执行器或正式商户配置。仅在三个合成订单上核查查询计划，不能据此承诺大规模查询性能；后续数据量/查询条件变化时重新看计划。
@@ -706,7 +717,7 @@ R1 已按用户确认方向实现并通过本地验证，当前规则已归入 R
 
 三个本地边界已经实现：①前向schema与成功观察/本地确认时间；②表单动作持久化与既有恢复编排；③客户API、本人表单页和历史恢复。真实签名查单进一步确认了正式APPID、公私钥配对、支付宝公钥、SDK传输和查询权限，但没有创建交易。公网回调、回跳实机、真实小额和自然关闭语义仍在正式启用前独立验证。
 
-- A1a协议片已实现：实际边界与限制由 [adapter README](../../../apps/backend/src/recharge/infrastructure/alipay/README.md) 持有；临时密钥/证书、替代响应和本机HTTPS共同验证固定SDK。正式网关的无资金签名查单已通过；每次调用独立连接与取消信号，防止排队/握手时遗漏取消或中断另一笔请求。
+- A1a协议片已实现：实际边界与限制由 [adapter README](../../../../apps/backend/src/recharge/infrastructure/alipay/README.md) 持有；临时密钥/证书、替代响应和本机HTTPS共同验证固定SDK。正式网关的无资金签名查单已通过；每次调用独立连接与取消信号，防止排队/握手时遗漏取消或中断另一笔请求。
 - A1b已实现：最小schema/事实版本/本地确认时间迁移、动作持久化和统一恢复。隔离PG验证旧微信兼容、重复通知/查单一次到账、错身份/金额、可选时间缺失/后补及非成功通知不改积分。
 - A1c已实现：客户API、受保护的POST授权与独立表单页、订单历史恢复和实际渠道展示。回跳参数不入账；浏览器只读本地四种状态。公网回跳实机仍归A1d。
 - A1d：具名沙箱与商户配置、关闭专项、公网回调、真实小额与财务复核；通过后才允许正式启用。Alipay H5另片沿用核心，不把PC的qr_pay_mode/页面布局直接套到手机。
@@ -719,7 +730,7 @@ R1 已按用户确认方向实现并通过本地验证，当前规则已归入 R
 
 静态页面没有服务端依赖、表单或支付数据。它已部署在独立目录，以只匹配根域名的 Nginx 站点配置和独立HTTPS证书提供服务，不使用默认/通配站点，也不接管既有应用。首次部署可通过撤下本站配置回退，后续替换页面保留上一发布件，不触碰应用数据库。
 
-精简页面并不保证支付宝审核通过。根据实际申请页面补所需经营资料，不制造支付已开通或功能已上线的印象。用户已提供网站备案号粤ICP备11067188号-12，按阿里云广东说明页脚展示主体备案号粤ICP备11067188号及工信部链接。部署前确认域名解析和独立 HTTPS；网站可访问后用于应用/产品申请，真实回调及资金验收继续走 A1。页面与部署边界由 [public-site](../../../deploy/public-site/README.md) 持有。正式官网接管后替换，不建立并行长期维护的官网实现。
+精简页面并不保证支付宝审核通过。根据实际申请页面补所需经营资料，不制造支付已开通或功能已上线的印象。用户已提供网站备案号粤ICP备11067188号-12，按阿里云广东说明页脚展示主体备案号粤ICP备11067188号及工信部链接。部署前确认域名解析和独立 HTTPS；网站可访问后用于应用/产品申请，真实回调及资金验收继续走 A1。页面与部署边界由 [public-site](../../../../deploy/public-site/README.md) 持有。正式官网接管后替换，不建立并行长期维护的官网实现。
 
 ## 15. 失败与恢复矩阵
 
@@ -845,7 +856,7 @@ Controller 只在通知 handler 豁免 session/CSRF，使用 rawBody 与原始�
 
 [用户批准](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5587176110)及 [#73 窗口](https://github.com/ZETAVI/GEOEval/issues/73#issuecomment-5587081614)覆盖本片。余额/流水/预留规则仍归 Commerce，订单/渠道匹配/receipt 处理归 Recharge；#73 不并发改共享账务文件，后续退点消费同一规则。当前绑定函数无需导入 HTTP-facing PointAccountService，也未新增通用钱包/UnitOfWork。
 
-执行契约的唯一实现位置：[容量检查](../../../apps/backend/src/publishing-commerce/domain/point-account.ts)、[事务绑定](../../../apps/backend/src/publishing-commerce/infrastructure/recharge-points-access.ts)、[充值 repository](../../../apps/backend/src/recharge/infrastructure/postgres-recharge.repository.ts)、[C1 migration](../../../apps/backend/prisma/migrations/20260908180100_atomic_recharge_core/migration.sql)。数据库行级 CHECK 保护总容量，延迟约束触发器核对 reservation 明细/汇总和订单/账本/支付事实的最终事务图；旧 actor/key 非空语义被保留。新 enum 在前一独立 migration 提交后再使用。
+执行契约的唯一实现位置：[容量检查](../../../../apps/backend/src/publishing-commerce/domain/point-account.ts)、[事务绑定](../../../../apps/backend/src/publishing-commerce/infrastructure/recharge-points-access.ts)、[充值 repository](../../../../apps/backend/src/recharge/infrastructure/postgres-recharge.repository.ts)、[C1 migration](../../../../apps/backend/prisma/migrations/20260908180100_atomic_recharge_core/migration.sql)。数据库行级 CHECK 保护总容量，延迟约束触发器核对 reservation 明细/汇总和订单/账本/支付事实的最终事务图；旧 actor/key 非空语义被保留。新 enum 在前一独立 migration 提交后再使用。
 
 QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字段 profile；查询没有 notificationId，不补造缺少的付款人金额/币种。观察不可改写，已确认 ledger/终态不可反向改写。可信差异使非终态进入 Confirming 并保存 reviewReason，Closed/Successful 保留原终态及新增差异；不自动处理已关闭后迟到资金。
 
@@ -905,7 +916,7 @@ QUERY 与 NOTIFICATION 共享成功支付事实表，但保留各自的真实字
 - **数据库约束**：待办身份/事件时间不可改，必须关联已成功并有 RECHARGE 流水的订单；已送达单向推进。失败分类不能写金融 reviewReason。新增 enum只增值；迁移不在同一事务使用新增值、不补造历史通知。
 - **验收**：成功事务中新待办失败回滚；重复/并发只有一份待办和消息；通知失败资金不变且后项推进；物化后ACK前强杀再启动、已读不重置；身份冲突保留待核查；默认不开通、旧数据升级不变、评测通知兼容；新旧账户/忽略abort的迟到响应/SSE断开/直接订单跳转真实HTTP与浏览器。
 
-前置及实现后架构复核已完成；没有需要扩展 Commerce 或建设通用事件平台的依据。共享写入遵循主负责后端/schema/generated、前端执行者负责手写 client/通知组件与自有测试。实际接口与规则归 [Recharge spec](../../specs/recharge/spec.md)、[Notification spec](../../specs/notification/spec.md)及其实现；验证与浏览器复验限制归 [verification](verification.md)。
+前置及实现后架构复核已完成；没有需要扩展 Commerce 或建设通用事件平台的依据。共享写入遵循主负责后端/schema/generated、前端执行者负责手写 client/通知组件与自有测试。实际接口与规则归 [Recharge spec](../../../specs/recharge/spec.md)、[Notification spec](../../../specs/notification/spec.md)及其实现；验证与浏览器复验限制归 [verification](verification.md)。
 
 ## W2 公网回调最小宿主实施卡
 

@@ -1,5 +1,16 @@
 # Tasks
 
+## Closeout disposition (2026-09-22)
+
+The protected desktop-payment outcome is complete. Remaining unchecked items
+below are retained as historical scope markers and transferred as follows:
+
+- #157 owns authenticated terminalization for no-submit/expiry/refund cases,
+  T+1 reconciliation, public-operation policy and the public payment Gate.
+- #158 owns Alipay WAP, WeChat H5 and named iOS/Android browser acceptance.
+- Completed WeChat prepay/close and real-payment evidence, the resident Worker
+  activation, and the production host evidence are recorded in verification.
+
 Owner #77. A0/B0/C1, publication return, N1–N4, R1, O1a, dual desktop channels, internal application deployment and the independently owned recharge-invoice slice are accepted on `main@bb9e7cc`. The protected internal pilot has verified one real ¥1 WeChat Native payment and two real ¥1 Alipay PC payments through public callbacks, once-only 10-point credit and delivered notices. H5, reconciliation and ambiguous no-submit/expiry handling remain open.
 
 ## Remaining work and actual dependencies
@@ -59,10 +70,10 @@ Current planning: R1, O1a and both desktop channels are merged and active in the
 - [x] Complete the simple static page with the supplied ICP text and official link, omitting public company/telephone text, then deploy through an isolated domain/directory and HTTPS configuration; verify this site and existing sites separately. This site does not claim the application is deployed.
 - [x] Confirm application identity/binding, RSA2 public-key mode, PC product status and key custody using administrator receipts. H5 remains a later product/application check.
 - [x] Fix the official 4.14.0 SDK baseline, pageExecute POST plus v3 query/close, and minimal channel/fact/action seams; record concrete source/SQL incompatibilities and explicit unresolved closure activation gate in design15A. This is a design result, not protocol runtime acceptance.
-- [ ] Before automatic closure/activation, prove no-browser-submit, expired form replay, natural expiry, lost close response and fully refunded query semantics with named sandbox/merchant or official support evidence; do not release capacity from an unsigned error, missing field or mere absence.
+- [ ] Transferred to #157: prove no-browser-submit, expired replay, natural expiry, lost close response and fully refunded query semantics before automatic closure.
 - [x] A1a protocol slice: implement and verify the released SDK adapter with ephemeral RSA keys/certificates and substituted HTTP responses: request signatures, signed success, unsigned HTTP400 diagnostics, one-pass decoding, optional metadata, exact amounts and POST output. No runtime assembly or actual provider call.
 - [x] Bound the actual SDK transport and verify local HTTPS: exact origin/path, redirects, response size/encoding, certificate headers, TLS/response deadline, concurrent cancellation and idempotent disposal. This does not count as official sandbox acceptance.
-- [ ] Official sandbox: sign in to the developer sandbox, verify its app/seller/signing configuration without mixing production credentials; then exercise small simulated orders for payment/query/close/expiry. Public notification and integrated credit remain separate acceptance.
+- [ ] Transferred to #157 when discriminating: use official sandbox or named merchant/support evidence without mixing production credentials.
 - [x] A1b preparation: emit V2 monetary identity only for authenticated Alipay success from both query and notification, retaining original optional metadata/proof and leaving the WeChat V1 serializer unchanged. Verify metadata-only variations, changed money/transaction/order identity and non-success exclusion with real SDK signatures. This is not the persistence migration or settlement acceptance.
 - [x] A1b/A1c: perform the versioned facts/proof/notification-ID/confirmation-time migration and persisted cashier action, then authenticated customer handoff/return, preserving WeChat semantics and one settlement authority.
 - [x] Implement PC hosted-page action, authenticated notification/query/close, explicit API/Worker host loading and durable same-order recovery; preserve old WeChat orders and once-only Commerce credit. No generic payment orchestration rewrite.
@@ -70,8 +81,8 @@ Current planning: R1, O1a and both desktop channels are merged and active in the
 - [x] Exercise one minimum real payment through the public callback: official cashier accepted ¥1, RSA2 notification produced one authenticated observation/receipt, the named order settled once to 10 funded points, its reservation was consumed and one in-product success notice was delivered. No customer API or resident Worker was enabled.
 - [x] Correct the production Prisma/PostgreSQL timezone boundary so absolute instants survive an Asia/Shanghai host session, then fix all Web business-time presentation to `Asia/Shanghai`. Database transport remains UTC; customer/operator output is China Standard Time.
 - [x] Rework the recharge presentation around `⚡` selection and a separate real-renminbi order summary; keep Alipay selectable and WeChat visibly disabled, use `未支付` for customer presentation of persisted `CLOSED`, and retain copyable order/invoice context. Desktop and narrow layout were rendered locally; Web typecheck, build and full suite passed.
-- [ ] Exercise the deployed return page and the named no-submit/expired replay/natural expiry/lost-close/full-refund lifecycle with finance review. A real never-submitted form returned `ACQ.TRADE_NOT_EXIST` after expiry and remained conservatively held, proving this gate is reachable. Sandbox remains optional evidence and must not mix production credentials.
-- [ ] Extend to mobile website payment and named mobile browsers after PC acceptance; keep WeChat in-app/JSAPI and H5 sandbox limitations explicit.
+- [ ] Transferred to #157: complete no-submit/expired replay/natural expiry/lost-close/full-refund lifecycle evidence. The deployed return and successful payment journey already passed.
+- [ ] Transferred to #158: extend to mobile website payment and named mobile browsers; keep WeChat in-app/JSAPI separately scoped.
 
 ## W1: WeChat Native real-account resumption
 
@@ -85,8 +96,8 @@ Current planning: R1, O1a and both desktop channels are merged and active in the
 - [x] Create/download the merchant API certificate, WeChat Pay public key and ID, and set/store the APIv3 key in protected server files; establish role-based technical custody and rotation notes. Server evidence: `geoeval`-owned `0700` directory, four `0600` files, matching certificate/private key, matching public-key fingerprint and valid APIv3 format.
 - [x] Implement a callback-only Nest host and passive WeChat verifier. It binds loopback, mounts no full API/Identity/Worker/Redis routes, reads no merchant signing key, preserves raw bytes, and uses the existing durable inbox/ACK contract.
 - [x] Deploy the callback endpoint with HTTPS in `verify` and reject forged callbacks. The real no-funds query passed on 2026-09-17 with a signed-request-accepted 404 after selecting verified IPv4 transport; this non-2xx probe does not verify the response public key.
-- [ ] Use the normal persisted RechargeOrder/runtime path for one explicit **one-yuan** prepay-and-immediate-close probe so a lost close response remains recoverable; do not create an untracked provider order from a standalone script.
-- [ ] Switch WeChat to `live` only for a named minimum real payment; confirm QR, callback/query convergence, once-only points, customer/admin projections and finance receipt. Return to `verify` immediately if evidence is incomplete.
+- [x] Use the normal persisted RechargeOrder/runtime path for explicit **one-yuan** prepay-and-close probes; retain every attempt and reservation outcome.
+- [x] Switch WeChat to `live` for named minimum real payments and confirm QR, callback/query convergence, once-only points, customer/admin projections and finance evidence.
 
 ## W3: Callback production deployment preparation
 
@@ -106,7 +117,7 @@ Current planning: R1, O1a and both desktop channels are merged and active in the
 - [x] Add an exact `runOrder(orderId)` recovery seam so an operator probe cannot scan or advance another customer's due order; ordinary Worker batch behavior reuses the same single-order implementation.
 - [x] Add a one-shot prepay-close orchestrator and CLI that fixes the amount at 1 yuan / 10 funded points, accepts only an existing active customer account, uses the normal `RechargeOrder` and reservation, never calls the Provider gateway directly, never returns the QR, and leaves uncertain work persisted for normal recovery.
 - [x] Verify the exact-order seam, one-yuan deployment profile and orchestration against a fresh project-owned 54-migration database: 2 files / 35 tests passed; backend typecheck and build passed.
-- [ ] Select or provision one controlled production customer through the Identity boundary, then run the real 1-yuan prepay → authenticated query NOTPAY → close sequence and prove the local order closes with its reservation released and signed attempts retained.
+- [x] Select a controlled production customer through Identity, run the real 1-yuan prepay → authenticated query/close sequence and preserve closed orders, released reservations and signed attempts.
 - [x] Complete the separate 1-yuan WeChat real-payment order and prove authenticated callback convergence, exactly-once 10-point funding and one delivered customer notice before the internal-pilot activation.
 
 ## P0: Fixed inputs and reviewable contracts
@@ -177,28 +188,28 @@ Official-source design, the Adapter URI repair and the independent Web component
 - [x] Implement order + reservation + first due work in one creation transaction; dispatch only from committed work. Keep stable merchant identity, UNSENT/MAY_EXIST, cancel intent, query/close convergence, generation fences and visible unresolved obligations. Do not infer remote cancellation from a local timeout or expired lease.
 - [x] Provide explicit credential-free host construction and independent bounded order/settlement lanes; persist successful query work before C1, retry its completion marker idempotently, and defer transient failures without starving later work. Validate old-data upgrade and the existing Commerce/RETURN boundary in isolated PostgreSQL. Exact result counts live in verification and the PR checkpoint.
 - [x] N2 registers safe customer routes and explicitly configured B0/raw-body reception; N1 owns bounded durable recovery and settlement receipt rechecks. The ordinary host remains unconfigured.
-- [ ] Register the production payment Worker/merchant host only with operational policies, configured secrets and activation gates; test controls are not that host.
+- [x] Register the protected internal-pilot payment Worker/merchant host with configured secrets and explicit activation profiles; test controls remain excluded.
 - [x] Add truthful non-success query/close/dispatch-attempt recovery records when dispatch is implemented; C1 already persists authenticated successful QUERY observations without fake notification IDs.
 - [x] Build the isolated Native QR/status component and local lifecycle: bounded polling, separate expiry clocks, cancellation recovery across reload/tabs, stale-response invalidation, truthful terminal states and narrow-screen handling. All 21 focused tests and 122 Web tests pass; real browser decoding, cancellation/late-response, reload, expiry, keyboard and narrow layout verified with an explicitly synthetic source. No customer API, merchant scan or automatic purchase claim.
 - [x] Connect the component to authenticated local order APIs, history and publishing-shortage entry. Preserve one explicit amount draft and reject invalid custom input without fallback; retain same-key create recovery and truthful history scope. Restore saved selection via an account-scoped return reference, not a forged pending purchase request; reprice/reconfirm on return. Implement actual source mapping/access/CSRF tests in the shared API window.
 - [x] N4 implements durable successful-recharge notification work and Notification kind/target mapping. Crash/repeated delivery, account fencing, SSE refresh and off-page retry have evidence. Customer activation still requires explicit delivery configuration; notification failure does not reverse credited points.
 - [x] Run real HTTP and desktop browser tests with the controlled adapter: interrupted create/reload, QR, cancellation/reload, signed callback ACK before settlement, duplicate payment facts, one credit and explicit publishing return. Reuse N1 tests for missing callback/late dispatch/expired QR; do not claim new browser or real merchant evidence for those unchanged cases.
-- [ ] Before enabling the customer journey, supply approved amount/shortcut policy with its administrator maintenance entry, active-order/rate limits, deadline and usable support contact; synthetic profile values are not production policy.
-- [ ] Verify named Native merchant products, domain, secret handoff and separately approved minimum real-money test when ready.
+- [ ] Transferred to #157: approve public amount/shortcut policy, active-order/rate limits, deadline and support entry.
+- [x] Verify named Native merchant products, domain, protected secret handoff and separately approved minimum real-money tests.
 
 ## H1: Complete mobile external-browser H5
 
-- [ ] Add H5 scene/IP handling and domain-constrained redirect; preserve frozen merchant order identity and query semantics.
-- [ ] Verify iOS and Android external browsers: launch, cancel, return, missing callback, reload and duplicate submit; client hints do not credit.
-- [ ] Only after this slice passes claim PC/mobile web coverage. JSAPI remains separately scoped.
+- [ ] Transferred to #158: add H5/WAP scene handling and domain-constrained redirect while preserving frozen order identity.
+- [ ] Transferred to #158: verify iOS and Android external-browser lifecycle cases.
+- [ ] Transferred to #158: claim mobile Web coverage only after named-device acceptance; JSAPI remains separate.
 
 ## O1: Operational acceptance and controlled activation
 
-- [ ] Add/verify T+1 billing reconciliation, safe operational lookup, discrepancy ownership and bounded retries/alerts for held exposure.
-- [ ] Rehearse stop-new-orders while old inbox/query/close/credit still runs, secret rotation and compatible forward recovery. No destructive rollback of money facts.
-- [ ] Name merchant/environment/operators, minimum real amount/count/total, money disposition and financial review before any real-money test.
-- [ ] Obtain production activation authority separately; run required checks and real-environment evidence.
-- [ ] Reconcile current Recharge/Commerce specs, accepted interfaces and ADR; retire the active change only when its approved outcome and workspace exit are complete.
+- [ ] Transferred to #157: add T+1 reconciliation, discrepancy ownership and bounded alerts for held exposure.
+- [ ] Transferred to #157: rehearse stop-new-orders, secret rotation and compatible forward recovery for public operation.
+- [x] Name the internal-pilot merchant/environment/operator, approve the one-yuan amount/count boundary and record real-payment evidence.
+- [x] Obtain protected internal-pilot activation authority and run required checks and real-environment evidence.
+- [x] Reconcile accepted Recharge/Commerce behavior into current specs and retire this Change; later public/mobile outcomes are owned by #157/#158.
 
 ## N2: Authenticated customer API and controlled desktop journey
 
