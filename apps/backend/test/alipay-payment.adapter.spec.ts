@@ -157,6 +157,8 @@ describe("Alipay page signing with the published SDK", () => {
     expect(result.value).not.toHaveProperty("proof");
     const html = result.value.html;
     expect(html).toContain('method="post"');
+    expect(html).toContain('<button type="submit">继续前往支付宝</button>');
+    expect(html.match(/<\/form\s*>/giu)).toHaveLength(1);
     const decode = (s: string) =>
       s
         .replaceAll("&quot;", '"')

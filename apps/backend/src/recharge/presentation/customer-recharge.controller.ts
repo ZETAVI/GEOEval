@@ -155,7 +155,7 @@ export class CustomerRechargeController {
   @Header("Content-Type", "text/html; charset=utf-8")
   @Header(
     "Content-Security-Policy",
-    "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action https://openapi.alipay.com https://openapi-sandbox.dl.alipaydev.com; script-src 'unsafe-inline'; style-src 'unsafe-inline'",
+    "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action https://*.alipay.com https://*.alipaydev.com; script-src 'unsafe-inline'; style-src 'unsafe-inline'",
   )
   @ApiParam({ name: "id", format: "uuid" })
   cashierPage(

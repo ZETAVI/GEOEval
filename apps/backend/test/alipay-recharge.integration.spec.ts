@@ -237,11 +237,16 @@ describe("Alipay PC recharge integration", () => {
     expect(page.status).toBe(200);
     expect(page.headers.get("cache-control")).toBe("no-store");
     expect(page.headers.get("referrer-policy")).toBe("no-referrer");
-    expect(page.headers.get("content-security-policy")).toContain(
-      "form-action https://openapi.alipay.com",
-    );
+    const csp = page.headers.get("content-security-policy")!;
+    expect(
+      csp
+        .split(";")
+        .map((directive) => directive.trim())
+        .find((directive) => directive.startsWith("form-action ")),
+    ).toBe("form-action https://*.alipay.com https://*.alipaydev.com");
     const html = await page.text();
     expect(html).toContain('method="post"');
+    expect(html).toContain('<button type="submit">继续前往支付宝</button>');
     expect(html).toContain("openapi-sandbox.dl.alipaydev.com");
     expect(html).toContain(stored.merchantOrderNo);
     expect(http).not.toHaveBeenCalled();
