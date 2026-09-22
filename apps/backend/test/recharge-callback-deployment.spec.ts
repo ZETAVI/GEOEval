@@ -95,8 +95,8 @@ describe("recharge callback production deployment boundary", () => {
     expect(service).toContain(
       "Environment=NODE_OPTIONS=--max-old-space-size=64",
     );
-    expect(service).toContain("MemoryHigh=144M");
-    expect(service).toContain("MemoryMax=160M");
+    expect(service).toContain("MemoryHigh=176M");
+    expect(service).toContain("MemoryMax=192M");
     expect(service).toContain("dist/recharge-callback-main.js");
     expect(service).toContain(
       "LoadCredential=wechat_public_key.pem:/opt/geoeval/shared/secrets/wechat/wechatpay_public_key.pem",

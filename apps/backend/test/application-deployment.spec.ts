@@ -57,12 +57,16 @@ describe("full application production deployment boundary", () => {
       web: read("systemd/geoeval-web.service"),
       worker: read("systemd/geoeval-worker.service"),
       recharge: read("systemd/geoeval-recharge-worker.service"),
+      callback: read(
+        "../recharge-callback/systemd/geoeval-recharge-callback.service",
+      ),
     };
 
     expect(units.api).toContain("dist/api-main.js");
     expect(units.web).toContain("standalone/apps/web/server.js");
     expect(units.worker).toContain("dist/worker-main.js");
     expect(units.recharge).toContain("dist/recharge-worker-main.js");
+    expect(units.callback).toContain("dist/recharge-callback-main.js");
     for (const unit of Object.values(units)) {
       expect(unit).toContain("ProtectSystem=strict");
       expect(unit).toContain("ProtectProc=invisible");
@@ -80,6 +84,15 @@ describe("full application production deployment boundary", () => {
     expect(units.recharge).toContain("NODE_OPTIONS=--max-old-space-size=64");
     expect(units.recharge).toContain("MemoryHigh=160M");
     expect(units.recharge).toContain("MemoryMax=192M");
+    expect(units.callback).toContain("MemoryHigh=176M");
+    expect(units.callback).toContain("MemoryMax=192M");
+    expect(
+      Object.values(units).reduce((total, unit) => {
+        const value = unit.match(/MemoryMax=(\d+)M/)?.[1];
+        expect(value).toBeDefined();
+        return total + Number(value);
+      }, 0),
+    ).toBeLessThanOrEqual(1280);
   });
 
   it("copies payment private keys only into payment-authorized processes", () => {
