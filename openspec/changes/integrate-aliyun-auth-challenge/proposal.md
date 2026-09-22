@@ -85,7 +85,7 @@ unchanged.
   `generate` OpenAPI/client types; archive this Change after accepted behavior
   is promoted. The current Identity spec has no active Evolution marker.
 - Workspace: Issue #64 worktree on `codex/issue-64-ram-policy` from
-  `main@bb9e7cc`, following merged PR #134, owned by Issue #64,
+  `main@d099547`, following merged PR #134, owned by Issue #64,
   targeting protected `main` with `main-direct` topology.
 - Shared ownership: this Change owns Identity/CAPTCHA/SMS code and its Web
   entry path. If implementation must touch payment-owned runtime composition,

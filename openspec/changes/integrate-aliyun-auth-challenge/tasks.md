@@ -7,7 +7,7 @@
 - [x] Create the isolated
   Issue #64 worktree for the delivery branch and reuse it for the disjoint
   `codex/issue-64-ram-policy` follow-up, then rebase it onto current
-  `main@bb9e7cc` before final review.
+  `main@d099547` before final review.
 - [x] Fix current owners, shared-file boundary, documentation impact, rollback
   and smallest disconfirming evidence.
 

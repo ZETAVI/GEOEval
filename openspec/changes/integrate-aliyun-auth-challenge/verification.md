@@ -3,7 +3,7 @@
 Verification date: 2026-09-20; local integration evidence refreshed through
 2026-09-22 CST. PR #134 merged as
 `74563a42f3359a3720aa54511bf9e34d9e21b163`; PR #146 was rebased onto
-`origin/main@bb9e7cc`. This follow-up reviews the merged implementation, the
+`origin/main@d099547`. This follow-up reviews the merged implementation, the
 minimum-permission runtime boundary and one controlled full application path.
 
 PR #134 was linearly rebased from `main@6b09858` through `71136ad` to
