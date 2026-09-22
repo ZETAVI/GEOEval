@@ -5,8 +5,9 @@
 - [x] Link Issue #64, classify the Change as architectural/critical and record
   the approved CAPTCHA/SMS architecture and external activation gates.
 - [x] Create the isolated
-  `codex/issue-64-sms-challenge-delivery` worktree from
-  `main@e0dd70c` after the pre-integration linear rebases.
+  Issue #64 worktree for the delivery branch and reuse it for the disjoint
+  `codex/issue-64-ram-policy` follow-up, then rebase it onto current
+  `main@d099547` before final review.
 - [x] Fix current owners, shared-file boundary, documentation impact, rollback
   and smallest disconfirming evidence.
 
@@ -60,6 +61,15 @@
 - [x] Verify offline CAPTCHA pass/deny/replay/mismatch/unavailable budget, SMS
   accepted/rejected/unknown, configuration fail-closed, no retry, stop behavior
   and redaction.
+- [x] Complete one separately authorized local real-CAPTCHA, formal-template
+  SMS, carrier-receipt, user-entered OTP and Session flow without repeating the
+  paid send or recording authentication-capable values.
+- [ ] Validate delivery stability for the target carrier mix before public
+  activation; one successful route is reachability evidence, not a success-rate
+  claim.
+- [ ] Inject the selected production credential through the protected
+  deployment path, then rotate or revoke local test credentials under a
+  separately confirmed account operation.
 - [x] Run focused tests, typecheck, generated-contract checks and the
   task-appropriate broader suite; record skipped environment-dependent checks.
 
@@ -70,8 +80,8 @@
   marker.
 - [x] Run fixed-diff architecture and code review, then verify the final Change
   against Issue #64 acceptance.
-- [ ] Open one main-direct PR with a Partial or Final relationship matching the
-  actually completed external gates.
-- [ ] Record RAM/signature/paid-test/formal-mode/production residual gates and
+- [x] Merge PR #134 as a Partial relationship without closing Issue #64; use a
+  separate main-direct PR for the minimum-permission evidence refresh.
+- [x] Record RAM/signature/paid-test/formal-mode/production residual gates and
   the worktree exit state; archive this Change only when its accepted scope is
   reconciled.

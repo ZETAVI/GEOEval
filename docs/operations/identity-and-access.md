@@ -47,15 +47,41 @@ command output.
 Before opening the switch:
 
 1. Create a dedicated minimum-permission RAM runtime identity in a separately
-   authorized account operation. Confirm only the required CAPTCHA verification
-   and dysms:SendSms abilities; record policy names/versions, never keys.
+   authorized account operation. It needs API access only, not console login or
+   self-managed credentials. Attach one custom policy with exactly the current
+   runtime calls:
+
+   ```json
+   {
+     "Version": "1",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": ["yundun-afs:VerifyCaptcha", "dysms:SendSms"],
+         "Resource": "*"
+       }
+     ]
+   }
+   ```
+
+   Do not substitute the product-wide `AliyunYundunAFSFullAccess` or
+   `AliyunDysmsFullAccess` policies. Record the custom policy name/version and
+   RAM identity, never its keys. After the production egress is stable, add an
+   `IpAddress` condition on `acs:SourceIp` to these policy actions and verify
+   both the allowed egress and an outside source; this restriction belongs to
+   the RAM policy, not the AccessKey itself. A separately approved local test
+   credential must be short-lived and revoked or rotated after the test.
+
 2. Confirm the backend and Web use the same approved mainland Web/H5 scene. In
    test mode exercise “invisible pass”, “invisible deny + second challenge pass”
    and “both deny”; a test-mode call is still billable. Only then separately
    authorize formal mode.
 3. Confirm the visible SMS SignName and TemplateCode are approved and reported
-   for the target carriers. HDP remains unusable until it has a compliant
-   qualification path; do not substitute an unapproved name in configuration.
+   for the target carriers. Controlled validation may use the approved
+   company-qualified signature, but public activation must explicitly accept
+   that visible identity or wait for another compliant signature. HDP remains
+   unusable until it has a compliant qualification path; do not substitute an
+   unapproved name in configuration.
 4. Review the user-facing privacy notice and processor boundary for Alibaba's
    browser, IP, device and interaction-risk processing. GEOEval must not copy
    those raw observations into its own records.
