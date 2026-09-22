@@ -14,8 +14,25 @@ import type {
 
 export const IDENTITY_REPOSITORY = Symbol("IDENTITY_REPOSITORY");
 
+export type ChallengeBudgetUsage = {
+  dayKey: string;
+  dayCount: number;
+  monthKey: string;
+  monthCount: number;
+};
+
 export interface IdentityRepository {
   findAccount(accountId: string): Promise<AccountView | undefined>;
+  readChallengeBudget(input: {
+    now: Date;
+    dailyMaximumRequests: number;
+    monthlyMaximumRequests: number;
+  }): Promise<
+    ChallengeBudgetUsage & {
+      available: boolean;
+      exhaustedPeriod?: "DAY" | "MONTH";
+    }
+  >;
   issueChallenge(input: {
     acquisitionVisitToken?: string;
     existingAccountOnly?: boolean;
@@ -27,7 +44,9 @@ export interface IdentityRepository {
     resendIntervalMs: number;
     windowMs: number;
     maximumRequestsPerWindow: number;
-  }): Promise<void>;
+    dailyMaximumRequests: number;
+    monthlyMaximumRequests: number;
+  }): Promise<ChallengeBudgetUsage>;
   bootstrapAdministrator(input: {
     mobile: string;
     keyId: string;

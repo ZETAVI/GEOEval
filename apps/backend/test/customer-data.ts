@@ -173,4 +173,13 @@ export async function clearCustomerData(prisma: PrismaService): Promise<void> {
   await prisma.account.deleteMany();
   await prisma.mobileChallenge.deleteMany();
   await prisma.mobileChallengeRateLimit.deleteMany();
+  await prisma.mobileChallengeBudget.update({
+    where: { id: "GLOBAL" },
+    data: {
+      dayKey: "1970-01-01",
+      dayCount: 0,
+      monthKey: "1970-01",
+      monthCount: 0,
+    },
+  });
 }

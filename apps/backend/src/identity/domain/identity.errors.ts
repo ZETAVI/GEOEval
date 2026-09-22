@@ -27,6 +27,13 @@ export class ChallengeRateLimitError extends Error {
   }
 }
 
+export class ChallengeBudgetLimitError extends Error {
+  constructor(readonly period: "DAY" | "MONTH") {
+    super("验证码服务当前繁忙，请稍后重试");
+    this.name = "ChallengeBudgetLimitError";
+  }
+}
+
 export type IdentityBootstrapErrorCode =
   | "BOOTSTRAP_SECRET_INVALID"
   | "BOOTSTRAP_SECRET_TOO_SHORT"

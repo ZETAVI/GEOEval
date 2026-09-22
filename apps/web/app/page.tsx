@@ -79,6 +79,10 @@ export default async function Page() {
           <p>从公司整合的媒体资源中选择套餐或精准发布。</p>
         </article>
       </section>
+      <footer className="public-footer">
+        <span>互动派科技股份有限公司</span>
+        <a href="/privacy">个人信息与安全验证说明</a>
+      </footer>
     </main>
   );
 }

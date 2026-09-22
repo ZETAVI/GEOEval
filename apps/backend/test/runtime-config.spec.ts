@@ -202,6 +202,8 @@ describe("process-scoped configuration", () => {
         resendIntervalMs: 60_000,
         windowMs: 3_600_000,
         maximumRequestsPerWindow: 5,
+        dailyMaximumRequests: 100,
+        monthlyMaximumRequests: 2500,
         maximumFailedAttempts: 5,
       },
       authCleanupPolicy: {
@@ -217,6 +219,13 @@ describe("process-scoped configuration", () => {
         AUTH_CHALLENGE_WINDOW_SECONDS: "60",
       }),
     ).toThrow("must not exceed");
+    expect(() =>
+      loadApiConfig({
+        ...base,
+        AUTH_CHALLENGE_DAILY_MAX_REQUESTS: "101",
+        AUTH_CHALLENGE_MONTHLY_MAX_REQUESTS: "100",
+      }),
+    ).toThrow("AUTH_CHALLENGE_DAILY_MAX_REQUESTS");
     expect(
       loadIdentityMaintenanceConfig({
         DATABASE_URL: "postgresql://example/maintenance",

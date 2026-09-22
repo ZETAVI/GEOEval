@@ -1,6 +1,8 @@
 import { FoundationProbe } from "../probe.js";
+import { notFound } from "next/navigation.js";
 
 export default function FoundationProbePage() {
+  if (process.env.NODE_ENV === "production") notFound();
   return (
     <main className="foundation-page">
       <section className="foundation-hero" aria-labelledby="foundation-title">

@@ -27,11 +27,13 @@ import {
   sessionDigest,
 } from "../domain/identity.crypto.js";
 import {
+  ChallengeBudgetLimitError,
   ChallengeRateLimitError,
   ExistingAccountRequiredError,
 } from "../domain/identity.errors.js";
 import {
   IDENTITY_REPOSITORY,
+  type ChallengeBudgetUsage,
   type IdentityRepository,
 } from "../domain/identity.repository.js";
 import type { AccountView } from "../domain/identity.types.js";
@@ -63,6 +65,8 @@ type ChallengeRequestObservation = {
   deliveryReason: string;
   deliveryProviderRequestId: string | undefined;
   deliveryProviderReceiptId: string | undefined;
+  budgetDayCount: number | undefined;
+  budgetMonthCount: number | undefined;
 };
 
 @Injectable()
@@ -100,6 +104,8 @@ export class AuthenticationService {
       humanProviderRequestId: undefined as string | undefined,
       deliveryProviderRequestId: undefined as string | undefined,
       deliveryProviderReceiptId: undefined as string | undefined,
+      budgetDayCount: undefined as number | undefined,
+      budgetMonthCount: undefined as number | undefined,
     };
     try {
       return await this.issueChallenge(
@@ -140,6 +146,12 @@ export class AuthenticationService {
                     observation.deliveryProviderReceiptId,
                 }
               : {}),
+            ...(observation.budgetDayCount !== undefined
+              ? { budgetDayCount: String(observation.budgetDayCount) }
+              : {}),
+            ...(observation.budgetMonthCount !== undefined
+              ? { budgetMonthCount: String(observation.budgetMonthCount) }
+              : {}),
           },
         });
       }
@@ -169,6 +181,18 @@ export class AuthenticationService {
       });
     }
     const mobile = normalizeMobileForHttp(rawMobile);
+    const budget = await this.repository.readChallengeBudget({
+      now: new Date(),
+      dailyMaximumRequests:
+        this.config.authChallengePolicy.dailyMaximumRequests,
+      monthlyMaximumRequests:
+        this.config.authChallengePolicy.monthlyMaximumRequests,
+    });
+    if (!budget.available) {
+      observation.delivery = "STOPPED";
+      observation.deliveryReason = `BUDGET_${budget.exhaustedPeriod}`;
+      throw challengeBudgetUnavailable();
+    }
     const verification = await this.humanVerification.verify({
       ...(captchaVerifyParam !== undefined ? { captchaVerifyParam } : {}),
     });
@@ -216,7 +240,7 @@ export class AuthenticationService {
     );
     const code = this.challengeCodeGenerator.generate();
     try {
-      await this.repository.issueChallenge({
+      const usage = await this.repository.issueChallenge({
         existingAccountOnly,
         ...(acquisitionVisitToken !== undefined
           ? { acquisitionVisitToken }
@@ -235,8 +259,20 @@ export class AuthenticationService {
         windowMs: this.config.authChallengePolicy.windowMs,
         maximumRequestsPerWindow:
           this.config.authChallengePolicy.maximumRequestsPerWindow,
+        dailyMaximumRequests:
+          this.config.authChallengePolicy.dailyMaximumRequests,
+        monthlyMaximumRequests:
+          this.config.authChallengePolicy.monthlyMaximumRequests,
       });
+      observation.budgetDayCount = usage.dayCount;
+      observation.budgetMonthCount = usage.monthCount;
+      warnChallengeBudget(usage, this.config.authChallengePolicy);
     } catch (error) {
+      if (error instanceof ChallengeBudgetLimitError) {
+        observation.delivery = "STOPPED";
+        observation.deliveryReason = `BUDGET_${error.period}`;
+        throw challengeBudgetUnavailable();
+      }
       if (error instanceof ChallengeRateLimitError) {
         observation.delivery = "RATE_LIMITED";
         observation.deliveryReason = "MOBILE";
@@ -358,6 +394,37 @@ export class AuthenticationService {
       expiresAt: completed.expiresAt,
     };
   }
+}
+
+function challengeBudgetUnavailable(): ServiceUnavailableException {
+  return new ServiceUnavailableException({
+    code: "CHALLENGE_BUDGET_EXHAUSTED",
+    message: "暂时无法获取验证码，请稍后重试",
+  });
+}
+
+function warnChallengeBudget(
+  usage: ChallengeBudgetUsage,
+  policy: ApiConfig["authChallengePolicy"],
+): void {
+  const dailyWarning = Math.ceil(policy.dailyMaximumRequests * 0.8);
+  const monthlyWarning = Math.ceil(policy.monthlyMaximumRequests * 0.8);
+  const periods = [
+    ...(usage.dayCount === dailyWarning ? ["DAY"] : []),
+    ...(usage.monthCount === monthlyWarning ? ["MONTH"] : []),
+  ];
+  if (periods.length === 0) return;
+  process.stderr.write(
+    `${JSON.stringify({
+      level: "warn",
+      kind: "identity_challenge_budget",
+      periods,
+      dayKey: usage.dayKey,
+      dayCount: usage.dayCount,
+      monthKey: usage.monthKey,
+      monthCount: usage.monthCount,
+    })}\n`,
+  );
 }
 
 function objectBody(input: unknown): Record<string, unknown> {

@@ -366,8 +366,8 @@ shell and SHALL keep authorization on the backend.
 ### Requirement: Challenge delivery remains an adapter boundary
 
 Identity and Access SHALL own Challenge lifecycle, human-verification policy,
-code generation and abuse controls while a delivery adapter owns only message
-transport.
+aggregate and per-mobile abuse controls, code generation and Session creation
+while a delivery adapter owns only message transport.
 
 #### Scenario: Local or test authentication requests a Challenge
 
@@ -382,12 +382,35 @@ transport.
 
 - **WHEN** a Web/H5 client requests a production login or registration
   Challenge
-- **THEN** it submits one opaque freshly acquired human-verification value
+- **THEN** the edge first applies its coarse source-IP throttle
+- **AND** Identity rejects an exhausted day or month budget before purchasing a
+  human-verification call or sending SMS
+- **AND** the client submits one opaque freshly acquired formal
+  human-verification value
 - **AND** Identity verifies the value against its server-configured fixed scene
   before persisting or delivering a Challenge
+- **AND** the authoritative aggregate-budget check and Challenge persistence
+  commit atomically
 - **AND** generates one cryptographically secure six-digit code whose existing
   keyed digest is the only persisted code representation
 - **AND** client-side success alone never grants permission to send SMS.
+
+#### Scenario: Aggregate Challenge budget is exhausted
+
+- **WHEN** the Asia/Shanghai day or month has reached its configured maximum
+- **THEN** Identity creates no new Challenge and submits no SMS
+- **AND** the caller receives a generic temporary-unavailable result without
+  usage counts or provider details
+- **AND** existing Sessions and previously issued Challenges retain their
+  lifecycle.
+
+#### Scenario: Aggregate usage approaches its limit
+
+- **WHEN** a successful persisted Challenge attempt reaches the configured
+  warning threshold
+- **THEN** Identity emits one bounded operational warning with period and count
+- **AND** it contains no mobile, code, CAPTCHA value, credential or raw
+  device/behavior data.
 
 #### Scenario: Human verification is rejected
 
@@ -439,24 +462,64 @@ transport.
   CAPTCHA mode and activation retain separate external-dependency and release
   Gates.
 
+### Requirement: Public entry is protected by product authentication
+
+The public product SHALL rely on Identity authentication and role authorization
+rather than a shared outer Demo password.
+
+#### Scenario: An anonymous visitor opens the product
+
+- **WHEN** the visitor opens the homepage, entry page or authentication privacy
+  notice
+- **THEN** those pages are available without shared Basic Auth credentials
+- **AND** registration creates only the existing terminal-customer role
+- **AND** protected product APIs still independently require a valid Session and
+  role.
+
+#### Scenario: A production visitor probes non-product surfaces
+
+- **WHEN** the visitor requests Swagger or Foundation validation HTTP/Web routes
+- **THEN** those routes are not registered or return not found
+- **AND** no validation record, queue state or API catalogue is disclosed.
+
+#### Scenario: The visitor requests a verification code
+
+- **WHEN** the visitor is about to trigger CAPTCHA and SMS processing
+- **THEN** the entry presents a readily accessible notice covering processor
+  identity/contact, purpose, data categories, retention and rights path
+- **AND** it identifies Alibaba CAPTCHA/SMS processing
+- **AND** GEOEval does not persist Alibaba raw device fingerprints or behavior
+  trajectories.
+
+### Requirement: Production provider credentials are narrowly usable
+
+#### Scenario: The runtime invokes authentication providers
+
+- **WHEN** the dedicated RAM identity calls CAPTCHA or SMS from the fixed
+  production egress
+- **THEN** exactly the approved two actions are allowed
+- **AND** the same credential from an outside source is denied
+- **AND** superseded credentials are revoked after replacement verification.
+
 ## Current environment boundary
 
 The accepted implementation provides local/test deterministic Challenge
 delivery and explicit Alibaba Cloud CAPTCHA/SMS adapters with fail-closed
 production configuration, no automatic SMS retry and redacted outcome
-observation. A dedicated minimum-permission RAM identity and one controlled
-local application run have proven server-side CAPTCHA verification, SendSms
-acceptance, final carrier delivery, user-entered OTP completion and Session
-creation for the current company signature and login template on one observed
-route. That account-specific evidence proves reachability, not stable
-three-carrier delivery or production activation.
+observation. Public activation adds exact aggregate attempt budgets, narrow edge
+throttles, a pre-CAPTCHA processing notice and production omission of Swagger
+and F0 Foundation surfaces. A dedicated minimum-permission RAM identity and one
+controlled local application run have proven server-side CAPTCHA verification,
+SendSms acceptance, final carrier delivery, user-entered OTP completion and
+Session creation for the accepted `互动派科技` signature and login template on
+one observed route. That account-specific evidence proves reachability, not
+stable three-carrier delivery.
 
-The preferred public signature, formal CAPTCHA policy, privacy notice,
-production secret injection and credential rotation, trusted-proxy/IP control,
-daily/monthly cost monitoring, multi-replica degradation budget and production
-activation remain separate Gates. Those facts plus migration, Bootstrap,
-second-administrator readiness, post-activation rollback and named-environment
-deployment require separate authorization and evidence.
+Formal CAPTCHA policy, the fixed-egress RAM condition, credential rotation,
+named-environment migration/deployment and anonymous public verification remain
+release Gates until their evidence is recorded. Bootstrap, second-administrator
+readiness and post-activation rollback remain independently governed; public
+authentication does not weaken them.
 
 ## Agency service integration
 
