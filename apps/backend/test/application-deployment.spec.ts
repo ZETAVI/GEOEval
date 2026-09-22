@@ -186,14 +186,21 @@ describe("full application production deployment boundary", () => {
   it("keeps examples secret-free and explicit about production activation", () => {
     const api = read("application-api.env.example");
     const web = read("application-web.env.example");
+    const webBuild = read("application-web-build.env.example");
     const worker = read("application-worker.env.example");
     const recharge = read("application-recharge-worker.env.example");
-    const all = [api, web, worker, recharge].join("\n");
+    const all = [api, web, webBuild, worker, recharge].join("\n");
 
-    expect(api).toContain("INTERNAL_DEMO_MODE=1");
-    expect(api).toContain("AUTH_CHALLENGE_MODE=deterministic");
+    expect(api).toContain("INTERNAL_DEMO_MODE=0");
+    expect(api).toContain("AUTH_CHALLENGE_MODE=aliyun");
     expect(api).toContain("AUTH_CHALLENGE_SENDING_ENABLED=1");
-    expect(api).toContain("AUTH_HUMAN_VERIFICATION_MODE=disabled");
+    expect(api).toContain("AUTH_HUMAN_VERIFICATION_MODE=aliyun");
+    expect(api).toContain("AUTH_CAPTCHA_UNAVAILABLE_MODE=limited");
+    expect(api).toContain("AUTH_CAPTCHA_MAX_CONSECUTIVE_UNAVAILABLE=1");
+    expect(api).toContain("ALIYUN_CAPTCHA_SCENE_ID=18hnihr4");
+    expect(api).toContain("ALIYUN_SMS_SIGN_NAME=互动派科技");
+    expect(api).toContain("ALIYUN_SMS_TEMPLATE_CODE=SMS_496905143");
+    expect(api).not.toContain("AUTH_DETERMINISTIC_CODE=");
     expect(api).toContain("GEO_OPTIMIZATION_WRITER_MODE=demo");
     expect(api).toContain("STORE_LOCATION_MODE=amap");
     expect(api).toContain("RECHARGE_ALIPAY_ACTIVATION=live");
@@ -208,6 +215,12 @@ describe("full application production deployment boundary", () => {
     expect(web).toContain(
       "GEOEVAL_INTERNAL_API_BASE_URL=http://127.0.0.1:3301",
     );
+    expect(webBuild).toContain(
+      "NEXT_PUBLIC_AUTH_HUMAN_VERIFICATION_MODE=aliyun",
+    );
+    expect(webBuild).toContain("NEXT_PUBLIC_ALIYUN_CAPTCHA_PREFIX=1fz571");
+    expect(webBuild).toContain("NEXT_PUBLIC_ALIYUN_CAPTCHA_SCENE_ID=18hnihr4");
+    expect(webBuild).not.toContain("NEXT_PUBLIC_INTERNAL_DEMO_MODE=enabled");
     const valuesThatAreNotPublicIdentifiers = all
       .split("\n")
       .filter(
@@ -244,10 +257,10 @@ describe("full application production deployment boundary", () => {
     });
 
     expect(api.runtimeEnvironment).toBe("production");
-    expect(api.internalDemoMode).toBe(true);
-    expect(api.authChallengeMode).toBe("deterministic");
+    expect(api.internalDemoMode).toBe(false);
+    expect(api.authChallengeMode).toBe("aliyun");
     expect(api.authChallengeSendingEnabled).toBe(true);
-    expect(api.authHumanVerificationMode).toBe("disabled");
+    expect(api.authHumanVerificationMode).toBe("aliyun");
     expect(api.geoOptimizationWriterMode).toBe("demo");
     expect(api.storeLocation.mode).toBe("amap");
     expect(worker.runtimeEnvironment).toBe("production");

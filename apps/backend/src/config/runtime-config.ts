@@ -91,7 +91,7 @@ const apiSchema = commonSchema.extend({
     .max(10000)
     .default(3000),
   AUTH_HASH_PEPPER: z.string().min(32),
-  AUTH_DETERMINISTIC_CODE: z.string().regex(/^\d{6}$/),
+  AUTH_DETERMINISTIC_CODE: z.string().default(""),
   AUTH_CHALLENGE_LIFETIME_SECONDS: z.coerce
     .number()
     .int()
@@ -335,6 +335,14 @@ export function loadApiConfig(
   environment: NodeJS.ProcessEnv = process.env,
 ): ApiConfig {
   const parsed = apiSchema.parse(withLocalDefaults(environment));
+  if (
+    parsed.AUTH_CHALLENGE_MODE === "deterministic" &&
+    !/^\d{6}$/.test(parsed.AUTH_DETERMINISTIC_CODE)
+  ) {
+    throw new Error(
+      "AUTH_DETERMINISTIC_CODE must be a six-digit code in deterministic mode",
+    );
+  }
   if (
     parsed.AGENCY_WITHDRAWAL_ENABLED === "1" &&
     !/^[0-9a-f]{64}$/i.test(parsed.AGENCY_WITHDRAWAL_KEY_HEX)

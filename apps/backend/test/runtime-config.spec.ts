@@ -136,7 +136,6 @@ describe("process-scoped configuration", () => {
       NODE_ENV: "production",
       DATABASE_URL: "postgresql://example/api",
       AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
-      AUTH_DETERMINISTIC_CODE: "246810",
       AUTH_CHALLENGE_MODE: "aliyun",
       AUTH_HUMAN_VERIFICATION_MODE: "aliyun",
     };
@@ -152,6 +151,7 @@ describe("process-scoped configuration", () => {
       }),
     ).toMatchObject({
       authChallengeMode: "aliyun",
+      authDeterministicCode: "",
       authHumanVerificationMode: "aliyun",
       authAliyun: {
         captchaSceneId: "18hnihr4",
@@ -160,6 +160,15 @@ describe("process-scoped configuration", () => {
         requestTimeoutMs: 3000,
       },
     });
+  });
+
+  it("requires the deterministic code only when deterministic delivery is selected", () => {
+    expect(() =>
+      loadApiConfig({
+        DATABASE_URL: "postgresql://example/api",
+        AUTH_HASH_PEPPER: "test-auth-pepper-with-at-least-32-characters",
+      }),
+    ).toThrow("six-digit code in deterministic mode");
   });
 
   it("requires a positive finite CAPTCHA unavailable budget", () => {

@@ -72,22 +72,21 @@ Before opening the switch:
    the RAM policy, not the AccessKey itself. A separately approved local test
    credential must be short-lived and revoked or rotated after the test.
 
-2. Confirm the backend and Web use the same approved mainland Web/H5 scene. In
-   test mode exercise “invisible pass”, “invisible deny + second challenge pass”
-   and “both deny”; a test-mode call is still billable. Only then separately
-   authorize formal mode.
+2. Confirm the backend and Web use the same approved mainland Web/H5 scene. The
+   current test scene may be activated only on the named Basic-Auth-protected
+   Demo; a test-mode call is still billable. Formal mode and removal of the
+   outer gate require a separate public-release decision.
 3. Confirm the visible SMS SignName and TemplateCode are approved and reported
-   for the target carriers. Controlled validation may use the approved
-   company-qualified signature, but public activation must explicitly accept
-   that visible identity or wait for another compliant signature. HDP remains
-   unusable until it has a compliant qualification path; do not substitute an
-   unapproved name in configuration.
+   for the target carriers. The accepted initial signature is `互动派科技`, and
+   recipients will see it. A future `HDP` signature is not an activation
+   dependency; never substitute an unapproved name in configuration.
 4. Review the user-facing privacy notice and processor boundary for Alibaba's
    browser, IP, device and interaction-risk processing. GEOEval must not copy
    those raw observations into its own records.
 5. Verify the configured 60-second resend interval, five requests/hour,
-   provider-side limits, finite CAPTCHA-unavailable budget, daily/monthly alert
-   thresholds and the operator stop path in the named environment.
+   provider-side limits, finite CAPTCHA-unavailable budget and operator stop
+   path in the named environment. Add daily/monthly aggregation and cost alerts
+   before removing the protected-Demo gate.
 6. Use named authorized test mobiles and an explicit maximum paid count/amount.
    Keep carrier receipt, actual receipt and successful Challenge completion as
    separate evidence.
@@ -181,19 +180,19 @@ growth before changing retention or adding another authority store.
 
 ## Incident boundaries
 
-| Situation | Allowed response | Stop condition |
-| --- | --- | --- |
-| One of two administrators loses access | The other active administrator uses normal Governance to deactivate/change the account or revoke its Sessions, then creates a separate replacement identity if needed | Never edit the old mobile or share another account |
-| A user reports a lost device | The user uses logout-all, or another administrator uses reasoned revoke-all for that account | Do not inspect or expose credential digests as replacement credentials |
-| An account is inactive, revoked, or expired | Follow the bounded Web recovery state; reactivate only through authorized Governance and require a new authentication | Reactivation never restores an old Session |
-| The sole active administrator is unreachable | Preserve backups, Account/Session/audit state, stop administrator-only operations, and open an explicitly authorized production incident and recovery-security decision | Bootstrap stays closed; there is no Recovery Secret or automated break-glass command |
-| A release needs post-activation application rollback | Pause and design an approved Session invalidation, compatibility, write-stop, and verification plan | The pre-activation compatibility rehearsal alone is insufficient |
-| CSRF/Origin failures appear after release | Confirm the exact deployed Web Origin and request header/content type; do not weaken checks to wildcard or suffix matching | Topology changes require review before policy changes |
-| CAPTCHA returns a normal denial, replay or scene mismatch | Ask the user to complete a fresh verification; confirm matching Web/backend SceneId if failures grow | Never classify a normal denial or configuration error as provider unavailability |
-| CAPTCHA invocation has network/timeout/5xx failures | Observe the finite configured degradation budget; close new Challenge sending if the threshold is reached or failures grow | Do not widen/reset the budget or add replicas without a new risk decision |
-| SMS returns signature/template/qualification/balance/permission failure | Keep new sending closed, repair the external asset or credential and re-run a named test | Do not retry, switch signature silently or expose raw provider detail |
-| SMS submission times out with unknown outcome | Preserve the Challenge, ask the user to wait, and allow only the ordinary resend path after its interval | Do not submit a second SMS automatically |
-| SMS cost or abuse grows unexpectedly | Set AUTH_CHALLENGE_SENDING_ENABLED=0 and restart/reload through the authorized release path; keep Sessions available | Do not delete Challenge, Account or Session facts to stop cost |
+| Situation                                                               | Allowed response                                                                                                                                                        | Stop condition                                                                       |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| One of two administrators loses access                                  | The other active administrator uses normal Governance to deactivate/change the account or revoke its Sessions, then creates a separate replacement identity if needed   | Never edit the old mobile or share another account                                   |
+| A user reports a lost device                                            | The user uses logout-all, or another administrator uses reasoned revoke-all for that account                                                                            | Do not inspect or expose credential digests as replacement credentials               |
+| An account is inactive, revoked, or expired                             | Follow the bounded Web recovery state; reactivate only through authorized Governance and require a new authentication                                                   | Reactivation never restores an old Session                                           |
+| The sole active administrator is unreachable                            | Preserve backups, Account/Session/audit state, stop administrator-only operations, and open an explicitly authorized production incident and recovery-security decision | Bootstrap stays closed; there is no Recovery Secret or automated break-glass command |
+| A release needs post-activation application rollback                    | Pause and design an approved Session invalidation, compatibility, write-stop, and verification plan                                                                     | The pre-activation compatibility rehearsal alone is insufficient                     |
+| CSRF/Origin failures appear after release                               | Confirm the exact deployed Web Origin and request header/content type; do not weaken checks to wildcard or suffix matching                                              | Topology changes require review before policy changes                                |
+| CAPTCHA returns a normal denial, replay or scene mismatch               | Ask the user to complete a fresh verification; confirm matching Web/backend SceneId if failures grow                                                                    | Never classify a normal denial or configuration error as provider unavailability     |
+| CAPTCHA invocation has network/timeout/5xx failures                     | Observe the finite configured degradation budget; close new Challenge sending if the threshold is reached or failures grow                                              | Do not widen/reset the budget or add replicas without a new risk decision            |
+| SMS returns signature/template/qualification/balance/permission failure | Keep new sending closed, repair the external asset or credential and re-run a named test                                                                                | Do not retry, switch signature silently or expose raw provider detail                |
+| SMS submission times out with unknown outcome                           | Preserve the Challenge, ask the user to wait, and allow only the ordinary resend path after its interval                                                                | Do not submit a second SMS automatically                                             |
+| SMS cost or abuse grows unexpectedly                                    | Set AUTH_CHALLENGE_SENDING_ENABLED=0 and restart/reload through the authorized release path; keep Sessions available                                                    | Do not delete Challenge, Account or Session facts to stop cost                       |
 
 ## Release evidence
 

@@ -43,8 +43,9 @@ values are:
 ```text
 NEXT_PUBLIC_API_BASE_URL=/api
 NEXT_PUBLIC_AMAP_JS_KEY=<domain-bound public JS key>
-NEXT_PUBLIC_AUTH_HUMAN_VERIFICATION_MODE=disabled
-NEXT_PUBLIC_INTERNAL_DEMO_MODE=enabled
+NEXT_PUBLIC_AUTH_HUMAN_VERIFICATION_MODE=aliyun
+NEXT_PUBLIC_ALIYUN_CAPTCHA_PREFIX=1fz571
+NEXT_PUBLIC_ALIYUN_CAPTCHA_SCENE_ID=18hnihr4
 ```
 
 Record the Git revision, archive SHA-256, platform, Node/pnpm versions and these
@@ -92,17 +93,18 @@ retry and article-revision path; it makes no model call and is not evidence of a
 real Writing Agent. Never select the local/test-only `deterministic` mode in
 production.
 
-The internal pilot is protected by Nginx Basic Authentication using
+The internal pilot remains protected by Nginx Basic Authentication using
 `/etc/nginx/geoeval-demo.htpasswd`, owned by `root` and readable only by the
 Nginx service group. The payment callback locations
 explicitly disable Basic Authentication so Alipay and later WeChat can still
-deliver notifications. Behind that outer gate, `INTERNAL_DEMO_MODE=1` permits
-the existing deterministic Challenge adapter and disabled CAPTCHA in production;
-the Web automatically completes the returned short-lived Challenge. Session,
-role, rate-limit, expiry and audit behavior remain on the normal Identity path.
-Use a random deployment-only Challenge code and Basic Auth password, keep both
-outside Git, and remove this mode and the outer gate when real SMS/CAPTCHA is
-activated.
+deliver notifications. The outer gate is independent from Identity: the
+protected Demo runs with `INTERNAL_DEMO_MODE=0`, Alibaba CAPTCHA/SMS enabled,
+and no browser-visible deterministic code. The accepted initial SMS signature
+is `互动派科技`; it is visible to recipients. The current Alibaba test scene may
+be used only while the Basic Auth gate limits this named Demo. Switching the
+scene to formal mode and removing the outer gate remain separate public-release
+decisions. Session, role, rate-limit, expiry and audit behavior stay on the
+normal Identity path.
 
 ## Resource boundary
 

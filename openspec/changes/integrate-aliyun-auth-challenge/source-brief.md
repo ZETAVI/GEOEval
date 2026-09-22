@@ -26,21 +26,22 @@ registration at approximately 1,000–2,000 SMS messages per month.
 - Test scene `geoeval_auth_challenge_web`, SceneId `18hnihr4`, is Web/H5,
   invisible, default policy and test status. Encryption mode and security
   events are off.
-- SMS is active. The account has approved existing company-qualified assets,
-  but they visibly use the company identity and do not satisfy the desired
-  `HDP` public signature.
+- SMS is active. The product owner accepted the approved company-qualified
+  `互动派科技` asset for the initial release; that signature is visible to SMS
+  recipients. A future `HDP` signature is not part of this activation.
 - A dedicated API-only RAM runtime identity is configured with the two required
   actions. A separately authorized local AccessKey exercised both provider
   calls; no credential value, legal-person detail or raw account identifier is
   part of this Change.
 - Controlled application validation with the approved company signature and
   approved login template completed one `CAPTCHA -> Challenge -> SendSms -> OTP
-  -> Session` path. Alibaba accepted the SMS, the carrier receipt later showed
+-> Session` path. Alibaba accepted the SMS, the carrier receipt later showed
   successful delivery, and the user-entered OTP created a customer Session.
 - Earlier use of the same sign/template/number produced one carrier rejection
   for signature real-name filing, followed by successful deliveries. The
-  current evidence proves reachability on one observed route, not stable
-  three-carrier delivery or production readiness.
+  current evidence proves reachability on one observed route. Broader carrier
+  success-rate sampling is operational follow-up rather than a protected-Demo
+  activation gate.
 
 ## Interface facts
 

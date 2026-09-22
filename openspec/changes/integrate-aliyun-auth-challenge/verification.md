@@ -17,24 +17,24 @@ closing-relationship evidence were refreshed before each branch update.
 
 ## Evidence matrix
 
-| Claim | Evidence | Result | Boundary |
-| --- | --- | --- | --- |
-| Human verification precedes Challenge persistence and normal denial never degrades | Focused policy/adapter tests plus isolated Identity integration | Passed | Missing, replay, scene mismatch, configuration error, finite outage budget and zero-row denial covered |
-| Real codes are secure six-digit values and deterministic remains local/test-only | Generator tests, runtime-config tests and production build | Passed | No statistical security certification; uses Node `crypto.randomInt` |
-| SMS accepted/rejected/unknown are distinct and never automatically retried | Fake official-SDK client contract tests and Identity integration | Passed | Includes response body, thrown timeout and nested network cause |
-| Official SDK packages can construct under NodeNext without postinstall build | Runtime client-construction test; frozen install | Passed | No provider request was sent |
-| Production configuration fails closed | Runtime-config tests | Passed | Requires Aliyun CAPTCHA/SMS modes, scene/sign/template and official endpoints; send switch defaults closed |
-| Direct and acquisition Web paths forward only the opaque CAPTCHA value | Web CAPTCHA loader and same-origin acquisition tests | Passed | Acquisition token remains server-cookie-owned |
-| Public/generated contracts agree | OpenAPI regeneration, API-client typecheck and complete build | Passed | `captchaVerifyParam` remains optional in schema because local/test disabled mode is supported; production enforces it at runtime |
-| Existing Identity, Session, role and consumer semantics remain compatible | Final focused 5 files / 46 tests; fresh-database full Backend suite | Passed | Full Backend: 206 suites, 923 passed, 16 environment-gated skipped, 0 failed |
-| Web regression boundary remains compatible | Complete Web suite | Passed | 34 files, 236 tests |
-| Repository remains buildable and policy-compliant | `pnpm install --frozen-lockfile`, `pnpm format:check`, project framework validator and `pnpm build` | Passed | Alibaba OpenAPI Core postinstall is explicitly denied |
-| The approved public scene can initialize the real browser component locally | Local `/enter` with public prefix `1fz571`, SceneId `18hnihr4` and Alibaba mode | Passed | Official Alibaba scripts loaded, the UI left its preparing state and browser error/warning logs were empty; no CAPTCHA was started or solved |
-| Merged Identity/CAPTCHA/SMS boundaries remain green on current main | Focused merged-main tests | Passed | Backend 5 files / 60 tests; Web 2 files / 8 tests; complete build, format and framework validation passed |
-| The dedicated runtime identity can perform the required calls under the reviewed minimum policy | Controlled real CAPTCHA verification and SendSms through the application using the API-only RAM identity | Passed | The policy surface is limited to the two documented actions; no credential value is retained in repository evidence and no management operation was exercised |
-| The application can close one real authentication path | Browser `CAPTCHA -> Challenge -> SendSms -> OTP -> Session`, backend telemetry and Alibaba carrier receipt | Passed | CAPTCHA verified; SendSms accepted without retry; carrier receipt was successful; the user entered the OTP and reached authenticated first-brand onboarding |
-| Carrier delivery is stable enough for public activation | One earlier `234` filing rejection followed by successful approved-template deliveries on the same masked number | Not verified | Proves route reachability and disproves a template-wide failure; does not prove target-carrier success rate or three-carrier stability |
-| Current truth and external residual Gates match observed state | Current Identity spec, operations runbook, source brief, tasks, Issue #64 checkpoints and fixed-diff review | Passed | Production secret injection, credential rotation, formal CAPTCHA, privacy/cost controls and activation remain explicit |
+| Claim                                                                                           | Evidence                                                                                                         | Result | Boundary                                                                                                                                                                                |
+| ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Human verification precedes Challenge persistence and normal denial never degrades              | Focused policy/adapter tests plus isolated Identity integration                                                  | Passed | Missing, replay, scene mismatch, configuration error, finite outage budget and zero-row denial covered                                                                                  |
+| Real codes are secure six-digit values and deterministic remains local/test-only                | Generator tests, runtime-config tests and production build                                                       | Passed | No statistical security certification; uses Node `crypto.randomInt`                                                                                                                     |
+| SMS accepted/rejected/unknown are distinct and never automatically retried                      | Fake official-SDK client contract tests and Identity integration                                                 | Passed | Includes response body, thrown timeout and nested network cause                                                                                                                         |
+| Official SDK packages can construct under NodeNext without postinstall build                    | Runtime client-construction test; frozen install                                                                 | Passed | No provider request was sent                                                                                                                                                            |
+| Production configuration fails closed                                                           | Runtime-config tests                                                                                             | Passed | Requires Aliyun CAPTCHA/SMS modes, scene/sign/template and official endpoints; send switch defaults closed                                                                              |
+| Direct and acquisition Web paths forward only the opaque CAPTCHA value                          | Web CAPTCHA loader and same-origin acquisition tests                                                             | Passed | Acquisition token remains server-cookie-owned                                                                                                                                           |
+| Public/generated contracts agree                                                                | OpenAPI regeneration, API-client typecheck and complete build                                                    | Passed | `captchaVerifyParam` remains optional in schema because local/test disabled mode is supported; production enforces it at runtime                                                        |
+| Existing Identity, Session, role and consumer semantics remain compatible                       | Final focused 5 files / 46 tests; fresh-database full Backend suite                                              | Passed | Full Backend: 206 suites, 923 passed, 16 environment-gated skipped, 0 failed                                                                                                            |
+| Web regression boundary remains compatible                                                      | Complete Web suite                                                                                               | Passed | 34 files, 236 tests                                                                                                                                                                     |
+| Repository remains buildable and policy-compliant                                               | `pnpm install --frozen-lockfile`, `pnpm format:check`, project framework validator and `pnpm build`              | Passed | Alibaba OpenAPI Core postinstall is explicitly denied                                                                                                                                   |
+| The approved public scene can initialize the real browser component locally                     | Local `/enter` with public prefix `1fz571`, SceneId `18hnihr4` and Alibaba mode                                  | Passed | Official Alibaba scripts loaded, the UI left its preparing state and browser error/warning logs were empty; no CAPTCHA was started or solved                                            |
+| Merged Identity/CAPTCHA/SMS boundaries remain green on current main                             | Focused merged-main tests                                                                                        | Passed | Backend 5 files / 60 tests; Web 2 files / 8 tests; complete build, format and framework validation passed                                                                               |
+| The dedicated runtime identity can perform the required calls under the reviewed minimum policy | Controlled real CAPTCHA verification and SendSms through the application using the API-only RAM identity         | Passed | The policy surface is limited to the two documented actions; no credential value is retained in repository evidence and no management operation was exercised                           |
+| The application can close one real authentication path                                          | Browser `CAPTCHA -> Challenge -> SendSms -> OTP -> Session`, backend telemetry and Alibaba carrier receipt       | Passed | CAPTCHA verified; SendSms accepted without retry; carrier receipt was successful; the user entered the OTP and reached authenticated first-brand onboarding                             |
+| Carrier route is reachable for protected-Demo activation                                        | One earlier `234` filing rejection followed by successful approved-template deliveries on the same masked number | Passed | Proves one reachable route and disproves a template-wide failure; broader success-rate observation remains follow-up, not a three-carrier gate                                          |
+| Current truth and external residual Gates match observed state                                  | Current Identity spec, operations runbook, source brief, tasks, Issue #64 checkpoints and fixed-diff review      | Passed | `互动派科技` is accepted for the initial release; server-Demo secret injection is pending; credential rotation, formal CAPTCHA and public-release privacy/cost controls remain explicit |
 
 ## Commands and results
 
@@ -108,14 +108,15 @@ No unresolved code-level review finding remains at the reviewed revision.
   separately confirmed rotation or revocation of local/older keys were not
   performed.
 - CAPTCHA remains in test state; formal mode was not enabled.
-- No compliant `HDP` signature exists and no signature/template was changed;
-  controlled validation used the approved visible company signature.
-- One named-number carrier receipt and login closure passed. Target-carrier
-  success-rate coverage, daily/monthly alert configuration, privacy wording
-  approval, trusted-proxy/IP topology and production activation remain
-  unverified.
+- The product owner accepted the existing visible `互动派科技` signature for
+  the initial release. No signature/template asset was changed.
+- One named-number carrier receipt and login closure passed. Broader
+  success-rate observation, daily/monthly alert configuration, privacy wording
+  approval, trusted-proxy/IP topology, formal CAPTCHA and public activation
+  remain separate follow-up boundaries.
 
 Verdict: **partially verified for the full Issue outcome; verified for the
-implemented and controlled local integration slice.** The result is sufficient
-to merge the reconciled documentation transaction, not to activate production.
-Issue #64 stays open for the named external and deployment Gates.
+implemented and controlled local integration slice.** The result plus the
+owner's accepted signature and reduced protected-Demo boundary is sufficient to
+prepare a server-Demo activation transaction. Issue #64 stays open until that
+deployment and its runtime evidence are reconciled.
