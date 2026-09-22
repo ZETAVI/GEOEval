@@ -50,27 +50,17 @@
 
 ## I4: Safeguards and evidence
 
-- [ ] Confirm the production trusted-proxy topology before adding a local
-      coarse-IP key; rely on Alibaba CAPTCHA risk/IP controls and the existing
-      Origin/mobile boundaries until that source address is trustworthy.
 - [x] Align the existing same-mobile window to 60 seconds and five/hour; emit
       bounded verification/delivery/latency telemetry and provide an operator stop
       path without creating a delivery ledger.
-- [ ] Configure named-environment daily/monthly telemetry aggregation and cost
-      alerts before removing the protected-Demo gate; the current low-volume Demo
-      relies on Basic Auth, same-mobile/provider limits and the operator stop switch.
 - [x] Verify offline CAPTCHA pass/deny/replay/mismatch/unavailable budget, SMS
       accepted/rejected/unknown, configuration fail-closed, no retry, stop behavior
       and redaction.
 - [x] Complete one separately authorized local real-CAPTCHA, formal-template
       SMS, carrier-receipt, user-entered OTP and Session flow without repeating the
       paid send or recording authentication-capable values.
-- [ ] Observe delivery outcomes across normal target traffic before public
-      activation; this is operational confidence work, not a three-carrier
-      prerequisite for the protected Demo.
-- [ ] Inject the selected runtime credential through the protected deployment
-      path and activate the real flow on the server Demo. Rotate or revoke local
-      test credentials under a separately confirmed account operation.
+- [x] Inject the selected runtime credential through the protected deployment
+      path and activate the real flow on the server Demo.
 - [x] Run focused tests, typecheck, generated-contract checks and the
       task-appropriate broader suite; record skipped environment-dependent checks.
 
@@ -86,6 +76,23 @@
 - [x] Record RAM/signature/paid-test/formal-mode/production residual gates and
       the worktree exit state; archive this Change only when its accepted scope is
       reconciled.
-- [ ] Merge the server-Demo deployment configuration, deploy the accepted
-      revision under both host locks, verify one user-entered OTP Session closure,
-      and reconcile the runtime evidence without repeating payment tests.
+- [x] Merge the server-Demo deployment configuration and deploy the accepted
+      revision under both host locks without repeating payment tests.
+- [x] Verify one user-entered OTP Session closure on the server Demo and
+      reconcile the final runtime evidence.
+
+## Residual public-release and account operations
+
+- [ ] Confirm trusted-proxy/IP topology before adding any coarse local IP key or
+      RAM `acs:SourceIp` restriction.
+- [ ] Add named-environment daily/monthly aggregation and cost alerts before
+      removing the protected-Demo gate.
+- [ ] Observe ordinary target-traffic delivery outcomes without turning
+      three-carrier sampling into a release prerequisite.
+- [ ] Rotate or revoke local/older AccessKeys only under a separately confirmed
+      Alibaba account operation.
+- [ ] Switch CAPTCHA to formal mode, complete privacy review and remove Basic
+      Auth only through a separately approved public-release transaction.
+
+These residuals remain under Issue #64 and do not keep the implemented,
+reconciled protected-Demo Change active.

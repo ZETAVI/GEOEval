@@ -23,8 +23,12 @@
       demo packages and grant auditable non-funded demo points.
 - [x] Activate Alipay recovery and verify production signing/query plus
       customer-visible non-controlled options.
-- [ ] Complete a new-host customer-page one-yuan payment through authenticated
+- [x] Complete a new-host customer-page one-yuan payment through authenticated
       callback/query and exactly-once funded-points settlement.
+- [x] Replace the deterministic Identity Demo path with the accepted Alibaba
+      CAPTCHA/SMS runtime on an immutable merged-main release while retaining
+      Basic Auth and all payment boundaries.
+- [x] Complete one user-entered OTP Session closure on that server release.
 - [x] Install Amap/model/Langfuse credentials and complete Web Service, JS proxy,
       five-provider, full-evaluation and metadata-only telemetry probes.
 - [x] Reboot the host, verify automatic service/session recovery, rehearse TLS
