@@ -10,10 +10,11 @@ SMS transport are two distinct external boundaries with different failure
 semantics. They are represented by two narrow ports owned by Identity rather
 than a generic provider framework.
 
-**External gates:** a compliant signature, minimum-permission RAM runtime
-identity, named paid test numbers, formal CAPTCHA policy and production
-activation remain human-owned. No implementation or passing offline test grants
-those permissions.
+**External gates:** the product owner accepted the approved `互动派科技`
+signature, the minimum-permission RAM runtime identity and a named paid test.
+The protected server-Demo activation is authorized separately from the code
+change. Formal CAPTCHA policy, removal of Basic Auth, credential rotation and
+public activation remain human-owned; no offline test grants those permissions.
 
 ## 2. Current behavior and invariants
 
@@ -74,16 +75,16 @@ types. One provider client is reused for the process lifetime.
 
 ### Failure and recovery
 
-| Failure | Public result | State and recovery |
-| --- | --- | --- |
-| CAPTCHA parameter missing or malformed while enabled | 400 | no Challenge; client reacquires verification |
-| CAPTCHA returns `VerifyResult=false`, including replay or scene mismatch | 403 | no Challenge; no detailed risk code exposed |
-| CAPTCHA network, DNS, timeout or HTTP 5xx | constrained degradation or 503 | policy budget decides; local limits and stop switch remain active |
-| CAPTCHA credential, permission, account or request 4xx | 503, fail closed | operator fixes configuration; never degraded |
-| SMS returns `Code=OK` | Challenge response | means provider accepted submission only |
-| SMS returns an explicit business/configuration error | 503 | persisted short-lived Challenge is unusable and expires; no retry |
-| SMS call is transport-timeout/unknown after possible submission | Challenge response with internal unknown observation | wait; normal resend only after existing interval |
-| cost/abuse incident or manual stop | 503 before new Challenge creation | existing Sessions and prior Challenges are unchanged |
+| Failure                                                                  | Public result                                        | State and recovery                                                |
+| ------------------------------------------------------------------------ | ---------------------------------------------------- | ----------------------------------------------------------------- |
+| CAPTCHA parameter missing or malformed while enabled                     | 400                                                  | no Challenge; client reacquires verification                      |
+| CAPTCHA returns `VerifyResult=false`, including replay or scene mismatch | 403                                                  | no Challenge; no detailed risk code exposed                       |
+| CAPTCHA network, DNS, timeout or HTTP 5xx                                | constrained degradation or 503                       | policy budget decides; local limits and stop switch remain active |
+| CAPTCHA credential, permission, account or request 4xx                   | 503, fail closed                                     | operator fixes configuration; never degraded                      |
+| SMS returns `Code=OK`                                                    | Challenge response                                   | means provider accepted submission only                           |
+| SMS returns an explicit business/configuration error                     | 503                                                  | persisted short-lived Challenge is unusable and expires; no retry |
+| SMS call is transport-timeout/unknown after possible submission          | Challenge response with internal unknown observation | wait; normal resend only after existing interval                  |
+| cost/abuse incident or manual stop                                       | 503 before new Challenge creation                    | existing Sessions and prior Challenges are unchanged              |
 
 No provider call is retried automatically. Alibaba documents that SendSms is
 not idempotent; timeout recovery must not manufacture duplicate SMS.
@@ -195,7 +196,9 @@ Production requires:
 
 The runtime schema rejects missing combinations, deterministic production,
 enabled delivery without sign/template, and enabled CAPTCHA without SceneId.
-Secrets are not copied into non-Identity config projections.
+`AUTH_DETERMINISTIC_CODE` is required only when deterministic delivery is
+selected; the Alibaba production configuration omits it. Secrets are not copied
+into non-Identity config projections.
 
 ## 8. Web integration
 
@@ -220,11 +223,14 @@ requirements; GEOEval neither serializes nor stores those raw observations.
    response/error fixtures.
 3. Separately create minimum-permission RAM runtime credentials and perform
    named-number paid tests only after approval.
-4. Switch the CAPTCHA scene to formal mode only after the three test plans pass.
-5. Activate production with stop switch initially closed, then open it during a
-   named observation window.
+4. Activate the current test scene and real SMS only on the Basic-Auth-protected
+   server Demo during a named observation window. Keep the operator stop switch,
+   same-mobile limit and finite CAPTCHA-unavailable budget effective.
+5. Switch the CAPTCHA scene to formal mode only after the remaining policy and
+   privacy gates pass; removing Basic Auth is a separate public-release action.
 
-Rollback closes new Challenge sending or restores the prior release. It does
+Rollback first closes new Challenge sending. If the runtime is unhealthy, it
+restores the prior release and prior protected environment atomically. It does
 not delete Challenge/Session records, retract a possibly delivered SMS or change
 Account/role state.
 
@@ -245,4 +251,3 @@ Smallest discriminating evidence:
   preserving Origin/CSRF and server-owned acquisition token rules;
 - stop-new-Challenge leaves existing Sessions valid;
 - logs and errors contain no plaintext code, full mobile, token or credential.
-

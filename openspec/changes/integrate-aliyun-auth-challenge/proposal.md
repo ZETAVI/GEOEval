@@ -1,7 +1,7 @@
 # Change: Integrate protected real authentication challenges
 
-- Status: Implemented and locally validated; production activation gates
-  remain.
+- Status: Implemented and locally validated; protected server-Demo activation
+  approved, public activation gates remain.
 - Issue:
   [#64](https://github.com/ZETAVI/GEOEval/issues/64)
 - Owner: ZETAVI
@@ -18,11 +18,11 @@ spend the shared Alibaba Cloud account and repeatedly target a mobile number.
 
 The Alibaba Cloud enterprise account, SMS service and CAPTCHA 2.0 pay-as-you-go
 instance are available. A Web/H5 invisible test scene named
-`geoeval_auth_challenge_web` exists with SceneId `18hnihr4`. The preferred
-`HDP` SMS signature still lacks a compliant qualification path, so controlled
-validation uses the approved company-qualified signature while the public
-signature decision, formal CAPTCHA mode and production activation remain
-separate gates.
+`geoeval_auth_challenge_web` exists with SceneId `18hnihr4`. The product owner
+accepted the approved company-qualified `互动派科技` signature for the initial
+release. It is visible to recipients. The protected server Demo may therefore
+activate the current test scene and real SMS behind Basic Auth; formal CAPTCHA
+mode and removal of that outer gate remain separate public-release decisions.
 
 ## Outcome
 
@@ -58,9 +58,9 @@ unchanged.
 - International or Hong Kong, Macao and Taiwan SMS.
 - Changing fixed roles, account creation, Challenge consumption, Session
   authority, acquisition ownership or CSRF rules.
-- Creating RAM identities or AccessKeys, sending paid SMS, changing shared
-  account-wide alarms, switching the CAPTCHA scene to formal mode or activating
-  production as repository implementation. Separately authorized account and
+- Creating RAM identities or AccessKeys, changing shared account-wide alarms,
+  switching the CAPTCHA scene to formal mode or removing the protected-Demo
+  access gate as repository implementation. Separately authorized account and
   controlled-runtime operations may supply evidence without expanding this
   code Change.
 - Claiming that an accepted SMS submission proves carrier delivery or login.
