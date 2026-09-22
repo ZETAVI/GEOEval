@@ -1,7 +1,8 @@
 # Change: Integrate protected real authentication challenges
 
-- Status: Implemented and locally validated; protected server-Demo activation
-  approved, public activation gates remain.
+- Status: Accepted, merged and deployed on the protected server Demo; current
+  behavior reconciled and this Change is ready to archive. Public activation
+  gates remain owned by Issue #64.
 - Issue:
   [#64](https://github.com/ZETAVI/GEOEval/issues/64)
 - Owner: ZETAVI
