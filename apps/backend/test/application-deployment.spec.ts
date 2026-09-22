@@ -77,6 +77,9 @@ describe("full application production deployment boundary", () => {
     expect(units.api).toContain("User=geoeval-app");
     expect(units.worker).toContain("User=geoeval-app");
     expect(units.recharge).toContain("User=geoeval-app");
+    expect(units.recharge).toContain("NODE_OPTIONS=--max-old-space-size=64");
+    expect(units.recharge).toContain("MemoryHigh=160M");
+    expect(units.recharge).toContain("MemoryMax=192M");
   });
 
   it("copies payment private keys only into payment-authorized processes", () => {

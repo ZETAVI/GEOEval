@@ -111,6 +111,11 @@ before reloading systemd. The slice uses `MemoryHigh=1G` and
 `MemoryMax=1280M`. Each process also has a V8 cap and a smaller systemd hard
 limit.
 These are pilot limits, not measured production capacity.
+The recharge Worker loads both payment adapters when Alipay and WeChat are
+active. Keep its V8 heap cap at 64 MiB, with `MemoryHigh=160M` and
+`MemoryMax=192M` for native SDK and TLS memory. A lower 96/128 MiB boundary was
+observed to hold the process in cgroup reclaim before it could claim a due
+order.
 
 On Alibaba Cloud Linux, install the drop-ins under
 `systemd/alibaba-cloud-linux/`. They replace the Debian PostgreSQL and Redis
