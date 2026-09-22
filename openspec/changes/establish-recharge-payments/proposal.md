@@ -1,6 +1,6 @@
 # Change: Establish reliable recharge and web payments
 
-- Status: A0/B0/C1 and N1–N4 are implemented and verified in their bounded slices. The owner authorized integration of [#83](https://github.com/ZETAVI/GEOEval/pull/83), [#84](https://github.com/ZETAVI/GEOEval/pull/84), [#85](https://github.com/ZETAVI/GEOEval/pull/85) and [#86](https://github.com/ZETAVI/GEOEval/pull/86); those PRs own live merge/head/check evidence. H5, operational acceptance and real activation remain unfinished. The whole Change remains active.
+- Status: A0/B0/C1, N1–N4, desktop customer/API/Worker composition and the internal-pilot activation are implemented. Real ¥1 WeChat Native and Alipay PC payments have converged through authenticated public callbacks, once-only funded credit and customer notices. H5, reconciliation and ambiguous no-submit/expiry handling remain unfinished. The whole Change remains active.
 - Issue: [#77](https://github.com/ZETAVI/GEOEval/issues/77)
 - Owner: ZETAVI
 - Lane/class: product delivery / architectural; Critical money boundary
@@ -11,8 +11,8 @@ Customers need a reliable account-recharge path before paying points for publish
 
 ## Confirmed direction
 
-- Latest owner decision (2026-09-20): the WeChat merchant account and Native product are open, service-account AppID `wx0402876c556f2029` is certified and bound to merchant `1117725778`, and protected key custody is prepared. The resumed code composes both providers explicitly in API, callback and Worker hosts. New WeChat orders remain disabled while the callback-only host, one-yuan prepay/close and one-yuan real-payment evidence are completed in separate gates. Alipay mobile website payment, WeChat H5 and JSAPI remain separate later decisions.
-- Website preparation is a minimal truthful static page at geohdp.com, whose company-held ICP filing the owner confirmed. The HTTPS page is deployed in an isolated directory on the nominated Alibaba Cloud host; app.geohdp.com remains reserved and the business application is not deployed. Full application launch and production login were not prerequisites for the static page. The owner provided website filing 粤ICP备11067188号-12 and chose to omit public company/telephone text from the introduction page; the footer uses the Guangdong filing and official link.
+- Latest owner decision (2026-09-22): the certified/bound WeChat service-account AppID and Native merchant, Alipay PC product/app and both protected credential sets are activated only in the authenticated internal pilot. One real ¥1 payment per desktop channel has passed. Alipay mobile website payment, WeChat H5 and JSAPI remain separate later decisions.
+- `geohdp.com` remains the minimal truthful public site using the confirmed filing 粤ICP备11067188号-12. `app.geohdp.com` now hosts the separately protected internal application pilot on the nominated Alibaba Cloud host; this is not a claim of unrestricted public product launch or formal mobile payment coverage.
 - Customers choose amount/method locally, use the selected cashier and return to local order management. Cashier presentation is replaceable; a future provider requires its own official interface and merchant evidence.
 - Local commands commit synchronously; channel work and accepted payment receipts are processed asynchronously. Receipt acceptance commits before ACK; ACK does not wait for atomic local settlement. Customer reads and notification delivery never own payment truth.
 - Publishing Commerce owns points, reservations and the narrow transaction binding used by Recharge; its independently assembled points capability needs no standalone wallet service. Publication Delivery owns fulfilment and return eligibility.
@@ -46,8 +46,8 @@ Documentation impact: update existing owners and retire obsolete execution summa
 - [x] Administrator read-only lookup and bounded transient recovery.
 - [ ] Reconciliation, maintained amount/support policies and real-environment configuration.
 - [x] Dual-provider host composition and protected WeChat configuration.
-- [ ] Controlled Native merchant verification, public callback and real-funds acceptance.
-- [ ] Required merchant products, financial test controls, real-channel/funds verification and separately authorized production activation.
+- [x] Controlled Native merchant verification, public callback and real-funds acceptance for the desktop internal pilot.
+- [x] Required desktop merchant products, bounded ¥1 financial tests, real-channel/funds verification and separately authorized internal-pilot activation.
 
 ## Coordination and workspace
 

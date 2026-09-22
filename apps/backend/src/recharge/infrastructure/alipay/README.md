@@ -113,11 +113,14 @@ SDK and query permission compatibility. Keep SDK debug payload logging disabled.
 
 Per-channel recovery follows authenticated evidence. Routine transient cases
 should recover automatically; genuinely ambiguous financial outcomes retain
-restricted review. Natural expiry, late form submission, lost close ACK and
-fully refunded `TRADE_CLOSED` need separate channel evidence before automatic
-closure is enabled. Public callback delivery, browser return, a bounded real
-payment and finance review remain action-time acceptance gates. Do not force every
-ambiguity into automation or send every ordinary expiry to an operator.
+restricted review. The internal pilot has now passed official PC gateway/cashier
+redirection, browser return, public callback verification and two bounded real
+payments. `form-action` allows only HTTPS Alipay production/sandbox subdomains
+because the official gateway redirects to a separate official cashier host.
+Natural expiry, late form submission, lost close ACK and fully refunded
+`TRADE_CLOSED` still need separate channel evidence before automatic closure is
+enabled. Do not force every ambiguity into automation or send every ordinary
+expiry to an operator.
 
 Official sources and the current integration design remain in the owning change's
 [source brief](../../../../../../openspec/changes/establish-recharge-payments/source-brief.md)
