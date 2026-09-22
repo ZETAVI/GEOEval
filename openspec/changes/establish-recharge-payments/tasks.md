@@ -1,6 +1,6 @@
 # Tasks
 
-Owner #77. A0/B0/C1, publication return, N1–N4, R1, O1a, Alipay PC composition, callback-only W2/W3 and the controlled acceptance entry are accepted on `main@7c20fee`, including the independently owned recharge-invoice slice. The Alipay production app/key/query/callback and one-yuan payment path are now verified through one real order and once-only 10-point credit. This does not activate the customer API or resident Worker. WeChat remains paused at its account-matching gate.
+Owner #77. A0/B0/C1, publication return, N1–N4, R1, O1a, dual desktop channels, internal application deployment and the independently owned recharge-invoice slice are accepted on `main@bb9e7cc`. The protected internal pilot has verified one real ¥1 WeChat Native payment and two real ¥1 Alipay PC payments through public callbacks, once-only 10-point credit and delivered notices. H5, reconciliation and ambiguous no-submit/expiry handling remain open.
 
 ## Remaining work and actual dependencies
 
@@ -10,12 +10,12 @@ The approved route stays account recharge → verified payment → funded credit
 | --- | --- | --- |
 | R1 recovery/status | Transient failures recover under bounded scheduling; unsafe facts remain held; customer hints match persisted work | Merged through PR #87; implementation and CI evidence remain in that PR |
 | Management read-only | Find each order, payment confirmation, credit and independent notification state | Merged in PR #88 at mainadb0df9; merge and CI evidence belong to that PR |
-| A1 Alipay website payment | PC official cashier, authenticated receipt/query and once-only credit, then mobile website payment | One production ¥1 order completed through RSA2 callback, one 10-point ledger and one customer notice; Alipay remains the primary method, while resident API/Worker activation, return page, no-submit expiry, finance review and H5 remain gated; design15A |
+| A1 Alipay website payment | PC official cashier, authenticated receipt/query and once-only credit, then mobile website payment | Two production ¥1 orders completed through RSA2 callbacks. The internal-pilot browser now proves official gateway → cashier redirection and return; no-submit expiry, reconciliation and H5 remain gated; design15A |
 | O1 reconciliation | Verify daily coverage, compare provider/order/ledger, query discrepancies and settle only through existing C1 | Official request metadata read; download/format details and synthetic samples still required before implementation |
 | H1 external-browser H5 | Correct launch, return, identity and same-order recovery | Existing Native/core seams; named mobile/browser and merchant-domain evidence remain required |
-| Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Finance/product/operations inputs required at the actual enablement boundary; no production value inferred from controlled tests |
+| Activation | Maintained amount/support policies, configured merchant, budgets, financial verification | Desktop channels are active only in the authenticated internal pilot; maintained operations policy and any broader public/mobile activation remain gated |
 
-Current planning: R1, O1a, Alipay PC and the WeChat callback-only host are merged. Alipay remains the current selectable method until the WeChat `live` gate passes. Merchant/Native, AppID binding and protected key-file preparation are confirmed. The public callback and controlled provider calls must still be verified before the server advertises WeChat for new orders. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. Reconciliation remains later bounded acceptance.
+Current planning: R1, O1a and both desktop channels are merged and active in the protected internal pilot. Merchant products, identity binding, protected keys, public callbacks and one real payment per channel are verified. The owner confirmed reliability with human fallback where evidence is unsafe, not mandatory full automation. Reconciliation, no-submit expiry and mobile channels remain later bounded acceptance.
 
 ## R1: Transient recovery and truthful status
 
@@ -107,7 +107,7 @@ Current planning: R1, O1a, Alipay PC and the WeChat callback-only host are merge
 - [x] Add a one-shot prepay-close orchestrator and CLI that fixes the amount at 1 yuan / 10 funded points, accepts only an existing active customer account, uses the normal `RechargeOrder` and reservation, never calls the Provider gateway directly, never returns the QR, and leaves uncertain work persisted for normal recovery.
 - [x] Verify the exact-order seam, one-yuan deployment profile and orchestration against a fresh project-owned 54-migration database: 2 files / 35 tests passed; backend typecheck and build passed.
 - [ ] Select or provision one controlled production customer through the Identity boundary, then run the real 1-yuan prepay → authenticated query NOTPAY → close sequence and prove the local order closes with its reservation released and signed attempts retained.
-- [ ] Keep the separate 1-yuan real-payment order pending until the user scans; then prove callback/query convergence and exactly-once 10-point funding before activating any customer-facing API or Worker.
+- [x] Complete the separate 1-yuan WeChat real-payment order and prove authenticated callback convergence, exactly-once 10-point funding and one delivered customer notice before the internal-pilot activation.
 
 ## P0: Fixed inputs and reviewable contracts
 

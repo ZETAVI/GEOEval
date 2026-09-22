@@ -2,7 +2,7 @@
 
 方案日期：2026-09-09。架构 owner：[Issue #77《建立真实充值核心与微信网页支付链路》](https://github.com/ZETAVI/GEOEval/issues/77)；申请与资产准备继续属于 [Issue #75](https://github.com/ZETAVI/GEOEval/issues/75)。
 
-Status: A0/B0/C1 and the N1 recovery runtime are implemented. N2 connects authenticated customer API/history and controlled desktop checkout; N3 adds an explicitly configured resident worker with verified process recovery; N4 adds durable post-settlement notices and account-safe customer navigation. W1 has reached real signed no-funds WeChat query and protected server credential custody; W2/W3 deploy the public callback-only host in production. W4 now adds the exact persisted one-yuan prepay/close operator seam; its production Provider call and all real-funds evidence remain unrun. Current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Worker/customer activation, H5 and operational acceptance remain proposed. Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims. The [current integration decision](https://github.com/ZETAVI/GEOEval/issues/77#issuecomment-5628184476) supersedes their earlier merge-authority limitations.
+Status: A0/B0/C1 and N1–N4 are implemented. The protected internal pilot now runs the authenticated customer API/history, resident recovery Worker, post-settlement notices and both desktop cashiers. One real ¥1 WeChat Native payment and two real ¥1 Alipay PC payments passed through public callbacks and once-only funded credit. H5, reconciliation and ambiguous no-submit/expiry handling remain proposed. Current customer semantics are reconciled into the [Recharge spec](../../specs/recharge/spec.md). Control: [proposal](proposal.md); sequence and evidence: [tasks](tasks.md), [verification](verification.md). Earlier slice sections below are historical implementation boundaries, not current activation claims.
 
 已批准以 PC Native → 手机外部浏览器 H5 验证渠道能力，并在 Publishing Commerce 内独立装配积分能力。用户进一步确认收银形式可替换，当前重点是账户、订单、支付、积分与开票的业务逻辑，以及同步/异步和恢复边界；具体服务商不阻挡共用链路设计。Node 协议实现沿用标准 crypto 与窄 HTTP Adapter；活动单限额和实际异常资金处置细节不视为自动获批。本文原位更新，具体协议与参考站证据由 [source-brief](source-brief.md)持有。
 
@@ -809,9 +809,9 @@ R1 已按用户确认方向实现并通过本地验证，当前规则已归入 R
 
 ## 20. 当前停止点
 
-Alipay PC代码、前向迁移、客户与管理页面、回调、查询/关单恢复、独立Worker入口、callback-only部署和受控一元验收入口已进入`main@7c20fee`。正式网关无资金查单与一笔真实 ¥1 付款均已通过；真实付款由公网 RSA2 通知进入同一持久 inbox/C1，原子生成一次 10 点 `RECHARGE` 流水及一条到账通知。该结果证明成功资金主链，不代表客户 API 或常驻 Worker 已生产启用，也不证明回跳、未提交表单、自然到期、全额退款或账单对账。
+Alipay PC代码、迁移、客户/管理页面、回调、恢复和独立Worker已进入`main@bb9e7cc`并在受保护的内部应用试运行。两笔真实 ¥1 付款均由公网 RSA2 通知进入同一持久 inbox/C1，各自只生成一次 10 点 `RECHARGE` 流水及一条到账通知。2026-09-22 的浏览器证据进一步证明官方网关会重定向至支付宝自有收银台子域；PR #151 收束 CSP 后，页面正常进入 `excashier.alipay.com` 并完成回跳。该结果证明成功资金主链，不证明未提交表单、自然到期、全额退款或账单对账。
 
-当前客户页面继续以支付宝为唯一可选新支付方式，微信可见但禁用。充值入口按 `⚡` 选择数量并单独展示人民币实付；所有 Web 业务时间固定用 Asia/Shanghai 展示，数据库/服务传输保持绝对 UTC。客户 `未支付` 文案只映射内部可信 `CLOSED`，不从本地到期或 `TRADE_NOT_EXIST` 生成关闭事实。下一动作由 [tasks](tasks.md)持有：完成 return 页、常驻 API/Worker 策略与 no-submit/expiry/refund 专项，再决定客户生产开放；微信恢复时再处理账户 Gate 及 `Native*` 命名债，不前置扩大本轮支付宝范围。
+当前内部客户页面同时提供支付宝PC官方收银台和微信Native扫码。充值入口按 `⚡` 选择数量并单独展示人民币实付；所有 Web 业务时间固定用 Asia/Shanghai 展示，数据库/服务传输保持绝对 UTC。客户 `未支付` 文案只映射内部可信 `CLOSED`，不从本地到期或 `TRADE_NOT_EXIST` 生成关闭事实。下一动作由 [tasks](tasks.md)持有：完成 no-submit/expiry/refund 专项、T+1 对账和移动渠道，不把内部试运行扩写成公开生产覆盖。
 
 ## 21. 本轮接缝回执与可实施的取消规则
 
