@@ -117,6 +117,18 @@ active. Keep its V8 heap cap at 64 MiB, with `MemoryHigh=160M` and
 observed to hold the process in cgroup reclaim before it could claim a due
 order.
 
+The callback also handles both public provider protocols. Keep its 64 MiB V8
+cap, with `MemoryHigh=176M` and `MemoryMax=192M`. After real payments on both
+channels, the old 144/160 MiB callback-only profile held the process around 155
+MiB, accumulated 5,178 high events and produced sustained reclaim pressure. The
+176/192 MiB runtime probe stopped new high events and returned ten-second
+pressure to zero without a restart or OOM. The five application-process hard
+limits total 1280 MiB and do not exceed the parent limit on their own.
+PostgreSQL is an additional `geo.slice` child, so those maxima are intentionally
+overcommitted and the parent remains authoritative. The live group was about
+835 MiB, 189 MiB below its soft limit, with no swap or OOM; do not raise a child
+independently without rechecking actual group headroom.
+
 On Alibaba Cloud Linux, install the drop-ins under
 `systemd/alibaba-cloud-linux/`. They replace the Debian PostgreSQL and Redis
 unit names with `postgresql-16.service` and `redis.service`; the application

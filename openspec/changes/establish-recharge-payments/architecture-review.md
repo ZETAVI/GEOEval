@@ -34,6 +34,8 @@
 
 新 release 稳定启动后，callback 常驻约 131–137 MiB；原 `MemoryHigh=128M` 产生 12,252 次 high event 和接近 87% 的十秒 memory pressure，伪造请求虽正确返回 401 但耗时约 4 秒，随后 SIGTERM 在 15 秒内未完成而被 systemd kill。hard max 从未触发，数据库保持 0/0。只把 soft high 提到 144 MiB 仍使匿名内存扩张到约 151 MiB，4,653 次 high event、十秒 pressure 约 61%，伪造请求在 5 秒内无响应。受锁临时探针在 callback unit 内加入 `--max-old-space-size=64` 后，稳定内存约 98–105 MiB，伪造请求 36–44 ms 返回 401，inbox 仍为 0/0，停止耗时 0 秒；144/148 MiB soft high 都只有启动瞬时事件且 pressure 为 0。最终保留更窄的 `MemoryHigh=144M` 和 `MemoryMax=160M`，并用 unit-local V8 上限控制分配源头；不得放宽 hard max 或把 `NODE_OPTIONS` 扩散到其他服务。恢复验收仍须证明请求延迟、数据库无写入、无 max/OOM、无持续 pressure 和 graceful stop，不以 active 状态单独通过。
 
+后续 2026-09-22 的完整应用试运行已把 `geo.slice` 扩为 1 GiB soft / 1.25 GiB hard，并同时运行 API、Web、产品 Worker、充值 Worker、双协议 callback 与专用 PostgreSQL。真实微信/支付宝流量后 callback 在旧 144/160 MiB 边界达到约 155 MiB、累计 5,178 次 high event；锁内 176/192 MiB 探针停止新增 high event且十秒 pressure 归零。该证据只在新的完整应用预算中取代上段 callback-only hard-max 决定；64 MiB V8 cap、单服务边界和总 slice 上限均保留。子单元 hard limit 是受父 slice 约束的有意 overcommit，验收时以约 835 MiB 实际总量和 189 MiB soft headroom 为准，不把子单元上限相加冒充可用内存。
+
 ### W4 精确订单驱动审查
 
 一元 prepay-close 继续由 Recharge 拥有，账户仍由 Identity 拥有，积分容量与流水仍由 Publishing Commerce 拥有。新增接缝只把已有 Worker 的单项执行提取为 `runOrder(orderId)`，批量 Worker 反向复用该实现；它不暴露 Provider、数据库 transaction 或任意金额配置，也不会把 operator CLI 变成常驻服务。CLI 固定一元与微信 Native，依赖正常 `create/cancel/read` 和精确恢复命令，不创建 Account、不输出 QR、不扫描其他订单。
