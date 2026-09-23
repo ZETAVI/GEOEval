@@ -52,6 +52,9 @@ const apiSchema = commonSchema.extend({
     .enum(["deterministic", "aliyun"])
     .default("deterministic"),
   AUTH_CHALLENGE_SENDING_ENABLED: z.enum(["0", "1"]).default("0"),
+  AUTH_DEMO_SMS_FORWARD_SOURCES: z.string().default(""),
+  AUTH_DEMO_SMS_FORWARD_TO: z.string().default(""),
+  AUTH_DEMO_SMS_FORWARD_UNTIL: z.string().default(""),
   AUTH_HUMAN_VERIFICATION_MODE: z
     .enum(["disabled", "aliyun"])
     .default("disabled"),
@@ -262,6 +265,11 @@ export type ApiConfig = {
   };
   authChallengeMode: "deterministic" | "aliyun";
   authChallengeSendingEnabled: boolean;
+  authDemoSmsForwarding: {
+    sourceMobiles: readonly string[];
+    destinationMobile: string;
+    expiresAtMs: number;
+  } | null;
   authHumanVerificationMode: "disabled" | "aliyun";
   authHumanVerificationPolicy: {
     unavailableMode: "deny" | "limited";
@@ -345,10 +353,59 @@ function withLocalDefaults(environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   };
 }
 
+function parseDemoSmsForwarding(input: {
+  AUTH_DEMO_SMS_FORWARD_SOURCES: string;
+  AUTH_DEMO_SMS_FORWARD_TO: string;
+  AUTH_DEMO_SMS_FORWARD_UNTIL: string;
+  AUTH_CHALLENGE_MODE: "deterministic" | "aliyun";
+  AUTH_HUMAN_VERIFICATION_MODE: "disabled" | "aliyun";
+  INTERNAL_DEMO_MODE: "0" | "1";
+}): ApiConfig["authDemoSmsForwarding"] {
+  const sourcesText = input.AUTH_DEMO_SMS_FORWARD_SOURCES.trim();
+  const destinationMobile = input.AUTH_DEMO_SMS_FORWARD_TO.trim();
+  const untilText = input.AUTH_DEMO_SMS_FORWARD_UNTIL.trim();
+  if (!sourcesText && !destinationMobile && !untilText) return null;
+  if (
+    !sourcesText ||
+    !destinationMobile ||
+    !untilText ||
+    input.AUTH_CHALLENGE_MODE !== "aliyun" ||
+    input.AUTH_HUMAN_VERIFICATION_MODE !== "aliyun" ||
+    input.INTERNAL_DEMO_MODE !== "0"
+  )
+    throw new Error(
+      "Demo SMS forwarding requires complete real-auth configuration",
+    );
+
+  const sourceMobiles = sourcesText.split(",").map((value) => value.trim());
+  const mainlandMobile = /^\+861[3-9]\d{9}$/;
+  if (
+    sourceMobiles.length > 5 ||
+    sourceMobiles.some((mobile) => !mainlandMobile.test(mobile)) ||
+    new Set(sourceMobiles).size !== sourceMobiles.length ||
+    !mainlandMobile.test(destinationMobile) ||
+    sourceMobiles.includes(destinationMobile)
+  )
+    throw new Error(
+      "Demo SMS forwarding mobiles must be distinct mainland numbers",
+    );
+
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(untilText))
+    throw new Error("Demo SMS forwarding expiry must be a UTC timestamp");
+  const expiresAtMs = Date.parse(untilText);
+  if (
+    !Number.isFinite(expiresAtMs) ||
+    expiresAtMs > Date.now() + 14 * 24 * 60 * 60 * 1000
+  )
+    throw new Error("Demo SMS forwarding expiry must be within 14 days");
+  return { sourceMobiles, destinationMobile, expiresAtMs };
+}
+
 export function loadApiConfig(
   environment: NodeJS.ProcessEnv = process.env,
 ): ApiConfig {
   const parsed = apiSchema.parse(withLocalDefaults(environment));
+  const authDemoSmsForwarding = parseDemoSmsForwarding(parsed);
   if (
     parsed.AUTH_CHALLENGE_MODE === "deterministic" &&
     !/^\d{6}$/.test(parsed.AUTH_DETERMINISTIC_CODE)
@@ -505,6 +562,7 @@ export function loadApiConfig(
     },
     authChallengeMode: parsed.AUTH_CHALLENGE_MODE,
     authChallengeSendingEnabled: parsed.AUTH_CHALLENGE_SENDING_ENABLED === "1",
+    authDemoSmsForwarding,
     authHumanVerificationMode: parsed.AUTH_HUMAN_VERIFICATION_MODE,
     authHumanVerificationPolicy: {
       unavailableMode: parsed.AUTH_CAPTCHA_UNAVAILABLE_MODE,

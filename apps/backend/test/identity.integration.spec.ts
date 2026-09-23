@@ -137,6 +137,126 @@ describe("terminal-customer passwordless entry", () => {
     );
   });
 
+  it("routes demo delivery without allowing a new account or a different mobile to consume its code", async () => {
+    const sourceMobile = "+8613800138098";
+    const destinationMobile = "+8613900010200";
+    const deliveryInputs: Array<{ mobile: string; recipientMobile?: string }> =
+      [];
+    const routed = authenticationFor(
+      {
+        ...identityTestConfig,
+        authDemoSmsForwarding: {
+          sourceMobiles: [sourceMobile],
+          destinationMobile,
+          expiresAtMs: Date.now() + 60_000,
+        },
+      },
+      {
+        delivery: {
+          deliver: async (input) => {
+            deliveryInputs.push(input);
+            return { outcome: "accepted", developmentCode: input.code };
+          },
+        },
+      },
+    );
+    const beforeAccount = await routed.requestChallenge(sourceMobile);
+    await expect(
+      routed.completeChallenge({
+        challengeId: beforeAccount.challengeId,
+        mobile: sourceMobile,
+        code: beforeAccount.developmentCode,
+      }),
+    ).rejects.toMatchObject({ response: { code: "ACCOUNT_NOT_REGISTERED" } });
+    expect(await prisma.account.count()).toBe(0);
+
+    await prisma.account.create({
+      data: { mobile: sourceMobile, role: "ADMINISTRATOR" },
+    });
+    const challenge = await routed.requestChallenge(sourceMobile);
+    await expect(
+      routed.completeChallenge({
+        challengeId: challenge.challengeId,
+        mobile: destinationMobile,
+        code: challenge.developmentCode,
+      }),
+    ).rejects.toThrow("验证码无效或已过期");
+    const completed = await routed.completeChallenge({
+      challengeId: challenge.challengeId,
+      mobile: sourceMobile,
+      code: challenge.developmentCode,
+    });
+    expect(completed.account).toMatchObject({
+      mobile: sourceMobile,
+      role: "ADMINISTRATOR",
+    });
+    const ordinary = await routed.requestChallenge(destinationMobile);
+    expect(deliveryInputs.at(-1)).toMatchObject({ mobile: destinationMobile });
+    expect(deliveryInputs.at(-1)).not.toHaveProperty("recipientMobile");
+    await expect(
+      routed.completeChallenge({
+        challengeId: ordinary.challengeId,
+        mobile: destinationMobile,
+        code: ordinary.developmentCode,
+      }),
+    ).resolves.toMatchObject({
+      account: { mobile: destinationMobile, role: "TERMINAL_CUSTOMER" },
+    });
+    expect(deliveryInputs.slice(0, 2)).toEqual([
+      {
+        mobile: sourceMobile,
+        recipientMobile: destinationMobile,
+        challengeId: beforeAccount.challengeId,
+        code: beforeAccount.developmentCode,
+        expiresAt: expect.any(Date),
+      },
+      {
+        mobile: sourceMobile,
+        recipientMobile: destinationMobile,
+        challengeId: challenge.challengeId,
+        code: challenge.developmentCode,
+        expiresAt: expect.any(Date),
+      },
+    ]);
+  });
+
+  it("stops demo routing after its deadline without rewriting account identity", async () => {
+    const sourceMobile = "+8613800138099";
+    await prisma.account.create({
+      data: { mobile: sourceMobile, role: "AGENT" },
+    });
+    let recipientMobile: string | undefined;
+    const expired = authenticationFor(
+      {
+        ...identityTestConfig,
+        authDemoSmsForwarding: {
+          sourceMobiles: [sourceMobile],
+          destinationMobile: "+8613900010200",
+          expiresAtMs: Date.now() - 1000,
+        },
+      },
+      {
+        delivery: {
+          deliver: async (input) => {
+            recipientMobile = input.recipientMobile;
+            return { outcome: "accepted", developmentCode: input.code };
+          },
+        },
+      },
+    );
+    const challenge = await expired.requestChallenge(sourceMobile);
+    expect(recipientMobile).toBeUndefined();
+    await expect(
+      expired.completeChallenge({
+        challengeId: challenge.challengeId,
+        mobile: sourceMobile,
+        code: challenge.developmentCode,
+      }),
+    ).resolves.toMatchObject({
+      account: { mobile: sourceMobile, role: "AGENT" },
+    });
+  });
+
   it("consumes a challenge once and revokes logout immediately", async () => {
     const challenge = await authentication.requestChallenge("13800138002");
     const input = {

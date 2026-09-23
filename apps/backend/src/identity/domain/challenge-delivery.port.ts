@@ -31,6 +31,7 @@ export interface ChallengeDeliveryPort {
   deliver(input: {
     challengeId: string;
     mobile: string;
+    recipientMobile?: string;
     code: string;
     expiresAt: Date;
   }): Promise<ChallengeDeliveryResult>;

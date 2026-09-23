@@ -197,6 +197,23 @@ describe("Alibaba authentication adapters", () => {
     expect(fake.calls).toBe(1);
   });
 
+  it("sends a routed demo code only to the delivery recipient", async () => {
+    const fake = new FakeSmsClient({
+      statusCode: 200,
+      body: { code: "OK", requestId: "routed-request" },
+    });
+    await new AliyunSmsChallengeDelivery(fake, config).deliver({
+      challengeId: "demo-challenge",
+      mobile: "+8616600000001",
+      recipientMobile: "+8613900010200",
+      code: "042810",
+      expiresAt: new Date("2026-09-23T00:00:00Z"),
+    });
+    expect(fake.request?.phoneNumbers).toBe("+8613900010200");
+    expect(fake.request?.templateParam).toBe('{"code":"042810"}');
+    expect(fake.calls).toBe(1);
+  });
+
   it("maps explicit SMS rejection without retry and transport timeout to unknown", async () => {
     const rejected = new FakeSmsClient({
       statusCode: 200,

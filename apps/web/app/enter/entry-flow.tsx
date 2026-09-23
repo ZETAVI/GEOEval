@@ -230,7 +230,7 @@ export function EntryFlow({
           </button>
           <p className="step-label">验证手机号</p>
           <h2>输入 6 位验证码</h2>
-          <p className="form-intro">验证码已发送至 {mobile}</p>
+          <p className="form-intro">验证码已发送，请查收短信</p>
           {developmentCode && (
             <p className="development-note">
               当前环境验证码：<b>{developmentCode}</b>

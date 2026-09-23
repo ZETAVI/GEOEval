@@ -235,13 +235,21 @@ export class AuthenticationService {
       ? "UNAVAILABLE_DEGRADED"
       : "VERIFIED";
     const now = new Date();
+    const demoRoute = this.config.authDemoSmsForwarding;
+    const recipientMobile =
+      demoRoute &&
+      now.getTime() < demoRoute.expiresAtMs &&
+      demoRoute.sourceMobiles.includes(mobile)
+        ? demoRoute.destinationMobile
+        : undefined;
     const expiresAt = new Date(
       now.getTime() + this.config.authChallengePolicy.lifetimeMs,
     );
     const code = this.challengeCodeGenerator.generate();
     try {
       const usage = await this.repository.issueChallenge({
-        existingAccountOnly,
+        existingAccountOnly:
+          existingAccountOnly || recipientMobile !== undefined,
         ...(acquisitionVisitToken !== undefined
           ? { acquisitionVisitToken }
           : {}),
@@ -291,6 +299,7 @@ export class AuthenticationService {
       .deliver({
         challengeId: id,
         mobile,
+        ...(recipientMobile ? { recipientMobile } : {}),
         code,
         expiresAt,
       })

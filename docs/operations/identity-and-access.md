@@ -115,6 +115,32 @@ after possible submission preserves and returns the existing Challenge. The
 user waits for that SMS and any later resend must pass the normal interval.
 Provider acceptance is not carrier delivery and carrier delivery is not login.
 
+## Temporary existing-demo-account SMS routing
+
+When approved for a named demonstration, the API may route codes for at most
+five exact, pre-existing demo mobiles to one controlled mainland recipient.
+Configure `AUTH_DEMO_SMS_FORWARD_SOURCES` as comma-separated normalized
+`+86` mobiles, `AUTH_DEMO_SMS_FORWARD_TO` as one normalized recipient and
+`AUTH_DEMO_SMS_FORWARD_UNTIL` as a UTC timestamp no more than 14 days ahead.
+Keep all three blank in normal operation. Partial, duplicate, non-mainland or
+recipient-in-source configuration prevents startup. The route works only with
+real Alibaba CAPTCHA and SMS and `INTERNAL_DEMO_MODE=0`.
+
+Before activation, read the exact production Account roles/status for every
+source, confirm each is an existing demo account, check the recipient through a
+private deployment channel, back up the current environment and record the
+expiry. Do not place the source list or recipient in Git, PRs, Issue comments,
+telemetry or public responses. The original mobile remains the Challenge and
+Session identity; this route cannot register a new account. CAPTCHA, per-mobile
+limits, aggregate budget and the provider's no-retry behavior remain active.
+
+After the role demonstration, use the administrator workspace to provision
+separate real-mobile internal accounts, verify their own SMS login, then clear
+all three routing fields under the normal release lock and restart the API.
+An elapsed expiry stops routing even if the process remains running. Turning it
+off does not revoke an already valid Session; use normal account governance if
+an old demo account should be deactivated.
+
 ## Migration and activation
 
 1. Stop before applying migrations unless the production migration Gate names

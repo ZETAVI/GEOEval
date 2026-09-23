@@ -162,6 +162,51 @@ describe("process-scoped configuration", () => {
     });
   });
 
+  it("requires a complete short-lived demo SMS route under real authentication", () => {
+    const base = {
+      GEOEVAL_LOCAL_DEFAULTS: "1",
+      AUTH_CHALLENGE_MODE: "aliyun",
+      AUTH_HUMAN_VERIFICATION_MODE: "aliyun",
+      ALIBABA_CLOUD_ACCESS_KEY_ID: "access-key",
+      ALIBABA_CLOUD_ACCESS_KEY_SECRET: "access-secret",
+      ALIYUN_CAPTCHA_SCENE_ID: "scene",
+      ALIYUN_SMS_SIGN_NAME: "approved-sign",
+      ALIYUN_SMS_TEMPLATE_CODE: "SMS_123456",
+      AUTH_DEMO_SMS_FORWARD_SOURCES: "+8616600000001,+8616600000002",
+      AUTH_DEMO_SMS_FORWARD_TO: "+8613900010200",
+      AUTH_DEMO_SMS_FORWARD_UNTIL: new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
+    };
+    expect(loadApiConfig(base).authDemoSmsForwarding).toMatchObject({
+      sourceMobiles: ["+8616600000001", "+8616600000002"],
+      destinationMobile: "+8613900010200",
+    });
+    expect(() =>
+      loadApiConfig({ ...base, AUTH_DEMO_SMS_FORWARD_TO: "" }),
+    ).toThrow("complete real-auth configuration");
+    expect(() =>
+      loadApiConfig({
+        ...base,
+        AUTH_DEMO_SMS_FORWARD_SOURCES: "+8616600000001,+8616600000001",
+      }),
+    ).toThrow("distinct mainland numbers");
+    expect(() =>
+      loadApiConfig({
+        ...base,
+        AUTH_DEMO_SMS_FORWARD_UNTIL: new Date(
+          Date.now() + 15 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
+      }),
+    ).toThrow("within 14 days");
+    expect(() =>
+      loadApiConfig({ ...base, AUTH_CHALLENGE_MODE: "deterministic" }),
+    ).toThrow("complete real-auth configuration");
+    expect(
+      loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" }).authDemoSmsForwarding,
+    ).toBeNull();
+  });
+
   it("requires the deterministic code only when deterministic delivery is selected", () => {
     expect(() =>
       loadApiConfig({
