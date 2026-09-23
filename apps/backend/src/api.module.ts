@@ -47,11 +47,6 @@ export class ApiModule {
     config: ApiConfig,
     recharge: RechargeApiConfiguration | null = null,
   ): DynamicModule {
-    if (
-      config.runtimeEnvironment === "production" &&
-      config.agencyAcquisitionEnabled
-    )
-      throw new Error("AGENCY_ACQUISITION_NOT_READY_FOR_PRODUCTION");
     if (config.runtimeEnvironment === "production" && recharge?.controlled)
       throw new Error("CONTROLLED_RECHARGE_IN_PRODUCTION");
     const intelligence = GeoIntelligenceModule.register(config.storeLocation);

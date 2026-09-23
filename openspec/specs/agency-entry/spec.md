@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the controlled A0 entry, anonymous source and atomic initial account attribution. This capability is opt-in and is not enabled for production acquisition.
+Define the controlled A0 entry, anonymous source and atomic initial account attribution. This capability is opt-in; the production demo uses an explicit coordinated API/Web gate.
 
 ## Requirements
 
@@ -107,7 +107,15 @@ Administrators SHALL issue one stable acquisition link for an active AGENT accou
 
 ### Requirement: Controlled activation and maintenance
 
-`AGENCY_ACQUISITION_ENABLED` SHALL default to disabled. The API SHALL reject acquisition activation in production until purchase-time agent/rate snapshots and commercial acceptance are established under their owner.
+`AGENCY_ACQUISITION_ENABLED` SHALL default to disabled in both API and Web. A named production demo MAY activate both after purchase-time agent/rate snapshots are present and the product owner accepts the test scope. Acquisition activation does not enable commission accrual or withdrawal.
+
+#### Scenario: Controlled production demo
+
+- **GIVEN** an active agent and coordinated API/Web activation
+- **WHEN** an administrator issues the agent's stable link and a new customer completes registration through it
+- **THEN** the normal source snapshot and atomic first-account attribution apply
+- **AND** ordinary public registration remains unattributed and existing accounts are not rebound
+- **AND** commission and withdrawal require their separate activation decisions.
 
 #### Scenario: Stop new acquisition while a challenge is accepted
 

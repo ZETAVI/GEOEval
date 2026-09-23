@@ -232,6 +232,9 @@ describe("full application production deployment boundary", () => {
     expect(web).toContain(
       "GEOEVAL_INTERNAL_API_BASE_URL=http://127.0.0.1:3301",
     );
+    expect(api).toContain("AGENCY_ACQUISITION_ENABLED=0");
+    expect(web).toContain("AGENCY_ACQUISITION_ENABLED=0");
+    expect(web).toContain("GEOEVAL_WEB_ORIGIN=https://app.geohdp.com");
     expect(webBuild).toContain(
       "NEXT_PUBLIC_AUTH_HUMAN_VERIFICATION_MODE=aliyun",
     );
