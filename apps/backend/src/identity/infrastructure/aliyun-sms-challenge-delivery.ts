@@ -29,13 +29,14 @@ export class AliyunSmsChallengeDelivery implements ChallengeDeliveryPort {
   async deliver(input: {
     challengeId: string;
     mobile: string;
+    recipientMobile?: string;
     code: string;
     expiresAt: Date;
   }): Promise<ChallengeDeliveryResult> {
     try {
       const response = await this.client.sendSmsWithOptions(
         new SendSmsRequest({
-          phoneNumbers: input.mobile,
+          phoneNumbers: input.recipientMobile ?? input.mobile,
           signName: this.config.authAliyun.smsSignName,
           templateCode: this.config.authAliyun.smsTemplateCode,
           templateParam: JSON.stringify({ code: input.code }),

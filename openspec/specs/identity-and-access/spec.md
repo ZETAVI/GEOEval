@@ -443,6 +443,21 @@ while a delivery adapter owns only message transport.
   submission-unknown outcome and requires any resend to pass the normal
   interval and every Gate.
 
+#### Scenario: Existing demo accounts temporarily share an SMS recipient
+
+- **GIVEN** a deployment-only exact demo-mobile allowlist, one recipient and a
+  bounded expiry are configured with real CAPTCHA and SMS delivery
+- **WHEN** an allowlisted mobile requests a Challenge before that expiry
+- **THEN** the delivery adapter sends one real SMS to that recipient while the
+  persisted Challenge and code digest remain bound to the entered mobile
+- **AND** successful completion can authenticate only an already existing,
+  active account for that entered mobile; it cannot register a new account
+- **AND** normal mobile delivery, limits, budgets, one-time consumption and
+  role checks remain unchanged
+- **BUT WHEN** the route is absent or expired
+- **THEN** delivery uses the entered mobile again without rewriting existing
+  accounts, Challenges or Sessions.
+
 #### Scenario: An operator stops new Challenge messages
 
 - **WHEN** the stop-new-Challenge control is closed for cost, abuse or provider
