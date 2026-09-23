@@ -130,11 +130,15 @@ describe("agency HTTP authority and default activation", () => {
     }
     expect(await db.mobileChallenge.count()).toBe(0);
   });
-  it("defaults closed and forbids production acquisition before commercial activation", async () => {
+  it("defaults closed and permits explicit production pilot activation", async () => {
     expect(base.agencyAcquisitionEnabled).toBe(false);
     expect(() =>
-      ApiModule.register({ ...config, runtimeEnvironment: "production" }),
-    ).toThrow("AGENCY_ACQUISITION_NOT_READY_FOR_PRODUCTION");
+      ApiModule.register({
+        ...config,
+        runtimeEnvironment: "production",
+        geoOptimizationWriterMode: "demo",
+      }),
+    ).not.toThrow();
     const disabled = await createApiApp(base, false);
     await disabled.listen(0, "127.0.0.1");
     try {

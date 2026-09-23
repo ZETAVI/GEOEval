@@ -20,6 +20,26 @@ All application listeners stay on loopback. The browser uses `/api` as
 trusted Origin. Keep the two callback locations exact and above the general Web
 location.
 
+## Controlled agency-entry demo
+
+Agency acquisition is disabled by default. To run the approved demo, set
+`AGENCY_ACQUISITION_ENABLED=1` in **both** the API and Web runtime environments,
+and set Web `GEOEVAL_WEB_ORIGIN=https://app.geohdp.com`. The Web bridge checks
+this exact Origin and uses the loopback API; a missing or mismatched value makes
+the entry unavailable. Restart API and Web together after the protected
+environment change. Keep the Commission Worker's
+`AGENCY_COMMISSION_ENABLED=false` and API/Web
+`AGENCY_WITHDRAWAL_ENABLED=0` unless their separate release Gates are approved.
+
+Before activation, confirm an active agent, the administrator's real login,
+the current link/attribution counts, a database backup and unchanged payment
+facts. The administrator issues the agent link through account management; a
+new test customer follows it, receives the normal CAPTCHA/SMS Challenge and
+registers through `/enter`. Verify the new account's durable agent attribution
+and that an existing customer is not rebound. Do not paste a visit Cookie or
+OTP into release evidence. To stop new acquisition, return both flags to `0`
+and restart; retain accepted account attribution and audit.
+
 ## Immutable release
 
 Build the release for **Linux x64 with Node 24.12** from the accepted revision.
