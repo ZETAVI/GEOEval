@@ -47,7 +47,12 @@ Build on an isolated runner or workstation with a Linux container. Do not run a
 Next production build on the 4 GiB application host; deployment only transfers
 an already verified immutable release.
 Do not copy a macOS `node_modules` or `.next/standalone` tree to the server.
-After `pnpm install --frozen-lockfile` and `pnpm build`, assemble the Web output
+After `pnpm install --frozen-lockfile`, set the public values below in the
+build environment and run `pnpm build:public-release`. This command rejects
+missing public inputs before building and checks that the resulting browser
+chunks contain the expected values instead of unresolved variable names or the
+local API fallback. Runtime systemd environment values cannot repair a Web
+bundle built without these inputs. Assemble the Web output
 as required by Next.js:
 
 ```text
