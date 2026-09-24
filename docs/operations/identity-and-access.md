@@ -141,6 +141,35 @@ An elapsed expiry stops routing even if the process remains running. Turning it
 off does not revoke an already valid Session; use normal account governance if
 an old demo account should be deactivated.
 
+## Controlled Agency Entry activation
+
+Agency acquisition is a separate opt-in capability owned by the
+[Agency Entry contract](../../openspec/specs/agency-entry/spec.md). It may be
+enabled for a named production pilot only after purchase-time agent/rate
+snapshots exist and the product owner approves the exact test. Activation does
+not enable commission accrual or withdrawal.
+
+Set `AGENCY_ACQUISITION_ENABLED` to the same `0` or `1` value in the API and Web
+environment files. Under the shared-host and GEOEval deployment locks, back up
+both protected files, change both values, restart API and Web, and wait for live
+and ready probes before exercising an entry. A one-sided setting is a failed
+deployment: restore matching values instead of silently falling back to public
+attribution.
+
+When enabled, verify one administrator-issued active-agent link returns a 303 to
+the ordinary `/enter` page and creates only an expiring anonymous visit. After a
+user-operated CAPTCHA/SMS/OTP registration, verify one new terminal account,
+one Session, one revision-1 customer attribution and one `INITIAL_BIND` audit;
+never retain the mobile, OTP, entry Cookie or Session token as evidence. A later
+login through an entry must not create another account, attribution revision or
+initial-bind audit.
+
+For configuration rollback, turn both values to `0`, restart API and Web, and
+verify the agent link returns 503 while health remains ready. Existing accounts,
+attribution, audits and order snapshots must remain unchanged. Restore both
+values together when the approved pilot continues. Keep commission and
+withdrawal switches under their independent Release Gates.
+
 ## Migration and activation
 
 1. Stop before applying migrations unless the production migration Gate names
@@ -231,8 +260,8 @@ growth before changing retention or adding another authority store.
 | SMS returns signature/template/qualification/balance/permission failure | Keep new sending closed, repair the external asset or credential and re-run a named test                                                                                | Do not retry, switch signature silently or expose raw provider detail                |
 | SMS submission times out with unknown outcome                           | Preserve the Challenge, ask the user to wait, and allow only the ordinary resend path after its interval                                                                | Do not submit a second SMS automatically                                             |
 | SMS cost or abuse grows unexpectedly                                    | Set AUTH_CHALLENGE_SENDING_ENABLED=0 and restart/reload through the authorized release path; keep Sessions available                                                    | Do not delete Challenge, Account or Session facts to stop cost                       |
-| Daily or monthly Challenge budget is exhausted                          | Keep new sending closed, inspect the singleton budget and provider console, then adjust only through an approved environment change                                    | Do not reset counters in SQL or expose counts to callers                             |
-| Public edge exposes Swagger or Foundation validation                    | Restore the prior Basic-Auth Nginx file or prior immutable release, then correct production composition                                                                | Do not rely on an unlinked hidden URL as access control                              |
+| Daily or monthly Challenge budget is exhausted                          | Keep new sending closed, inspect the singleton budget and provider console, then adjust only through an approved environment change                                     | Do not reset counters in SQL or expose counts to callers                             |
+| Public edge exposes Swagger or Foundation validation                    | Restore the prior Basic-Auth Nginx file or prior immutable release, then correct production composition                                                                 | Do not rely on an unlinked hidden URL as access control                              |
 
 ## Release evidence
 
