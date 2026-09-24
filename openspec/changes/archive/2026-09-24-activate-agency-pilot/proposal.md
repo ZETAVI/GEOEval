@@ -54,3 +54,13 @@ is available, back up the current environment/database, verify the exact agent
 and zero-link baseline, activate both flags under the deployment lock, restart
 API and Web, then perform one user-driven new-customer test. Revert by turning
 both flags off; preserve accepted account attribution and audit.
+
+## Accepted result
+
+The capability was deployed and accepted on `geoeval-916d869`. Coordinated
+API/Web activation, one user-operated new-customer registration, durable atomic
+attribution, repeat-login non-rebinding and coordinated configuration rollback
+all passed. Commission and withdrawal remained off. Current behavior is owned
+by the Agency Entry spec and the operational activation/rollback procedure is
+owned by the Identity and Access runbook. Later commission/withdrawal production
+activation is independently tracked by Issue #167.
