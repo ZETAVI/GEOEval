@@ -310,7 +310,10 @@ export class AuthenticationService {
           observation.deliveryProviderRequestId = error.providerRequestId;
           throw new ServiceUnavailableException({
             code: "CHALLENGE_DELIVERY_UNAVAILABLE",
-            message: "暂时无法发送验证码，请稍后重试",
+            message:
+              error.reason === "RATE_LIMIT"
+                ? "短信发送频繁，请稍后再试"
+                : "暂时无法发送验证码，请稍后重试",
           });
         }
         observation.delivery = "UNEXPECTED_FAILURE";

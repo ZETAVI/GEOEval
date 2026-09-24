@@ -235,6 +235,22 @@ describe("Alibaba authentication adapters", () => {
     });
     expect(rejected.calls).toBe(1);
 
+    const rateLimited = new FakeSmsClient({
+      statusCode: 200,
+      body: { code: "isv.BUSINESS_LIMIT_CONTROL" },
+    });
+    await expect(
+      new AliyunSmsChallengeDelivery(rateLimited, config).deliver({
+        challengeId: "challenge",
+        mobile: "+8613800138000",
+        code: "246810",
+        expiresAt: new Date(),
+      }),
+    ).rejects.toMatchObject<Partial<ChallengeDeliveryRejectedError>>({
+      reason: "RATE_LIMIT",
+    });
+    expect(rateLimited.calls).toBe(1);
+
     const timeout = new FakeSmsClient(
       undefined,
       Object.assign(new Error("connect ETIMEDOUT"), {

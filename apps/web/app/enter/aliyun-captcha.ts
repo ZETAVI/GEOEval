@@ -70,7 +70,10 @@ export async function prepareAliyunCaptcha(): Promise<
         }
         current.resolve(captchaVerifyParam);
       },
-      fail: () => rejectPending("安全验证未通过，请重试"),
+      fail: () => {
+        // The SDK refreshes an unsuccessful attempt within the same challenge.
+        // Keep waiting for success, explicit dismissal, or a terminal error.
+      },
       onError: () => {
         rejectPending("安全验证暂时不可用，请稍后重试");
         if (!instance) reject(new Error("安全验证组件初始化失败"));
