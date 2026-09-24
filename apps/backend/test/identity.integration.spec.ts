@@ -480,10 +480,30 @@ describe("terminal-customer passwordless entry", () => {
       rejected.requestChallenge("13800138024"),
     ).rejects.toMatchObject({
       status: 503,
-      response: { code: "CHALLENGE_DELIVERY_UNAVAILABLE" },
+      response: {
+        code: "CHALLENGE_DELIVERY_UNAVAILABLE",
+        message: "暂时无法发送验证码，请稍后重试",
+      },
     });
     expect(rejectionCalls).toBe(1);
     expect(await prisma.mobileChallenge.count()).toBe(1);
+
+    const throttled = authenticationFor(identityTestConfig, {
+      delivery: {
+        deliver: async () => {
+          throw new ChallengeDeliveryRejectedError("RATE_LIMIT");
+        },
+      },
+    });
+    await expect(
+      throttled.requestChallenge("13800138027"),
+    ).rejects.toMatchObject({
+      status: 503,
+      response: {
+        code: "CHALLENGE_DELIVERY_UNAVAILABLE",
+        message: "短信发送频繁，请稍后再试",
+      },
+    });
 
     let unknownCalls = 0;
     const unknown = authenticationFor(identityTestConfig, {
@@ -499,7 +519,7 @@ describe("terminal-customer passwordless entry", () => {
       expiresAt: expect.any(String),
     });
     expect(unknownCalls).toBe(1);
-    expect(await prisma.mobileChallenge.count()).toBe(2);
+    expect(await prisma.mobileChallenge.count()).toBe(3);
   });
 
   it("observes bounded Challenge outcomes without mobile or plaintext code", async () => {

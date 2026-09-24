@@ -73,4 +73,52 @@ describe("Alibaba invisible CAPTCHA client", () => {
       delayBeforeSuccess: false,
     });
   });
+
+  it("keeps an invisible verification pending when an intermediate attempt fails", async () => {
+    vi.stubEnv("NEXT_PUBLIC_AUTH_HUMAN_VERIFICATION_MODE", "aliyun");
+    vi.stubEnv("NEXT_PUBLIC_ALIYUN_CAPTCHA_PREFIX", "public-prefix");
+    vi.stubEnv("NEXT_PUBLIC_ALIYUN_CAPTCHA_SCENE_ID", "18hnihr4");
+
+    vi.stubGlobal("window", {
+      initAliyunCaptcha: (options: {
+        fail(result: unknown): void;
+        success(value: string): void;
+        getInstance(instance: { startTracelessVerification(): void }): void;
+      }) => {
+        options.getInstance({
+          startTracelessVerification: () => {
+            options.fail({ code: "intermediate" });
+            options.success("fresh-opaque-value");
+          },
+        });
+      },
+    });
+
+    const gate = await prepareAliyunCaptcha();
+    await expect(gate?.start()).resolves.toBe("fresh-opaque-value");
+  });
+
+  it("still stops a pending verification when the user closes the challenge", async () => {
+    vi.stubEnv("NEXT_PUBLIC_AUTH_HUMAN_VERIFICATION_MODE", "aliyun");
+    vi.stubEnv("NEXT_PUBLIC_ALIYUN_CAPTCHA_PREFIX", "public-prefix");
+    vi.stubEnv("NEXT_PUBLIC_ALIYUN_CAPTCHA_SCENE_ID", "18hnihr4");
+
+    vi.stubGlobal("window", {
+      initAliyunCaptcha: (options: {
+        fail(result: unknown): void;
+        onClose(reason: string): void;
+        getInstance(instance: { startTracelessVerification(): void }): void;
+      }) => {
+        options.getInstance({
+          startTracelessVerification: () => {
+            options.fail({ code: "intermediate" });
+            options.onClose("userDismiss");
+          },
+        });
+      },
+    });
+
+    const gate = await prepareAliyunCaptcha();
+    await expect(gate?.start()).rejects.toThrow("请完成安全验证后再获取验证码");
+  });
 });
