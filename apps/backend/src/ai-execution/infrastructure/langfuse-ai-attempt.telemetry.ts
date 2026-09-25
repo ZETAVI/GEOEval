@@ -101,6 +101,22 @@ function finishObservation(
 export function diagnosticInputProjection(
   request: ResolvedAiAttemptRequest,
 ): unknown {
+  if (request.input.taskKind === "BROWSER_EVALUATION_ACQUISITION") {
+    return maskTelemetryData(
+      {
+        schemaVersion: inputProjectionVersion,
+        purpose: request.purpose,
+        task: {
+          taskKind: request.input.taskKind,
+          platformKey: request.input.platformKey,
+          questionId: request.input.questionId,
+          externalTaskId: request.input.externalTaskId,
+          resultIndex: request.input.resultIndex,
+        },
+      },
+      "local-diagnostic",
+    );
+  }
   const prompt = {
     systemInstruction: request.input.systemInstruction,
     contentHash: createHash("sha256")

@@ -18,6 +18,11 @@ export interface AiAttemptRepository {
     result: AiAdapterResult,
     latencyMs: number,
   ): Promise<StoredAiAttempt>;
+  recordExternal(
+    request: ResolvedSampleAiAttemptRequest,
+    result: AiAdapterResult,
+    latencyMs: number,
+  ): Promise<StoredAiAttempt>;
   rejectSemantics(
     attemptId: string,
     rejection: AiSemanticRejection,

@@ -23,6 +23,11 @@ export class ModelStudioProviderAdapter implements ProviderRouteAdapter {
     definition: ProviderRouteDefinition,
   ) {
     if (request.purpose === "EVALUATION_ACQUISITION") {
+      if (request.input.taskKind !== "EVALUATION_ACQUISITION") {
+        throw new Error(
+          "Model Studio cannot execute a recorded browser acquisition",
+        );
+      }
       return executeProviderJsonRequest({
         request,
         definition,

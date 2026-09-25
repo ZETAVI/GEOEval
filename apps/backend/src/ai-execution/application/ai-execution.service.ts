@@ -17,7 +17,9 @@ import {
 import { toTerminalAiOutcome } from "../domain/ai-attempt.outcome.js";
 import type { AiSemanticRejection } from "../domain/ai-attempt.envelope.js";
 import type {
+  AiAdapterResult,
   AiAttemptOutcome,
+  ResolvedSampleAiAttemptRequest,
   SampleAiAttemptRequest,
 } from "../domain/ai-attempt.types.js";
 
@@ -76,5 +78,22 @@ export class AiExecutionService {
     ) {
       throw new Error("AI attempt semantic rejection was not persisted");
     }
+  }
+
+  async recordExternal(
+    request: ResolvedSampleAiAttemptRequest,
+    result: AiAdapterResult,
+    latencyMs: number,
+  ): Promise<Exclude<AiAttemptOutcome, { kind: "DEFERRED" }>> {
+    const stored = await this.repository.recordExternal(
+      request,
+      result,
+      latencyMs,
+    );
+    const outcome = toTerminalAiOutcome(stored);
+    if (!outcome || outcome.kind === "DEFERRED") {
+      throw new Error("External AI attempt did not reach a terminal state");
+    }
+    return outcome;
   }
 }

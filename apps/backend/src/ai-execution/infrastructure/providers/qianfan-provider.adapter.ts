@@ -19,6 +19,9 @@ export class QianfanProviderAdapter implements ProviderRouteAdapter {
     if (request.purpose !== "EVALUATION_ACQUISITION") {
       throw new Error("Qianfan sampling route received a structured purpose");
     }
+    if (request.input.taskKind !== "EVALUATION_ACQUISITION") {
+      throw new Error("Qianfan cannot execute a recorded browser acquisition");
+    }
     return executeProviderJsonRequest({
       request,
       definition: route,

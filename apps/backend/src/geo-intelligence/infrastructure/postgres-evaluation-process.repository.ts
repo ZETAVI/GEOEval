@@ -1,4 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
 
 import type { Prisma } from "../../generated/prisma/client.js";
@@ -17,6 +18,7 @@ import { synthesisRequestedEvent } from "../domain/evaluation-synthesis.events.j
 import type {
   AcceptedEvidence,
   AcceptedInterpretation,
+  BrowserSamplingBatchContext,
   EvaluationSampleWorkContext,
   StageFailureInput,
 } from "../domain/evaluation-process.types.js";
@@ -39,7 +41,13 @@ const platformPolicySchema = z.array(
 export class PostgresEvaluationProcessRepository implements EvaluationProcessRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async initializeRun(runId: string, cycleId: string): Promise<void> {
+  async initializeRun(
+    runId: string,
+    cycleId: string,
+    sampling:
+      | { mode: "ai-provider" }
+      | { mode: "browser-control-plane"; accountAlias: string },
+  ): Promise<void> {
     await this.prisma.$transaction(async (transaction) => {
       const run = await transaction.evaluationRun.findFirstOrThrow({
         where: {
@@ -47,14 +55,56 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
           status: "EVALUATING",
           executionCycles: { some: { id: cycleId, status: "ACTIVE" } },
         },
-        include: { samples: { select: { id: true } } },
+        include: {
+          definition: { select: { questionGeneratorVersion: true } },
+          samples: {
+            include: {
+              question: { select: { ordinal: true } },
+            },
+          },
+        },
       });
       await transaction.evaluationRun.updateMany({
         where: { id: runId, stage: "QUEUED" },
         data: { stage: "PROCESSING_EVIDENCE" },
       });
+      if (sampling.mode === "browser-control-plane") {
+        const grouped = groupSamplesByPlatform(run.samples);
+        for (const [platformKey, samples] of grouped) {
+          const ordered = [...samples].sort(
+            (left, right) => left.question.ordinal - right.question.ordinal,
+          );
+          const batchId = randomUUID();
+          const questionSetVersion = `${run.definitionId}:${run.definition.questionGeneratorVersion}`;
+          await transaction.evaluationSamplingBatch.upsert({
+            where: { cycleId_platformKey: { cycleId, platformKey } },
+            create: {
+              id: batchId,
+              runId,
+              cycleId,
+              platformKey,
+              accountAlias: sampling.accountAlias,
+              questionSetVersion,
+              idempotencyKey: browserSamplingIdempotencyKey({
+                runId,
+                cycleId,
+                questionSetVersion,
+                platformKey,
+                accountAlias: sampling.accountAlias,
+              }),
+              expectedCount: ordered.length,
+              sampleIds: ordered.map((sample) => sample.id),
+            },
+            update: {},
+          });
+        }
+      }
+      const workSamples =
+        sampling.mode === "browser-control-plane"
+          ? browserBatchLeaders(run.samples)
+          : run.samples;
       await transaction.productOutboxEvent.createMany({
-        data: run.samples.map((sample) =>
+        data: workSamples.map((sample) =>
           sampleWorkRequestedEvent({
             runId,
             cycleId,
@@ -66,6 +116,165 @@ export class PostgresEvaluationProcessRepository implements EvaluationProcessRep
         ),
         skipDuplicates: true,
       });
+    });
+  }
+
+  async getOrCreateBrowserSamplingBatch(input: {
+    sampleId: string;
+    runId: string;
+    cycleId: string;
+    accountAlias: string;
+  }): Promise<BrowserSamplingBatchContext | undefined> {
+    const selected = await this.prisma.evaluationSample.findFirst({
+      where: {
+        id: input.sampleId,
+        runId: input.runId,
+        run: {
+          status: "EVALUATING",
+          stage: "PROCESSING_EVIDENCE",
+          executionCycles: {
+            some: { id: input.cycleId, status: "ACTIVE" },
+          },
+        },
+      },
+      select: {
+        platformKey: true,
+        run: {
+          select: {
+            definitionId: true,
+            correlationId: true,
+            definition: { select: { questionGeneratorVersion: true } },
+          },
+        },
+      },
+    });
+    if (!selected) return undefined;
+    const questionSetVersion = `${selected.run.definitionId}:${selected.run.definition.questionGeneratorVersion}`;
+    const existingBatch = await this.prisma.evaluationSamplingBatch.findUnique({
+      where: {
+        cycleId_platformKey: {
+          cycleId: input.cycleId,
+          platformKey: selected.platformKey,
+        },
+      },
+      select: { id: true },
+    });
+    if (!existingBatch) {
+      const pendingSamples = await this.prisma.evaluationSample.findMany({
+        where: {
+          runId: input.runId,
+          platformKey: selected.platformKey,
+          status: "PENDING",
+        },
+        include: { question: { select: { ordinal: true } } },
+        orderBy: { question: { ordinal: "asc" } },
+      });
+      if (pendingSamples.length === 0) return undefined;
+      try {
+        await this.prisma.evaluationSamplingBatch.create({
+          data: {
+            runId: input.runId,
+            cycleId: input.cycleId,
+            platformKey: selected.platformKey,
+            accountAlias: input.accountAlias,
+            questionSetVersion,
+            idempotencyKey: browserSamplingIdempotencyKey({
+              runId: input.runId,
+              cycleId: input.cycleId,
+              questionSetVersion,
+              platformKey: selected.platformKey,
+              accountAlias: input.accountAlias,
+            }),
+            expectedCount: pendingSamples.length,
+            sampleIds: pendingSamples.map((sample) => sample.id),
+          },
+        });
+      } catch (error) {
+        if (!isUniqueViolation(error)) throw error;
+      }
+    }
+    let batch = await this.prisma.evaluationSamplingBatch.findUnique({
+      where: {
+        cycleId_platformKey: {
+          cycleId: input.cycleId,
+          platformKey: selected.platformKey,
+        },
+      },
+      include: { run: { select: { correlationId: true } } },
+    });
+    if (!batch) return undefined;
+    if (!Array.isArray(batch.sampleIds)) {
+      throw new Error(`Browser sampling batch ${batch.id} has invalid samples`);
+    }
+    const sampleIds = batch.sampleIds.filter(
+      (value): value is string => typeof value === "string",
+    );
+    const samples = await this.prisma.evaluationSample.findMany({
+      where: { id: { in: sampleIds }, runId: input.runId },
+      include: {
+        question: { select: { id: true, content: true, ordinal: true } },
+      },
+    });
+    const sampleById = new Map(samples.map((sample) => [sample.id, sample]));
+    return {
+      batchId: batch.id,
+      runId: batch.runId,
+      cycleId: batch.cycleId,
+      platformKey: batch.platformKey,
+      accountAlias: batch.accountAlias,
+      idempotencyKey: batch.idempotencyKey,
+      externalTaskId: batch.externalTaskId,
+      status: batch.status,
+      createdAt: batch.createdAt,
+      submittedAt: batch.submittedAt,
+      correlationId: batch.run.correlationId,
+      samples: sampleIds.map((id) => {
+        const sample = sampleById.get(id);
+        if (!sample) {
+          throw new Error(
+            `Browser sampling batch ${batch.id} lost sample ${id}`,
+          );
+        }
+        return {
+          sampleId: sample.id,
+          questionId: sample.question.id,
+          query: sample.question.content,
+          questionOrdinal: sample.question.ordinal,
+          status: sample.status,
+        };
+      }),
+    };
+  }
+
+  async markBrowserSamplingBatchSubmitted(
+    batchId: string,
+    externalTaskId: string,
+  ): Promise<void> {
+    await this.prisma.evaluationSamplingBatch.updateMany({
+      where: { id: batchId, status: "PENDING" },
+      data: {
+        status: "SUBMITTED",
+        externalTaskId,
+        submittedAt: new Date(),
+      },
+    });
+  }
+
+  async completeBrowserSamplingBatch(input: {
+    batchId: string;
+    acquiredCount: number;
+    failedCount: number;
+    lateCount: number;
+  }): Promise<void> {
+    await this.prisma.evaluationSamplingBatch.updateMany({
+      where: { id: input.batchId, status: { in: ["PENDING", "SUBMITTED"] } },
+      data: {
+        status: "COMPLETED",
+        acquiredCount: input.acquiredCount,
+        failedCount: input.failedCount,
+        lateCount: input.lateCount,
+        completedAt: new Date(),
+      },
     });
   }
 
@@ -555,4 +764,47 @@ function isUniqueViolation(error: unknown): boolean {
     "code" in error &&
     error.code === "P2002"
   );
+}
+
+function groupSamplesByPlatform<T extends { platformKey: string }>(
+  samples: readonly T[],
+): Map<string, T[]> {
+  const grouped = new Map<string, T[]>();
+  for (const sample of samples) {
+    const group = grouped.get(sample.platformKey) ?? [];
+    group.push(sample);
+    grouped.set(sample.platformKey, group);
+  }
+  return grouped;
+}
+
+function browserBatchLeaders<
+  T extends { platformKey: string; question: { ordinal: number } },
+>(samples: readonly T[]): T[] {
+  return [...groupSamplesByPlatform(samples).values()].map(
+    (group) =>
+      [...group].sort(
+        (left, right) => left.question.ordinal - right.question.ordinal,
+      )[0]!,
+  );
+}
+
+function browserSamplingIdempotencyKey(input: {
+  runId: string;
+  cycleId: string;
+  questionSetVersion: string;
+  platformKey: string;
+  accountAlias: string;
+}): string {
+  return createHash("sha256")
+    .update(
+      [
+        input.runId,
+        input.cycleId,
+        input.questionSetVersion,
+        input.platformKey,
+        input.accountAlias,
+      ].join(":"),
+    )
+    .digest("hex");
 }

@@ -76,6 +76,7 @@ describe("process-scoped configuration", () => {
       requestTimeoutMs: 180_000,
       ambiguityTimeoutMs: 210_000,
     });
+    expect(worker.evaluationSampling).toEqual({ mode: "ai-provider" });
     expect(
       loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" }).geoOptimizationWriterMode,
     ).toBe("deterministic");
@@ -83,6 +84,48 @@ describe("process-scoped configuration", () => {
       loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" })
         .authChallengeSendingEnabled,
     ).toBe(true);
+  });
+
+  it("requires HTTPS for browser sampling outside tests", () => {
+    const base = {
+      DATABASE_URL: "postgresql://example/worker",
+      REDIS_URL: "redis://127.0.0.1:6379",
+      AI_EXECUTION_MODE: "real",
+      AI_PROVIDER_TIMEOUT_MS: "1000",
+      AI_ATTEMPT_AMBIGUITY_TIMEOUT_MS: "2000",
+      TOKENHUB_API_KEY: "tokenhub",
+      ARK_API_KEY: "ark",
+      DASHSCOPE_API_KEY: "dashscope",
+      QIANFAN_API_KEY: "qianfan",
+      DASHSCOPE_BASE_URL: "https://workspace.example.com/v1",
+      EVALUATION_SAMPLING_MODE: "browser-control-plane",
+    };
+    expect(() =>
+      loadWorkerConfig({
+        ...base,
+        BROWSER_SAMPLER_BASE_URL: "http://sampler.internal",
+      }),
+    ).toThrow("must use HTTPS");
+    expect(
+      loadWorkerConfig({
+        ...base,
+        NODE_ENV: "test",
+        BROWSER_SAMPLER_BASE_URL: "http://127.0.0.1:4610",
+      }).evaluationSampling,
+    ).toMatchObject({
+      mode: "browser-control-plane",
+      accountId: "primary",
+      collectionDeadlineMs: 85_000,
+      maximumWaitMs: 600_000,
+    });
+    expect(() =>
+      loadWorkerConfig({
+        ...base,
+        NODE_ENV: "test",
+        BROWSER_SAMPLER_COLLECTION_DEADLINE_MS: "85000",
+        BROWSER_SAMPLER_MAXIMUM_WAIT_MS: "85000",
+      }),
+    ).toThrow("must exceed the collection deadline");
   });
 
   it("rejects deterministic challenge delivery in production", () => {

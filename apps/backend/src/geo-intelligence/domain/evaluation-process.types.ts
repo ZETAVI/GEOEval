@@ -70,3 +70,29 @@ export type StageFailureInput = {
   reason: string;
   correlationId: string;
 };
+
+export type BrowserSamplingBatchContext = {
+  batchId: string;
+  runId: string;
+  cycleId: string;
+  platformKey: string;
+  accountAlias: string;
+  idempotencyKey: string;
+  externalTaskId: string | null;
+  status: "PENDING" | "SUBMITTED" | "COMPLETED";
+  createdAt: Date;
+  submittedAt: Date | null;
+  correlationId: string;
+  samples: Array<{
+    sampleId: string;
+    questionId: string;
+    query: string;
+    questionOrdinal: number;
+    status:
+      | "PENDING"
+      | "EVIDENCE_ACCEPTED"
+      | "INTERPRETATION_ACCEPTED"
+      | "ACQUISITION_EXHAUSTED"
+      | "INTERPRETATION_EXHAUSTED";
+  }>;
+};

@@ -108,6 +108,12 @@ enum EvaluationSampleStatus {
   INTERPRETATION_EXHAUSTED
 }
 
+enum EvaluationSamplingBatchStatus {
+  PENDING
+  SUBMITTED
+  COMPLETED
+}
+
 enum AiExecutionPurpose {
   EVALUATION_ACQUISITION
   EVALUATION_INTERPRETATION
@@ -606,6 +612,7 @@ model EvaluationRun {
   definition           EvaluationDefinition            @relation(fields: [definitionId, accountId, brandId], references: [id, accountId, brandId], onDelete: Restrict)
   samples              EvaluationSample[]
   executionCycles      EvaluationExecutionCycle[]
+  samplingBatches      EvaluationSamplingBatch[]
   synthesis            EvaluationSynthesis?
   brandResolution      EvaluationBrandResolution?
   report               EvaluationReport?
@@ -631,11 +638,41 @@ model EvaluationExecutionCycle {
   failures            EvaluationStageExhaustion[]
   synthesisAttempts   AiSynthesisAttempt[]
   synthesisExhaustion EvaluationSynthesisExhaustion?
+  samplingBatches     EvaluationSamplingBatch[]
 
   @@unique([runId, sequence])
   @@unique([id, runId])
   @@index([status, updatedAt])
   @@map("evaluation_execution_cycles")
+}
+
+model EvaluationSamplingBatch {
+  id                 String                        @id @default(uuid()) @db.Uuid
+  runId              String                        @map("run_id") @db.Uuid
+  cycleId            String                        @map("cycle_id") @db.Uuid
+  platformKey        String                        @map("platform_key") @db.VarChar(40)
+  accountAlias       String                        @map("account_alias") @db.VarChar(120)
+  questionSetVersion String                        @map("question_set_version") @db.VarChar(160)
+  idempotencyKey     String                        @map("idempotency_key") @db.Char(64)
+  externalTaskId     String?                       @map("external_task_id") @db.VarChar(160)
+  status             EvaluationSamplingBatchStatus @default(PENDING)
+  expectedCount      Int                           @map("expected_count")
+  sampleIds          Json                          @map("sample_ids")
+  acquiredCount      Int                           @default(0) @map("acquired_count")
+  failedCount        Int                           @default(0) @map("failed_count")
+  lateCount          Int                           @default(0) @map("late_count")
+  submittedAt        DateTime?                     @map("submitted_at")
+  completedAt        DateTime?                     @map("completed_at")
+  createdAt          DateTime                      @default(now()) @map("created_at")
+  updatedAt          DateTime                      @updatedAt @map("updated_at")
+  run                EvaluationRun                 @relation(fields: [runId], references: [id], onDelete: Restrict)
+  cycle              EvaluationExecutionCycle      @relation(fields: [cycleId, runId], references: [id, runId], onDelete: Restrict, map: "evaluation_sampling_batches_cycle_run_fkey")
+
+  @@unique([cycleId, platformKey])
+  @@unique([idempotencyKey])
+  @@index([status, updatedAt])
+  @@index([runId, platformKey])
+  @@map("evaluation_sampling_batches")
 }
 
 model EvaluationSample {

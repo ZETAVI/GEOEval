@@ -26,6 +26,11 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
       if (request.purpose !== "EVALUATION_ACQUISITION") {
         throw new Error("TokenHub Chat route received a structured purpose");
       }
+      if (request.input.taskKind !== "EVALUATION_ACQUISITION") {
+        throw new Error(
+          "TokenHub cannot execute a recorded browser acquisition",
+        );
+      }
       return executeProviderJsonRequest({
         request,
         definition,
@@ -49,20 +54,27 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
     }
     const body =
       request.purpose === "EVALUATION_ACQUISITION"
-        ? {
-            model: definition.requestedModel,
-            input: request.input.query,
-            instructions: request.input.systemInstruction,
-            stream: false,
-            tools: [
-              {
-                type: "web_search",
-                search_source: "lite",
-                search_context_size: "medium",
-                user_location: location(request.input),
-              },
-            ],
-          }
+        ? (() => {
+            if (request.input.taskKind !== "EVALUATION_ACQUISITION") {
+              throw new Error(
+                "TokenHub cannot execute a recorded browser acquisition",
+              );
+            }
+            return {
+              model: definition.requestedModel,
+              input: request.input.query,
+              instructions: request.input.systemInstruction,
+              stream: false,
+              tools: [
+                {
+                  type: "web_search",
+                  search_source: "lite",
+                  search_context_size: "medium",
+                  user_location: location(request.input),
+                },
+              ],
+            };
+          })()
         : structuredBody(definition, request.input);
     return executeProviderJsonRequest({
       request,

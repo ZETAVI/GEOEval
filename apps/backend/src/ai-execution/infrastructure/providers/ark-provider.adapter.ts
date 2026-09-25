@@ -19,6 +19,9 @@ export class ArkProviderAdapter implements ProviderRouteAdapter {
     if (request.purpose !== "EVALUATION_ACQUISITION") {
       throw new Error("Ark sampling route received a structured purpose");
     }
+    if (request.input.taskKind !== "EVALUATION_ACQUISITION") {
+      throw new Error("Ark cannot execute a recorded browser acquisition");
+    }
     return executeProviderJsonRequest({
       request,
       definition: route,

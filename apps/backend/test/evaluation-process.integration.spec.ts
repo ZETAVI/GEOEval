@@ -24,6 +24,10 @@ import { BrandService } from "../src/brand/application/brand.service.js";
 import { PostgresBrandRepository } from "../src/brand/infrastructure/postgres-brand.repository.js";
 import { BrandReferenceData } from "../src/brand/reference-data/brand-reference-data.js";
 import { EvaluationProcessCoordinator } from "../src/geo-intelligence/application/evaluation-process.coordinator.js";
+import {
+  BrowserSamplingTransportError,
+  type BrowserSamplingGateway,
+} from "../src/geo-intelligence/domain/browser-sampling.gateway.js";
 import { EvaluationOptimizationGuidanceService } from "../src/geo-intelligence/application/evaluation-optimization-guidance.service.js";
 import { EvaluationReportService } from "../src/geo-intelligence/application/evaluation-report.service.js";
 import { EvaluationSynthesisCoordinator } from "../src/geo-intelligence/application/evaluation-synthesis.coordinator.js";
@@ -41,6 +45,7 @@ import { SafeTelemetry } from "../src/infrastructure/telemetry.js";
 import { NotificationEventHandler } from "../src/notification/application/notification-event.handler.js";
 import { PostgresNotificationRepository } from "../src/notification/infrastructure/postgres-notification.repository.js";
 import { WorkerModule } from "../src/worker.module.js";
+import type { BrowserSamplingConfig } from "../src/geo-intelligence/infrastructure/browser-sampling.config.js";
 import {
   clearCustomerData,
   readyCoffeeBrandInput,
@@ -966,6 +971,279 @@ describe("resumable evaluation evidence", () => {
     ).toMatchObject({ stage: "REPORT_ACCEPTED" });
   });
 
+  it("accepts partial browser-control-plane batches without replaying captured siblings", async () => {
+    const submitted = new Map<string, string[]>();
+    const submitKeys: string[] = [];
+    let controlPlaneUnavailable = true;
+    const gateway: BrowserSamplingGateway = {
+      async submitBatch(input) {
+        submitKeys.push(input.idempotencyKey);
+        if (controlPlaneUnavailable) {
+          controlPlaneUnavailable = false;
+          throw new BrowserSamplingTransportError("controlled outage");
+        }
+        submitted.set(input.platform, input.prompts);
+        return { externalTaskId: `task-${input.platform}` };
+      },
+      async readBatch(externalTaskId) {
+        const platform = externalTaskId.replace("task-", "");
+        return {
+          kind: "TERMINAL",
+          status: platform === "doubao" ? "FAILED" : "SUCCEEDED",
+          collectionElapsedMs: 64_000,
+          failureCode:
+            platform === "doubao" ? "PLATFORM_SUBMISSION_FAILED" : null,
+          failureMessage:
+            platform === "doubao" ? "one controlled failure" : null,
+          items: Array.from({ length: 4 }, (_, index) =>
+            platform === "doubao" && index === 2
+              ? {
+                  index,
+                  completionStatus: "FAILED" as const,
+                  failureCode: "VERIFICATION_CHALLENGE" as const,
+                  failureMessage: "controlled failed item",
+                  collectionSlaMet: false as const,
+                  capturedAtMs: null,
+                  timings: null,
+                  resetReady: true,
+                }
+              : {
+                  index,
+                  completionStatus:
+                    platform === "qwen" && index === 1
+                      ? ("CAPTURED_LATE" as const)
+                      : ("CAPTURED" as const),
+                  answer:
+                    platform === "doubao" && index === 3
+                      ? submitted.get(platform)![index]!
+                      : `${platform} 的完整助手回答 ${index + 1}`,
+                  collectionSlaMet: !(platform === "qwen" && index === 1),
+                  capturedAtMs:
+                    platform === "qwen" && index === 1 ? 87_000 : 60_000,
+                  timings: null,
+                  resetReady: true,
+                  assistantRoleVerified: true as const,
+                  nonEchoVerified: true as const,
+                },
+          ),
+        };
+      },
+    };
+    const sampling: BrowserSamplingConfig = {
+      mode: "browser-control-plane",
+      baseUrl: "http://control.test",
+      bearerToken: "",
+      accountId: "primary",
+      requestTimeoutMs: 1_000,
+      pollIntervalMs: 250,
+      collectionDeadlineMs: 85_000,
+      maximumWaitMs: 600_000,
+    };
+    const { runId, processor, outbox } = await startScenario(
+      undefined,
+      false,
+      undefined,
+      210_000,
+      sampling,
+      gateway,
+    );
+    const [runStarted] = await outbox.findDeliverable(1);
+    await processor.apply(runStarted!.id);
+    const platformEvents = await prisma.productOutboxEvent.findMany({
+      where: {
+        eventType: "evaluation.sample.acquire.requested",
+        status: { not: "COMPLETED" },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+    expect(platformEvents).toHaveLength(5);
+    await expect(processor.apply(platformEvents[0]!.id)).resolves.toMatchObject(
+      {
+        kind: "DEFERRED",
+      },
+    );
+    expect(
+      await prisma.evaluationSamplingBatch.findFirstOrThrow({
+        where: { runId, status: "PENDING" },
+      }),
+    ).toMatchObject({ externalTaskId: null });
+    await expect(processor.apply(platformEvents[0]!.id)).resolves.toMatchObject(
+      {
+        kind: "DEFERRED",
+      },
+    );
+    expect(submitKeys[0]).toBe(submitKeys[1]);
+    expect(
+      await prisma.evaluationSamplingBatch.findFirstOrThrow({
+        where: { runId, status: "SUBMITTED" },
+      }),
+    ).toMatchObject({ externalTaskId: expect.stringMatching(/^task-/) });
+    const restartedAdapter = new DeterministicAiAttemptAdapter();
+    const restartedAi = new AiExecutionService(
+      new PostgresAiAttemptRepository(prisma),
+      restartedAdapter,
+      210_000,
+    );
+    const restartedSynthesis = new EvaluationSynthesisCoordinator(
+      new PostgresEvaluationSynthesisRepository(prisma),
+      new AiSynthesisExecutionService(
+        new PostgresAiSynthesisAttemptRepository(prisma),
+        restartedAdapter,
+        210_000,
+      ),
+    );
+    const restartedProcessor = new ProductWorkProcessor(
+      outbox,
+      new EvaluationProcessCoordinator(
+        new PostgresEvaluationProcessRepository(prisma),
+        restartedAi,
+        restartedSynthesis,
+        sampling,
+        gateway,
+      ),
+      questionPreparation.coordinator,
+      new NotificationEventHandler(new PostgresNotificationRepository(prisma)),
+      new SafeTelemetry({ export: async () => undefined }),
+    );
+    await drain(restartedProcessor, outbox);
+
+    expect([...submitted.keys()].sort()).toEqual([
+      "deepseek",
+      "doubao",
+      "qwen",
+      "wenxin",
+      "yuanbao",
+    ]);
+    expect(
+      [...submitted.values()].every((prompts) => prompts.length === 4),
+    ).toBe(true);
+    expect(
+      await prisma.evaluationSamplingBatch.count({ where: { runId } }),
+    ).toBe(5);
+    expect(
+      await prisma.evaluationSamplingBatch.findFirstOrThrow({
+        where: { runId, platformKey: "qwen" },
+      }),
+    ).toMatchObject({
+      status: "COMPLETED",
+      acquiredCount: 4,
+      failedCount: 0,
+      lateCount: 1,
+    });
+    expect(
+      await prisma.evaluationSamplingBatch.findFirstOrThrow({
+        where: { runId, platformKey: "doubao" },
+      }),
+    ).toMatchObject({
+      status: "COMPLETED",
+      acquiredCount: 2,
+      failedCount: 2,
+      lateCount: 0,
+    });
+    expect(await prisma.evaluationSampleEvidence.count()).toBe(18);
+    expect(await prisma.evaluationStageExhaustion.count()).toBe(2);
+    expect(
+      await prisma.aiExecutionAttempt.findMany({
+        where: { runId, status: "FAILED" },
+        select: { failureClass: true },
+        orderBy: { failureClass: "asc" },
+      }),
+    ).toEqual([
+      { failureClass: "ANSWER_ECHOED_QUERY" },
+      { failureClass: "VERIFICATION_CHALLENGE" },
+    ]);
+    expect(
+      await prisma.aiExecutionAttempt.count({
+        where: {
+          runId,
+          purpose: "EVALUATION_ACQUISITION",
+          providerKey: "browser-sampler-control-plane",
+        },
+      }),
+    ).toBe(20);
+    expect(
+      await prisma.evaluationRun.findUniqueOrThrow({ where: { id: runId } }),
+    ).toMatchObject({ status: "COMPLETED", stage: "REPORT_ACCEPTED" });
+  });
+
+  it("bounds a persistently unavailable browser control plane", async () => {
+    const sampling: BrowserSamplingConfig = {
+      mode: "browser-control-plane",
+      baseUrl: "http://control.test",
+      bearerToken: "",
+      accountId: "primary",
+      requestTimeoutMs: 1_000,
+      pollIntervalMs: 250,
+      collectionDeadlineMs: 30_000,
+      maximumWaitMs: 60_000,
+    };
+    const unavailable: BrowserSamplingGateway = {
+      async submitBatch() {
+        throw new BrowserSamplingTransportError("controlled outage");
+      },
+      async readBatch() {
+        throw new BrowserSamplingTransportError("controlled outage");
+      },
+    };
+    const { runId, processor, outbox } = await startScenario(
+      undefined,
+      false,
+      undefined,
+      210_000,
+      sampling,
+      unavailable,
+    );
+    const [runStarted] = await outbox.findDeliverable(1);
+    await processor.apply(runStarted!.id);
+    const batch = await prisma.evaluationSamplingBatch.findFirstOrThrow({
+      where: { runId },
+    });
+    await prisma.evaluationSamplingBatch.update({
+      where: { id: batch.id },
+      data: { createdAt: new Date(Date.now() - 61_000) },
+    });
+    const sampleIds = Array.isArray(batch.sampleIds)
+      ? batch.sampleIds.filter(
+          (value): value is string => typeof value === "string",
+        )
+      : [];
+    const leaderSampleId = sampleIds[0];
+    if (!leaderSampleId) throw new Error("Browser batch has no leader sample");
+    const acquisition = await prisma.productOutboxEvent.findFirstOrThrow({
+      where: {
+        eventType: "evaluation.sample.acquire.requested",
+        aggregateId: leaderSampleId,
+      },
+    });
+
+    await expect(processor.apply(acquisition.id)).resolves.toEqual({
+      kind: "COMPLETED",
+    });
+    expect(
+      await prisma.evaluationSamplingBatch.findUniqueOrThrow({
+        where: { id: batch.id },
+      }),
+    ).toMatchObject({
+      status: "COMPLETED",
+      acquiredCount: 0,
+      failedCount: 4,
+    });
+    expect(
+      await prisma.aiExecutionAttempt.findMany({
+        where: { sampleId: { in: sampleIds } },
+        select: { failureClass: true, requestPayload: true },
+      }),
+    ).toEqual(
+      Array.from({ length: 4 }, () => ({
+        failureClass: "NETWORK",
+        requestPayload: expect.objectContaining({
+          taskKind: "BROWSER_EVALUATION_ACQUISITION",
+          externalTaskId: expect.stringMatching(/^idempotency:/),
+        }),
+      })),
+    );
+  });
+
   it("defers a live duplicate without completing its outbox event or sending a second request", async () => {
     const blocking = new BlockingAiAttemptAdapter();
     const { processor, outbox } = await startScenario(
@@ -1252,6 +1530,15 @@ describe("resumable evaluation evidence", () => {
     telemetryShouldFail = false,
     adapterOverride?: AiAttemptAdapter,
     ambiguityTimeoutMs = 210_000,
+    samplingConfig: BrowserSamplingConfig = { mode: "ai-provider" },
+    browserSamplingGateway: BrowserSamplingGateway = {
+      async submitBatch() {
+        throw new Error("Browser sampling is disabled in this scenario");
+      },
+      async readBatch() {
+        throw new Error("Browser sampling is disabled in this scenario");
+      },
+    },
   ) {
     const brand = await brands.create(
       accountId,
@@ -1287,6 +1574,8 @@ describe("resumable evaluation evidence", () => {
       processRepository,
       ai,
       synthesis,
+      samplingConfig,
+      browserSamplingGateway,
     );
     const outbox = new PostgresProductOutboxRepository(prisma);
     let telemetryFailureCount = 0;

@@ -26,6 +26,14 @@ export type AcquisitionAttemptInput = {
   city: string;
 };
 
+export type BrowserAcquisitionAttemptInput = {
+  taskKind: "BROWSER_EVALUATION_ACQUISITION";
+  platformKey: string;
+  questionId: string;
+  externalTaskId: string;
+  resultIndex: number;
+};
+
 export type StructuredOutputAttemptInput = {
   taskKind: "STRUCTURED_OUTPUT";
   systemInstruction: string;
@@ -41,7 +49,7 @@ export type AiAttemptRequest =
   | (EvaluationRunAttemptRequestBase & {
       sampleId: string;
       purpose: "EVALUATION_ACQUISITION";
-      input: AcquisitionAttemptInput;
+      input: AcquisitionAttemptInput | BrowserAcquisitionAttemptInput;
     })
   | (EvaluationRunAttemptRequestBase & {
       sampleId: string;

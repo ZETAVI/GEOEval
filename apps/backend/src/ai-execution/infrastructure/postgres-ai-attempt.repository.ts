@@ -101,6 +101,55 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
     return mapAttempt(attempt);
   }
 
+  async recordExternal(
+    request: ResolvedSampleAiAttemptRequest,
+    result: AiAdapterResult,
+    latencyMs: number,
+  ): Promise<StoredAiAttempt> {
+    try {
+      const attempt = await this.prisma.aiExecutionAttempt.create({
+        data: {
+          runId: request.runId,
+          cycleId: request.cycleId,
+          sampleId: request.sampleId,
+          purpose: request.purpose,
+          attemptNumber: request.attemptNumber,
+          routePolicyId: request.routePolicyId,
+          providerKey: request.providerKey,
+          requestedModel: request.requestedModel,
+          requestPayload: request.input as Prisma.InputJsonValue,
+          correlationId: request.correlationId,
+          status: result.kind === "SUCCEEDED" ? "SUCCEEDED" : "FAILED",
+          responseEnvelope: buildAttemptEnvelope(
+            result,
+          ) as Prisma.InputJsonValue,
+          failureClass: result.kind === "FAILED" ? result.failureClass : null,
+          retryable: result.kind === "FAILED" ? result.retryable : null,
+          latencyMs,
+          ...(result.usage
+            ? { usage: result.usage as Prisma.InputJsonValue }
+            : {}),
+          finishedAt: new Date(),
+        },
+      });
+      return mapAttempt(attempt);
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error;
+      return mapAttempt(
+        await this.prisma.aiExecutionAttempt.findUniqueOrThrow({
+          where: {
+            cycleId_sampleId_purpose_attemptNumber: {
+              cycleId: request.cycleId,
+              sampleId: request.sampleId,
+              purpose: request.purpose,
+              attemptNumber: request.attemptNumber,
+            },
+          },
+        }),
+      );
+    }
+  }
+
   async rejectSemantics(
     attemptId: string,
     rejection: AiSemanticRejection,
