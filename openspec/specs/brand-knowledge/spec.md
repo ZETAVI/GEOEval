@@ -89,6 +89,9 @@ in readiness, fingerprinting, or evaluation projection.
 - **AND** the browser receives only the domain-restricted Web(JS API) Key, never
   the JS security key, Web Service Key, raw provider response, or authoritative
   mutation fields
+- **AND** the security proxy serves a matching JSONP callback with JavaScript
+  MIME under the public `nosniff` policy, keeps ordinary JSON as JSON, and rejects
+  invalid/duplicate callbacks or non-JSON/mismatched callback responses
 - **AND** search text and unselected candidates do not become Brand truth.
 
 #### Scenario: A customer selects a candidate
