@@ -61,6 +61,12 @@ browser control plane is an explicit startup setting. Existing runs, attempts,
 evidence and reports remain readable. Rollback disables the new mode; persisted
 batch records remain audit history and do not alter accepted evidence.
 
+The stable internal platform key and Provider-API route remain `hunyuan` for
+stored identity compatibility. New evaluation snapshots use the current
+customer label `腾讯元宝`, while the browser gateway translates that internal
+key to the control plane's `yuanbao` protocol key. Existing snapshots keep
+their stored labels and are not rewritten.
+
 ## Control State
 
 - Documentation: `evaluation-evidence` remains the canonical behavior owner.

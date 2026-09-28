@@ -5,6 +5,7 @@
 | Claim | Evidence | Result | Notes |
 | --- | --- | --- | --- |
 | Existing API-provider acquisition remains the default | `runtime-config.spec.ts`; existing evaluation integration suite | Passed | Browser mode is explicit and production HTTP is rejected. |
+| Tencent Yuanbao label and browser protocol alias preserve identity history | `evaluation.integration.spec.ts`; `api.integration.spec.ts`; browser batch assertions in `evaluation-process.integration.spec.ts` | Passed | New definitions show `腾讯元宝`; stored `混元` snapshots and `hunyuan` sample keys remain unchanged; browser submission uses `yuanbao`. |
 | HTTP port sends one real batch with a stable idempotency key | `browser-sampling-gateway.spec.ts` | Passed | Request body, bearer/header boundary and task ID projection checked. |
 | Remote running, partial, late and failed results normalize safely | `browser-sampling-gateway.spec.ts` | Passed | Running avoids result fetch; late and verification failure remain distinct. |
 | Five platform batches feed the existing evidence/report lifecycle | `evaluation-process.integration.spec.ts` | Passed | Five four-question batches; 18 accepted, one verification failure, one echo rejection, one late item; report completes at 18/20. |

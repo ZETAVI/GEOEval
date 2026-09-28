@@ -104,6 +104,12 @@ The HTTP adapter maps this port to:
 - `GET /api/v1/tasks/:id/status`;
 - `GET /api/v1/tasks/:id/result`.
 
+GEOEval keeps `hunyuan` as the durable internal platform key and translates it
+to the control plane's `yuanbao` key only at this outbound adapter boundary.
+The customer label is snapshotted separately, so new definitions can use
+`腾讯元宝` without rewriting historical definitions or reports that stored an
+earlier label.
+
 The adapter validates all remote JSON with a tolerant envelope and strict
 business fields. It never logs Authorization values, prompts, answers or raw
 remote bodies. An optional bearer token is startup-only secret configuration.
