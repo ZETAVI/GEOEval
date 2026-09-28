@@ -1,0 +1,6 @@
+- [x] Implement callback and response validation with JavaScript MIME.
+- [x] Add focused JSONP/JSON/security regression cases and verify Web types/build.
+- [x] Reconcile the owner-local spec, review a fixed diff and pass required CI.
+- [x] Merge through protected main and publish immutable Linux x64 Web.
+- [x] Verify production browser search→selection→address verification and rollback readiness.
+- [x] Record release evidence and remove-after-merge workspace exit; archive the accepted change. Final acceptance PR closes #171, then the integration owner verifies exit and sets Project Done.
