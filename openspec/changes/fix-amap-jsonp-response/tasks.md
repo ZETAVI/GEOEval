@@ -1,0 +1,6 @@
+- [x] Implement callback and response validation with JavaScript MIME.
+- [ ] Add focused JSONP/JSON/security regression cases and verify Web types/build.
+- [ ] Reconcile the owner-local spec, review a fixed diff and pass required CI.
+- [ ] Merge through protected main and publish immutable Linux x64 Web.
+- [ ] Verify production browser search→selection→address verification and rollback readiness.
+- [ ] Record release evidence and worktree exit, archive the accepted change and close #171/Project.

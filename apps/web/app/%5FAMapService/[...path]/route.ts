@@ -19,6 +19,14 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const incoming = new URL(request.url);
+  const callbacks = incoming.searchParams.getAll("callback");
+  const callback = callbacks[0];
+  if (
+    callbacks.length > 1 ||
+    (callback !== undefined && !validCallback(callback))
+  ) {
+    return NextResponse.json({ message: "地图回调参数无效" }, { status: 400 });
+  }
   const target = new URL(
     `/${path.map(encodeURIComponent).join("/")}`,
     "https://restapi.amap.com",
@@ -37,11 +45,24 @@ export async function GET(request: Request, context: RouteContext) {
       headers: { accept: request.headers.get("accept") ?? "application/json" },
       cache: "no-store",
     });
-    return new NextResponse(upstream.body, {
+    let body: BodyInit | null = upstream.body;
+    let contentType =
+      upstream.headers.get("content-type") ?? "application/json";
+    if (callback !== undefined) {
+      const jsonp = await upstream.text();
+      if (!matchesJsonp(jsonp, callback)) {
+        return NextResponse.json(
+          { message: "地图服务返回格式异常" },
+          { status: 502 },
+        );
+      }
+      body = jsonp;
+      contentType = "text/javascript; charset=utf-8";
+    }
+    return new NextResponse(body, {
       status: upstream.status,
       headers: {
-        "content-type":
-          upstream.headers.get("content-type") ?? "application/json",
+        "content-type": contentType,
         "cache-control": "no-store",
       },
     });
@@ -66,4 +87,29 @@ function validPath(path: string[]): boolean {
         /^[A-Za-z0-9._~-]+$/.test(segment),
     );
   return syntacticallyValid && allowedProxyPaths.has(path.join("/"));
+}
+
+function validCallback(value: string): boolean {
+  return (
+    value.length <= 200 &&
+    /^[$A-Z_a-z][$\w]*(?:\.[$A-Z_a-z][$\w]*)*$/.test(value)
+  );
+}
+
+function matchesJsonp(body: string, callback: string): boolean {
+  const normalized = body.trim().replace(/;$/, "").trimEnd();
+  const opening = normalized.indexOf("(");
+  if (
+    opening < 0 ||
+    normalized.slice(0, opening).trim() !== callback ||
+    !normalized.endsWith(")")
+  ) {
+    return false;
+  }
+  try {
+    JSON.parse(normalized.slice(opening + 1, -1));
+    return true;
+  } catch {
+    return false;
+  }
 }
