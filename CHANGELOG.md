@@ -4,4 +4,12 @@ All notable audience-facing changes will be recorded here. Internal refactors, t
 
 ## Unreleased
 
-No audience-facing product capability has been released.
+No unreleased audience-facing changes.
+
+## 2026-09-28
+
+### Fixed
+
+- Controlled production pilot: Amap store search now returns validated JSONP with
+  the JavaScript response type required by browser MIME checks. Customers can
+  search, select a result and verify its address while `nosniff` remains enabled.
