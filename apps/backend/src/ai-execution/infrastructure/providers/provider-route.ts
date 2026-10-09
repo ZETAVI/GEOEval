@@ -12,6 +12,7 @@ import {
 import {
   ProviderHttpTransport,
   ProviderTransportError,
+  type ProviderHttpResponse,
 } from "./provider-http.transport.js";
 
 export type RealRoutePurpose =
@@ -58,64 +59,12 @@ export async function executeProviderJsonRequest(input: {
       apiKey: input.connection.apiKey,
       body: input.body,
     });
-    const normalized = normalizeProviderResponse(
-      response.body,
-      response.headers,
-    );
-    const evidence = providerEvidence({
-      providerKey: input.definition.providerKey,
-      serviceClass: input.definition.serviceClass,
-      protocol: input.definition.protocol,
+    return consumeProviderJsonResponse({
+      request: input.request,
+      definition: input.definition,
       sanitizedRequest,
-      responseHeaders: response.headers,
-      rawResponse: response.body,
-      normalized,
+      response,
     });
-    if (!response.ok) {
-      const failure = classifyHttpFailure(response.status);
-      return {
-        kind: "FAILED",
-        ...failure,
-        ...(normalized.usage ? { usage: normalized.usage } : {}),
-        evidence: {
-          ...evidence,
-          failure: {
-            kind: failure.failureClass,
-            httpStatus: response.status,
-          },
-        },
-      };
-    }
-    if (!normalized.returnedModel) {
-      return invalidProviderOutput(evidence, normalized.usage);
-    }
-    if (normalized.returnedModel !== input.definition.requestedModel) {
-      return {
-        kind: "FAILED",
-        failureClass: "MODEL_IDENTITY_MISMATCH",
-        retryable: false,
-        ...(normalized.usage ? { usage: normalized.usage } : {}),
-        evidence: {
-          ...evidence,
-          failure: { kind: "MODEL_IDENTITY_MISMATCH" },
-        },
-      };
-    }
-    if (!normalized.outputText) {
-      return invalidProviderOutput(evidence, normalized.usage);
-    }
-    const output = normalizedOutput(
-      input.request,
-      normalized.outputText,
-      normalized,
-    );
-    if (!output) return invalidProviderOutput(evidence, normalized.usage);
-    return {
-      kind: "SUCCEEDED",
-      output,
-      ...(normalized.usage ? { usage: normalized.usage } : {}),
-      evidence,
-    };
   } catch (error) {
     if (!(error instanceof ProviderTransportError)) throw error;
     return {
@@ -131,6 +80,68 @@ export async function executeProviderJsonRequest(input: {
       },
     };
   }
+}
+
+/** Shared by direct HTTP execution and durable native-result consumption. */
+export function consumeProviderJsonResponse(input: {
+  request: ResolvedAiAttemptRequest;
+  definition: ProviderRouteDefinition;
+  sanitizedRequest: Record<string, unknown>;
+  response: ProviderHttpResponse;
+}): AiAdapterResult {
+  const { response } = input;
+  const normalized = normalizeProviderResponse(response.body, response.headers);
+  const evidence = providerEvidence({
+    providerKey: input.definition.providerKey,
+    serviceClass: input.definition.serviceClass,
+    protocol: input.definition.protocol,
+    sanitizedRequest: input.sanitizedRequest,
+    responseHeaders: response.headers,
+    rawResponse: response.body,
+    normalized,
+  });
+  if (!response.ok) {
+    const failure = classifyHttpFailure(response.status);
+    return {
+      kind: "FAILED",
+      ...failure,
+      ...(normalized.usage ? { usage: normalized.usage } : {}),
+      evidence: {
+        ...evidence,
+        failure: { kind: failure.failureClass, httpStatus: response.status },
+      },
+    };
+  }
+  if (!normalized.returnedModel) {
+    return invalidProviderOutput(evidence, normalized.usage);
+  }
+  if (normalized.returnedModel !== input.definition.requestedModel) {
+    return {
+      kind: "FAILED",
+      failureClass: "MODEL_IDENTITY_MISMATCH",
+      retryable: false,
+      ...(normalized.usage ? { usage: normalized.usage } : {}),
+      evidence: {
+        ...evidence,
+        failure: { kind: "MODEL_IDENTITY_MISMATCH" },
+      },
+    };
+  }
+  if (!normalized.outputText) {
+    return invalidProviderOutput(evidence, normalized.usage);
+  }
+  const output = normalizedOutput(
+    input.request,
+    normalized.outputText,
+    normalized,
+  );
+  if (!output) return invalidProviderOutput(evidence, normalized.usage);
+  return {
+    kind: "SUCCEEDED",
+    output,
+    ...(normalized.usage ? { usage: normalized.usage } : {}),
+    evidence,
+  };
 }
 
 function normalizedOutput(

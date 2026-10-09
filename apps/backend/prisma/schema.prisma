@@ -119,6 +119,12 @@ enum AiExecutionAttemptStatus {
   FAILED
 }
 
+enum ExecutionCenterReceiptState {
+  RESERVING
+  WAITING
+  READY
+}
+
 enum EvaluationAggregateAnalysisPurpose {
   OVERALL_SYNTHESIS
   BRAND_NAME_RESOLUTION
@@ -672,6 +678,7 @@ model AiExecutionAttempt {
   routePolicyId          String                          @map("route_policy_id")
   providerKey            String                          @map("provider_key") @db.VarChar(80)
   requestedModel         String                          @map("requested_model") @db.VarChar(120)
+  executionTransport     String                          @default("DIRECT") @map("execution_transport") @db.VarChar(24)
   requestPayload         Json                            @map("request_payload")
   responseEnvelope       Json?                           @map("response_envelope")
   failureClass           String?                         @map("failure_class") @db.VarChar(120)
@@ -686,12 +693,58 @@ model AiExecutionAttempt {
   acceptedEvidence       EvaluationSampleEvidence?       @relation("AcceptedEvidenceAttempt")
   acceptedInterpretation EvaluationSampleInterpretation? @relation("AcceptedInterpretationAttempt")
   exhaustedStage         EvaluationStageExhaustion?      @relation("ExhaustedStageAttempt")
+  executionCenterReceipt ExecutionCenterReceipt?
 
   @@unique([cycleId, sampleId, purpose, attemptNumber], map: "ai_exec_attempt_cycle_sample_purpose_number_key")
   @@unique([id, sampleId])
   @@unique([id, cycleId, sampleId, runId], map: "ai_exec_attempt_exhaustion_identity_key")
   @@index([cycleId, purpose, status])
   @@map("ai_execution_attempts")
+}
+
+// One durable technical transport binding per business attempt. Native bodies
+// stay here; the event inbox contains only safe notification identifiers.
+model ExecutionCenterReceipt {
+  id                 String                      @id @default(uuid()) @db.Uuid
+  attemptId          String                      @unique @map("attempt_id") @db.Uuid
+  centerRef          String                      @map("center_ref") @db.VarChar(128)
+  callerRequestRef   String                      @map("caller_request_ref") @db.VarChar(128)
+  idempotencyKey     String                      @map("idempotency_key") @db.VarChar(128)
+  requestFingerprint String                      @map("request_fingerprint") @db.VarChar(64)
+  request            Json
+  deadlineAt         DateTime                    @map("deadline_at")
+  taskId             String?                     @map("task_id") @db.VarChar(128)
+  itemId             String?                     @map("item_id") @db.VarChar(128)
+  state              ExecutionCenterReceiptState @default(RESERVING)
+  snapshot           Json?
+  createdAt          DateTime                    @default(now()) @map("created_at")
+  updatedAt          DateTime                    @updatedAt @map("updated_at")
+  readyAt            DateTime?                   @map("ready_at")
+  attempt            AiExecutionAttempt          @relation(fields: [attemptId], references: [id], onDelete: Restrict)
+
+  @@unique([centerRef, callerRequestRef], map: "exec_center_receipt_center_request_key")
+  @@unique([centerRef, idempotencyKey], map: "exec_center_receipt_center_idempotency_key")
+  @@unique([centerRef, taskId], map: "exec_center_receipt_center_task_key")
+  @@index([state, id], map: "exec_center_receipt_reconciliation_idx")
+  @@map("execution_center_receipts")
+}
+
+model ExecutionCenterInbox {
+  centerRef String   @map("center_ref") @db.VarChar(128)
+  cursor    BigInt
+  event     Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([centerRef, cursor])
+  @@map("execution_center_inbox")
+}
+
+model ExecutionCenterCursor {
+  centerRef String   @id @map("center_ref") @db.VarChar(128)
+  cursor    BigInt   @default(0)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("execution_center_cursors")
 }
 
 model EvaluationSampleEvidence {

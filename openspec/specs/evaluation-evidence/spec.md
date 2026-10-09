@@ -61,7 +61,7 @@ Background Work SHALL own only reliable delivery of stable identifiers.
   implied by durable GEO state
 - **AND** telemetry failure cannot reject accepted business evidence
 
-#### Scenario: A real attempt is duplicated or interrupted
+#### Scenario: A direct real attempt is duplicated or interrupted
 
 - **WHEN** concurrent delivery encounters a live started attempt
 - **THEN** it defers the same durable work and sends no second provider request
@@ -69,6 +69,25 @@ Background Work SHALL own only reliable delivery of stable identifiers.
   atomically recorded as a retryable ambiguous failure before a later numbered
   attempt may run
 - **AND** a late result cannot overwrite that failure or accepted evidence
+
+#### Scenario: An opt-in Parser attempt is delegated to the execution center
+
+- **WHEN** an EVALUATION_INTERPRETATION attempt uses the explicitly enabled execution.v1 transport
+- **THEN** AI Execution fixes DIRECT or EXECUTION_CENTER when the attempt is created
+- **AND** GEO prepares the same native parameters and retains Provider normalization and Parser semantics
+- **AND** stable callerRequestRef, idempotency key, request fingerprint and absolute Parser deadline are persisted before submit
+- **AND** accepted remote work completes its short submission Outbox while the business attempt remains STARTED
+- **AND** one committed completion notification creates a durable resume Outbox without occupying a product Worker while waiting
+
+#### Scenario: Delegated completion is early, replayed, or interrupted
+
+- **WHEN** completion precedes acknowledgement persistence or is replayed after restart
+- **THEN** callerRequestRef identifies the receipt without requiring an in-memory promise
+- **AND** notification inbox, consumer cursor, immutable terminal snapshot and resume fact commit together
+- **AND** GEO's original normalization and semantic acceptance preserve one formal interpretation
+- **AND** an unknown dispatch retains its key and transport and is not made retryable by the direct-path ambiguity timer
+- **AND** disabling new delegated submissions does not authorize switching in-flight requests to another transport
+- **AND** the sampling 130-second policy is not applied to the Parser's independent request deadline
 
 ### Requirement: Explicit real execution boundary
 

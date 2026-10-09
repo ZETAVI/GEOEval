@@ -63,7 +63,7 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
               },
             ],
           }
-        : structuredBody(definition, request.input);
+        : createTokenHubStructuredBody(definition, request.input);
     return executeProviderJsonRequest({
       request,
       definition,
@@ -75,7 +75,7 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
   }
 }
 
-function structuredBody(
+export function createTokenHubStructuredBody(
   definition: ProviderRouteDefinition,
   input: StructuredOutputAttemptInput,
 ) {
