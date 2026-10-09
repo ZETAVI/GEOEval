@@ -12,6 +12,8 @@ Worker：受理后REMOTE_PENDING使短提交Outbox完成，业务Attempt保持ST
 
 生命周期：新提交默认关闭；已有绑定沿原center/task完成。SSE监听者不占BullMQ业务槽，UTF8增量解码、授权、串行cursor CAS；GET失败不提交cursor。遥测不导出原文，remote不创建重复Provider Generation，完整Langfuse旁路留P5。
 
+对账只扫描仍为STARTED/EXECUTION_CENTER的业务Attempt；明确失败的RESERVING receipt保留审计，但不得因配置恢复而重新POST。运行中不得将同一centerRef重指向另一个服务或caller身份；配置迁移/凭据退役仍属P6独立门。
+
 数据：增量三表receipt/inbox/cursor与attempt transport字段；旧行DIRECT，不删除业务历史。结果只在receipt，通知只存安全ID/阶段。无跨库事务。截止是本Parser自身预算，不绑定130秒采样预算。
 
 ## 故障/恢复与回滚

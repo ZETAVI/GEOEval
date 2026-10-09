@@ -1,6 +1,6 @@
 # 委托 Parser 到持久执行中台
 
-Owner：[Issue #175](https://github.com/ZETAVI/GEOEval/issues/175)。Architectural；用户已批准P2本地实现，与独立中台P3并行。状态：Implement，默认关闭，未合并/部署。
+Owner：[Issue #175](https://github.com/ZETAVI/GEOEval/issues/175)。Architectural；用户已批准P2本地实现，与独立中台P3并行。状态：Locally verified / Review，默认关闭，未合并/部署。
 
 ## 为什么
 

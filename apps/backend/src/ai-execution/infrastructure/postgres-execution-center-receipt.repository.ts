@@ -276,6 +276,7 @@ export class PostgresExecutionCenterReceiptRepository implements ExecutionCenter
     const rows = await this.prisma.executionCenterReceipt.findMany({
       where: {
         state: { in: ["RESERVING", "WAITING"] },
+        attempt: { status: "STARTED", executionTransport: "EXECUTION_CENTER" },
         ...(input.afterId ? { id: { gt: input.afterId } } : {}),
       },
       orderBy: { id: "asc" },

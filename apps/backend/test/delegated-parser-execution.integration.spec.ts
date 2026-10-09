@@ -313,6 +313,14 @@ describe.skipIf(!permitted)("durable delegated Parser product loop", () => {
       retryable: false,
     });
     expect(scene.host.providerCalls).toHaveLength(0);
+    // A rejected business attempt is terminal even if the original unaccepted
+    // receipt remains RESERVING for audit. Configuration recovery cannot resend it.
+    scene.host.rejectStatus = 0;
+    await scene.driver.reconcile();
+    await delay(25);
+    expect(scene.host.providerCalls).toHaveLength(0);
+    expect((await scene.receipt())?.state).toBe("RESERVING");
+    expect(scene.host.submittedKeys).toHaveLength(1);
     expect(
       await prisma.aiExecutionAttempt.count({
         where: {

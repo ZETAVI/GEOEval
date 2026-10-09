@@ -98,6 +98,25 @@ describe.skipIf(!permitted)(
       });
     });
 
+    it("does not reconcile receipts whose owning business attempt is already terminal", async () => {
+      const failed = await repository.reserve(await reservation());
+      const succeeded = await repository.reserve(await reservation());
+      const active = await repository.reserve(await reservation());
+      await prisma.aiExecutionAttempt.update({
+        where: { id: failed.attemptId },
+        data: { status: "FAILED", finishedAt: new Date(), retryable: false },
+      });
+      await prisma.aiExecutionAttempt.update({
+        where: { id: succeeded.attemptId },
+        data: { status: "SUCCEEDED", finishedAt: new Date() },
+      });
+      const candidates = await repository.listReconciliationCandidates({
+        limit: 100,
+      });
+      expect(candidates.map((row) => row.id)).toEqual([active.id]);
+      expect(await prisma.executionCenterReceipt.count()).toBe(3);
+    });
+
     it("reserves one immutable submission under concurrent acquisition and finds its business identity", async () => {
       const input = await reservation();
       const rows = await Promise.all(
