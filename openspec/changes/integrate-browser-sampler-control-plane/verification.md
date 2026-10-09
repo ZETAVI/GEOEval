@@ -1,5 +1,13 @@
 # Verification
 
+## 2026-10-09 planning audit
+
+本轮只修改规划，候选实现仍为ac1a55e。新目标的逐题事件、raw API委托、channel/cycle/deadline、富内容卡片和130秒竞速均未实现或测试。文档与模块定位及git diff --check已检查；没有生产操作、迁移、Provider付费调用或Langfuse运行验证。
+
+以下历史证据仅对应旧候选行为，不能证明本轮新目标。当前行为/生产main没有因设计文档更新而改变；新增验收与分段发布由tasks维护。
+
+## Historical evidence — ac1a55e
+
 ## Evidence matrix
 
 | Claim | Evidence | Result | Notes |

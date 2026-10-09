@@ -1,5 +1,15 @@
 # Architecture review
 
+## 2026-10-09 planning checkpoint
+
+规划可以进入下一轮可执行合约/本地纵切设计；实现不具备新目标发布资格。责任、即时通知、raw API、130秒仅采样、旧cycle和唯一证据围栏已记录到design/tasks。
+
+交叉审视改变了下一步：提交工作不能持续DEFERRED占据relay最旧100条；#169必须包含Acquisition中台运输而不等全部purpose委托；QUARANTINED标签不是writer安全释放证明；退役旧Token须晚于回滚窗口。每项都有任务和判别验收，当前代码尚未修正。
+
+下面为ac1a55e历史最小片的审查，ready结论仅指该旧切片；85秒+grace/终态轮询并非最新发布目标，不得作为新版完成证据。
+
+## Historical architecture review — ac1a55e
+
 ## Contract
 
 This review covers Issue #169's GEOEval-side integration only. The independent

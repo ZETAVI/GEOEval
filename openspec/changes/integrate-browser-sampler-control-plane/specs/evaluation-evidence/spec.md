@@ -1,84 +1,58 @@
-## ADDED Requirements
+## ADDED Requirements（规划修订；未实现）
 
-### Requirement: Independent browser sampling preserves GEO ownership
+### Requirement: Independent execution preserves GEO ownership
 
-GEO Intelligence SHALL be able to acquire the twenty immutable sample answers
-through an independent browser-sampler control plane without importing browser
-identity or execution ownership into GEOEval.
+GEO Intelligence SHALL own the twenty immutable samples, Provider native parameters and normalization, business retries, accepted evidence, interpretation and report readiness. The independent center SHALL own actual web/API execution, credentials, capacity and technical results/events.
 
-#### Scenario: Browser sampling is explicitly enabled
+#### Scenario: An item finishes before its siblings
 
-- **WHEN** an official evaluation run enters background processing with the
-  browser-control-plane mode enabled
-- **THEN** GEO Intelligence creates one durable batch for each configured
-  platform and sends the four ordered questions as one external task
-- **AND** the stable idempotency key and returned external task identity are
-  sufficient to resume after duplicate delivery or process restart
-- **AND** the current provider-API path remains the default when browser mode is
-  not enabled
-- **AND** browser credentials, Cookies, Profile identities, login sessions,
-  Live View links, node routes and automation implementation remain outside
-  GEOEval.
+- WHEN one item completes while the platform batch or cleanup remains active
+- THEN GEO SHALL receive a result-available event and read the durably committed result
+- AND map it by stable itemId, validate actual evidence and accept it atomically
+- AND append interpretation work without waiting for siblings or resource release.
 
-#### Scenario: An external platform batch completes partially
+#### Scenario: Partial or uncertain remote work
 
-- **WHEN** the control plane returns captured, captured-late and failed items
-  for one platform batch
-- **THEN** GEO Intelligence matches each item to its existing logical sample by
-  ordered question index
-- **AND** every captured non-empty assistant answer that is not a query echo
-  becomes one successful acquisition attempt and one canonical answer
-- **AND** captured-late remains valid evidence while its late count remains
-  observable internally
-- **AND** each failed or missing item becomes unavailable through the existing
-  acquisition-exhaustion lifecycle
-- **AND** successful siblings and other platforms are not replayed.
+- WHEN submission response or event delivery is interrupted
+- THEN GEO SHALL restore the same persisted request identity/key/task
+- AND duplicate or early completion events SHALL not cause duplicate accepted evidence or interpretation
+- AND uncertain external execution SHALL not be blindly resent with a new identity.
 
-#### Scenario: An external task is still running
+### Requirement: GEO-owned bounded web-first acquisition
 
-- **WHEN** status is not terminal
-- **THEN** Background Work defers the same durable platform work until a later
-  poll without holding a Worker for the collection window
-- **AND** reconciliation can reassert the same work from PostgreSQL after Redis
-  or process interruption
-- **AND** elapsed time alone never advances customer progress.
+Sampling SHALL use a durable cycle-anchored 130-second deadline including queueing, web/API execution, extraction and delivery. Later interpretation and reports SHALL use independent budgets.
 
-#### Scenario: External submission has an uncertain outcome
+#### Scenario: Web remains unresolved at 80 seconds
 
-- **WHEN** the submit response is lost or the control plane is temporarily
-  unavailable
-- **THEN** GEOEval retries only with the already persisted idempotency key
-- **AND** it never creates a new task identity for the uncertain submission
-- **AND** authentication and verification failures remain human-recovery states
-  owned by the control plane rather than hidden automated retries.
+- WHEN fallbackDueAt arrives with unresolved items
+- THEN GEO SHALL submit API execution only for those items through the center
+- AND preserve Provider request parameters and existing explicit business retry rules
+- AND another still-eligible web attempt SHALL not be terminated solely because API failed.
+
+#### Scenario: Competing or late results arrive
+
+- WHEN a result passes GEO validation before the deadline
+- THEN its acceptance transaction SHALL check exact attempt/channel, current cycle and PENDING state
+- AND persist at most one canonical evidence and interpretation Outbox
+- AND a race loser, old-cycle result or late-after-deadline response SHALL not replace or reopen it.
+
+#### Scenario: Acquisition deadline arrives
+
+- WHEN deadlineAt is reached
+- THEN only items without accepted answers SHALL terminate with explicit acquisition errors
+- AND accepted answers and already-started interpretation SHALL remain intact.
+
+### Requirement: Truthful rich browser evidence and original prompt
+
+Web SHALL receive only the unchanged question, not an invented system instruction.
+GEO SHALL retain complete answer, content/readingText, available images, internal sources and technical capture/finality fields. Missing sources SHALL not be fabricated or alone invalidate a completed answer. The rich card SHALL not display source lists or citation mapping. Historical Markdown SHALL remain readable.
+
+### Requirement: Short work and immediate notification consumption
+
+After the remote accepted identity is durably stored, the submit Outbox SHALL finish while the business Attempt remains pending. Completion inbox/cursor and resume Outbox SHALL be committed together. Long remote waits SHALL not occupy product Worker slots or indefinitely block new work behind an oldest-record relay window.
 
 ## MODIFIED Requirements
 
 ### Requirement: Versioned neutral sampling context
 
-Every customer-visible sampling route SHALL preserve the same immutable,
-neutral question meaning while recording the execution context the route
-actually received.
-
-#### Scenario: A provider-API sample is requested
-
-- **WHEN** one of the current model-provider routes prepares a sampling request
-- **THEN** it uses the current
-  [evaluation-objectivity profile](../../../../../apps/backend/geo-intelligence/evaluation-objectivity.json)
-- **AND** the durable attempt evidence snapshots the profile identity, version,
-  content hash and question used for that request
-- **AND** search support and automatic triggering remain route configuration,
-  not separate product meaning or provider-authored policy.
-
-#### Scenario: A consumer Web/App sample is requested
-
-- **WHEN** the independent browser control plane submits an immutable generated
-  question through a normal platform conversation
-- **THEN** it sends the question without inventing a hidden system instruction
-  that the consumer surface did not receive
-- **AND** the durable attempt records the question identity, external task
-  reference, result index, platform and sampling mode
-- **AND** GEOEval does not claim that its internal objectivity profile was sent
-  to the consumer surface
-- **AND** the original generated question and complete captured answer remain
-  the canonical business evidence.
+Provider API requests SHALL preserve the executable objectivity profile and snapshot its actual version/context. Consumer Web/App requests SHALL record only the immutable question and actual external execution provenance, without claiming an unavailable system-instruction capability. GEO SHALL not alter existing model, Prompt, valid-sample threshold or report semantics through transport migration.

@@ -1,78 +1,34 @@
-# Change: Integrate the Independent Browser Sampler Control Plane
+# Change: 接入独立网页采样执行中台
 
-- Status: Active
-- Class: Architectural integration
-- Owning Issue: [#169](https://github.com/ZETAVI/GEOEval/issues/169)
+- 状态：Active，2026-10-09规划修订；未按新目标实现、合并或部署。
+- Class：Architectural integration。
+- Owner：[Issue #169](https://github.com/ZETAVI/GEOEval/issues/169)；候选 [PR #170](https://github.com/ZETAVI/GEOEval/pull/170)。
 
-## Why
+## 问题与期望
 
-GEOEval currently acquires all twenty evaluation answers through model-provider
-APIs. The accepted product direction now requires consumer Web/App sampling,
-but browser identity, login, verification, page automation and node routing are
-already owned by an independent browser-sampler control plane. Copying those
-concerns into GEOEval would create a second identity and scheduling authority.
+现有候选已接外部网页批次，但只在终态读取、没有即时API兜底、富内容投影不完整；新目标需要一题完成即进入GEO解析，并在130秒内结束所有采样项，不让长远端调用占住产品Worker。
 
-GEOEval therefore needs one durable HTTP integration seam: submit four
-questions as one platform batch, preserve the returned task identity, resume
-polling after process restarts, and project each verified assistant answer into
-the existing sample evidence and analysis chain. A failed platform or item must
-remain visible as partial evidence rather than causing successful platforms to
-be replayed.
+GEO保留业务题目、Prompt/模型/原生API参数、规范化、正式证据、解析/报告；独立中台承担真实外部调用、Token/地址/容量、网页身份与技术完成通知。
 
-## Outcome
+## 本Change范围
 
-When explicitly enabled, one evaluation submits five independent platform
-batches in parallel through the external control-plane protocol. GEOEval owns
-business progress, attempts, canonical answers, interpretations and report
-readiness; the control plane owns browser execution. The current provider-API
-route remains the default and rollback path.
+- 复用四题×五平台样本与平台batch，稳定itemId、幂等身份和远端任务恢复；
+- 逐题即时事件及RUNNING期间富结果消费；
+- 采样Acquisition的中台API运输，GEO保留原生请求/响应解释与显式业务重试；
+- GEO持久80秒API竞速、130秒采样截止、channel尝试身份和cycle围栏；
+- 安全富卡片、readingText、临时图片与内部来源保留，卡片不显示信源/引用映射；
+- 迁移、重复/乱序/响应丢失恢复及本Change独立验收/回滚。
 
-## Scope
+全部生成/解析/归并/报告API委托由链接的后续Change/Issue持有，实施前建立，不把#169无限扩张。跨项目规则入口为 [中台设计](https://github.com/ZETAVI/browser-sampler-control-plane/blob/codex/issue-4-execution-center/openspec/changes/unify-execution-center/design.md)，本地改动与验收见[design](design.md)/[tasks](tasks.md)。
 
-- add a provider-neutral browser-sampling gateway port and validated HTTP
-  adapter for submit, status and result;
-- persist one recoverable external batch identity per run, cycle and platform;
-- derive and retain a stable per-cycle idempotency key before the first remote
-  request;
-- accept verified captured and captured-late items into the existing
-  attempt/evidence chain and exhaust only failed items;
-- schedule polling through deferred durable work rather than blocking a Worker;
-- expose only customer-safe acquired/analyzed/unavailable progress through the
-  existing evaluation view;
-- add contract, partial-success, interruption and redaction tests;
-- validate a controlled two-platform/one-question slice before the full
-  five-platform/four-question gate.
+## 不改变与非目标
 
-## Non-goals
+不改四题×五平台、17/20门槛、模型/Prompt/语义规则；不在GEO实现浏览器或存Cookie/Profile、控制节点、绕过验证；不永久保存图片；不自动重放不确定外部提交。
 
-- browser automation, Cookie/Profile storage, login, MFA, Live View, account
-  pools, node routing or anti-detection logic inside GEOEval;
-- changing parser, name-resolution, composition or report semantics;
-- auto-replaying an uncertain browser submission with a new identity;
-- production deployment, paid-resource activation or control-plane account
-  maintenance;
-- claiming the current control-plane experiment is production-ready or that its
-  latest real run completed twenty of twenty samples.
+本轮不部署、不迁密钥、不创建云资源、不发付费请求。当前API路径仍是生产现状和受控回滚路径，不以计划冒充已迁移。
 
-## Compatibility
+## 控制状态
 
-The Worker defaults to the existing provider acquisition path. Enabling the
-browser control plane is an explicit startup setting. Existing runs, attempts,
-evidence and reports remain readable. Rollback disables the new mode; persisted
-batch records remain audit history and do not alter accepted evidence.
+沿用 `codex/issue-169-sampling-gateway` worktree和既有PR；保留旧候选代码及历史验证，计划更新不表示新目标通过。独立后续工作只有在owner/公共接口固定后创建write branch。
 
-The stable internal platform key and Provider-API route remain `hunyuan` for
-stored identity compatibility. New evaluation snapshots use the current
-customer label `腾讯元宝`, while the browser gateway translates that internal
-key to the control plane's `yuanbao` protocol key. Existing snapshots keep
-their stored labels and are not rewritten.
-
-## Control State
-
-- Documentation: `evaluation-evidence` remains the canonical behavior owner.
-  The Product Definition evolution marker remains valid because detailed
-  sampling behavior is already extracted to that capability spec.
-- Workspace: `codex/issue-169-sampling-gateway` in an isolated worktree, based
-  on `origin/main@fe16def`, owned by this task, merging to protected `main` only
-  through a reviewed PR. The first PR is `Part of #169` and does not close the
-  Issue unless the five-by-four gate and documentation reconciliation complete.
+当前规范owner仍为evaluation-evidence；Product Definition Evolution marker保留到相应能力激活。旧内部hunyuan键/新腾讯元宝标签与网页yuanbao映射保持历史兼容，不重写报告。
