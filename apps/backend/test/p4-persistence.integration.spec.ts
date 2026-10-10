@@ -416,6 +416,72 @@ describe.skipIf(!permitted)("P4 durable sampling persistence", () => {
     ).toBe(0);
   });
 
+  it("at 80 seconds adds exactly the fourth API work item after three of one platform are accepted", async () => {
+    const platformIds = batch.samples.map((sample) => sample.sampleId);
+    for (const sample of batch.samples.slice(0, 3)) {
+      const itemContext = (await repository.getSampleContext(
+        sample.sampleId,
+        runId,
+        cycleId,
+      ))!;
+      const attemptId = await succeededWeb(sample.sampleId);
+      expect(
+        await repository.acceptEvidence({
+          context: itemContext,
+          attemptId,
+          evidence: evidence(),
+        }),
+      ).toBe("ACCEPTED");
+    }
+    expect(
+      await prisma.evaluationSample.count({
+        where: {
+          runId,
+          platformKey: { not: batch.platformKey },
+          status: "PENDING",
+        },
+      }),
+    ).toBe(16);
+    const apiWorkWhere = {
+      aggregateId: { in: platformIds },
+      eventType: "evaluation.sample.acquire.requested",
+      businessKey: { not: { endsWith: ":channel:WEB" } },
+    };
+    await repository.scheduleSamplingFallback({
+      runId,
+      cycleId,
+      reason: "FALLBACK_DUE",
+      now: new Date(context.samplingWindow!.startedAt.getTime() + 79_000),
+    });
+    expect(await prisma.productOutboxEvent.count({ where: apiWorkWhere })).toBe(
+      0,
+    );
+    await repository.scheduleSamplingFallback({
+      runId,
+      cycleId,
+      reason: "FALLBACK_DUE",
+      now: context.samplingWindow!.fallbackDueAt,
+    });
+    const platformApiWork = await prisma.productOutboxEvent.findMany({
+      where: apiWorkWhere,
+    });
+    expect(platformApiWork).toHaveLength(1);
+    expect(platformApiWork[0]!.payload).toMatchObject({
+      runId,
+      cycleId,
+      sampleId: batch.samples[3]!.sampleId,
+      attemptNumber: 1,
+    });
+    expect(
+      await prisma.evaluationSample.count({
+        where: {
+          id: { in: platformIds.slice(0, 3) },
+          status: "EVIDENCE_ACCEPTED",
+        },
+      }),
+    ).toBe(3);
+  });
+
   it("130-second closure only exhausts pending acquisition and leaves accepted Parser usable", async () => {
     const attemptId = await succeededWeb();
     await repository.acceptEvidence({
