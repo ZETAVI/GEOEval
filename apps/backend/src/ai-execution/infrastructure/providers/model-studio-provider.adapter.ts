@@ -48,12 +48,12 @@ export class ModelStudioProviderAdapter implements ProviderRouteAdapter {
       connection: this.connection,
       transport: this.transport,
       path: "/chat/completions",
-      body: structuredChatBody(definition, request.input),
+      body: createModelStudioStructuredBody(definition, request.input),
     });
   }
 }
 
-function structuredChatBody(
+export function createModelStudioStructuredBody(
   definition: ProviderRouteDefinition,
   input: StructuredOutputAttemptInput,
 ) {

@@ -130,8 +130,16 @@ export type AiAttemptDeferred = {
 export type AiAttemptOutcome =
   AiAttemptFailure | AiAttemptSuccess | AiAttemptDeferred;
 
+export type SampleAiExecutionOutcome =
+  | AiAttemptOutcome
+  | {
+      kind: "REMOTE_PENDING";
+      attemptId: string;
+    };
+
 export type StoredAiAttempt = {
   id: string;
+  executionTransport?: "DIRECT" | "EXECUTION_CENTER";
   status: "STARTED" | "SUCCEEDED" | "FAILED";
   responseEnvelope: Record<string, unknown> | null;
   failureClass: string | null;
