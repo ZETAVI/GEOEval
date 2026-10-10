@@ -43,6 +43,31 @@ export type RichSampleAnswer = {
   images: RichSampleImage[];
 };
 
+const hasInlineContent = (parts: RichSampleInline[]) =>
+  parts.some((part) => part.type === "image" || Boolean(part.text?.trim()));
+function hasListContent(items: RichSampleListItem[]): boolean {
+  return items.some(
+    (item) =>
+      hasInlineContent(item.inlines) ||
+      item.children?.some((child) => hasListContent(child.items)),
+  );
+}
+function hasDisplayContent(block: RichSampleBlock): boolean {
+  if (block.type === "image") return true; // A retained image may need its alt placeholder.
+  if (block.type === "list") return hasListContent(block.items ?? []);
+  if (block.type === "table")
+    return (block.rows ?? []).some((row) =>
+      row.some((cell) =>
+        cell.inlines !== undefined
+          ? hasInlineContent(cell.inlines)
+          : Boolean(cell.text.trim()),
+      ),
+    );
+  return block.inlines !== undefined
+    ? hasInlineContent(block.inlines)
+    : Boolean(block.text?.trim());
+}
+
 const record = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 const label = (text: string) =>
@@ -279,7 +304,11 @@ export function projectRichSampleAnswer(
         ...dimension("height"),
       };
     });
-    return { version: 2, blocks: visible, images };
+    // Optional extraction is not usable merely because its shape is valid.
+    // Returning null lets the report retain the complete original answer.
+    return visible.some(hasDisplayContent)
+      ? { version: 2, blocks: visible, images }
+      : null;
   } catch {
     return null;
   }

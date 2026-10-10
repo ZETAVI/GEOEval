@@ -6,6 +6,64 @@ const paragraph = (text: string) => ({
   inlines: [{ type: "text", text }],
 });
 describe("rich browser answer public projection", () => {
+  it("rejects empty or source-only display projections so a nonempty raw answer can be used", () => {
+    for (const blocks of [
+      [],
+      [{ type: "paragraph", inlines: [{ type: "citation", label: "1" }] }],
+      [
+        { type: "heading", level: 3, text: "参考网页" },
+        {
+          type: "list",
+          ordered: false,
+          items: [
+            {
+              inlines: [
+                { type: "link", text: "信源", href: "https://source.example/" },
+              ],
+            },
+          ],
+        },
+      ],
+      [{ type: "list", ordered: false, items: [] }],
+      [{ type: "table", rows: [[{ text: "", header: false }]] }],
+      [{ type: "paragraph", text: " \n " }],
+    ])
+      expect(
+        projectRichSampleAnswer({ version: 2, blocks, sources: [] }, []),
+      ).toBeNull();
+  });
+  it("keeps image-only, table-only and nested-list-only answers as meaningful rich content", () => {
+    for (const blocks of [
+      [{ type: "image", id: "image-1", alt: "门店环境" }],
+      [{ type: "table", rows: [[{ text: "花悦庭", header: false }]] }],
+      [
+        {
+          type: "list",
+          ordered: false,
+          items: [
+            {
+              inlines: [],
+              children: [
+                {
+                  ordered: true,
+                  items: [
+                    {
+                      inlines: [
+                        { type: "image", id: "image-1", alt: "门店环境" },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    ])
+      expect(
+        projectRichSampleAnswer({ version: 2, blocks }, []),
+      ).not.toBeNull();
+  });
   it("does not restore a citation-only table cell from its raw text fallback", () => {
     const output = projectRichSampleAnswer(
       {
@@ -22,6 +80,7 @@ describe("rich browser answer public projection", () => {
                     { type: "citation", label: "2", sourceId: "source-2" },
                   ],
                 },
+                { text: "有效正文", header: false },
               ],
             ],
           },

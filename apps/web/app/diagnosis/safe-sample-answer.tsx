@@ -195,6 +195,45 @@ function visibleBlocks(blocks: Block[]): Block[] {
   });
 }
 
+const hasInlineContent = (parts: Inline[]) =>
+  parts.some((part) => {
+    if (
+      part.type === "citation" ||
+      (part.type === "link" &&
+        part.sourceId &&
+        /^[-•·]\s*\S{1,16}$/.test((part.text ?? "").trim()))
+    )
+      return false;
+    return (
+      part.type === "image" ||
+      Boolean(part.text?.replace(/\[citation:\d+\]/gi, "").trim())
+    );
+  });
+function hasListContent(items: ListItem[]): boolean {
+  return items.some(
+    (item) =>
+      !sourceField(bodyText(item)) &&
+      !sourceHeading(bodyText(item)) &&
+      (hasInlineContent(item.inlines) ||
+        item.children?.some((child) => hasListContent(child.items))),
+  );
+}
+function hasDisplayContent(block: Block): boolean {
+  if (block.type === "image") return true;
+  if (block.type === "list") return hasListContent(block.items ?? []);
+  if (block.type === "table")
+    return (block.rows ?? []).some((row) =>
+      row.some((cell) =>
+        cell.inlines !== undefined
+          ? hasInlineContent(cell.inlines)
+          : Boolean(cell.text.trim()),
+      ),
+    );
+  return block.inlines !== undefined
+    ? hasInlineContent(block.inlines)
+    : Boolean(block.text?.trim());
+}
+
 export function SafeSampleAnswer({
   originalAnswer,
   richAnswer,
@@ -205,6 +244,11 @@ export function SafeSampleAnswer({
   highlights: Highlight[];
 }) {
   if (!isRichAnswer(richAnswer))
+    return (
+      <SafeMarkdown markdown={originalAnswer ?? ""} highlights={highlights} />
+    );
+  const displayedBlocks = visibleBlocks(richAnswer.blocks);
+  if (!displayedBlocks.some(hasDisplayContent))
     return (
       <SafeMarkdown markdown={originalAnswer ?? ""} highlights={highlights} />
     );
@@ -361,7 +405,7 @@ export function SafeSampleAnswer({
   };
   return (
     <div className="safe-markdown sample-rich-answer">
-      {visibleBlocks(richAnswer.blocks).map(block)}
+      {displayedBlocks.map(block)}
     </div>
   );
 }

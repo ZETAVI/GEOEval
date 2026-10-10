@@ -21,12 +21,96 @@ const render = (answer: unknown, originalAnswer = "旧Markdown原文") =>
   );
 
 describe("rich sample answer card", () => {
+  it("uses the original Markdown when valid-looking rich metadata has no displayable content", () => {
+    for (const blocks of [
+      [],
+      [
+        {
+          type: "paragraph",
+          inlines: [
+            { type: "citation", label: "1", href: "https://source.example/" },
+          ],
+        },
+      ],
+      [
+        { type: "heading", level: 3, text: "参考网页" },
+        {
+          type: "list",
+          ordered: false,
+          items: [
+            {
+              inlines: [
+                { type: "link", text: "信源", href: "https://source.example/" },
+              ],
+            },
+          ],
+        },
+      ],
+      [{ type: "list", ordered: false, items: [] }],
+      [{ type: "table", rows: [[{ text: "", header: false }]] }],
+      [{ type: "paragraph", text: " \n " }],
+    ]) {
+      const markup = render(rich(blocks), "**原始完整回答**");
+      expect(markup).toContain("<strong>原始完整回答</strong>");
+      expect(markup).not.toMatch(
+        /sample-rich-answer|source.example|参考网页|信源/,
+      );
+    }
+  });
+  it("keeps content represented by an image, table, or nested list without demanding ordinary paragraphs", () => {
+    const cases = [
+      {
+        blocks: [{ type: "image", id: "a", alt: "门店环境" }],
+        expected: "门店环境（图片暂不可用）",
+      },
+      {
+        blocks: [
+          { type: "table", rows: [[{ text: "花悦庭", header: false }]] },
+        ],
+        expected: "<table>",
+      },
+      {
+        blocks: [
+          {
+            type: "list",
+            ordered: false,
+            items: [
+              {
+                inlines: [],
+                children: [
+                  {
+                    ordered: true,
+                    items: [
+                      {
+                        inlines: [{ type: "image", id: "a", alt: "门店环境" }],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        expected: "<ol><li>",
+      },
+    ];
+    for (const fixture of cases) {
+      const markup = render(rich(fixture.blocks));
+      expect(markup).toContain(fixture.expected);
+      expect(markup).not.toContain("旧Markdown原文");
+    }
+  });
   it("does not reintroduce removed citations through table cell fallback text", () => {
     const markup = render(
       rich([
         {
           type: "table",
-          rows: [[{ text: "source-reference-2", header: false, inlines: [] }]],
+          rows: [
+            [
+              { text: "source-reference-2", header: false, inlines: [] },
+              { text: "有效正文", header: false },
+            ],
+          ],
         },
       ]),
     );
