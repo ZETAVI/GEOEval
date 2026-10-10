@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { REAL_AI_ROUTES } from "../src/ai-execution/infrastructure/providers/real-route.catalog.js";
 
 import {
   loadApiConfig,
@@ -8,6 +9,67 @@ import {
 } from "../src/config/runtime-config.js";
 
 describe("process-scoped configuration", () => {
+  it("persists an explicit P4 submission intent in API config while defaulting to legacy", () => {
+    expect(
+      loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" }).evaluationSamplingMode,
+    ).toBe("ai-provider");
+    expect(
+      loadApiConfig({
+        GEOEVAL_LOCAL_DEFAULTS: "1",
+        EVALUATION_SAMPLING_MODE: "execution-center",
+      }).evaluationSamplingMode,
+    ).toBe("execution-center");
+  });
+  it("requires both remote transports and all approved route references before P4 workers consume work", () => {
+    const endpoints = Object.fromEntries(
+      REAL_AI_ROUTES.map((route) => [
+        `${route.providerKey}:${route.protocol}`,
+        {
+          endpointRef: route.providerKey,
+          endpointVersion: "1",
+          operation: "call",
+        },
+      ]),
+    );
+    const env = {
+      GEOEVAL_LOCAL_DEFAULTS: "1",
+      NODE_ENV: "test",
+      AI_EXECUTION_MODE: "real",
+      TOKENHUB_API_KEY: "synthetic",
+      ARK_API_KEY: "synthetic",
+      DASHSCOPE_API_KEY: "synthetic",
+      QIANFAN_API_KEY: "synthetic",
+      EVALUATION_SAMPLING_MODE: "execution-center",
+      AI_EXECUTION_CENTER_REF: "p4-local",
+      AI_EXECUTION_CENTER_URL: "http://127.0.0.1:4612",
+      AI_EXECUTION_CENTER_CALLER_TOKEN: "synthetic",
+      AI_EXECUTION_CENTER_ENABLED: "true",
+      AI_EXECUTION_CENTER_ACQUISITION_ENABLED: "true",
+      AI_EXECUTION_CENTER_ENDPOINTS: JSON.stringify(endpoints),
+    };
+    expect(loadWorkerConfig(env).evaluationSampling).toEqual({
+      mode: "execution-center",
+      accountAlias: "primary",
+      centerRef: "p4-local",
+    });
+    expect(() =>
+      loadWorkerConfig({
+        ...env,
+        AI_EXECUTION_CENTER_ACQUISITION_ENABLED: "false",
+      }),
+    ).toThrow("configured Parser and Acquisition");
+    expect(() =>
+      loadWorkerConfig({ ...env, AI_EXECUTION_CENTER_ENABLED: "false" }),
+    ).toThrow("configured Parser and Acquisition");
+    const incomplete = { ...endpoints };
+    delete incomplete[Object.keys(incomplete)[0]!];
+    expect(() =>
+      loadWorkerConfig({
+        ...env,
+        AI_EXECUTION_CENTER_ENDPOINTS: JSON.stringify(incomplete),
+      }),
+    ).toThrow("all approved");
+  });
   it("lets the API start without worker-only Redis configuration", () => {
     const api = loadApiConfig({
       DATABASE_URL: "postgresql://example/api",
@@ -76,6 +138,7 @@ describe("process-scoped configuration", () => {
       requestTimeoutMs: 180_000,
       ambiguityTimeoutMs: 210_000,
     });
+    expect(worker.evaluationSampling).toEqual({ mode: "ai-provider" });
     expect(
       loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" }).geoOptimizationWriterMode,
     ).toBe("deterministic");
@@ -83,6 +146,48 @@ describe("process-scoped configuration", () => {
       loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" })
         .authChallengeSendingEnabled,
     ).toBe(true);
+  });
+
+  it("requires HTTPS for browser sampling outside tests", () => {
+    const base = {
+      DATABASE_URL: "postgresql://example/worker",
+      REDIS_URL: "redis://127.0.0.1:6379",
+      AI_EXECUTION_MODE: "real",
+      AI_PROVIDER_TIMEOUT_MS: "1000",
+      AI_ATTEMPT_AMBIGUITY_TIMEOUT_MS: "2000",
+      TOKENHUB_API_KEY: "tokenhub",
+      ARK_API_KEY: "ark",
+      DASHSCOPE_API_KEY: "dashscope",
+      QIANFAN_API_KEY: "qianfan",
+      DASHSCOPE_BASE_URL: "https://workspace.example.com/v1",
+      EVALUATION_SAMPLING_MODE: "browser-control-plane",
+    };
+    expect(() =>
+      loadWorkerConfig({
+        ...base,
+        BROWSER_SAMPLER_BASE_URL: "http://sampler.internal",
+      }),
+    ).toThrow("must use HTTPS");
+    expect(
+      loadWorkerConfig({
+        ...base,
+        NODE_ENV: "test",
+        BROWSER_SAMPLER_BASE_URL: "http://127.0.0.1:4610",
+      }).evaluationSampling,
+    ).toMatchObject({
+      mode: "browser-control-plane",
+      accountId: "primary",
+      collectionDeadlineMs: 85_000,
+      maximumWaitMs: 600_000,
+    });
+    expect(() =>
+      loadWorkerConfig({
+        ...base,
+        NODE_ENV: "test",
+        BROWSER_SAMPLER_COLLECTION_DEADLINE_MS: "85000",
+        BROWSER_SAMPLER_MAXIMUM_WAIT_MS: "85000",
+      }),
+    ).toThrow("must exceed the collection deadline");
   });
 
   it("rejects deterministic challenge delivery in production", () => {

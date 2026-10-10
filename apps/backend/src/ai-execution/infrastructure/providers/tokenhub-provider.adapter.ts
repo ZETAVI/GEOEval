@@ -1,5 +1,6 @@
 import type {
   ResolvedAiAttemptRequest,
+  AcquisitionAttemptInput,
   StructuredOutputAttemptInput,
 } from "../../domain/ai-attempt.types.js";
 import type { RealProviderConnection } from "../ai-execution.config.js";
@@ -26,43 +27,30 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
       if (request.purpose !== "EVALUATION_ACQUISITION") {
         throw new Error("TokenHub Chat route received a structured purpose");
       }
+      if (request.input.taskKind !== "EVALUATION_ACQUISITION") {
+        throw new Error(
+          "TokenHub cannot execute a recorded browser acquisition",
+        );
+      }
       return executeProviderJsonRequest({
         request,
         definition,
         connection: this.connection,
         transport: this.transport,
         path: "/chat/completions",
-        body: {
-          model: definition.requestedModel,
-          messages: [
-            { role: "system", content: request.input.systemInstruction },
-            { role: "user", content: request.input.query },
-          ],
-          stream: false,
-          web_search_options: {
-            enable: true,
-            search_source: "lite",
-            user_location: location(request.input),
-          },
-        },
+        body: createTokenHubAcquisitionBody(definition, request.input),
       });
     }
     const body =
       request.purpose === "EVALUATION_ACQUISITION"
-        ? {
-            model: definition.requestedModel,
-            input: request.input.query,
-            instructions: request.input.systemInstruction,
-            stream: false,
-            tools: [
-              {
-                type: "web_search",
-                search_source: "lite",
-                search_context_size: "medium",
-                user_location: location(request.input),
-              },
-            ],
-          }
+        ? (() => {
+            if (request.input.taskKind !== "EVALUATION_ACQUISITION") {
+              throw new Error(
+                "TokenHub cannot execute a recorded browser acquisition",
+              );
+            }
+            return createTokenHubAcquisitionBody(definition, request.input);
+          })()
         : createTokenHubStructuredBody(definition, request.input);
     return executeProviderJsonRequest({
       request,
@@ -73,6 +61,40 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
       body,
     });
   }
+}
+
+export function createTokenHubAcquisitionBody(
+  definition: ProviderRouteDefinition,
+  input: AcquisitionAttemptInput,
+) {
+  if (definition.protocol === "chat-completions")
+    return {
+      model: definition.requestedModel,
+      messages: [
+        { role: "system", content: input.systemInstruction },
+        { role: "user", content: input.query },
+      ],
+      stream: false,
+      web_search_options: {
+        enable: true,
+        search_source: "lite",
+        user_location: location(input),
+      },
+    };
+  return {
+    model: definition.requestedModel,
+    input: input.query,
+    instructions: input.systemInstruction,
+    stream: false,
+    tools: [
+      {
+        type: "web_search",
+        search_source: "lite",
+        search_context_size: "medium",
+        user_location: location(input),
+      },
+    ],
+  };
 }
 
 export function createTokenHubStructuredBody(

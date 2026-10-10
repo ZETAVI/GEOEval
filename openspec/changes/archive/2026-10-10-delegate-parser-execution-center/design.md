@@ -1,5 +1,7 @@
 # Parser异步执行设计
 
+已接受：PR176 / main636bd71。当前行为由AI模块、迁移/测试、evaluation-evidence spec和架构overview拥有；以下为归档设计，不承载后续P4计划。
+
 本片实现已批准P2，不拥有#169的网页优先策略。当前共享接口owner为中台execution.v1/b2ca795。代码、迁移和测试是细节事实owner。
 
 ## Architecture card

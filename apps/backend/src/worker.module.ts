@@ -26,7 +26,10 @@ export class WorkerModule {
           config.agencyCommissionEnabled ?? false,
         ),
         OrderSettlementModule.register(config.orderSettlementEnabled ?? false),
-        BackgroundWorkModule.register(config.aiExecution),
+        BackgroundWorkModule.register({
+          aiExecution: config.aiExecution,
+          evaluationSampling: config.evaluationSampling,
+        }),
       ],
       providers: [
         { provide: REDIS_URL, useValue: config.redisUrl },

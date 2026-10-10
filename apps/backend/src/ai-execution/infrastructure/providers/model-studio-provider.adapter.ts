@@ -1,5 +1,6 @@
 import type {
   ResolvedAiAttemptRequest,
+  AcquisitionAttemptInput,
   StructuredOutputAttemptInput,
 } from "../../domain/ai-attempt.types.js";
 import type { RealProviderConnection } from "../ai-execution.config.js";
@@ -23,18 +24,18 @@ export class ModelStudioProviderAdapter implements ProviderRouteAdapter {
     definition: ProviderRouteDefinition,
   ) {
     if (request.purpose === "EVALUATION_ACQUISITION") {
+      if (request.input.taskKind !== "EVALUATION_ACQUISITION") {
+        throw new Error(
+          "Model Studio cannot execute a recorded browser acquisition",
+        );
+      }
       return executeProviderJsonRequest({
         request,
         definition,
         connection: this.connection,
         transport: this.transport,
         path: "/responses",
-        body: {
-          model: definition.requestedModel,
-          input: request.input.query,
-          instructions: request.input.systemInstruction,
-          tools: [{ type: "web_search" }],
-        },
+        body: createModelStudioAcquisitionBody(definition, request.input),
       });
     }
     if (definition.protocol !== "chat-completions") {
@@ -51,6 +52,18 @@ export class ModelStudioProviderAdapter implements ProviderRouteAdapter {
       body: createModelStudioStructuredBody(definition, request.input),
     });
   }
+}
+
+export function createModelStudioAcquisitionBody(
+  definition: ProviderRouteDefinition,
+  input: AcquisitionAttemptInput,
+) {
+  return {
+    model: definition.requestedModel,
+    input: input.query,
+    instructions: input.systemInstruction,
+    tools: [{ type: "web_search" }],
+  };
 }
 
 export function createModelStudioStructuredBody(

@@ -1,4 +1,5 @@
 import type { EvaluationReportDocument } from "./evaluation-report.document.js";
+import type { RichSampleAnswer } from "./rich-sample-answer.js";
 import type {
   EvaluationBrandSnapshot,
   EvaluationQuestionKind,
@@ -23,6 +24,7 @@ export type EvaluationReportSampleView = {
   position: number | null;
   cardInterpretation: string | null;
   originalAnswer: string | null;
+  richAnswer?: RichSampleAnswer | null;
   highlightUnavailable: boolean;
   highlights: EvaluationHighlightRange[];
 };

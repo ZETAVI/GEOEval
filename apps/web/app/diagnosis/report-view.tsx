@@ -2,7 +2,7 @@ import type { EvaluationReport } from "@geoeval/api-client";
 import type { CSSProperties } from "react";
 import { formatChinaDateTime } from "../china-time.js";
 
-import { SafeMarkdown } from "./safe-markdown.js";
+import { SafeSampleAnswer } from "./safe-sample-answer.js";
 
 const questionLabels: Record<string, string> = {
   BRAND_DIRECTED: "品牌现状",
@@ -227,8 +227,13 @@ export function EvaluationReportView({
                         <div className="sample-answer">
                           <small>平台原始回答</small>
                           {sample.originalAnswer ? (
-                            <SafeMarkdown
-                              markdown={sample.originalAnswer}
+                            <SafeSampleAnswer
+                              originalAnswer={sample.originalAnswer}
+                              richAnswer={
+                                "richAnswer" in sample
+                                  ? sample.richAnswer
+                                  : null
+                              }
                               highlights={
                                 sample.highlightUnavailable
                                   ? []
@@ -246,8 +251,13 @@ export function EvaluationReportView({
                         {sample.originalAnswer && (
                           <div className="sample-answer">
                             <small>已获得的平台原始回答</small>
-                            <SafeMarkdown
-                              markdown={sample.originalAnswer}
+                            <SafeSampleAnswer
+                              originalAnswer={sample.originalAnswer}
+                              richAnswer={
+                                "richAnswer" in sample
+                                  ? sample.richAnswer
+                                  : null
+                              }
                               highlights={[]}
                             />
                           </div>

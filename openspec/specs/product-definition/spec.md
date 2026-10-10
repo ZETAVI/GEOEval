@@ -499,7 +499,7 @@ definition retains only their customer meaning and product constraints.
 #### Scenario: The evaluation forms its sampling set
 
 - **GIVEN** the evaluation has four questions and the fixed platform set of
-  DeepSeek, Doubao, Qwen, ERNIE Bot, and Tencent Hunyuan
+  DeepSeek, Doubao, Qwen, ERNIE Bot, and Tencent Yuanbao
 - **WHEN** sampling is performed
 - **THEN** the evaluation expects twenty valid question-platform samples
 - **AND** the customer cannot add, remove, or replace a platform

@@ -1,3 +1,5 @@
+import type { SampleAiAttemptRequest } from "./ai-attempt.types.js";
+
 export const EXECUTION_CENTER_RECEIPT_REPOSITORY = Symbol(
   "EXECUTION_CENTER_RECEIPT_REPOSITORY",
 );
@@ -7,6 +9,7 @@ export type ExecutionCenterAttemptIdentity = {
   sampleId: string;
   purpose: "EVALUATION_ACQUISITION" | "EVALUATION_INTERPRETATION";
   attemptNumber: number;
+  executionChannel?: "API";
 };
 
 export type ExecutionCenterStoredRequest = Record<string, unknown> & {
@@ -17,20 +20,34 @@ export type ExecutionCenterStoredRequest = Record<string, unknown> & {
   items: Array<{ itemId: string }>;
 };
 
-export type ExecutionCenterSnapshot = Record<string, unknown> & {
+export type ExecutionCenterItemSnapshot = Record<string, unknown> & {
+  itemId: string;
+  state: string;
+  result?: Record<string, unknown>;
+  error?: Record<string, unknown>;
+};
+type ExecutionCenterSnapshotBase = Record<string, unknown> & {
   taskId: string;
   callerRequestRef: string;
   contractVersion: "execution.v1";
-  channel: "api";
   deadlineAt: number;
-  items: Array<
-    Record<string, unknown> & {
-      itemId: string;
-      state: string;
-      result?: Record<string, unknown>;
-      error?: Record<string, unknown>;
-    }
-  >;
+  items: ExecutionCenterItemSnapshot[];
+};
+/** API receipt remains exactly one native item. Web batch is owned by GEO. */
+export type ExecutionCenterSnapshot = ExecutionCenterSnapshotBase & {
+  channel: "api";
+};
+export type ExecutionCenterWebTaskSnapshot = ExecutionCenterSnapshotBase & {
+  channel: "web";
+};
+export type ExecutionCenterTaskSnapshot =
+  ExecutionCenterSnapshot | ExecutionCenterWebTaskSnapshot;
+export type ExecutionCenterWebStoredRequest = Record<string, unknown> & {
+  contractVersion: "execution.v1";
+  callerRequestRef: string;
+  channel: "web";
+  deadlineAt: number;
+  items: Array<{ itemId: string }>;
 };
 
 /** Safe execution.v1 notification only. Complete native output is in snapshot. */
@@ -66,6 +83,12 @@ export type ExecutionCenterReceipt = {
   createdAt: Date;
   updatedAt: Date;
   readyAt: Date | null;
+  /** AI-owned original input only; never part of HTTP/SSE/Outbox projections. */
+  originalAttempt?: {
+    request: SampleAiAttemptRequest;
+    providerKey: string;
+    startedAt: Date;
+  };
   business: ExecutionCenterAttemptIdentity & {
     runId: string;
     correlationId: string;
@@ -86,7 +109,7 @@ export type ConsumeExecutionCenterEvent = {
   centerRef: string;
   expectedCursor: number;
   event: ExecutionCenterEvent;
-  snapshot?: ExecutionCenterSnapshot;
+  snapshot?: ExecutionCenterTaskSnapshot;
 };
 
 export type ConsumedExecutionCenterEvent = {
@@ -126,6 +149,14 @@ export interface ExecutionCenterReceiptRepository {
     accepted: { taskId: string; itemId: string },
   ): Promise<ExecutionCenterReceipt>;
   readCursor(centerRef: string): Promise<number>;
+  /** Durable safe notification plus terminal body; no business-table reach-through. */
+  readNotification(
+    centerRef: string,
+    cursor: number,
+  ): Promise<{
+    event: ExecutionCenterEvent;
+    snapshot: ExecutionCenterTaskSnapshot | null;
+  } | null>;
   consumeEvent(
     input: ConsumeExecutionCenterEvent,
   ): Promise<ConsumedExecutionCenterEvent>;

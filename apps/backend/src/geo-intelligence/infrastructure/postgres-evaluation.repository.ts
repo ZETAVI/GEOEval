@@ -7,7 +7,12 @@ import type { Prisma } from "../../generated/prisma/client.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
 import { parseEvaluationBrandSnapshot } from "../domain/evaluation-brand-snapshot.js";
 import type { EvaluationRepository } from "../domain/evaluation.repository.js";
-import { sampleWorkRequestedEvent } from "../domain/evaluation-process.events.js";
+import {
+  sampleWorkRequestedEvent,
+  samplingWindowRequestedEvent,
+} from "../domain/evaluation-process.events.js";
+import type { BrowserSamplingConfig } from "./browser-sampling.config.js";
+import { samplingCycleWindowData } from "./evaluation-sampling-window.js";
 import { synthesisRequestedEvent } from "../domain/evaluation-synthesis.events.js";
 import type {
   EvaluationDefinitionInput,
@@ -32,7 +37,10 @@ const definitionInclude = {
 
 @Injectable()
 export class PostgresEvaluationRepository implements EvaluationRepository {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    private readonly samplingMode: BrowserSamplingConfig["mode"] = "ai-provider",
+  ) {}
 
   async findDefinition(input: {
     accountId: string;
@@ -151,7 +159,14 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
         });
         const cycleId = randomUUID();
         await transaction.evaluationExecutionCycle.create({
-          data: { id: cycleId, runId: run.id, sequence: 1 },
+          data: {
+            id: cycleId,
+            runId: run.id,
+            sequence: 1,
+            ...(this.samplingMode === "execution-center"
+              ? samplingCycleWindowData(new Date())
+              : {}),
+          },
         });
         await transaction.evaluationSample.createMany({
           data: sampleInputs.map((sample) => ({
@@ -174,6 +189,19 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
             correlationId,
           },
         });
+        if (this.samplingMode === "execution-center") {
+          await transaction.productOutboxEvent.createMany({
+            data: ["fallback", "deadline"].map((stage) =>
+              samplingWindowRequestedEvent({
+                runId: run.id,
+                cycleId,
+                stage: stage as "fallback" | "deadline",
+                correlationId,
+              }),
+            ),
+            skipDuplicates: true,
+          });
+        }
         const started = await transaction.evaluationRun.findUniqueOrThrow({
           where: { id: run.id },
           include: {
@@ -227,7 +255,10 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
           where: { id: input.runId, accountId: input.accountId },
           include: {
             samples: {
-              include: { evidence: { select: { id: true } } },
+              include: {
+                evidence: { select: { id: true } },
+                question: { select: { ordinal: true } },
+              },
             },
             brandResolution: { select: { id: true } },
             executionCycles: { orderBy: { sequence: "desc" } },
@@ -284,12 +315,20 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
         const cycleId = randomUUID();
         const sequence = previousCycle.sequence + 1;
         const synthesisOnly = run.stage === "SYNTHESIS_EXHAUSTED";
+        const restartsAcquisition =
+          !synthesisOnly &&
+          run.samples.some(
+            (sample) => sample.status === "ACQUISITION_EXHAUSTED",
+          );
         await transaction.evaluationExecutionCycle.create({
           data: {
             id: cycleId,
             runId: run.id,
             sequence,
             status: synthesisOnly ? "READY_FOR_SYNTHESIS" : "ACTIVE",
+            ...(this.samplingMode === "execution-center" && restartsAcquisition
+              ? samplingCycleWindowData(new Date())
+              : {}),
           },
         });
 
@@ -341,7 +380,17 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
           }
           await transaction.productOutboxEvent.createMany({
             data: [
-              ...acquisitionSamples.map((sample) =>
+              ...(this.samplingMode === "execution-center"
+                ? acquisitionSamples.filter(
+                    (sample) =>
+                      !acquisitionSamples.some(
+                        (other) =>
+                          other.platformKey === sample.platformKey &&
+                          other.question.ordinal < sample.question.ordinal,
+                      ),
+                  )
+                : acquisitionSamples
+              ).map((sample) =>
                 sampleWorkRequestedEvent({
                   runId: run.id,
                   cycleId,
@@ -349,6 +398,9 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
                   purpose: "EVALUATION_ACQUISITION",
                   attemptNumber: 1,
                   correlationId: run.correlationId,
+                  ...(this.samplingMode === "execution-center"
+                    ? { executionChannel: "WEB" as const }
+                    : {}),
                 }),
               ),
               ...interpretationSamples.map((sample) =>
@@ -363,6 +415,19 @@ export class PostgresEvaluationRepository implements EvaluationRepository {
               ),
             ],
           });
+          if (this.samplingMode === "execution-center" && restartsAcquisition) {
+            await transaction.productOutboxEvent.createMany({
+              data: ["fallback", "deadline"].map((stage) =>
+                samplingWindowRequestedEvent({
+                  runId: run.id,
+                  cycleId,
+                  stage: stage as "fallback" | "deadline",
+                  correlationId: run.correlationId,
+                }),
+              ),
+              skipDuplicates: true,
+            });
+          }
         }
 
         const retried = await transaction.evaluationRun.findUniqueOrThrow({

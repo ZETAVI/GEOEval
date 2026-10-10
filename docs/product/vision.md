@@ -221,7 +221,7 @@ another evaluation; the customer is not forced to wait or discard later edits.
 
 The initial evaluation uses one fixed, non-customer-selectable platform set:
 **DeepSeek**, **Doubao (豆包)**, **Qwen (千问)**, **ERNIE Bot (文心一言)**,
-and **Tencent Hunyuan (混元)**. Each evaluation therefore retains the approved
+and **Tencent Yuanbao (腾讯元宝)**. Each evaluation therefore retains the approved
 four-question by five-platform structure. A report records the five platform
 labels actually used and the evaluation time. Historical reports never change
 when a future platform configuration changes, and a configuration change does

@@ -276,6 +276,10 @@ describe("customer-entry HTTP contract", () => {
       key: "deepseek",
       label: "DeepSeek",
     });
+    expect(definition.platforms[4]).toEqual({
+      key: "hunyuan",
+      label: "腾讯元宝",
+    });
     expect(definition.objectivityProfile).toBeUndefined();
     expect(definition).not.toHaveProperty("inputFingerprint");
 

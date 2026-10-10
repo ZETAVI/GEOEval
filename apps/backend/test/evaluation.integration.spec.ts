@@ -70,7 +70,7 @@ describe("evaluation definition and official start", () => {
       "豆包",
       "千问",
       "文心一言",
-      "混元",
+      "腾讯元宝",
     ]);
     expect(first.objectivityProfile).toMatchObject({
       id: "evaluation.objectivity",
@@ -89,6 +89,47 @@ describe("evaluation definition and official start", () => {
     );
     expect(afterContactEdit.id).toBe(first.id);
     expect(await prisma.evaluationDefinition.count()).toBe(1);
+  });
+
+  it("preserves the stored label of a historical platform snapshot", async () => {
+    const brand = await createReadyBrand(brands, accountId);
+    const definition = await questionPreparation.prepareReadyDefinition(
+      evaluations,
+      accountId,
+      brand.id,
+    );
+    await prisma.evaluationDefinition.update({
+      where: { id: definition.id },
+      data: {
+        platformPolicy: definition.platforms.map((platform) =>
+          platform.key === "hunyuan"
+            ? { ...platform, label: "混元" }
+            : platform,
+        ),
+      },
+    });
+
+    const observed = await evaluations.observeDefinition(accountId, brand.id);
+
+    expect(observed?.definition?.platforms.at(-1)).toMatchObject({
+      key: "hunyuan",
+      label: "混元",
+    });
+
+    await evaluations.startRun(accountId, definition.id);
+    const historicalSamples = await prisma.evaluationSample.findMany({
+      where: { platformKey: "hunyuan" },
+      select: { platformKey: true, platformLabel: true },
+    });
+    expect(historicalSamples).toHaveLength(4);
+    expect(historicalSamples).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          platformKey: "hunyuan",
+          platformLabel: "混元",
+        }),
+      ]),
+    );
   });
 
   it("returns one stored definition under concurrent preparation", async () => {

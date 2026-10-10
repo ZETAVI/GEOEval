@@ -1,6 +1,6 @@
 # P2 local verification — 2026-10-09
 
-Issue #175；main-direct candidate，默认关闭，未合并或部署。固定审查a963ceb→c490d383发现一项must-fix，已以最小修复和真实PG/中台纵切回归消除；下面只记录已执行证据，不将候选当成生产行为。
+Issue #175；此本地候选已经用户授权通过PR176合入main636bd71，默认关闭、未部署。固定审查a963ceb→c490d383发现一项must-fix，已以最小修复和真实PG/中台纵切回归消除；下面保留原已执行证据，合并不等于生产启用。
 
 | Claim | Evidence | Result / limit |
 | --- | --- | --- |
@@ -18,4 +18,4 @@ Issue #175；main-direct candidate，默认关闭，未合并或部署。固定�
 
 本地仅使用新建geoeval_issue175库与专用Redis127.0.0.1:56380，不迁移共享默认库。测试首次失败原因是fixture JSONB键序查找与usage字段断言，修正fixture后两种纵切通过，未为测试改变业务输出。没有付费Provider、生产、云节点、真实5×4/SLA或密钥迁移。
 
-当前行为归apps/backend/src/ai-execution、增量Prisma迁移与openspec/specs/evaluation-evidence；共享execution.v1仍由独立中台owner维护。Workspace保留到评审；后续P4/P5/P6不属于本片完成声明。
+当前行为归apps/backend/src/ai-execution、增量Prisma迁移、架构overview与openspec/specs/evaluation-evidence；共享execution.v1仍由独立中台owner维护。原parser-execution-center工作树保留为恢复材料，不继续写P4；本Change归档。后续P4/P5/P6不属于本片完成声明。

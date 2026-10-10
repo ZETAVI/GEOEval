@@ -643,7 +643,7 @@ function sparseSynthesisFixture(): OverallSynthesisTaskContext & {
     ["doubao", "豆包"],
     ["qwen", "千问"],
     ["ernie", "文心一言"],
-    ["hunyuan", "混元"],
+    ["hunyuan", "腾讯元宝"],
   ] as const;
   const samples: SynthesisSample[] = Array.from({ length: 17 }, (_, index) => {
     const [platformKey, platformLabel] = platforms[index % platforms.length]!;

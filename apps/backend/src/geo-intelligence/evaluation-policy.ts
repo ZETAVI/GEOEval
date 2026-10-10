@@ -68,7 +68,7 @@ export const EVALUATION_PLATFORM_POLICY: EvaluationPlatformPolicy[] = [
   },
   {
     key: "hunyuan",
-    label: "混元",
+    label: "腾讯元宝",
     routePolicyId: "evaluation.hunyuan",
     model: "hy3",
     searchMode: "AUTO",

@@ -2,7 +2,9 @@ import { z } from "zod";
 
 import type { AiExecutionConfig } from "../ai-execution/infrastructure/ai-execution.config.js";
 import { parserExecutionCenterConfig } from "../ai-execution/infrastructure/execution-center.config.js";
+import { REAL_AI_ROUTES } from "../ai-execution/infrastructure/providers/real-route.catalog.js";
 import type { StoreLocationRuntimeConfig } from "../brand/infrastructure/store-location.config.js";
+import type { BrowserSamplingConfig } from "../geo-intelligence/infrastructure/browser-sampling.config.js";
 
 const localDatabaseUrl =
   "postgresql://geoeval:geoeval_local_only@127.0.0.1:55432/geoeval";
@@ -36,6 +38,9 @@ const identityCleanupSchema = z.object({
 });
 
 const apiSchema = commonSchema.extend({
+  EVALUATION_SAMPLING_MODE: z
+    .enum(["ai-provider", "browser-control-plane", "execution-center"])
+    .default("ai-provider"),
   ...identityCleanupSchema.shape,
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -202,6 +207,36 @@ const workerSchema = commonSchema.extend({
     .default("development"),
   REDIS_URL: z.string().min(1),
   AI_EXECUTION_MODE: z.enum(["deterministic", "real"]).default("deterministic"),
+  EVALUATION_SAMPLING_MODE: z
+    .enum(["ai-provider", "browser-control-plane", "execution-center"])
+    .default("ai-provider"),
+  BROWSER_SAMPLER_BASE_URL: z.string().url().default("http://127.0.0.1:4610"),
+  BROWSER_SAMPLER_BEARER_TOKEN: z.string().default(""),
+  BROWSER_SAMPLER_ACCOUNT_ID: z.string().trim().min(1).default("primary"),
+  BROWSER_SAMPLER_REQUEST_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(30_000)
+    .default(10_000),
+  BROWSER_SAMPLER_POLL_INTERVAL_MS: z.coerce
+    .number()
+    .int()
+    .min(250)
+    .max(10_000)
+    .default(1_000),
+  BROWSER_SAMPLER_COLLECTION_DEADLINE_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(300_000)
+    .default(85_000),
+  BROWSER_SAMPLER_MAXIMUM_WAIT_MS: z.coerce
+    .number()
+    .int()
+    .min(60_000)
+    .max(1_800_000)
+    .default(600_000),
   AI_PROVIDER_TIMEOUT_MS: z.coerce
     .number()
     .int()
@@ -253,6 +288,7 @@ const identityBootstrapSchema = z.object({
 });
 
 export type ApiConfig = {
+  evaluationSamplingMode?: BrowserSamplingConfig["mode"];
   databaseUrl: string;
   port: number;
   corsOrigins: string[];
@@ -334,6 +370,7 @@ export type WorkerConfig = {
   telemetryShouldFail: boolean;
   runtimeEnvironment: "development" | "test" | "production";
   aiExecution: AiExecutionConfig;
+  evaluationSampling: BrowserSamplingConfig;
 };
 
 function withLocalDefaults(environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
@@ -609,6 +646,7 @@ export function loadApiConfig(
       amapWebServiceKey: parsed.AMAP_WEB_SERVICE_KEY,
     },
     geoOptimizationWriterMode: parsed.GEO_OPTIMIZATION_WRITER_MODE,
+    evaluationSamplingMode: parsed.EVALUATION_SAMPLING_MODE,
   };
 }
 
@@ -651,6 +689,23 @@ export function loadWorkerConfig(
       "AI_ATTEMPT_AMBIGUITY_TIMEOUT_MS must be greater than AI_PROVIDER_TIMEOUT_MS",
     );
   }
+  const browserSamplerBaseUrl = new URL(parsed.BROWSER_SAMPLER_BASE_URL);
+  if (
+    parsed.EVALUATION_SAMPLING_MODE === "browser-control-plane" &&
+    parsed.NODE_ENV !== "test" &&
+    browserSamplerBaseUrl.protocol !== "https:"
+  ) {
+    throw new Error("BROWSER_SAMPLER_BASE_URL must use HTTPS outside tests");
+  }
+  if (
+    parsed.EVALUATION_SAMPLING_MODE === "browser-control-plane" &&
+    parsed.BROWSER_SAMPLER_MAXIMUM_WAIT_MS <=
+      parsed.BROWSER_SAMPLER_COLLECTION_DEADLINE_MS
+  ) {
+    throw new Error(
+      "BROWSER_SAMPLER_MAXIMUM_WAIT_MS must exceed the collection deadline",
+    );
+  }
   const aiExecution: AiExecutionConfig =
     parsed.AI_EXECUTION_MODE === "deterministic"
       ? {
@@ -675,6 +730,29 @@ export function loadWorkerConfig(
   );
   if (executionCenter) aiExecution.executionCenter = executionCenter;
   if (
+    parsed.EVALUATION_SAMPLING_MODE === "execution-center" &&
+    (!executionCenter?.enabled || !executionCenter.acquisitionEnabled)
+  ) {
+    throw new Error(
+      "Web-first execution requires configured Parser and Acquisition center transports",
+    );
+  }
+  if (
+    parsed.EVALUATION_SAMPLING_MODE === "execution-center" &&
+    REAL_AI_ROUTES.filter(
+      (route) =>
+        route.purpose === "EVALUATION_ACQUISITION" ||
+        route.purpose === "EVALUATION_INTERPRETATION",
+    ).some(
+      (route) =>
+        !executionCenter!.endpoints[`${route.providerKey}:${route.protocol}`],
+    )
+  ) {
+    throw new Error(
+      "Web-first execution requires all approved acquisition and Parser endpoint references",
+    );
+  }
+  if (
     aiExecution.mode === "real" &&
     parsed.NODE_ENV !== "test" &&
     new URL(aiExecution.modelStudio.baseUrl).hostname ===
@@ -692,6 +770,26 @@ export function loadWorkerConfig(
     telemetryShouldFail: parsed.GEOEVAL_TELEMETRY_FAIL === "1",
     runtimeEnvironment: parsed.NODE_ENV,
     aiExecution,
+    evaluationSampling:
+      parsed.EVALUATION_SAMPLING_MODE === "execution-center"
+        ? {
+            mode: "execution-center",
+            accountAlias: parsed.BROWSER_SAMPLER_ACCOUNT_ID,
+            centerRef: executionCenter!.centerRef,
+          }
+        : parsed.EVALUATION_SAMPLING_MODE === "browser-control-plane"
+          ? {
+              mode: "browser-control-plane",
+              baseUrl: parsed.BROWSER_SAMPLER_BASE_URL.replace(/\/$/, ""),
+              bearerToken: parsed.BROWSER_SAMPLER_BEARER_TOKEN,
+              accountId: parsed.BROWSER_SAMPLER_ACCOUNT_ID,
+              requestTimeoutMs: parsed.BROWSER_SAMPLER_REQUEST_TIMEOUT_MS,
+              pollIntervalMs: parsed.BROWSER_SAMPLER_POLL_INTERVAL_MS,
+              collectionDeadlineMs:
+                parsed.BROWSER_SAMPLER_COLLECTION_DEADLINE_MS,
+              maximumWaitMs: parsed.BROWSER_SAMPLER_MAXIMUM_WAIT_MS,
+            }
+          : { mode: "ai-provider" },
   };
 }
 

@@ -8,13 +8,14 @@ export function sampleWorkRequestedEvent(input: {
   purpose: EvaluationSamplePurpose;
   attemptNumber: number;
   correlationId: string;
+  executionChannel?: "API" | "WEB";
 }) {
   const stage =
     input.purpose === "EVALUATION_ACQUISITION"
       ? "acquisition"
       : "interpretation";
   return {
-    businessKey: `evaluation-run:${input.runId}:cycle:${input.cycleId}:sample:${input.sampleId}:${stage}:${input.attemptNumber}`,
+    businessKey: `evaluation-run:${input.runId}:cycle:${input.cycleId}:sample:${input.sampleId}:${stage}:${input.attemptNumber}${input.executionChannel === "WEB" ? ":channel:WEB" : ""}`,
     aggregateType: "evaluation_sample",
     aggregateId: input.sampleId,
     eventType:
@@ -26,7 +27,24 @@ export function sampleWorkRequestedEvent(input: {
       cycleId: input.cycleId,
       sampleId: input.sampleId,
       attemptNumber: input.attemptNumber,
+      ...(input.executionChannel === "WEB" ? { executionChannel: "WEB" } : {}),
     },
+    correlationId: input.correlationId,
+  };
+}
+
+export function samplingWindowRequestedEvent(input: {
+  runId: string;
+  cycleId: string;
+  stage: "fallback" | "deadline";
+  correlationId: string;
+}) {
+  return {
+    businessKey: `evaluation-run:${input.runId}:cycle:${input.cycleId}:sampling:${input.stage}`,
+    aggregateType: "evaluation_run",
+    aggregateId: input.runId,
+    eventType: `evaluation.sampling.${input.stage}.requested`,
+    payload: { runId: input.runId, cycleId: input.cycleId },
     correlationId: input.correlationId,
   };
 }

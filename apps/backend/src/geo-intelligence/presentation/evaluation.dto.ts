@@ -1,4 +1,9 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import {
+  ApiExtraModels,
+  ApiProperty,
+  ApiPropertyOptional,
+  getSchemaPath,
+} from "@nestjs/swagger";
 
 export class EvaluationBrandSnapshotResponse {
   @ApiProperty({ type: String })
@@ -285,6 +290,80 @@ export class EvaluationHighlightRangeResponse {
   kind!: "TARGET" | "POSITIVE" | "NEGATIVE" | "MIXED";
 }
 
+export class RichSampleInlineResponse {
+  @ApiProperty({ type: String, enum: ["text", "link", "image"] })
+  type!: "text" | "link" | "image";
+  @ApiPropertyOptional({ type: String }) text?: string;
+  @ApiPropertyOptional({ type: [String], enum: ["strong", "emphasis"] })
+  marks?: Array<"strong" | "emphasis">;
+  @ApiPropertyOptional({ type: String }) href?: string;
+  @ApiPropertyOptional({ type: String }) id?: string;
+  @ApiPropertyOptional({ type: String }) alt?: string;
+}
+
+export class RichSampleListItemResponse {
+  @ApiProperty({ type: [RichSampleInlineResponse] })
+  inlines!: RichSampleInlineResponse[];
+  @ApiPropertyOptional({ type: () => [RichSampleListResponse] })
+  children?: RichSampleListResponse[];
+}
+export class RichSampleListResponse {
+  @ApiProperty({ type: Boolean }) ordered!: boolean;
+  @ApiProperty({ type: [RichSampleListItemResponse] })
+  items!: RichSampleListItemResponse[];
+}
+export class RichSampleCellResponse {
+  @ApiProperty({ type: String }) text!: string;
+  @ApiProperty({ type: Boolean }) header!: boolean;
+  @ApiPropertyOptional({ type: [RichSampleInlineResponse] })
+  inlines?: RichSampleInlineResponse[];
+}
+
+@ApiExtraModels(RichSampleCellResponse)
+export class RichSampleBlockResponse {
+  @ApiProperty({
+    type: String,
+    enum: ["paragraph", "heading", "quote", "list", "table", "code", "image"],
+  })
+  type!:
+    "paragraph" | "heading" | "quote" | "list" | "table" | "code" | "image";
+  @ApiPropertyOptional({ type: String }) text?: string;
+  @ApiPropertyOptional({ type: [RichSampleInlineResponse] })
+  inlines?: RichSampleInlineResponse[];
+  @ApiPropertyOptional({ type: Number }) level?: number;
+  @ApiPropertyOptional({ type: Boolean }) ordered?: boolean;
+  @ApiPropertyOptional({ type: [RichSampleListItemResponse] })
+  items?: RichSampleListItemResponse[];
+  @ApiPropertyOptional({
+    type: "array",
+    items: {
+      type: "array",
+      items: { $ref: getSchemaPath(RichSampleCellResponse) },
+    },
+  })
+  rows?: RichSampleCellResponse[][];
+  @ApiPropertyOptional({ type: String }) id?: string;
+  @ApiPropertyOptional({ type: String }) alt?: string;
+}
+export class RichSampleImageResponse {
+  @ApiProperty({ type: String }) id!: string;
+  @ApiProperty({ type: String }) alt!: string;
+  @ApiProperty({ type: String, nullable: true }) src!: string | null;
+  @ApiPropertyOptional({ type: Number }) width?: number;
+  @ApiPropertyOptional({ type: Number }) height?: number;
+  @ApiProperty({ type: String, enum: ["content", "thumbnail"] }) role!:
+    "content" | "thumbnail";
+  @ApiProperty({ type: String, enum: ["remote_url", "unavailable"] })
+  availability!: "remote_url" | "unavailable";
+}
+export class RichSampleAnswerResponse {
+  @ApiProperty({ type: Number, enum: [2] }) version!: 2;
+  @ApiProperty({ type: [RichSampleBlockResponse] })
+  blocks!: RichSampleBlockResponse[];
+  @ApiProperty({ type: [RichSampleImageResponse] })
+  images!: RichSampleImageResponse[];
+}
+
 export class EvaluationReportSampleResponse {
   @ApiProperty({ type: String })
   id!: string;
@@ -302,6 +381,8 @@ export class EvaluationReportSampleResponse {
   cardInterpretation!: string | null;
   @ApiProperty({ type: String, nullable: true })
   originalAnswer!: string | null;
+  @ApiPropertyOptional({ type: RichSampleAnswerResponse, nullable: true })
+  richAnswer?: RichSampleAnswerResponse | null;
   @ApiProperty({ type: Boolean })
   highlightUnavailable!: boolean;
   @ApiProperty({ type: [EvaluationHighlightRangeResponse] })

@@ -21,8 +21,8 @@ export class ExecutionCenterEventRuntime
     private readonly centerRef: string | undefined,
   ) {}
   onApplicationBootstrap(): void {
-    if (!this.client || !this.centerRef) return;
-    this.running = this.run();
+    if (this.client && this.centerRef) this.running = this.run();
+    // Local READY facts can still close when new transport/credentials are disabled.
     this.reconciliation = this.reconcile();
   }
   async onModuleDestroy(): Promise<void> {
@@ -39,15 +39,22 @@ export class ExecutionCenterEventRuntime
         await client.events(
           cursor,
           async (event) => {
-            const snapshot = [
-              "RESULT_AVAILABLE",
-              "FAILED",
-              "OUTCOME_UNKNOWN",
-              "CANCELLED",
-              "LATE_RESULT_AVAILABLE",
-            ].includes(event.type)
-              ? await client.read(event.taskId)
-              : undefined;
+            const ownedChannel =
+              event.channel === "api" ||
+              /^geo:web:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+                event.callerRequestRef,
+              );
+            const snapshot =
+              ownedChannel &&
+              [
+                "RESULT_AVAILABLE",
+                "FAILED",
+                "OUTCOME_UNKNOWN",
+                "CANCELLED",
+                "LATE_RESULT_AVAILABLE",
+              ].includes(event.type)
+                ? await client.readTask(event.taskId)
+                : undefined;
             const committed = await this.receipts.consumeEvent({
               centerRef,
               expectedCursor: cursor,
@@ -55,6 +62,8 @@ export class ExecutionCenterEventRuntime
               ...(snapshot ? { snapshot } : {}),
             });
             cursor = committed.cursor;
+            if (committed.receipt)
+              await this.parser.consumeReadyAcquisition(committed.receipt);
           },
           this.controller.signal,
         );

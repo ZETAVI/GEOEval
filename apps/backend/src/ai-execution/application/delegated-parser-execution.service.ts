@@ -7,10 +7,12 @@ import type {
   SampleAiAttemptRequest,
   SampleAiExecutionOutcome,
   StoredAiAttempt,
+  ResolvedSampleAiAttemptRequest,
 } from "../domain/ai-attempt.types.js";
 import type {
   ExecutionCenterReceiptRepository,
   ExecutionCenterStoredRequest,
+  ExecutionCenterReceipt,
 } from "../domain/execution-center-receipt.repository.js";
 import {
   ExecutionCenterClient,
@@ -34,11 +36,18 @@ export class DelegatedParserExecutionService {
   async execute(
     request: SampleAiAttemptRequest,
   ): Promise<SampleAiExecutionOutcome | undefined> {
-    if (request.purpose !== "EVALUATION_INTERPRETATION") return undefined;
+    const parser = request.purpose === "EVALUATION_INTERPRETATION";
+    if (!parser && request.input.taskKind !== "EVALUATION_ACQUISITION")
+      return undefined;
+    if (request.executionChannel === "WEB") return undefined;
     const prior = await this.attempts.find?.(request);
     if (prior && prior.executionTransport !== "EXECUTION_CENTER")
       return undefined;
-    if (!prior && !this.config?.enabled) return undefined;
+    if (
+      !prior &&
+      !(parser ? this.config?.enabled : this.config?.acquisitionEnabled)
+    )
+      return undefined;
     const resolved = { ...request, ...this.adapter.resolve(request) };
     const begun = prior
       ? {
@@ -68,8 +77,17 @@ export class DelegatedParserExecutionService {
           "REMOTE_ENDPOINT_UNAVAILABLE",
           false,
         );
-      const deadlineAt = begun.attempt.startedAt.getTime() + this.timeoutMs;
-      const callerRequestRef = "geo:parser:" + begun.attempt.id;
+      const ownDeadline = begun.attempt.startedAt.getTime() + this.timeoutMs;
+      const acquisitionDeadline =
+        begun.attempt.executionDeadlineAt?.getTime() ?? request.deadlineAt;
+      const deadlineAt =
+        !parser && acquisitionDeadline !== undefined
+          ? Math.min(ownDeadline, acquisitionDeadline)
+          : ownDeadline;
+      if (!Number.isSafeInteger(deadlineAt) || deadlineAt <= this.now())
+        return this.failure(begun.attempt, "REMOTE_DEADLINE_EXCEEDED", false);
+      const callerRequestRef =
+        (parser ? "geo:parser:" : "geo:acquisition:") + begun.attempt.id;
       const input: ExecutionCenterStoredRequest = {
         contractVersion: "execution.v1",
         callerRequestRef,
@@ -83,7 +101,9 @@ export class DelegatedParserExecutionService {
           headers: { "Content-Type": "application/json" },
         },
         metadata: {
-          purpose: "evaluation.interpretation",
+          purpose: parser
+            ? "evaluation.interpretation"
+            : "evaluation.acquisition",
           attemptId: begun.attempt.id,
           correlationId: request.correlationId,
           runId: request.runId,
@@ -95,7 +115,8 @@ export class DelegatedParserExecutionService {
         attemptId: begun.attempt.id,
         centerRef: this.config!.centerRef,
         callerRequestRef,
-        idempotencyKey: "geo-parser/" + begun.attempt.id,
+        idempotencyKey:
+          (parser ? "geo-parser/" : "geo-acquisition/") + begun.attempt.id,
         requestFingerprint: fingerprint(input),
         request: input,
         deadlineAt: new Date(deadlineAt),
@@ -133,12 +154,65 @@ export class DelegatedParserExecutionService {
     if (receipt.state !== "READY" || !receipt.snapshot) {
       return { kind: "REMOTE_PENDING", attemptId: begun.attempt.id };
     }
-    const item = receipt.snapshot.items[0]!;
+    return this.consumeReceipt(receipt, begun.attempt, resolved);
+  }
+
+  /** Finish technical Acquisition facts even after Web won or the report advanced. No physical call. */
+  async consumeReadyAcquisition(
+    receipt: ExecutionCenterReceipt,
+  ): Promise<SampleAiExecutionOutcome | undefined> {
+    if (
+      receipt.business.purpose !== "EVALUATION_ACQUISITION" ||
+      receipt.state !== "READY" ||
+      !receipt.snapshot
+    )
+      return undefined;
+    const attempt = await this.attempts.find?.({
+      cycleId: receipt.business.cycleId,
+      sampleId: receipt.business.sampleId,
+      purpose: "EVALUATION_ACQUISITION",
+      attemptNumber: receipt.business.attemptNumber,
+      executionChannel: "API",
+    });
+    if (
+      !attempt ||
+      attempt.id !== receipt.attemptId ||
+      attempt.executionTransport !== "EXECUTION_CENTER"
+    )
+      throw new Error("REMOTE_ATTEMPT_IDENTITY_MISMATCH");
+    const terminal = toTerminalAiOutcome(attempt);
+    if (terminal) return terminal;
+    const source = receipt.originalAttempt;
+    if (
+      !source ||
+      source.request.purpose !== "EVALUATION_ACQUISITION" ||
+      source.request.input.taskKind !== "EVALUATION_ACQUISITION"
+    )
+      return this.failure(
+        attempt,
+        "REMOTE_ORIGINAL_REQUEST_UNAVAILABLE",
+        false,
+      );
+    const resolved = {
+      ...source.request,
+      ...this.adapter.resolve(source.request),
+    };
+    if (resolved.providerKey !== source.providerKey)
+      return this.failure(attempt, "REMOTE_REQUEST_DRIFT", false);
+    return this.consumeReceipt(receipt, attempt, resolved);
+  }
+
+  private async consumeReceipt(
+    receipt: ExecutionCenterReceipt,
+    attempt: StoredAiAttempt,
+    resolved: ResolvedSampleAiAttemptRequest,
+  ): Promise<SampleAiExecutionOutcome> {
+    const item = receipt.snapshot!.items[0]!;
     if (item.state !== "RESULT_AVAILABLE" || !isRecord(item.result)) {
       const unknown =
         item.state === "OUTCOME_UNKNOWN" || item.error?.outcomeUnknown === true;
       return this.failure(
-        begun.attempt,
+        attempt,
         unknown ? "REMOTE_OUTCOME_UNKNOWN" : "REMOTE_EXECUTION_FAILED",
         false,
       );
@@ -152,12 +226,12 @@ export class DelegatedParserExecutionService {
       typeof raw.rawBody !== "string" ||
       !["utf8", "base64"].includes(String(raw.bodyEncoding))
     ) {
-      return this.failure(begun.attempt, "REMOTE_RESPONSE_INVALID", false);
+      return this.failure(attempt, "REMOTE_RESPONSE_INVALID", false);
     }
     const prepared = this.codec.prepare(resolved);
     const api = receipt.request.api;
     if (!isRecord(api) || canonical(api.body) !== canonical(prepared.body)) {
-      return this.failure(begun.attempt, "REMOTE_REQUEST_DRIFT", false);
+      return this.failure(attempt, "REMOTE_REQUEST_DRIFT", false);
     }
     const result = this.codec.consume(resolved, prepared, {
       httpStatus: raw.httpStatus,
@@ -166,9 +240,9 @@ export class DelegatedParserExecutionService {
       bodyEncoding: raw.bodyEncoding as "utf8" | "base64",
     });
     const stored = await this.attempts.finish(
-      begun.attempt.id,
+      attempt.id,
       result,
-      Math.max(0, this.now() - begun.attempt.startedAt.getTime()),
+      Math.max(0, this.now() - attempt.startedAt.getTime()),
     );
     const outcome = toTerminalAiOutcome(stored);
     if (!outcome)
@@ -177,7 +251,6 @@ export class DelegatedParserExecutionService {
   }
 
   async reconcile(signal?: AbortSignal): Promise<number> {
-    if (!this.client || !this.config) return 0;
     let recovered = 0;
     let afterId: string | undefined;
     do {
@@ -188,8 +261,17 @@ export class DelegatedParserExecutionService {
       if (!candidates.length) break;
       for (const receipt of candidates) {
         if (signal?.aborted) return recovered;
-        if (receipt.centerRef !== this.config.centerRef) continue;
         try {
+          if (receipt.state === "READY") {
+            if (await this.consumeReadyAcquisition(receipt)) recovered++;
+            continue;
+          }
+          if (
+            !this.client ||
+            !this.config ||
+            receipt.centerRef !== this.config.centerRef
+          )
+            continue;
           const snapshot = receipt.taskId
             ? await this.client.read(receipt.taskId)
             : await this.client.submit(receipt.idempotencyKey, receipt.request);
@@ -197,7 +279,10 @@ export class DelegatedParserExecutionService {
             receipt.id,
             snapshot,
           );
-          if (stored.state === "READY") recovered++;
+          if (stored.state === "READY") {
+            await this.consumeReadyAcquisition(stored);
+            recovered++;
+          }
         } catch {
           // Identity/key remain durable. Notification replay or a later reconciliation resumes them.
         }

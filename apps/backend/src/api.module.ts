@@ -49,7 +49,10 @@ export class ApiModule {
   ): DynamicModule {
     if (config.runtimeEnvironment === "production" && recharge?.controlled)
       throw new Error("CONTROLLED_RECHARGE_IN_PRODUCTION");
-    const intelligence = GeoIntelligenceModule.register(config.storeLocation);
+    const intelligence = GeoIntelligenceModule.register(
+      config.storeLocation,
+      config.evaluationSamplingMode ?? "ai-provider",
+    );
     const optimization = GeoOptimizationModule.register(
       {
         writerMode: config.geoOptimizationWriterMode,

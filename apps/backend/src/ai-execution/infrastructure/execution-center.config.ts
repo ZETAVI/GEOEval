@@ -1,5 +1,6 @@
 export type ParserExecutionCenterConfig = {
   enabled: boolean;
+  acquisitionEnabled?: boolean;
   centerRef: string;
   baseUrl: string;
   callerToken: string;
@@ -15,13 +16,21 @@ export function parserExecutionCenterConfig(
   mode: "real" | "deterministic",
 ): ParserExecutionCenterConfig | undefined {
   const enabled = environment.AI_EXECUTION_CENTER_ENABLED;
+  const acquisitionEnabled =
+    environment.AI_EXECUTION_CENTER_ACQUISITION_ENABLED;
   if (enabled !== undefined && !["true", "false"].includes(enabled))
     throw new Error("Invalid AI_EXECUTION_CENTER_ENABLED");
+  if (
+    acquisitionEnabled !== undefined &&
+    !["true", "false"].includes(acquisitionEnabled)
+  )
+    throw new Error("Invalid AI_EXECUTION_CENTER_ACQUISITION_ENABLED");
   const baseUrl = environment.AI_EXECUTION_CENTER_URL?.trim();
-  if (!baseUrl && enabled !== "true") return undefined;
+  if (!baseUrl && enabled !== "true" && acquisitionEnabled !== "true")
+    return undefined;
   if (!baseUrl || !environment.AI_EXECUTION_CENTER_CALLER_TOKEN?.trim())
     throw new Error("Execution center URL and caller token are required");
-  if (enabled === "true" && mode !== "real")
+  if ((enabled === "true" || acquisitionEnabled === "true") && mode !== "real")
     throw new Error("Delegated Parser requires real route semantics");
   let url: URL;
   try {
@@ -80,7 +89,10 @@ export function parserExecutionCenterConfig(
     endpoints[route] =
       mapping as ParserExecutionCenterConfig["endpoints"][string];
   }
-  if (enabled === "true" && Object.keys(endpoints).length === 0)
+  if (
+    (enabled === "true" || acquisitionEnabled === "true") &&
+    Object.keys(endpoints).length === 0
+  )
     throw new Error("Delegated Parser needs registered endpoint references");
   const httpTimeoutMs = Number(
     environment.AI_EXECUTION_CENTER_HTTP_TIMEOUT_MS || 5000,
@@ -96,6 +108,7 @@ export function parserExecutionCenterConfig(
     throw new Error("Invalid execution center caller token");
   return {
     enabled: enabled === "true",
+    acquisitionEnabled: acquisitionEnabled === "true",
     centerRef,
     baseUrl: url.toString().replace(/\/$/, ""),
     callerToken,

@@ -3,6 +3,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { sampleWorkRequestedEvent } from "../../geo-intelligence/domain/evaluation-process.events.js";
 import { PrismaService } from "../../infrastructure/prisma.service.js";
+import type { SampleAiAttemptRequest } from "../domain/ai-attempt.types.js";
 import {
   ExecutionCenterReceiptError,
   type ConsumeExecutionCenterEvent,
@@ -13,6 +14,7 @@ import {
   type ExecutionCenterReceiptRepository,
   type ExecutionCenterSnapshot,
   type ExecutionCenterStoredRequest,
+  type ExecutionCenterTaskSnapshot,
   type ReserveExecutionCenterReceipt,
 } from "../domain/execution-center-receipt.repository.js";
 
@@ -24,7 +26,14 @@ const includeAttempt = {
       sampleId: true,
       purpose: true,
       attemptNumber: true,
+      executionChannel: true,
       correlationId: true,
+      routePolicyId: true,
+      providerKey: true,
+      requestedModel: true,
+      requestPayload: true,
+      executionDeadlineAt: true,
+      startedAt: true,
     },
   },
 } satisfies Prisma.ExecutionCenterReceiptInclude;
@@ -56,11 +65,16 @@ export class PostgresExecutionCenterReceiptRepository implements ExecutionCenter
         if (existing) return assertSameReservation(existing, input);
         const attempt = await transaction.aiExecutionAttempt.findUnique({
           where: { id: input.attemptId },
-          select: { executionTransport: true, status: true },
+          select: {
+            executionTransport: true,
+            executionChannel: true,
+            status: true,
+          },
         });
         if (
           !attempt ||
           attempt.executionTransport !== "EXECUTION_CENTER" ||
+          attempt.executionChannel !== "API" ||
           attempt.status !== "STARTED"
         ) {
           throw new ExecutionCenterReceiptError("INVALID_RECEIPT_REQUEST");
@@ -104,7 +118,7 @@ export class PostgresExecutionCenterReceiptRepository implements ExecutionCenter
     identity: ExecutionCenterAttemptIdentity,
   ): Promise<ExecutionCenterReceipt | null> {
     const receipt = await this.prisma.executionCenterReceipt.findFirst({
-      where: { attempt: identity },
+      where: { attempt: { ...identity, executionChannel: "API" } },
       include: includeAttempt,
     });
     return receipt ? mapReceipt(receipt) : null;
@@ -210,6 +224,10 @@ export class PostgresExecutionCenterReceiptRepository implements ExecutionCenter
           }
           row = await bindTask(transaction, row, event);
           if (input.snapshot) {
+            if (input.snapshot.channel !== "api")
+              throw new ExecutionCenterReceiptError(
+                "EXECUTION_IDENTITY_MISMATCH",
+              );
             const captured = await captureSnapshot(
               transaction,
               row,
@@ -225,11 +243,41 @@ export class PostgresExecutionCenterReceiptRepository implements ExecutionCenter
             throw new ExecutionCenterReceiptError("TERMINAL_SNAPSHOT_REQUIRED");
           }
         }
+        const webBatchId =
+          event.channel === "web"
+            ? geoWebBatchId(event.callerRequestRef)
+            : null;
+        const webTerminal = webBatchId && TERMINAL_EVENTS.has(event.type);
+        if (webTerminal) {
+          assertWebTerminalSnapshot(event, input.snapshot);
+          const metadata = input.snapshot!.metadata;
+          const correlationId =
+            record(metadata) && uuid(metadata.correlationId)
+              ? metadata.correlationId
+              : webBatchId;
+          const resume = await transaction.productOutboxEvent.createMany({
+            data: [
+              {
+                businessKey: `execution-web-result:${input.centerRef}:${event.cursor}`,
+                aggregateType: "execution_web_notification",
+                aggregateId: webBatchId,
+                eventType: "evaluation.browser.result.received",
+                payload: { centerRef: input.centerRef, cursor: event.cursor },
+                correlationId,
+              },
+            ],
+            skipDuplicates: true,
+          });
+          queuedResume = resume.count === 1;
+        }
         await transaction.executionCenterInbox.create({
           data: {
             centerRef: input.centerRef,
             cursor: BigInt(event.cursor),
             event: event as unknown as Prisma.InputJsonValue,
+            ...(webTerminal
+              ? { snapshot: input.snapshot as Prisma.InputJsonValue }
+              : {}),
           },
         });
         return {
@@ -243,6 +291,26 @@ export class PostgresExecutionCenterReceiptRepository implements ExecutionCenter
       if (!isUniqueViolation(error)) throw error;
       throw new ExecutionCenterReceiptError("EXECUTION_IDENTITY_MISMATCH");
     }
+  }
+
+  async readNotification(
+    centerRef: string,
+    sequence: number,
+  ): Promise<{
+    event: ExecutionCenterEvent;
+    snapshot: ExecutionCenterTaskSnapshot | null;
+  } | null> {
+    if (!identifier(centerRef) || !cursor(sequence, false))
+      throw new ExecutionCenterReceiptError("INVALID_EXECUTION_EVENT");
+    const row = await this.prisma.executionCenterInbox.findUnique({
+      where: { centerRef_cursor: { centerRef, cursor: BigInt(sequence) } },
+    });
+    return row
+      ? {
+          event: safeEvent(row.event as unknown as ExecutionCenterEvent),
+          snapshot: row.snapshot as ExecutionCenterTaskSnapshot | null,
+        }
+      : null;
   }
 
   async recordSnapshot(
@@ -275,8 +343,15 @@ export class PostgresExecutionCenterReceiptRepository implements ExecutionCenter
     }
     const rows = await this.prisma.executionCenterReceipt.findMany({
       where: {
-        state: { in: ["RESERVING", "WAITING"] },
-        attempt: { status: "STARTED", executionTransport: "EXECUTION_CENTER" },
+        OR: [
+          { state: { in: ["RESERVING", "WAITING"] } },
+          { state: "READY", attempt: { purpose: "EVALUATION_ACQUISITION" } },
+        ],
+        attempt: {
+          status: "STARTED",
+          executionTransport: "EXECUTION_CENTER",
+          executionChannel: "API",
+        },
         ...(input.afterId ? { id: { gt: input.afterId } } : {}),
       },
       orderBy: { id: "asc" },
@@ -526,8 +601,72 @@ function mapReceipt(row: ReceiptRow): ExecutionCenterReceipt {
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     readyAt: row.readyAt,
-    business: row.attempt,
+    originalAttempt: {
+      providerKey: row.attempt.providerKey,
+      startedAt: row.attempt.startedAt,
+      request: {
+        runId: row.attempt.runId,
+        cycleId: row.attempt.cycleId,
+        sampleId: row.attempt.sampleId,
+        purpose: row.attempt.purpose,
+        attemptNumber: row.attempt.attemptNumber,
+        executionChannel: "API",
+        ...(row.attempt.executionDeadlineAt
+          ? { deadlineAt: row.attempt.executionDeadlineAt.getTime() }
+          : {}),
+        routePolicyId: row.attempt.routePolicyId,
+        requestedModel: row.attempt.requestedModel,
+        correlationId: row.attempt.correlationId,
+        input: row.attempt.requestPayload,
+      } as SampleAiAttemptRequest,
+    },
+    business: {
+      runId: row.attempt.runId,
+      cycleId: row.attempt.cycleId,
+      sampleId: row.attempt.sampleId,
+      purpose: row.attempt.purpose,
+      attemptNumber: row.attempt.attemptNumber,
+      correlationId: row.attempt.correlationId,
+      executionChannel: "API",
+    },
   };
+}
+
+function uuid(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      value,
+    )
+  );
+}
+function geoWebBatchId(value: string): string | null {
+  const suffix = value.startsWith("geo:web:")
+    ? value.slice("geo:web:".length)
+    : "";
+  return uuid(suffix) ? suffix : null;
+}
+function assertWebTerminalSnapshot(
+  event: ExecutionCenterEvent,
+  snapshot: ExecutionCenterTaskSnapshot | undefined,
+): void {
+  if (
+    !snapshot ||
+    snapshot.channel !== "web" ||
+    snapshot.contractVersion !== "execution.v1" ||
+    snapshot.taskId !== event.taskId ||
+    snapshot.callerRequestRef !== event.callerRequestRef ||
+    !Array.isArray(snapshot.items) ||
+    snapshot.items.length < 1 ||
+    snapshot.items.length > 4 ||
+    new Set(snapshot.items.map((item) => item.itemId)).size !==
+      snapshot.items.length ||
+    !snapshot.items.some(
+      (item) => item.itemId === event.itemId && TERMINAL_STATES.has(item.state),
+    )
+  ) {
+    throw new ExecutionCenterReceiptError("TERMINAL_SNAPSHOT_REQUIRED");
+  }
 }
 
 function record(value: unknown): value is Record<string, unknown> {

@@ -9,15 +9,24 @@ import type {
   AiAdapterResult,
   ResolvedAiAttemptRequest,
 } from "../../domain/ai-attempt.types.js";
-import { createModelStudioStructuredBody } from "./model-studio-provider.adapter.js";
-import { createTokenHubStructuredBody } from "./tokenhub-provider.adapter.js";
+import {
+  createModelStudioStructuredBody,
+  createModelStudioAcquisitionBody,
+} from "./model-studio-provider.adapter.js";
+import {
+  createTokenHubStructuredBody,
+  createTokenHubAcquisitionBody,
+} from "./tokenhub-provider.adapter.js";
+import { createArkAcquisitionBody } from "./ark-provider.adapter.js";
+import { createQianfanAcquisitionBody } from "./qianfan-provider.adapter.js";
 import { consumeProviderJsonResponse } from "./provider-route.js";
 import { REAL_AI_ROUTES } from "./real-route.catalog.js";
 
-/** Parser-only native codec; no connection, credential, transport or retry owner. */
+/** Provider semantics only; no connection, credential, transport or retry owner. */
 export class RealAiNativeAttemptCodec implements AiNativeAttemptCodec {
   prepare(request: ResolvedAiAttemptRequest): PreparedNativeRequest {
-    const { definition, input } = requiredParserRoute(request);
+    const { definition } = requiredNativeRoute(request);
+    const input = request.input;
     const route = {
       providerKey: definition.providerKey,
       serviceClass: definition.serviceClass,
@@ -25,6 +34,23 @@ export class RealAiNativeAttemptCodec implements AiNativeAttemptCodec {
       requestedModel: definition.requestedModel,
       method: "POST" as const,
     };
+    if (input.taskKind === "EVALUATION_ACQUISITION") {
+      const path =
+        definition.protocol === "chat-completions"
+          ? ("/chat/completions" as const)
+          : ("/responses" as const);
+      const body =
+        definition.providerKey === "tencent-tokenhub"
+          ? createTokenHubAcquisitionBody(definition, input)
+          : definition.providerKey === "volcengine-ark"
+            ? createArkAcquisitionBody(definition, input)
+            : definition.providerKey === "baidu-qianfan"
+              ? createQianfanAcquisitionBody(definition, input)
+              : createModelStudioAcquisitionBody(definition, input);
+      return { ...route, path, body };
+    }
+    if (input.taskKind !== "STRUCTURED_OUTPUT")
+      throw new Error("Native acquisition input is invalid");
     if (
       definition.providerKey === "alibaba-model-studio" &&
       definition.protocol === "chat-completions"
@@ -53,7 +79,7 @@ export class RealAiNativeAttemptCodec implements AiNativeAttemptCodec {
     prepared: PreparedNativeRequest,
     response: RawNativeProviderResponse,
   ): AiAdapterResult {
-    const { definition } = requiredParserRoute(request);
+    const { definition } = requiredNativeRoute(request);
     if (!isDeepStrictEqual(prepared, this.prepare(request))) {
       throw new Error(
         "Prepared native request does not match the Parser attempt",
@@ -78,12 +104,14 @@ export class RealAiNativeAttemptCodec implements AiNativeAttemptCodec {
   }
 }
 
-function requiredParserRoute(request: ResolvedAiAttemptRequest) {
-  if (
-    request.purpose !== "EVALUATION_INTERPRETATION" ||
-    request.input.taskKind !== "STRUCTURED_OUTPUT"
-  ) {
-    throw new Error("Native codec supports EVALUATION_INTERPRETATION only");
+function requiredNativeRoute(request: ResolvedAiAttemptRequest) {
+  if (!(
+    (request.purpose === "EVALUATION_INTERPRETATION" &&
+      request.input.taskKind === "STRUCTURED_OUTPUT") ||
+    (request.purpose === "EVALUATION_ACQUISITION" &&
+      request.input.taskKind === "EVALUATION_ACQUISITION")
+  )) {
+    throw new Error("Native codec supports Parser and native Acquisition only");
   }
   const definition = REAL_AI_ROUTES.find(
     (route) => route.routePolicyId === request.routePolicyId,

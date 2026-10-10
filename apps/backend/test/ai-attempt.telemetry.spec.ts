@@ -111,6 +111,17 @@ describe("AI attempt telemetry isolation", () => {
         location: { province: "广东省", city: "广州市" },
       },
     });
+    expect(diagnosticInputProjection(browserRequest)).toEqual({
+      schemaVersion: "geoeval.ai-attempt.input@1",
+      purpose: "EVALUATION_ACQUISITION",
+      task: {
+        taskKind: "BROWSER_EVALUATION_ACQUISITION",
+        platformKey: "qwen",
+        questionId: "00000000-0000-4000-8000-000000000005",
+        externalTaskId: "external-task-1",
+        resultIndex: 0,
+      },
+    });
     expect(diagnosticOutputProjection(success)).toEqual({
       schemaVersion: "geoeval.ai-attempt.output@1",
       status: "SUCCEEDED",
@@ -200,6 +211,22 @@ const request = {
     platformLabel: "DeepSeek",
     province: "广东省",
     city: "广州市",
+  },
+} as const satisfies ResolvedAiAttemptRequest;
+
+const browserRequest = {
+  ...request,
+  routePolicyId: "evaluation.acquisition.browser-control-plane@1",
+  providerKey: "browser-sampler-control-plane",
+  serviceClass: "consumer-web",
+  protocol: "http-json",
+  requestedModel: "consumer-web:qwen",
+  input: {
+    taskKind: "BROWSER_EVALUATION_ACQUISITION",
+    platformKey: "qwen",
+    questionId: "00000000-0000-4000-8000-000000000005",
+    externalTaskId: "external-task-1",
+    resultIndex: 0,
   },
 } as const satisfies ResolvedAiAttemptRequest;
 

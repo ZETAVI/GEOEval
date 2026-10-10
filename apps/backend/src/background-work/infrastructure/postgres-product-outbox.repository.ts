@@ -10,6 +10,9 @@ import type {
 const PRODUCT_EVENT_TYPES = [
   "evaluation.run.started",
   "evaluation.sample.acquire.requested",
+  "evaluation.browser.result.received",
+  "evaluation.sampling.fallback.requested",
+  "evaluation.sampling.deadline.requested",
   "evaluation.sample.interpret.requested",
   "evaluation.run.readiness.requested",
   "evaluation.run.synthesize.requested",
