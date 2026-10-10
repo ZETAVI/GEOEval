@@ -22,15 +22,15 @@ P2已接受main636bd71，P3 producer135bb96及execution.v1已本地验证；本�
 ## 本地端到端与故障验收
 
 - [x] 一题证据/解析已可读，另外三题及reset仍等待；问题原样不增加上下文。
-- [x] 79秒无API兜底、80秒只补未接受题（PG已接受1/未接受19及端到端16/4）；明确失败提前兜底；API失败不关闭web。
+- [x] 79秒同平台3/4已接受但无API，80秒仅补第4题；另一16题不阻塞；另有完整案例16/4。明确失败提前兜底；API失败不关闭web。
 - [x] WEB1/API1并发成功只一份evidence/Parser Outbox；UNKNOWN不换身份重发。
 - [x] 130秒只关闭未采集题，已接受Parser/报告可继续；排队、重启不延长窗口。
 - [x] 重复/乱序/断SSE/早完成/丢ACK、Inbox或接受事务崩溃、旧cycle、截止与成功竞态恢复。
 - [x] keyset恢复不受最旧等待前缀限制；复用P2的>100验证，新增窗口分页；取消与技术资源停止不混淆。
 - [x] 富fixture的段落/列表/表格/图片/信源通过持久层、Parser、报告投影到卡片；公开卡片无引用映射/来源区。
 - [x] 真实案例输入的本地多轮Query→四题→5×4→解析/归并→报告；输出来源明确fixture/历史回放，不冒充真实API。
-- [ ] 专用PG/Redis迁移/恢复，旧历史Markdown/Attempt可读，默认路径回归；按实际影响选择typecheck/build/框架/固定diff审查。
-- [ ] 当前owner文档归并、PR证据、skips/限制及worktree retain；不部署、不发付费请求、不关闭整张#169。
+- [x] 专用PG/Redis迁移/恢复，旧历史Markdown/Attempt可读，默认路径回归；typecheck/build/格式/框架/固定diff审查及窄修复验通过。
+- [x] 文档与验证快照更新、P2已接受Change归档；worktree retain/PR Partial，不部署/收费调用/关闭#169。最新CI与review门见PR。
 
 ## 后续真实联调门（本轮不执行）
 
@@ -39,4 +39,4 @@ P2已接受main636bd71，P3 producer135bb96及execution.v1已本地验证；本�
 - [ ] 单节点真实5×4、DOM/信源/原题/逐题返回、正常约85秒目标与故障130秒封口，分别度量采样段/解析段/整报告。
 - [ ] 独立节点账号故障转移、Langfuse、剩余purpose和最终生产启用保持后续范围。
 
-状态：P4定向本地闭环已验证，正在末次全量/固定审查；沿用#169工作树和Partial PR170，不改base、不部署。
+状态：P4本地闭环verified，独立review finding已窄修并收口；Partial PR170待集成/真实联调，#169保持开放，worktree retain，不改base、不部署。

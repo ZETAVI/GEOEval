@@ -8,19 +8,21 @@
 | --- | --- | --- |
 | 逐题独立：首题已正式接受并Parsed，siblings/cleanup仍未完成 | p4-end-to-end.integration，实际P3 SQLite+HTTP+Unix actor | 五平台各首题先完成，另外15题及复位被闸门阻塞；不绕过正式Outbox/Processor |
 | 完整真实案例输入多轮Query→20采样→Parser/归并→报告 | 同一正式产品闭环，新品牌revision再测 | 实际producer4/4（7.13s），协议fixture4/4（4.09s）；时间是fixture执行耗时，非真实平台SLA |
-| 80仅补未采集；130仅封口采样；已接受Parser不受伤 | PG持久化14，端到端79/80/130及局部重试 | 16已接受、4待采样；80只补4，130结束4而16Parser继续，retry只采缺失4题恢复报告 |
+| 80仅补未采集；130仅封口采样；已接受Parser不受伤 | PG持久化15，端到端79/80/130及局部重试 | 精确同平台3/4成功→80只补第4题，另外16题不阻塞；完整案例16/4竞速、130结束4而16Parser继续，retry只采缺失4题恢复报告 |
 | 队列全堵不延长预算 | submit/retry事务建窗、独立SQL预算loop；runtime6 | QUEUED尚未处理started仍可80/130封口，迟到started不复活；Web GET和预算互不阻塞 |
-| 赢者唯一、崩溃与事务恢复 | PG持久化14 + Web Inbox12 + coordinator15 | 双成功唯一证据/Parser；真实PG trigger回滚、重复/早到/丢ACK同key恢复、旧cycle/截止围栏、keyset分页 |
+| 赢者唯一、崩溃与事务恢复 | PG持久化15 + Web Inbox12 + coordinator15 | 双成功唯一证据/Parser；真实PG trigger回滚、重复/早到/丢ACK同key恢复、旧cycle/截止围栏、keyset分页 |
 | API原生请求/回包语义及败方账本 | native31 + codec32/Provider17 + eventRuntime5 | 模型、问题、原生搜索/JSON参数沿原builder/consume；收到的败方可纯finish且保留usage，不新POST、不第二Parser |
-| 富内容及安全卡片 | backend rich8；frontend新旧卡片16；完整报告断言 | content/readingText/images/内部sources持久；Parser文本锚点一致；公开richAnswer无来源/引用映射；旧Markdown保留 |
+| 富内容及安全卡片 | backend rich10；frontend相关18、完整Web268；完整报告断言 | content/readingText/images/内部sources持久；Parser锚点一致；卡片无来源/引用映射；空富正文回原文，图片/表格/列表不误降级 |
 | API/Web唯一通知owner和异常恢复 | client8、eventRuntime5、Inbox12、完整P3产品闭环 | Inbox/cursor/snapshot/resume原子；终态GET失败不提交cursor，独立Web对账兜底 |
-| 迁移与生成/类型/构建 | 独立geoeval_p4_issue169的58次迁移；OpenAPI/client生成 | 全迁移成功，不迁共享默认库；全类型与build已通过，末次全后端回归进行中 |
+| 迁移与生成/类型/构建 | 独立geoeval_p4_issue169的58次迁移；OpenAPI/client生成 | 全迁移成功，不迁共享默认库；全类型、build、format、框架/本地链接、diff check通过 |
 
-新原生/通知、独立预算和编排的八个定向文件129/129通过；无跳过。全后端最终结果及固定审查在相应门完成后补充，不能把正在运行写成通过。历史16项条件跳过如仍存在，将单列不作为P4恢复证明。
+实现固定点3c435a4的全后端：114文件通过/3文件条件跳过，1154项通过/16项跳过，0失败（164.03s），实际P3 clean135bb96模式。新原生/通知、独立预算和编排八个定向文件129/129，无skip。16项为既有recovery/process/payment显式opt-in，不作为本轮恢复证据。此后7f7e9d5只增加精确3/4的1项PG验收（文件15/15），不冒称重跑全量1155。
+
+固定审查636bd71→3c435a4发现1项P2 must-fix：合法可选rich空blocks会遮蔽非空原文。红例在backend与Web各失败；b96baec仅改富投影/卡片及回归，backend10/10、相关Web18/18。原审查者窄closure为ready with follow-up，无新material finding；不重复全范围模型审查。修复后独立验证实际P3完整案例4项+PG15+rich10共29/29（15.82s）、完整Web268/268、构建重验通过。未变运输边界复用1154/129通过证据；最新PR CI独立记录在GitHub，不沿用旧revision的绿标。
 
 修复的集成接缝：queued建窗过晚、没有receipt的DIRECT defer被吞、竞速败方账本残留STARTED。测试夹具修复：P2手动构造缺采样配置、千问Responses映射/HTTP native包字段、生成DTO后enum字面类型；未放宽产品合约或为通过测试改写问题。
 
-资源：新建专用PG库和127.0.0.1:56381 Redis（复用OrbStack已有镜像，无重复安装）。实际P3 worktree只读/无改动；runtime临时HTTP/Unix/SQLite由fixture销毁。未来真实具名环境联调、生产身份统一、密钥迁移、多节点和Langfuse仍独立门。
+资源：新建专用PG库和127.0.0.1:56381 Redis（复用OrbStack已有镜像，无重复安装）。Redis已停止，container与PG测试库retain以便复验；共享默认PG/Redis及其他项目服务未改。实际P3 worktree只读/无改动；临时HTTP/Unix/SQLite由fixture销毁。未来真实具名环境联调、生产身份统一、密钥迁移、多节点和Langfuse仍独立门。
 
 ## 2026-10-09 planning audit
 

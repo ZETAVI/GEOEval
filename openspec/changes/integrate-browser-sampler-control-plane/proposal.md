@@ -1,6 +1,6 @@
 # Change: 接入独立网页采样执行中台
 
-- 状态：Active；P2已接受main636bd71。P4实现与定向本地闭环已验证，正在完成全量回归和固定diff审查；未合并/部署。
+- 状态：Active；P2已接受main636bd71。P4本地闭环、全量回归及固定审查窄修已验证（实现3c435a4、修复b96baec）；待Partial PR集成与后续真实联调，未合并/部署P4。
 - Class：Architectural integration。
 - Owner：[Issue #169](https://github.com/ZETAVI/GEOEval/issues/169)；候选 [PR #170](https://github.com/ZETAVI/GEOEval/pull/170)。
 

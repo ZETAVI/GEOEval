@@ -1,5 +1,11 @@
 # Architecture review
 
+## P4 implementation checkpoint
+
+已批准的design card在3c435a4实现，b96baec窄修富呈现。保持GEO业务接受/策略、AI-native prepare/consume、独立中台物理执行三层边界；四item Web batch与单item API receipt不混合，统一一个Inbox/cursor owner。提交时建80/130窗口，SQL预算与Web网络backstop各自singleflight，未引入新工作流框架。旧DIRECT与P4共用Acquisition request builder，避免Prompt/参数双真相；收到败方纯finish不重发。
+
+独立固定diff审查未发现额外material架构问题；唯一可达空富正文发现已修复。P2已接受设计归canonical spec/overview并归档，P4当前仍是未合并候选；不得把以下旧ready结论扩大为真实生产5×4/SLA通过。
+
 ## 2026-10-09 planning checkpoint
 
 规划可以进入下一轮可执行合约/本地纵切设计；实现不具备新目标发布资格。责任、即时通知、raw API、130秒仅采样、旧cycle和唯一证据围栏已记录到design/tasks。
