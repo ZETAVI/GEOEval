@@ -206,6 +206,17 @@ processing does not depend on HTTP controllers or access guards. The current
 behavior is specified by
 [`evaluation-evidence`](../../openspec/specs/evaluation-evidence/spec.md).
 
+Parser execution has a default-off execution.v1 transport seam. GEO retains
+native request preparation, Provider response interpretation and formal
+acceptance; the independent center performs the physical call. A persisted
+receipt fixes transport/key/deadline before submit. Acceptance releases the
+short product work; an independent SSE consumer commits inbox/cursor/resume
+atomically. Unknown sends do not inherit direct-path ambiguity retries, and
+in-flight transport survives a disabled new-submission gate. This seam does
+not activate web-first sampling, move production credentials, or implement
+all AI purposes; [Issue #175](https://github.com/ZETAVI/GEOEval/issues/175)
+owns the bounded Parser slice.
+
 S4 adds typed per-sample semantics, deterministic cross-sample calculations,
 run-scoped synthesis attempts, immutable public reports, protected optimization
 guidance, and an account-authorized current-report projection. The Web preserves

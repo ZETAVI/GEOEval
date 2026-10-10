@@ -1,4 +1,8 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Optional } from "@nestjs/common";
+import {
+  EXECUTION_CENTER_PARSER,
+  type DelegatedParserExecutionService,
+} from "./delegated-parser-execution.service.js";
 
 import {
   AI_ATTEMPT_ADAPTER,
@@ -20,6 +24,7 @@ import type {
   AiAdapterResult,
   AiAttemptOutcome,
   ResolvedSampleAiAttemptRequest,
+  SampleAiExecutionOutcome,
   SampleAiAttemptRequest,
 } from "../domain/ai-attempt.types.js";
 
@@ -34,9 +39,16 @@ export class AiExecutionService {
     private readonly ambiguityTimeoutMs = 210_000,
     @Inject(AI_ATTEMPT_TELEMETRY)
     private readonly telemetry: AiAttemptTelemetry = new NoopAiAttemptTelemetry(),
+    @Optional()
+    @Inject(EXECUTION_CENTER_PARSER)
+    private readonly remoteParser?: DelegatedParserExecutionService,
   ) {}
 
-  async execute(request: SampleAiAttemptRequest): Promise<AiAttemptOutcome> {
+  async execute(
+    request: SampleAiAttemptRequest,
+  ): Promise<SampleAiExecutionOutcome> {
+    const delegated = await this.remoteParser?.execute(request);
+    if (delegated) return delegated;
     const route = this.adapter.resolve(request);
     const resolvedRequest = { ...request, ...route };
     const begun = await this.repository.begin(

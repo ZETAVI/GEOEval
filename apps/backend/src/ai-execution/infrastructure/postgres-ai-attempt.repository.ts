@@ -22,10 +22,12 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
   async begin(
     request: ResolvedSampleAiAttemptRequest,
     ambiguityTimeoutMs: number,
+    executionTransport: "DIRECT" | "EXECUTION_CENTER" = "DIRECT",
   ): Promise<BegunAiAttempt> {
     try {
       const attempt = await this.prisma.aiExecutionAttempt.create({
         data: {
+          executionTransport,
           runId: request.runId,
           cycleId: request.cycleId,
           sampleId: request.sampleId,
@@ -57,6 +59,25 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
         ambiguityTimeoutMs,
       );
     }
+  }
+
+  async find(
+    request: Pick<
+      ResolvedSampleAiAttemptRequest,
+      "cycleId" | "sampleId" | "purpose" | "attemptNumber"
+    >,
+  ): Promise<StoredAiAttempt | null> {
+    const attempt = await this.prisma.aiExecutionAttempt.findUnique({
+      where: {
+        cycleId_sampleId_purpose_attemptNumber: {
+          cycleId: request.cycleId,
+          sampleId: request.sampleId,
+          purpose: request.purpose,
+          attemptNumber: request.attemptNumber,
+        },
+      },
+    });
+    return attempt ? mapAttempt(attempt) : null;
   }
 
   async finish(
@@ -189,6 +210,13 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
     if (attempt.status !== "STARTED") {
       return { kind: "TERMINAL", attempt };
     }
+    if (attempt.executionTransport === "EXECUTION_CENTER") {
+      return {
+        kind: "DEFERRED",
+        attempt,
+        resumeAt: new Date(Date.now() + 1000),
+      };
+    }
     const now = new Date();
     const resumeAt = new Date(attempt.startedAt.getTime() + ambiguityTimeoutMs);
     if (resumeAt.getTime() > now.getTime()) {
@@ -237,6 +265,7 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
 
 function mapAttempt(attempt: {
   id: string;
+  executionTransport?: string;
   status: "STARTED" | "SUCCEEDED" | "FAILED";
   responseEnvelope: Prisma.JsonValue | null;
   failureClass: string | null;
@@ -245,6 +274,10 @@ function mapAttempt(attempt: {
 }): StoredAiAttempt {
   return {
     id: attempt.id,
+    executionTransport:
+      attempt.executionTransport === "EXECUTION_CENTER"
+        ? "EXECUTION_CENTER"
+        : "DIRECT",
     status: attempt.status,
     responseEnvelope: isRecord(attempt.responseEnvelope)
       ? attempt.responseEnvelope

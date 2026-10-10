@@ -12,7 +12,14 @@ export interface AiAttemptRepository {
   begin(
     request: ResolvedSampleAiAttemptRequest,
     ambiguityTimeoutMs: number,
+    executionTransport?: "DIRECT" | "EXECUTION_CENTER",
   ): Promise<BegunAiAttempt>;
+  find?(
+    request: Pick<
+      ResolvedSampleAiAttemptRequest,
+      "cycleId" | "sampleId" | "purpose" | "attemptNumber"
+    >,
+  ): Promise<StoredAiAttempt | null>;
   finish(
     attemptId: string,
     result: AiAdapterResult,

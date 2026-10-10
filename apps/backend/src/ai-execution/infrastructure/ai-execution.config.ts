@@ -1,3 +1,5 @@
+import type { ParserExecutionCenterConfig } from "./execution-center.config.js";
+
 export type AiTelemetryContentMode = "metadata-only" | "local-diagnostic";
 
 export type AiTelemetryConfig =
@@ -13,6 +15,7 @@ export type AiTelemetryConfig =
     };
 
 type CommonAiExecutionConfig = {
+  executionCenter?: ParserExecutionCenterConfig;
   requestTimeoutMs: number;
   ambiguityTimeoutMs: number;
   telemetry: AiTelemetryConfig;

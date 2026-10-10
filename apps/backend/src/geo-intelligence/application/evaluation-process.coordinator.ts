@@ -168,6 +168,7 @@ export class EvaluationProcessCoordinator {
       },
     });
     if (outcome.kind === "DEFERRED") return outcome;
+    if (outcome.kind === "REMOTE_PENDING") return EVALUATION_PROCESS_COMPLETED;
     if (outcome.kind === "FAILED") {
       await this.handleFailure({
         context,
@@ -433,6 +434,7 @@ export class EvaluationProcessCoordinator {
       input: parserTask,
     });
     if (outcome.kind === "DEFERRED") return outcome;
+    if (outcome.kind === "REMOTE_PENDING") return EVALUATION_PROCESS_COMPLETED;
     if (outcome.kind === "FAILED") {
       await this.handleFailure({
         context,

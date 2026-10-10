@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { AiExecutionConfig } from "../ai-execution/infrastructure/ai-execution.config.js";
+import { parserExecutionCenterConfig } from "../ai-execution/infrastructure/execution-center.config.js";
 import type { StoreLocationRuntimeConfig } from "../brand/infrastructure/store-location.config.js";
 import type { BrowserSamplingConfig } from "../geo-intelligence/infrastructure/browser-sampling.config.js";
 
@@ -717,6 +718,11 @@ export function loadWorkerConfig(
           modelStudio: providerConnection(parsed, "DASHSCOPE"),
           qianfan: providerConnection(parsed, "QIANFAN"),
         };
+  const executionCenter = parserExecutionCenterConfig(
+    environment,
+    aiExecution.mode,
+  );
+  if (executionCenter) aiExecution.executionCenter = executionCenter;
   if (
     aiExecution.mode === "real" &&
     parsed.NODE_ENV !== "test" &&
