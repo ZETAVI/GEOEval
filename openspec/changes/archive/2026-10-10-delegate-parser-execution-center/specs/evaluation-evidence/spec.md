@@ -1,5 +1,7 @@
 ## MODIFIED Requirements
 
+归档：这些已接受边界已归并到当前evaluation-evidence spec；本文件仅为变更历史。
+
 ### Requirement: Attempt and delivery separation
 AI Execution SHALL distinguish direct attempts from delegated Parser attempts.
 The existing direct ambiguity policy SHALL remain unchanged. Delegated

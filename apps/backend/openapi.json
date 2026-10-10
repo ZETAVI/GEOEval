@@ -8159,6 +8159,229 @@
           "limitations"
         ]
       },
+      "RichSampleInlineResponse": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "link",
+              "image"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "marks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "strong",
+                "emphasis"
+              ]
+            }
+          },
+          "href": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "alt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "RichSampleCellResponse": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "header": {
+            "type": "boolean"
+          },
+          "inlines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichSampleInlineResponse"
+            }
+          }
+        },
+        "required": [
+          "text",
+          "header"
+        ]
+      },
+      "RichSampleListResponse": {
+        "type": "object",
+        "properties": {
+          "ordered": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichSampleListItemResponse"
+            }
+          }
+        },
+        "required": [
+          "ordered",
+          "items"
+        ]
+      },
+      "RichSampleListItemResponse": {
+        "type": "object",
+        "properties": {
+          "inlines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichSampleInlineResponse"
+            }
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichSampleListResponse"
+            }
+          }
+        },
+        "required": [
+          "inlines"
+        ]
+      },
+      "RichSampleBlockResponse": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "paragraph",
+              "heading",
+              "quote",
+              "list",
+              "table",
+              "code",
+              "image"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "inlines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichSampleInlineResponse"
+            }
+          },
+          "level": {
+            "type": "number"
+          },
+          "ordered": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichSampleListItemResponse"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RichSampleCellResponse"
+              }
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "alt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "RichSampleImageResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "alt": {
+            "type": "string"
+          },
+          "src": {
+            "type": "string",
+            "nullable": true
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "content",
+              "thumbnail"
+            ]
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "remote_url",
+              "unavailable"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "alt",
+          "src",
+          "role",
+          "availability"
+        ]
+      },
+      "RichSampleAnswerResponse": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "enum": [
+              2
+            ]
+          },
+          "blocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichSampleBlockResponse"
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichSampleImageResponse"
+            }
+          }
+        },
+        "required": [
+          "version",
+          "blocks",
+          "images"
+        ]
+      },
       "EvaluationHighlightRangeResponse": {
         "type": "object",
         "properties": {
@@ -8222,6 +8445,15 @@
           "originalAnswer": {
             "type": "string",
             "nullable": true
+          },
+          "richAnswer": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RichSampleAnswerResponse"
+              }
+            ]
           },
           "highlightUnavailable": {
             "type": "boolean"

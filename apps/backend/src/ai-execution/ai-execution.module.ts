@@ -4,7 +4,15 @@ import {
   DelegatedParserExecutionService,
 } from "./application/delegated-parser-execution.service.js";
 import { PostgresExecutionCenterReceiptRepository } from "./infrastructure/postgres-execution-center-receipt.repository.js";
-import { ExecutionCenterClient } from "./infrastructure/execution-center.client.js";
+import {
+  ExecutionCenterClient,
+  EXECUTION_CENTER_CLIENT,
+} from "./infrastructure/execution-center.client.js";
+import {
+  EXECUTION_CENTER_WEB_GATEWAY,
+  ExecutionCenterBrowserSamplingGateway,
+} from "./infrastructure/execution-center-browser-sampling.gateway.js";
+import { EXECUTION_CENTER_RECEIPT_REPOSITORY } from "./domain/execution-center-receipt.repository.js";
 import { ExecutionCenterEventRuntime } from "./infrastructure/execution-center-event.runtime.js";
 import { RealAiNativeAttemptCodec } from "./infrastructure/providers/real-ai-native-attempt.codec.js";
 import type { AiAttemptAdapter } from "./domain/ai-attempt.adapter.js";
@@ -41,25 +49,42 @@ export class AiExecutionModule {
       providers: [
         PostgresExecutionCenterReceiptRepository,
         {
+          provide: EXECUTION_CENTER_RECEIPT_REPOSITORY,
+          useExisting: PostgresExecutionCenterReceiptRepository,
+        },
+        {
+          provide: EXECUTION_CENTER_CLIENT,
+          useFactory: () =>
+            config.executionCenter
+              ? new ExecutionCenterClient(config.executionCenter)
+              : null,
+        },
+        {
+          provide: EXECUTION_CENTER_WEB_GATEWAY,
+          inject: [EXECUTION_CENTER_CLIENT],
+          useFactory: (client: ExecutionCenterClient | null) =>
+            new ExecutionCenterBrowserSamplingGateway(client),
+        },
+        {
           provide: EXECUTION_CENTER_PARSER,
           inject: [
             PostgresAiAttemptRepository,
             PostgresExecutionCenterReceiptRepository,
             AI_ATTEMPT_ADAPTER,
+            EXECUTION_CENTER_CLIENT,
           ],
           useFactory: (
             attempts: PostgresAiAttemptRepository,
             receipts: PostgresExecutionCenterReceiptRepository,
             adapter: AiAttemptAdapter,
+            client: ExecutionCenterClient | null,
           ) =>
             new DelegatedParserExecutionService(
               attempts,
               receipts,
               adapter,
               new RealAiNativeAttemptCodec(),
-              config.executionCenter
-                ? new ExecutionCenterClient(config.executionCenter)
-                : null,
+              client,
               config.executionCenter,
               config.requestTimeoutMs,
             ),
@@ -69,16 +94,16 @@ export class AiExecutionModule {
           inject: [
             PostgresExecutionCenterReceiptRepository,
             EXECUTION_CENTER_PARSER,
+            EXECUTION_CENTER_CLIENT,
           ],
           useFactory: (
             receipts: PostgresExecutionCenterReceiptRepository,
             parser: DelegatedParserExecutionService,
+            client: ExecutionCenterClient | null,
           ) =>
             new ExecutionCenterEventRuntime(
               receipts,
-              config.executionCenter
-                ? new ExecutionCenterClient(config.executionCenter)
-                : null,
+              client,
               parser,
               config.executionCenter?.centerRef,
             ),
@@ -127,6 +152,9 @@ export class AiExecutionModule {
         AiSynthesisExecutionService,
       ],
       exports: [
+        EXECUTION_CENTER_CLIENT,
+        EXECUTION_CENTER_WEB_GATEWAY,
+        EXECUTION_CENTER_RECEIPT_REPOSITORY,
         AiExecutionService,
         AiQuestionGenerationExecutionService,
         AiSynthesisExecutionService,

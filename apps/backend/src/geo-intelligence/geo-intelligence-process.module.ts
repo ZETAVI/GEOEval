@@ -1,6 +1,18 @@
 import { Module, type DynamicModule } from "@nestjs/common";
 
 import { AiExecutionModule } from "../ai-execution/ai-execution.module.js";
+import { AiExecutionService } from "../ai-execution/application/ai-execution.service.js";
+import {
+  EXECUTION_CENTER_RECEIPT_REPOSITORY,
+  type ExecutionCenterReceiptRepository,
+} from "../ai-execution/domain/execution-center-receipt.repository.js";
+import {
+  EXECUTION_CENTER_WEB_GATEWAY,
+  type ExecutionCenterWebGateway,
+} from "../ai-execution/infrastructure/execution-center-browser-sampling.gateway.js";
+import type { EvaluationProcessRepository } from "./domain/evaluation-process.repository.js";
+import { ExecutionCenterSamplingCoordinator } from "./application/execution-center-sampling.coordinator.js";
+import { ExecutionCenterSamplingRuntime } from "./infrastructure/execution-center-sampling.runtime.js";
 import type { AiExecutionConfig } from "../ai-execution/infrastructure/ai-execution.config.js";
 import {
   BROWSER_SAMPLING_GATEWAY,
@@ -58,6 +70,49 @@ export class GeoIntelligenceProcessModule {
               : disabledBrowserSamplingGateway,
         },
         EvaluationSynthesisCoordinator,
+        {
+          provide: ExecutionCenterSamplingCoordinator,
+          inject: [
+            EVALUATION_PROCESS_REPOSITORY,
+            AiExecutionService,
+            EXECUTION_CENTER_WEB_GATEWAY,
+            EXECUTION_CENTER_RECEIPT_REPOSITORY,
+          ],
+          useFactory: (
+            repository: EvaluationProcessRepository,
+            ai: AiExecutionService,
+            web: ExecutionCenterWebGateway,
+            receipts: ExecutionCenterReceiptRepository,
+          ) =>
+            new ExecutionCenterSamplingCoordinator(
+              repository,
+              ai,
+              web,
+              receipts,
+              {
+                centerRef:
+                  config.aiExecution.executionCenter?.centerRef ?? "disabled",
+                accountAlias:
+                  config.evaluationSampling.mode === "execution-center"
+                    ? config.evaluationSampling.accountAlias
+                    : "primary",
+                acquisitionEnabled:
+                  config.aiExecution.executionCenter?.acquisitionEnabled ===
+                  true,
+              },
+            ),
+        },
+        {
+          provide: ExecutionCenterSamplingRuntime,
+          inject: [
+            EVALUATION_PROCESS_REPOSITORY,
+            ExecutionCenterSamplingCoordinator,
+          ],
+          useFactory: (
+            repository: EvaluationProcessRepository,
+            coordinator: ExecutionCenterSamplingCoordinator,
+          ) => new ExecutionCenterSamplingRuntime(repository, coordinator),
+        },
         EvaluationProcessCoordinator,
         EvaluationQuestionPreparationCoordinator,
       ],

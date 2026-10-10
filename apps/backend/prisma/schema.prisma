@@ -125,6 +125,11 @@ enum AiExecutionAttemptStatus {
   FAILED
 }
 
+enum AiExecutionChannel {
+  API
+  WEB
+}
+
 enum ExecutionCenterReceiptState {
   RESERVING
   WAITING
@@ -633,18 +638,22 @@ model EvaluationRun {
 }
 
 model EvaluationExecutionCycle {
-  id                  String                         @id @default(uuid()) @db.Uuid
-  runId               String                         @map("run_id") @db.Uuid
-  sequence            Int
-  status              EvaluationExecutionCycleStatus @default(ACTIVE)
-  createdAt           DateTime                       @default(now()) @map("created_at")
-  updatedAt           DateTime                       @updatedAt @map("updated_at")
-  run                 EvaluationRun                  @relation(fields: [runId], references: [id], onDelete: Restrict)
-  attempts            AiExecutionAttempt[]
-  failures            EvaluationStageExhaustion[]
-  synthesisAttempts   AiSynthesisAttempt[]
-  synthesisExhaustion EvaluationSynthesisExhaustion?
-  samplingBatches     EvaluationSamplingBatch[]
+  id                    String                         @id @default(uuid()) @db.Uuid
+  runId                 String                         @map("run_id") @db.Uuid
+  sequence              Int
+  status                EvaluationExecutionCycleStatus @default(ACTIVE)
+  samplingStartedAt     DateTime?                      @map("sampling_started_at")
+  samplingFallbackDueAt DateTime?                      @map("sampling_fallback_due_at")
+  samplingDeadlineAt    DateTime?                      @map("sampling_deadline_at")
+  samplingClosedAt      DateTime?                      @map("sampling_closed_at")
+  createdAt             DateTime                       @default(now()) @map("created_at")
+  updatedAt             DateTime                       @updatedAt @map("updated_at")
+  run                   EvaluationRun                  @relation(fields: [runId], references: [id], onDelete: Restrict)
+  attempts              AiExecutionAttempt[]
+  failures              EvaluationStageExhaustion[]
+  synthesisAttempts     AiSynthesisAttempt[]
+  synthesisExhaustion   EvaluationSynthesisExhaustion?
+  samplingBatches       EvaluationSamplingBatch[]
 
   @@unique([runId, sequence])
   @@unique([id, runId])
@@ -661,6 +670,10 @@ model EvaluationSamplingBatch {
   questionSetVersion String                        @map("question_set_version") @db.VarChar(160)
   idempotencyKey     String                        @map("idempotency_key") @db.Char(64)
   externalTaskId     String?                       @map("external_task_id") @db.VarChar(160)
+  centerRef          String?                       @map("center_ref") @db.VarChar(128)
+  callerRequestRef   String?                       @map("caller_request_ref") @db.VarChar(128)
+  requestFingerprint String?                       @map("request_fingerprint") @db.Char(64)
+  request            Json?
   status             EvaluationSamplingBatchStatus @default(PENDING)
   expectedCount      Int                           @map("expected_count")
   sampleIds          Json                          @map("sample_ids")
@@ -673,12 +686,41 @@ model EvaluationSamplingBatch {
   updatedAt          DateTime                      @updatedAt @map("updated_at")
   run                EvaluationRun                 @relation(fields: [runId], references: [id], onDelete: Restrict)
   cycle              EvaluationExecutionCycle      @relation(fields: [cycleId, runId], references: [id, runId], onDelete: Restrict, map: "evaluation_sampling_batches_cycle_run_fkey")
+  items              EvaluationSamplingBatchItem[]
 
+  @@unique([id, cycleId, runId], map: "evaluation_sampling_batch_identity_key")
+  @@unique([centerRef, callerRequestRef], map: "evaluation_sampling_batch_center_request_key")
+  @@unique([centerRef, externalTaskId], map: "evaluation_sampling_batch_center_task_key")
   @@unique([cycleId, platformKey])
   @@unique([idempotencyKey])
   @@index([status, updatedAt])
   @@index([runId, platformKey])
   @@map("evaluation_sampling_batches")
+}
+
+model EvaluationSamplingBatchItem {
+  id          String                      @id @default(uuid()) @db.Uuid
+  batchId     String                      @map("batch_id") @db.Uuid
+  runId       String                      @map("run_id") @db.Uuid
+  cycleId     String                      @map("cycle_id") @db.Uuid
+  sampleId    String                      @map("sample_id") @db.Uuid
+  attemptId   String                      @unique @map("attempt_id") @db.Uuid
+  itemId      String                      @map("item_id") @db.VarChar(128)
+  state       ExecutionCenterReceiptState @default(RESERVING)
+  snapshot    Json?
+  readyAt     DateTime?                   @map("ready_at")
+  processedAt DateTime?                   @map("processed_at")
+  createdAt   DateTime                    @default(now()) @map("created_at")
+  updatedAt   DateTime                    @updatedAt @map("updated_at")
+  batch       EvaluationSamplingBatch     @relation(fields: [batchId, cycleId, runId], references: [id, cycleId, runId], onDelete: Restrict, map: "evaluation_sampling_item_batch_fkey")
+  sample      EvaluationSample            @relation(fields: [sampleId, runId], references: [id, runId], onDelete: Restrict, map: "evaluation_sampling_item_sample_fkey")
+  attempt     AiExecutionAttempt          @relation(fields: [attemptId, cycleId, sampleId, runId], references: [id, cycleId, sampleId, runId], onDelete: Restrict, map: "evaluation_sampling_item_attempt_fkey")
+
+  @@unique([batchId, sampleId], map: "evaluation_sampling_item_batch_sample_key")
+  @@unique([batchId, itemId], map: "evaluation_sampling_item_batch_item_key")
+  @@unique([attemptId, cycleId, sampleId, runId], map: "evaluation_sampling_item_attempt_identity_key")
+  @@index([state, id])
+  @@map("evaluation_sampling_batch_items")
 }
 
 model EvaluationSample {
@@ -697,6 +739,7 @@ model EvaluationSample {
   evidence       EvaluationSampleEvidence?
   interpretation EvaluationSampleInterpretation?
   failures       EvaluationStageExhaustion[]
+  samplingItems  EvaluationSamplingBatchItem[]
 
   @@unique([runId, questionId, platformKey])
   @@unique([id, runId], map: "evaluation_samples_id_run_key")
@@ -716,6 +759,8 @@ model AiExecutionAttempt {
   providerKey            String                          @map("provider_key") @db.VarChar(80)
   requestedModel         String                          @map("requested_model") @db.VarChar(120)
   executionTransport     String                          @default("DIRECT") @map("execution_transport") @db.VarChar(24)
+  executionChannel       AiExecutionChannel              @default(API) @map("execution_channel")
+  executionDeadlineAt    DateTime?                       @map("execution_deadline_at")
   requestPayload         Json                            @map("request_payload")
   responseEnvelope       Json?                           @map("response_envelope")
   failureClass           String?                         @map("failure_class") @db.VarChar(120)
@@ -731,8 +776,9 @@ model AiExecutionAttempt {
   acceptedInterpretation EvaluationSampleInterpretation? @relation("AcceptedInterpretationAttempt")
   exhaustedStage         EvaluationStageExhaustion?      @relation("ExhaustedStageAttempt")
   executionCenterReceipt ExecutionCenterReceipt?
+  samplingBatchItem      EvaluationSamplingBatchItem?
 
-  @@unique([cycleId, sampleId, purpose, attemptNumber], map: "ai_exec_attempt_cycle_sample_purpose_number_key")
+  @@unique([cycleId, sampleId, purpose, executionChannel, attemptNumber], map: "ai_exec_attempt_cycle_sample_purpose_channel_number_key")
   @@unique([id, sampleId])
   @@unique([id, cycleId, sampleId, runId], map: "ai_exec_attempt_exhaustion_identity_key")
   @@index([cycleId, purpose, status])
@@ -770,6 +816,7 @@ model ExecutionCenterInbox {
   centerRef String   @map("center_ref") @db.VarChar(128)
   cursor    BigInt
   event     Json
+  snapshot  Json?
   createdAt DateTime @default(now()) @map("created_at")
 
   @@id([centerRef, cursor])
@@ -790,6 +837,9 @@ model EvaluationSampleEvidence {
   acceptedAttemptId String                      @unique @map("accepted_attempt_id") @db.Uuid
   answerContent     String                      @map("answer_content")
   answerFormat      String                      @map("answer_format") @db.VarChar(40)
+  content           Json?
+  readingText       String?                     @map("reading_text")
+  images            Json?
   sourceMetadata    Json                        @map("source_metadata")
   searchObservation EvaluationSearchObservation @map("search_observation")
   returnedModel     String                      @map("returned_model") @db.VarChar(120)

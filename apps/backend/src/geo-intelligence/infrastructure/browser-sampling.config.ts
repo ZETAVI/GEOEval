@@ -1,5 +1,6 @@
 export type BrowserSamplingConfig =
   | { mode: "ai-provider" }
+  | { mode: "execution-center"; accountAlias: string; centerRef: string }
   | {
       mode: "browser-control-plane";
       baseUrl: string;

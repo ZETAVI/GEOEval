@@ -1,6 +1,6 @@
 # Change: 接入独立网页采样执行中台
 
-- 状态：Active，2026-10-09用户批准P4本地实施；P2已接受main636bd71，P4尚未实现/部署。
+- 状态：Active；P2已接受main636bd71。P4实现与定向本地闭环已验证，正在完成全量回归和固定diff审查；未合并/部署。
 - Class：Architectural integration。
 - Owner：[Issue #169](https://github.com/ZETAVI/GEOEval/issues/169)；候选 [PR #170](https://github.com/ZETAVI/GEOEval/pull/170)。
 
@@ -14,7 +14,7 @@ GEO保留业务题目、Prompt/模型/原生API参数、规范化、正式证据
 
 - 复用四题×五平台样本与平台batch，稳定itemId、幂等身份和远端任务恢复；
 - 逐题即时事件及RUNNING期间富结果消费；
-- 采样Acquisition的中台API运输，GEO保留原生请求/响应解释与显式业务重试；
+- 采样Acquisition的中台API运输，GEO保留原生请求/响应解释；P4兜底调用失败不自动重试，旧DIRECT/Parser政策不改；
 - GEO持久80秒API竞速、130秒采样截止、channel尝试身份和cycle围栏；
 - 安全富卡片、readingText、临时图片与内部来源保留，卡片不显示信源/引用映射；
 - 迁移、重复/乱序/响应丢失恢复及本Change独立验收/回滚。

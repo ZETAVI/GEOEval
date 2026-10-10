@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import type { AiExecutionConfig } from "../ai-execution/infrastructure/ai-execution.config.js";
 import { parserExecutionCenterConfig } from "../ai-execution/infrastructure/execution-center.config.js";
+import { REAL_AI_ROUTES } from "../ai-execution/infrastructure/providers/real-route.catalog.js";
 import type { StoreLocationRuntimeConfig } from "../brand/infrastructure/store-location.config.js";
 import type { BrowserSamplingConfig } from "../geo-intelligence/infrastructure/browser-sampling.config.js";
 
@@ -37,6 +38,9 @@ const identityCleanupSchema = z.object({
 });
 
 const apiSchema = commonSchema.extend({
+  EVALUATION_SAMPLING_MODE: z
+    .enum(["ai-provider", "browser-control-plane", "execution-center"])
+    .default("ai-provider"),
   ...identityCleanupSchema.shape,
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -204,7 +208,7 @@ const workerSchema = commonSchema.extend({
   REDIS_URL: z.string().min(1),
   AI_EXECUTION_MODE: z.enum(["deterministic", "real"]).default("deterministic"),
   EVALUATION_SAMPLING_MODE: z
-    .enum(["ai-provider", "browser-control-plane"])
+    .enum(["ai-provider", "browser-control-plane", "execution-center"])
     .default("ai-provider"),
   BROWSER_SAMPLER_BASE_URL: z.string().url().default("http://127.0.0.1:4610"),
   BROWSER_SAMPLER_BEARER_TOKEN: z.string().default(""),
@@ -284,6 +288,7 @@ const identityBootstrapSchema = z.object({
 });
 
 export type ApiConfig = {
+  evaluationSamplingMode?: BrowserSamplingConfig["mode"];
   databaseUrl: string;
   port: number;
   corsOrigins: string[];
@@ -641,6 +646,7 @@ export function loadApiConfig(
       amapWebServiceKey: parsed.AMAP_WEB_SERVICE_KEY,
     },
     geoOptimizationWriterMode: parsed.GEO_OPTIMIZATION_WRITER_MODE,
+    evaluationSamplingMode: parsed.EVALUATION_SAMPLING_MODE,
   };
 }
 
@@ -724,6 +730,29 @@ export function loadWorkerConfig(
   );
   if (executionCenter) aiExecution.executionCenter = executionCenter;
   if (
+    parsed.EVALUATION_SAMPLING_MODE === "execution-center" &&
+    (!executionCenter?.enabled || !executionCenter.acquisitionEnabled)
+  ) {
+    throw new Error(
+      "Web-first execution requires configured Parser and Acquisition center transports",
+    );
+  }
+  if (
+    parsed.EVALUATION_SAMPLING_MODE === "execution-center" &&
+    REAL_AI_ROUTES.filter(
+      (route) =>
+        route.purpose === "EVALUATION_ACQUISITION" ||
+        route.purpose === "EVALUATION_INTERPRETATION",
+    ).some(
+      (route) =>
+        !executionCenter!.endpoints[`${route.providerKey}:${route.protocol}`],
+    )
+  ) {
+    throw new Error(
+      "Web-first execution requires all approved acquisition and Parser endpoint references",
+    );
+  }
+  if (
     aiExecution.mode === "real" &&
     parsed.NODE_ENV !== "test" &&
     new URL(aiExecution.modelStudio.baseUrl).hostname ===
@@ -742,18 +771,25 @@ export function loadWorkerConfig(
     runtimeEnvironment: parsed.NODE_ENV,
     aiExecution,
     evaluationSampling:
-      parsed.EVALUATION_SAMPLING_MODE === "browser-control-plane"
+      parsed.EVALUATION_SAMPLING_MODE === "execution-center"
         ? {
-            mode: "browser-control-plane",
-            baseUrl: parsed.BROWSER_SAMPLER_BASE_URL.replace(/\/$/, ""),
-            bearerToken: parsed.BROWSER_SAMPLER_BEARER_TOKEN,
-            accountId: parsed.BROWSER_SAMPLER_ACCOUNT_ID,
-            requestTimeoutMs: parsed.BROWSER_SAMPLER_REQUEST_TIMEOUT_MS,
-            pollIntervalMs: parsed.BROWSER_SAMPLER_POLL_INTERVAL_MS,
-            collectionDeadlineMs: parsed.BROWSER_SAMPLER_COLLECTION_DEADLINE_MS,
-            maximumWaitMs: parsed.BROWSER_SAMPLER_MAXIMUM_WAIT_MS,
+            mode: "execution-center",
+            accountAlias: parsed.BROWSER_SAMPLER_ACCOUNT_ID,
+            centerRef: executionCenter!.centerRef,
           }
-        : { mode: "ai-provider" },
+        : parsed.EVALUATION_SAMPLING_MODE === "browser-control-plane"
+          ? {
+              mode: "browser-control-plane",
+              baseUrl: parsed.BROWSER_SAMPLER_BASE_URL.replace(/\/$/, ""),
+              bearerToken: parsed.BROWSER_SAMPLER_BEARER_TOKEN,
+              accountId: parsed.BROWSER_SAMPLER_ACCOUNT_ID,
+              requestTimeoutMs: parsed.BROWSER_SAMPLER_REQUEST_TIMEOUT_MS,
+              pollIntervalMs: parsed.BROWSER_SAMPLER_POLL_INTERVAL_MS,
+              collectionDeadlineMs:
+                parsed.BROWSER_SAMPLER_COLLECTION_DEADLINE_MS,
+              maximumWaitMs: parsed.BROWSER_SAMPLER_MAXIMUM_WAIT_MS,
+            }
+          : { mode: "ai-provider" },
   };
 }
 

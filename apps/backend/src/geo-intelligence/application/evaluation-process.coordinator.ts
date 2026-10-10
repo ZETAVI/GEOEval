@@ -1,4 +1,5 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Optional } from "@nestjs/common";
+import { ExecutionCenterSamplingCoordinator } from "./execution-center-sampling.coordinator.js";
 import { z } from "zod";
 
 import { AiExecutionService } from "../../ai-execution/application/ai-execution.service.js";
@@ -25,6 +26,7 @@ import {
 } from "../domain/sample-parser-model.contract.js";
 import { evaluationBrandTextContext } from "../domain/evaluation-brand-snapshot.js";
 import { buildSampleParserTask } from "../sample-parser.policy.js";
+import { buildSampleAcquisitionRequest } from "../sample-acquisition.policy.js";
 import { EvaluationSynthesisCoordinator } from "./evaluation-synthesis.coordinator.js";
 import {
   BROWSER_SAMPLING_GATEWAY,
@@ -61,6 +63,7 @@ const acquisitionWorkSchema = z.object({
   cycleId: z.string().uuid(),
   sampleId: z.string().uuid(),
   attemptNumber: z.number().int().min(1).max(MAX_ACQUISITION_ATTEMPTS),
+  executionChannel: z.enum(["API", "WEB"]).optional(),
 });
 
 const interpretationWorkSchema = z.object({
@@ -88,6 +91,9 @@ export class EvaluationProcessCoordinator {
     private readonly samplingConfig: BrowserSamplingConfig,
     @Inject(BROWSER_SAMPLING_GATEWAY)
     private readonly browserSampling: BrowserSamplingGateway,
+    @Optional()
+    @Inject(ExecutionCenterSamplingCoordinator)
+    private readonly executionSampling?: ExecutionCenterSamplingCoordinator,
   ) {}
 
   async process(event: {
@@ -100,17 +106,44 @@ export class EvaluationProcessCoordinator {
         await this.repository.initializeRun(
           payload.runId,
           payload.cycleId,
-          this.samplingConfig.mode === "browser-control-plane"
-            ? {
-                mode: "browser-control-plane",
-                accountAlias: this.samplingConfig.accountId,
-              }
-            : { mode: "ai-provider" },
+          this.samplingConfig.mode === "execution-center"
+            ? this.samplingConfig
+            : this.samplingConfig.mode === "browser-control-plane"
+              ? {
+                  mode: "browser-control-plane",
+                  accountAlias: this.samplingConfig.accountId,
+                }
+              : { mode: "ai-provider" },
         );
         return EVALUATION_PROCESS_COMPLETED;
       }
       case "evaluation.sample.acquire.requested": {
         return this.acquire(acquisitionWorkSchema.parse(event.payload));
+      }
+      case "evaluation.browser.result.received": {
+        const payload = z
+          .object({
+            centerRef: z.string().min(1),
+            cursor: z.number().int().nonnegative(),
+          })
+          .parse(event.payload);
+        if (!this.executionSampling)
+          throw new Error("Execution sampling is unavailable");
+        return this.executionSampling.processNotification(payload);
+      }
+      case "evaluation.sampling.fallback.requested": {
+        if (!this.executionSampling)
+          throw new Error("Execution sampling is unavailable");
+        return this.executionSampling.fallback(
+          runStartedSchema.parse(event.payload),
+        );
+      }
+      case "evaluation.sampling.deadline.requested": {
+        if (!this.executionSampling)
+          throw new Error("Execution sampling is unavailable");
+        return this.executionSampling.deadline(
+          runStartedSchema.parse(event.payload),
+        );
       }
       case "evaluation.sample.interpret.requested": {
         return this.interpret(interpretationWorkSchema.parse(event.payload));
@@ -135,9 +168,6 @@ export class EvaluationProcessCoordinator {
   }
 
   private async acquire(payload: z.infer<typeof acquisitionWorkSchema>) {
-    if (this.samplingConfig.mode === "browser-control-plane") {
-      return this.acquireFromBrowser(payload, this.samplingConfig);
-    }
     const context = await this.repository.getSampleContext(
       payload.sampleId,
       payload.runId,
@@ -146,27 +176,17 @@ export class EvaluationProcessCoordinator {
     if (!context || context.status !== "PENDING") {
       return EVALUATION_PROCESS_COMPLETED;
     }
-    const brand = evaluationBrandTextContext(context.brandSnapshot);
-    const outcome = await this.aiExecution.execute({
-      runId: context.runId,
-      cycleId: context.cycleId,
-      sampleId: context.sampleId,
-      purpose: "EVALUATION_ACQUISITION",
-      attemptNumber: payload.attemptNumber,
-      routePolicyId: context.routePolicyId,
-      requestedModel: context.requestedModel,
-      correlationId: context.correlationId,
-      input: {
-        taskKind: "EVALUATION_ACQUISITION",
-        systemInstruction: context.objectivityInstruction,
-        companyName: context.companyName,
-        query: context.query,
-        questionOrdinal: context.questionOrdinal,
-        platformLabel: context.platformLabel,
-        province: brand.province,
-        city: brand.city,
-      },
-    });
+    if (context.samplingWindow) {
+      if (!this.executionSampling)
+        throw new Error("Execution sampling is unavailable");
+      return this.executionSampling.acquire(payload);
+    }
+    if (this.samplingConfig.mode === "browser-control-plane") {
+      return this.acquireFromBrowser(payload, this.samplingConfig);
+    }
+    const outcome = await this.aiExecution.execute(
+      buildSampleAcquisitionRequest(context, payload.attemptNumber),
+    );
     if (outcome.kind === "DEFERRED") return outcome;
     if (outcome.kind === "REMOTE_PENDING") return EVALUATION_PROCESS_COMPLETED;
     if (outcome.kind === "FAILED") {
@@ -419,7 +439,8 @@ export class EvaluationProcessCoordinator {
       characteristicTwo: brand.characteristicTwo,
       questionKind: context.questionKind,
       question: context.query,
-      originalAnswer: context.evidence.answerContent,
+      originalAnswer:
+        context.evidence.readingText ?? context.evidence.answerContent,
     });
     const route = INTERPRETATION_ROUTES[payload.attemptNumber - 1]!;
     const outcome = await this.aiExecution.execute({
@@ -451,7 +472,8 @@ export class EvaluationProcessCoordinator {
       output = parseAndProjectSampleParserModelOutput(outcome.output, {
         questionKind: context.questionKind,
         companyName: context.companyName,
-        originalAnswer: context.evidence.answerContent,
+        originalAnswer:
+          context.evidence.readingText ?? context.evidence.answerContent,
       });
     } catch (error) {
       if (

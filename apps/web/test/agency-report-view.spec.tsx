@@ -68,6 +68,45 @@ const report: EvaluationReport = {
   ],
 };
 describe("agent read-only report presentation", () => {
+  it("uses the rich card for both included and unavailable samples while retaining old Markdown", () => {
+    const richAnswer = {
+      version: 2 as const,
+      blocks: [
+        {
+          type: "table" as const,
+          rows: [
+            [{ text: "门店", header: true }],
+            [{ text: "花悦庭", header: false }],
+          ],
+        },
+      ],
+      images: [],
+    };
+    const richReport = {
+      ...report,
+      questions: report.questions.map((question) => ({
+        ...question,
+        samples: [
+          { ...question.samples[0]!, id: "rich-unavailable", richAnswer },
+          {
+            ...question.samples[0]!,
+            id: "rich-included",
+            availability: "INCLUDED" as const,
+            cardInterpretation: "烤鸭体验",
+            richAnswer,
+          },
+          { ...question.samples[0]!, id: "legacy" },
+        ],
+      })),
+    };
+    const markup = renderToStaticMarkup(
+      <EvaluationReportView report={richReport} readOnly />,
+    );
+    expect(markup.match(/<table>/g)).toHaveLength(2);
+    expect(markup).toContain("花悦庭");
+    expect(markup).toContain("烤鸭体验");
+    expect(markup.match(/原始回答仍完整保留/g)).toHaveLength(1);
+  });
   it("keeps the complete report and original answer while removing all customer action entry points", () => {
     const readonly = renderToStaticMarkup(
       <EvaluationReportView

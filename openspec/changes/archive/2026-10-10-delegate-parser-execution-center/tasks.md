@@ -6,4 +6,4 @@
 - [x] 短submit、REMOTE_PENDING、即时SSE恢复、原Parser规范化/语义接受纵切。
 - [x] 丢失ACK、早到/重复事件、重启、UNKNOWN与>100等待任务验收。
 - [x] 本地迁移、回归/typecheck/build/框架校验和固定diff审查；失败receipt重发finding已窄修并回归。
-- [x] 归并当前owner文档和retain退出；证据见verification，PR仍是review/integration门，不合并/部署。
+- [x] 归并当前owner文档；证据见verification。用户授权PR176正常合并，main636bd71已接受、默认关闭且未部署；本Change归档，原工作树retain作为恢复材料。

@@ -2,6 +2,10 @@ import type {
   AcceptedEvidence,
   AcceptedInterpretation,
   BrowserSamplingBatchContext,
+  EvidenceAcceptanceResult,
+  ExecutionSamplingBatchContext,
+  ExecutionSamplingItem,
+  ExecutionSamplingSnapshot,
   EvaluationSampleWorkContext,
   StageFailureInput,
 } from "./evaluation-process.types.js";
@@ -14,9 +18,10 @@ export interface EvaluationProcessRepository {
   initializeRun(
     runId: string,
     cycleId: string,
-    sampling:
+    sampling?:
       | { mode: "ai-provider" }
-      | { mode: "browser-control-plane"; accountAlias: string },
+      | { mode: "browser-control-plane"; accountAlias: string }
+      | { mode: "execution-center"; accountAlias: string; centerRef: string },
   ): Promise<void>;
   getSampleContext(
     sampleId: string,
@@ -27,7 +32,8 @@ export interface EvaluationProcessRepository {
     context: EvaluationSampleWorkContext;
     attemptId: string;
     evidence: AcceptedEvidence;
-  }): Promise<void>;
+    observedAt?: Date;
+  }): Promise<EvidenceAcceptanceResult>;
   acceptInterpretation(input: {
     context: EvaluationSampleWorkContext;
     attemptId: string;
@@ -37,6 +43,41 @@ export interface EvaluationProcessRepository {
   exhaustStage(input: StageFailureInput): Promise<void>;
   evaluateReadiness(runId: string, cycleId: string): Promise<void>;
   reconcile(limit: number): Promise<number>;
+  reconcileSamplingWindows(limit?: number, now?: Date): Promise<number>;
+  hasOpenSamplingWindows(): Promise<boolean>;
+  getOrCreateExecutionSamplingBatch(input: {
+    sampleId: string;
+    runId: string;
+    cycleId: string;
+    accountAlias: string;
+    centerRef: string;
+  }): Promise<ExecutionSamplingBatchContext | undefined>;
+  listExecutionSamplingBatches(input: {
+    limit: number;
+    afterId?: string;
+  }): Promise<ExecutionSamplingBatchContext[]>;
+  recordExecutionSamplingSnapshot(input: {
+    batchId: string;
+    snapshot: ExecutionSamplingSnapshot;
+  }): Promise<ExecutionSamplingBatchContext | undefined>;
+  getExecutionSamplingItem(input: {
+    sampleId: string;
+    runId: string;
+    cycleId: string;
+  }): Promise<ExecutionSamplingItem | undefined>;
+  markExecutionSamplingItemProcessed(itemId: string): Promise<void>;
+  scheduleSamplingFallback(input: {
+    runId: string;
+    cycleId: string;
+    sampleId?: string;
+    reason: "FALLBACK_DUE" | "WEB_UNAVAILABLE";
+    now?: Date;
+  }): Promise<number>;
+  closeSamplingAtDeadline(input: {
+    runId: string;
+    cycleId: string;
+    now?: Date;
+  }): Promise<number>;
   getOrCreateBrowserSamplingBatch(input: {
     sampleId: string;
     runId: string;

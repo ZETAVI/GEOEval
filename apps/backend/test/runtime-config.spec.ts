@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { REAL_AI_ROUTES } from "../src/ai-execution/infrastructure/providers/real-route.catalog.js";
 
 import {
   loadApiConfig,
@@ -8,6 +9,67 @@ import {
 } from "../src/config/runtime-config.js";
 
 describe("process-scoped configuration", () => {
+  it("persists an explicit P4 submission intent in API config while defaulting to legacy", () => {
+    expect(
+      loadApiConfig({ GEOEVAL_LOCAL_DEFAULTS: "1" }).evaluationSamplingMode,
+    ).toBe("ai-provider");
+    expect(
+      loadApiConfig({
+        GEOEVAL_LOCAL_DEFAULTS: "1",
+        EVALUATION_SAMPLING_MODE: "execution-center",
+      }).evaluationSamplingMode,
+    ).toBe("execution-center");
+  });
+  it("requires both remote transports and all approved route references before P4 workers consume work", () => {
+    const endpoints = Object.fromEntries(
+      REAL_AI_ROUTES.map((route) => [
+        `${route.providerKey}:${route.protocol}`,
+        {
+          endpointRef: route.providerKey,
+          endpointVersion: "1",
+          operation: "call",
+        },
+      ]),
+    );
+    const env = {
+      GEOEVAL_LOCAL_DEFAULTS: "1",
+      NODE_ENV: "test",
+      AI_EXECUTION_MODE: "real",
+      TOKENHUB_API_KEY: "synthetic",
+      ARK_API_KEY: "synthetic",
+      DASHSCOPE_API_KEY: "synthetic",
+      QIANFAN_API_KEY: "synthetic",
+      EVALUATION_SAMPLING_MODE: "execution-center",
+      AI_EXECUTION_CENTER_REF: "p4-local",
+      AI_EXECUTION_CENTER_URL: "http://127.0.0.1:4612",
+      AI_EXECUTION_CENTER_CALLER_TOKEN: "synthetic",
+      AI_EXECUTION_CENTER_ENABLED: "true",
+      AI_EXECUTION_CENTER_ACQUISITION_ENABLED: "true",
+      AI_EXECUTION_CENTER_ENDPOINTS: JSON.stringify(endpoints),
+    };
+    expect(loadWorkerConfig(env).evaluationSampling).toEqual({
+      mode: "execution-center",
+      accountAlias: "primary",
+      centerRef: "p4-local",
+    });
+    expect(() =>
+      loadWorkerConfig({
+        ...env,
+        AI_EXECUTION_CENTER_ACQUISITION_ENABLED: "false",
+      }),
+    ).toThrow("configured Parser and Acquisition");
+    expect(() =>
+      loadWorkerConfig({ ...env, AI_EXECUTION_CENTER_ENABLED: "false" }),
+    ).toThrow("configured Parser and Acquisition");
+    const incomplete = { ...endpoints };
+    delete incomplete[Object.keys(incomplete)[0]!];
+    expect(() =>
+      loadWorkerConfig({
+        ...env,
+        AI_EXECUTION_CENTER_ENDPOINTS: JSON.stringify(incomplete),
+      }),
+    ).toThrow("all approved");
+  });
   it("lets the API start without worker-only Redis configuration", () => {
     const api = loadApiConfig({
       DATABASE_URL: "postgresql://example/api",

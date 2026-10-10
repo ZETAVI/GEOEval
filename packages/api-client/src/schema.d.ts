@@ -2746,6 +2746,57 @@ export interface components {
             directions: components["schemas"]["EvaluationDirectionResponse"][];
             limitations: string[];
         };
+        RichSampleInlineResponse: {
+            /** @enum {string} */
+            type: "text" | "link" | "image";
+            text?: string;
+            marks?: ("strong" | "emphasis")[];
+            href?: string;
+            id?: string;
+            alt?: string;
+        };
+        RichSampleCellResponse: {
+            text: string;
+            header: boolean;
+            inlines?: components["schemas"]["RichSampleInlineResponse"][];
+        };
+        RichSampleListResponse: {
+            ordered: boolean;
+            items: components["schemas"]["RichSampleListItemResponse"][];
+        };
+        RichSampleListItemResponse: {
+            inlines: components["schemas"]["RichSampleInlineResponse"][];
+            children?: components["schemas"]["RichSampleListResponse"][];
+        };
+        RichSampleBlockResponse: {
+            /** @enum {string} */
+            type: "paragraph" | "heading" | "quote" | "list" | "table" | "code" | "image";
+            text?: string;
+            inlines?: components["schemas"]["RichSampleInlineResponse"][];
+            level?: number;
+            ordered?: boolean;
+            items?: components["schemas"]["RichSampleListItemResponse"][];
+            rows?: components["schemas"]["RichSampleCellResponse"][][];
+            id?: string;
+            alt?: string;
+        };
+        RichSampleImageResponse: {
+            id: string;
+            alt: string;
+            src: string | null;
+            width?: number;
+            height?: number;
+            /** @enum {string} */
+            role: "content" | "thumbnail";
+            /** @enum {string} */
+            availability: "remote_url" | "unavailable";
+        };
+        RichSampleAnswerResponse: {
+            /** @enum {number} */
+            version: 2;
+            blocks: components["schemas"]["RichSampleBlockResponse"][];
+            images: components["schemas"]["RichSampleImageResponse"][];
+        };
         EvaluationHighlightRangeResponse: {
             start: number;
             end: number;
@@ -2763,6 +2814,7 @@ export interface components {
             position: number | null;
             cardInterpretation: string | null;
             originalAnswer: string | null;
+            richAnswer?: components["schemas"]["RichSampleAnswerResponse"] | null;
             highlightUnavailable: boolean;
             highlights: components["schemas"]["EvaluationHighlightRangeResponse"][];
         };

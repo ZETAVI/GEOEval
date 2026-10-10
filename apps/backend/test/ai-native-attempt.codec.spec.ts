@@ -169,7 +169,7 @@ describe("native Parser preparation and consumption", () => {
         purpose,
       } as ResolvedAiAttemptRequest;
       expect(() => codec.prepare(request)).toThrow(
-        "supports EVALUATION_INTERPRETATION only",
+        "supports Parser and native Acquisition only",
       );
     },
   );

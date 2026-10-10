@@ -1,5 +1,6 @@
 import type {
   ResolvedAiAttemptRequest,
+  AcquisitionAttemptInput,
   StructuredOutputAttemptInput,
 } from "../../domain/ai-attempt.types.js";
 import type { RealProviderConnection } from "../ai-execution.config.js";
@@ -37,19 +38,7 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
         connection: this.connection,
         transport: this.transport,
         path: "/chat/completions",
-        body: {
-          model: definition.requestedModel,
-          messages: [
-            { role: "system", content: request.input.systemInstruction },
-            { role: "user", content: request.input.query },
-          ],
-          stream: false,
-          web_search_options: {
-            enable: true,
-            search_source: "lite",
-            user_location: location(request.input),
-          },
-        },
+        body: createTokenHubAcquisitionBody(definition, request.input),
       });
     }
     const body =
@@ -60,20 +49,7 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
                 "TokenHub cannot execute a recorded browser acquisition",
               );
             }
-            return {
-              model: definition.requestedModel,
-              input: request.input.query,
-              instructions: request.input.systemInstruction,
-              stream: false,
-              tools: [
-                {
-                  type: "web_search",
-                  search_source: "lite",
-                  search_context_size: "medium",
-                  user_location: location(request.input),
-                },
-              ],
-            };
+            return createTokenHubAcquisitionBody(definition, request.input);
           })()
         : createTokenHubStructuredBody(definition, request.input);
     return executeProviderJsonRequest({
@@ -85,6 +61,40 @@ export class TokenHubProviderAdapter implements ProviderRouteAdapter {
       body,
     });
   }
+}
+
+export function createTokenHubAcquisitionBody(
+  definition: ProviderRouteDefinition,
+  input: AcquisitionAttemptInput,
+) {
+  if (definition.protocol === "chat-completions")
+    return {
+      model: definition.requestedModel,
+      messages: [
+        { role: "system", content: input.systemInstruction },
+        { role: "user", content: input.query },
+      ],
+      stream: false,
+      web_search_options: {
+        enable: true,
+        search_source: "lite",
+        user_location: location(input),
+      },
+    };
+  return {
+    model: definition.requestedModel,
+    input: input.query,
+    instructions: input.systemInstruction,
+    stream: false,
+    tools: [
+      {
+        type: "web_search",
+        search_source: "lite",
+        search_context_size: "medium",
+        user_location: location(input),
+      },
+    ],
+  };
 }
 
 export function createTokenHubStructuredBody(

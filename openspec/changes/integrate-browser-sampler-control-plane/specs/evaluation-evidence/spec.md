@@ -26,7 +26,8 @@ Sampling SHALL use a durable cycle-anchored 130-second deadline including queuei
 
 - WHEN fallbackDueAt arrives with unresolved items
 - THEN GEO SHALL submit API execution only for those items through the center
-- AND preserve Provider request parameters and existing explicit business retry rules
+- AND preserve Provider request parameters and make only one P4 fallback call without automatic business retry
+- AND retain the existing DIRECT and Parser retry policies outside this P4 acquisition path
 - AND another still-eligible web attempt SHALL not be terminated solely because API failed.
 
 #### Scenario: Competing or late results arrive

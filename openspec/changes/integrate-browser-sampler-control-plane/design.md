@@ -24,6 +24,8 @@ AiExecutionAttempt增加executionChannel=API|WEB（默认API），与DIRECT|EXEC
 
 Cycle新增可空samplingStartedAt、samplingFallbackDueAt、samplingDeadlineAt、samplingClosedAt。启用P4时使用正式cycle.createdAt固定起点，80秒兜底、130秒截止包含排队；initialize/submit/重启不得重置。旧周期/default-off保持兼容。130秒只结束PENDING acquisition，不将整个cycle提前EXHAUSTED；已接受的Parser及合成沿原独立预算继续。
 
+正式start/retry提交事务同时建立窗口和预算Outbox，不能等run.started被工作队列领取后才起算。独立SamplingRuntime以250ms SQL-only预算对账唤醒/封口，与5s网页结果对账分开；平台GET卡住、SSE重放卡住或五个Product Worker全被占用，都不能拖住130秒封口。所有动作仍由持久日期、事务和CAS决定；内存timer不拥有业务状态。不另建队列或工作流框架。
+
 网页沿EvaluationSamplingBatch新增center/requestRef/fingerprint/原请求；新增batch-item保存sampleId、itemId（固定sample UUID）、WEB attemptId、单题终态snapshot和处理状态。请求/映射在POST前持久；ACK丢失恢复同key/request。新模式item rows为映射owner，旧sampleIds只兼容旧批次。
 
 ## 4. 逐题正式接受、兜底与恢复
@@ -31,6 +33,8 @@ Cycle新增可空samplingStartedAt、samplingFallbackDueAt、samplingDeadlineAt�
 正式接受事务重新校验当前ACTIVE cycle、exact attempt/channel与SUCCEEDED、sample=PENDING及本地受控时钟/绝对截止；写唯一evidence与唯一Parser Outbox。不能只相信异步前读到的context或远端capturedAt。exhaustion同样使用条件转换/行锁，不能覆盖已接受者。
 
 80秒到达先看最新正式状态，只为未接受题创建API首发工作；明确无容量/授权失败/发送失败可提前兜底。API失败不关闭仍生成中的网页。网页/API竞速采用截止前第一份通过GEO校验并原子接受的完整答案；败方只留技术事实，不替换答案或重复解析。UNKNOWN不换key自动重发。
+
+P4的API兜底只做一次原生调用，失败保留技术结果、不自动业务重试；网页仍可完成。旧DIRECT采样政策和Parser原有重试不改。已提交并持久receipt的DEFERRED可释放短Outbox；没有receipt的旧DIRECT在途DEFERRED仍保留原递延，不能假定一切请求都有远端恢复owner。
 
 fallback/deadline以持久Outbox和对账恢复，不只用内存timer；旧等待前缀不得饿死新通知/截止。截止的未发送题使用真实本地reserved Attempt/NOT_SENT事实，不伪造Provider调用。结果返回与页面停止证明分离，正式失败不解除未知Profile writer。
 

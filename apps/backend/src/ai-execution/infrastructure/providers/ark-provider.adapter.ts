@@ -1,4 +1,7 @@
-import type { ResolvedAiAttemptRequest } from "../../domain/ai-attempt.types.js";
+import type {
+  AcquisitionAttemptInput,
+  ResolvedAiAttemptRequest,
+} from "../../domain/ai-attempt.types.js";
 import type { RealProviderConnection } from "../ai-execution.config.js";
 import type { ProviderHttpTransport } from "./provider-http.transport.js";
 import {
@@ -28,13 +31,20 @@ export class ArkProviderAdapter implements ProviderRouteAdapter {
       connection: this.connection,
       transport: this.transport,
       path: "/responses",
-      body: {
-        model: route.requestedModel,
-        input: request.input.query,
-        instructions: request.input.systemInstruction,
-        store: false,
-        tools: [{ type: "web_search" }],
-      },
+      body: createArkAcquisitionBody(route, request.input),
     });
   }
+}
+
+export function createArkAcquisitionBody(
+  route: ProviderRouteDefinition,
+  input: AcquisitionAttemptInput,
+) {
+  return {
+    model: route.requestedModel,
+    input: input.query,
+    instructions: input.systemInstruction,
+    store: false,
+    tools: [{ type: "web_search" }],
+  };
 }

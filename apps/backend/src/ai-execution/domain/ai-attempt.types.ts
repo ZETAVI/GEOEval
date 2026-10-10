@@ -4,6 +4,9 @@ export type AiExecutionPurpose =
   | "EVALUATION_QUESTION_GENERATION";
 
 type AiAttemptRequestBase = {
+  executionChannel?: "API" | "WEB";
+  /** Absolute acquisition budget; Parser keeps its own independent deadline. */
+  deadlineAt?: number;
   attemptNumber: number;
   routePolicyId: string;
   requestedModel: string;
@@ -147,6 +150,8 @@ export type SampleAiExecutionOutcome =
 
 export type StoredAiAttempt = {
   id: string;
+  executionChannel?: "API" | "WEB";
+  executionDeadlineAt?: Date | null;
   executionTransport?: "DIRECT" | "EXECUTION_CENTER";
   status: "STARTED" | "SUCCEEDED" | "FAILED";
   responseEnvelope: Record<string, unknown> | null;

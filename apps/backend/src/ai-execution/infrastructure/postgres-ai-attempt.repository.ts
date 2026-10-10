@@ -28,6 +28,10 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
       const attempt = await this.prisma.aiExecutionAttempt.create({
         data: {
           executionTransport,
+          executionChannel: request.executionChannel ?? "API",
+          ...(request.deadlineAt === undefined
+            ? {}
+            : { executionDeadlineAt: new Date(request.deadlineAt) }),
           runId: request.runId,
           cycleId: request.cycleId,
           sampleId: request.sampleId,
@@ -45,10 +49,11 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
       if (!isUniqueViolation(error)) throw error;
       const attempt = await this.prisma.aiExecutionAttempt.findUniqueOrThrow({
         where: {
-          cycleId_sampleId_purpose_attemptNumber: {
+          cycleId_sampleId_purpose_executionChannel_attemptNumber: {
             cycleId: request.cycleId,
             sampleId: request.sampleId,
             purpose: request.purpose,
+            executionChannel: request.executionChannel ?? "API",
             attemptNumber: request.attemptNumber,
           },
         },
@@ -64,15 +69,16 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
   async find(
     request: Pick<
       ResolvedSampleAiAttemptRequest,
-      "cycleId" | "sampleId" | "purpose" | "attemptNumber"
+      "cycleId" | "sampleId" | "purpose" | "attemptNumber" | "executionChannel"
     >,
   ): Promise<StoredAiAttempt | null> {
     const attempt = await this.prisma.aiExecutionAttempt.findUnique({
       where: {
-        cycleId_sampleId_purpose_attemptNumber: {
+        cycleId_sampleId_purpose_executionChannel_attemptNumber: {
           cycleId: request.cycleId,
           sampleId: request.sampleId,
           purpose: request.purpose,
+          executionChannel: request.executionChannel ?? "API",
           attemptNumber: request.attemptNumber,
         },
       },
@@ -127,9 +133,20 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
     result: AiAdapterResult,
     latencyMs: number,
   ): Promise<StoredAiAttempt> {
+    const executionChannel =
+      request.executionChannel ??
+      (request.input.taskKind === "BROWSER_EVALUATION_ACQUISITION"
+        ? "WEB"
+        : "API");
     try {
       const attempt = await this.prisma.aiExecutionAttempt.create({
         data: {
+          executionChannel,
+          executionTransport:
+            executionChannel === "WEB" ? "EXECUTION_CENTER" : "DIRECT",
+          ...(request.deadlineAt === undefined
+            ? {}
+            : { executionDeadlineAt: new Date(request.deadlineAt) }),
           runId: request.runId,
           cycleId: request.cycleId,
           sampleId: request.sampleId,
@@ -156,18 +173,20 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
       return mapAttempt(attempt);
     } catch (error) {
       if (!isUniqueViolation(error)) throw error;
-      return mapAttempt(
-        await this.prisma.aiExecutionAttempt.findUniqueOrThrow({
-          where: {
-            cycleId_sampleId_purpose_attemptNumber: {
-              cycleId: request.cycleId,
-              sampleId: request.sampleId,
-              purpose: request.purpose,
-              attemptNumber: request.attemptNumber,
-            },
+      const prior = await this.prisma.aiExecutionAttempt.findUniqueOrThrow({
+        where: {
+          cycleId_sampleId_purpose_executionChannel_attemptNumber: {
+            cycleId: request.cycleId,
+            sampleId: request.sampleId,
+            purpose: request.purpose,
+            executionChannel,
+            attemptNumber: request.attemptNumber,
           },
-        }),
-      );
+        },
+      });
+      return prior.status === "STARTED"
+        ? this.finish(prior.id, result, latencyMs)
+        : mapAttempt(prior);
     }
   }
 
@@ -266,6 +285,8 @@ export class PostgresAiAttemptRepository implements AiAttemptRepository {
 function mapAttempt(attempt: {
   id: string;
   executionTransport?: string;
+  executionChannel?: "API" | "WEB";
+  executionDeadlineAt?: Date | null;
   status: "STARTED" | "SUCCEEDED" | "FAILED";
   responseEnvelope: Prisma.JsonValue | null;
   failureClass: string | null;
@@ -274,6 +295,8 @@ function mapAttempt(attempt: {
 }): StoredAiAttempt {
   return {
     id: attempt.id,
+    executionChannel: attempt.executionChannel ?? "API",
+    executionDeadlineAt: attempt.executionDeadlineAt ?? null,
     executionTransport:
       attempt.executionTransport === "EXECUTION_CENTER"
         ? "EXECUTION_CENTER"

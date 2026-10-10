@@ -14,6 +14,7 @@ import type {
   EvaluationWriterGuidance,
 } from "../domain/evaluation-optimization-guidance.view.js";
 import { buildEvaluationHighlightProjection } from "../domain/evaluation-report.projection.js";
+import { projectRichSampleAnswer } from "../domain/rich-sample-answer.js";
 import type { EvaluationReportRepository } from "../domain/evaluation-report.repository.js";
 import type {
   EvaluationReportSummaryView,
@@ -302,6 +303,10 @@ function mapSample(
   sample: StoredReportRun["samples"][number],
 ): EvaluationReportSampleView {
   const originalAnswer = sample.evidence?.answerContent ?? null;
+  const richAnswer = projectRichSampleAnswer(
+    sample.evidence?.content,
+    sample.evidence?.images,
+  );
   if (
     !sample.interpretation ||
     !isReadableSampleParserContractVersion(
@@ -317,6 +322,7 @@ function mapSample(
       position: null,
       cardInterpretation: null,
       originalAnswer,
+      richAnswer,
       highlightUnavailable: true,
       highlights: [],
     };
@@ -330,9 +336,11 @@ function mapSample(
       "Compatibility interpretation cannot enter a current report",
     );
   }
-  const highlight = originalAnswer
-    ? buildEvaluationHighlightProjection(originalAnswer, semantic)
-    : { highlightUnavailable: true, highlights: [] };
+  // DOM blocks and parser reading text do not share Markdown source offsets.
+  const highlight =
+    originalAnswer && !richAnswer
+      ? buildEvaluationHighlightProjection(originalAnswer, semantic)
+      : { highlightUnavailable: true, highlights: [] };
   return {
     id: sample.id,
     platformKey: sample.platformKey,
@@ -342,6 +350,7 @@ function mapSample(
     position: sample.interpretation.position,
     cardInterpretation: semantic.cardInterpretation,
     originalAnswer,
+    richAnswer,
     ...highlight,
   };
 }

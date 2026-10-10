@@ -61,7 +61,7 @@ const configuration = loadIntegrationApiConfig();
 const target = new URL(configuration.databaseUrl);
 const permitted =
   (target.hostname === "127.0.0.1" &&
-    target.pathname === "/geoeval_issue175") ||
+    ["/geoeval_issue175", "/geoeval_p4_issue169"].includes(target.pathname)) ||
   (process.env.CI === "true" && target.pathname === "/geoeval");
 
 describe.skipIf(!permitted)("durable delegated Parser product loop", () => {
@@ -515,6 +515,15 @@ describe.skipIf(!permitted)("durable delegated Parser product loop", () => {
         processRepository,
         ai,
         synthesis,
+        { mode: "ai-provider" },
+        {
+          async submitBatch() {
+            throw new Error("Legacy browser disabled in P2 fixture");
+          },
+          async readBatch() {
+            throw new Error("Legacy browser disabled in P2 fixture");
+          },
+        },
       );
       return new ProductWorkProcessor(
         outbox,

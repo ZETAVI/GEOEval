@@ -1,4 +1,7 @@
-import type { ResolvedAiAttemptRequest } from "../../domain/ai-attempt.types.js";
+import type {
+  AcquisitionAttemptInput,
+  ResolvedAiAttemptRequest,
+} from "../../domain/ai-attempt.types.js";
 import type { RealProviderConnection } from "../ai-execution.config.js";
 import type { ProviderHttpTransport } from "./provider-http.transport.js";
 import {
@@ -28,22 +31,29 @@ export class QianfanProviderAdapter implements ProviderRouteAdapter {
       connection: this.connection,
       transport: this.transport,
       path: "/chat/completions",
-      body: {
-        model: route.requestedModel,
-        messages: [
-          { role: "system", content: request.input.systemInstruction },
-          { role: "user", content: request.input.query },
-        ],
-        stream: false,
-        web_search: {
-          enable: true,
-          enable_trace: true,
-          enable_citation: true,
-          search_mode: "auto",
-          search_number: 10,
-          reference_number: 5,
-        },
-      },
+      body: createQianfanAcquisitionBody(route, request.input),
     });
   }
+}
+
+export function createQianfanAcquisitionBody(
+  route: ProviderRouteDefinition,
+  input: AcquisitionAttemptInput,
+) {
+  return {
+    model: route.requestedModel,
+    messages: [
+      { role: "system", content: input.systemInstruction },
+      { role: "user", content: input.query },
+    ],
+    stream: false,
+    web_search: {
+      enable: true,
+      enable_trace: true,
+      enable_citation: true,
+      search_mode: "auto",
+      search_number: 10,
+      reference_number: 5,
+    },
+  };
 }

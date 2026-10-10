@@ -2,6 +2,8 @@ import { Module, type DynamicModule } from "@nestjs/common";
 
 import { BrandModule } from "../brand/brand.module.js";
 import type { StoreLocationRuntimeConfig } from "../brand/infrastructure/store-location.config.js";
+import { PrismaService } from "../infrastructure/prisma.service.js";
+import type { BrowserSamplingConfig } from "./infrastructure/browser-sampling.config.js";
 import { EvaluationOptimizationGuidanceService } from "./application/evaluation-optimization-guidance.service.js";
 import { EvaluationReportService } from "./application/evaluation-report.service.js";
 import { EvaluationService } from "./application/evaluation.service.js";
@@ -15,13 +17,21 @@ import { EvaluationController } from "./presentation/evaluation.controller.js";
 
 @Module({})
 export class GeoIntelligenceModule {
-  static register(storeLocation: StoreLocationRuntimeConfig): DynamicModule {
+  static register(
+    storeLocation: StoreLocationRuntimeConfig,
+    samplingMode: BrowserSamplingConfig["mode"] = "ai-provider",
+  ): DynamicModule {
     return {
       module: GeoIntelligenceModule,
       imports: [BrandModule.register(storeLocation)],
       controllers: [EvaluationController],
       providers: [
-        PostgresEvaluationRepository,
+        {
+          provide: PostgresEvaluationRepository,
+          inject: [PrismaService],
+          useFactory: (prisma: PrismaService) =>
+            new PostgresEvaluationRepository(prisma, samplingMode),
+        },
         PostgresEvaluationQuestionPreparationRepository,
         PostgresEvaluationReportRepository,
         {

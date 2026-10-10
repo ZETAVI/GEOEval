@@ -2,8 +2,12 @@ import type {
   ExecutionCenterEvent,
   ExecutionCenterSnapshot,
   ExecutionCenterStoredRequest,
+  ExecutionCenterTaskSnapshot,
+  ExecutionCenterWebTaskSnapshot,
+  ExecutionCenterWebStoredRequest,
 } from "../domain/execution-center-receipt.repository.js";
 
+export const EXECUTION_CENTER_CLIENT = Symbol("EXECUTION_CENTER_CLIENT");
 export type ExecutionCenterClientConfig = {
   centerRef: string;
   baseUrl: string;
@@ -56,6 +60,30 @@ export class ExecutionCenterClient {
     idempotencyKey: string,
     request: ExecutionCenterStoredRequest,
   ): Promise<ExecutionCenterSnapshot> {
+    if (request.channel !== "api")
+      throw new ExecutionCenterClientError("INVALID_REQUEST");
+    const task = await this.submitTask(idempotencyKey, request);
+    if (task.channel !== "api")
+      throw new ExecutionCenterClientError("INVALID_RESPONSE", undefined, true);
+    return task;
+  }
+
+  async submitWeb(
+    idempotencyKey: string,
+    request: ExecutionCenterWebStoredRequest,
+  ): Promise<ExecutionCenterWebTaskSnapshot> {
+    if (request.channel !== "web")
+      throw new ExecutionCenterClientError("INVALID_REQUEST");
+    const task = await this.submitTask(idempotencyKey, request);
+    if (task.channel !== "web")
+      throw new ExecutionCenterClientError("INVALID_RESPONSE", undefined, true);
+    return task;
+  }
+
+  private async submitTask(
+    idempotencyKey: string,
+    request: ExecutionCenterStoredRequest | ExecutionCenterWebStoredRequest,
+  ): Promise<ExecutionCenterTaskSnapshot> {
     if (!identifier(idempotencyKey) || !validRequestIdentity(request)) {
       throw new ExecutionCenterClientError("INVALID_REQUEST");
     }
@@ -74,9 +102,13 @@ export class ExecutionCenterClient {
       body,
     });
     if (
+      task.channel !== request.channel ||
       task.callerRequestRef !== request.callerRequestRef ||
       task.deadlineAt !== request.deadlineAt ||
-      task.items[0]!.itemId !== request.items[0]!.itemId
+      task.items.length !== request.items.length ||
+      task.items.some(
+        (item, index) => item.itemId !== request.items[index]!.itemId,
+      )
     ) {
       throw new ExecutionCenterClientError("INVALID_RESPONSE", undefined, true);
     }
@@ -84,6 +116,13 @@ export class ExecutionCenterClient {
   }
 
   async read(taskId: string): Promise<ExecutionCenterSnapshot> {
+    const task = await this.readTask(taskId);
+    if (task.channel !== "api")
+      throw new ExecutionCenterClientError("INVALID_RESPONSE");
+    return task;
+  }
+
+  async readTask(taskId: string): Promise<ExecutionCenterTaskSnapshot> {
     if (!identifier(taskId))
       throw new ExecutionCenterClientError("INVALID_REQUEST");
     const task = await this.snapshotRequest(
@@ -91,6 +130,13 @@ export class ExecutionCenterClient {
       { method: "GET" },
     );
     if (task.taskId !== taskId)
+      throw new ExecutionCenterClientError("INVALID_RESPONSE");
+    return task;
+  }
+
+  async readWeb(taskId: string): Promise<ExecutionCenterWebTaskSnapshot> {
+    const task = await this.readTask(taskId);
+    if (task.channel !== "web")
       throw new ExecutionCenterClientError("INVALID_RESPONSE");
     return task;
   }
@@ -245,7 +291,7 @@ export class ExecutionCenterClient {
       headers?: Record<string, string>;
       body?: string;
     },
-  ): Promise<ExecutionCenterSnapshot> {
+  ): Promise<ExecutionCenterTaskSnapshot> {
     const isSubmission = request.method === "POST";
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
@@ -384,26 +430,30 @@ function validateConfig(config: ExecutionCenterClientConfig): URL {
 
 function validRequestIdentity(
   value: unknown,
-): value is ExecutionCenterStoredRequest {
+): value is ExecutionCenterStoredRequest | ExecutionCenterWebStoredRequest {
   return (
     record(value) &&
     value.contractVersion === "execution.v1" &&
-    value.channel === "api" &&
+    ["api", "web"].includes(String(value.channel)) &&
     identifier(value.callerRequestRef) &&
     safeInteger(value.deadlineAt, 1) &&
     Array.isArray(value.items) &&
-    value.items.length === 1 &&
-    record(value.items[0]) &&
-    identifier(value.items[0].itemId)
+    value.items.length >= 1 &&
+    value.items.length <= (value.channel === "api" ? 1 : 4) &&
+    value.items.every(
+      (item: unknown) => record(item) && identifier(item.itemId),
+    ) &&
+    new Set(value.items.map((item: Record<string, unknown>) => item.itemId))
+      .size === value.items.length
   );
 }
-function validSnapshot(value: unknown): value is ExecutionCenterSnapshot {
+function validSnapshot(value: unknown): value is ExecutionCenterTaskSnapshot {
   if (!validRequestIdentity(value) || !identifier(value.taskId)) return false;
-  const item: unknown = value.items[0];
-  return (
-    record(item) &&
-    typeof item.state === "string" &&
-    ITEM_STATES.has(item.state)
+  return value.items.every(
+    (item: unknown) =>
+      record(item) &&
+      typeof item.state === "string" &&
+      ITEM_STATES.has(item.state),
   );
 }
 function parseEvent(id: string, data: string): ExecutionCenterEvent {

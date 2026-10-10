@@ -17,7 +17,7 @@ export interface AiAttemptRepository {
   find?(
     request: Pick<
       ResolvedSampleAiAttemptRequest,
-      "cycleId" | "sampleId" | "purpose" | "attemptNumber"
+      "cycleId" | "sampleId" | "purpose" | "attemptNumber" | "executionChannel"
     >,
   ): Promise<StoredAiAttempt | null>;
   finish(

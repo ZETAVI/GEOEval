@@ -29,7 +29,7 @@ const config = loadIntegrationApiConfig();
 const target = new URL(config.databaseUrl);
 const permitted =
   (target.hostname === "127.0.0.1" &&
-    target.pathname === "/geoeval_issue175") ||
+    ["/geoeval_issue175", "/geoeval_p4_issue169"].includes(target.pathname)) ||
   (process.env.CI === "true" && target.pathname === "/geoeval");
 
 describe.skipIf(!permitted)(

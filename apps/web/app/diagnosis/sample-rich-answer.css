@@ -1,0 +1,35 @@
+.sample-rich-answer {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.sample-rich-answer figure {
+  margin: 1rem 0;
+}
+.sample-rich-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+.sample-rich-image-placeholder {
+  display: inline-block;
+  padding: 0.65rem 0.85rem;
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: 0.5rem;
+}
+.sample-rich-table {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.sample-rich-table table {
+  min-width: 100%;
+}
+.sample-rich-answer pre {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0.75rem;
+  background: #f1f5f9;
+  border-radius: 0.5rem;
+}

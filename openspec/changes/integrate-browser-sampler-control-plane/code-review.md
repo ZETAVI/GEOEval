@@ -1,5 +1,11 @@
 # Code review
 
+## P4 review gate
+
+当前P4实现与定向验收已冻结；新的固定diff审查进行前需记录具体revision。下方ready结论只覆盖旧ac1a55e，不作为P4结论；本轮最终全量与新审查门完成后更新。
+
+## Historical review — ac1a55e
+
 ## Fixed point
 
 - Base: `origin/main@fe16def`
