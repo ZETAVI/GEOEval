@@ -1,85 +1,61 @@
-# GEO网页采样接入：消费侧重构规划
+# GEO 网页优先采样：P4 本地闭环
 
-Owner：[Issue #169](https://github.com/ZETAVI/GEOEval/issues/169) / [PR #170](https://github.com/ZETAVI/GEOEval/pull/170)。
-状态：2026-10-09只读审视与规划修订；实现候选仍是 `ac1a55e`，未合并或部署。本轮仅改规划文件。
+Owner：[Issue #169](https://github.com/ZETAVI/GEOEval/issues/169) / [PR #170](https://github.com/ZETAVI/GEOEval/pull/170)。2026-10-09：用户批准 P4 本地实施，先矫正规划再实现；生产/真实凭据/付费请求保持独立门。
 
-跨项目责任、公共执行契约和P0–P6依赖的入口为 [中台设计](https://github.com/ZETAVI/browser-sampler-control-plane/blob/codex/issue-4-execution-center/openspec/changes/unify-execution-center/design.md) 及同目录tasks；此处只维护GEO消费侧影响。具体schema是下一片待固定内容，不是现行spec。
+## 1. 基线与职责
 
-## 1. 当前代码与可复用事实
+P2 [PR #176](https://github.com/ZETAVI/GEOEval/pull/176) 已经用户授权正常合入 main，接受 revision 636bd71；新 transport 默认关闭，没有部署。P4复用现有#169工作树同步main，不复制P2、改变PR170 base或创建并行集成分支。中台契约固定execution.v1，当前P3 producer为135bb96；[唯一交接](https://github.com/ZETAVI/browser-sampler-control-plane/pull/6#issuecomment-6080549943)。真实服务器状态尚未在本轮核查。
 
-GEO main `a963ceb`：
+GEO拥有：四题×五平台的不可变样本、模型/Prompt/原生API参数、响应规范化、正式答案、80/130策略、Parser/Resolver/Composer、17/20 readiness与报告。中台拥有真实调用、授权endpoint/Token、技术状态、资源容量和网页身份。技术完成不等于有效样本。
 
-- GEO Intelligence拥有四题×五平台样本、唯一正式答案、解释、17/20有效样本readiness和报告。
-- `postgres-evaluation-process.repository.ts` 的acceptEvidence通过PENDING CAS接受一次，在同一事务写证据与解释Outbox。
-- Query/Acquisition/Parser/Resolver/Composer的API仍在GEO provider adapters中真实send；原生参数构造与响应规范化都有现有owner。
-- 三个执行服务长期await adapter；产品Worker并发5，不能以增加一个远端await替代异步化。
-- 客户重试保留已接受证据，只恢复失败/未完成阶段，可继续复用。
+## 2. Architecture card：最小接缝
 
-PR170候选：
+- 保留现有Postgres/事务Outbox/BullMQ；不另建工作流框架或业务数据库。
+- 平台网页批次仍为一次四item任务；每题独立接受、通知和解析，不拆成四次浏览器启动，不等siblings/reset。
+- API运输复用P2 prepare/consume/receipt；扩展一个Acquisition用途，不一次迁移Query/Resolver/Composer。
+- 一个center/caller只有一个SSE inbox/cursor owner，按已登记requestRef与channel分发。P2单API receipt不硬套四题网页批次。
+- 比较：复制第二套Web监听/receipt会竞争cursor并重复事实；万能任务表会把业务采样与技术运输混合。选择稳定通知事务复用，API receipt与现有platform batch分别拥有对应映射。
+- Web终态snapshot先可读，通知入口同事务保存Inbox snapshot、cursor和技术resume Outbox；Web业务处理再沿GEO公开repository应用item。技术入口不直接查询GEO私有batch表。API沿既有P2链路恢复。
+- 共享schema/签名由lead批准并交给唯一写owner；并行包按持久化、原生执行/事件、富卡片、总编排和验收分离。
 
-- 已有platform batch、稳定幂等键、externalTaskId、延期读取、部分成功、正式Attempt和平台键映射。
-- 仍只在整批终态获取结果，投影主要answer，遗漏content/readingText/images/native sources；不支持立即API兜底。
-- 以submittedAt等起算等待会重置预算；网页固定attempt1与新增API1可能撞唯一键。
-- 候选中的验证证明字段不能无条件填true；captured-late只在本周期截止前接受，不再无限承认晚到。
+## 3. 固定身份与持久时间窗
 
-上述是代码审视，不是当前生产测试或新重构通过证据。旧verification的测试只覆盖对应revision。
+AiExecutionAttempt增加executionChannel=API|WEB（默认API），与DIRECT|EXECUTION_CENTER运输方式分开。唯一身份为cycle/sample/purpose/channel/attemptNumber；WEB1与API1可并存，不能把API首发当attempt2。旧浏览器Attempt按真实BROWSER_EVALUATION_ACQUISITION provenance回填WEB，其余API；历史模型、证据和报告不重写。API/Parser旧Outbox key保留，WEB acquisition key带channel。
 
-## 2. 保持和调整的职责
+Cycle新增可空samplingStartedAt、samplingFallbackDueAt、samplingDeadlineAt、samplingClosedAt。启用P4时使用正式cycle.createdAt固定起点，80秒兜底、130秒截止包含排队；initialize/submit/重启不得重置。旧周期/default-off保持兼容。130秒只结束PENDING acquisition，不将整个cycle提前EXHAUSTED；已接受的Parser及合成沿原独立预算继续。
 
-GEO继续拥有：
+网页沿EvaluationSamplingBatch新增center/requestRef/fingerprint/原请求；新增batch-item保存sampleId、itemId（固定sample UUID）、WEB attemptId、单题终态snapshot和处理状态。请求/映射在POST前持久；ACK丢失恢复同key/request。新模式item rows为映射owner，旧sampleIds只兼容旧批次。
 
-- 不变的题目、业务Route/模型/Prompt版本和Provider原生搜索/思考/JSON参数；
-- 原响应规范化、模型身份与结构/语义校验、业务Attempt与显式有界重试；
-- 网页优先、80秒未完成API竞速、130秒采样封口及唯一正式结果；
-- Parser/Resolver/Composer、统计、报告和客户安全呈现。
+## 4. 逐题正式接受、兜底与恢复
 
-中台负责实际web/API调用、地址/Token/容量、浏览器身份与资源、技术状态、原生API响应及网页富输出、逐项完成通知。GEO不import浏览器代码、不管理Profile/node，不让中台替GEO判定“有效样本”。
+正式接受事务重新校验当前ACTIVE cycle、exact attempt/channel与SUCCEEDED、sample=PENDING及本地受控时钟/绝对截止；写唯一evidence与唯一Parser Outbox。不能只相信异步前读到的context或远端capturedAt。exhaustion同样使用条件转换/行锁，不能覆盖已接受者。
 
-## 3. 改动面与最小接缝
+80秒到达先看最新正式状态，只为未接受题创建API首发工作；明确无容量/授权失败/发送失败可提前兜底。API失败不关闭仍生成中的网页。网页/API竞速采用截止前第一份通过GEO校验并原子接受的完整答案；败方只留技术事实，不替换答案或重复解析。UNKNOWN不换key自动重发。
 
-以下路径位于 `apps/backend/`。
+fallback/deadline以持久Outbox和对账恢复，不只用内存timer；旧等待前缀不得饿死新通知/截止。截止的未发送题使用真实本地reserved Attempt/NOT_SENT事实，不伪造Provider调用。结果返回与页面停止证明分离，正式失败不解除未知Profile writer。
 
-| owner | 局部改动 | 不改变 |
-| --- | --- | --- |
-| `src/ai-execution/infrastructure/providers/` | prepare native request / consume raw response与实际transport分开；授权endpoint引用 | 现有厂商model/来源/usage解释及输出合约 |
-| `src/ai-execution/application/ai-*-execution.service.ts` | 持久远端请求、短submit、完成resume | 业务Attempt、purpose模型与原重试策略 |
-| `src/geo-intelligence/domain/browser-sampling.gateway.ts`、HTTP adapter | 接受任务仍RUNNING时的逐item结果/事件；稳定itemId | 四题平台batch组织、平台键兼容 |
-| `src/geo-intelligence/application/evaluation-process.coordinator.ts` | 逐题接受、API fallback、绝对预算 | 既有解析与报告语义 |
-| Prisma、`postgres-evaluation-process.repository.ts` | channel尝试身份、cycle/deadline CAS、remote receipt、inbox/cursor | 一个sample/唯一evidence及历史数据 |
-| `src/background-work/` | 提交短工作的Outbox完成；完成事件新增resume；恢复扫描 | 现有BullMQ/Postgres Outbox，不新建工作流引擎 |
-| evidence / reading view / 前端卡片 | content、readingText、图片、内部来源的兼容投影 | 原回答不经LLM改写；卡片不显示引用映射或信源列表 |
+## 5. 富内容与用途
 
-## 4. 业务生命周期与必须守住的围栏
+保留原answerContent/MARKDOWN；新增可空content（Sampler实际version2 blocks/sources/sourceCapture）、readingText和images。信源从content.sources取，没有伪造nativeSources顶层字段；CAPTURED/PARTIAL/NOT_OBSERVED与正文完成分开。
 
-cycle建立事务固定samplingStartedAt、fallbackDueAt、deadlineAt；定义/客户重试、入队、远端提交、备用尝试不得重置已建立周期的预算。130秒只约束acquisition，已接受答案的解析和报告使用独立预算。
+输入对可选富JSON作确定性有界校验，失败仅降级展示，不丢已完成原回答。Parser用确定性readingText；报告沿既有卡片输出安全richAnswer={version:2,blocks,images}，不输出sources/sourceCapture/内部诊断。React不注入HTML；表格、图片信息、正文链接保留；引用badge和来源区从呈现投影隐藏。图片只返回metadata/URL，不下载或永久保存，历史URL失效可占位。旧Markdown继续使用原渲染。
 
-每次物理通道有稳定尝试身份。首选在现有Attempt唯一键纳入channel，或等价独立身份；历史Provider记录可映射API，既有网页候选记录须按其真实provenance迁移，不能全部假定API。最小schema在实施前fixture中固定，不用API=attempt2吞掉原有重试机会。
+富blocks不盲套旧Markdown绝对高亮偏移；暂时明确不可精确高亮，原Markdown既有行为不变。模型语义校验的文本锚点必须与实际Parser readingText一致，不让LLM润色后覆盖原回答。
 
-- 收到结果：按itemId与exact attempt对应，GEO做技术完成/Provider和业务验证。
-- 正式接受事务：复查当前cycle、PENDING、attempt和deadline；写一次evidence并追加一次解释Outbox。
-- 80秒：先接收已有结果、检查最新逐题状态，再仅向无正式答案者提交API；明确web失败/无容量可提前兜底。
-- 单一路失败不关闭另一条仍可用路径；已知API失败按GEO现有政策处理，不在中台暗中重试。
-- 130秒：只终结没有正式回答者；晚到/落败/旧cycle不覆盖既有答案、不重开周期。
-- 提交响应丢失：恢复同key原任务；已发送但结果未知不改key或自动切transport再付费。
+## 6. 分包与可观察验收
 
-中台通知先于结果可读的协议不接受。GEO提交前写callerRequestRef；中台结果+event先提交，然后SSE推送。GEO可靠记录inbox/cursor并追加resume Outbox，重复、乱序、完成早于externalTaskId落库均需幂等处理。
+1. 固定共享身份/迁移/事件路由/DTO；更新Issue后实现。
+2. 一平台四题的首题→富证据→Parser异步→报告投影；刻意挂住其他题/reset，证明独立。
+3. Acquisition原生API委托与80/130，双成功仅一份证据/解析Outbox。
+4. 同一fixture覆盖表格/图片/信源→持久化→Parser输入→报告API→卡片，旧Markdown兼容。
+5. 断线/早完成/丢ACK/重复通知/事务崩溃/旧cycle/时间截止及迁移恢复；专用PG和Redis，真实localhost中台，无收费Provider。
 
-中台受理身份可靠落库后，“提交”Outbox立即完成；业务Attempt保持STARTED。DEFERRED只用于短暂恢复，不让100个长期DISPATCHED提交事件占满relay最旧100条，挡住resume或deadline工作。等待外部结果既不持有产品Worker槽，也不依赖内存Promise。
+本轮增加真实案例输入的本地多轮Query准备→确认四题→20项采样→逐题解析→归并/报告闭环；外部平台/模型输出以明确标记fixture或历史捕获回放验证，不冒充新真实调用。后续授权联调使用真实完整案例，从Query到报告多轮，分别记录全链耗时与130秒采样段，不给真实模型加测试提示词/答案约束。
 
-## 5. 内容与可观测性
+## 7. 非目标、迁移与退出
 
-API raw body、HTTP状态和安全headers由中台原样返回；GEO继续解释并保留正式Provider证据。web的answer/content/readingText/images/native sources/finality分开保留；source PARTIAL/NOT_OBSERVED不是正文一定失败。临时图片由调用者决定保存，未保存不保证历史显示。
+默认关闭新模式；保持旧DIRECT/P2行为和历史可读。生产入口与旧管理身份账本统一、云actor配套升级、真实Token/付费5×4、多节点、其余purpose及Langfuse exporter另设门，不将本地CLI伪装production启动。
 
-Parser使用GEO选定的阅读视图，正文不让LLM整理覆盖；前端富卡片安全渲染表格/图片、隐藏引用映射和信源区；来源仍作为内部输入。旧Markdown记录保持可读。
+回滚仅停新周期web-first；在途沿原task/transport/绝对期限恢复，保留账本/证据/Profile。本地迁移只在专用数据库演练。P2已经接受的稳定设计按项目规则归并/归档，不把已完成Change当新backlog；P4接受行为最终归evaluation-evidence/可执行owner，Product Definition Evolution marker保持原触发。
 
-实际Provider Generation/usage在中台唯一计量；GEO记录remote span和规范化/采用裁决，不重复记费用。trace carrier跨HTTP/队列/重启，metadata-only，exporter失败非阻塞。观测不能替代完成事件、状态数据库或130秒判定。
-
-## 6. 任务归属、依赖与发布门
-
-#169本次必要接入：web逐题/富内容/卡片、Acquisition的中台API transport、80/130竞速、正式样本与迁移/恢复。其验收不等待所有生成/解析/归并/报告迁移。
-
-全部API purpose委托具有独立可启用/回滚边界；实施前建立链接的后续GEO Change/Issue，持有公共异步API接缝及其余purpose。中台P2一个Parser fixture可先验证接缝，P3网页actor并行；P4复用接缝完成Acquisition。此划分是规划，不在本轮创建实施branch或改代码。
-
-新attempt固定transport；回滚仅切新任务，在途仍沿原task恢复。灰度窗口保留旧API路径所需凭据，或先证明无需旧凭据回滚；窗口退出后才退役旧Token。增量表不删除历史答案。生产部署、密钥迁移、真实调用和第二节点均另行明确授权。
-
-本Change完成前将accepted消费行为归并 `evaluation-evidence`；Product Definition的既有Evolution marker继续保留，由能力激活时处理。共享执行契约在中台归并，不在GEO复制一套。当前main和runtime不因计划修改而改变。
+本轮退出目标：#169本地闭环verified，PR170仍Partial、worktree retain；main合并、真实联调、生产启用分别报告。不得因本地通过关闭含真实激活门的整个Issue。

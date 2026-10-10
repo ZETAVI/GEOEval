@@ -1,45 +1,42 @@
-# #169 消费侧任务与验收
+# #169 P4 实施与验收
 
-## 已有候选事实
+P2已接受main636bd71，P3 producer135bb96及execution.v1已本地验证；本片只接GEO消费侧。旧PR170验证保持历史范围，不充当P4通过证据。详细决策归[design](design.md)。
 
-`ac1a55e` 已有配置、gateway、持久platform batch、稳定key、externalTaskId、延期读取和部分成功证据链；旧本地测试详见verification。本节不是新目标完成清单。PR170仍未合并/部署。
+## 共享前置（lead单writer批准，固定后并行）
 
-## 规划完成（2026-10-09）
+- [x] 用户批准P4本地实施、逐题互不阻塞及后续真实完整案例多轮联调。
+- [x] 用户授权正常合并P2 PR176；main已接受，未部署/默认关闭。
+- [ ] 同步现有#169基线，兼容合并与受影响类型/Provider/browser检查。
+- [ ] 更新当前Issue/设计/spec，固定channel/批次item/统一cursor/富DTO与绝对窗口；划定Agent文件owner。
 
-- [x] 核对main、候选、模块owner、Attempt/Outbox/正式证据链及新目标缺口。
-- [x] 与中台单writer设计对齐；记录逐题事件、80/130、channel/cycle及API保真边界。
-- [x] 将全部API purpose委托划为实施前建立的独立后续Change；#169验收不等该后续全部完成。
+## 实现
 
-## 最小实施顺序
+- [ ] 增量channel与WEB旧记录回填，API1/WEB1身份及Outbox键分离。
+- [ ] cycle.createdAt锚定80/130窗口；持久fallback/deadline与重启对账；只关闭PENDING采样。
+- [ ] Web batch/item原请求先持久，统一SSE通知事务与独立技术resume；丢ACK/早通知可关联。
+- [ ] Acquisition复用P2 native prepare/consume与一次中台API；原模型/参数/业务重试不改。
+- [ ] 逐题正式接受事务验证cycle/attempt/期限，evidence与Parser Outbox原子；败方不重复接受。
+- [ ] content/readingText/images/内部sources保留；确定性Parser阅读视图、富report DTO与既有卡片安全呈现；旧Markdown兼容。
+- [ ] default-off、配置有效性、模块注入和旧DIRECT/P2兼容；最小关联/阶段信息，不提前做完整Langfuse面板。
 
-- [ ] 固定生产者contract revision，形成相同fixture的消费者契约，不复制公共schema真相。
-- [ ] 增量保存remote request ref/channel、结果receipt和inbox/cursor；历史Attempt正确backfill。
-- [ ] 中台受理落库后完成短submit Outbox；事件同事务追加resume，Worker不长期await。
-- [ ] 接入Acquisition一次raw API submit/consume，保留Provider参数与原显式重试；未确认发送不重发。
-- [ ] 网页任务RUNNING期间逐item接受；actual验证字段、content/readingText/images/native sources不丢。
-- [ ] 绝对cycle锚点、80秒剩余item兜底、130秒采样封口、attempt/channel及cycle CAS围栏。
-- [ ] 富内容卡片消费：安全表格/图片保留，引用映射/信源不显示；内部来源仍提供。
-- [ ] GEO remote span/业务disposition连接trace，usage只由中台实际调用owner计量，metadata-only。
+## 本地端到端与故障验收
 
-共享API接缝与中台web即时事件分别在生产者P2/P3推进，#169在P4整合；下列门是#169自身验收，不等后续Query/全部Parser/Resolver/Composer运输完成。
+- [ ] 一题证据/解析已可读，另外三题及reset仍等待；问题原样不增加上下文。
+- [ ] 79秒已接受3/4，80秒只补1/4；明确失败提前兜底；API失败不关闭web。
+- [ ] WEB1/API1并发成功只一份evidence/Parser Outbox；UNKNOWN不换身份重发。
+- [ ] 130秒只关闭未采集题，已接受Parser/报告可继续；排队、重启不延长窗口。
+- [ ] 重复/乱序/断SSE/早完成/丢ACK、Inbox或接受事务崩溃、旧cycle、截止与成功竞态恢复。
+- [ ] >100远端等待仍能交付新resume/deadline；取消与技术资源停止不混淆。
+- [ ] 富fixture的段落/列表/表格/图片/信源通过持久层、Parser、报告API到卡片；公开卡片无引用映射/来源区。
+- [ ] 真实案例输入的本地多轮Query→四题→5×4→解析/归并→报告；输出来源明确fixture/历史回放，不冒充真实API。
+- [ ] 专用PG/Redis迁移/恢复，旧历史Markdown/Attempt可读，默认路径回归；按实际影响选择typecheck/build/框架/固定diff审查。
+- [ ] 当前owner文档归并、PR证据、skips/限制及worktree retain；不部署、不发付费请求、不关闭整张#169。
 
-## 最小判别验收
+## 后续真实联调门（本轮不执行）
 
-- [ ] 第一题完成时兄弟题和cleanup仍进行，首题立即落证据并启动Parser。
-- [ ] 同key响应丢失恢复同任务；事件早于taskId落库、重复/乱序、inbox提交后崩溃不重复解析。
-- [ ] >100个远端等待任务时，新完成resume和deadline仍及时派发，不受relay窗口饥饿。
-- [ ] 原生参数/body、来源/usage、网页rich result与DOM fixture一致；200/空正文不能假成功。
-- [ ] 79秒3/4已接受，80秒仅补1/4；web/API同时成功只有一份正式证据及一份解析Outbox。
-- [ ] API先失败不终结web；130秒仅关闭未采集者，已接受者Parser可继续。
-- [ ] 旧cycle和晚到结果不能进入新cycle；提交/恢复不重置绝对期限。
-- [ ] 代表性历史数据/部分在途迁移、数据库恢复、Langfuse不可用和原transport在途回滚。
-- [ ] 获准后真实5×4与故障测试：题目原样、逐项返回、总采样≤130秒或明确剩余项错误。
-- [ ] 公共fixture/typecheck/影响测试与已有回归按实际变动执行；未跑/失败单独披露。
+- [ ] 确认中台历史依赖集成、新旧管理入口唯一身份owner和云worker/actor配套协议。
+- [ ] 具名环境/Token/成本/真实账号权限授权后，多轮完整真实Query→报告案例。
+- [ ] 单节点真实5×4、DOM/信源/原题/逐题返回、正常约85秒目标与故障130秒封口，分别度量采样段/解析段/整报告。
+- [ ] 独立节点账号故障转移、Langfuse、剩余purpose和最终生产启用保持后续范围。
 
-## 发布与退出
-
-- [ ] 具名环境revision、密钥配置/付费测试/部署授权与回滚凭据窗口分别确认。
-- [ ] accepted行为归并evaluation-evidence；保留Product Definition marker直到其触发，PR按真实接受边界处理。
-- [ ] 记录main合并、生产部署与workspace退出为不同事实；不删除未合并worktree。
-
-本轮退出：retain现有#169 worktree；只保存规划，代码与main/生产不改。下一步为公共fixture/短提交事件纵切；不先迁移Token或全面重写服务。
+状态：开始P4本地实现，尚未新功能验收。沿用#169工作树和PR170；集成P2不改PR base。

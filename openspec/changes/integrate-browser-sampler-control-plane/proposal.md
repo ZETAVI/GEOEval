@@ -1,6 +1,6 @@
 # Change: 接入独立网页采样执行中台
 
-- 状态：Active，2026-10-09规划修订；未按新目标实现、合并或部署。
+- 状态：Active，2026-10-09用户批准P4本地实施；P2已接受main636bd71，P4尚未实现/部署。
 - Class：Architectural integration。
 - Owner：[Issue #169](https://github.com/ZETAVI/GEOEval/issues/169)；候选 [PR #170](https://github.com/ZETAVI/GEOEval/pull/170)。
 
@@ -25,10 +25,10 @@ GEO保留业务题目、Prompt/模型/原生API参数、规范化、正式证据
 
 不改四题×五平台、17/20门槛、模型/Prompt/语义规则；不在GEO实现浏览器或存Cookie/Profile、控制节点、绕过验证；不永久保存图片；不自动重放不确定外部提交。
 
-本轮不部署、不迁密钥、不创建云资源、不发付费请求。当前API路径仍是生产现状和受控回滚路径，不以计划冒充已迁移。
+本轮不部署、不迁密钥、不创建云资源、不发付费请求。加入真实案例输入的本地多轮Query→报告回放；后续真实完整案例外部调用另过账号/成本/具名环境门。130秒只约束采样段，不限制Query准备、Parser或整份报告。
 
 ## 控制状态
 
-沿用 `codex/issue-169-sampling-gateway` worktree和既有PR；保留旧候选代码及历史验证，计划更新不表示新目标通过。独立后续工作只有在owner/公共接口固定后创建write branch。
+沿用 `codex/issue-169-sampling-gateway` worktree和既有PR，同步已接受P2；保留旧候选历史验证，不改PR base。固定共享接口后Agent按不重叠文件并行，lead统一集成与验收；不为每个Agent建分支。
 
 当前规范owner仍为evaluation-evidence；Product Definition Evolution marker保留到相应能力激活。旧内部hunyuan键/新腾讯元宝标签与网页yuanbao映射保持历史兼容，不重写报告。

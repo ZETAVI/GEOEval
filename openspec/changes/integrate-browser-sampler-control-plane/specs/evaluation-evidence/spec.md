@@ -1,4 +1,4 @@
-## ADDED Requirements（规划修订；未实现）
+## ADDED Requirements（已批准P4本地实施；尚未验收）
 
 ### Requirement: Independent execution preserves GEO ownership
 
@@ -50,6 +50,17 @@ GEO SHALL retain complete answer, content/readingText, available images, interna
 ### Requirement: Short work and immediate notification consumption
 
 After the remote accepted identity is durably stored, the submit Outbox SHALL finish while the business Attempt remains pending. Completion inbox/cursor and resume Outbox SHALL be committed together. Long remote waits SHALL not occupy product Worker slots or indefinitely block new work behind an oldest-record relay window.
+
+#### Scenario: Mixed webpage and API completion
+
+- WHEN one authorized caller receives events from API and four-item web tasks
+- THEN one durable notification owner SHALL advance its cursor only with a stored result/recoverable resume
+- AND API receipt and web batch-item identities SHALL remain distinct
+- AND every item SHALL independently advance to evidence and interpretation without waiting for another item.
+
+### Requirement: Complete-case verification separates local evidence and real calls
+
+P4 local tests SHALL run realistic case inputs through Query preparation, confirmed questions, twenty sample positions, interpretation and report output using clearly identified fixtures/replays. Later real multi-round verification SHALL use complete case inputs and actual authorized platform/Provider calls without test instructions injected into questions. Neither SHALL redefine the 130-second sampling budget as an entire-report budget.
 
 ## MODIFIED Requirements
 
