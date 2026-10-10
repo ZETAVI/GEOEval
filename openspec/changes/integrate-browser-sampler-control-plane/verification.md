@@ -4,6 +4,12 @@
 
 接受基线main636bd71，P3 localhost依赖为clean135bb96；不把旧ac1a55e验收当作P4证据。四題使用用户的花悦庭真实问题输入，但所有平台/模型回包均明确标记本地fixture，不调用外站或收费Provider。默认关闭；生产、账户、真实SLA尚未验证。
 
+### 2026-10-10 production composition 接缝补证
+
+用户批准中台生产迭代，GEO仍只在#169分支测试、不合并/部署。本轮复用未变1154/29/268证据，不重跑未变全量。新增`p4-production-center-client.spec.ts`四项直接加载实际producer `startExecutionHost`，同schema1库/唯一store、production env、0600配置、真实HTTP/SSE/Unix；四页未结束时原生429 API独立返回，正文/参数/usage/错误保真，首题富字段/原题即时可读，跨caller拒绝，幂等和旧历史/维护互斥通过。新4项加既有Client8/Coordinator15共27/27，Backend类型和格式/diff通过。
+
+实际host导入面匹配中台df1e757；其后9b86289只修server启动监听先于身份库，未改变本测试导入面。server单主启动由producer红绿及原独立review closure验证，不以本测试冒充。Provider仅精准mock指定HTTPS fixture地址，GEO loopback运输真实；不证明TLS、真实Token/平台或SLA。没有actual producer checkout的CI显式跳过此四项，不静默替换为协议fixture。临时服务/SQLite均销毁，无共享PG/Redis或收费调用。
+
 | Claim | Discriminating evidence | Result / boundary |
 | --- | --- | --- |
 | 逐题独立：首题已正式接受并Parsed，siblings/cleanup仍未完成 | p4-end-to-end.integration，实际P3 SQLite+HTTP+Unix actor | 五平台各首题先完成，另外15题及复位被闸门阻塞；不绕过正式Outbox/Processor |

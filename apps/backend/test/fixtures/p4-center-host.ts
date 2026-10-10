@@ -5,7 +5,7 @@ import {
   type ServerResponse,
 } from "node:http";
 import { once } from "node:events";
-import { mkdtemp, rm } from "node:fs/promises";
+import { chmod, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -25,7 +25,8 @@ const gate = () => {
 };
 export type P4CenterHost = {
   baseUrl: string;
-  implementation: "protocol-fixture" | "real-sqlite-unix-center";
+  implementation:
+    "protocol-fixture" | "real-sqlite-unix-center" | "production-host";
   holdSiblings: boolean;
   holdCleanup: boolean;
   blockedPlatforms: Set<string>;
@@ -39,7 +40,26 @@ export type P4CenterHost = {
   }>;
   releaseSiblings(): void;
   releaseCleanup(): void;
+  production?: {
+    identityOwnerShared: boolean;
+    schemaVersion(): number;
+    legacyAccount(): Record<string, unknown>;
+    legacyTask(): { id: string; result: { answer: string } };
+    replayLegacyTask(): { id: string };
+    executionCount(): number;
+    activeWriter(): boolean;
+    beginMaintenance(): unknown;
+  };
   close(): Promise<void>;
+};
+type P4CenterHostOptions = {
+  composition?: "production-host";
+  nativeResponse?: {
+    status: number;
+    rawBody: string;
+    headers?: Record<string, string>;
+  };
+  webFailureItemIndex?: number;
 };
 
 /** Clearly marked local responses; no actual platform, Cloud account, or paid API is used. */
@@ -101,11 +121,16 @@ export function p4FixtureRichAnswer(platform: string) {
 
 export async function startP4CenterHost(
   respond: (body: Record<string, unknown>) => Promise<Record<string, unknown>>,
+  options: P4CenterHostOptions = {},
 ): Promise<P4CenterHost> {
+  const root = process.env.EXECUTION_CENTER_FIXTURE_ROOT;
+  if (options.composition === "production-host" && !root)
+    throw new Error("ACTUAL_PRODUCTION_HOST_ROOT_REQUIRED");
   const servers: Server[] = [];
   const siblingGate = gate();
   const cleanupGate = gate();
   let stop = async () => {};
+  let stopFirst = false;
   const directory = await mkdtemp(join(tmpdir(), "geoeval-p4-center-"));
   const host: P4CenterHost = {
     baseUrl: "",
@@ -127,11 +152,12 @@ export async function startP4CenterHost(
     async close() {
       host.releaseSiblings();
       host.releaseCleanup();
+      if (stopFirst) await stop();
       for (const server of servers.reverse()) {
         server.closeAllConnections();
         await new Promise<void>((resolve) => server.close(() => resolve()));
       }
-      await stop();
+      if (!stopFirst) await stop();
       await rm(directory, { recursive: true, force: true });
     },
   };
@@ -142,14 +168,19 @@ export async function startP4CenterHost(
         body,
         authorization: request.headers.authorization,
       });
-      send(response, 200, await respond(body));
+      if (options.nativeResponse) {
+        response.writeHead(options.nativeResponse.status, {
+          "content-type": "application/json",
+          ...options.nativeResponse.headers,
+        });
+        response.end(options.nativeResponse.rawBody);
+      } else send(response, 200, await respond(body));
     } catch {
       send(response, 500, { error: { code: "LOCAL_FIXTURE_PROVIDER_FAILED" } });
     }
   });
   servers.push(provider);
   const providerUrl = await listen(provider);
-  const root = process.env.EXECUTION_CENTER_FIXTURE_ROOT;
   let backend: Server;
   if (root) {
     host.implementation = "real-sqlite-unix-center";
@@ -211,16 +242,19 @@ export async function startP4CenterHost(
         });
         if (host.blockedPlatforms.has(request.platform))
           await siblingGate.promise;
-        context.emit("itemResult", request.items[0]!.itemId, {
-          ok: true,
-          result: p4FixtureRichAnswer(request.platform),
-        });
+        const capture = (item: { itemId: string }, index: number) =>
+          context.emit(
+            "itemResult",
+            item.itemId,
+            index === options.webFailureItemIndex
+              ? { ok: false, failureCode: "DOM_DRIFT" }
+              : { ok: true, result: p4FixtureRichAnswer(request.platform) },
+          );
+        capture(request.items[0]!, 0);
         if (host.holdSiblings) await siblingGate.promise;
-        for (const item of request.items.slice(1))
-          context.emit("itemResult", item.itemId, {
-            ok: true,
-            result: p4FixtureRichAnswer(request.platform),
-          });
+        request.items
+          .slice(1)
+          .forEach((item, index) => capture(item, index + 1));
         if (host.holdCleanup) await cleanupGate.promise;
         for (const item of request.items)
           context.emit("resourceReleased", item.itemId, {
@@ -232,11 +266,9 @@ export async function startP4CenterHost(
       },
       { exclusiveKey: (request: { platform: string }) => request.platform },
     );
-    const repository = new ledger.SQLiteExecutionRepository(
-      join(directory, "execution.sqlite"),
-    );
+    const databasePath = join(directory, "execution.sqlite");
     const identityRepository = new persistence.SQLiteStateRepository(
-      join(directory, "execution.sqlite"),
+      databasePath,
     );
     let identityClosed = false;
     const owner = new store.ControlPlaneStore({
@@ -255,17 +287,137 @@ export async function startP4CenterHost(
         accountId: "p4-" + platform,
         loginStatus: "READY",
         preferredNodeId: "p4-fixture-node",
+        ...(options.composition === "production-host"
+          ? { label: "旧 schema1 账号", snapshotVersion: "legacy-preserved" }
+          : {}),
       });
+    const bindings = platforms.map((platform) => ({
+      callerId: "geo-fixture",
+      platform,
+      accountAlias: "primary",
+      accountId: "p4-" + platform,
+      nodeId: "p4-fixture-node",
+      socketPath,
+    }));
+    if (options.composition === "production-host") {
+      host.implementation = "production-host";
+      const legacyRequest = {
+        platform: "qwen",
+        accountId: "p4-qwen",
+        prompt: "已有历史任务",
+        executionMode: "simulated",
+      };
+      const previous = owner.submitTask(legacyRequest, "legacy-key");
+      const lease = owner.poll("p4-fixture-node");
+      owner.finishTask(lease.id, "p4-fixture-node", lease.fencingToken, {
+        answer: "历史回答保留",
+        assistantRole: true,
+        writerStopped: true,
+      });
+      await chmod(databasePath, 0o600);
+      const configPath = join(directory, "execution.json");
+      await writeFile(
+        configPath,
+        JSON.stringify({
+          clients: { "geo-fixture": "FIXTURE_CALLER", other: "FIXTURE_OTHER" },
+          endpoints: {
+            fixture: {
+              version: "1",
+              allowedCallers: ["geo-fixture"],
+              auth: {
+                header: "authorization",
+                scheme: "Bearer",
+                secretRef: "provider",
+              },
+              operations: {
+                chat: {
+                  url: "https://provider.fixture.invalid/chat",
+                  method: "POST",
+                },
+              },
+            },
+          },
+          secrets: { provider: "FIXTURE_PROVIDER" },
+          maxConcurrency: 1,
+          web: { maxConcurrency: 20, bindings },
+        }),
+        { mode: 0o600 },
+      );
+      const productionModule = await load("execution-host.js");
+      let runtime:
+        | {
+            server: Server;
+            service: { webExecutor: { identityOwner: unknown } };
+            repository: {
+              database: { prepare(query: string): { get(): { n: number } } };
+            };
+            stop(): Promise<void>;
+          }
+        | undefined;
+      stopFirst = true;
+      stop = async () => {
+        await runtime?.stop();
+        await actor.close();
+        identityClosed = true;
+        identityRepository.close();
+      };
+      const originalFetch = globalThis.fetch;
+      try {
+        // NativeApiTransport captures this exact mock at construction. Restore
+        // global fetch immediately; GEO still uses real loopback HTTP/SSE.
+        globalThis.fetch = (url, init) =>
+          String(url) === "https://provider.fixture.invalid/chat"
+            ? originalFetch(providerUrl + "/chat", init)
+            : originalFetch(url, init);
+        runtime = await productionModule.startExecutionHost({
+          store: owner,
+          env: {
+            NODE_ENV: "production",
+            EXECUTION_ENABLED: "true",
+            EXECUTION_CONFIG_PATH: configPath,
+            STATE_DB_PATH: databasePath,
+            PORT: "0",
+            EXECUTION_PORT: "0",
+            FIXTURE_CALLER: "synthetic-caller-key",
+            FIXTURE_OTHER: "synthetic-other-key",
+            FIXTURE_PROVIDER: "synthetic-provider-key",
+          },
+        });
+        if (!runtime) throw new Error("ACTUAL_PRODUCTION_HOST_NOT_STARTED");
+      } catch (error) {
+        await host.close();
+        throw error;
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+      const address = runtime.server.address();
+      if (!address || typeof address === "string")
+        throw new Error("ACTUAL_PRODUCTION_HOST_NOT_LISTENING");
+      host.baseUrl = "http://127.0.0.1:" + address.port;
+      host.production = {
+        identityOwnerShared:
+          runtime.service.webExecutor.identityOwner === owner,
+        schemaVersion: () => identityRepository.diagnostics().schemaVersion,
+        legacyAccount: () => owner.accounts.get("qwen:p4-qwen"),
+        legacyTask: () => owner.getTask(previous.task.id),
+        replayLegacyTask: () =>
+          owner.submitTask(legacyRequest, "legacy-key").task,
+        executionCount: () =>
+          Number(
+            runtime!.repository.database
+              .prepare("SELECT COUNT(*) AS n FROM execution_tasks")
+              .get().n,
+          ),
+        activeWriter: () =>
+          owner.accounts.get("qwen:p4-qwen").activeLease !== null,
+        beginMaintenance: () => owner.createLoginSession("qwen", "p4-qwen"),
+      };
+      return host;
+    }
+    const repository = new ledger.SQLiteExecutionRepository(databasePath);
     const webExecutor = new bridge.SharedBrowserWebExecutor({
       identityOwner: owner,
-      bindings: platforms.map((platform) => ({
-        callerId: "geo-fixture",
-        platform,
-        accountAlias: "primary",
-        accountId: "p4-" + platform,
-        nodeId: "p4-fixture-node",
-        socketPath,
-      })),
+      bindings,
     });
     const apiTransport = new native.NativeApiTransport({
       endpoints: {
